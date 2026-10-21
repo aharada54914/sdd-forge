@@ -1,0 +1,26 @@
+{
+  "original_inputs": [
+    {
+      "path": "/workspace/t011-rollout/outputs/096235a20c17/run-latest.json",
+      "sha256": "966acb787ba344e2d99218173473fd076f4cb95cb044e2a64c44fed0364c5036",
+      "bytes": 101690
+    },
+    {
+      "path": "/workspace/t011-rollout/outputs/096235a20c17/final-artifact-metadata.json",
+      "sha256": "f0d8fb86aeb3657df29afb05d2ee00497a5918abe85cb39bb776a9369c3e2072",
+      "bytes": 11849
+    },
+    {
+      "path": "/workspace/t011-rollout/outputs/096235a20c17/required-checks-final.log",
+      "sha256": "947ded613f262fa1bd0f85aa5dd22f3cfba02d5db2e6f819b449efb9e82b2983",
+      "bytes": 38419
+    },
+    {
+      "path": "/workspace/t011-rollout/outputs/096235a20c17/installer-windows-connector.log",
+      "sha256": "28cc6a59d515483d81e197c52f6ab0aac3434599fa7a5345e9ba49ebac07afff",
+      "bytes": 23581
+    }
+  ],
+  "retained_external": true,
+  "ZIPs_redistributed": false
+}

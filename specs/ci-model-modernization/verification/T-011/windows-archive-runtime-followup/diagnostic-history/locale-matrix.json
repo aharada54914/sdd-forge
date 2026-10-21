@@ -1,0 +1,167 @@
+{
+  "cases": [
+    {
+      "kind": "git",
+      "mode": "default",
+      "child_locale": null,
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "git",
+      "mode": "utf8",
+      "child_locale": null,
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "git",
+      "mode": "dot-utf8",
+      "child_locale": ".UTF8",
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "git",
+      "mode": "dot-utf8-option",
+      "child_locale": ".UTF8",
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "git",
+      "mode": "posix-utf8",
+      "child_locale": "en_US.UTF-8",
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "git",
+      "mode": "posix-utf8-option",
+      "child_locale": "en_US.UTF-8",
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "git",
+      "mode": "console-utf8",
+      "child_locale": null,
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "git",
+      "mode": "console-utf8-option",
+      "child_locale": null,
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "pax",
+      "mode": "default",
+      "child_locale": null,
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "pax",
+      "mode": "utf8",
+      "child_locale": null,
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "pax",
+      "mode": "dot-utf8",
+      "child_locale": ".UTF8",
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "pax",
+      "mode": "dot-utf8-option",
+      "child_locale": ".UTF8",
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "pax",
+      "mode": "posix-utf8",
+      "child_locale": "en_US.UTF-8",
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "pax",
+      "mode": "posix-utf8-option",
+      "child_locale": "en_US.UTF-8",
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "pax",
+      "mode": "console-utf8",
+      "child_locale": null,
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "pax",
+      "mode": "console-utf8-option",
+      "child_locale": null,
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    }
+  ],
+  "case_count": 16,
+  "scope": "All4 tar/headercases or16locale cases failed exactUnicode; script exit0 is collection only",
+  "source_sha256": "4f9f6e1adac2f23589ecdb2175b5fbb68a422ca0c06ffa0e874f28035423fd58"
+}

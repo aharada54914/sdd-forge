@@ -1,0 +1,217 @@
+{
+  "schema": "windows-archive-runtime-public-curation/v1",
+  "files": {
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/README.md": {
+      "sha256": "2df144011a77ebeaf11a66206dddbc879cfe3c7b52ba087237e7611597aa2643",
+      "bytes": 3463
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/B096-windows-failure-excerpt.log": {
+      "sha256": "6a69ec53d3ea1f5f6045666f2f260c7de9502281c1e9843cbe488ffe6c30bfbe",
+      "bytes": 450
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/checkout-corrected-status.json": {
+      "sha256": "e37e8f2e5be77ac2efb7a4d45183946c88272c1c07cd68c6a8d5756cb8fa36f6",
+      "bytes": 651
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/directory-metadata-red-status.json": {
+      "sha256": "ab53f8437acb60a4474b9f67a0780f4b946cf7eb7d0d17dba180f3441e30a7ce",
+      "bytes": 1149
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/earlier-focused-green-status.json": {
+      "sha256": "c9bf0472f814ca787b3274af4a5942412e11dc34b15a55b7b3d53898debbc878",
+      "bytes": 1147
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/final-native-integration-status.json": {
+      "sha256": "d525ddd15299b2e1940c90ecdddd6eab2fcdc955b754572d17ec5c0263c94aaf",
+      "bytes": 1167
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/focused-green-pins.json": {
+      "sha256": "cc437734883ef7cac1e963d03ec7705a072f6d3558be888a940b176f946f52ce",
+      "bytes": 293
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/focused-old-runtime-red-status.json": {
+      "sha256": "8df7d76e92eddd4f789b041c49d4ae59b8dea99a2f597f5b3a10087936f86ed4",
+      "bytes": 1129
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/focused-red-pins.json": {
+      "sha256": "8fa467cb7d64e6d49a4ff1b4388457fd0a1febb407f6a42579d872e26e794fae",
+      "bytes": 356
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/initial-candidate-failure-status.json": {
+      "sha256": "5b17436cc756d05fcba0f70b7497f9c4a862f2413145ced51876a7d5b80433a9",
+      "bytes": 1167
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/initial-checkout-failure-excerpt.log": {
+      "sha256": "e41df52dce71ab77135e349643256cbd6d84b3094de732b93945c61b3173aeeb",
+      "bytes": 412
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/initial-checkout-status.json": {
+      "sha256": "b045b932d04d53bab97d7c3c13a922ff441352bd7490e586143b2b2f58eba592",
+      "bytes": 577
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/locale-diagnostic-status.json": {
+      "sha256": "7f228baa563c1b9dbb7f01996fcae177f65ccfc210fbe3b7ad859c16ba9d2237",
+      "bytes": 855
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/locale-matrix.json": {
+      "sha256": "d725e3d3cbe2bacf658a5f72414dc7b7c79125089f092a396f3b8c467f634adc",
+      "bytes": 5056
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/long-integration-pins.json": {
+      "sha256": "7f78e9eeee67bdb976c5c0458bb86f003680bbdd9cf51e76fcf640db983e4bb0",
+      "bytes": 746
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/longpath-green-matrix.json": {
+      "sha256": "cf5ed201126879e190c811b526a59fc50bedd4b0919aa4cf1e59210d2fc04b1f",
+      "bytes": 6673
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/longpath-matrix.json": {
+      "sha256": "567727344eba2ebe71961b661588a66c18a5861551d3b223e020ae9a946ab3e7",
+      "bytes": 6673
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/metadata-green-pins.json": {
+      "sha256": "cd38f2550d7fc06314b234a1505de5d7f86dbda736ac56e50ba8c75eb79829fe",
+      "bytes": 906
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/metadata-red-pins.json": {
+      "sha256": "dc3df46fcb60dee1c68a52d4894d9f7252a0ef325b4c9087808604acf1e60ac6",
+      "bytes": 729
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/native-matrix.json": {
+      "sha256": "c96250daeab6fe94e41d343275e5c2a02b72a786cbfbcd2c5e32e3c61d226c64",
+      "bytes": 1289
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/evidence-receipt.json": {
+      "sha256": "cde696092eac334e01283c36c46c6849e5040d665127ce9c56a3f27957bba1f2",
+      "bytes": 28381
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/failed-B096-final-status.json": {
+      "sha256": "dfb557c63b092c5f8b3a8d45aab939f7bf4adcf01a04e063e92cff6bbc5e6acc",
+      "bytes": 2840
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/failed-B096-original-input-pins.json": {
+      "sha256": "ec3c98c91c92274f37872389f8e640cad8a41643139afa8ece7337edec4aa7b5",
+      "bytes": 914
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/final-source-and-test-chronology.json": {
+      "sha256": "849ec13fb138d36964ff358e0a75bb7a123679ad3551ab65675a3180e9108e63",
+      "bytes": 1482
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/clone-cleanup.json": {
+      "sha256": "1b7d1c43743965aeb23127a30027c25b05438e840e16b4f6ddc0feb73730ee17",
+      "bytes": 213
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/extraction-unit-green.log": {
+      "sha256": "fd37bbc71dcbb0e509d8fbd9d8d7c0b6daf5874bc885fa2c628d51d7a31180af",
+      "bytes": 190
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/final-bash.log": {
+      "sha256": "2a26a5661071131a7dd19258008b81a13efa57791d3e8796ea98517ac5d585a3",
+      "bytes": 488
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/final-local-results.json": {
+      "sha256": "46f995e23b55df093aa30fb5fb6edfa782ada6032f397b7ec758fa8f9d5ff283",
+      "bytes": 2821
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/final-posix-powershell.log": {
+      "sha256": "7b364608f82f3ca558a83ea2bf277fe35482f0c4599a19c83baa657539b3f4b3",
+      "bytes": 488
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/final-refresh-results.json": {
+      "sha256": "3191a4e317e4cb7962f6e823f30d1a403af7d283fc99a48a95d9ca1f62f14eef",
+      "bytes": 1545
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/long-fixture-bash.log": {
+      "sha256": "57ca4466f0a359b233e86d15f5db095a8658242c84af0b8cb27bb2c1e566fa26",
+      "bytes": 488
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/long-fixture-dispatch.log": {
+      "sha256": "fd37bbc71dcbb0e509d8fbd9d8d7c0b6daf5874bc885fa2c628d51d7a31180af",
+      "bytes": 190
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/long-fixture-posix-powershell.log": {
+      "sha256": "c14708716ce9a395a8f1d7aba130da7ef9374802908279e5aeb2ef3e1b329e15",
+      "bytes": 488
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/restored-current-dispatch.log": {
+      "sha256": "fd37bbc71dcbb0e509d8fbd9d8d7c0b6daf5874bc885fa2c628d51d7a31180af",
+      "bytes": 190
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/restored-current-posix.log": {
+      "sha256": "74e5c7f61f0626349a07daf96de8f8f17df48d916a7059b3728470217d5ad127",
+      "bytes": 488
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/rollback-old-baseline-posix.log": {
+      "sha256": "83dd370cb64474a28d8c827c661a19e56f52d2a8c8c30bbbd0655c3ed1422f17",
+      "bytes": 488
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/rollback-old-dispatch-negative.log": {
+      "sha256": "946f8e28a7a9242753038310caabf79c95edfd639ca0a4263e77ff7dd535d4a4",
+      "bytes": 420
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/rollback-pins.json": {
+      "sha256": "3612f29eee53f49f151280f482492c55c40a82c56cb87621ad93d79a293b2f2d",
+      "bytes": 507
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/focused-green-attempt1-test-excerpt.log": {
+      "sha256": "ef9fd3dc499a548f2627d1aa88604a294632fca073ca693a68e172fdfdde06ce",
+      "bytes": 7160
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/focused-red-test-excerpt.log": {
+      "sha256": "4c50eef446106e2ac101b086057de63bb74f456ac3d120390d98c6687c7266e1",
+      "bytes": 5960
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/long-integration-ps51-test-excerpt.log": {
+      "sha256": "8bbe8887029cc65a675ea49c804b3f6776926c8925ef3ccef6eefb71e02d3fb2",
+      "bytes": 84
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/long-integration-ps7-test-excerpt.log": {
+      "sha256": "2fcd6b1751aceaae1a47a2bdef6d010f4c3b3ba0ac7db2ca0f4a0787033ebe0d",
+      "bytes": 84
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/metadata-green-ps51-test-excerpt.log": {
+      "sha256": "549a815107f17530444bfe0ab31a215ad45beb24a7563f9deec55db85d2e49bf",
+      "bytes": 84
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/metadata-green-ps7-test-excerpt.log": {
+      "sha256": "3e25f77884da231840c719f3ab98b27b0c0670ff71a9a9feeda3365398f52700",
+      "bytes": 84
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/metadata-red-ps51-test-excerpt.log": {
+      "sha256": "bc4bdf4d8f8598f2ab4677f2fe52d0deee53fcb9c88cda1211cdc03c170dd133",
+      "bytes": 1084
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/metadata-red-ps7-test-excerpt.log": {
+      "sha256": "81a933d58b946e3a18ba5df840d6cfacf9aed1bbd49800dd217bd7d17646d29c",
+      "bytes": 1083
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/root-workflow-gate.json": {
+      "sha256": "b08ad8f978566a68cd8b7febc956f23f88c8c4d93d92e4822e263e9bb508fefe",
+      "bytes": 420
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/root-workflow-gate.log": {
+      "sha256": "8ea982255942f7f86535d011fadc3a596e0cccc598e72cf636045cf18226c9f7",
+      "bytes": 1243
+    },
+    "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/runtime-source.patch": {
+      "sha256": "9b21937c53539b1d34fac47634cd511e2d6dc5b9a93f765bf9b1db8cb4741c92",
+      "bytes": 3839
+    }
+  },
+  "ordinary_source_candidate_pins": [
+    {
+      "path": "install.ps1",
+      "before_commit": "f7bac7421c26496a742c94fbb925671a4f867296",
+      "before_sha256": "5dbbfce66a6614ae4e68d20d57a2d14bbee42592d68741e1307ed5e41de2f05f",
+      "after_candidate_sha256": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1",
+      "privacy_scope": "Exactbytes"
+    },
+    {
+      "path": "reports/verification/ci-model-modernization-continuation-20261019.json",
+      "before_commit": "f7bac7421c26496a742c94fbb925671a4f867296",
+      "before_sha256": "e738f8ff9aa39f59881e906bbbccd2a935a907b5f67f96f6ea3cf4deb4226fd0",
+      "after_candidate_sha256": "a8c95d6339aebcbb74e05f2c57fc62d19026a94e53e08bc93cf356552e53ed53",
+      "privacy_scope": "Diff only; unchanged historicalpublishedsessionmetadata Rootadjudicated"
+    }
+  ]
+}

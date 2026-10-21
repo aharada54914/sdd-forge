@@ -1,0 +1,69 @@
+diff --git a/install.ps1 b/install.ps1
+index 22f8b3ad..cc3bec3b 100644
+--- a/install.ps1
++++ b/install.ps1
+@@ -21,0 +22,6 @@ Set-StrictMode -Version Latest
++# Windows' native tar cannot represent all Git UTF-8/PAX names in its locale.
++# Keep POSIX tar so Unix executable modes retain their existing semantics.
++$useZipArchive = [System.IO.Path]::DirectorySeparatorChar -eq '\'
++$archivePathComparer = if ($useZipArchive) { [StringComparer]::OrdinalIgnoreCase } else { [StringComparer]::Ordinal }
++$archiveSymlinkPaths = [System.Collections.Generic.HashSet[string]]::new($archivePathComparer)
++
+@@ -319,0 +326 @@ function Test-PlainItem {
++        if ($archiveSymlinkPaths.Contains([System.IO.Path]::GetFullPath($Path).TrimEnd([char[]]@('\', '/')))) { return $false }
+@@ -581 +588,2 @@ function Download-AuthenticatedArchive {
+-    $downloadUrl = "https://api.github.com/repos/$RepositoryName/tarball/$RefName"
++    $archiveKind = if ($useZipArchive) { "zipball" } else { "tarball" }
++    $downloadUrl = "https://api.github.com/repos/$RepositoryName/$archiveKind/$RefName"
+@@ -585,0 +594,27 @@ function Download-AuthenticatedArchive {
++function Expand-DownloadedZipArchive {
++    param([Parameter(Mandatory)][string]$ArchivePath, [Parameter(Mandatory)][string]$DestinationPath)
++
++    try {
++        Add-Type -AssemblyName System.IO.Compression.FileSystem
++        $archive = [System.IO.Compression.ZipFile]::OpenRead($ArchivePath)
++        try {
++            foreach ($entry in $archive.Entries) {
++                # Git ZIP names are slash-separated. Reject Windows aliases/ADS.
++                if ($entry.FullName.Contains('\') -or $entry.FullName.Contains(':')) {
++                    throw "Downloaded archive contains an invalid path: $($entry.FullName)"
++                }
++                # .NET extracts Unix links as inert files; retain their type for
++                # the existing admitted-payload and MCP symlink checks.
++                if ((($entry.ExternalAttributes -shr 16) -band 0xF000) -eq 0xA000) {
++                    $path = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($DestinationPath, $entry.FullName))
++                    [void]$archiveSymlinkPaths.Add($path.TrimEnd([char[]]@('\', '/')))
++                }
++            }
++        } finally { $archive.Dispose() }
++        # Native extraction rejects paths outside DestinationPath and collisions.
++        [System.IO.Compression.ZipFile]::ExtractToDirectory($ArchivePath, $DestinationPath)
++    } catch {
++        throw "Downloaded archive extraction failed: $($_.Exception.Message)"
++    }
++}
++
+@@ -775 +810,2 @@ try {
+-        $archivePath = Join-Path $temporaryRoot "source.tar.gz"
++        $archiveName = if ($useZipArchive) { "source.zip" } else { "source.tar.gz" }
++        $archivePath = Join-Path $temporaryRoot $archiveName
+@@ -777,3 +813,8 @@ try {
+-        & tar -xzf $archivePath -C $temporaryRoot
+-        if ($LASTEXITCODE -ne 0) {
+-            throw "Downloaded archive extraction failed with exit code $LASTEXITCODE."
++        if ($useZipArchive) {
++            Expand-DownloadedZipArchive -ArchivePath $archivePath -DestinationPath $temporaryRoot
++        }
++        else {
++            & tar -xzf $archivePath -C $temporaryRoot
++            if ($LASTEXITCODE -ne 0) {
++                throw "Downloaded archive extraction failed with exit code $LASTEXITCODE."
++            }
+@@ -787,0 +829,3 @@ try {
++        if (-not (Test-PlainItem $sourceRoot)) {
++            throw "Refusing downloaded source root with symlink/reparse metadata."
++        }
+@@ -957 +1001,2 @@ try {
+-        if (($attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
++        if (($attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0 -or
++            $archiveSymlinkPaths.Contains([System.IO.Path]::GetFullPath($sourcePath))) {

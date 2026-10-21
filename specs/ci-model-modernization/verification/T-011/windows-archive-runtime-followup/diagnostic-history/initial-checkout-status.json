@@ -1,0 +1,15 @@
+{
+  "label": "Checkout longpath failure before diagnostic script",
+  "observations": [
+    {
+      "conclusion": "failure",
+      "status": "completed",
+      "event": "push",
+      "workflowName": "T011 native archive diagnostic",
+      "run_id": 39623979681,
+      "head_sha": "07c60b04a2c8ea945259134060e9d8b65c733346"
+    }
+  ],
+  "original_source_sha256": "6cd8db6e87d98a05c5e48bb992f71d78f60096b2ca6879611e4c9d773ea709e5",
+  "scope": "Public run/job status only; actor/URLs/headers/rawpayloads excluded. Diagnostic execution status is separate from testcase outcomes."
+}

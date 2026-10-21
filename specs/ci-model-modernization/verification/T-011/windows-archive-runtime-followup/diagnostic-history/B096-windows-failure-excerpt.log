@@ -1,0 +1,4 @@
+2026-10-21T15:04:24.1774520Z FAIL: test_tracked_special_names_survive_local_and_archive (__main__.PayloadChecks.test_tracked_special_names_survive_local_and_archive) (source='archive', path='plugins/sdd-bootstrap/\u65e5\u672c\u8a9e.txt')
+2026-10-21T15:04:24.1779619Z AssertionError: False is not true : plugins/sdd-bootstrap/\u65e5\u672c\u8a9e.txt
+2026-10-21T15:04:24.1780724Z Ran 9 tests in 142.984s
+2026-10-21T15:04:24.1781053Z FAILED (failures=1)

@@ -1,0 +1,14 @@
+{
+  "run_id": 39628337407,
+  "head": "f6af0768796145aa02a8e0598a0c6c8d8a9d4362",
+  "test_source_commit": "cedb066f",
+  "status": "native verification pending; not rollout acceptance",
+  "sha256": {
+    "install.ps1": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1",
+    "tests/lib/install-payload-check.py": "b7637b7ab6f32701da9cffed8996c6d393d7e2c79845c6b3a415dd2412e8342d",
+    "tests/install.tests.ps1": "804fd7074ebe1cc1bb703c09e87afeb233bc40a2c2d88b2f18bf1f8a4df127b4",
+    ".github/workflows/t011-native-archive-diagnostic.yml": "b44958f9e5c6356d37e3810e0715adf0f594ea756ebafe200b0add64f8f162f4",
+    ".github/scripts/native-zip-longpath-probe.py": "c6cdfed4db732adbf5c09ae091b164c01cb0bc1d67f7716a94883299466332c2"
+  },
+  "probe_limitation": "Exploratory extended-prefix literal was overescaped; its failure is a probe-construction error. Normal extraction mode is unaffected."
+}

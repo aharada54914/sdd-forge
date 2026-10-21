@@ -1,0 +1,34 @@
+{
+  "label": "Final f7 fixture +f036runtime: five tests pass each PS7/PS5.1 incl340char ignoredspecs",
+  "observations": [
+    {
+      "conclusion": "success",
+      "status": "completed",
+      "run_id": 39629021736,
+      "head_sha": "d22911f749f93c279e8802d149cd63f173f64c2e",
+      "jobs": [
+        {
+          "databaseId": 119321815925,
+          "name": "Focused installer (powershell.exe)",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-10-21T15:48:36Z",
+          "completedAt": "2026-10-21T15:51:12Z"
+        },
+        {
+          "databaseId": 119321816515,
+          "name": "Focused installer (pwsh)",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-10-21T15:48:36Z",
+          "completedAt": "2026-10-21T15:51:03Z"
+        }
+      ],
+      "job_conclusion_counts": {
+        "success": 2
+      }
+    }
+  ],
+  "original_source_sha256": "033ce8ca2f093919129ad38a067c9d47aa53131c18d2c2c30de35c7acea0019a",
+  "scope": "Public run/job status only; actor/URLs/headers/rawpayloads excluded. Diagnostic execution status is separate from testcase outcomes."
+}

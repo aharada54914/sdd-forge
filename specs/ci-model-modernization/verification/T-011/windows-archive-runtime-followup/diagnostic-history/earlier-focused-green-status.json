@@ -1,0 +1,34 @@
+{
+  "label": "Five native tests pass before final additional longpathintegration",
+  "observations": [
+    {
+      "conclusion": "success",
+      "status": "completed",
+      "run_id": 39628337407,
+      "head_sha": "f6af0768796145aa02a8e0598a0c6c8d8a9d4362",
+      "jobs": [
+        {
+          "databaseId": 119319495397,
+          "name": "Focused installer (powershell.exe)",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-10-21T15:43:58Z",
+          "completedAt": "2026-10-21T15:46:00Z"
+        },
+        {
+          "databaseId": 119319495836,
+          "name": "Focused installer (pwsh)",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-10-21T15:43:57Z",
+          "completedAt": "2026-10-21T15:45:23Z"
+        }
+      ],
+      "job_conclusion_counts": {
+        "success": 2
+      }
+    }
+  ],
+  "original_source_sha256": "25552b19e14b2f30344c4189e03f76d7f1916c41fce5a3657702ebfd2e22ff7c",
+  "scope": "Public run/job status only; actor/URLs/headers/rawpayloads excluded. Diagnostic execution status is separate from testcase outcomes."
+}

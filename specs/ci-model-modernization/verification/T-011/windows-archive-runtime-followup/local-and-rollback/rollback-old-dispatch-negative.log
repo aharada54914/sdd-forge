@@ -1,0 +1,7 @@
+ok: archive extraction ZIP=False exit 0 handled
+ok: archive extraction ZIP=False exit 2 handled
+Exception: /workspace/native-ci-failures/windows-archive-runtime/zip/extraction-unit.ps1:53
+Line |
+  53 |  …             throw "Archive mode selected the wrong extractor: ZIP=$us …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Archive mode selected the wrong extractor: ZIP=True

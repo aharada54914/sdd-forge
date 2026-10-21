@@ -1,0 +1,8 @@
+{
+  "baseline_commit": "cedb066f",
+  "baseline_sha256": "5dbbfce66a6614ae4e68d20d57a2d14bbee42592d68741e1307ed5e41de2f05f",
+  "candidate_sha256": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1",
+  "restored_sha256": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1",
+  "exact_restoration": true,
+  "scope": "Disposable clone install.ps1 restore/execution/reapply. Root untouched; Linux PowerShell proves POSIX preservation and mocked ZIP dispatch, not native Windows."
+}

@@ -1,0 +1,103 @@
+{
+  "run_id": 39621213976,
+  "head_sha": "096235a20c17ef4908244af1b8cca07a0ceab370",
+  "status": "completed",
+  "conclusion": "failure",
+  "job_count": 46,
+  "job_conclusion_counts": {
+    "success": 42,
+    "skipped": 1,
+    "failure": 3
+  },
+  "failed_jobs": [
+    {
+      "databaseId": 119294987197,
+      "name": "complete POSIX regression inventory",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-10-21T14:58:17Z",
+      "completedAt": "2026-10-21T15:25:16Z"
+    },
+    {
+      "databaseId": 119294987202,
+      "name": "installers (windows-latest / core)",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-10-21T15:01:37Z",
+      "completedAt": "2026-10-21T15:04:29Z"
+    },
+    {
+      "databaseId": 119315984779,
+      "name": "required-checks",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-10-21T15:37:37Z",
+      "completedAt": "2026-10-21T15:38:05Z"
+    }
+  ],
+  "required_context_steps": [
+    {
+      "name": "Set up job",
+      "number": 1,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Checkout exact tested revision",
+      "number": 2,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Install structural YAML parser",
+      "number": 3,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Download original same-run CI plan",
+      "number": 4,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Collect actual same-run execution observations",
+      "number": 5,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Check all required tests passed",
+      "number": 6,
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Post Checkout exact tested revision",
+      "number": 12,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Complete job",
+      "number": 13,
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "source_sha256": "966acb787ba344e2d99218173473fd076f4cb95cb044e2a64c44fed0364c5036",
+  "limits": [
+    "B096 remains failed and superseded; no passing baseline inferred",
+    "Collector step success and aggregation step failure do not reveal exact aggregate obligation counts or typed reason without original artifactJSON"
+  ],
+  "run_identity_sources": [
+    {
+      "path": "/workspace/t011-rollout/outputs/096235a20c17/dispatched-runs.json",
+      "sha256": "06db54b17405d1b703b227dd9460c8c9f093889cbd71fbf4e5df57e378799cd5"
+    },
+    {
+      "path": "/workspace/t011-rollout/outputs/096235a20c17/source-pins.json",
+      "sha256": "c18e27f0c56842ec0bcf911d00d4a5ee6416736a74d159b95a5b5681696baca6"
+    }
+  ]
+}

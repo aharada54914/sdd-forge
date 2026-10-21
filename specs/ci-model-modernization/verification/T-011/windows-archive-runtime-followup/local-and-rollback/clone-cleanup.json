@@ -1,0 +1,6 @@
+{
+  "removed_owned_disposable_clone": "/workspace/native-ci-failures/windows-archive-runtime/zip/source",
+  "final_candidate_and_evidence_preserved": true,
+  "process_references": [],
+  "bytes_freed": 260333568
+}

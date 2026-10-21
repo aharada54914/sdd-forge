@@ -1,0 +1,13 @@
+{
+  "run_id": 39629021736,
+  "head": "d22911f749f93c279e8802d149cd63f173f64c2e",
+  "test_source_commit": "f7bac742",
+  "status": "native integration pending; not rollout acceptance",
+  "sha256": {
+    "install.ps1": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1",
+    "tests/lib/install-payload-check.py": "c12915ccf070c641b663b7f54efcc495000689cf0fce2e27e73ff6e21ca032af",
+    "tests/install.tests.ps1": "804fd7074ebe1cc1bb703c09e87afeb233bc40a2c2d88b2f18bf1f8a4df127b4",
+    ".github/workflows/t011-native-archive-diagnostic.yml": "b44958f9e5c6356d37e3810e0715adf0f594ea756ebafe200b0add64f8f162f4",
+    ".github/scripts/native-zip-longpath-probe.py": "c6cdfed4db732adbf5c09ae091b164c01cb0bc1d67f7716a94883299466332c2"
+  }
+}

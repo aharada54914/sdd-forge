@@ -2057,6 +2057,89 @@
       "Long Unicode PAX extraction with Windows native tar remains a preexisting unverified limitation; special-name regression now uses actual Git archive producer",
       "Live cloud #911 remains blocked without owner-authorized sandbox; no cloud writes"
     ],
-    "private_inputs": "Identity ledger and raw model/account/session data excluded from commits"
+    "private_inputs": "Identity ledger and raw model/account/session data excluded from commits",
+    "checkpoint_scope": "Historical first correction checkpoint. Superseded by hosted_archive_followup_20261021; Windows Unicode extraction subsequently failed on the actual Git archive."
+  },
+  "hosted_archive_followup_20261021": {
+    "recorded_at": "2026-10-21T15:52:59.502538+00:00",
+    "failed_baseline": {
+      "commit": "096235a20c17ef4908244af1b8cca07a0ceab370",
+      "run_id": 39621213976,
+      "conclusion": "failure",
+      "job_conclusions": {
+        "success": 42,
+        "skipped": 1,
+        "failure": 3
+      },
+      "causes": [
+        "Windows native tar loses short UTF-8 names and rejects long PAX names",
+        "Domain reverse seed test still requires superseded direct slash-command spelling"
+      ],
+      "collector_step": "success",
+      "aggregate_step": "failure",
+      "acceptance": false
+    },
+    "domain_test_correction": {
+      "commit": "658450c8f17b5fa29d87b5fc76b7a1636a3ae6a6",
+      "source": "tests/sdd-domain/reverse-seed.Tests.ps1",
+      "production_skill_changed": false,
+      "final_tests_passed": 20,
+      "rollback": "Original assertion fails; exact corrected test restored and passes against unchanged skill bytes",
+      "evidence": "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup"
+    },
+    "windows_archive_correction": {
+      "source": "install.ps1",
+      "sha256": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1",
+      "scope": "Windows authenticated zipball and standard .NET ZIP extraction; preserve Unix symlink metadata for admitted payload/MCP/root checks. POSIX tar and executable modes retained.",
+      "status": "PASS: bounded native correction and long-path installer integration; replacement full baseline still required",
+      "diagnostic_failures_preserved": true,
+      "normal_dotnet_long_path": "Actual Windows PowerShell 7.6.6 and 5.1.26100.33438 extract exact bytes at 398 characters; no workaround used",
+      "unused_probe_caveat": "Overescaped extended-prefix diagnostic input was invalid; its failure is not evidence of a platform limitation",
+      "initial_native_green": {
+        "run_id": 39628337407,
+        "tests_passed_each_runtime": 5,
+        "runtimes": [
+          "PowerShell 7.6.6",
+          "Windows PowerShell 5.1.26100.33438"
+        ],
+        "scope": "Exact f036 product and cedb tests; before the additional long ignored-path integration fixture"
+      },
+      "final_native_green": {
+        "run_id": 39629021736,
+        "diagnostic_commit": "d22911f749f93c279e8802d149cd63f173f64c2e",
+        "tests_passed_each_runtime": 5,
+        "powershell_7_seconds": 78.073,
+        "powershell_5_1_seconds": 81.928,
+        "scope": "Actual Windows installer extraction, enumeration, exclusion and cleanup with 340-character ignored relative path; exact f036 runtime and f7bac742 test helper. Diagnostic branch remains unmerged."
+      },
+      "local_regression": {
+        "bash_focused_tests": 3,
+        "posix_powershell_focused_tests": 3,
+        "archive_dispatch_controls": 4,
+        "result": "PASS",
+        "rollback": "Original runtime reproduces ZIP dispatch rejection; exact f036 restoration passes. Applicable POSIX cases pass before and after; no invented baseline failure."
+      }
+    },
+    "next": "Commit and push final correction plus evidence as replacement B, run full B alone; accepted B permits mutation M, restore R and activation A. No activation based on failed B096 or focused diagnostics.",
+    "remaining": [
+      "Actual full/selected README, MCP, cloud and shared comparisons",
+      "Final F complete POSIX and PowerShell profiles plus full hosted CI",
+      "New immutable annotated v1.20.0 tag and final installed payload audit",
+      "Combined-scope independent T011 QA and checked completion bundle"
+    ],
+    "limits": [
+      "No CI category activation, measured omission, final F or v1.20.0 publication claimed",
+      "Real cloud validation remains blocked by absent authorized sandbox; issue #911 current status was not verified",
+      "Private identity ledger and raw authentication/account data remain excluded"
+    ],
+    "test_and_fixture_commits": [
+      "de42745086cf861da90b6a43a60b8a90957c07f1",
+      "17626943b2b031e883be8fba026afd3578b1fc63",
+      "002b4797736f409f8d095b5fabea64aa287959ea",
+      "6d8a1daa8f8ff42ebff8766becd614aaa7b3b517",
+      "cedb066f09f509a46d37c5cbd7466640d77bf772",
+      "f7bac7421c26496a742c94fbb925671a4f867296"
+    ],
+    "chronology": "Initial transport and directory-link regressions preceded their product corrections. Later fixture repairs and long-path integration coverage are additional validation, not retrospective test-first evidence."
   }
 }

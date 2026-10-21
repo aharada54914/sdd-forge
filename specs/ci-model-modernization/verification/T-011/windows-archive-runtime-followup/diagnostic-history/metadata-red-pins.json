@@ -1,0 +1,13 @@
+{
+  "run_id": 39627562383,
+  "head": "2debed2a1a5b48d142fd7d7ad145f8cacf4476b1",
+  "test_source_commit": "002b4797",
+  "status": "diagnostic Red; not rollout proof",
+  "sha256": {
+    "install.ps1": "c377f956d6d2caaa5e946972cb4cd1f2b97b563da5da6b08c6e16dd899648738",
+    "tests/lib/install-payload-check.py": "b7d55aa454fcd1a2a28d5638ea0d3b11033530df929cc518653989dccad89e92",
+    "tests/install.tests.ps1": "3de7a2369d1f040aa5790efae384183c104f950007c70ac0dc05165fce869024",
+    ".github/workflows/t011-native-archive-diagnostic.yml": "b44958f9e5c6356d37e3810e0715adf0f594ea756ebafe200b0add64f8f162f4",
+    ".github/scripts/native-zip-longpath-probe.py": "c6cdfed4db732adbf5c09ae091b164c01cb0bc1d67f7716a94883299466332c2"
+  }
+}

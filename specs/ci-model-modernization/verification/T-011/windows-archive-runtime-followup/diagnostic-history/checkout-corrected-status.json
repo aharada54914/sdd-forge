@@ -1,0 +1,19 @@
+{
+  "label": "Setup corrected; matrix cases still fail",
+  "observations": [
+    {
+      "conclusion": "success",
+      "status": "completed",
+      "run_id": 39624277150,
+      "head_sha": "018695f22e71dafa38ffea0846b1579f26f56bc9"
+    },
+    {
+      "conclusion": "failure",
+      "status": "completed",
+      "run_id": 39623979681,
+      "head_sha": "07c60b04a2c8ea945259134060e9d8b65c733346"
+    }
+  ],
+  "original_source_sha256": "558c9efbc85238ae5a03345e2d61ed5bc04b9855cbbd9c678c46986ce38e1ea4",
+  "scope": "Public run/job status only; actor/URLs/headers/rawpayloads excluded. Diagnostic execution status is separate from testcase outcomes."
+}

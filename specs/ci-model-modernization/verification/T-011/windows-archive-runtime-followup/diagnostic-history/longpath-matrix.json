@@ -1,0 +1,108 @@
+{
+  "rows": [
+    {
+      "mode": "normal",
+      "exit": 0,
+      "runtime": "ps7",
+      "result": {
+        "mode": "normal",
+        "ps": "7.6.6",
+        "success": true,
+        "checks": [
+          {
+            "length": 398,
+            "exact": true
+          },
+          {
+            "length": 197,
+            "exact": true
+          }
+        ]
+      }
+    },
+    {
+      "mode": "extended",
+      "exit": 0,
+      "runtime": "ps7",
+      "result": {
+        "mode": "extended",
+        "ps": "7.6.6",
+        "success": false,
+        "exception": "System.Management.Automation.MethodInvocationException: Exception calling \"ExtractToDirectory\" with \"2\" argument(s): \"The filename, directory name, or volume label syntax is incorrect. : '\\\\?\\C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sdd-zip-long-0b7_h1y1\\extended\\top/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/file.txt'.\"\r\n ---> System.IO.IOException: The filename, directory name, or volume label syntax is incorrect. : '\\\\?\\C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\sdd-zip-long-0b7_h1y1\\extended\\top/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/historical-evidence/file.txt'.\r\n   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)\r\n   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)\r\n   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)\r\n   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)\r\n   at System.IO.FileStream..ctor(String path, FileStreamOptions options)\r\n   at System.IO.Compression.ZipFileExtensions.ExtractToFile(ZipArchiveEntry source, String destinationFileName, Boolean overwrite)\r\n   at System.IO.Compression.ZipFileExtensions.ExtractToDirectory(ZipArchive source, String destinationDirectoryName, Boolean overwriteFiles)\r\n   at System.IO.Compression.ZipFile.ExtractToDirectory(String sourceArchiveFileName, String destinationDirectoryName, Encoding entryNameEncoding, Boolean overwriteFiles)\r\n   at CallSite.Target(Closure, CallSite, Type, Object, Object)\r\n   --- End of inner exception stack trace ---\r\n   at System.Management.Automation.ExceptionHandlingOps.CheckActionPreference(FunctionContext funcContext, Exception exception)\r\n   at System.Management.Automation.Interpreter.ActionCallInstruction`2.Run(InterpretedFrame frame)\r\n   at System.Management.Automation.Interpreter.EnterTryCatchFinallyInstruction.Run(InterpretedFrame frame)\r\n   at System.Management.Automation.Interpreter.EnterTryCatchFinallyInstruction.Run(InterpretedFrame frame)"
+      }
+    },
+    {
+      "mode": "switches",
+      "exit": 0,
+      "runtime": "ps7",
+      "result": {
+        "mode": "switches",
+        "ps": "7.6.6",
+        "success": true,
+        "checks": [
+          {
+            "length": 400,
+            "exact": true
+          },
+          {
+            "length": 199,
+            "exact": true
+          }
+        ]
+      }
+    },
+    {
+      "mode": "normal",
+      "exit": 0,
+      "runtime": "ps51",
+      "result": {
+        "mode": "normal",
+        "ps": "5.1.26100.33438",
+        "success": true,
+        "checks": [
+          {
+            "length": 398,
+            "exact": true
+          },
+          {
+            "length": 197,
+            "exact": true
+          }
+        ]
+      }
+    },
+    {
+      "mode": "extended",
+      "exit": 0,
+      "runtime": "ps51",
+      "result": {
+        "mode": "extended",
+        "ps": "5.1.26100.33438",
+        "success": false,
+        "exception": "System.Management.Automation.MethodInvocationException: Exception calling \"ExtractToDirectory\" with \"2\" argument(s): \"The filename, directory name, or volume label syntax is incorrect.\r\n\" ---> System.IO.IOException: The filename, directory name, or volume label syntax is incorrect.\r\n\r\n   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)\r\n   at System.IO.Directory.InternalCreateDirectory(String fullPath, String path, Object dirSecurityObj, Boolean checkHost)\r\n   at System.IO.Directory.InternalCreateDirectoryHelper(String path, Boolean checkHost)\r\n   at System.IO.Compression.ZipFileExtensions.ExtractToDirectory(ZipArchive source, String destinationDirectoryName)\r\n   at System.IO.Compression.ZipFile.ExtractToDirectory(String sourceArchiveFileName, String destinationDirectoryName, Encoding entryNameEncoding)\r\n   at CallSite.Target(Closure , CallSite , Type , Object , Object )\r\n   --- End of inner exception stack trace ---\r\n   at System.Management.Automation.ExceptionHandlingOps.CheckActionPreference(FunctionContext funcContext, Exception exception)\r\n   at System.Management.Automation.Interpreter.ActionCallInstruction`2.Run(InterpretedFrame frame)\r\n   at System.Management.Automation.Interpreter.EnterTryCatchFinallyInstruction.Run(InterpretedFrame frame)\r\n   at System.Management.Automation.Interpreter.EnterTryCatchFinallyInstruction.Run(InterpretedFrame frame)"
+      }
+    },
+    {
+      "mode": "switches",
+      "exit": 0,
+      "runtime": "ps51",
+      "result": {
+        "mode": "switches",
+        "ps": "5.1.26100.33438",
+        "success": true,
+        "checks": [
+          {
+            "length": 400,
+            "exact": true
+          },
+          {
+            "length": 199,
+            "exact": true
+          }
+        ]
+      }
+    }
+  ],
+  "caveat": "Exploratory extended-prefix literal was overescaped; resulting failures are probe-construction errors, NOT a Windows platformlimitation. Normal and switches API cases remain actual successful controls; unused malformed alternative notrerun.",
+  "source_sha256": "c74ebab4464ce8fbdc811c447caa5b339426381950b5d0e1be444916e94393c9"
+}

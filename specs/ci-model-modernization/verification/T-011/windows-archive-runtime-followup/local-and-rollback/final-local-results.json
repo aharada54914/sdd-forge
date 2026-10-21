@@ -1,0 +1,90 @@
+[
+  {
+    "label": "final-bash",
+    "args": [
+      "python3",
+      "tests/lib/install-payload-check.py",
+      "--runtime",
+      "bash",
+      "PayloadChecks.test_tracked_special_names_survive_local_and_archive",
+      "PayloadChecks.test_archive_source_installs_the_same_payload",
+      "PayloadChecks.test_mcp_placement_is_exactly_index_and_package",
+      "-v"
+    ],
+    "exit": 0,
+    "seconds": 2.701,
+    "runtime_sha256": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1"
+  },
+  {
+    "label": "final-posix-powershell",
+    "args": [
+      "python3",
+      "tests/lib/install-payload-check.py",
+      "--runtime",
+      "powershell",
+      "PayloadChecks.test_tracked_special_names_survive_local_and_archive",
+      "PayloadChecks.test_archive_source_installs_the_same_payload",
+      "PayloadChecks.test_mcp_placement_is_exactly_index_and_package",
+      "-v"
+    ],
+    "exit": 0,
+    "seconds": 8.004,
+    "runtime_sha256": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1"
+  },
+  {
+    "label": "rollback-old-baseline-posix",
+    "args": [
+      "python3",
+      "tests/lib/install-payload-check.py",
+      "--runtime",
+      "powershell",
+      "PayloadChecks.test_tracked_special_names_survive_local_and_archive",
+      "PayloadChecks.test_archive_source_installs_the_same_payload",
+      "PayloadChecks.test_mcp_placement_is_exactly_index_and_package",
+      "-v"
+    ],
+    "exit": 0,
+    "seconds": 8.061,
+    "runtime_sha256": "5dbbfce66a6614ae4e68d20d57a2d14bbee42592d68741e1307ed5e41de2f05f"
+  },
+  {
+    "label": "rollback-old-dispatch-negative",
+    "args": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "/workspace/native-ci-failures/windows-archive-runtime/zip/extraction-unit.ps1"
+    ],
+    "exit": 1,
+    "seconds": 0.427,
+    "runtime_sha256": "5dbbfce66a6614ae4e68d20d57a2d14bbee42592d68741e1307ed5e41de2f05f"
+  },
+  {
+    "label": "restored-current-dispatch",
+    "args": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "/workspace/native-ci-failures/windows-archive-runtime/zip/extraction-unit.ps1"
+    ],
+    "exit": 0,
+    "seconds": 0.331,
+    "runtime_sha256": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1"
+  },
+  {
+    "label": "restored-current-posix",
+    "args": [
+      "python3",
+      "tests/lib/install-payload-check.py",
+      "--runtime",
+      "powershell",
+      "PayloadChecks.test_tracked_special_names_survive_local_and_archive",
+      "PayloadChecks.test_archive_source_installs_the_same_payload",
+      "PayloadChecks.test_mcp_placement_is_exactly_index_and_package",
+      "-v"
+    ],
+    "exit": 0,
+    "seconds": 8.187,
+    "runtime_sha256": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-21T15:49:45.317268+00:00",
+  "ended_at": "2026-10-21T15:50:22.822417+00:00",
+  "exit_code": 0,
+  "log_sha256": "8ea982255942f7f86535d011fadc3a596e0cccc598e72cf636045cf18226c9f7",
+  "scope": "Pre-rebaseline workflow state check; not final CI or implementation QA"
+}

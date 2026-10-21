@@ -1,0 +1,8 @@
+test_tracked_special_names_survive_local_and_archive (__main__.PayloadChecks.test_tracked_special_names_survive_local_and_archive) ... ok
+test_archive_source_installs_the_same_payload (__main__.PayloadChecks.test_archive_source_installs_the_same_payload) ... ok
+test_mcp_placement_is_exactly_index_and_package (__main__.PayloadChecks.test_mcp_placement_is_exactly_index_and_package) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 7.931s
+
+OK

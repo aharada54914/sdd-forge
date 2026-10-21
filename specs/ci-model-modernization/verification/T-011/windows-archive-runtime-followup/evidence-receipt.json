@@ -1,0 +1,499 @@
+{
+  "schema": "windows-archive-runtime-public-evidence/v1",
+  "at": "2026-10-21T15:56:46.064048+00:00",
+  "observed_head": "f7bac7421c26496a742c94fbb925671a4f867296",
+  "ordinary_source_candidate_pins": [
+    {
+      "path": "install.ps1",
+      "before_commit": "f7bac7421c26496a742c94fbb925671a4f867296",
+      "before_sha256": "5dbbfce66a6614ae4e68d20d57a2d14bbee42592d68741e1307ed5e41de2f05f",
+      "after_candidate_sha256": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1",
+      "privacy_scope": "Exactbytes"
+    },
+    {
+      "path": "reports/verification/ci-model-modernization-continuation-20261019.json",
+      "before_commit": "f7bac7421c26496a742c94fbb925671a4f867296",
+      "before_sha256": "e738f8ff9aa39f59881e906bbbccd2a935a907b5f67f96f6ea3cf4deb4226fd0",
+      "after_candidate_sha256": "a8c95d6339aebcbb74e05f2c57fc62d19026a94e53e08bc93cf356552e53ed53",
+      "privacy_scope": "Diff only; unchanged historicalpublishedsessionmetadata Rootadjudicated"
+    }
+  ],
+  "exact_final_sources": [
+    {
+      "path": "install.ps1",
+      "sha256": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1"
+    },
+    {
+      "path": "tests/install.tests.ps1",
+      "sha256": "804fd7074ebe1cc1bb703c09e87afeb233bc40a2c2d88b2f18bf1f8a4df127b4"
+    },
+    {
+      "path": "tests/lib/install-payload-check.py",
+      "sha256": "c12915ccf070c641b663b7f54efcc495000689cf0fce2e27e73ff6e21ca032af"
+    }
+  ],
+  "final_native_run": 39629021736,
+  "final_native_head": "d22911f749f93c279e8802d149cd63f173f64c2e",
+  "failed_B096_remains_failed": true,
+  "records": [
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/failed-B096-final-status.json",
+      "source_path": "/workspace/t011-rollout/outputs/096235a20c17/run-latest.json",
+      "source_sha256": "966acb787ba344e2d99218173473fd076f4cb95cb044e2a64c44fed0364c5036",
+      "derivation": "Public status whitelist; no URLs/actor/headers"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/B096-windows-failure-excerpt.log",
+      "source_path": "/workspace/t011-rollout/outputs/096235a20c17/installer-windows-connector.log",
+      "source_sha256": "28cc6a59d515483d81e197c52f6ab0aac3434599fa7a5345e9ba49ebac07afff",
+      "source_lines_1_based": [
+        218,
+        223,
+        226,
+        228
+      ],
+      "published_sha256": "6a69ec53d3ea1f5f6045666f2f260c7de9502281c1e9843cbe488ffe6c30bfbe",
+      "derivation": "Selected declared test/failure/summary lines only, then LF/trailingASCII/EOF normalization; full original external retained"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/initial-checkout-failure-excerpt.log",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/failed.log",
+      "source_sha256": "ed7fbdcdabdf58b72d5adf7ccb649ac63f5b6aa1e78bc75b3fdb05f1ab19ba7e",
+      "source_lines_1_based": [
+        125
+      ],
+      "published_sha256": "e41df52dce71ab77135e349643256cbd6d84b3094de732b93945c61b3173aeeb",
+      "derivation": "Selected declared test/failure/summary lines only, then LF/trailingASCII/EOF normalization; full original external retained"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/initial-checkout-status.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/runs.json",
+      "source_sha256": "6cd8db6e87d98a05c5e48bb992f71d78f60096b2ca6879611e4c9d773ea709e5",
+      "published_sha256": "b045b932d04d53bab97d7c3c13a922ff441352bd7490e586143b2b2f58eba592",
+      "derivation": "Allowlisted run/job metadata; URLs/account/step payloads omitted"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/checkout-corrected-status.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/runs-after-longpaths.json",
+      "source_sha256": "558c9efbc85238ae5a03345e2d61ed5bc04b9855cbbd9c678c46986ce38e1ea4",
+      "published_sha256": "e37e8f2e5be77ac2efb7a4d45183946c88272c1c07cd68c6a8d5756cb8fa36f6",
+      "derivation": "Allowlisted run/job metadata; URLs/account/step payloads omitted"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/locale-diagnostic-status.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/locale-run.json",
+      "source_sha256": "4f113b23fd91abbf3852ca14b33e01c3588f564523c1150d116d4d63b3044d5d",
+      "published_sha256": "7f228baa563c1b9dbb7f01996fcae177f65ccfc210fbe3b7ad859c16ba9d2237",
+      "derivation": "Allowlisted run/job metadata; URLs/account/step payloads omitted"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/focused-old-runtime-red-status.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/focused-red-run.json",
+      "source_sha256": "b5a95bfac26c0a827abea27e517aa0115acd04cc63e4dc692ba3c90417d053e1",
+      "published_sha256": "8df7d76e92eddd4f789b041c49d4ae59b8dea99a2f597f5b3a10087936f86ed4",
+      "derivation": "Allowlisted run/job metadata; URLs/account/step payloads omitted"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/initial-candidate-failure-status.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/focused-green-run.json",
+      "source_sha256": "d95436975db9b04d2879b4438f22ae29c125c3ef0af546b41f3f3e58fa767378",
+      "published_sha256": "5b17436cc756d05fcba0f70b7497f9c4a862f2413145ced51876a7d5b80433a9",
+      "derivation": "Allowlisted run/job metadata; URLs/account/step payloads omitted"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/directory-metadata-red-status.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/metadata-red-run.json",
+      "source_sha256": "2ecad901528b0ac26a1225aaa27994471d22f3a41b7751f0315db4c7cfdf17d5",
+      "published_sha256": "ab53f8437acb60a4474b9f67a0780f4b946cf7eb7d0d17dba180f3441e30a7ce",
+      "derivation": "Allowlisted run/job metadata; URLs/account/step payloads omitted"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/earlier-focused-green-status.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/metadata-green-run.json",
+      "source_sha256": "25552b19e14b2f30344c4189e03f76d7f1916c41fce5a3657702ebfd2e22ff7c",
+      "published_sha256": "c9bf0472f814ca787b3274af4a5942412e11dc34b15a55b7b3d53898debbc878",
+      "derivation": "Allowlisted run/job metadata; URLs/account/step payloads omitted"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/final-native-integration-status.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/long-integration-run.json",
+      "source_sha256": "033ce8ca2f093919129ad38a067c9d47aa53131c18d2c2c30de35c7acea0019a",
+      "published_sha256": "d525ddd15299b2e1940c90ecdddd6eab2fcdc955b754572d17ec5c0263c94aaf",
+      "derivation": "Allowlisted run/job metadata; URLs/account/step payloads omitted"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/focused-red-pins.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/focused-red-pins.json",
+      "source_sha256": "8fa467cb7d64e6d49a4ff1b4388457fd0a1febb407f6a42579d872e26e794fae",
+      "published_sha256": "8fa467cb7d64e6d49a4ff1b4388457fd0a1febb407f6a42579d872e26e794fae",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/focused-green-pins.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/focused-green-pins.json",
+      "source_sha256": "cc437734883ef7cac1e963d03ec7705a072f6d3558be888a940b176f946f52ce",
+      "published_sha256": "cc437734883ef7cac1e963d03ec7705a072f6d3558be888a940b176f946f52ce",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/metadata-red-pins.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/metadata-red-pins.json",
+      "source_sha256": "dc3df46fcb60dee1c68a52d4894d9f7252a0ef325b4c9087808604acf1e60ac6",
+      "published_sha256": "dc3df46fcb60dee1c68a52d4894d9f7252a0ef325b4c9087808604acf1e60ac6",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/metadata-green-pins.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/metadata-green-pins.json",
+      "source_sha256": "cd38f2550d7fc06314b234a1505de5d7f86dbda736ac56e50ba8c75eb79829fe",
+      "published_sha256": "cd38f2550d7fc06314b234a1505de5d7f86dbda736ac56e50ba8c75eb79829fe",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/long-integration-pins.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/long-integration-pins.json",
+      "source_sha256": "7f78e9eeee67bdb976c5c0458bb86f003680bbdd9cf51e76fcf640db983e4bb0",
+      "published_sha256": "7f78e9eeee67bdb976c5c0458bb86f003680bbdd9cf51e76fcf640db983e4bb0",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/focused-red-test-excerpt.log",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/focused-red.log",
+      "source_sha256": "87782544c986684d3abb8a7f3f24f00a373ae6f89b74e41c9d1517d0808d794f",
+      "source_lines_1_based": [
+        253,
+        260,
+        278,
+        286,
+        294,
+        301,
+        319,
+        326,
+        344,
+        351,
+        369,
+        371,
+        641,
+        648,
+        663,
+        671,
+        679,
+        686,
+        701,
+        708,
+        723,
+        730,
+        745,
+        747
+      ],
+      "published_sha256": "4c50eef446106e2ac101b086057de63bb74f456ac3d120390d98c6687c7266e1",
+      "derivation": "Selected declared test/failure/summary lines only, then LF/trailingASCII/EOF normalization; full original external retained"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/focused-green-attempt1-test-excerpt.log",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/focused-green-attempt1.log",
+      "source_sha256": "e72b379f86c94c5c40770960dd38b9709a51a7bbc4db1f286792d6ab2f0c6d11",
+      "source_lines_1_based": [
+        242,
+        247,
+        250,
+        255,
+        258,
+        266,
+        274,
+        281,
+        302,
+        309,
+        330,
+        337,
+        358,
+        360,
+        622,
+        627,
+        630,
+        635,
+        638,
+        646,
+        654,
+        661,
+        677,
+        684,
+        700,
+        707,
+        723,
+        725
+      ],
+      "published_sha256": "ef9fd3dc499a548f2627d1aa88604a294632fca073ca693a68e172fdfdde06ce",
+      "derivation": "Selected declared test/failure/summary lines only, then LF/trailingASCII/EOF normalization; full original external retained"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/metadata-red-ps7-test-excerpt.log",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/metadata-red-ps7.log",
+      "source_sha256": "2ec9344fe74cc1c62f37f63980bf2c2cab82d5785afcea114e3831803f02fb1b",
+      "source_lines_1_based": [
+        243,
+        250,
+        264,
+        272,
+        286,
+        294,
+        308,
+        313,
+        316,
+        318
+      ],
+      "published_sha256": "81a933d58b946e3a18ba5df840d6cfacf9aed1bbd49800dd217bd7d17646d29c",
+      "derivation": "Selected declared test/failure/summary lines only, then LF/trailingASCII/EOF normalization; full original external retained"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/metadata-red-ps51-test-excerpt.log",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/metadata-red-ps51.log",
+      "source_sha256": "ec45640ba0d5bf6fb0f1aa9ccd0c4bda8066bde7a0d8b073f032ad7e88743303",
+      "source_lines_1_based": [
+        241,
+        248,
+        262,
+        270,
+        284,
+        292,
+        306,
+        311,
+        314,
+        316
+      ],
+      "published_sha256": "bc4bdf4d8f8598f2ab4677f2fe52d0deee53fcb9c88cda1211cdc03c170dd133",
+      "derivation": "Selected declared test/failure/summary lines only, then LF/trailingASCII/EOF normalization; full original external retained"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/metadata-green-ps7-test-excerpt.log",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/metadata-green-ps7.log",
+      "source_sha256": "3f0f9eba4a379ab02403ef344682995c0d801fc6cc8b4660ead396d1c7de04e9",
+      "source_lines_1_based": [
+        224,
+        226
+      ],
+      "published_sha256": "3e25f77884da231840c719f3ab98b27b0c0670ff71a9a9feeda3365398f52700",
+      "derivation": "Selected declared test/failure/summary lines only, then LF/trailingASCII/EOF normalization; full original external retained"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/metadata-green-ps51-test-excerpt.log",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/metadata-green-ps51.log",
+      "source_sha256": "28edf49b917ed9172df715e907c48b43840e03b17d09026fe3a0f5aec0c7f89e",
+      "source_lines_1_based": [
+        243,
+        245
+      ],
+      "published_sha256": "549a815107f17530444bfe0ab31a215ad45beb24a7563f9deec55db85d2e49bf",
+      "derivation": "Selected declared test/failure/summary lines only, then LF/trailingASCII/EOF normalization; full original external retained"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/long-integration-ps7-test-excerpt.log",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/long-integration-ps7.log",
+      "source_sha256": "328603cf028c959c065e4259762d5c63f99aa45dc67e0d2ec4512946689a4075",
+      "source_lines_1_based": [
+        244,
+        246
+      ],
+      "published_sha256": "2fcd6b1751aceaae1a47a2bdef6d010f4c3b3ba0ac7db2ca0f4a0787033ebe0d",
+      "derivation": "Selected declared test/failure/summary lines only, then LF/trailingASCII/EOF normalization; full original external retained"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/long-integration-ps51-test-excerpt.log",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/long-integration-ps51.log",
+      "source_sha256": "9e7f430bc99826702ff6a630f96f0f6582beffb40f58a21056c3b441c2b48e9d",
+      "source_lines_1_based": [
+        238,
+        240
+      ],
+      "published_sha256": "8bbe8887029cc65a675ea49c804b3f6776926c8925ef3ccef6eefb71e02d3fb2",
+      "derivation": "Selected declared test/failure/summary lines only, then LF/trailingASCII/EOF normalization; full original external retained"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/native-matrix.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/native-matrix.json",
+      "source_sha256": "99cbdfd829893f5c86f8975bd68a1e5f7136c2444465121a408fd2436489df6c",
+      "derivation": "Case fields only; rawstdout/stderr/paths omitted"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/locale-matrix.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/locale-matrix.json",
+      "source_sha256": "4f9f6e1adac2f23589ecdb2175b5fbb68a422ca0c06ffa0e874f28035423fd58",
+      "derivation": "Case fields only; rawstdout/stderr/paths omitted"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/longpath-matrix.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/longpath-matrix.json",
+      "source_sha256": "c74ebab4464ce8fbdc811c447caa5b339426381950b5d0e1be444916e94393c9",
+      "derivation": "Numeric/result/boolean fields only, explicit malformedprobe caveat; rawstdout/stderr omitted"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/diagnostic-history/longpath-green-matrix.json",
+      "source_path": "/workspace/t011-rollout/outputs/windows-diagnostic-07c60b04/longpath-green-matrix.json",
+      "source_sha256": "f2d304cd5551c1eb12b702520797b0ed75cb760c82607e706b87b6ec3e8a5b76",
+      "derivation": "Numeric/result/boolean fields only, explicit malformedprobe caveat; rawstdout/stderr omitted"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/final-local-results.json",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/zip/final-local-results.json",
+      "source_sha256": "46f995e23b55df093aa30fb5fb6edfa782ada6032f397b7ec758fa8f9d5ff283",
+      "published_sha256": "46f995e23b55df093aa30fb5fb6edfa782ada6032f397b7ec758fa8f9d5ff283",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/final-refresh-results.json",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/zip/final-refresh-results.json",
+      "source_sha256": "3191a4e317e4cb7962f6e823f30d1a403af7d283fc99a48a95d9ca1f62f14eef",
+      "published_sha256": "3191a4e317e4cb7962f6e823f30d1a403af7d283fc99a48a95d9ca1f62f14eef",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/rollback-pins.json",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/zip/rollback-pins.json",
+      "source_sha256": "3612f29eee53f49f151280f482492c55c40a82c56cb87621ad93d79a293b2f2d",
+      "published_sha256": "3612f29eee53f49f151280f482492c55c40a82c56cb87621ad93d79a293b2f2d",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/clone-cleanup.json",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/zip/clone-cleanup.json",
+      "source_sha256": "1b7d1c43743965aeb23127a30027c25b05438e840e16b4f6ddc0feb73730ee17",
+      "published_sha256": "1b7d1c43743965aeb23127a30027c25b05438e840e16b4f6ddc0feb73730ee17",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/final-bash.log",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/zip/final-bash.log",
+      "source_sha256": "2a26a5661071131a7dd19258008b81a13efa57791d3e8796ea98517ac5d585a3",
+      "published_sha256": "2a26a5661071131a7dd19258008b81a13efa57791d3e8796ea98517ac5d585a3",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/final-posix-powershell.log",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/zip/final-posix-powershell.log",
+      "source_sha256": "7b364608f82f3ca558a83ea2bf277fe35482f0c4599a19c83baa657539b3f4b3",
+      "published_sha256": "7b364608f82f3ca558a83ea2bf277fe35482f0c4599a19c83baa657539b3f4b3",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/rollback-old-baseline-posix.log",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/zip/rollback-old-baseline-posix.log",
+      "source_sha256": "83dd370cb64474a28d8c827c661a19e56f52d2a8c8c30bbbd0655c3ed1422f17",
+      "published_sha256": "83dd370cb64474a28d8c827c661a19e56f52d2a8c8c30bbbd0655c3ed1422f17",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/rollback-old-dispatch-negative.log",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/zip/rollback-old-dispatch-negative.log",
+      "source_sha256": "946f8e28a7a9242753038310caabf79c95edfd639ca0a4263e77ff7dd535d4a4",
+      "published_sha256": "946f8e28a7a9242753038310caabf79c95edfd639ca0a4263e77ff7dd535d4a4",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/restored-current-dispatch.log",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/zip/restored-current-dispatch.log",
+      "source_sha256": "fd37bbc71dcbb0e509d8fbd9d8d7c0b6daf5874bc885fa2c628d51d7a31180af",
+      "published_sha256": "fd37bbc71dcbb0e509d8fbd9d8d7c0b6daf5874bc885fa2c628d51d7a31180af",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/restored-current-posix.log",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/zip/restored-current-posix.log",
+      "source_sha256": "74e5c7f61f0626349a07daf96de8f8f17df48d916a7059b3728470217d5ad127",
+      "published_sha256": "74e5c7f61f0626349a07daf96de8f8f17df48d916a7059b3728470217d5ad127",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/long-fixture-bash.log",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/zip/long-fixture-bash.log",
+      "source_sha256": "57ca4466f0a359b233e86d15f5db095a8658242c84af0b8cb27bb2c1e566fa26",
+      "published_sha256": "57ca4466f0a359b233e86d15f5db095a8658242c84af0b8cb27bb2c1e566fa26",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/long-fixture-posix-powershell.log",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/zip/long-fixture-posix-powershell.log",
+      "source_sha256": "c14708716ce9a395a8f1d7aba130da7ef9374802908279e5aeb2ef3e1b329e15",
+      "published_sha256": "c14708716ce9a395a8f1d7aba130da7ef9374802908279e5aeb2ef3e1b329e15",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/long-fixture-dispatch.log",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/zip/long-fixture-dispatch.log",
+      "source_sha256": "fd37bbc71dcbb0e509d8fbd9d8d7c0b6daf5874bc885fa2c628d51d7a31180af",
+      "published_sha256": "fd37bbc71dcbb0e509d8fbd9d8d7c0b6daf5874bc885fa2c628d51d7a31180af",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/local-and-rollback/extraction-unit-green.log",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/zip/extraction-unit-green.log",
+      "source_sha256": "fd37bbc71dcbb0e509d8fbd9d8d7c0b6daf5874bc885fa2c628d51d7a31180af",
+      "published_sha256": "fd37bbc71dcbb0e509d8fbd9d8d7c0b6daf5874bc885fa2c628d51d7a31180af",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/root-workflow-gate.json",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/root-workflow-gate.json",
+      "source_sha256": "b08ad8f978566a68cd8b7febc956f23f88c8c4d93d92e4822e263e9bb508fefe",
+      "published_sha256": "b08ad8f978566a68cd8b7febc956f23f88c8c4d93d92e4822e263e9bb508fefe",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/root-workflow-gate.log",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/root-workflow-gate.log",
+      "source_sha256": "8ea982255942f7f86535d011fadc3a596e0cccc598e72cf636045cf18226c9f7",
+      "published_sha256": "8ea982255942f7f86535d011fadc3a596e0cccc598e72cf636045cf18226c9f7",
+      "derivation": "Exact bytes",
+      "external_original_preserved": true
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/final-source-and-test-chronology.json",
+      "source_path": "/workspace/native-ci-failures/windows-archive-runtime/zip/final-source-pins.json",
+      "source_sha256": "6fdec3b02f74078de7655c989bd8ccb90e887d9ef1efc377801a97b917e92ebd",
+      "derivation": "Rename ambiguous test-only commitlist to test_and_fixture_commits; preserve originalcapturestatus separately, append actual finalproof and qualification"
+    }
+  ],
+  "failed_B096_original_inputs": [
+    {
+      "path": "/workspace/t011-rollout/outputs/096235a20c17/run-latest.json",
+      "sha256": "966acb787ba344e2d99218173473fd076f4cb95cb044e2a64c44fed0364c5036",
+      "bytes": 101690
+    },
+    {
+      "path": "/workspace/t011-rollout/outputs/096235a20c17/final-artifact-metadata.json",
+      "sha256": "f0d8fb86aeb3657df29afb05d2ee00497a5918abe85cb39bb776a9369c3e2072",
+      "bytes": 11849
+    },
+    {
+      "path": "/workspace/t011-rollout/outputs/096235a20c17/required-checks-final.log",
+      "sha256": "947ded613f262fa1bd0f85aa5dd22f3cfba02d5db2e6f819b449efb9e82b2983",
+      "bytes": 38419
+    },
+    {
+      "path": "/workspace/t011-rollout/outputs/096235a20c17/installer-windows-connector.log",
+      "sha256": "28cc6a59d515483d81e197c52f6ab0aac3434599fa7a5345e9ba49ebac07afff",
+      "bytes": 23581
+    }
+  ],
+  "source_originals_executable_snapshots_ZIPs_and_ledger_excluded": true,
+  "no_source_or_git_mutation_by_curator": true
+}

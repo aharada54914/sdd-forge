@@ -1,0 +1,6 @@
+{
+  "tests/install.tests.ps1": "3de7a2369d1f040aa5790efae384183c104f950007c70ac0dc05165fce869024",
+  "tests/lib/install-payload-check.py": "ee0d39787c6ec4a3e6abc75404beb11c9a529160f332c7e09c8a12778b74bb25",
+  "install.ps1": "5dbbfce66a6614ae4e68d20d57a2d14bbee42592d68741e1307ed5e41de2f05f",
+  "test_snapshot": "17626943b2b031e883be8fba026afd3578b1fc63"
+}

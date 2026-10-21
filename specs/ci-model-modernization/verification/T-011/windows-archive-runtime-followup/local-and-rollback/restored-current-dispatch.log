@@ -1,0 +1,4 @@
+ok: archive extraction ZIP=False exit 0 handled
+ok: archive extraction ZIP=False exit 2 handled
+ok: archive extraction ZIP=True exit 0 handled
+ok: archive extraction ZIP=True exit 2 handled

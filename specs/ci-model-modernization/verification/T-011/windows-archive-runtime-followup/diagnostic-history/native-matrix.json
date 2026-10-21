@@ -1,0 +1,43 @@
+{
+  "cases": [
+    {
+      "kind": "git",
+      "mode": "default",
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "git",
+      "mode": "utf8",
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "pax",
+      "mode": "default",
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    },
+    {
+      "kind": "pax",
+      "mode": "utf8",
+      "exit": 1,
+      "expected": {
+        "日本語.txt": false,
+        "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語.txt": false
+      }
+    }
+  ],
+  "case_count": 4,
+  "scope": "All4 tar/headercases or16locale cases failed exactUnicode; script exit0 is collection only",
+  "source_sha256": "99cbdfd829893f5c86f8975bd68a1e5f7136c2444465121a408fd2436489df6c"
+}

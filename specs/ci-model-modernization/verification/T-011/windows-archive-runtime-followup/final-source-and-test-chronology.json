@@ -1,0 +1,36 @@
+{
+  "tests_source_commit": "f7bac7421c26496a742c94fbb925671a4f867296",
+  "files": [
+    {
+      "path": "install.ps1",
+      "sha256": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1"
+    },
+    {
+      "path": "tests/install.tests.ps1",
+      "sha256": "804fd7074ebe1cc1bb703c09e87afeb233bc40a2c2d88b2f18bf1f8a4df127b4"
+    },
+    {
+      "path": "tests/lib/install-payload-check.py",
+      "sha256": "c12915ccf070c641b663b7f54efcc495000689cf0fce2e27e73ff6e21ca032af"
+    }
+  ],
+  "test_and_fixture_commits": [
+    "de427450",
+    "17626943",
+    "002b4797",
+    "6d8a1daa",
+    "cedb066f",
+    "f7bac742"
+  ],
+  "original_runtime_status_at_capture": "reviewed candidate applied to root; pending final native proof and root commit",
+  "final_native": {
+    "run_id": 39629021736,
+    "head_sha": "d22911f749f93c279e8802d149cd63f173f64c2e",
+    "tests_each_runtime": 5,
+    "PS7": "PASS78.073s",
+    "PS5.1": "PASS81.928s",
+    "includes": "340relativechar ignoredspecs extraction/enumeration/cleanup"
+  },
+  "chronology_qualification": "Initial transport and trailing-directory metadata regressions preceded their corresponding runtime fixes. Later fixture corrections, mock corrections and long-path integration are additional validation, not retrospective TDD Red. External label tests_first_commits was merely a test-only commit list; source original remains unchanged.",
+  "source_sha256": "6fdec3b02f74078de7655c989bd8ccb90e887d9ef1efc377801a97b917e92ebd"
+}

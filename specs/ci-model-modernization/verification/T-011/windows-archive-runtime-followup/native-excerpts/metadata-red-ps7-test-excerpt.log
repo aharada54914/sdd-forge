@@ -1,0 +1,10 @@
+2026-10-21T15:40:46.1085332Z FAIL: test_windows_zip_metadata_and_containment (__main__.PayloadChecks.test_windows_zip_metadata_and_containment) (unsafe_name='top\\plugins\\aliased.txt')
+2026-10-21T15:40:46.1173625Z AssertionError: 0 == 0 : installer unexpectedly succeeded
+2026-10-21T15:40:46.1183219Z FAIL: test_windows_zip_directory_link_metadata (__main__.PayloadChecks.test_windows_zip_directory_link_metadata) (link='admitted-parent')
+2026-10-21T15:40:46.1193402Z AssertionError: 0 == 0 : installer unexpectedly succeeded
+2026-10-21T15:40:46.1203704Z FAIL: test_windows_zip_directory_link_metadata (__main__.PayloadChecks.test_windows_zip_directory_link_metadata) (link='source-root')
+2026-10-21T15:40:46.1210567Z AssertionError: 0 == 0 : installer unexpectedly succeeded
+2026-10-21T15:40:46.1220303Z FAIL: test_windows_zip_directory_link_metadata (__main__.PayloadChecks.test_windows_zip_directory_link_metadata)
+2026-10-21T15:40:46.1224768Z AssertionError: True is not false
+2026-10-21T15:40:46.1225767Z Ran 5 tests in 88.895s
+2026-10-21T15:40:46.1226070Z FAILED (failures=4)
