@@ -350,7 +350,7 @@ flowchart LR
 ## 関連ドキュメント
 
 - [README.md](../../README.md) — プロジェクト概要・クイックスタート・インストール
-- [AGENTS.md](../../AGENTS.md) — エージェント向けの正準ルール（Sources Of Truth / Source Artifact Locations / 凍結規則）
+- [AGENTS.md](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/AGENTS.md) — エージェント向けの正準ルール（Sources Of Truth / Source Artifact Locations / 凍結規則）
 - [PLUGIN-CONTRACTS.md](../../PLUGIN-CONTRACTS.md) — プラグイン間ハンドオフの正準契約（トラック選択・ハンドシェイク・レジストリスキーマ）
 - [USERGUIDE.md](../../USERGUIDE.md) — MCP サーバーとエージェントモデルルーティングの運用ガイド
 - [docs/workflow-guide.md](../workflow-guide.md) — 開発業務フローの運用ガイド

@@ -467,13 +467,11 @@ candidates, not that the script attempted an illegal write.
 
 ## Plugin Dependency Declarations
 
-The `Depends On` column is authoritative for the six plugins the installers
-handle (`sdd-bootstrap`, `sdd-ship`, `sdd-implementation`, `sdd-quality-loop`,
-`sdd-lite`, `sdd-review-loop`): `install.sh` and `install.ps1` resolve exactly
-those edges to a fixed point when auto-including plugins, so any change to them
-must be made in all three places together. `sdd-domain` is listed below for
-completeness only — it is outside the installer allowlist, so the column states
-no installer fact about it.
+The `Depends On` column is authoritative for the nine plugins accepted by
+`install.sh` and `install.ps1`. Both installers resolve these edges to a fixed
+point when auto-including plugins; change this table and both implementations
+together. Selection controls registration and dependency inclusion. The shared
+installed payload retains cross-plugin runtime dependencies.
 
 | Plugin | Depends On | Notes |
 |--------|------------|-------|
@@ -483,7 +481,9 @@ no installer fact about it.
 | sdd-implementation | (none) | invokes quality-gate at the implement-tasks handoff, but declares no installer dependency |
 | sdd-review-loop | (none) | standalone; auto-included by sdd-bootstrap, and transitively by sdd-lite and sdd-ship |
 | sdd-quality-loop | (none) | standalone; optionally reads `domain/domain-contract.json` via check-domain-conformance when present |
-| sdd-domain | n/a — outside the installer allowlist | not installable via `--plugins`; obtained from the marketplace instead (see README). Standalone; produces `domain/` consumed optionally by sdd-bootstrap, sdd-review-loop, sdd-quality-loop. Whether it should join the allowlist is open in issue #291 |
+| sdd-domain | sdd-bootstrap, sdd-quality-loop | installable via `--plugins`; produces `domain/` consumed by the domain-aware workflow |
+| sdd-azure-cloud | sdd-quality-loop | Azure orchestration runtime; cloud operations retain their own authorization boundary |
+| sdd-aws-cloud | sdd-quality-loop | AWS orchestration runtime; cloud operations retain their own authorization boundary |
 
 ---
 

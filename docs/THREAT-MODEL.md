@@ -163,7 +163,7 @@
 
 - **Sudo Mode Policy** (details on token format, key resolution, audit trail): [`plugins/sdd-quality-loop/references/sudo-mode-policy.md`](../plugins/sdd-quality-loop/references/sudo-mode-policy.md)
 - **Evidence Signing Policy** (HMAC canonical string, verification rules, fail-closed cases): [`plugins/sdd-quality-loop/references/evidence-signing-policy.md`](../plugins/sdd-quality-loop/references/evidence-signing-policy.md)
-- **Risk-Adaptive Layer Design** (security considerations section, control surfaces): [`specs/risk-adaptive-layer/design.md`](../specs/risk-adaptive-layer/design.md)
+- **Risk-Adaptive Layer Design** (security considerations section, control surfaces): [`specs/risk-adaptive-layer/design.md`](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/specs/risk-adaptive-layer/design.md)
 - **Deterministic Check Policy**: [`plugins/sdd-quality-loop/references/deterministic-check-policy.md`](../plugins/sdd-quality-loop/references/deterministic-check-policy.md)
 - **SDD Hook Guard** (Python, JavaScript, PowerShell implementations): [`plugins/sdd-quality-loop/scripts/sdd-hook-guard.{py,ps1,js}`](../plugins/sdd-quality-loop/scripts/)
 

@@ -161,9 +161,14 @@ policy is `latest-compatible` (an eligible observed candidate in registered poli
 Observations are dated and scoped to a host and CLI version; a policy
 `source_date` or an old trial is not perpetual availability.
 
-The ci-model-modernization T-010 comparison is blocked by native CLI
-authentication failures and has produced no answers for evaluation. It supports
-no candidate promotion or comparative quality claim.
+The ci-model-modernization T-010 comparison executed its fixed 20 trials after
+native authentication and tool-host repairs: 19 turns completed and one stopped
+for an out-of-scope tool call. Frozen deterministic scoring yielded 9 passes and
+11 failures. Four blinded semantic judgments preserved those failures. Sol passed
+both implementation trials but lacks a registered capability record, so it is
+not eligible for policy adoption. Review, investigation and skill candidates
+remain withheld; existing defaults remain. These limited results do not attest
+to actual backend model identity.
 
 For Codex, `render-agent-frontmatter.sh` managed mode (`--model-controls`,
 `--model-controls-sha256`, `--run-id`, `--session-id`, `--managed-target`)

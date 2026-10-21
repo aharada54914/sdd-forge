@@ -548,12 +548,12 @@ review_cycles: <実施済みサイクル数>
 ### 週次セルフ改善ルーチンとの境界と優先順位
 
 sdd-forge リポジトリ自体には、WFI ループとは別に週次セルフ改善監査があります。
-2026-10-05の確認では [週次 Actions](../../.github/workflows/self-improvement.yml) は `active` で、
-[Actions 用指示](../../.github/self-improvement-prompt.md) に従って稼働しています。
+2026-10-05の確認では [週次 Actions](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/workflows/self-improvement.yml) は `active` で、
+[Actions 用指示](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/self-improvement-prompt.md) に従って稼働しています。
 ローカル Codex 監査も2026-10-05に実行され、両経路の併用を確認しました。ただしローカル監査は一部完了で、限定テストは保護フックの実行前拒否により未実施です。
 日付付きの根拠、移行時の記録、両経路の実行前確認は [週次ローカル監査](weekly-local-codex-audit.md) を参照してください。
 過去の「無効化済み」を現在の設定と扱わず、正本の選択やスケジュール変更は所有者が判断します。
-以下の表と調停ルールは、WFI と**ローカル Codex の週次監査**の境界を示します。Actions 経路の変更・投稿権限は [Actions 用指示](../../.github/self-improvement-prompt.md) とワークフローのガードが定めており、ここでローカル専用の承認済みタスク限定・外部投稿禁止を Actions に適用するものではありません。
+以下の表と調停ルールは、WFI と**ローカル Codex の週次監査**の境界を示します。Actions 経路の変更・投稿権限は [Actions 用指示](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/self-improvement-prompt.md) とワークフローのガードが定めており、ここでローカル専用の承認済みタスク限定・外部投稿禁止を Actions に適用するものではありません。
 
 **スコープ分離 (原則)**
 

@@ -6,7 +6,7 @@
 
 [Issue #545](https://github.com/aharada54914/sdd-forge/issues/545) の再確認では、GitHub API が返す [週次 Actions](https://github.com/aharada54914/sdd-forge/actions/workflows/self-improvement.yml) の状態は `active`、`updated_at` は `2026-09-23T08:01:45Z` だった。[2026-09-28](https://github.com/aharada54914/sdd-forge/actions/runs/36371625415) と [2026-10-05](https://github.com/aharada54914/sdd-forge/actions/runs/37259263467) に `schedule` 起動と実行成功を確認した。`updated_at` だけで再有効化の時刻や理由は確定できない。
 
-したがって、[ワークフロー](../../.github/workflows/self-improvement.yml) と [Actions 用指示](../../.github/self-improvement-prompt.md) は現在稼働している経路であり、復旧参考用のみではない。下記の2026-09-05／09-11の無効化・ローカル登録確認は当時の記録で、現在の状態を保証しない。
+したがって、[ワークフロー](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/workflows/self-improvement.yml) と [Actions 用指示](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/self-improvement-prompt.md) は現在稼働している経路であり、復旧参考用のみではない。下記の2026-09-05／09-11の無効化・ローカル登録確認は当時の記録で、現在の状態を保証しない。
 
 ローカル側は、本調査で定期設定の `ACTIVE`・毎週月曜09:00 JSTを読み取り、所有者保管の2026-10-05監査報告と定期実行履歴を照合して、同日09:01 JSTの監査実行を確認した。オンラインCIと差分確認は完了したが、選定したローカル同等性テストは保護フックの実行前拒否により未実施で、監査全体は一部完了である。両経路が同日に実行された併用状態であり、厳密な同時実行やローカル検証の完走を意味しない。今後どちらを正本にするかは所有者の判断が必要。
 
@@ -26,7 +26,7 @@ gh run list --repo aharada54914/sdd-forge --workflow=self-improvement.yml --limi
 - 自動化ID: sdd-forge
 - 実行対象: 所有者のローカル sdd-forge チェックアウト
 - この移行を行ったCodex会話を継続する定期実行。前回の範囲・対象SHA・未完了項目を会話に残す。
-- 指示文のレビュー用コピー: [.github/self-improvement-local-prompt.md](../../.github/self-improvement-local-prompt.md)。実際に再生される指示はCodexアプリの定期タスク設定に保存される。このファイルを編集するだけでは定期タスクは更新されないため、変更時はアプリ側も同じ内容に更新する。
+- 指示文のレビュー用コピー: [.github/self-improvement-local-prompt.md](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/self-improvement-local-prompt.md)。実際に再生される指示はCodexアプリの定期タスク設定に保存される。このファイルを編集するだけでは定期タスクは更新されないため、変更時はアプリ側も同じ内容に更新する。
 - 実行時にはPCを起動し、Codexアプリを稼働させ、プロジェクトとChatGPTログインを利用可能にしておく。
 - 結果はこの会話で報告する。GitHubへの自動投稿・commit・push・PR作成・マージは行わない。修正は既に人間承認されたタスクのみ、既存の実装・品質ゲートに従う。新しい指摘は具体的な改善案としてレビューに回す。
 

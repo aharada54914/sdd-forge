@@ -325,12 +325,12 @@ native host routing/guard trials are recorded separately. T-011's second host tr
 covered all eight active SDD caches and ten local CLI calls; historical source pins
 bind those bytes, not later docstring/version/skill edits. New metadata does not
 retroactively rerun a native model. Exact release full-suite/CI/native OS/tag/assets
-results belong to root's [release record](../reports/verification/cloud-orchestration-release.md).
+results belong to root's [release record](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/reports/verification/cloud-orchestration-release.md).
 They remain pending until the actions actually occur.
 
 An earlier T-006 fixture alias may have attempted unauthenticated read-only Azure
 HTTPS with a synthetic token/fictional subscription; delivery/count unknown, no
 authenticated success/write. Affected old aggregate PASS is invalid guard evidence.
 Final guarded tests prohibit real urllib I/O, including subprocess and rollback paths;
-see the preserved [network-isolation correction](../specs/cloud-orchestration/verification/T-006/attempt-3/network-isolation.md).
+see the preserved [network-isolation correction](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/specs/cloud-orchestration/verification/T-006/attempt-3/network-isolation.md).
 Do not publish raw native-events.jsonl, native-stderr.log or account metadata.

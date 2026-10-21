@@ -1,6 +1,6 @@
 # SDD Forge
 
-v1.19.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
+v1.20.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
 
 ## クイックスタート（2コマンド）
 
@@ -298,13 +298,15 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 
 詳細: [docs/workflow-guide.md](docs/workflow-guide.md#managed-model-operation)、[docs/agent-capability-matrix.md](docs/agent-capability-matrix.md)、[docs/verification.md](docs/verification.md)。公開済みタグから導入する場合は上記の `--ref <ref>` に注釈付きタグを指定します（`--source-directory` は Git 追跡済みファイルのみを読みます）。
 
+インストール対象は `install-payload.txt` に定義しています。ローカルソースと公開アーカイブの両方で同じ選別を行い、開発用の `specs/`・`reports/`・`tests/` や CI 設定を配布しません。更新時には以前の配布に含まれた開発資料も除去します。プラグイン間で共有する実行時ファイルは保持し、`--plugins` は登録対象と依存関係を選びます。MCP は選択されたサーバーの `dist/index.js` と `package.json` のみを配置します。
+
 ## ドキュメントマップ
 
 | ドキュメント | 対象読者・目的 |
 |---|---|
 | [README](README.md) (本ファイル) | 概要とフロー図、インストール／アンインストール手順 |
 | [USERGUIDE.md](USERGUIDE.md) | MCP サーバー / エージェントルーティングのリファレンス |
-| [AGENTS.md](AGENTS.md) | エージェント向けのリポジトリ規約 |
+| [AGENTS.md](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/AGENTS.md) | エージェント向けのリポジトリ規約 |
 | [PLUGIN-CONTRACTS.md](PLUGIN-CONTRACTS.md) | プラグイン間の契約 |
 | [docs/workflow-guide.md](docs/workflow-guide.md) | 開発業務フロー：正常系・異常系・仕様変更・レビュー運用 |
 | [docs/architecture/overview.md](docs/architecture/overview.md) | リポジトリ全体のアーキテクチャ |
@@ -315,12 +317,12 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 | [docs/adr/README.md](docs/adr/README.md) | ADR 索引と採番規約 |
 | [docs/contributor/](docs/contributor/) | 貢献者向け詳細（[workflow-detail.md](docs/contributor/workflow-detail.md) / [skill-reference-detail.md](docs/contributor/skill-reference-detail.md) / [release-runbook.md](docs/contributor/release-runbook.md)） |
 | [CHANGELOG.md](CHANGELOG.md) | 変更履歴と版移行ガイド |
-| [specs/sdd-lite/design.md](specs/sdd-lite/design.md) | sdd-lite 設計 |
+| [specs/sdd-lite/design.md](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/specs/sdd-lite/design.md) | sdd-lite 設計 |
 | [plugins/sdd-lite/references/lite-flow-policy.md](plugins/sdd-lite/references/lite-flow-policy.md) | sdd-lite 規約・昇格 |
 
 ## 週次セルフ改善 (自動運用)
 
-2026-10-05 の確認では、[GitHub Actions の週次監査](.github/workflows/self-improvement.yml)は有効で、2026-09-28 と 2026-10-05 の定期実行が成功しています。ローカルCodex監査も 2026-10-05 に実行されており、両経路の併用を確認しました。ただしローカル監査は一部完了で、限定テストは保護フックの実行前拒否により未実施です。根拠・実行前の確認手順・移行時の記録は[週次監査ガイド](docs/contributor/weekly-local-codex-audit.md)を参照してください。
+2026-10-05 の確認では、[GitHub Actions の週次監査](https://github.com/aharada54914/sdd-forge/blob/e845fbc8942b7ee496b9f9928e5ada61443048d9/.github/workflows/self-improvement.yml)は有効で、2026-09-28 と 2026-10-05 の定期実行が成功しています。ローカルCodex監査も 2026-10-05 に実行されており、両経路の併用を確認しました。ただしローカル監査は一部完了で、限定テストは保護フックの実行前拒否により未実施です。根拠・実行前の確認手順・移行時の記録は[週次監査ガイド](docs/contributor/weekly-local-codex-audit.md)を参照してください。
 
 過去の「Actions 無効化済み」という移行記録を現在の状態と扱わず、新規登録や変更の前に両経路の設定・実行履歴を確認してください。今後の正本の選択やスケジュール変更は所有者が判断します。
 

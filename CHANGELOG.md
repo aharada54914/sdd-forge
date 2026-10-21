@@ -1,13 +1,17 @@
 # Changelog
 
-## Unreleased
+## v1.20.0 (2026-10-21)
 
 ### Added
 - Shared model policy with managed entry integration (`latest-compatible` / `pinned`, typed `model-policy-error/v1` stops) and managed renderer inputs; legacy rendering stays compatible.
 - Revision-bound CI planning with conservative full fallback and `SDD_CI_FORCE_FULL` recovery; weekly read-only model freshness check separates candidate, explicit deprecation and fetch-unavailable.
 
+### Fixed
+- Bind CI npm caches in the supported step runtime context while preserving runtime/cache identity.
+- Filter local and archive installations through a shared runtime payload manifest; remove development records on upgrade and copy only each selected MCP's bundled entrypoint and package metadata.
+
 ### Verification and release limits
-- No rollout category is active; no savings figure is claimed. Real model comparison trials (T-010) are blocked by native CLI authentication failures, with no answers available for evaluation; no candidate promotion or quality conclusion follows. Fixture results are not hosted CI or native backend proof.
+- No rollout category is active; no savings figure is claimed. The fixed 20-trial model/skill comparison ran after native authentication and tool-host repairs: 19 completed turns and one interrupted for an out-of-scope tool call; deterministic scoring produced 9 passes and 11 failures. Four blinded semantic judgments completed and preserved every deterministic failure. Sol passed both implementation trials but remains unadopted because it is absent from the capability registry; review, investigation and skill candidates remain withheld. Existing defaults are retained. Fixture results are not hosted CI or native backend proof.
 - Live cloud acceptance (#911) remains pending; no cloud-readiness claim.
 
 ## v1.19.0 (2026-10-18)
