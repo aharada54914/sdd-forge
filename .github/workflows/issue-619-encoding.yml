@@ -1,0 +1,29 @@
+name: Issue 619 native encoding regression
+
+on:
+  push:
+    branches: [fix/issue-619-utf8]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  encoding:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - producer: pwsh
+            edition: Core
+          - producer: powershell.exe
+            edition: Desktop
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check actual producer bytes and strict consumers
+        shell: pwsh
+        run: ./tests/cross-model-encoding.tests.ps1 -Producer '${{ matrix.producer }}' -ExpectEdition '${{ matrix.edition }}'
