@@ -118,3 +118,6 @@ full native test acceptance. The latter is recorded in PR #634.
 
 Progress is published on `docs/issue-execution-results`; `work` remains fixed
 during validation. #630 is closed without merging, with a link to its replacement.
+
+The [compact reproduction record](issue-620-ci-plan-binding.json) preserves the
+actual plan file hashes, Git parents and old/new A9 function outcomes.
