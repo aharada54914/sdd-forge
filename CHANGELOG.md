@@ -4,6 +4,7 @@
 
 ### Fixed
 - #619 `check-cross-model.ps1` writes its aggregate as UTF-8 without BOM on both Windows PowerShell 5.1 and PowerShell 7, so strict JSON consumers parse it; relative `--spec-root` still resolves against the PowerShell location. Historical aggregates and other `-Encoding Utf8` emitters are unchanged.
+- `required-checks` collection re-reads execution jobs the jobs list still reports as `queued`/`in_progress`/`waiting`/`requested`/`pending`, by individual read-only GET (at most 5 rounds, 10 s apart, all reads and waits sharing one 60 s monotonic deadline that also caps each read's timeout), rejects any change of job ID/run/attempt/head/name, and persists the actual final response. The running `required-checks` job and terminal rows are never re-read; a row still unfinished after the budget stays in the evidence and the aggregate still fails `evidence-missing`.
 
 ## v1.20.0 (2026-10-21)
 
