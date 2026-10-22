@@ -4,6 +4,7 @@
 
 ### Fixed
 - Weekly self-improvement `json_yaml` check (#620): add `.github/scripts/check-repository-syntax.py`, a deterministic strict UTF-8 JSON / PyYAML syntax check of tracked working-tree bytes with exact path+SHA256 handling of six legacy BOM records and two intentional negative fixtures; any unvalidated untracked candidate fails the check by count only (stage it or pass `--path`), `--path` uses a host-independent portable grammar, and a leading BOM is accepted for YAML only. The prompt names the exact command and both workflows install pinned `PyYAML==6.0.3`. Syntax validation only; actual weekly recovery is not claimed.
+- `required-checks` collection re-reads execution jobs the jobs list still reports as `queued`/`in_progress`/`waiting`/`requested`/`pending`, by individual read-only GET (at most 5 rounds, 10 s apart, all reads and waits sharing one 60 s monotonic deadline that also caps each read's timeout), rejects any change of job ID/run/attempt/head/name, and persists the actual final response. The running `required-checks` job and terminal rows are never re-read; a row still unfinished after the budget stays in the evidence and the aggregate still fails closed (`evidence-missing` or receipt-origin `evidence-mismatch`).
 
 ## v1.20.0 (2026-10-21)
 
