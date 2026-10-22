@@ -36,11 +36,97 @@
       ],
       "a9_activation": {
         "returned": false
+      },
+      "native_attempts": [
+        {
+          "attempt": 1,
+          "aggregate_job_id": 120038874571,
+          "completed_at": "2026-10-22T19:28:41Z",
+          "aggregate_status": "FAIL",
+          "aggregate_file_sha256": "a87d203c62ab3951ca8933ab94091c8d362cb8b07caf1e8e126564fb66ca00ae",
+          "result_counts": {
+            "PASS": 446,
+            "EXPECTED_SKIP": 1,
+            "FAIL": 3
+          },
+          "failed_results": [
+            {
+              "job_id": null,
+              "obligation_id": "installers:b3f14299804732a4695678d88a1d4e3addded78b6089b8d290906ae90ced22a2",
+              "reason": "evidence-missing",
+              "source_attempt": null,
+              "status": "FAIL"
+            },
+            {
+              "job_id": null,
+              "obligation_id": "installers:90ad9392d93923684909971e0b6af4337cc56a06e379586d488da1fbb6ba43f8",
+              "reason": "evidence-missing",
+              "source_attempt": null,
+              "status": "FAIL"
+            },
+            {
+              "job_id": null,
+              "obligation_id": "installers:bdfa4a83e6df0e89d527509203687d6715e92e16a6a63cf78b2c496e9ccf550f",
+              "reason": "evidence-missing",
+              "source_attempt": null,
+              "status": "FAIL"
+            }
+          ],
+          "verified_source_attempts": [
+            1
+          ],
+          "observed_incomplete_job_id": 120019471372
+        },
+        {
+          "attempt": 2,
+          "aggregate_job_id": 120042008239,
+          "completed_at": "2026-10-22T19:34:32Z",
+          "aggregate_status": "PASS",
+          "aggregate_file_sha256": "4296996990eb9a23bbde150baff6505cfee9d65105a056599eeb049a980908bd",
+          "result_counts": {
+            "PASS": 449,
+            "EXPECTED_SKIP": 1
+          },
+          "verified_source_attempt_counts": {
+            "1": 446,
+            "2": 3
+          },
+          "rerun_execution_job_id": 120040903474,
+          "rerun_results": [
+            {
+              "job_id": 120040903474,
+              "obligation_id": "installers:b3f14299804732a4695678d88a1d4e3addded78b6089b8d290906ae90ced22a2",
+              "reason": "verified",
+              "source_attempt": 2,
+              "status": "PASS"
+            },
+            {
+              "job_id": 120040903474,
+              "obligation_id": "installers:90ad9392d93923684909971e0b6af4337cc56a06e379586d488da1fbb6ba43f8",
+              "reason": "verified",
+              "source_attempt": 2,
+              "status": "PASS"
+            },
+            {
+              "job_id": 120040903474,
+              "obligation_id": "installers:bdfa4a83e6df0e89d527509203687d6715e92e16a6a63cf78b2c496e9ccf550f",
+              "reason": "verified",
+              "source_attempt": 2,
+              "status": "PASS"
+            }
+          ]
+        }
+      ],
+      "targeted_retry": {
+        "requested_job_id": 120019471372,
+        "api_accepted": true,
+        "purpose": "Re-execute only the Windows MCP installer and dependent aggregate to obtain a new genuine completed origin.",
+        "result": "PASS: 449 verified obligations and one expected skip; three obligations from one actual new Windows MCP execution, other origins retained."
       }
     }
   ],
   "limits": [
-    "Actual historical observation directories were not retained.",
-    "The replacement binding check is not full native CI acceptance."
+    "Actual historical collector observation directories were not retained.",
+    "Native aggregate success does not prove weekly audit recovery or that individual refresh repairs a persistently incomplete API row."
   ]
 }
