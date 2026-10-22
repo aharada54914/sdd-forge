@@ -10,20 +10,22 @@ that all predecessors need completion before any design work can start.
 
 | Issue | Reviewable work | Remaining acceptance |
 |---|---|---|
-| #619 | [PR #629](https://github.com/aharada54914/sdd-forge/pull/629): explicit BOM-free aggregate writer and runtime regression. Native Windows 5.1 Red, then 5.1/Core Green (17 assertions each). | Normal PR CI, review/integration; neighboring writers and historical producer provenance remain investigation candidates. Historical records were preserved. This bounded fix does not claim all encoding work complete. |
-| #620 | [PR #630](https://github.com/aharada54914/sdd-forge/pull/630): deterministic JSON/YAML checker, exact immutable exceptions, candidate coverage and existing CI wiring. Local behavioral/guard/catalog checks pass. | Fresh per-run model request provisioning, genuine Claude/self-improvement role adoption with required human review, then a real complete weekly run. An Actions probe confirmed the request is unset; a path variable alone is insufficient. |
-| #614 | [PR #631](https://github.com/aharada54914/sdd-forge/pull/631): requirements/design/AC/layer drafts, Proposed ADR and task proposal. Independent content checks corrected concrete benchmark gaps. | Formal spec/design/task reviews and implementation; no measured baseline exists. Trusted current actor registration and reviewer-role model adoption/fresh input are not established in this environment. Status remains Pending/Draft. |
-| #594 | Next foundation: project skill and observation contracts. | Reviewed contract/ownership boundaries before dependent #595/#596/#602 integrations. |
-| #605 | Independent research foundation, after the current foundation packet. | Reviewed Source/Claim, storage, trust and typed-reference contracts before consumers. |
+| #619 | [PR #629](https://github.com/aharada54914/sdd-forge/pull/629): explicit BOM-free aggregate writer and runtime regression. Native Windows 5.1 Red, then 5.1/Core Green (17 assertions each). Normal CI run 39809890748 attempt 2 passed: 448 verified obligations plus one expected skip; native evidence is from attempt 1. | Review/integration; [neighboring-writer investigation](issue-619-neighbor-writers.md) localizes remaining risks and original-producer limits. Historical records were preserved. This bounded fix does not claim all encoding work complete. |
+| #620 | [PR #630](https://github.com/aharada54914/sdd-forge/pull/630): deterministic JSON/YAML checker, exact immutable exceptions, candidate coverage and existing CI wiring. Runtime control outputs are ignored at the repository root; 13 behavioral tests, 71 guards and catalog checks pass. | Fresh per-run model request provisioning, genuine Claude/self-improvement role adoption with required human review, then a real complete weekly run. An Actions probe confirmed the request is unset; a path variable alone is insufficient. |
+| #614 | [PR #631](https://github.com/aharada54914/sdd-forge/pull/631): requirements/design/AC/layer drafts, Proposed ADR and task proposal. Independent content checks corrected concrete benchmark gaps. Normal CI run 39815368531 attempt 1 passed at source `12079211`, including required-checks. | Formal spec/design/task reviews and implementation; no measured baseline exists. Trusted current actor registration and reviewer-role model adoption/fresh input are not established in this environment. Status remains Pending/Draft. |
+| #594 | [PR #633](https://github.com/aharada54914/sdd-forge/pull/633): contract/ownership drafts with 95 planned acceptance cases, Proposed ADR-0040 and task proposal. Admitted inputs/output contents bind freshness; trial observations stay non-gating. | Formal reviews and implementation before dependent #595/#596/#602 integrations. Content rechecks are not formal gate results; status remains Pending/Draft. |
+| #605 | [Draft branch](https://github.com/aharada54914/sdd-forge/compare/work...feat/issue-605-research): Source/Claim contract, 200 planned acceptance cases (176 local, 24 downstream), Proposed ADR-0041 and task proposal. Targeted draft checks pass. No predecessor completion is required. | Formal reviews and implementation. This is a mixed Claude/Codex draft, not an independent review; no runtime/schema code or whole-repository CI result is claimed. |
+| #601 | [Three-class structural prevention map](issue-601-structural-prevention.md): existing guards, actual negative/control fixtures, deduplication candidates and a confirmed focused-test registration gap. | Reviewed scope and implementation; #600 held-out/model trials and retention outcomes are not produced by this investigation. |
+| #616 | [Host readiness matrix](issue-616-host-readiness.md): installed CLI versions, existing enforcement and documented prompt-event surfaces checked. No host is marked supported. | A real authenticated human-input issuer isolated from agent authority, then direct-chat/slash enable/status/off and replay/revocation proofs. Existing local hooks and sudo do not repair review-author provenance. |
 
 No Issue is closed by this plan. A passing local check, draft specification or
 bounded producer correction is not equivalent to the complete Issue acceptance.
-All three PRs target `work`; merging the entire modernization branch into `main`
-is a separate integration action. Their live checks/statuses are authoritative.
+PRs #629, #630, #631 and #633 target `work`. [PR #632](https://github.com/aharada54914/sdd-forge/pull/632) is a separate CI follow-up stacked on #629: re-read unfinished job metadata under one shared 60-second deadline without weakening identity or aggregation. Local collector/planner tests pass (89/54); native patch validation is pending. The original stale-metadata cause is probable, not proven from retained bytes.
+
+Merging the entire modernization branch into `main` is a separate integration action. Live checks and the exact tested merge revision are authoritative; a passing draft PR does not satisfy formal feature reviews.
 
 Coding and draft corrections were delegated to actual Claude CLI sessions;
-separate content checks and native CI supplied additional evidence. No Claude
-rate-limit event was observed, so no recovery time is claimed.
+separate content checks and native CI supplied additional evidence. Claude completed the #619/#620 fixes, #614/#594 drafts and CI refresh corrections. During #605 drafting it reported a session limit: `resets 9:10pm (UTC)` on 2026-10-22. Do not retry before **2026-10-22 21:10 UTC / 2026-10-23 06:10 JST**; verify availability after that time before delegating again. Codex completed the interrupted docs-only packet; remaining CI verification is recorded separately. After reset, inspect the current branch before resuming any prior Claude context so that completed fallback work is not duplicated.
 
 
 ## Action order
@@ -31,6 +33,7 @@ rate-limit event was observed, so no recovery time is claimed.
 Start with #619 runtime-specific BOM investigation/fix and #620 audit failure diagnosis as independent defects. #620 is not proven caused by #619. Then prioritize #614 measurement baseline and #594 skill/observation contracts; #605 research contract, #601 structural prevention and #616 trusted-host sudo can start independently.
 
 Full integration layers (conditional pilot dependencies remain scoped):
+
 - 0: #594, #601, #605, #614, #616, #619, #620
 - 1: #595, #606, #612, #615
 - 2: #596, #600, #602, #607, #608
