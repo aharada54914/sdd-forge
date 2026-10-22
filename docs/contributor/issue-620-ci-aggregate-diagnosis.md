@@ -103,3 +103,18 @@ Validate both event/API base and actual merge parents before admitting the new
 run. A replacement PR is linked from #630 when created; its native result is
 authoritative. Further progress documentation must use a separate branch while
 that validation is in flight. Failed runs and their artifacts remain intact.
+
+## Fresh binding verified before the replacement run
+
+PR #634 replaces #630 with the same source `f9b4b1ca`. Its run 39834531255
+uses fixed base `913573ca795b55a1c69b7762eb8e03169fa6aaea` and tested merge
+`9d5b822f0f54f2084af75a1e6c4b50207cdbff05`, whose parents are exactly that
+base and source `f9b4b1cabbe6737ffe3e197675d428f93331ed81`. The actual planner
+artifact `12450830707` has reason `shared-change`, 450 obligations and digest
+`8290214306a7755df6c2f689ceaa340ce97002ef259e56287b0fa9b217eb094c`. The existing
+A9 activation function on that exact plan/tree now returns `False` (inactive)
+without the old context exception. This verifies corrected binding, not yet
+full native test acceptance. The latter is recorded in PR #634.
+
+Progress is published on `docs/issue-execution-results`; `work` remains fixed
+during validation. #630 is closed without merging, with a link to its replacement.
