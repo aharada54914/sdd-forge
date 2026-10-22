@@ -453,6 +453,10 @@
     {
       "feature": "ci-model-modernization",
       "profile": "full"
+    },
+    {
+      "feature": "project-skill-observation",
+      "profile": "full"
     }
   ]
 }
