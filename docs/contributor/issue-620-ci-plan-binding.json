@@ -1,0 +1,46 @@
+{
+  "kind": "bounded-ci-plan-diagnosis",
+  "recorded_on": "2026-10-22",
+  "old_retained_plan_equals_rebuilt_json": true,
+  "cases": [
+    {
+      "run_id": "39827278860",
+      "artifact_id": 12448030235,
+      "plan_file_sha256": "a6b0459fab7de997014be161c9523cde8c9b35590b19a71ed302361b132b6cfe",
+      "plan_sha256": "43674a42e384a17b2c26a00cc7e259c58647080b7a6c6e85001a31f3dc0760ac",
+      "plan_reason": "binding-invalid",
+      "base_revision": "07ed2e984ec58160892e765d7c437c47d5daf332",
+      "api_head_sha": "f9b4b1cabbe6737ffe3e197675d428f93331ed81",
+      "tested_revision": "213e09a05c73dcfc6016fbbc48a4b46d9f3ad40b",
+      "actual_merge_parents": [
+        "dadbe494651b6da71782b996de3b4fbe5ea67d90",
+        "f9b4b1cabbe6737ffe3e197675d428f93331ed81"
+      ],
+      "a9_activation": {
+        "exception_type": "ValueError",
+        "message": "inconsistent PR A9 activation context"
+      }
+    },
+    {
+      "run_id": "39834531255",
+      "artifact_id": 12450830707,
+      "plan_file_sha256": "f8009b64c279f721a8e48a86ffabfb0bad04645a0f77d7a2e85fe66b7965f4f6",
+      "plan_sha256": "8290214306a7755df6c2f689ceaa340ce97002ef259e56287b0fa9b217eb094c",
+      "plan_reason": "shared-change",
+      "base_revision": "913573ca795b55a1c69b7762eb8e03169fa6aaea",
+      "api_head_sha": "f9b4b1cabbe6737ffe3e197675d428f93331ed81",
+      "tested_revision": "9d5b822f0f54f2084af75a1e6c4b50207cdbff05",
+      "actual_merge_parents": [
+        "913573ca795b55a1c69b7762eb8e03169fa6aaea",
+        "f9b4b1cabbe6737ffe3e197675d428f93331ed81"
+      ],
+      "a9_activation": {
+        "returned": false
+      }
+    }
+  ],
+  "limits": [
+    "Actual historical observation directories were not retained.",
+    "The replacement binding check is not full native CI acceptance."
+  ]
+}
