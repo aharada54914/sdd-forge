@@ -47,3 +47,29 @@ booleans and invoked no model. This is a separate pre-audit blocker, not proof
 of the original October 19 failure's cause. A configured path alone also cannot
 establish fresh observation data or valid model selection. The temporary probe
 workflow is removed after recording this result.
+
+
+### Remaining managed-run prerequisites
+
+At this branch, `contracts/model-policy.v1.json` maps three Claude aliases, but
+all remain `candidate` with empty adoption lists. The selector requires
+role-specific adoption even for a pin. The current GPT adoption does not cover
+Claude or the `self-improvement` role. Requirements REQ-017 and REQ-019 in
+`specs/ci-model-modernization/requirements.md` require representative-artifact
+evaluation and human-reviewed adoption; successful CLI authentication is not
+that evidence.
+
+The workflow also needs a per-run observation producer. Its request is consumed
+as supplied, and observations expire after 300 seconds. Committing a timestamped
+request or merely setting the variable cannot make it reusable by a weekly job.
+The existing discovery adapter supports Codex only; the design permits verified
+configuration for Claude, with its limitations recorded. A real current
+configuration inspection, source provenance and run scope must precede the
+observation timestamp. Do not label static policy entries as discovered account
+availability or restore a legacy launch to bypass managed selection.
+
+To finish #620: provision the fresh input through that supported boundary, obtain
+real Claude/self-improvement adoption evidence and its required human review,
+then run the weekly workflow at the final revision and record all five checks
+plus completion/finalizer success. This parser repair does not claim those
+operational prerequisites or recovery are complete.
