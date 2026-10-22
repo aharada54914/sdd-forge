@@ -72,7 +72,12 @@ function Write-Aggregate {
     if (-not (Test-Path $dir)) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
     }
-    $agg | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 $aggregatePath
+    # Issue #619: Set-Content -Encoding Utf8 writes a BOM on Windows PowerShell 5.1.
+    # .NET resolves relative paths against the process directory, not the PS location.
+    $aggregateFullPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($aggregatePath)
+    [System.IO.File]::WriteAllText($aggregateFullPath,
+        (($agg | ConvertTo-Json -Depth 5) + [Environment]::NewLine),
+        (New-Object System.Text.UTF8Encoding($false)))
 }
 
 # ── Step 0: discover verdict files ─────────────────────────────────────────

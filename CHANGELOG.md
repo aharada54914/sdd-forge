@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- #619 `check-cross-model.ps1` writes its aggregate as UTF-8 without BOM on both Windows PowerShell 5.1 and PowerShell 7, so strict JSON consumers parse it; relative `--spec-root` still resolves against the PowerShell location. Historical aggregates and other `-Encoding Utf8` emitters are unchanged.
+
 ## v1.20.0 (2026-10-21)
 
 ### Added

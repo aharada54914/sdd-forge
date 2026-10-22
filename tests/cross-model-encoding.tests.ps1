@@ -62,7 +62,9 @@ try {
 
     $cases = @(
         @{ Name = 'pass'; Second = 'PASS'; Exit = 0; Result = 'PASS' },
-        @{ Name = 'fail'; Second = 'NEEDS_WORK'; Exit = 1; Result = 'FAIL' }
+        @{ Name = 'fail'; Second = 'NEEDS_WORK'; Exit = 1; Result = 'FAIL' },
+        @{ Name = 'relative'; Second = 'PASS'; Exit = 0; Result = 'PASS' },
+        @{ Name = 'session'; Second = 'NEEDS_WORK'; Exit = 1; Result = 'FAIL' }
     )
     foreach ($case in $cases) {
         $label = "CM-016 [$ExpectEdition/$($case.Name)]"
@@ -78,14 +80,33 @@ try {
                 ($verdict | ConvertTo-Json -Depth 5), $noBom)
         }
 
-        $gateOutput = & $Producer -NoProfile -ExecutionPolicy Bypass -File $gate `
-            --task T-002 --feature f1 --spec-root (Join-Path $workDir "$($case.Name)/specs") 2>&1
+        $caseDir = Join-Path $workDir $case.Name
+        if ($case.Name -eq 'relative') {
+            # Relative --spec-root: a -File child starts in the caller's location.
+            Push-Location -LiteralPath $caseDir
+            $gateOutput = & $Producer -NoProfile -ExecutionPolicy Bypass -File $gate `
+                --task T-002 --feature f1 --spec-root specs 2>&1
+            Pop-Location
+        } elseif ($case.Name -eq 'session') {
+            # In-session call with PS location != process directory: the aggregate
+            # must land under the PS location, as Set-Content resolved it.
+            $q = { param($s) "'" + ($s -replace "'", "''") + "'" }
+            $command = "Set-Location -LiteralPath $(& $q $caseDir); " +
+                "[Environment]::CurrentDirectory = $(& $q $workDir); " +
+                "if ([Environment]::CurrentDirectory -eq (Get-Location).ProviderPath) { exit 3 }; " +
+                "& $(& $q $gate) -Task T-002 -Feature f1 -SpecRoot specs; exit `$LASTEXITCODE"
+            $gateOutput = & $Producer -NoProfile -ExecutionPolicy Bypass -Command $command 2>&1
+        } else {
+            $gateOutput = & $Producer -NoProfile -ExecutionPolicy Bypass -File $gate `
+                --task T-002 --feature f1 --spec-root (Join-Path $caseDir 'specs') 2>&1
+        }
         $gateExit = $LASTEXITCODE
         if ($gateExit -eq $case.Exit) { Ok "$label exit $gateExit" }
         else { Fail "$label expected exit $($case.Exit), got $gateExit`n$(($gateOutput | Out-String).Trim())" }
 
         $aggregate = Join-Path $verification 'T-002.cross-model.json'
         if (-not (Test-Path -LiteralPath $aggregate)) { Fail "$label aggregate not written"; continue }
+        if (Test-Path -LiteralPath (Join-Path $workDir 'specs')) { Fail "$label aggregate written relative to process directory" }
         $bytes = [System.IO.File]::ReadAllBytes($aggregate)
         $head = ($bytes[0..([Math]::Min(2, $bytes.Length - 1))] | ForEach-Object { '{0:X2}' -f $_ }) -join ' '
         if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
