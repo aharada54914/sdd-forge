@@ -25,9 +25,9 @@ This is a supported explanation, not proof of the original collection: that
 attempt's raw observation files were not uploaded and cannot be reconstructed.
 
 Original planner logs and subsequently observed run/PR metadata agreed on base
-`07ed2e984ec58160892e765d7c437c47d5daf332`, source and tested merge. No observed
-metadata supports attributing the failure to the later documentation-only
-update of `work`.
+`07ed2e984ec58160892e765d7c437c47d5daf332`, source and tested merge. That initial
+API-only comparison was insufficient: the retained plan and actual Git parents
+subsequently established the mismatch described below.
 
 ## Bounded follow-up
 
@@ -69,3 +69,37 @@ and no completion timestamp. Thus individual refresh is not demonstrated to
 recover this particular historical row. It correctly remains a failure when the
 individual endpoint also stays incomplete. The new run tests the patched source;
 it does not repair, reinterpret or erase either failed historical attempt.
+
+## Confirmed plan/Git mismatch (supersedes the incomplete diagnosis)
+
+The patched run 39827278860 also failed: required-checks job `120014795895`
+reported 450 `evidence-mismatch` rows at 18:39:45 UTC. All native jobs finished.
+Current authentic job rows passed `validate_jobs` and all 44 executed noncontrol
+jobs passed `execution_signature` / `source_job`; those current rows did not
+reproduce a stale-origin exception.
+
+The actual retained plan was downloaded from artifact `12448030235`. Its digest
+was `43674a42e384a17b2c26a00cc7e259c58647080b7a6c6e85001a31f3dc0760ac`, with
+`reason: binding-invalid`, API/event base `07ed2e98`, and tested merge `213e09a0`.
+The Git object for that merge has parents `dadbe494` and `f9b4b1ca`, not the
+plan's base/head pair. Rebuilding with the exact base planner and locked parser
+produced a plan identical to the retained artifact. Calling the existing
+`a9_activation` on that exact plan/tree raised
+`ValueError: inconsistent PR A9 activation context` at
+`tests/verification-workflow.py:435–439`. The aggregate's global failure is
+therefore reproducible from retained inputs without recovering its old
+observation directory or guessing about API timing.
+
+The earlier tested merge `a424196c` likewise has parents `8818e33e` and
+`3f1eb52a`, while its planning/API base was `07ed2e98`. Moving `work` while the
+PR retained its original base snapshot was relevant; the earlier dismissal
+based only on API metadata is withdrawn. The stale job observations were real,
+but did not establish the primary cause. The refresh correction remains a
+bounded, separately validated mitigation, not a repair for invalid plan identity.
+
+Keep the strict mismatch rejection. Publish this diagnosis, then hold the base
+branch fixed and create a fresh PR snapshot for the unchanged reviewed source.
+Validate both event/API base and actual merge parents before admitting the new
+run. A replacement PR is linked from #630 when created; its native result is
+authoritative. Further progress documentation must use a separate branch while
+that validation is in flight. Failed runs and their artifacts remain intact.
