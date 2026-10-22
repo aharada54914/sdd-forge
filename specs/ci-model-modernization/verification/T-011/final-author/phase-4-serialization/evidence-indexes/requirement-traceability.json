@@ -1,0 +1,27 @@
+{
+  "purpose": "Factual serialization index only; no rerun, new verdict or retrospective authority",
+  "check_id": "requirement-traceability",
+  "original_contract_sha256": "baf41f1f6836745dbbde4c88cfee15eb983a4f2a234b0e4ce927d8a091bf6233",
+  "original_fields": {
+    "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/ci-model-modernization/traceability.json /workspace/sdd-forge require-evidence",
+    "exit_code": 0,
+    "started_at": "2026-10-21T23:16:10.813962+00:00",
+    "finished_at": "2026-10-21T23:16:10.850099+00:00",
+    "evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/traceability.receipt.json",
+    "red_evidence": "",
+    "green_evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/traceability.receipt.json"
+  },
+  "references": [
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/traceability.receipt.json",
+      "sha256": "2d710ea1cd4c427a17886b663e05efbf9ac4358472ab6366176c0217d33621bc"
+    },
+    {
+      "field": "green_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/traceability.receipt.json",
+      "sha256": "2d710ea1cd4c427a17886b663e05efbf9ac4358472ab6366176c0217d33621bc"
+    }
+  ],
+  "notes": "Contract evidence/red_evidence/green_evidence must each use one existing canonical file. Preserve detailed lists/pointers here. For component coverage use actual producer verdict stdout directly."
+}

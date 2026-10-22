@@ -1,0 +1,33 @@
+{
+  "observed_at": "2026-10-21T20:50:48.615529+00:00",
+  "profiles": [
+    {
+      "profile": "local-posix",
+      "output": "/workspace/native-ci-failures/final-96afb59f/local-posix/retry-2",
+      "receipt_exists": false,
+      "exit_exists": false,
+      "log_mtime": "2026-10-21T20:37:07.279571+00:00",
+      "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+      "status": "",
+      "origin_main": "fcb8275a42061b8132ea88a36e69b02f4487be71"
+    },
+    {
+      "profile": "local-powershell",
+      "output": "/workspace/native-ci-failures/final-96afb59f/local-powershell/output",
+      "receipt_exists": false,
+      "exit_exists": false,
+      "log_mtime": "2026-10-21T20:37:06.979573+00:00",
+      "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+      "status": "",
+      "origin_main": "fcb8275a42061b8132ea88a36e69b02f4487be71"
+    }
+  ],
+  "owned_cwd_processes": [],
+  "wrapper_sha256": "863a219256b1318935e58299695e13afe2be0e65b89157c70499deb45e7ddad3",
+  "free_bytes": 2419388416,
+  "curation": {
+    "source_path": "/workspace/native-ci-failures/final-96afb59f/interruption-observation.json",
+    "source_sha256": "9e0fdfd805222c363a9c2464d01c40c8ca9950d98b42b781a192af4507a431f8",
+    "transformation": "Removed wrapper_bytes only. Original observation retained externally; all original other fields preserved."
+  }
+}

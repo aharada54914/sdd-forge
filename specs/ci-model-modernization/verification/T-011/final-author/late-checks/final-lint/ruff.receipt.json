@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/workspace/.tools/sdd-forge-python/bin/ruff",
+    "check",
+    "--config",
+    "tests/shared-launch-python/pyproject.toml",
+    "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+    "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+    "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+    "plugins/sdd-quality-loop/scripts/validate-feature-scratch-history.py",
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+    "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+    "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+    "scripts/human_copy_mirrors.py",
+    "tests/verification-ci.py",
+    "tests/verification-impact.py"
+  ],
+  "started_at": "2026-10-21T23:25:02.666181+00:00",
+  "finished_at": "2026-10-21T23:25:02.710658+00:00",
+  "exit_code": 0,
+  "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "tool_sha256": "21608d3f59dde6c2b74870a92a8281df960eaec228ef8006984323cf277496f0",
+  "source_before": "source-before.json",
+  "tested_product_revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "metadata_changes_only_since_tested_revision": true
+}

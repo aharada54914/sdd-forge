@@ -1,0 +1,11 @@
+{
+  "profile": "local-posix",
+  "index": 8,
+  "count": 16,
+  "suite_count": 19,
+  "exit": 0,
+  "passed": true,
+  "seconds": 884.863947066,
+  "finished_at": "2026-10-21T22:18:35.206681+00:00",
+  "receipt_sha256": "998e41daf06366ab8c407a6c1d0ccb559ac353837bb3d15563db3b13452088a5"
+}

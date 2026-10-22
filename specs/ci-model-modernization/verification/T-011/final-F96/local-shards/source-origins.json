@@ -1,0 +1,859 @@
+{
+  "original_owner_manifest_sha256": "5858ec1b8786ad6393e9b5ae689f0c1c5bf761613d27e94c0dfa1111f398a070",
+  "files": [
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/source-pins.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/source-pins.json",
+      "source_sha256": "a1b521aad0eba9699db2f953fc6b0c9c8cfef64cce1a6c53d205e7065f6def4d",
+      "published_sha256": "a1b521aad0eba9699db2f953fc6b0c9c8cfef64cce1a6c53d205e7065f6def4d",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/complete-plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/complete-plan.json",
+      "source_sha256": "e5434bb29954a4597c4b65a9009bc60634941f8add0f136306c5f2df0d204dc9",
+      "published_sha256": "e5434bb29954a4597c4b65a9009bc60634941f8add0f136306c5f2df0d204dc9",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/complete-results.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/complete-results.json",
+      "source_sha256": "d3f466c9e456d0209e76be210e5c301390c4f4a64a706736784fa41978d58b9f",
+      "published_sha256": "d3f466c9e456d0209e76be210e5c301390c4f4a64a706736784fa41978d58b9f",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/receipt-set-validation.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/receipt-set-validation.json",
+      "source_sha256": "84ad1b25099ff522c281c5bb8277c5b25dd2f2a751e57d70d3effdd2856354c2",
+      "published_sha256": "84ad1b25099ff522c281c5bb8277c5b25dd2f2a751e57d70d3effdd2856354c2",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-00/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-00/plan.json",
+      "source_sha256": "569ce69f8c04e79bde8b8c08bf49cef88c0adab1c70d523365e0eb57f557e601",
+      "published_sha256": "569ce69f8c04e79bde8b8c08bf49cef88c0adab1c70d523365e0eb57f557e601",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-00/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-00/receipt.json",
+      "source_sha256": "75811131cb3398fbf6d089526e6d8760eb171fd546dd699aceefcb3db2230ad5",
+      "published_sha256": "75811131cb3398fbf6d089526e6d8760eb171fd546dd699aceefcb3db2230ad5",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-00/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-00/completion.json",
+      "source_sha256": "f32dbcf0b6b226081554671f37a6620db7bdf735cddfd05ab373867a4893e231",
+      "published_sha256": "f32dbcf0b6b226081554671f37a6620db7bdf735cddfd05ab373867a4893e231",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-01/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-01/plan.json",
+      "source_sha256": "553a78b3e6ad51005b8e0103dddcd22a5a1eb85ffdbdb396e040e8c3d637c3d5",
+      "published_sha256": "553a78b3e6ad51005b8e0103dddcd22a5a1eb85ffdbdb396e040e8c3d637c3d5",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-01/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-01/receipt.json",
+      "source_sha256": "eaab541a4bb63dd1f2ab5c35486aeea2c6ed7a7481482f3fb1ec951734803ce8",
+      "published_sha256": "eaab541a4bb63dd1f2ab5c35486aeea2c6ed7a7481482f3fb1ec951734803ce8",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-01/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-01/completion.json",
+      "source_sha256": "d3e8c249bb4b0b287ab4f3d9605727df0e0575e1cf1fc1b96cd3f1102052cffa",
+      "published_sha256": "d3e8c249bb4b0b287ab4f3d9605727df0e0575e1cf1fc1b96cd3f1102052cffa",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-02/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-02/plan.json",
+      "source_sha256": "747a67fb76cd65c5361a612ec30bd3536021f691fe0cdda6d1a9a5d1e4d29962",
+      "published_sha256": "747a67fb76cd65c5361a612ec30bd3536021f691fe0cdda6d1a9a5d1e4d29962",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-02/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-02/receipt.json",
+      "source_sha256": "0a78a4cb3444196093accbc3b9412c920026d8750c5901a5d90a17ce85b26b6d",
+      "published_sha256": "0a78a4cb3444196093accbc3b9412c920026d8750c5901a5d90a17ce85b26b6d",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-02/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-02/completion.json",
+      "source_sha256": "8bb124e5d3b34bbf06e27c19576fa87300a29af3ac697f79d4650c18a3b0fe00",
+      "published_sha256": "8bb124e5d3b34bbf06e27c19576fa87300a29af3ac697f79d4650c18a3b0fe00",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-03/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-03/plan.json",
+      "source_sha256": "4deb06797de438d54e6f5c80cb67bbdbca4294836a9a4d9d1d67b9a8806dec39",
+      "published_sha256": "4deb06797de438d54e6f5c80cb67bbdbca4294836a9a4d9d1d67b9a8806dec39",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-03/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-03/receipt.json",
+      "source_sha256": "68a6267bc31959867383aaabd63b4dbf6b32e126159faa7d68feaeb61af33d2c",
+      "published_sha256": "68a6267bc31959867383aaabd63b4dbf6b32e126159faa7d68feaeb61af33d2c",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-03/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-03/completion.json",
+      "source_sha256": "ed13a3af49d613e6d924dd625bad6f1e5728d00b717a4ef0e78a5bbda24df56b",
+      "published_sha256": "ed13a3af49d613e6d924dd625bad6f1e5728d00b717a4ef0e78a5bbda24df56b",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-04/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-04/plan.json",
+      "source_sha256": "0ea09e17862dcb66f8162abe7854285b2e38f82e2ab85ab313fa286304953142",
+      "published_sha256": "0ea09e17862dcb66f8162abe7854285b2e38f82e2ab85ab313fa286304953142",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-04/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-04/receipt.json",
+      "source_sha256": "a75a6b890434d5acf0266400db789fee7f30c1588bc72409733040bceef8a3b7",
+      "published_sha256": "a75a6b890434d5acf0266400db789fee7f30c1588bc72409733040bceef8a3b7",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-04/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-04/completion.json",
+      "source_sha256": "d7720a48988169f77fd5688cc5d762a3c1fe717c77bc4c542b08d9e28a5ff72f",
+      "published_sha256": "d7720a48988169f77fd5688cc5d762a3c1fe717c77bc4c542b08d9e28a5ff72f",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-05/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-05/plan.json",
+      "source_sha256": "6588cc6dec24a12bee0eac163188aaf63a7950ba4e46972332632d880d9983a6",
+      "published_sha256": "6588cc6dec24a12bee0eac163188aaf63a7950ba4e46972332632d880d9983a6",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-05/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-05/receipt.json",
+      "source_sha256": "be8ec0f3feecc9476d0e7072c533ada552e82876bc2f4230ef8e0aed51ce6c64",
+      "published_sha256": "be8ec0f3feecc9476d0e7072c533ada552e82876bc2f4230ef8e0aed51ce6c64",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-05/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-05/completion.json",
+      "source_sha256": "f95a9c3c9bc94b40d31f0fdbc8fa3373f286ef24c1eea577e8e771882aa23d30",
+      "published_sha256": "f95a9c3c9bc94b40d31f0fdbc8fa3373f286ef24c1eea577e8e771882aa23d30",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-06/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-06/plan.json",
+      "source_sha256": "10334cbde91c2f89a70d5d23ca66f11ee07585fc6977477a86de316e8a841457",
+      "published_sha256": "10334cbde91c2f89a70d5d23ca66f11ee07585fc6977477a86de316e8a841457",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-06/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-06/receipt.json",
+      "source_sha256": "7410c11e0be172e54e23294ce7328e5203d6add4026a992729ebc7b61e6b4e04",
+      "published_sha256": "7410c11e0be172e54e23294ce7328e5203d6add4026a992729ebc7b61e6b4e04",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-06/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-06/completion.json",
+      "source_sha256": "3e305a8d513370d7d626caad4dd0556e24df0abc163cdb25beda76e898a49d21",
+      "published_sha256": "3e305a8d513370d7d626caad4dd0556e24df0abc163cdb25beda76e898a49d21",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-07/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-07/plan.json",
+      "source_sha256": "e4213675898fbe818df7b663d11ca29a0b8dca90f3aa8ff8912ff57104561373",
+      "published_sha256": "e4213675898fbe818df7b663d11ca29a0b8dca90f3aa8ff8912ff57104561373",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-07/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-07/receipt.json",
+      "source_sha256": "b17518bfb043617cf89fbd7280a9a03728cbf9090a2bc9470afd0fedb8c1c9c7",
+      "published_sha256": "b17518bfb043617cf89fbd7280a9a03728cbf9090a2bc9470afd0fedb8c1c9c7",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-07/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-07/completion.json",
+      "source_sha256": "2ea9a61ad105c2bbca39234aa15a38e026dbc65a4421918afb2c6021b7f78e97",
+      "published_sha256": "2ea9a61ad105c2bbca39234aa15a38e026dbc65a4421918afb2c6021b7f78e97",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-08/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-08/plan.json",
+      "source_sha256": "3a8bab70f99c4ea164032c7d26ceceaf5d948367fd400b560ff3c5094f549da3",
+      "published_sha256": "3a8bab70f99c4ea164032c7d26ceceaf5d948367fd400b560ff3c5094f549da3",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-08/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-08/receipt.json",
+      "source_sha256": "998e41daf06366ab8c407a6c1d0ccb559ac353837bb3d15563db3b13452088a5",
+      "published_sha256": "998e41daf06366ab8c407a6c1d0ccb559ac353837bb3d15563db3b13452088a5",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-08/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-08/completion.json",
+      "source_sha256": "7366358bfe7f251a9d2f611fe3de824bfb413bef55f8f50f2016d10842be517a",
+      "published_sha256": "7366358bfe7f251a9d2f611fe3de824bfb413bef55f8f50f2016d10842be517a",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-09/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-09/plan.json",
+      "source_sha256": "208f0dafe2364d5ca54c2da9e601d41ab4636f997dd09735c3f57cb103ff23ff",
+      "published_sha256": "208f0dafe2364d5ca54c2da9e601d41ab4636f997dd09735c3f57cb103ff23ff",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-09/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-09/receipt.json",
+      "source_sha256": "d2c24db9b4ac2747b883b77dacfcbd714cf4fecd3e05d240dc8d917bfe22df14",
+      "published_sha256": "d2c24db9b4ac2747b883b77dacfcbd714cf4fecd3e05d240dc8d917bfe22df14",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-09/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-09/completion.json",
+      "source_sha256": "8f1b5a8fe0836e7e6be762c596f2ffc58aa406147e13db124a9e2926f65f6ebc",
+      "published_sha256": "8f1b5a8fe0836e7e6be762c596f2ffc58aa406147e13db124a9e2926f65f6ebc",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-10/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-10/plan.json",
+      "source_sha256": "aed98a53b18dc4817b1a5bf147f4319419b3ea2252a170c9ddb19f132b1b03de",
+      "published_sha256": "aed98a53b18dc4817b1a5bf147f4319419b3ea2252a170c9ddb19f132b1b03de",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-10/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-10/receipt.json",
+      "source_sha256": "737409fd39a9030e558c502e35b36d079ad0f4a40cdbb5064f39d6bad0f6301b",
+      "published_sha256": "737409fd39a9030e558c502e35b36d079ad0f4a40cdbb5064f39d6bad0f6301b",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-10/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-10/completion.json",
+      "source_sha256": "9dcc30dca9cbf7b5c1b9100d55ac49217528a034043db602a86a509a9cf59600",
+      "published_sha256": "9dcc30dca9cbf7b5c1b9100d55ac49217528a034043db602a86a509a9cf59600",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-11/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-11/plan.json",
+      "source_sha256": "d0d2d7bd86de24b7608065885874778898c4ff9ef1de519681c8c8fb47d1e364",
+      "published_sha256": "d0d2d7bd86de24b7608065885874778898c4ff9ef1de519681c8c8fb47d1e364",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-11/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-11/receipt.json",
+      "source_sha256": "52df9b27d9e0e3cb6b4886c5b5fa66b1f1182e11b3bb85168b63741678ecc097",
+      "published_sha256": "52df9b27d9e0e3cb6b4886c5b5fa66b1f1182e11b3bb85168b63741678ecc097",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-11/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-11/completion.json",
+      "source_sha256": "53b7a53b8ba27d015bc4f739a209db52e64bfabdd2c55251d10547064acde2b4",
+      "published_sha256": "53b7a53b8ba27d015bc4f739a209db52e64bfabdd2c55251d10547064acde2b4",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-12/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-12/plan.json",
+      "source_sha256": "bfa6c7973b66e5252552d2bb440815f65db709ae620ef74e458266976fee52bf",
+      "published_sha256": "bfa6c7973b66e5252552d2bb440815f65db709ae620ef74e458266976fee52bf",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-12/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-12/receipt.json",
+      "source_sha256": "90adce92b5eb324a8391eff9729775c2b13f4e187a6c84eebb2bea9f0a1f493f",
+      "published_sha256": "90adce92b5eb324a8391eff9729775c2b13f4e187a6c84eebb2bea9f0a1f493f",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-12/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-12/completion.json",
+      "source_sha256": "600965ae6199d61c888b3432c10f1652deb1a907616a9b745e1e7eac5cac5338",
+      "published_sha256": "600965ae6199d61c888b3432c10f1652deb1a907616a9b745e1e7eac5cac5338",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-13/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-13/plan.json",
+      "source_sha256": "7520e45ba0e7a3b7ecc6803b3cdb8eba4720109ebfb440d94c9255fba0e82dad",
+      "published_sha256": "7520e45ba0e7a3b7ecc6803b3cdb8eba4720109ebfb440d94c9255fba0e82dad",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-13/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-13/receipt.json",
+      "source_sha256": "a3c3ed73206af091ccc01b9ed82ab1004f335e613238375377213326ed4708a0",
+      "published_sha256": "a3c3ed73206af091ccc01b9ed82ab1004f335e613238375377213326ed4708a0",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-13/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-13/completion.json",
+      "source_sha256": "a555fb46082a9b3c84aabe71a21cd3019a51e38d509868dce41c7aca00f5e38c",
+      "published_sha256": "a555fb46082a9b3c84aabe71a21cd3019a51e38d509868dce41c7aca00f5e38c",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-14/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-14/plan.json",
+      "source_sha256": "73139da548ef3befad350ce10e37c476a920564d73bd5ae29f723aadccb7f15a",
+      "published_sha256": "73139da548ef3befad350ce10e37c476a920564d73bd5ae29f723aadccb7f15a",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-14/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-14/receipt.json",
+      "source_sha256": "0a3148b4cb837e661d95942efdb70cc106fc930814a0e0129077febca480b057",
+      "published_sha256": "0a3148b4cb837e661d95942efdb70cc106fc930814a0e0129077febca480b057",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-14/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-14/completion.json",
+      "source_sha256": "515915b1653a1887171ca69a992b8e84bf6392ad3bcbd2d688c8f488a14dfa01",
+      "published_sha256": "515915b1653a1887171ca69a992b8e84bf6392ad3bcbd2d688c8f488a14dfa01",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-15/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-15/plan.json",
+      "source_sha256": "1b65fc4a8a32190b4dc011619c0e6e90b190f2345d47e8309c2fde62264743b2",
+      "published_sha256": "1b65fc4a8a32190b4dc011619c0e6e90b190f2345d47e8309c2fde62264743b2",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-15/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-15/receipt.json",
+      "source_sha256": "4f02d1f0c4162bbd1cfa4342a18cdb71faa1729d9d14d192984ceba64487023a",
+      "published_sha256": "4f02d1f0c4162bbd1cfa4342a18cdb71faa1729d9d14d192984ceba64487023a",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-15/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-15/completion.json",
+      "source_sha256": "09b6f646ba0210c07a63e90a10dea3d267ef2f1c86587b658c2a43e61651aedb",
+      "published_sha256": "09b6f646ba0210c07a63e90a10dea3d267ef2f1c86587b658c2a43e61651aedb",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/source-pins.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/source-pins.json",
+      "source_sha256": "a1b521aad0eba9699db2f953fc6b0c9c8cfef64cce1a6c53d205e7065f6def4d",
+      "published_sha256": "a1b521aad0eba9699db2f953fc6b0c9c8cfef64cce1a6c53d205e7065f6def4d",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/complete-plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/complete-plan.json",
+      "source_sha256": "252eab461e86db29411768226c137d08e834d2f03c6c2985d5a292c020f2f4cb",
+      "published_sha256": "252eab461e86db29411768226c137d08e834d2f03c6c2985d5a292c020f2f4cb",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/complete-results.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/complete-results.json",
+      "source_sha256": "2ef33b35a5dd9312827d6d726b694db6b4df566e704a49dffd1e1c138c35524d",
+      "published_sha256": "2ef33b35a5dd9312827d6d726b694db6b4df566e704a49dffd1e1c138c35524d",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/receipt-set-validation.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/receipt-set-validation.json",
+      "source_sha256": "c82a1d287a99de8e1f4b3389d2c87db82edde29483c71c8e5924e36f185949c0",
+      "published_sha256": "c82a1d287a99de8e1f4b3389d2c87db82edde29483c71c8e5924e36f185949c0",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-00/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-00/plan.json",
+      "source_sha256": "67f95c892224af1a84942134055369d1df1524eb88e1f483cb93e82137ca2fea",
+      "published_sha256": "67f95c892224af1a84942134055369d1df1524eb88e1f483cb93e82137ca2fea",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-00/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-00/receipt.json",
+      "source_sha256": "18fe794788fd1e8dae774d7aa2679caef755d81daa7c596abfd751dd98a31917",
+      "published_sha256": "18fe794788fd1e8dae774d7aa2679caef755d81daa7c596abfd751dd98a31917",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-00/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-00/completion.json",
+      "source_sha256": "be80a074bd7f2640b1a7812f7a9820042bbc20b7237f7859503911448e54cc6b",
+      "published_sha256": "be80a074bd7f2640b1a7812f7a9820042bbc20b7237f7859503911448e54cc6b",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-01/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-01/plan.json",
+      "source_sha256": "2cde0cdfcce3bf352cf1cccb203b71c39d0215b7b52724f6dfe109ab5ddf06ac",
+      "published_sha256": "2cde0cdfcce3bf352cf1cccb203b71c39d0215b7b52724f6dfe109ab5ddf06ac",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-01/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-01/receipt.json",
+      "source_sha256": "d4218eb4270cc8992d494c3e356ac46ee3c06f0695d3e88670043b2d691cf7e8",
+      "published_sha256": "d4218eb4270cc8992d494c3e356ac46ee3c06f0695d3e88670043b2d691cf7e8",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-01/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-01/completion.json",
+      "source_sha256": "9ba54916b86bcc901391f3ad9372f9ad8e9fa7381997cfa59e9e9abe5b83662d",
+      "published_sha256": "9ba54916b86bcc901391f3ad9372f9ad8e9fa7381997cfa59e9e9abe5b83662d",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-02/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-02/plan.json",
+      "source_sha256": "15fb1bb51e7870a3f32a176e9fe9623b38e3cb5e3a5aea5125c72be26cc4c96f",
+      "published_sha256": "15fb1bb51e7870a3f32a176e9fe9623b38e3cb5e3a5aea5125c72be26cc4c96f",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-02/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-02/receipt.json",
+      "source_sha256": "d8db12f2a52c2fd7a46673b0471c1386089b2fe2710aeca3285a3b74d2ad25d8",
+      "published_sha256": "d8db12f2a52c2fd7a46673b0471c1386089b2fe2710aeca3285a3b74d2ad25d8",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-02/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-02/completion.json",
+      "source_sha256": "ed1ce386221a6dd16110a2ca09de20e05f4ad5c1aa0d764fa7aa2909e277b0ec",
+      "published_sha256": "ed1ce386221a6dd16110a2ca09de20e05f4ad5c1aa0d764fa7aa2909e277b0ec",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-03/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-03/plan.json",
+      "source_sha256": "e8383b3674c04c3e3d1b03333189c67a3130f53f0f33e0fd6a0e49348c5d1454",
+      "published_sha256": "e8383b3674c04c3e3d1b03333189c67a3130f53f0f33e0fd6a0e49348c5d1454",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-03/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-03/receipt.json",
+      "source_sha256": "ee70851d5546c65256aace6aa1ff7155019d8d201639b4cbc2a85384ebbb117b",
+      "published_sha256": "ee70851d5546c65256aace6aa1ff7155019d8d201639b4cbc2a85384ebbb117b",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-03/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-03/completion.json",
+      "source_sha256": "030c742348ec650e8ee3d6a3936e2a24b9d2a4cad13dce6ccc815bd5be720fe7",
+      "published_sha256": "030c742348ec650e8ee3d6a3936e2a24b9d2a4cad13dce6ccc815bd5be720fe7",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-04/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-04/plan.json",
+      "source_sha256": "8f0121edd4469a04da1dd00ca0683cc2551426872959c9fc791a4575e019ea2f",
+      "published_sha256": "8f0121edd4469a04da1dd00ca0683cc2551426872959c9fc791a4575e019ea2f",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-04/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-04/receipt.json",
+      "source_sha256": "edf3506dff985ef6d7ce386e3e182cef3fed032f8971aaaad62ba168a8e97d93",
+      "published_sha256": "edf3506dff985ef6d7ce386e3e182cef3fed032f8971aaaad62ba168a8e97d93",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-04/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-04/completion.json",
+      "source_sha256": "ce3f0d84b6be255cda93e4281cc66ad9786886fccaf1079c8a5545c8b0a13cb0",
+      "published_sha256": "ce3f0d84b6be255cda93e4281cc66ad9786886fccaf1079c8a5545c8b0a13cb0",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-05/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-05/plan.json",
+      "source_sha256": "d5855fa5da427f46b17ee42758b440b54fb9da98d47361d17830c7a04d0888f8",
+      "published_sha256": "d5855fa5da427f46b17ee42758b440b54fb9da98d47361d17830c7a04d0888f8",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-05/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-05/receipt.json",
+      "source_sha256": "bd6e6ea1238581f6750094c1f7486bfbeb833d2416552a87738d305ff2979549",
+      "published_sha256": "bd6e6ea1238581f6750094c1f7486bfbeb833d2416552a87738d305ff2979549",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-05/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-05/completion.json",
+      "source_sha256": "4aaa706f1400b61ae92b7c117a35ad839f1320c92f2b554e7c88999a5894c119",
+      "published_sha256": "4aaa706f1400b61ae92b7c117a35ad839f1320c92f2b554e7c88999a5894c119",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-06/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-06/plan.json",
+      "source_sha256": "b256661c53b11c18687a505d603da4547bbf645922ebed81545eb3d6948dd90f",
+      "published_sha256": "b256661c53b11c18687a505d603da4547bbf645922ebed81545eb3d6948dd90f",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-06/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-06/receipt.json",
+      "source_sha256": "86e988a4a2da2a84641ca43d72963ebfa2f3bb09db45688d71cefd6ca7a79c99",
+      "published_sha256": "86e988a4a2da2a84641ca43d72963ebfa2f3bb09db45688d71cefd6ca7a79c99",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-06/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-06/completion.json",
+      "source_sha256": "802c30f2443e6854d3ee34620d73f17d84677fa9cdecfe0c99076ac9bc6d5239",
+      "published_sha256": "802c30f2443e6854d3ee34620d73f17d84677fa9cdecfe0c99076ac9bc6d5239",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-07/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-07/plan.json",
+      "source_sha256": "3ede947c792d0927df741e8415b872a019867845a7b47abfd16aecf94907a5eb",
+      "published_sha256": "3ede947c792d0927df741e8415b872a019867845a7b47abfd16aecf94907a5eb",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-07/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-07/receipt.json",
+      "source_sha256": "6efd4c53c5ccf39f7e075ab81c5a566813b32966ffc32479a8d49af596748415",
+      "published_sha256": "6efd4c53c5ccf39f7e075ab81c5a566813b32966ffc32479a8d49af596748415",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-07/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-07/completion.json",
+      "source_sha256": "bc698813c3f7585dc383fc03da1cf31c98430687cbd370d942b1141357302c9a",
+      "published_sha256": "bc698813c3f7585dc383fc03da1cf31c98430687cbd370d942b1141357302c9a",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-08/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-08/plan.json",
+      "source_sha256": "0e3e13d5a00c4448a5fb9bee3683104da838a1688b33f4207e83ca62f498633a",
+      "published_sha256": "0e3e13d5a00c4448a5fb9bee3683104da838a1688b33f4207e83ca62f498633a",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-08/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-08/receipt.json",
+      "source_sha256": "bdd72d694a677f0088210f2c018d601d65604b748446fbc239079457f92c49b2",
+      "published_sha256": "bdd72d694a677f0088210f2c018d601d65604b748446fbc239079457f92c49b2",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-08/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-08/completion.json",
+      "source_sha256": "a66981e41819a50a87014b5c8c7daa4bd20005ab22ca6533365639b8885ff80d",
+      "published_sha256": "a66981e41819a50a87014b5c8c7daa4bd20005ab22ca6533365639b8885ff80d",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-09/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-09/plan.json",
+      "source_sha256": "5fe34369ee1aaf040465cc850e286b8b2fb0d828dc72a9130f59094cfda2eb91",
+      "published_sha256": "5fe34369ee1aaf040465cc850e286b8b2fb0d828dc72a9130f59094cfda2eb91",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-09/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-09/receipt.json",
+      "source_sha256": "4672ae00cca89622a1bb8754e5504499815c108ee7f5959a3e6199d83cfebde3",
+      "published_sha256": "4672ae00cca89622a1bb8754e5504499815c108ee7f5959a3e6199d83cfebde3",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-09/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-09/completion.json",
+      "source_sha256": "3ad5f4536e4d469829ac3d4101d1596e3babe6308ca84d8631e4c7a80c3baa50",
+      "published_sha256": "3ad5f4536e4d469829ac3d4101d1596e3babe6308ca84d8631e4c7a80c3baa50",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-10/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-10/plan.json",
+      "source_sha256": "8856719ff8d4c12840b1d5ac87dcc3ca1542d0940dd0529ff4b21e5c2081e334",
+      "published_sha256": "8856719ff8d4c12840b1d5ac87dcc3ca1542d0940dd0529ff4b21e5c2081e334",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-10/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-10/receipt.json",
+      "source_sha256": "ecad37782619e8a26583b29fa627e31576ef07b47a0b55f3589274c3feb0781a",
+      "published_sha256": "ecad37782619e8a26583b29fa627e31576ef07b47a0b55f3589274c3feb0781a",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-10/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-10/completion.json",
+      "source_sha256": "5dbeae0457d032bbd8d85b1bb10579a3b3c953e389c1e6e79278de45084c0fed",
+      "published_sha256": "5dbeae0457d032bbd8d85b1bb10579a3b3c953e389c1e6e79278de45084c0fed",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-11/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-11/plan.json",
+      "source_sha256": "8dcab4eb5da3ed036eef1a6c14a4f9738c6199f7c3af2479e8ab1660dfac5207",
+      "published_sha256": "8dcab4eb5da3ed036eef1a6c14a4f9738c6199f7c3af2479e8ab1660dfac5207",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-11/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-11/receipt.json",
+      "source_sha256": "b849aced5e3787271cdf675df063b7e72394f9440cb19b126fd1995823e75d62",
+      "published_sha256": "b849aced5e3787271cdf675df063b7e72394f9440cb19b126fd1995823e75d62",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-11/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-11/completion.json",
+      "source_sha256": "aedf3781b653bed368bb4e9bc146df4c42b2be98def6d41080e03f80fb3542f5",
+      "published_sha256": "aedf3781b653bed368bb4e9bc146df4c42b2be98def6d41080e03f80fb3542f5",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-12/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-12/plan.json",
+      "source_sha256": "f2b69b301c8f0d2d7d4d9cc013a3006e49efcd7ba5b201a9c997a76df426fcbb",
+      "published_sha256": "f2b69b301c8f0d2d7d4d9cc013a3006e49efcd7ba5b201a9c997a76df426fcbb",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-12/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-12/receipt.json",
+      "source_sha256": "e100d3e7954678b1370f28330af0dddba830f026aa574645754be48f35bb953b",
+      "published_sha256": "e100d3e7954678b1370f28330af0dddba830f026aa574645754be48f35bb953b",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-12/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-12/completion.json",
+      "source_sha256": "42d20206cb3342610380b89a51b90803e899b0282a0a8b2709cc84f069bb7ba2",
+      "published_sha256": "42d20206cb3342610380b89a51b90803e899b0282a0a8b2709cc84f069bb7ba2",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-13/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-13/plan.json",
+      "source_sha256": "0570bd645950c0b1bb4ac66fe2f1ef5444ca493c216792fed4d69e5532c500d5",
+      "published_sha256": "0570bd645950c0b1bb4ac66fe2f1ef5444ca493c216792fed4d69e5532c500d5",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-13/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-13/receipt.json",
+      "source_sha256": "27e81f3c03485cd1f4a8460337938fa307ccb028682626b162c73e99e61c3fcb",
+      "published_sha256": "27e81f3c03485cd1f4a8460337938fa307ccb028682626b162c73e99e61c3fcb",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-13/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-13/completion.json",
+      "source_sha256": "a39bc027b6ce8f450d5a14bed3bfc680111dac4a3b35aadf85f61f35353241b0",
+      "published_sha256": "a39bc027b6ce8f450d5a14bed3bfc680111dac4a3b35aadf85f61f35353241b0",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-14/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-14/plan.json",
+      "source_sha256": "afe41fe74d0cff98ad660a259285b8d640aeb8284ac80418f50e7b47a114c498",
+      "published_sha256": "afe41fe74d0cff98ad660a259285b8d640aeb8284ac80418f50e7b47a114c498",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-14/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-14/receipt.json",
+      "source_sha256": "54d80b6eeb123eb2abdcb540920bc173bdab446f23b9e3d86b11a57d31dfa6c8",
+      "published_sha256": "54d80b6eeb123eb2abdcb540920bc173bdab446f23b9e3d86b11a57d31dfa6c8",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-14/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-14/completion.json",
+      "source_sha256": "d07408958ee4e2be9f28266de90c26419b61947ff4aea4477105cf6d5640a2e0",
+      "published_sha256": "d07408958ee4e2be9f28266de90c26419b61947ff4aea4477105cf6d5640a2e0",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-15/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-15/plan.json",
+      "source_sha256": "b545a2bb4b3fc52aa6cd1d25bb8253948d16a7f8d61c7db42b23adf562d7c5dd",
+      "published_sha256": "b545a2bb4b3fc52aa6cd1d25bb8253948d16a7f8d61c7db42b23adf562d7c5dd",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-15/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-15/receipt.json",
+      "source_sha256": "3f16353ff5ba2bce98f33bb31a1f2aba800cd2e59eb0dfede2df8c282028ab31",
+      "published_sha256": "3f16353ff5ba2bce98f33bb31a1f2aba800cd2e59eb0dfede2df8c282028ab31",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-15/completion.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-15/completion.json",
+      "source_sha256": "9f9b5f107349455c17d28b92969064eb3628f38b471adc0ff03fa2a82d29eaba",
+      "published_sha256": "9f9b5f107349455c17d28b92969064eb3628f38b471adc0ff03fa2a82d29eaba",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/final-receipt-set-validation.json",
+      "source_sha256": "70a11d4d6f87f128e7bbb450f79bd757c26df02ccc1da62795705c4be312a700",
+      "published_sha256": "70a11d4d6f87f128e7bbb450f79bd757c26df02ccc1da62795705c4be312a700",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-artifact-manifest.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/final-artifact-manifest.json",
+      "source_sha256": "5858ec1b8786ad6393e9b5ae689f0c1c5bf761613d27e94c0dfa1111f398a070",
+      "published_sha256": "5858ec1b8786ad6393e9b5ae689f0c1c5bf761613d27e94c0dfa1111f398a070",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/local-posix/output/receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/output/receipt.json",
+      "source_sha256": "4a92d7de54daa03a66de35e27c40753142370c02e7575fa6cba2050acec8866b",
+      "published_sha256": "4a92d7de54daa03a66de35e27c40753142370c02e7575fa6cba2050acec8866b",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/local-posix/output/plan.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/output/plan.json",
+      "source_sha256": "e03c34ed8b80006c7c89413934abc6c414c90f382dc22545a6b520b3649dd22e",
+      "published_sha256": "e03c34ed8b80006c7c89413934abc6c414c90f382dc22545a6b520b3649dd22e",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/local-posix/output/tag-preflight.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/local-posix/output/tag-preflight.json",
+      "source_sha256": "bca4557d589480db6f159fccd41f62b14f3f1e1e54d2604e648adaf92d0a1acf",
+      "published_sha256": "bca4557d589480db6f159fccd41f62b14f3f1e1e54d2604e648adaf92d0a1acf",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/environment-correction/wrapper-receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/environment-correction/wrapper-receipt.json",
+      "source_sha256": "2d8cc4907ec3482fe477f9680a2f698a368a689a43c389a856e1568bf511fd3b",
+      "published_sha256": "2d8cc4907ec3482fe477f9680a2f698a368a689a43c389a856e1568bf511fd3b",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/environment-correction/environment.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/environment-correction/environment.json",
+      "source_sha256": "9c711a16406be00e3150e07328d87eda79739243e8d4608ab8ec66a4a0ea6be4",
+      "published_sha256": "9c711a16406be00e3150e07328d87eda79739243e8d4608ab8ec66a4a0ea6be4",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/environment-correction/focused-results.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/environment-correction/focused-results.json",
+      "source_sha256": "f50f8e70fbfe8c0da15d7aaeff4d955d970e270a6f2206b3ccf4058285353806",
+      "published_sha256": "f50f8e70fbfe8c0da15d7aaeff4d955d970e270a6f2206b3ccf4058285353806",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/interruption-131.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/interruption-131.json",
+      "source_sha256": "52d762dd41972d4b6ea0c056a78c960abc4ea5e569f285c2c06323d6bf3d18fe",
+      "published_sha256": "52d762dd41972d4b6ea0c056a78c960abc4ea5e569f285c2c06323d6bf3d18fe",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/environment-correction/cross-runtime-handoff.tests.sh.receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/environment-correction/cross-runtime-handoff.tests.sh.receipt.json",
+      "source_sha256": "a88eb630c9bb27ad917c35f2ea65afd9cf1ba64a5cc4adb6663f92e6b6c79088",
+      "published_sha256": "a88eb630c9bb27ad917c35f2ea65afd9cf1ba64a5cc4adb6663f92e6b6c79088",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/environment-correction/guard-dispatch-fallback.tests.sh.receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/environment-correction/guard-dispatch-fallback.tests.sh.receipt.json",
+      "source_sha256": "de193e74b22e64f663277541e6e5585f7e253f30d7a514046c7650a88b97ce52",
+      "published_sha256": "de193e74b22e64f663277541e6e5585f7e253f30d7a514046c7650a88b97ce52",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/environment-correction/lite-gate-full-upgrade-backstop.tests.sh.receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/environment-correction/lite-gate-full-upgrade-backstop.tests.sh.receipt.json",
+      "source_sha256": "b11581f6233d52d29a5bdb00520a5a94192652c6c3b9a81a75a4a16d0f839ebf",
+      "published_sha256": "b11581f6233d52d29a5bdb00520a5a94192652c6c3b9a81a75a4a16d0f839ebf",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/environment-correction/lite-gate-summary-absent-active-enforcement.tests.sh.receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/environment-correction/lite-gate-summary-absent-active-enforcement.tests.sh.receipt.json",
+      "source_sha256": "39ecf34bc31809bcafaeb8b6d8f60ee5bc5e2014aba6ae5dbb3f62aea2fd29ee",
+      "published_sha256": "39ecf34bc31809bcafaeb8b6d8f60ee5bc5e2014aba6ae5dbb3f62aea2fd29ee",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/environment-correction/lite-gate-summary-consumption.tests.sh.receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/environment-correction/lite-gate-summary-consumption.tests.sh.receipt.json",
+      "source_sha256": "e3b63e04f43bf3115456a70dab6b7cf3fc20567d863877a55c72b85a2192d5c4",
+      "published_sha256": "e3b63e04f43bf3115456a70dab6b7cf3fc20567d863877a55c72b85a2192d5c4",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/environment-correction/model-policy-launch.tests.py.receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/environment-correction/model-policy-launch.tests.py.receipt.json",
+      "source_sha256": "c5c3c3f78baf30c4493377d225d7533c5ce688b834d515d1f0103581692915d0",
+      "published_sha256": "c5c3c3f78baf30c4493377d225d7533c5ce688b834d515d1f0103581692915d0",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/environment-correction/scenario.tests.sh.receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/environment-correction/scenario.tests.sh.receipt.json",
+      "source_sha256": "a92ad74e3b628f681de1a30f2ef4f793b9418fd1493bc5a7b53f8631e7f2a6d2",
+      "published_sha256": "a92ad74e3b628f681de1a30f2ef4f793b9418fd1493bc5a7b53f8631e7f2a6d2",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/environment-correction/structural-compatibility.tests.sh.receipt.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/environment-correction/structural-compatibility.tests.sh.receipt.json",
+      "source_sha256": "285494920127ab6a473958adbb89353f83f7bee0b1ca9b19e8a2f7d4730b6170",
+      "published_sha256": "285494920127ab6a473958adbb89353f83f7bee0b1ca9b19e8a2f7d4730b6170",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/interruption-observation.sanitized.json",
+      "source_path": "/workspace/native-ci-failures/final-96afb59f/interruption-observation.json",
+      "source_sha256": "9e0fdfd805222c363a9c2464d01c40c8ca9950d98b42b781a192af4507a431f8",
+      "published_sha256": "86ca5cadf525dd2be61d2e2509772dae5381a764dddcbb2d6877c13891305452",
+      "transformation": "Removed wrapper_bytes only; inserted explicit curation provenance."
+    }
+  ]
+}

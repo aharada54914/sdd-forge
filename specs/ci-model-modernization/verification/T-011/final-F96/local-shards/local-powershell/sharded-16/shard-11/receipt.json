@@ -1,0 +1,78 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-powershell",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/install.tests.ps1",
+    "tests/facet-manifest-schema.tests.ps1",
+    "tests/resolve-project-context-caller-contract.tests.ps1",
+    "tests/check-a8-process-integrity.tests.ps1",
+    "tests/validate-capability-registry.tests.ps1",
+    "tests/component-path-ownership-parity.tests.ps1",
+    "tests/sdd-domain-multitarget-T-004.tests.py",
+    "tests/model-observation.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/install.tests.ps1",
+      "source_sha256": "804fd7074ebe1cc1bb703c09e87afeb233bc40a2c2d88b2f18bf1f8a4df127b4",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 81.34666
+    },
+    {
+      "suite": "tests/facet-manifest-schema.tests.ps1",
+      "source_sha256": "856e959debdead28460fc36df9fa21e332d9c8228439e91967f51b47411dddb6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.977155
+    },
+    {
+      "suite": "tests/resolve-project-context-caller-contract.tests.ps1",
+      "source_sha256": "7140d946ec8943de370054cc1b9263aa136d282d8c38d2bb1ff74f605e2bbd63",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.223677
+    },
+    {
+      "suite": "tests/check-a8-process-integrity.tests.ps1",
+      "source_sha256": "d169dcac05d4bb1ab32960c1147e24838d4273a18892ab513a2eac2fefccb9db",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.830814
+    },
+    {
+      "suite": "tests/validate-capability-registry.tests.ps1",
+      "source_sha256": "9c5104285130e826561a85644a9aa014ce342dba99e5ac104b9eb4fb2f8ea2d6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 10.248279
+    },
+    {
+      "suite": "tests/component-path-ownership-parity.tests.ps1",
+      "source_sha256": "035b0d014f5aa7a81cf636f463455557aa7ca5b233d1df1dfa30b91bae6f3f9d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 8.256724
+    },
+    {
+      "suite": "tests/sdd-domain-multitarget-T-004.tests.py",
+      "source_sha256": "d577d1fbe440849b132038742d020a476253b2a7570a8229556311f0bb85ab2d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 21.491846
+    },
+    {
+      "suite": "tests/model-observation.tests.py",
+      "source_sha256": "4d6bc7c901cb2db38e1b4210a4f7aa8956248aa72500793d290ed7fdf9e15513",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 19.286905
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

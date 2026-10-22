@@ -1,0 +1,22 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": null,
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/cross-runtime-handoff.tests.sh"
+  ],
+  "results": [
+    {
+      "suite": "tests/cross-runtime-handoff.tests.sh",
+      "source_sha256": "5c4da1195114dcf99876a9dd46240815d09a577091fc0438f2dbca950f21f774",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 17.136102
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

@@ -1,0 +1,80 @@
+{
+  "observed_at": "2026-10-21T23:33:32Z",
+  "manifest": "specs/ci-model-modernization/verification/T-011/final-author/phase-3-final/task-input-manifest.json",
+  "manifest_sha256": "f59f769d8f01d997828a2e1e199a2aff3ff7d81c649afb63275615d90d97e1ee",
+  "actual_author_context": "/root/t011_final_report_author",
+  "root_and_author_snapshot_inputs_verified": 1721,
+  "input_mismatches": [],
+  "integrated_exact_outputs": [
+    {
+      "path": "reports/implementation/ci-model-modernization/T-011.md",
+      "author_sha256": "5e022e242009879e66898a19e802b9b5748e54f4df6cab4826ac11ecf158bc1e",
+      "previous_root_sha256": "02a4ba32b11837ce28548bbdd047d07198f1365192fd8b7c0a9e1455fda29e3e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011.contract.json",
+      "author_sha256": "baf41f1f6836745dbbde4c88cfee15eb983a4f2a234b0e4ce927d8a091bf6233",
+      "previous_root_sha256": "723c0a14a5eae7899e2dc5e2aaa7a4c3a289980cd73a5487dc2622e6fcea7253"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-3-authoring.json",
+      "author_sha256": "efa5f741cdc09e007002a774698134260c77749345c3f9de81e72ead2069f2d8",
+      "previous_root_sha256": null
+    }
+  ],
+  "report_output_rows_hash_checked": 1358,
+  "commands": [
+    {
+      "label": "contract",
+      "argv": [
+        "bash",
+        "plugins/sdd-quality-loop/scripts/check-contract.sh",
+        "specs/ci-model-modernization/verification/T-011.contract.json",
+        "/workspace/sdd-forge"
+      ],
+      "started_at": "2026-10-21T23:33:31Z",
+      "finished_at": "2026-10-21T23:33:31Z",
+      "exit_code": 1,
+      "stdout": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final/contract.stdout.log",
+      "stdout_sha256": "bcd842efcd4ea2f5c8347ce79269869b3ef026e94ca053fc1f0d53ee929b3783",
+      "stderr": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final/contract.stderr.log",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "implementation-report",
+      "argv": [
+        "bash",
+        "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+        "reports/implementation/ci-model-modernization/T-011.md"
+      ],
+      "started_at": "2026-10-21T23:33:31Z",
+      "finished_at": "2026-10-21T23:33:31Z",
+      "exit_code": 0,
+      "stdout": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final/implementation-report.stdout.log",
+      "stdout_sha256": "a0eb36646f9654b7ef1b674fed63ad247a1febe005869fbf36ce295f5437a10c",
+      "stderr": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final/implementation-report.stderr.log",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "task-state",
+      "argv": [
+        "bash",
+        "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+        "specs/ci-model-modernization/tasks.md",
+        "reports/quality-gate",
+        "reports/implementation/ci-model-modernization",
+        "/workspace/sdd-forge"
+      ],
+      "started_at": "2026-10-21T23:33:31Z",
+      "finished_at": "2026-10-21T23:33:32Z",
+      "exit_code": 0,
+      "stdout": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final/task-state.stdout.log",
+      "stdout_sha256": "cab18379978ed30065cd1ebbbfe251fe2e40a041ab032dc5dd3bf1522f1abf3e",
+      "stderr": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final/task-state.stderr.log",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "all_three_checks_passed": false,
+  "admitted_sources_unchanged": true,
+  "no_evaluator_reservation_or_launch": true
+}

@@ -1,0 +1,106 @@
+{
+  "schema": "final-eight-path-distribution-audit/v1",
+  "status": "PASS",
+  "F": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "tag": "v1.20.0",
+  "tag_object": "2df90fa333df31a79f099cc2125e816e5710d9ec",
+  "scenarios": [
+    "Windows pwsh git",
+    "Windows pwsh zip",
+    "Windows powershell git",
+    "Windows powershell zip",
+    "Linux current-bash",
+    "Linux current-pwsh",
+    "Linux archive-bash",
+    "Linux archive-pwsh"
+  ],
+  "all_eight_paths_match_independent_source_inventory": true,
+  "with_three_mcp": {
+    "files": 612,
+    "bytes": 11177675
+  },
+  "exact_mcp_paths": [
+    "mcp/ci-mcp/dist/index.js",
+    "mcp/ci-mcp/package.json",
+    "mcp/local-env-mcp/dist/index.js",
+    "mcp/local-env-mcp/package.json",
+    "mcp/sdd-forge-mcp/dist/index.js",
+    "mcp/sdd-forge-mcp/package.json"
+  ],
+  "without_mcp_derived": {
+    "files": 606,
+    "bytes": 6877902
+  },
+  "original_comparable_no_mcp_baseline": {
+    "files": 16408,
+    "bytes": 189910946
+  },
+  "no_mcp_byte_reduction_percent": 96.37835409445015,
+  "full_transient_archive_inputs": {
+    "linux_tar": {
+      "F": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+      "format": "git archive tar.gz",
+      "sha256": "bb7304564e50c11801256646f56b7acbad0d6e4104989fdd70411101d0bfba93",
+      "compressed_bytes": 40514810,
+      "regular_files": 18136,
+      "uncompressed_file_bytes": 201617050,
+      "symlink_entries": 1,
+      "scope": "Full committed repository archive, including historical specs/reports/tests; temporarily extracted then allowlist-filtered into installed payload. Archive is not published as audit proof."
+    },
+    "windows_zip": [
+      {
+        "runtime": "pwsh",
+        "files": 18137,
+        "symlink_entries": 1,
+        "sha256": "57038ded856f1c2a779deab08992d8988cf046dfa8209327d0d4c73c9b3e29ae"
+      },
+      {
+        "runtime": "powershell",
+        "files": 18137,
+        "symlink_entries": 1,
+        "sha256": "57038ded856f1c2a779deab08992d8988cf046dfa8209327d0d4c73c9b3e29ae"
+      }
+    ]
+  },
+  "download_vs_installed_payload": "Remote install downloads/extracts the full repository archive temporarily, including development history. Only manifest-selected runtime/user-reference files plus selected MCP bundles reach installation. This fixes installed payload, not network archive size.",
+  "retained_user_reference_dispositions": {
+    "docs/adr/": "45 user-reference ADRs: USERGUIDE0012, normative workflow0023, guarantee0025, linked ADR index closure",
+    "CHANGELOG.md": "Documented user version migration guide in USERGUIDE and README",
+    "plugins/sdd-aws-cloud/examples/private-ec2/package-lock.json": "Explicit operator-guide copy step for reproducible CDK sample",
+    "docs/contributor/workflow-detail.md": "Operator workflow detail",
+    "docs/contributor/skill-reference-detail.md": "Operator skill reference"
+  },
+  "excluded_development_dispositions": [
+    "Four pure maintainer contributor documents",
+    "Repository populated retention checklist",
+    "Manually installed standalone adversarial skill",
+    "specs/reports/tests/.github/private/cache trees"
+  ],
+  "production_policy": [
+    {
+      "runtime": "bash",
+      "selector_exit": 0,
+      "prepare_exit": 0,
+      "catalog_id": "gpt-6-astra",
+      "adoption_sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "availability_evidence": "synthetic verified-configuration fixture; no inference or live discovery"
+    },
+    {
+      "runtime": "pwsh",
+      "selector_exit": 0,
+      "prepare_exit": 0,
+      "catalog_id": "gpt-6-astra",
+      "adoption_sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "availability_evidence": "synthetic verified-configuration fixture; no inference or live discovery"
+    }
+  ],
+  "local_document_links": {
+    "checked_existing_repo_relative_targets": 125,
+    "links_broken_by_payload_narrowing": [],
+    "preexisting_nonexistent_or_generated_project_targets": []
+  },
+  "special_filename_regressions": "Exact-F completed local profiles linked separately, no rerun; native Windows frozen-F full-profile evidence is also bound by release validation.",
+  "windows_transport_scope": "Actual complete committed Git ZIP supplied to authenticated download boundary via local stub. No live GitHub archive download or real installer token was used.",
+  "linux_summary_preserved_sha256": "b67afbad8253d4adf2fefaaa8700508a1e86881bcdd4593bb21ceb67cf68619d",
+  "completed_at": "2026-10-21T23:06:12.510536+00:00"
+}

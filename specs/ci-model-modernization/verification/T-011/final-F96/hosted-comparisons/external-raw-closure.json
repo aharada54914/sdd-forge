@@ -1,0 +1,960 @@
+{
+  "root": "/workspace/t011-rollout/outputs/final-96afb59fccea",
+  "files": [
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12375801794.zip",
+      "sha256": "e380fd1c4ee0ff42d91bef0d8a7bae049c2345079eff4e84e9b03345a1e6f06f",
+      "bytes": 982,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12375707517.zip",
+      "sha256": "d351207137887ca2233d509d06ed3b946c40fff5a649cc66cb88f26345d1bd11",
+      "bytes": 5082,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12375256715.zip",
+      "sha256": "d8988b562c8eb84cddd7c557ace21d98355a7d092139460993b6edb0b66729a0",
+      "bytes": 968,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12374415641.zip",
+      "sha256": "bfefa3b2a88ec563f56f44d26eac5bbf1a63760aa28a64257e4bea72ea586be4",
+      "bytes": 521,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12374211297.zip",
+      "sha256": "aa60e7837e245f75d965613a746c1d70e6aaa6c5b36ef7d0f497f83826af8d3d",
+      "bytes": 979,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12374175000.zip",
+      "sha256": "3e73af3a994fd302acb1526bc44d1e9d5e324837c9cbce5cdbe55f452cd0f6af",
+      "bytes": 2344,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12373690435.zip",
+      "sha256": "4a5c6a92d1a99d28154193e3ea853870510e9f2e13f97c68c2b0a29ee266813f",
+      "bytes": 2409,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12373271372.zip",
+      "sha256": "6dad808d6a0b9e0031937fd4000b1c887c107829533856c8a5ffa6e2df7e7e51",
+      "bytes": 2249,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12372971506.zip",
+      "sha256": "f12566e1d04667425a2de801440dec07f8ee94b0512257ad238faa3da32ec381",
+      "bytes": 502,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12372863997.zip",
+      "sha256": "8363f533448df08fcfddeefa6e94e3ebae4ca1b8f3f7c455ff7f660cafa82a81",
+      "bytes": 502,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12372698935.zip",
+      "sha256": "1e2a60aa11f170b5f3875136c23992a16e3fc59f87811695fb9894f9a59751dd",
+      "bytes": 848,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12372647797.zip",
+      "sha256": "ead2048acb799cc2fc7bc39093403b01372fe462a95e9e8e2296272d8fa092d8",
+      "bytes": 838,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12372594956.zip",
+      "sha256": "829ea81e41d6665d71bc891687ca8237ee8fc0381938ac8acbd2b091dd77fe89",
+      "bytes": 733,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12371509867.zip",
+      "sha256": "8f8795bc3bc736599f29961a4a1da1df32850249b6d350259c7d7d255b38a3aa",
+      "bytes": 847,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658399077/connector-zips/12382115578.zip",
+      "sha256": "5dd61ccfa74aaf1a2b7a771eab74e0beb9730b86b3f5dc629912a9fdd898e1b8",
+      "bytes": 4128,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658399077/connector-zips/12380770454.zip",
+      "sha256": "244dbda0c57fd593a6d3d48ad69ee0b9cffe839f3c73c2f792fd100e7fd5aa40",
+      "bytes": 501,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658399077/connector-zips/12379469681.zip",
+      "sha256": "e0790406db15a9547003d23c6a306ba06f210e59e042e91b109ff520c3ab3fd8",
+      "bytes": 734,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658399077/connector-zips/12378679065.zip",
+      "sha256": "92dc9b87cb9c1dfd0fc9b6af201f80aea0693cf08c2e80155ef7d6ce23a6d974",
+      "bytes": 2248,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658399077/connector-zips/12378628695.zip",
+      "sha256": "4a418977603f98af1d81c2db383f2747cb62fb9d722d555d63c1c777432c16ea",
+      "bytes": 979,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658399077/connector-zips/12378200779.zip",
+      "sha256": "245c313fb398f6b58876769095b69950414701e75797ad3dec73d1796e68e411",
+      "bytes": 978,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658399077/connector-zips/12377814443.zip",
+      "sha256": "fabfd17ca691077b3b6372e51e23c07e46e045a0c05ee1f534476cd7d4de75b1",
+      "bytes": 847,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658399077/connector-zips/12377674350.zip",
+      "sha256": "62af8f797984951c83b0f1525e765e6c110d45f09d8069a6406099b983edeff3",
+      "bytes": 523,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658399077/connector-zips/12376797435.zip",
+      "sha256": "27616a602d81c0a044b8495ddbd812a67c7cc4ba86a7927a58f294258f14950c",
+      "bytes": 968,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658399077/connector-zips/12375688576.zip",
+      "sha256": "bd754b4ebacdb477709c36200a0c3454684505cd50c252f4d88e9bc6442cdaae",
+      "bytes": 845,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658399077/connector-zips/12375537722.zip",
+      "sha256": "b6546b6351cb01ce8fdeef703f0750c2607e19c04462ad6fcad339ce0fb42f02",
+      "bytes": 503,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658399077/connector-zips/12373024467.zip",
+      "sha256": "c9c685b34da036fecd35d9c53d8fbb1dbe326cd9f5991ad5f0b504baa21278a5",
+      "bytes": 2413,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658399077/connector-zips/12373024290.zip",
+      "sha256": "7d9314387aefa557cfa409ccc7aa45d0631e88ba09a99eec6de40d1faae37148",
+      "bytes": 2348,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658399077/connector-zips/12372864702.zip",
+      "sha256": "836e11d790a6bfee0293a61fb2a3a0e80e9d3a7d5ddc67233daabfaae2d60f03",
+      "bytes": 839,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658400137/connector-zips/12387211008.zip",
+      "sha256": "455a5a9ef1388c7292c1ce0dcbcef92d16674a34ddf0c6b0305681ae7d5a119f",
+      "bytes": 847,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658400137/connector-zips/12387034457.zip",
+      "sha256": "b3135b5e62d16ac892a1d6c1fa8dad9963194d651841069a7e2cdf67e37e5f48",
+      "bytes": 981,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658400137/connector-zips/12382663818.zip",
+      "sha256": "107ba34fbec1a221a3aa0fb8544d7e7423b14e3c03aedf0d13468307dd6c800f",
+      "bytes": 2251,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658400137/connector-zips/12382157777.zip",
+      "sha256": "d13a1f21e454fdc2edae36220179e43d5ea6a2a89778092b1ea85541b0fe2fda",
+      "bytes": 969,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658400137/connector-zips/12381885623.zip",
+      "sha256": "f9c9b39d5bf31accc9b108f31ea1a0ac63d618cfc642ebc7640c9b301a340571",
+      "bytes": 503,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658400137/connector-zips/12381551547.zip",
+      "sha256": "539e4413cfd73e4811d97f4b6ab1458fb222775ed9cb72cfa07e7b9feb29a1ad",
+      "bytes": 847,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658400137/connector-zips/12381115380.zip",
+      "sha256": "2b27fddaba919d0678b9b961e9961a3aebfc8238d135e6e75dda694934cdc8c1",
+      "bytes": 734,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658400137/connector-zips/12380651097.zip",
+      "sha256": "66df7f01c06b2d808e1b087dc5a73c286949a58fde66ed19949b30db4276fc3b",
+      "bytes": 5085,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658400137/connector-zips/12379908760.zip",
+      "sha256": "bdce79e7c974e6e6aa07c0c0fcfb9d5d919728632ac33e6eaf4194d468c6934b",
+      "bytes": 837,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658400137/connector-zips/12379399055.zip",
+      "sha256": "25058f05fc33b76566edaf2e235a201560b723d84bf669d7ec5d1ab65ba59c4e",
+      "bytes": 522,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658400137/connector-zips/12379356869.zip",
+      "sha256": "adb73d949fdf1fab47e8371a618b92eb4b9065a1635ba64e144ec150b61a0114",
+      "bytes": 981,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658400137/connector-zips/12379129944.zip",
+      "sha256": "3ba9a79fcd5883584c32309c9cb3f66f2775519236d7e34227f7934596830d30",
+      "bytes": 2346,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658400137/connector-zips/12378218069.zip",
+      "sha256": "3dc3963836d6e0be3ec028f3418e3ff19e8749d2e425da6c440648aebe870c53",
+      "bytes": 501,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658400137/connector-zips/12378207493.zip",
+      "sha256": "ef9afe88e4b8edc686bbdf7ed357bcf0a8b04034263f321364e5baf059e891e1",
+      "bytes": 2411,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418659/connector-zips/12378506841.zip",
+      "sha256": "cfadfe2cd84af49ee6b90a90da69e1956f38f0a1a57dd037e9f82507bcc03a02",
+      "bytes": 982,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418659/connector-zips/12378390423.zip",
+      "sha256": "10d1d91ade521345f9b81d3e4556bf4944d5ab74816ce9a4ea57e8810c304de8",
+      "bytes": 5092,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418659/connector-zips/12377673941.zip",
+      "sha256": "6a8c163c7539f409981ac99c0115a652547a01d7777fa846366acb3acb9f530e",
+      "bytes": 522,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418659/connector-zips/12377423903.zip",
+      "sha256": "e7fbe6e2d0bab6ebdb47bb86f0e5b26aab224fca7dff7c87921695e2289abe26",
+      "bytes": 735,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418659/connector-zips/12377237478.zip",
+      "sha256": "a6cfa5330704a8a8d312b748aa8610afc11148be67eb35c19da331c20a1f4acd",
+      "bytes": 970,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418659/connector-zips/12376981029.zip",
+      "sha256": "9968744dc9661558b0888190d3c2e4b6c3735b615a315e6c101f1ce4451209cd",
+      "bytes": 2247,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418659/connector-zips/12376861345.zip",
+      "sha256": "b4b53de2161d5f2b4ca7a9222b2424a1a06a8ea02e0a84014b57d181415afbf8",
+      "bytes": 2413,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418659/connector-zips/12375542435.zip",
+      "sha256": "a62f5d90687f6c7cef929b4dbbe5a9202cf6c7f73df059761cd71fe450e461cd",
+      "bytes": 841,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418659/connector-zips/12375491611.zip",
+      "sha256": "58d1b878e00c42f9bd659408b2cda954a1851659876fc39be748ce94b200038e",
+      "bytes": 501,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418659/connector-zips/12375047605.zip",
+      "sha256": "b58f2215034969d7cb27a465128c640cec296f4bfd88e012a7921cfec742169a",
+      "bytes": 979,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418659/connector-zips/12374620906.zip",
+      "sha256": "39ca0023292985b68dbb1a0f795eef57b182e84e4f889fd6e9cb2ed216866c9a",
+      "bytes": 2338,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418659/connector-zips/12373476507.zip",
+      "sha256": "d4be4eb3d037c9f29be61f68ee2c2d73295a960bc624041b96539f5f6ef88ede",
+      "bytes": 502,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418659/connector-zips/12373298232.zip",
+      "sha256": "509f78d1d392590dfcb1522705a59c685218782d536e955083037e6e5c12efa8",
+      "bytes": 849,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418659/connector-zips/12373228126.zip",
+      "sha256": "087002e9721c8f91547db1dd968da9683de05089e4e8d294cadeca571264689a",
+      "bytes": 849,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418082/connector-zips/12386210387.zip",
+      "sha256": "50fe13ed3e62351c1d728e2eff5da169164931000abafe08fd674a9e35818c94",
+      "bytes": 979,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418082/connector-zips/12384650083.zip",
+      "sha256": "df0f62c19911d1cc23d3480422d9ba22cd348670d9123b9997c8602ea3753e56",
+      "bytes": 838,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418082/connector-zips/12383656966.zip",
+      "sha256": "70db35ce730dafc5040fbaa739d0481d3998409628547d8d596ee2bc283d00d2",
+      "bytes": 503,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418082/connector-zips/12383576364.zip",
+      "sha256": "d4371e21343c8bb99d963b0846fc6ba8f6f1dd1dcb17034893cabb6d189344cb",
+      "bytes": 2246,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418082/connector-zips/12382873383.zip",
+      "sha256": "24ab29d8a719393a9e18c1500d5a74e62f168292365bb41aac0116b62b1026c9",
+      "bytes": 733,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418082/connector-zips/12382861536.zip",
+      "sha256": "45a723ce02ec914390ba1390ffddd47481f2a98ceed375bfb242108f74651733",
+      "bytes": 2346,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418082/connector-zips/12382718714.zip",
+      "sha256": "0cd9895307a567ded087492faa321083db47652bbe592d975541be0314a8544e",
+      "bytes": 969,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418082/connector-zips/12382604159.zip",
+      "sha256": "c4ec278106ab03d036ee097a0e945ac3e7ead7def0983fab19d3c728b4101dba",
+      "bytes": 522,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418082/connector-zips/12382499401.zip",
+      "sha256": "4ca52cbfae8a24b3be36cfab110767399b8c2555fdefd29f42e9853a742c8244",
+      "bytes": 847,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418082/connector-zips/12381494378.zip",
+      "sha256": "c4f41d647982f6cea5cb5aa5a3d9bdfc70b0fcabb6d3173481784c657dd62b28",
+      "bytes": 2413,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418082/connector-zips/12381486022.zip",
+      "sha256": "e7acf4b9015e57bf1c40a369ea63068bf9fbac9a27408a323e7357d72dbca478",
+      "bytes": 501,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418082/connector-zips/12381092927.zip",
+      "sha256": "a2b9166a3c79f75bd39e2e571186d392413aa52f9e1e86f13dc179f7797e9bc9",
+      "bytes": 5081,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418082/connector-zips/12379269302.zip",
+      "sha256": "95fcda528d2d3e11d1a3a39c611739ae3d6f867347c47a6b0a88d6e7923b034a",
+      "bytes": 981,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658418082/connector-zips/12379254379.zip",
+      "sha256": "14d19d69989cbc1ef20029a86802d423b4159833c1a595c12ee4b95f3b7d3de1",
+      "bytes": 847,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658435079/connector-zips/12385578524.zip",
+      "sha256": "59d7778dda0fc538bad76a7fb0a2168c8d5c2607a1a0e643ac33de55b630ebf5",
+      "bytes": 850,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658435079/connector-zips/12381032312.zip",
+      "sha256": "e8da70fd83d2744226050d9bb74fbbd8eaab45f01dd219756c5c89ac580dda65",
+      "bytes": 2247,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658435079/connector-zips/12381010029.zip",
+      "sha256": "8b241e053622f0fcdf058b94119514f6d098115220ccfb49e996d869a003c677",
+      "bytes": 5091,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658435079/connector-zips/12378532743.zip",
+      "sha256": "a4d8574124204b44719e83d888d9c68824038b38dd0c68358575ad2bf47703e5",
+      "bytes": 520,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658435079/connector-zips/12377923004.zip",
+      "sha256": "d4c6ce854fd42c349fb59d08613323b465db360a490bc6dc73d01da522eb764a",
+      "bytes": 2415,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658435079/connector-zips/12377804164.zip",
+      "sha256": "2da3ebd11c99709d925981f6aa0952a1753dc81267a2c5f8bd635bc20c9e588b",
+      "bytes": 849,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658435079/connector-zips/12377789191.zip",
+      "sha256": "f84fe0d2560a9a1ae34374bd2ed176b5e2eb0ff70a18ec294a4712a201c1fd83",
+      "bytes": 981,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658435079/connector-zips/12377687815.zip",
+      "sha256": "64f64fa31ffbff95f57c849481f9ab2f6b8083e1a75e13b94e8599586c503eec",
+      "bytes": 2347,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658435079/connector-zips/12377541111.zip",
+      "sha256": "0d3986ee2937f4388f548487220503220afae916a287fddd0ec8069cbcfa04f2",
+      "bytes": 503,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658435079/connector-zips/12377535443.zip",
+      "sha256": "83728fc5ffd2143c86aa05bca0adf46a79df05e5e9a8f14e44f6743f9b0123af",
+      "bytes": 502,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658435079/connector-zips/12377257599.zip",
+      "sha256": "67eac9db34025c20f7225a5127d320166ae0dc44444e2d2b48757521572fa220",
+      "bytes": 836,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658435079/connector-zips/12376846637.zip",
+      "sha256": "458fc19883c02f3514703d75b10b5fe5d5d9328299fd236fb05be4a57a386260",
+      "bytes": 970,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658435079/connector-zips/12376562011.zip",
+      "sha256": "ba7814d4bbd58971a2b3ef7e3521f6557cca9b401ef7dd13ed60d995bbc99eb7",
+      "bytes": 981,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658435079/connector-zips/12375335879.zip",
+      "sha256": "57831b54f4e90c0fe0f9a06b7f24193691fdec0c4b60600fd3f4b987022f7974",
+      "bytes": 735,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658434467/connector-zips/12387986399.zip",
+      "sha256": "f5186d707c75c700cc28090798c79afe56221cfa2cdfa3503fc3bcefd0c5de7d",
+      "bytes": 979,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658434467/connector-zips/12386592067.zip",
+      "sha256": "f0b0e3055de0bb2cbd4de8154e37c7e51340ab2daaadf5d5093d08fdb10a8269",
+      "bytes": 850,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658434467/connector-zips/12385036296.zip",
+      "sha256": "666dbba721dbf79f5f985a17cc3410f9656267973752ea8c8b71912f19094b22",
+      "bytes": 5084,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658434467/connector-zips/12384230541.zip",
+      "sha256": "2583cf0d9a080566b17119cc6216d92a22e7efea2842aac9de0a9437fc1575d6",
+      "bytes": 522,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658434467/connector-zips/12384140513.zip",
+      "sha256": "7bfd6cfafb9d89964f2ebaad307c33f4f959bb46951d0cd5c7d73fd0b379a6a1",
+      "bytes": 837,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658434467/connector-zips/12383740591.zip",
+      "sha256": "c3c507f382f6fa6e896540cb052e6d3d979a4a5e54972401ab33b02a3c4a862e",
+      "bytes": 2245,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658434467/connector-zips/12383138398.zip",
+      "sha256": "de929f9d30419f8d7169249c47101be419d73377e59ce4be050f7eee97ef3a8a",
+      "bytes": 966,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658434467/connector-zips/12382470978.zip",
+      "sha256": "642a03f83e0f2304ec814696a7207caa267cbf6d269c327267ee5acee12ab343",
+      "bytes": 981,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658434467/connector-zips/12382259400.zip",
+      "sha256": "2a5ce8a254fad3148c158082b0f365bab9d5e2f2781367c66db3f4985e436fac",
+      "bytes": 501,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658434467/connector-zips/12382213978.zip",
+      "sha256": "c57a01fa31002902c0c00e9dd5fced0e77cdaece47d380eae92dff6efa0a1769",
+      "bytes": 983,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658434467/connector-zips/12382049905.zip",
+      "sha256": "9fcf1f8d33836740b403fa9412ce29b1869281ed76998e729022bd6b9ca3e647",
+      "bytes": 2415,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658434467/connector-zips/12381774502.zip",
+      "sha256": "4ecbeada8f96b9d7b66a49c8db98de7cdfbfad27b8c345be7407cb667e1db664",
+      "bytes": 849,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658434467/connector-zips/12381670358.zip",
+      "sha256": "58af6d3d23179b257f6504574f74b33697ad2b63e64b2de66b461d996492d47b",
+      "bytes": 2348,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658434467/connector-zips/12381310251.zip",
+      "sha256": "6ea5ab186be58c4c27400af16274bd45159fc328548d3b10501b8e1d13efb40c",
+      "bytes": 503,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658434467/connector-zips/12381109181.zip",
+      "sha256": "c22ba629ebadd495a1b4c110ee95b3244c3c845c892c92bd62276fd73aa085e0",
+      "bytes": 734,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658452393/connector-zips/12387607977.zip",
+      "sha256": "67f1a05e71bef55040c700a6a8646bc6302518838546e2edca579fef692147a7",
+      "bytes": 980,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658452393/connector-zips/12386651897.zip",
+      "sha256": "05203073040ea2177c47659214205dae0a17b69f9d79e0a1417f56f25154d0a8",
+      "bytes": 853,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658452393/connector-zips/12384670328.zip",
+      "sha256": "cbd224971414ce8ab2729de78e4603c94dcda3e592abf6bacf441534ab2113dc",
+      "bytes": 5089,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658452393/connector-zips/12383970157.zip",
+      "sha256": "056102abc36e624848c12d04c4c43989a0b9af80dd1b5d1176abb9ee578accfb",
+      "bytes": 982,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658452393/connector-zips/12382551826.zip",
+      "sha256": "c4a723576e649fd00d138422d63e50014c1b8f90c96b63588caee302b6caf411",
+      "bytes": 2350,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658452393/connector-zips/12381813074.zip",
+      "sha256": "ef8947a681e7c4852754486f0b2daac96ee8fa49880d39687d3ec4b377722a00",
+      "bytes": 969,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658452393/connector-zips/12381730459.zip",
+      "sha256": "72e5880196b2033a5b4a2ac9070ef293d97d199cbd3c8661c7a5ffd8a0048f41",
+      "bytes": 734,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658452393/connector-zips/12380308309.zip",
+      "sha256": "cd3c8e88e5ca9637a3869f70debd4bfe89d13a00178b0012670f73bf26a91337",
+      "bytes": 980,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658452393/connector-zips/12380298276.zip",
+      "sha256": "ea10cdf95dbcc8ee3e1269119545007d490ddb6e715b7aad845b50b333fb469a",
+      "bytes": 2409,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658452393/connector-zips/12380049916.zip",
+      "sha256": "d82dc6567830f376156b33403abced3e61f6c29b70a5d802b3494c5054433d4d",
+      "bytes": 501,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658452393/connector-zips/12379814619.zip",
+      "sha256": "e38e82749b6f3345fcd5d838dd89a0aa9673879efc1836e0be632b0f39bcec9b",
+      "bytes": 2250,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658452393/connector-zips/12379777524.zip",
+      "sha256": "d10b7f37aa1bde3d99f21bcd2bba829832875b809c3b2073f3b6b00375a1a1fb",
+      "bytes": 522,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658452393/connector-zips/12379348545.zip",
+      "sha256": "05a4f35e5c6cb7543f8034bb288bc845369ceec7acbb981bc21a4a617acf26e6",
+      "bytes": 850,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658452393/connector-zips/12377926878.zip",
+      "sha256": "ac4fbedd403032fd8ca7cbde71cd4959e1ac6e334044457552cb0d823ceea32a",
+      "bytes": 841,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658452393/connector-zips/12377850318.zip",
+      "sha256": "662253d5eeded8f2cc5f125e865c0993a79713990bade326a6bbc22ece70d43d",
+      "bytes": 503,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658451096/connector-zips/12384316305.zip",
+      "sha256": "c4fb708d173b5800b74b61c925d4f0e60cf0de6d9c92bf5cfc202f641bf154f9",
+      "bytes": 850,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658451096/connector-zips/12382607726.zip",
+      "sha256": "6218f9d6f7e44a212eb30463f89c8e96c867bbe8fc0d6f54c0abc818d5abc58d",
+      "bytes": 734,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658451096/connector-zips/12382447423.zip",
+      "sha256": "74cc2ea7bbd1a83d6f9e6a0b57b68888129f2af66fe5f03f19a3ef98f8d04a1b",
+      "bytes": 848,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658451096/connector-zips/12382382453.zip",
+      "sha256": "2e61714ed6669501cc00b0b691e44678df21b6005d67c4a7f24386a1394e698c",
+      "bytes": 2347,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658451096/connector-zips/12380751130.zip",
+      "sha256": "952181a971d850c48169e37396e9ec3b37cdfab625630ef2e26bea71b7c2e7db",
+      "bytes": 968,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658451096/connector-zips/12380735889.zip",
+      "sha256": "0c25322beb61321cde6edbaf00cbfaba0f8a1f11d4b8318d162144ce4617e24e",
+      "bytes": 2416,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658451096/connector-zips/12380097749.zip",
+      "sha256": "d11c4278951107e86f44e2ce215deeb1950922819c36f18224134267064abee5",
+      "bytes": 839,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658451096/connector-zips/12378985687.zip",
+      "sha256": "da1bc6caa4a0b31102783ec422c49b3414eb11342c17068f7e6c7e7ea7c1c20c",
+      "bytes": 979,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658451096/connector-zips/12378396054.zip",
+      "sha256": "129ed3f81b1c6af742750c0e95597e47f36b71db995cf8a7d4d386ebe81f94df",
+      "bytes": 502,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658451096/connector-zips/12378164716.zip",
+      "sha256": "319b9eadc7c5f6a49c011c8b6d0a729d231b772fc6f960b0f64cebb04f5168c9",
+      "bytes": 2244,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658451096/connector-zips/12377778954.zip",
+      "sha256": "097a8e54ad8be5993aabbe5fd28997b5752c0a1f33ff4bc471f8404736f336d1",
+      "bytes": 981,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658451096/connector-zips/12376945795.zip",
+      "sha256": "0c9d75e5f5ad48b80b96523af5d3064f7806be0892ffe7b0b378df3b796395e1",
+      "bytes": 522,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658451096/connector-zips/12376408761.zip",
+      "sha256": "ab731c1c118cc4aa74a7d07566294992712333b0fc22da714d3ad36fa1cad224",
+      "bytes": 5083,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658451096/connector-zips/12375112712.zip",
+      "sha256": "7528bce61aa72aed05d05c51a975b604b95979bfdb7219fdfd0eee0d2d9016fc",
+      "bytes": 502,
+      "role": "Original receipt ZIP; retained external, original transport manifest binds acquisition."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/shared-full-windows-clients-failure.log",
+      "sha256": "99f3345482b8b89d3028c661724945d221a0de1a87f814fd15d7ed6daad3518c",
+      "bytes": 21660,
+      "role": "Original failure/timeout or representative cache log; external scoped independent-review closure."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/shared-normal-cancelled.log",
+      "sha256": "277077fd8f348aee77baf63b8af0c7d1cc0d86b72df9320a79162489ad291259",
+      "bytes": 263259,
+      "role": "Original failure/timeout or representative cache log; external scoped independent-review closure."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/mcp-full-macos-version-cancelled.log",
+      "sha256": "1ba60a9c6345ff7662950aa1704ced0bde3a2f47f31934ef761d916a4bdddf2b",
+      "bytes": 622394,
+      "role": "Original failure/timeout or representative cache log; external scoped independent-review closure."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/cloud-full-cancelled.log",
+      "sha256": "06f8ac792424e842f0c142b65ca6f10a059b3e540d470fb38a6d6930ef2b1e73",
+      "bytes": 236898,
+      "role": "Original failure/timeout or representative cache log; external scoped independent-review closure."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/cache-logs/119427083886.log",
+      "sha256": "b4cc4e2576e227fc46390ca5b93a0cace3f897e6ad4ddef74279dae52bc61c8a",
+      "bytes": 212103,
+      "role": "Original failure/timeout or representative cache log; external scoped independent-review closure."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/cache-logs/119425998818.log",
+      "sha256": "3f7afbcda1fb91374e55f5f558528354f0e02e5b6cd5d6627e8b1d0fd6467310",
+      "bytes": 183318,
+      "role": "Original failure/timeout or representative cache log; external scoped independent-review closure."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/cache-logs/119427913573.log",
+      "sha256": "eabcf57d8ef2c60ff5ff73fb39e9bb98e96f74c45f82d810d2bdc0a5ec2d32c7",
+      "bytes": 210755,
+      "role": "Original failure/timeout or representative cache log; external scoped independent-review closure."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/cache-logs/119426801502.log",
+      "sha256": "810ccc7e43997aec25f2c42d8c1a9e49ebf2d5458cd1d52422ee29731e143464",
+      "bytes": 210682,
+      "role": "Original failure/timeout or representative cache log; external scoped independent-review closure."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/cache-logs/119428134906.log",
+      "sha256": "a2c51e11aae240ac206d0296e18c36c48e8822cb956536de7e23cc534ea1f174",
+      "bytes": 210632,
+      "role": "Original failure/timeout or representative cache log; external scoped independent-review closure."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/cache-logs/119425367285.log",
+      "sha256": "3e56db77e3ca8a40a1f6e594ba7574e56d3281aaf2a180bbcb5da5441c2d22cb",
+      "bytes": 212222,
+      "role": "Original failure/timeout or representative cache log; external scoped independent-review closure."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/cache-logs/119426036000.log",
+      "sha256": "3408e240abc399bc1370e6c0d19661148d21cc2b5559796f50696b8582dc066e",
+      "bytes": 212140,
+      "role": "Original failure/timeout or representative cache log; external scoped independent-review closure."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/cache-logs/119424553525.log",
+      "sha256": "482accf033f5c3b8c24edb99dbf3aa308e1269761075d1438d1f6a2ec948c796",
+      "bytes": 210519,
+      "role": "Original failure/timeout or representative cache log; external scoped independent-review closure."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/cache-logs/119427346333.log",
+      "sha256": "cf8a807db40fe304e7f94e15725d301721d03eff78dd0f2814c158f678cac71c",
+      "bytes": 181951,
+      "role": "Original failure/timeout or representative cache log; external scoped independent-review closure."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658317723.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658435079.stdout.log",
+      "sha256": "4572584cd30b81fe728f9149608957b31e24d88817e8b681a836f71dc69e510a",
+      "bytes": 78917,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658418082.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658317723.stdout.log",
+      "sha256": "631d0ba93011bbf58c3010a125ae7b20a3514f442074c8c4b6c11bd3c63af22d",
+      "bytes": 78917,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658418659.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658434467.stdout.log",
+      "sha256": "1da69a65688360230e7e907d1c05aca669bad3768d956615ff5c5387ad321020",
+      "bytes": 78917,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658400137.stdout.log",
+      "sha256": "0b28702c49495209ca35accde3d64735c4d15cd98344096695aa4379f20461e7",
+      "bytes": 78917,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658434467.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658399077.stdout.log",
+      "sha256": "990be78d4e41edc7d21b18fb16f90ee2e97fac7771e7c11848374f0dc802bf6d",
+      "bytes": 78995,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658418082.stdout.log",
+      "sha256": "dd34d56ba269b270f79bf7ab62e3cd8889e036974b499eca87bca5b652856efb",
+      "bytes": 78917,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658451096.stdout.log",
+      "sha256": "6e46091970a7a1b9ba49dd4bea0255bdbf8b819496c8af6adbf8443f4fd45707",
+      "bytes": 78917,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658451096.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658399077.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658435079.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658452393.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658400137.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658418659.stdout.log",
+      "sha256": "20ad4fd34f3b6da865405359d88e4d607b10b78b780d0526f2fdd90c88088d8a",
+      "bytes": 78917,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    },
+    {
+      "source_path": "/workspace/t011-rollout/public-replay-F96/39658452393.stdout.log",
+      "sha256": "f8842577d924301427c40bd69a1413f274f79c1c1d3c81cc3fadb8f0921db8cb",
+      "bytes": 78917,
+      "role": "Actual offline unchanged-collector replay stdout/stderr; external review input."
+    }
+  ],
+  "raw_payloads_copied": false
+}

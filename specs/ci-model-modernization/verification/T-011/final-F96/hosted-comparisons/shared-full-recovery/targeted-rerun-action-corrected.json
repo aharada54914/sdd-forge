@@ -1,0 +1,18 @@
+{
+  "requested_at": "2026-10-21T22:13:24.345169+00:00",
+  "run_id": 39658451096,
+  "source_job_id": 119426801784,
+  "command": [
+    "gh",
+    "run",
+    "rerun",
+    "--repo",
+    "aharada54914/sdd-forge",
+    "--job",
+    "119426801784"
+  ],
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "",
+  "preceding_action": "Client-side argument validation rejected combining run-id with --job; no preceding API mutation."
+}

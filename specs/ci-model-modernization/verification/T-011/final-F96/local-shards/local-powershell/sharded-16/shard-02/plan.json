@@ -1,0 +1,17 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-powershell",
+  "selected": [
+    "tests/phase2-sudo-signature.tests.ps1",
+    "tests/agent-model-routing.tests.ps1",
+    "tests/guard-invariants-epic-a1.tests.ps1",
+    "tests/design-sync-scan.tests.ps1",
+    "tests/resolver-evidence-schema.tests.ps1",
+    "tests/check-risk-upgrade-fragment-fail-closed.tests.ps1",
+    "tests/lite-gate-summary-consumption.tests.ps1",
+    "tests/workflow-conditional-inputs.tests.py",
+    "tests/supplemental-delivery-declaration.tests.py"
+  ],
+  "shard_index": 2,
+  "shard_count": 16
+}

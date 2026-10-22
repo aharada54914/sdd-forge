@@ -542,7 +542,7 @@ T-008
 ## T-011 Verified rollout documentation and immutable release
 
 Approval: Approved (user-recorded 2026-10-18T22:19:50Z)
-Status: In Progress
+Status: Done
 Risk: high
 Risk Rationale: Readiness repairs change runtime obligation selection, workflow context/cache binding and installer payload boundaries; require tests-first Red/Green, conservative unknown handling, platform and runtime dependency parity, compatibility review and subset rollback before measured rollout.
 Required Workflow: tdd

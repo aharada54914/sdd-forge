@@ -1,0 +1,37 @@
+{
+  "purpose": "Factual serialization index only; no rerun, new verdict or retrospective authority",
+  "check_id": "differential-baseline",
+  "original_contract_sha256": "baf41f1f6836745dbbde4c88cfee15eb983a4f2a234b0e4ce927d8a091bf6233",
+  "original_fields": {
+    "command": null,
+    "exit_code": null,
+    "started_at": null,
+    "finished_at": null,
+    "evidence": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/activation.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json",
+    "red_evidence": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/mutation-result.json",
+    "green_evidence": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json"
+  },
+  "references": [
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/activation.json",
+      "sha256": "9ba9e943d9d80a46e5dda11ca001248d6f12101e7e927b3bea374af6ab9693f5"
+    },
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json",
+      "sha256": "7366f6a766c7bf0045c496c89bff3433878b61dbec3c5f83a1e683997df55769"
+    },
+    {
+      "field": "red_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/mutation-result.json",
+      "sha256": "f05e6ba3af5e25a98f694ee1a38e00892c0460a8535560d8d4e78a674b294669"
+    },
+    {
+      "field": "green_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json",
+      "sha256": "7366f6a766c7bf0045c496c89bff3433878b61dbec3c5f83a1e683997df55769"
+    }
+  ],
+  "notes": "Contract evidence/red_evidence/green_evidence must each use one existing canonical file. Preserve detailed lists/pointers here. For component coverage use actual producer verdict stdout directly."
+}

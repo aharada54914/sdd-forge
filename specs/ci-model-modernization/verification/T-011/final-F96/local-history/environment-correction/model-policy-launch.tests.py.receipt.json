@@ -1,0 +1,22 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": null,
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/model-policy-launch.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/model-policy-launch.tests.py",
+      "source_sha256": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 159.868212
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

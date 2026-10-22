@@ -1,0 +1,14 @@
+{
+  "reason": "Existing canonical workflow gate accepts raw reviewed traceability.md digest or all-Planned normalization; original recorded mixed statuses match only original raw bytes. Preserve reviewed matrix instead of changing gate policy or historical review contracts. tasks.md and traceability.json record actual completion.",
+  "original_failed_check": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-completion/results.json",
+  "metadata_before": {
+    "specs/ci-model-modernization/traceability.md": "117b3ad580e157382e7ea70c5e4dd17601fcde9437cb055446753310b947bf6b",
+    "specs/ci-model-modernization/traceability.json": "e29d7ee497d96a9072e1294ecf856ebb255a0436b45f78192ff1db6e1b62e6af"
+  },
+  "metadata_after": {
+    "specs/ci-model-modernization/traceability.md": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd",
+    "specs/ci-model-modernization/traceability.json": "bd0c834e8f86102788e523439cecf5b33d9abd4518e53a424985ad4d21273a08"
+  },
+  "product_or_gate_policy_changed": false,
+  "historical_traceability_matrix_restored": true
+}

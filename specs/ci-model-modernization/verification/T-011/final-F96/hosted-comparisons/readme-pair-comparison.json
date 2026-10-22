@@ -1,0 +1,109 @@
+{
+  "probe": "readme",
+  "normal": {
+    "run_id": 39658399077,
+    "api_head_sha": "035711d21847a69c62c50f23e0f868af4604a3eb",
+    "tested_revision": "27c183321a3055322283cdb8250d6c023a8c2c36",
+    "tested_tree": "107909724fa5a804c1de4ce9001f2eb3321abf07",
+    "mode": "affected",
+    "reason": "classified-change",
+    "aggregate_status": "PASS",
+    "metrics": {
+      "note": "executed_duration_sum_seconds adds per-job intervals; it is not wall-clock and not billable minutes",
+      "executed_duration_sum_seconds": 21537,
+      "span_seconds": 7047,
+      "span_start": "2026-10-21T19:04:42Z",
+      "span_end": "2026-10-21T21:02:09Z",
+      "completeness": {
+        "jobs_total": 44,
+        "jobs_skipped_excluded": 2,
+        "jobs_eligible": 42,
+        "jobs_timed": 42,
+        "complete": true,
+        "missing_reason_counts": {},
+        "missing_reason": null
+      },
+      "snapshot_coverage": {
+        "reported_total_count": 44,
+        "observed_job_count": 44,
+        "all_jobs_present": true,
+        "note": "timing completeness covers supplied jobs only; absent pagination metadata is unknown"
+      }
+    },
+    "evidence": [
+      {
+        "path": "39658399077/plan/plan.json",
+        "sha256": "234dad1217b277a85be9049df3d6a3784851052a72bc88a0dd2f385141ee964a"
+      },
+      {
+        "path": "39658399077/aggregate.json",
+        "sha256": "990be78d4e41edc7d21b18fb16f90ee2e97fac7771e7c11848374f0dc802bf6d"
+      },
+      {
+        "path": "39658399077/run-metrics.json",
+        "sha256": "1ca969fe989bbe263cb2dfed13e771849830eee22411fb1664a5077b9f94b91c"
+      },
+      {
+        "path": "39658399077/transport-report.json",
+        "sha256": "1102db6dfaec4ced565403f2da0973960c728eb4eea762912cb75a99aa3cbda7"
+      }
+    ]
+  },
+  "full": {
+    "run_id": 39658400137,
+    "api_head_sha": "035711d21847a69c62c50f23e0f868af4604a3eb",
+    "tested_revision": "035711d21847a69c62c50f23e0f868af4604a3eb",
+    "tested_tree": "107909724fa5a804c1de4ce9001f2eb3321abf07",
+    "mode": "full",
+    "reason": "event-full",
+    "aggregate_status": "PASS",
+    "metrics": {
+      "note": "executed_duration_sum_seconds adds per-job intervals; it is not wall-clock and not billable minutes",
+      "executed_duration_sum_seconds": 20380,
+      "span_seconds": 12886,
+      "span_start": "2026-10-21T19:09:23Z",
+      "span_end": "2026-10-21T22:44:09Z",
+      "completeness": {
+        "jobs_total": 46,
+        "jobs_skipped_excluded": 1,
+        "jobs_eligible": 45,
+        "jobs_timed": 45,
+        "complete": true,
+        "missing_reason_counts": {},
+        "missing_reason": null
+      },
+      "snapshot_coverage": {
+        "reported_total_count": 46,
+        "observed_job_count": 46,
+        "all_jobs_present": true,
+        "note": "timing completeness covers supplied jobs only; absent pagination metadata is unknown"
+      }
+    },
+    "evidence": [
+      {
+        "path": "39658400137/plan/plan.json",
+        "sha256": "d19ee3d317f56758d59b4a579a7b03eadc8947e5aa0fa836b55ffd208dbf1114"
+      },
+      {
+        "path": "39658400137/aggregate.json",
+        "sha256": "0b28702c49495209ca35accde3d64735c4d15cd98344096695aa4379f20461e7"
+      },
+      {
+        "path": "39658400137/run-metrics.json",
+        "sha256": "e0d6d00b8212f7919022ef7d73a54916cbb33d664aff79c7fa8832e352665332"
+      },
+      {
+        "path": "39658400137/transport-report.json",
+        "sha256": "949e5fac789c77e5ed3d1ef8e422d407dc6e2fdc047f0e81e0d11bf89bd251ee"
+      }
+    ]
+  },
+  "same_tested_tree": true,
+  "selection": "Actual normal plan selects443 and omits6 CLI-only obligations; full selects449. Both canonical aggregates PASS.",
+  "timing_interpretation": "Normal summed executed-job duration is1157s higher than full; observed span5839s lower. Different runner speeds and long macOS queues prevent attributing either difference to selection. No causal speedup or billing savings claim.",
+  "cache_observation": {
+    "path": "representative-cache-observations.json",
+    "sha256": "ccf59cc9253a76cefd7c324cc7c98daf311a1d8b7c32e8c59d1df3203b7b06ee",
+    "scope": "Representative Ubuntu MCP job only: normal miss, full hit. Other jobs unobserved; no run-wide extrapolation."
+  }
+}

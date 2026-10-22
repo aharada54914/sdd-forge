@@ -1,0 +1,62 @@
+{
+  "F": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "tag": "v1.20.0",
+  "status": "Linux four paths PASS; Windows four paths pending",
+  "four_actual_scenarios": [
+    "Linux Bash local Git",
+    "Linux PowerShell local Git",
+    "Linux Bash committed tar",
+    "Linux PowerShell committed tar"
+  ],
+  "all_match_independent_committed_source": true,
+  "with_three_mcp": {
+    "files": 612,
+    "bytes": 11177675
+  },
+  "without_mcp_derived_from_six_exact_entries": {
+    "files": 606,
+    "bytes": 6877902
+  },
+  "original_comparable_no_mcp_baseline": {
+    "files": 16408,
+    "bytes": 189910946
+  },
+  "no_mcp_byte_reduction_percent": 96.37835409445015,
+  "transient_download_distinction": "Remote install downloads/extracts the full repository archive temporarily, including development history. Only manifest-selected runtime/user-reference files plus selected MCP bundles reach installation. This fixes installed payload, not network archive size.",
+  "retained_audit_dispositions": {
+    "docs/adr/": "45 user-reference ADRs: USERGUIDE0012, normative workflow0023, guarantee0025, linked ADR index closure",
+    "CHANGELOG.md": "Documented user version migration guide in USERGUIDE and README",
+    "plugins/sdd-aws-cloud/examples/private-ec2/package-lock.json": "Explicit operator-guide copy step for reproducible CDK sample",
+    "docs/contributor/workflow-detail.md": "Operator workflow detail",
+    "docs/contributor/skill-reference-detail.md": "Operator skill reference"
+  },
+  "excluded_audit_dispositions": [
+    "Four pure maintainer contributor documents",
+    "Repository populated retention checklist",
+    "Manually installed standalone adversarial skill",
+    "specs/reports/tests/.github/private/cache trees"
+  ],
+  "production_policy": [
+    {
+      "runtime": "bash",
+      "selector_exit": 0,
+      "prepare_exit": 0,
+      "catalog_id": "gpt-6-astra",
+      "adoption_sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "availability_evidence": "synthetic verified-configuration fixture; no inference or live discovery"
+    },
+    {
+      "runtime": "pwsh",
+      "selector_exit": 0,
+      "prepare_exit": 0,
+      "catalog_id": "gpt-6-astra",
+      "adoption_sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "availability_evidence": "synthetic verified-configuration fixture; no inference or live discovery"
+    }
+  ],
+  "docs": {
+    "checked_existing_repo_relative_targets": 125,
+    "links_broken_by_payload_narrowing": [],
+    "preexisting_nonexistent_or_generated_project_targets": []
+  }
+}

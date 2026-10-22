@@ -1,0 +1,19 @@
+{
+  "observations": [
+    {
+      "operation": "gh API artifact metadata for run39658435079",
+      "initial_status": "HTTP401 Bad credentials",
+      "retry_status": "success using unchanged existing CLI authentication",
+      "connector_readme_download": "success during same interval",
+      "credential_access_or_changes": false,
+      "classification": "transient acquisition error, not a CI outcome"
+    },
+    {
+      "operation": "bounded run-status polls for README normal and full",
+      "initial_status": "nonzero gh exit; exact cause not retained",
+      "retry_status": "both recovered on next ordinary bounded poll",
+      "credential_access_or_changes": false,
+      "classification": "transient acquisition error, no CI outcome inferred"
+    }
+  ]
+}

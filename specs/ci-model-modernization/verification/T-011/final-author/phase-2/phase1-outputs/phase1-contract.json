@@ -1,0 +1,312 @@
+{
+  "task_id": "T-011",
+  "feature": "ci-model-modernization",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "created": "2026-10-21T23:19:13.891279+00:00",
+  "comment": "Phase-1 actual report/contract authoring by work-agent:root:t011_final_report_author after historical implementation. Product F=96afb59fcceab422024d5f2d1abc1b478d7058cf; independent spec hashes and14 TEST mappings in specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json. Required checks remain false pending actual canonical late receipts and exact command-scope mapping of existing F hosted/local evidence; this does not request another full test cycle. Nine hosted runs/four pairs,32local receipts exact204/134 union, eight-path distribution and annotated release retain scoped historical PASS. Final delivery and independent QA pending. Backend provider/model/effort unknown; strong/USD5 are unmeasured planning allowance only.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json; pending final canonical lint evidence/command-scope mapping; no PASS or waiver claimed.",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json; pending final canonical typecheck evidence/command-scope mapping; no PASS or waiver claimed.",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json; pending final canonical unit-tests evidence/command-scope mapping; no PASS or waiver claimed.",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "integration-tests",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json; pending final canonical integration-tests evidence/command-scope mapping; no PASS or waiver claimed.",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json; pending final canonical build evidence/command-scope mapping; no PASS or waiver claimed.",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json; pending final canonical placeholder-scan evidence/command-scope mapping; no PASS or waiver claimed.",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json; pending final canonical task-state-check evidence/command-scope mapping; no PASS or waiver claimed.",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "smoke-run",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json; pending final canonical smoke-run evidence/command-scope mapping; no PASS or waiver claimed.",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Pending final applicability/evidence mapping; historical B/M/R and before/after comparisons are retained, not waived.",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No product UI/browser/design-system surface is changed by this CI/model/install release task; not applicable.",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No product UI/browser/design-system surface is changed by this CI/model/install release task; not applicable.",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json; pending final canonical acceptance-tests evidence/command-scope mapping; no PASS or waiver claimed.",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json; pending final canonical regression evidence/command-scope mapping; no PASS or waiver claimed.",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json; pending final canonical requirement-traceability evidence/command-scope mapping; no PASS or waiver claimed.",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json; pending final canonical check-component-coverage evidence/command-scope mapping; no PASS or waiver claimed.",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    }
+  ],
+  "schema": "verification-contract/v2"
+}

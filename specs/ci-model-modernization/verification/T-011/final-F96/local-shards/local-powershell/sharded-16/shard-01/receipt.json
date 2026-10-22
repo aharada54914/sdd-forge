@@ -1,0 +1,86 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-powershell",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/wfi-059-evidence-path-base.tests.ps1",
+    "tests/phase2-risk-upgrade.tests.ps1",
+    "tests/structure-check-feature-mode.tests.ps1",
+    "tests/agent-capabilities-v2.tests.ps1",
+    "tests/resolve-project-context-parity.tests.ps1",
+    "tests/golden-baseline-contract.tests.ps1",
+    "tests/check-risk-upgrade-capability-merge.tests.ps1",
+    "tests/lite-gate-summary-absent.tests.ps1",
+    "tests/design-sync-policy.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/wfi-059-evidence-path-base.tests.ps1",
+      "source_sha256": "3cf806fa6818d286099634ea87632821ff849b970cbbba08f2354145bdfe43c2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.292652
+    },
+    {
+      "suite": "tests/phase2-risk-upgrade.tests.ps1",
+      "source_sha256": "615c2a22b4cfb2b7298601da25668cef50984240353a94c0e4ac6a10f753bb81",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.500374
+    },
+    {
+      "suite": "tests/structure-check-feature-mode.tests.ps1",
+      "source_sha256": "25e0e51eb49372c35de37678e95cdef2b45e84c5ba8d0aab5b848e65cdfa86d8",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 9.656045
+    },
+    {
+      "suite": "tests/agent-capabilities-v2.tests.ps1",
+      "source_sha256": "3e4c34d6749dd471b5efda44480e215e7bca3c3c427e2da276283b6c795990e0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.635515
+    },
+    {
+      "suite": "tests/resolve-project-context-parity.tests.ps1",
+      "source_sha256": "a600e95e0accf4d4206906f5841bc740df911265204124255d26317123d383df",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 12.014253
+    },
+    {
+      "suite": "tests/golden-baseline-contract.tests.ps1",
+      "source_sha256": "34eac8e56a47944d21eb2fba5e4d0a04864d483ff024dfac87304b10c042648c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 21.511105
+    },
+    {
+      "suite": "tests/check-risk-upgrade-capability-merge.tests.ps1",
+      "source_sha256": "81e11da762428983104f2f14214ebb359014034f3af3fba4a9da4539e370df9d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.322557
+    },
+    {
+      "suite": "tests/lite-gate-summary-absent.tests.ps1",
+      "source_sha256": "765b8bf63f3bc278152b26e1e124245a3e032ed261281e00ed73d8f2bd0931b3",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.253111
+    },
+    {
+      "suite": "tests/design-sync-policy.tests.py",
+      "source_sha256": "6e0aa6d58f622d52b1628a22c66c51935c6cdb090e67218a84963d544475a637",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.97343
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

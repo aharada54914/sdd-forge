@@ -1,0 +1,20 @@
+{
+  "id": 12381109181,
+  "node_id": "MDg6QXJ0aWZhY3QxMjM4MTEwOTE4MQ==",
+  "name": "verification-receipts-39658434467-1-21ad482eb8a27e8f2e5fe13c00e89e5dbb59c0fa5cd78f7ad8502d612c079206",
+  "size_in_bytes": 734,
+  "url": "https://api.github.com/repos/aharada54914/sdd-forge/actions/artifacts/12381109181",
+  "archive_download_url": "https://api.github.com/repos/aharada54914/sdd-forge/actions/artifacts/12381109181/zip",
+  "expired": false,
+  "digest": "sha256:c22ba629ebadd495a1b4c110ee95b3244c3c845c892c92bd62276fd73aa085e0",
+  "created_at": "2026-10-21T21:05:20Z",
+  "updated_at": "2026-10-21T21:05:20Z",
+  "expires_at": "2027-01-19T19:04:41Z",
+  "workflow_run": {
+    "id": 39658434467,
+    "repository_id": 1264102141,
+    "head_repository_id": 1264102141,
+    "head_branch": "t011/probe-cloud-96afb59fccea",
+    "head_sha": "5b03917593a2fca6d439ca2eeb7d886d756bd4a2"
+  }
+}

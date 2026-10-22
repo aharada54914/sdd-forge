@@ -1,0 +1,3970 @@
+{
+  "schema": "t011-final-author-receipt/v1",
+  "created_at": "2026-10-21T23:25:34.736899+00:00",
+  "actual_work_context": "/root/t011_final_report_author",
+  "same_context_as_phase1": true,
+  "run_id": "ci-model-modernization-T-011-final-delivery-phase2-20261021T232156Z",
+  "session_id": "work-agent:root:t011_final_report_author",
+  "agent_instance_id": "work-agent:root:t011_final_report_author",
+  "provider": "unknown",
+  "model": "unknown",
+  "effort": "unknown",
+  "manifest_path": "specs/ci-model-modernization/verification/T-011/final-author/phase-2/task-input-manifest.json",
+  "manifest_sha256": "49871c26538bb3d8e9b90daf048dff7fde8524e9eff9536a2ad2f8d6885f26c1",
+  "input_hash_validation": {
+    "count": 1706,
+    "mismatches": []
+  },
+  "workflow_source": {
+    "path": ".github/workflows/test.yml",
+    "sha256": "db4c6eb728fbf51849c35d4aa78cf44aecc438298bb96c4e663d82cc4285a06e"
+  },
+  "F": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "hosted_plan": {
+    "path": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/plan/plan.json",
+    "sha256": "c5159189f6b6de3405e0f01fd765edbfd90e2e944d84ef3546b54a8f16d87deb"
+  },
+  "hosted_aggregate": {
+    "path": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json",
+    "sha256": "631d0ba93011bbf58c3010a125ae7b20a3514f442074c8c4b6c11bd3c63af22d"
+  },
+  "hosted_jobs": {
+    "path": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/observations/jobs/1-1.json",
+    "sha256": "7bb6c7896b636dd0920fc3fd805175e6293068bf846340baf1d521e344fe4d7b"
+  },
+  "hosted_check_mapping": {
+    "typecheck": [
+      {
+        "job_id": 119424553343,
+        "job_name": "local-env-mcp-tests (macos-latest)",
+        "step": "Type check",
+        "command": "npx tsc --noEmit",
+        "working_directory": "mcp/local-env-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:04:41Z",
+        "finished_at": "2026-10-21T19:04:42Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "local-env-mcp-tests:d3fd0a204581331980eaa28373a91f43939fb9497880158bae57621e6f5a8ea9",
+            "command_sha256": "bcce28ff328054ff874b73a6246fb00a83ab1175a790c8fdb87be945c63749ef"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553525,
+        "job_name": "mcp-tests (ubuntu-latest)",
+        "step": "Type check",
+        "command": "npx tsc --noEmit",
+        "working_directory": "mcp/sdd-forge-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:11:01Z",
+        "finished_at": "2026-10-21T19:11:01Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "mcp-tests:651157de01a133fe874bb9a4ea427d1c63bd422fbcfb4ece8f18c5fec94cb533",
+            "command_sha256": "bcce28ff328054ff874b73a6246fb00a83ab1175a790c8fdb87be945c63749ef"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553612,
+        "job_name": "local-env-mcp-tests (ubuntu-latest)",
+        "step": "Type check",
+        "command": "npx tsc --noEmit",
+        "working_directory": "mcp/local-env-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:12:01Z",
+        "finished_at": "2026-10-21T19:12:01Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "local-env-mcp-tests:140589c4882c495e81bf70b76f5ff7667e78748beb98bd8555c60a70110a2894",
+            "command_sha256": "bcce28ff328054ff874b73a6246fb00a83ab1175a790c8fdb87be945c63749ef"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553670,
+        "job_name": "mcp-tests (macos-latest)",
+        "step": "Type check",
+        "command": "npx tsc --noEmit",
+        "working_directory": "mcp/sdd-forge-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:21:12Z",
+        "finished_at": "2026-10-21T19:21:12Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "mcp-tests:ced3650dec21777b5591b167852f9b90516bf53a4171c85950250b4a7dbb9908",
+            "command_sha256": "bcce28ff328054ff874b73a6246fb00a83ab1175a790c8fdb87be945c63749ef"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553682,
+        "job_name": "local-env-mcp-tests (windows-latest)",
+        "step": "Type check",
+        "command": "npx tsc --noEmit",
+        "working_directory": "mcp/local-env-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:04:54Z",
+        "finished_at": "2026-10-21T19:04:55Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "local-env-mcp-tests:da79ac8e4e87589fe3df7f3b64b887831ea7c7f566aff990575a37b61c78510f",
+            "command_sha256": "3813de026bf4751393528fc101f328bd2079f4e7db1e7aca0fbb8bc84c9c6d00"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553707,
+        "job_name": "ci-mcp-tests (macos-latest)",
+        "step": "Type check",
+        "command": "npx tsc --noEmit",
+        "working_directory": "mcp/ci-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:06:05Z",
+        "finished_at": "2026-10-21T19:06:05Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "ci-mcp-tests:901011726210cab11e481d53faa81f6b2ca87e83ca959c3b11626571bdb8731f",
+            "command_sha256": "bcce28ff328054ff874b73a6246fb00a83ab1175a790c8fdb87be945c63749ef"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553785,
+        "job_name": "ci-mcp-tests (ubuntu-latest)",
+        "step": "Type check",
+        "command": "npx tsc --noEmit",
+        "working_directory": "mcp/ci-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:06:25Z",
+        "finished_at": "2026-10-21T19:06:26Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "ci-mcp-tests:8eb9ab1412cd5542ad702d9c7ed2b2ce3087bac6a49e6376fe1d3fc68aa5d8bd",
+            "command_sha256": "bcce28ff328054ff874b73a6246fb00a83ab1175a790c8fdb87be945c63749ef"
+          }
+        ]
+      },
+      {
+        "job_id": 119424554063,
+        "job_name": "mcp-tests (windows-latest)",
+        "step": "Type check",
+        "command": "npx tsc --noEmit",
+        "working_directory": "mcp/sdd-forge-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:37:20Z",
+        "finished_at": "2026-10-21T19:37:21Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "mcp-tests:64f38e5e86023c301c8bde90b8470cc49700bef935874185d75a48abd40d045b",
+            "command_sha256": "3813de026bf4751393528fc101f328bd2079f4e7db1e7aca0fbb8bc84c9c6d00"
+          }
+        ]
+      },
+      {
+        "job_id": 119424554228,
+        "job_name": "ci-mcp-tests (windows-latest)",
+        "step": "Type check",
+        "command": "npx tsc --noEmit",
+        "working_directory": "mcp/ci-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:07:59Z",
+        "finished_at": "2026-10-21T19:08:00Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "ci-mcp-tests:65968b1c53d4a11081c521ae546febd4fbc72034f7e92c65dab4b5c17f04e99d",
+            "command_sha256": "3813de026bf4751393528fc101f328bd2079f4e7db1e7aca0fbb8bc84c9c6d00"
+          }
+        ]
+      }
+    ],
+    "build": [
+      {
+        "job_id": 119424553525,
+        "job_name": "mcp-tests (ubuntu-latest)",
+        "step": "Rebuild dist and verify parity",
+        "command": "npm run build\ngit diff --exit-code -- dist/\n",
+        "working_directory": "mcp/sdd-forge-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:11:19Z",
+        "finished_at": "2026-10-21T19:11:20Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "mcp-tests:2544c567b76bf033a67562044c6381b0b7e9601efc0cd584be7e26531fee58e7",
+            "command_sha256": "43582c676147fcc00ab562f074d1cec4eab8d4d9108a2f81dcc26a3f60a075e8"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553612,
+        "job_name": "local-env-mcp-tests (ubuntu-latest)",
+        "step": "Rebuild dist and verify parity",
+        "command": "npm run build\ngit diff --exit-code -- dist/\n",
+        "working_directory": "mcp/local-env-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:12:10Z",
+        "finished_at": "2026-10-21T19:12:10Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "local-env-mcp-tests:84df3e3fe07adc699673f61648223408530816d07a1bdf08d93681cffd022ffc",
+            "command_sha256": "43582c676147fcc00ab562f074d1cec4eab8d4d9108a2f81dcc26a3f60a075e8"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553785,
+        "job_name": "ci-mcp-tests (ubuntu-latest)",
+        "step": "Rebuild dist and verify parity",
+        "command": "npm run build\ngit diff --exit-code -- dist/\n",
+        "working_directory": "mcp/ci-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:06:28Z",
+        "finished_at": "2026-10-21T19:06:29Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "ci-mcp-tests:eca1600428b51a46b606de496fc4cd075f73354ea410dc169507eccdb2e19181",
+            "command_sha256": "43582c676147fcc00ab562f074d1cec4eab8d4d9108a2f81dcc26a3f60a075e8"
+          }
+        ]
+      }
+    ],
+    "unit-tests": [
+      {
+        "job_id": 119424553343,
+        "job_name": "local-env-mcp-tests (macos-latest)",
+        "step": "Run tests",
+        "command": "npm test",
+        "working_directory": "mcp/local-env-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:04:42Z",
+        "finished_at": "2026-10-21T19:04:52Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "local-env-mcp-tests:d481086d353315abe2f6b4ccf9d6df9b9a2162f70d3c7364e9031ed8172c2922",
+            "command_sha256": "9d9e1f701850ecd6f62efcf8ada61ee168a1c486856eae96fcc2d58bcf9d523a"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553525,
+        "job_name": "mcp-tests (ubuntu-latest)",
+        "step": "Run tests",
+        "command": "npm test",
+        "working_directory": "mcp/sdd-forge-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:11:01Z",
+        "finished_at": "2026-10-21T19:11:19Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "mcp-tests:76095f96d7ee60882184e543d405f1a4717efcf561e1fe8d8497c1f46393edd6",
+            "command_sha256": "9d9e1f701850ecd6f62efcf8ada61ee168a1c486856eae96fcc2d58bcf9d523a"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553612,
+        "job_name": "local-env-mcp-tests (ubuntu-latest)",
+        "step": "Run tests",
+        "command": "npm test",
+        "working_directory": "mcp/local-env-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:12:01Z",
+        "finished_at": "2026-10-21T19:12:10Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "local-env-mcp-tests:ed006f7b34b34b0c3887092e70dbf9d57f1a26199b95e67c51964ac9d54259f1",
+            "command_sha256": "9d9e1f701850ecd6f62efcf8ada61ee168a1c486856eae96fcc2d58bcf9d523a"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553670,
+        "job_name": "mcp-tests (macos-latest)",
+        "step": "Run tests",
+        "command": "npm test",
+        "working_directory": "mcp/sdd-forge-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:21:12Z",
+        "finished_at": "2026-10-21T19:21:37Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "mcp-tests:3d91832ca4a0ee8f71185ccbd6cc4ef67d304ccbc00f21f2cc549b5c5c4e685b",
+            "command_sha256": "9d9e1f701850ecd6f62efcf8ada61ee168a1c486856eae96fcc2d58bcf9d523a"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553682,
+        "job_name": "local-env-mcp-tests (windows-latest)",
+        "step": "Run tests",
+        "command": "npm test",
+        "working_directory": "mcp/local-env-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:04:55Z",
+        "finished_at": "2026-10-21T19:05:06Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "local-env-mcp-tests:f5592d3bbbb21d62a93b7d72bbc6a2adaa0a9d8f07e795113bd1f42f2097d4e4",
+            "command_sha256": "b15f774316a277db8b268f0b94db9673cee1f35ab536283691df924dcd4324a2"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553707,
+        "job_name": "ci-mcp-tests (macos-latest)",
+        "step": "Run tests",
+        "command": "npm test",
+        "working_directory": "mcp/ci-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:06:05Z",
+        "finished_at": "2026-10-21T19:06:06Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "ci-mcp-tests:9e1d689c888c2ad564cf2c9ce3b2daee1c501385d26bd2e6df85dc2158ee1faf",
+            "command_sha256": "9d9e1f701850ecd6f62efcf8ada61ee168a1c486856eae96fcc2d58bcf9d523a"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553785,
+        "job_name": "ci-mcp-tests (ubuntu-latest)",
+        "step": "Run tests",
+        "command": "npm test",
+        "working_directory": "mcp/ci-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:06:26Z",
+        "finished_at": "2026-10-21T19:06:28Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "ci-mcp-tests:1db3c7a0da7ef731d57b0aa8c8769516864af3a319be131471292ab0d7ccb398",
+            "command_sha256": "9d9e1f701850ecd6f62efcf8ada61ee168a1c486856eae96fcc2d58bcf9d523a"
+          }
+        ]
+      },
+      {
+        "job_id": 119424554063,
+        "job_name": "mcp-tests (windows-latest)",
+        "step": "Run tests",
+        "command": "npm test",
+        "working_directory": "mcp/sdd-forge-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:37:21Z",
+        "finished_at": "2026-10-21T19:37:36Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "mcp-tests:77058a5da49eca673fa7382796df008aa2cbd28efdc53c841161aa79969c49d9",
+            "command_sha256": "b15f774316a277db8b268f0b94db9673cee1f35ab536283691df924dcd4324a2"
+          }
+        ]
+      },
+      {
+        "job_id": 119424554228,
+        "job_name": "ci-mcp-tests (windows-latest)",
+        "step": "Run tests",
+        "command": "npm test",
+        "working_directory": "mcp/ci-mcp",
+        "shell": "GitHub Actions native default",
+        "started_at": "2026-10-21T19:08:00Z",
+        "finished_at": "2026-10-21T19:08:04Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "ci-mcp-tests:84e379afa79a908127ae3357a5eb5419d45535d4e19670964cc70dc255bf488b",
+            "command_sha256": "b15f774316a277db8b268f0b94db9673cee1f35ab536283691df924dcd4324a2"
+          }
+        ]
+      }
+    ],
+    "integration-tests": [
+      {
+        "job_id": 119424553053,
+        "job_name": "installers (windows-latest / core)",
+        "step": "Test installer (pwsh)",
+        "command": "./tests/install.tests.ps1 -Lane ${{ matrix.lane }}",
+        "working_directory": ".",
+        "shell": "pwsh",
+        "started_at": "2026-10-21T19:04:37Z",
+        "finished_at": "2026-10-21T19:11:10Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "installers:c4864d89f6b8cfb20fe6d6aa9167559f2cb4b39d8eaf5a6e51ed8f9df67617d1",
+            "command_sha256": "b0aedc3149f7ca8850e22f60feec3874c36c3348e1e3c1daa9c46f7222454e34"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553079,
+        "job_name": "installers (windows-latest / clients)",
+        "step": "Test installer (pwsh)",
+        "command": "./tests/install.tests.ps1 -Lane ${{ matrix.lane }}",
+        "working_directory": ".",
+        "shell": "pwsh",
+        "started_at": "2026-10-21T19:04:57Z",
+        "finished_at": "2026-10-21T19:06:06Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "installers:5793b2663062580e99ff51ab34a33b176c423117ccdbd4183374653a850dd043",
+            "command_sha256": "8465e17d69868a041d5dffd2de32f8b959d9558b079e442b541e031d48186a59"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553161,
+        "job_name": "installers (windows-latest / context)",
+        "step": "Test installer (pwsh)",
+        "command": "./tests/install.tests.ps1 -Lane ${{ matrix.lane }}",
+        "working_directory": ".",
+        "shell": "pwsh",
+        "started_at": "2026-10-21T19:04:43Z",
+        "finished_at": "2026-10-21T19:08:34Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "installers:577b65f5b544aca6ee32bb1340fbb112a34388fa02ebe497133bca8c301d699e",
+            "command_sha256": "474964d06c19bc8629587716d60e8491ccbb06daacd4227572113ed7d62983bb"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553203,
+        "job_name": "installers (ubuntu-latest / all)",
+        "step": "Test installer (pwsh)",
+        "command": "./tests/install.tests.ps1 -Lane ${{ matrix.lane }}",
+        "working_directory": ".",
+        "shell": "pwsh",
+        "started_at": "2026-10-21T19:05:34Z",
+        "finished_at": "2026-10-21T19:07:37Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "installers:ce0870b43a131abe40489ed7f8617e13bf6ed5bc58c1e9aa9aadf2193a3ce2e1",
+            "command_sha256": "5de67ba7db1e812be8cf25b18e0e2e3756d6a504a3da78ec347bbbe191f9b3f1"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553203,
+        "job_name": "installers (ubuntu-latest / all)",
+        "step": "Test POSIX installer",
+        "command": "bash -n ./tests/release-host-smoke.sh\n./tests/install.tests.sh 2>&1 | tee \"${{ runner.temp }}/install-tests-sh.log\"\n",
+        "working_directory": ".",
+        "shell": "bash",
+        "started_at": "2026-10-21T19:08:07Z",
+        "finished_at": "2026-10-21T19:09:04Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "installers:c5c89e75ca9b840b9ee90dc90e179636d0bdac9cf0631a8117406f35cc393824",
+            "command_sha256": "78731ebe9781f6d5933e6f8f1a0c2a5867cacfe244852c083f2777ae7fdcc35f"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553275,
+        "job_name": "installers (windows-latest / mcp)",
+        "step": "Test installer (pwsh)",
+        "command": "./tests/install.tests.ps1 -Lane ${{ matrix.lane }}",
+        "working_directory": ".",
+        "shell": "pwsh",
+        "started_at": "2026-10-21T19:04:36Z",
+        "finished_at": "2026-10-21T19:06:15Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "installers:90ad9392d93923684909971e0b6af4337cc56a06e379586d488da1fbb6ba43f8",
+            "command_sha256": "d8b2c42da8e31f848cb6fe94d149e6e2bf7390da3698db7d2c3fbe59877c8393"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553318,
+        "job_name": "installers (macos-latest / all)",
+        "step": "Test installer (pwsh)",
+        "command": "./tests/install.tests.ps1 -Lane ${{ matrix.lane }}",
+        "working_directory": ".",
+        "shell": "pwsh",
+        "started_at": "2026-10-21T19:04:43Z",
+        "finished_at": "2026-10-21T19:10:19Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "installers:be88fa4a109388fb6a7f46da5968f624bb51711c8a44a00ae770dcc9a8a614b5",
+            "command_sha256": "5de67ba7db1e812be8cf25b18e0e2e3756d6a504a3da78ec347bbbe191f9b3f1"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553318,
+        "job_name": "installers (macos-latest / all)",
+        "step": "Test POSIX installer",
+        "command": "bash -n ./tests/release-host-smoke.sh\n./tests/install.tests.sh 2>&1 | tee \"${{ runner.temp }}/install-tests-sh.log\"\n",
+        "working_directory": ".",
+        "shell": "bash",
+        "started_at": "2026-10-21T19:11:50Z",
+        "finished_at": "2026-10-21T19:14:11Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "installers:0888831ee3ee78d120d770079d294dc0ef1c633da4e8b7b2a991af72214ed6d2",
+            "command_sha256": "78731ebe9781f6d5933e6f8f1a0c2a5867cacfe244852c083f2777ae7fdcc35f"
+          }
+        ]
+      }
+    ],
+    "smoke-run": [
+      {
+        "job_id": 119424553548,
+        "job_name": "loops-routing (windows-latest)",
+        "step": "Test loop driver smoke suite (bash)",
+        "command": "bash ./tests/loop-driver.tests.sh",
+        "working_directory": ".",
+        "shell": "bash",
+        "started_at": "2026-10-21T19:05:09Z",
+        "finished_at": "2026-10-21T19:05:59Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "loops-routing:7650946fbc6bd44dafe4db048b5cf1023be366475227bd9cbc917601f6b58a77",
+            "command_sha256": "2cc99990865d86648605b59a59204f2b693cbbf2491c3501d9ab4cefbb22bc6f"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553548,
+        "job_name": "loops-routing (windows-latest)",
+        "step": "Test loop driver smoke suite (pwsh)",
+        "command": "./tests/loop-driver.tests.ps1",
+        "working_directory": ".",
+        "shell": "pwsh",
+        "started_at": "2026-10-21T19:05:59Z",
+        "finished_at": "2026-10-21T19:06:10Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "loops-routing:7b6d5675f9c212d9e350eaf178afd061efd47727edd408ee8a4dae0cc5223cef",
+            "command_sha256": "877e87fe1d6881d4fed358e6fa4b05bee33f2ef6b395d4a027c71ebd3328dfed"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553690,
+        "job_name": "loops-routing (ubuntu-latest)",
+        "step": "Test loop driver smoke suite (bash)",
+        "command": "bash ./tests/loop-driver.tests.sh",
+        "working_directory": ".",
+        "shell": "bash",
+        "started_at": "2026-10-21T19:11:16Z",
+        "finished_at": "2026-10-21T19:11:19Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "loops-routing:f67b83cd801b0ed195186b5842273c141a23aebc0ce4c7c4c7927f9e67722631",
+            "command_sha256": "2cc99990865d86648605b59a59204f2b693cbbf2491c3501d9ab4cefbb22bc6f"
+          }
+        ]
+      },
+      {
+        "job_id": 119424553690,
+        "job_name": "loops-routing (ubuntu-latest)",
+        "step": "Test loop driver smoke suite (pwsh)",
+        "command": "./tests/loop-driver.tests.ps1",
+        "working_directory": ".",
+        "shell": "pwsh",
+        "started_at": "2026-10-21T19:11:19Z",
+        "finished_at": "2026-10-21T19:11:24Z",
+        "conclusion": "success",
+        "exit_code": 0,
+        "exit_code_interpretation": "successful native Actions step; numeric zero inferred from completed success, not a separately captured process exit",
+        "obligations": [
+          {
+            "id": "loops-routing:5a92184ed9ad42120e51adc429ab3b041691cafd02c4e9da55778f26617df786",
+            "command_sha256": "877e87fe1d6881d4fed358e6fa4b05bee33f2ef6b395d4a027c71ebd3328dfed"
+          }
+        ]
+      }
+    ]
+  },
+  "local_shard_mapping": [
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-00/receipt.json",
+      "sha256": "75811131cb3398fbf6d089526e6d8760eb171fd546dd699aceefcb3db2230ad5",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-00/invocation.json",
+      "invocation_sha256": "3820c1bfe0d386363d7f4e8111d9584b3c2fbb994d11950520854c1022e99f32",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "0",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-00/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:39:23.991754+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/impl-review-adr-inputs.tests.sh",
+          "source_sha256": "167c7060821864367d8547b9148b283ce1ab1fd8a5f4e4d20ad329b940d31395",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 381.923265
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-01/receipt.json",
+      "sha256": "eaab541a4bb63dd1f2ab5c35486aeea2c6ed7a7481482f3fb1ec951734803ce8",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-01/invocation.json",
+      "invocation_sha256": "d7b9acfb4cf79bec56d64d32788a5ec7a3e21754f6adfbfcb23ba8e66c860754",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "1",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-01/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:45:46.171144+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/a9-dogfood.tests.sh",
+          "source_sha256": "029920ddc66c05c34f68661c9dad4d434134c8b518aed620d26123896a936736",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 365.985847
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-02/receipt.json",
+      "sha256": "0a78a4cb3444196093accbc3b9412c920026d8750c5901a5d90a17ce85b26b6d",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-02/invocation.json",
+      "invocation_sha256": "f1acd6157e6032b2494a3cb4fe6071572b246f4340bca9db3c43317b127a1920",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "2",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-02/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:51:52.324704+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/review-context-boundary.tests.sh",
+          "source_sha256": "3c191f24add33c6f0f7acf5dd271a45b14a0435f8b469c62c46a82647e97f6d2",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 135.480949
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-03/receipt.json",
+      "sha256": "68a6267bc31959867383aaabd63b4dbf6b32e126159faa7d68feaeb61af33d2c",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-03/invocation.json",
+      "invocation_sha256": "66a2f45526318c8b84beda33a1d55e1afb96b8666b1f02129ac94101e8edafe6",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "3",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-03/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:54:07.961858+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/workflow-state.tests.sh",
+          "source_sha256": "dffc5e1ea5a7b010d02654b39ceca6c66364d12a9e45580f6ffc22347129de98",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 170.448184
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-04/receipt.json",
+      "sha256": "a75a6b890434d5acf0266400db789fee7f30c1588bc72409733040bceef8a3b7",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-04/invocation.json",
+      "invocation_sha256": "5f54fa6688e21ebcd55cf6dbeccc97d583ac1e1dba4edca2fc654b2986603863",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "4",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-04/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:56:58.567478+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/facet-manifest-parity.tests.sh",
+          "source_sha256": "945f2335a0af105e1dab98591d6aeb5feb6f2fa7ecd9019b2ee402375f7a0cde",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 64.441367
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-05/receipt.json",
+      "sha256": "be8ec0f3feecc9476d0e7072c533ada552e82876bc2f4230ef8e0aed51ce6c64",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-05/invocation.json",
+      "invocation_sha256": "1094bf306cb01fdee6d5409bcf9b48942511898d7255080a05cd2a655ce5d969",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "5",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-05/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:58:03.167304+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/wfi-034-scratch-metric.tests.sh",
+          "source_sha256": "345bca7afcc0cc747dd26d35562d9cb3404b63b45cb5901fbc137a390b0747ae",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.438489
+        },
+        {
+          "suite": "tests/check-installed-plugin-drift.tests.sh",
+          "source_sha256": "4a111a1cb43f7c8e2d0632182b2bc848036a901810ca122166d37e128984b4f2",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 54.048164
+        },
+        {
+          "suite": "tests/task-structured-output.tests.py",
+          "source_sha256": "51a17f49fac6570e39c7b7079b539de3b179725dda418184410399cc20299a83",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.513026
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-06/receipt.json",
+      "sha256": "7410c11e0be172e54e23294ce7328e5203d6add4026a992729ebc7b61e6b4e04",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-06/invocation.json",
+      "invocation_sha256": "9757259b17773079883b834ada2366614d8969155b41f796305075a2987e4089",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "6",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-06/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:58:58.325817+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/wfi-058-outputs-anchor.tests.sh",
+          "source_sha256": "9637fae08b9687c6cc8ace6eec115e27f314785b99c892957202224e4f504f8f",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.286582
+        },
+        {
+          "suite": "tests/review-contract-foundation-parity.tests.sh",
+          "source_sha256": "9eb0907a2fe8e173c66df1677b24d936d67674ddbd46a9d9eadfdb6464c84a81",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.401983
+        },
+        {
+          "suite": "tests/spec-review-loop.tests.sh",
+          "source_sha256": "5c101bf7878f909775e73cbbce32c2f5e369df043e0f74547821c0273c0fd1f1",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 4.569359
+        },
+        {
+          "suite": "tests/release-config-lock.tests.sh",
+          "source_sha256": "45ca5bd38cb2eee5042abc4092a1430acc34fafa50f5ab6cddc23a95036b1ea2",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.043477
+        },
+        {
+          "suite": "tests/phase2-risk-upgrade.tests.sh",
+          "source_sha256": "e6557e054c2f5190bb8aadb29630196464ede12597343d37ae467c4ac7b17f3d",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.002697
+        },
+        {
+          "suite": "tests/template-validator-parity.tests.sh",
+          "source_sha256": "91828ead642f6f3a2b60bfbc50e589ded99e577a79b9f61c25542765ff5dbd0d",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.170232
+        },
+        {
+          "suite": "tests/validate-live-host-proof.tests.sh",
+          "source_sha256": "9c1de76dc42494875cfcb81e85c5cafb8876a660d809fd94873c815173942bd5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 66.04915
+        },
+        {
+          "suite": "tests/lite-gate-summary-absent-active-enforcement.tests.sh",
+          "source_sha256": "d431ad64d14fc4a7c28a523746fed8113b5a6a0ffd891968e15005b8016b51cf",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.202838
+        },
+        {
+          "suite": "tests/evaluate-predicate.tests.sh",
+          "source_sha256": "245f11dd50491e89a69a0d3d202d63d7824ca961aba3cd4681652dd912091a43",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.894891
+        },
+        {
+          "suite": "tests/generate-registry-digest.tests.sh",
+          "source_sha256": "f98879e6bb5de6e21960be4a22859c7d45f3d5780a993bb8692b6c9aa0c57e3c",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.024191
+        },
+        {
+          "suite": "tests/host-review-preflight.tests.py",
+          "source_sha256": "e4d8dcebbe6c4c412cd84845e1120459e4a268fa4eba27039703d6c9fcc40239",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 11.967849
+        },
+        {
+          "suite": "tests/model-identity.tests.py",
+          "source_sha256": "650239455536821657802793ce284013cc07ba360428ea872ea52540a23759a7",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 10.193361
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-07/receipt.json",
+      "sha256": "b17518bfb043617cf89fbd7280a9a03728cbf9090a2bc9470afd0fedb8c1c9c7",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-07/invocation.json",
+      "invocation_sha256": "c38485c94d8f52fd176bdd5978563ef8f3424a1a53cb4dc4745e9ebd3dc5ad82",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "7",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-07/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:00:36.305170+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/ci-suite-wiring.tests.sh",
+          "source_sha256": "a3111d71e9be9129e0ec696ea8e51dc2aef1be5c6d76fe93342b7b7711cbf61b",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 3.506785
+        },
+        {
+          "suite": "tests/wfi-059-evidence-path-base.tests.sh",
+          "source_sha256": "3760a8f43dc58db8909858e010ebf26b80691b08eaac70eacba1a9e36d28a4ff",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.221861
+        },
+        {
+          "suite": "tests/review-contract-foundation.tests.sh",
+          "source_sha256": "af6ffa2b6af72c00b7271ac802cbda7d5197066038c67097204fdb81a27cafaa",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.582542
+        },
+        {
+          "suite": "tests/second-approval-mask.tests.sh",
+          "source_sha256": "f114f32a13abc85cd25e7ff5b6d02ff34ddf1241402033a9232566f580b4cb14",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 33.5659
+        },
+        {
+          "suite": "tests/workflow-state-ci-integration.tests.sh",
+          "source_sha256": "c03b108519d44486f4ac2440705aaad17aac1e9cd4d2d8f416834e101eba4f64",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.588685
+        },
+        {
+          "suite": "tests/guard-dispatch-fallback.tests.sh",
+          "source_sha256": "fea16dbfe5527b988563192202f2c6916bfa3221e8d66f2dbcec78cf1bb9621d",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 9.678879
+        },
+        {
+          "suite": "tests/human-copy-mirror-freshness.tests.sh",
+          "source_sha256": "468023b55cbdf55560ecc214ffdfd05116d040a167a7c7ff3e1c50a9df810e2e",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.082916
+        },
+        {
+          "suite": "tests/phase2-sudo-signature-static.tests.sh",
+          "source_sha256": "33661ad8d4b9b5d9963b152b41dc9aef15a4947e3c7edde081b4fe56817b4483",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.030984
+        },
+        {
+          "suite": "tests/design-system-compliance.tests.sh",
+          "source_sha256": "3b25720a3a25fbde7a435975d112dd949c7e5d4842e508965e2fe59e9657ee7b",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.094976
+        },
+        {
+          "suite": "tests/release-loop-gate.tests.sh",
+          "source_sha256": "eb81d7c2646ee7a181f643d0de6523b7e1cbdd3563bf64b13b6618436082b824",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.176589
+        },
+        {
+          "suite": "tests/facet-manifest-semantics.tests.sh",
+          "source_sha256": "f1c1561be92512e6727a29aa546311c630b22011c61cb558358a3668b36ff6af",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.477055
+        },
+        {
+          "suite": "tests/lite-gate-summary-absent.tests.sh",
+          "source_sha256": "4a3ec3af07e1ff9b5caf17c234e85e962bc501ecd4485845d376902dc34b80f4",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.007246
+        },
+        {
+          "suite": "tests/check-component-coverage.tests.sh",
+          "source_sha256": "e2bcb0347dcfde6fd1f22f20bdb8448e1c6edeb990bbab667fb2f2bb93b2d460",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 4.164189
+        },
+        {
+          "suite": "tests/traceability-freeze-contract.tests.py",
+          "source_sha256": "78e688c8949ffad8950b2b5802a957dddc324d05f43700501946da70096735d7",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 30.262945
+        },
+        {
+          "suite": "tests/concept-review-continuity.tests.py",
+          "source_sha256": "ce42518a4cea3cb5d71adb3bf57de606708b3d3d839ee185760cbd9044570819",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 75.948871
+        },
+        {
+          "suite": "tests/spec-review-verify-inputs.tests.py",
+          "source_sha256": "ab2796fc7336d0142cd392105a342c3046d8f8db21c57c76b4f8785147e1bbfc",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 13.414108
+        },
+        {
+          "suite": "tests/model-observation.tests.py",
+          "source_sha256": "4d6bc7c901cb2db38e1b4210a4f7aa8956248aa72500793d290ed7fdf9e15513",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 19.076356
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-08/receipt.json",
+      "sha256": "998e41daf06366ab8c407a6c1d0ccb559ac353837bb3d15563db3b13452088a5",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-08/invocation.json",
+      "invocation_sha256": "fa6163f5aec6aff6592f4f8a931819bb212feece143dc314f62bcdbd31b394cb",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "8",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-08/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:03:50.342726+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/adversarial-review-contracts.tests.sh",
+          "source_sha256": "e7562407e8f1de5afb1cd6b2e7353c96f626aafb523e0c2835c7a055ebacc338",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.104751
+        },
+        {
+          "suite": "tests/render-agent-frontmatter.tests.sh",
+          "source_sha256": "c51330aea654902585770f4775303e54457ccbb8bb4311ab375554aec23e1d7c",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.157054
+        },
+        {
+          "suite": "tests/structure-check-feature-mode.tests.sh",
+          "source_sha256": "67145552968826b090f2542972f6c1947fe2d30ebed4827627228669436e07dd",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.175234
+        },
+        {
+          "suite": "tests/claude-bash-matcher.tests.sh",
+          "source_sha256": "444f16fe3536d417e0dac6cd13fa03b955fbd3068740f165f72911a80f87f762",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.795251
+        },
+        {
+          "suite": "tests/review-prompt-calibration.tests.sh",
+          "source_sha256": "c82920797bc01e7dfb979358d0cb414d769114a08145de0eedd302a9b1691804",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.079488
+        },
+        {
+          "suite": "tests/design-system-contract.tests.sh",
+          "source_sha256": "50d5d4204499fa78e0afa516826337299c57f2d7f3a7d8eb7806f80db755f64b",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.366447
+        },
+        {
+          "suite": "tests/bootstrap-layer-templates.tests.sh",
+          "source_sha256": "5705201ecf666d98c9ce7b354e0d4b0193eff2ceb9635de83b2846080354528b",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.190392
+        },
+        {
+          "suite": "tests/apply-human-copy.tests.sh",
+          "source_sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 56.567544
+        },
+        {
+          "suite": "tests/check-hook-activation-handshake.tests.sh",
+          "source_sha256": "24a7af606fa5cd0c987e05776b8b7dabaa5d36ee04069cb7fe30241d78f71955",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 25.715862
+        },
+        {
+          "suite": "tests/guard-invariants-epic-a1.tests.sh",
+          "source_sha256": "883fd0b1413b5c05db5473e168dba7cfda0a37c474909b38b99ea1ec8a07401e",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.14605
+        },
+        {
+          "suite": "tests/plugin-contracts-track-selection.tests.sh",
+          "source_sha256": "4002300c41be9e5ea6ab2067f39dce7c830ff8f2854998c62f2e9fc57b3a52c3",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 3.480755
+        },
+        {
+          "suite": "tests/human-copy-runner-contract.tests.sh",
+          "source_sha256": "854716fb7a1b2fb50aa6e9ef55b9a6ffa8a3f2b0875a86ae347404023a1222c6",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 13.715266
+        },
+        {
+          "suite": "tests/lite-gate-summary-consumption.tests.sh",
+          "source_sha256": "263402a343220709433d3c7659af1b8f6833346fd42718cb880cfe67516d358c",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.737092
+        },
+        {
+          "suite": "tests/design-sync-policy.tests.sh",
+          "source_sha256": "2d8d4dee5aba570f6c50db8f793ccef6aa1767fc1db8332ad7f2c2428a69784e",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.042781
+        },
+        {
+          "suite": "tests/concept-test.tests.py",
+          "source_sha256": "2b0af0f0741b797e399d15719e8cde06b0fa041c31738b8ac86da7cb7c0c2610",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 10.706165
+        },
+        {
+          "suite": "tests/fixed-review-inputs.tests.py",
+          "source_sha256": "83e3d383b3652531f7cf3be8e4b0ed09864e338fd2eb0cf82fab803b8a3bcb54",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.717659
+        },
+        {
+          "suite": "tests/workflow-conditional-inputs.tests.py",
+          "source_sha256": "029e5ddd03c981d84fbcb90469b82d0f5b99304b49dfbb24447770140e5b5de1",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 39.238105
+        },
+        {
+          "suite": "tests/unified-launch-order.tests.py",
+          "source_sha256": "ed7815e25d294eb19332eb708a3c0c718c2f328e54147096fb7353cea59c13ff",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 16.40088
+        },
+        {
+          "suite": "tests/model-policy-installed.tests.py",
+          "source_sha256": "78c8181289665d6d5432d95200fc006c2e284773adea1e75f9740d3491c1a4c0",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 710.355348
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-09/receipt.json",
+      "sha256": "d2c24db9b4ac2747b883b77dacfcbd714cf4fecd3e05d240dc8d917bfe22df14",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-09/invocation.json",
+      "invocation_sha256": "7a10fed7fb6a12b6483e785c9845259115e32207f66187df93ea6c7d3c950214",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "9",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-09/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:18:35.207352+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/cloud-orchestration-contracts.tests.py",
+          "source_sha256": "3f47f344fe3a5a846cdf22e3af51460c80c142e819ad9fc2655a4cb8f933b3a2",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.901674
+        },
+        {
+          "suite": "tests/prepare-panelist.tests.sh",
+          "source_sha256": "12d0e40aad109fb69099d6dda8d99fb7d066034c5959f7b5037d078e24e0e151",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 5.154275
+        },
+        {
+          "suite": "tests/impl-layer-review-inputs.tests.sh",
+          "source_sha256": "9d11a218258d2e4246bfb1d17c8ecd9fc63ceb75544a294ad9b3f243167efe1c",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 4.245863
+        },
+        {
+          "suite": "tests/agent-capabilities-v2.tests.sh",
+          "source_sha256": "e85d615fea58381a6f2e65df6852fa7571e1443807478011de4981b1501354b6",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.253832
+        },
+        {
+          "suite": "tests/turn-first-workflow.tests.sh",
+          "source_sha256": "095eb4742d32fb47249d511de7ac648cb4c42b7efb8d2ad87f2230436b8fd4e7",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 3.392152
+        },
+        {
+          "suite": "tests/constant-parity.tests.sh",
+          "source_sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.077153
+        },
+        {
+          "suite": "tests/guard-negative-corpus.tests.sh",
+          "source_sha256": "bb834f8357a95f9c90d183c8bb1b136a68803f744ca2a545c8508290ba764666",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 8.043105
+        },
+        {
+          "suite": "tests/guard-cwd-bypass.tests.sh",
+          "source_sha256": "89f8e492406108d6579da14324d1ed229ca2158fec0166589622751eea9803cc",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.939896
+        },
+        {
+          "suite": "tests/repository-release-validation.tests.sh",
+          "source_sha256": "122f4b2e15fe4f7a7098e1149e3d0a971b2181a6a785f4043622b9cadcd6f2c6",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 104.834215
+        },
+        {
+          "suite": "tests/boundary-reference-authorization-parity.tests.sh",
+          "source_sha256": "029ad1cd46f791f71182bcb4ee8eb302a588502fb8c4e6156b6ef5faa979601d",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.037673
+        },
+        {
+          "suite": "tests/check-placeholders-brownfield.tests.sh",
+          "source_sha256": "7ac923f709c252e588bdbf9428300c079b34d0ac4d6df216440adb4d90d72d7a",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.198394
+        },
+        {
+          "suite": "tests/workflow-documentation.tests.sh",
+          "source_sha256": "6e1b9eb8a5a3d1ced77e5904c2b13da16f367ad1f9eab87b513d68cc36cb5299",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.073383
+        },
+        {
+          "suite": "tests/run-panelist-effort.tests.sh",
+          "source_sha256": "9deef560ebd9d85381a153f0051a563259a0d2b50b248d49c987e89bf5e1c481",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 6.693645
+        },
+        {
+          "suite": "tests/detect-policy-weakening.tests.sh",
+          "source_sha256": "8e75b758b7ca08c5c31fa630e45f5b8fa9fbe5d311b4fde70fac00e6b479bb24",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 3.92157
+        },
+        {
+          "suite": "tests/resolve-project-context-block.tests.sh",
+          "source_sha256": "a06cb73c36ba6d94d53b18638dd4a470388aaf72505372324c2cfa7d9a555890",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 29.126689
+        },
+        {
+          "suite": "tests/structural-compatibility.tests.sh",
+          "source_sha256": "07ef557ecfdab7b84db1127835018f4b915205c159bcdcc42595df7c996918a2",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 7.021907
+        },
+        {
+          "suite": "tests/lite-gate-summary-invalid.tests.sh",
+          "source_sha256": "d4ceefe7e16602919357842d9ff3fd41b09348df894659e39f8651dd75508c77",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.188151
+        },
+        {
+          "suite": "tests/fixed-review-launch.tests.py",
+          "source_sha256": "314a068ab50c25754ffbd5b70c4b51e1c52070351f9015321b275fce80826e73",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 6.852147
+        },
+        {
+          "suite": "tests/unified-task-launch.tests.py",
+          "source_sha256": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.800793
+        },
+        {
+          "suite": "tests/supplemental-delivery-declaration.tests.py",
+          "source_sha256": "4df0a193452a7bce95267b5dd415388732a2de808f498dbddefef0dabf32d361",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 44.305957
+        },
+        {
+          "suite": "tests/model-policy-launch-platform.tests.py",
+          "source_sha256": "e4dfaecadca6dc970507592865e8b5014f56047f4c38794a752206a80cb22810",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.141848
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-10/receipt.json",
+      "sha256": "737409fd39a9030e558c502e35b36d079ad0f4a40cdbb5064f39d6bad0f6301b",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-10/invocation.json",
+      "invocation_sha256": "78851a78fc9fed167cbdfbf8996bf76bd941a30955047168f74cb6500f854cc1",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "10",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-10/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:22:23.590249+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/cloud-orchestration-execution.tests.py",
+          "source_sha256": "dabe98ecf8a47d71da3947c70066c059bb7388f8134a9d069812a2d63507778b",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 13.626281
+        },
+        {
+          "suite": "tests/install-cloud.tests.py",
+          "source_sha256": "d13ac886d3802d4af5940a782bb89ae3725f6665138d79a3cf1cbe7b1f4e20e5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 130.530986
+        },
+        {
+          "suite": "tests/uninstall.tests.sh",
+          "source_sha256": "3df66ff95b91ff496c1d26f628859706591bed40253a2e80ec9d1d1abb99d996",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.641646
+        },
+        {
+          "suite": "tests/check-placeholders.tests.sh",
+          "source_sha256": "c840f55447309df1c11735229c93c23d1ecdf3ec00711b91972d55b02c46f255",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.040609
+        },
+        {
+          "suite": "tests/task-context-isolation.tests.sh",
+          "source_sha256": "8215907fec7fcf618387112bed1d769b5ffa94153a57a0ccfdeb4c6d25aad51c",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.993915
+        },
+        {
+          "suite": "tests/scenario.tests.sh",
+          "source_sha256": "340b4d07590e4620abe372cf983c294ea53f5c4f6ee58bcb9047c0cd54868a58",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.962952
+        },
+        {
+          "suite": "tests/workflow-scenarios/workflow-scenarios.tests.sh",
+          "source_sha256": "4472cdeca05e7b2d1a184b2e94c84bd8bc1b30313e0db342adc0c6a5b17d2493",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.472781
+        },
+        {
+          "suite": "tests/guard-parity.tests.sh",
+          "source_sha256": "1b2e27ea19bf3823b4c27c985e4db8c906c9aa779d6ed597ba0e1956de29c02b",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 66.596347
+        },
+        {
+          "suite": "tests/deterministic-lane-selfcheck.tests.sh",
+          "source_sha256": "b22a1a3f69883a432c7487794a34b95936fac5aff28deb5e77b55a902b325869",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.479045
+        },
+        {
+          "suite": "tests/guard-ps1-ascii.tests.sh",
+          "source_sha256": "b4bc3f019a0534e9b61fc44eeb23f550f392488473746c80b44bd9da85b0d9a7",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.021034
+        },
+        {
+          "suite": "tests/collection-layer.tests.sh",
+          "source_sha256": "f1b0e10596f75a21c50fbeb16541137def98306b44b6438de40918256402faeb",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 8.424558
+        },
+        {
+          "suite": "tests/bump-version-gate.tests.sh",
+          "source_sha256": "f3e1f46794ffebae02dc49ee0151b98fe328bace4ee5dff995d6bfba0163ca65",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 8.480631
+        },
+        {
+          "suite": "tests/facet-manifest-schema.tests.sh",
+          "source_sha256": "a06ebcb28abdd794afe00543403f5faea26ffee858b12ef193126cd864e5f691",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.694943
+        },
+        {
+          "suite": "tests/context-projection-schema.tests.sh",
+          "source_sha256": "cb839eb4d466c79cc30f47c4c40b330ca6c9eb959106f8beb1c791b2616fa8d0",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.033216
+        },
+        {
+          "suite": "tests/project-context-schema.tests.sh",
+          "source_sha256": "24f2a43393e39b2870a87aefcc213d3b096366000bfaafff60d31f5263027311",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.575461
+        },
+        {
+          "suite": "tests/resolve-project-context-caller-contract.tests.sh",
+          "source_sha256": "cab22b20ab274878d23b623c297c4c4203b4b6c7d5a9ad32ed357a86e143171a",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.032305
+        },
+        {
+          "suite": "tests/lite-spec-capability-block.tests.sh",
+          "source_sha256": "e1d2094ba34704a4d3bf4d32dad526ffa95d84ca04538844c0396525f83bc976",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.177692
+        },
+        {
+          "suite": "tests/upstream-concept-issue.tests.sh",
+          "source_sha256": "00b7c953d83bf90e8835fe31372e1fd618b24381c86b16f4f42a7b0e31b28308",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.909195
+        },
+        {
+          "suite": "tests/fixed-review-precheck-bash.tests.py",
+          "source_sha256": "7a1fd297aa78dc592f79f419f34fd727b1028aae3483275a4928b10b7d658c83",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 4.59185
+        },
+        {
+          "suite": "tests/t001-evaluation-preparation.tests.py",
+          "source_sha256": "b7028f7bd7c4d392baa053929a07c53dad98b9f6caed74c858e9ed7105c33ffa",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.683741
+        },
+        {
+          "suite": "tests/model-policy-launch.tests.py",
+          "source_sha256": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 164.609106
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-11/receipt.json",
+      "sha256": "52df9b27d9e0e3cb6b4886c5b5fa66b1f1182e11b3bb85168b63741678ecc097",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-11/invocation.json",
+      "invocation_sha256": "37d706fe197c065f35ce817e5e770d4b0fe91ae96c166ab5bc0c3c67a6096eee",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "11",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-11/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:29:13.336286+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/cloud-orchestration-routing.tests.py",
+          "source_sha256": "faedf01b5b959f61f60f3b9ef01d5d01b85758722e70e48cee33329805a99ab5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 25.134661
+        },
+        {
+          "suite": "tests/install.tests.sh",
+          "source_sha256": "90cdaa3c63da488e85528ec02cf4626d09b48bbeef94dfc8f82d3c730d7eaf52",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 46.267884
+        },
+        {
+          "suite": "tests/install-uninstall-matrix.tests.sh",
+          "source_sha256": "d9422cee978d09cff326b2b439ea80f8c3799f2737acad041c26fba88cfdd238",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 24.122352
+        },
+        {
+          "suite": "tests/task-layer-full-profile.tests.sh",
+          "source_sha256": "1f295e22c9c30621d921a889c3bb0f26a6f8e22789395e921359c60ed9f47168",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 6.434944
+        },
+        {
+          "suite": "tests/impl-review-round2-contract.tests.sh",
+          "source_sha256": "9a067863c61043955c4fe41a79814ede70d2877b1b8612ae8ade2636abd8ff29",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 4.117058
+        },
+        {
+          "suite": "tests/agent-model-routing.tests.sh",
+          "source_sha256": "55b4d7a9a4e2aebf550acabe5961a5278d3c8ce8c9670631d15b7f9bfa2fd532",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 18.983405
+        },
+        {
+          "suite": "tests/rollback-1.5.0.tests.sh",
+          "source_sha256": "b47d3ab451db22856f40f10aff31b2abc18c6268eab06b20b7437a095a16d965",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 24.993369
+        },
+        {
+          "suite": "tests/workflow-state-registry.tests.sh",
+          "source_sha256": "529f45341b7a9dbe99dec8df35825511350deb32a9015069c1dd1cf6b3bd94af",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.575836
+        },
+        {
+          "suite": "tests/criterion-freeze.tests.sh",
+          "source_sha256": "065ddcbd4b9e3db0157b870a18dc18700d86a52e5d156b72f4fb1ced56efaa5b",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 7.051798
+        },
+        {
+          "suite": "tests/schema-engine-identity.tests.sh",
+          "source_sha256": "b53cb2d5cbf2441e70db0b820d3cefb3806da1d10c1c598f558542ef24fded8a",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.098889
+        },
+        {
+          "suite": "tests/loop-consistency.tests.sh",
+          "source_sha256": "6759d2171c7e7690d73b7545851f32ca66c4a100555e87daf7ca937b627fc4fc",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 23.66567
+        },
+        {
+          "suite": "tests/facet-manifest-staleness.tests.sh",
+          "source_sha256": "dd78532421b8b15e8968c3ddc37e24df99c963cbb85d91e8083d4450325bf6bc",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.524779
+        },
+        {
+          "suite": "tests/canonicalize-sdd-yaml.tests.sh",
+          "source_sha256": "644981b76e10f6d83304983f475daca950e763c4079f7704e26c9ea476ff464f",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 3.293688
+        },
+        {
+          "suite": "tests/validate-approval-sidecar.tests.sh",
+          "source_sha256": "e53b3a0a3d6d0d0e943e1de8dcf7d19eebb1eb05df428b00e547cea7896adac8",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 6.683862
+        },
+        {
+          "suite": "tests/resolve-project-context-cli.tests.sh",
+          "source_sha256": "8145152eb02a768f26d7247ce42c1458214c48f58910193e94c8e065a49dc40b",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.456538
+        },
+        {
+          "suite": "tests/compatibility-byte-identical.tests.sh",
+          "source_sha256": "7c8ddcefc26c17540333ffa710f6e7682e24d205942b9568984148334ddf33a6",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 4.910811
+        },
+        {
+          "suite": "tests/promote-golden-baseline-ci-guard.tests.sh",
+          "source_sha256": "fdb5066fea071f481a2108945219377b1fd195eb5fe350acb539ca3e2bac9eec",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.111728
+        },
+        {
+          "suite": "tests/check-risk-upgrade-byte-identical.tests.sh",
+          "source_sha256": "a5faaa33f261b47db5d28d75b6255c616b5b47e4bb9c176d1c0d209188452de0",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.354684
+        },
+        {
+          "suite": "tests/guard-r10-port.tests.ps1",
+          "source_sha256": "09f0fefbed2c7ab1a12f9e91732f2daa2370a40411dc571da4ce4576092474b3",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 159.393154
+        },
+        {
+          "suite": "tests/domain-review-finalize.tests.py",
+          "source_sha256": "fbebadcda43bdd537a4055a468fc86dc2e583cb83160fc898db9535f9116ff7f",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 57.95139
+        },
+        {
+          "suite": "tests/fixed-review-precheck-ps.tests.py",
+          "source_sha256": "90abc02403e2d90b42c6d85786e00aa2ff32d52fbf8e0493a82a907cd7f7895a",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 17.762935
+        },
+        {
+          "suite": "tests/model-policy.tests.py",
+          "source_sha256": "00295fff5d8d25b0c38fb4fc0f2f85ef2197e4e5dce64b132354272bd0d65ea7",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 39.865434
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-12/receipt.json",
+      "sha256": "90adce92b5eb324a8391eff9729775c2b13f4e187a6c84eebb2bea9f0a1f493f",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-12/invocation.json",
+      "invocation_sha256": "ad2a66d22f638d56b06d9c9cdb67c00ee10b0059036f2fa52b29da37475cfa24",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "12",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-12/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:37:07.261009+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/cloud-orchestration-verification.tests.py",
+          "source_sha256": "b3456601eab14ab9bd4b634d4fd801aa1fa56dfe79b75db4276c782fee0ce4e5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 194.750642
+        },
+        {
+          "suite": "tests/installer-idempotency.tests.sh",
+          "source_sha256": "088246ed295f1187a5cafa94f1980155c00033a6052292aa4818db23a05ff274",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 4.229185
+        },
+        {
+          "suite": "tests/task-layer-review-inputs.tests.sh",
+          "source_sha256": "eccfd28dd27f0bd6a97305b0657ec5cd4d98642cb00dbed2e2fffa8a2c43cfbb",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.988694
+        },
+        {
+          "suite": "tests/downstream-review-precheck-parity.tests.sh",
+          "source_sha256": "0e1f9e51f740ef6178242aee59b01bdb95ac7f60bca1dbfaabde55a7e5a75bb1",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 7.899449
+        },
+        {
+          "suite": "tests/crlf-parity.tests.sh",
+          "source_sha256": "34c23e71fa2a946161c88e1f2b658f86e4dce4c101dfc027f6131ab4e44f8719",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.092956
+        },
+        {
+          "suite": "tests/apply-branch-protection.tests.sh",
+          "source_sha256": "4cf40dc8b38f67ac3b7b1269c0583670484bdb043a2c074cebc6bd676557220c",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.202257
+        },
+        {
+          "suite": "tests/workflow-state-registry-parity.tests.sh",
+          "source_sha256": "bd1d8e13a0937fdf7327f27e1107c31a437a7f46c051888a61103ab7b5aa3a5a",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 3.46925
+        },
+        {
+          "suite": "tests/quality-gate-cycle-limit.tests.sh",
+          "source_sha256": "6ecfb4c154fc26464acbfb4ba1b1bf20a4592e8ddb3fdfa31626068857c04446",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 10.733622
+        },
+        {
+          "suite": "tests/task-state-grammar-parity.tests.sh",
+          "source_sha256": "d8075639ef74cc1d828a48180453051ac62f8366ff09921b890074452566db20",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 12.419975
+        },
+        {
+          "suite": "tests/task-plan-binding-durability.tests.sh",
+          "source_sha256": "7ddfaede26a8c7b0602df9a55988ab8778357343f97d9c4a667481ce8b489cc1",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 7.934745
+        },
+        {
+          "suite": "tests/loop-driver.tests.sh",
+          "source_sha256": "7f8c7406d3e465fbb53eaff7c54adb93cd230a02aebad67eac3353356ee5a25c",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.726074
+        },
+        {
+          "suite": "tests/guard-staging-exemption.tests.sh",
+          "source_sha256": "5211b163e57d58e8611426873d4643131fd1bda8bac80f85ab1d61c41dc68b94",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 6.670271
+        },
+        {
+          "suite": "tests/resolver-evidence-schema.tests.sh",
+          "source_sha256": "ae7842c858e0ab792f637ff492e67461aaef11354a73ee971c14c6983e00016f",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.336914
+        },
+        {
+          "suite": "tests/path-lineending-regression.tests.sh",
+          "source_sha256": "e40f4160da9a21adb8efc51d1ecc092916948024b93266eea015feaf890f0675",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.537243
+        },
+        {
+          "suite": "tests/check-risk-upgrade-capability-merge.tests.sh",
+          "source_sha256": "c57ac7d82ba4b2a75f48f4ef541fdc527fbab3406903ff9db582c2fe539dda6c",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.07955
+        },
+        {
+          "suite": "tests/validate-capability-registry.tests.sh",
+          "source_sha256": "5da9c9f7908d46f4cd40a06da84a3e3b29277c9ca37324ed89d8fb490e57ccda",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.197737
+        },
+        {
+          "suite": "tests/capability-registry-parity.tests.sh",
+          "source_sha256": "9f6394004b8e601fe481f97fcb940032a7747b3094d5c4e8fe2e45bb85a30f29",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 6.751278
+        },
+        {
+          "suite": "tests/ownership-digest.tests.sh",
+          "source_sha256": "b71ce7e3ec6eb086bdebbf3d861de71e8c61e1306d1630d35c3ee7b5356197c7",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.397938
+        },
+        {
+          "suite": "tests/issue311-scratch-isolation.tests.py",
+          "source_sha256": "6400c23fd9c2f2a017af2de8515c83c1f5b8210b50bede16b7874f09e4db974c",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 23.965784
+        },
+        {
+          "suite": "tests/sdd-domain-multitarget-T-003.tests.py",
+          "source_sha256": "40a50bb063c1a372b57105ab801733051567c479e0c4159575540c0120e78c34",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 25.370402
+        },
+        {
+          "suite": "tests/fixed-review-state.tests.py",
+          "source_sha256": "7d0877197faf2356c43a7d4f755253b881916f9635909fd58b7e5bf2d4497702",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 5.195356
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-13/receipt.json",
+      "sha256": "a3c3ed73206af091ccc01b9ed82ab1004f335e613238375377213326ed4708a0",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-13/invocation.json",
+      "invocation_sha256": "f8236d440ac47130dcffd746796ae21f7cdbbf10df18b8456c1e5c1ee5fec69f",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "13",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-13/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:42:28.376173+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/sdd-domain-multitarget-foundation.tests.py",
+          "source_sha256": "9463abf50ad7c88f5b838038e539cccf36f509d227b64734b04be61b94f556a3",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.743286
+        },
+        {
+          "suite": "tests/guards.tests.sh",
+          "source_sha256": "24e2cec71468b681f190e40ded7c3fb3dc2114c6a538b541a0483f6118f84377",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 6.65453
+        },
+        {
+          "suite": "tests/approval-boundary.tests.sh",
+          "source_sha256": "236a09eddfd35770643cbc4872b18a7ea2d37ddc8e12e6a390eef62d1b41f72d",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.405664
+        },
+        {
+          "suite": "tests/gates.tests.sh",
+          "source_sha256": "854a76133ee6dc6bcac1b308b37ae9fcfa174d087e2ad7826a7ccb32cf4537a6",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 12.609636
+        },
+        {
+          "suite": "tests/downstream-review-precheck.tests.sh",
+          "source_sha256": "a5d586e2a4ec272f962103abbcaded7cebd0c726ef90f9373e2e49da9b5047f4",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 29.888537
+        },
+        {
+          "suite": "tests/retrospective-loop.tests.sh",
+          "source_sha256": "2b9e869f514656f07ddde40bcd4d10db38e2686bd83d2168146289c7feba80a5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.107085
+        },
+        {
+          "suite": "tests/cross-model.tests.sh",
+          "source_sha256": "7691268c0021632be748ba394c3c927b2fa83ce1bfe0f318c850dada88f46adb",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 149.0692
+        },
+        {
+          "suite": "tests/quality-loop-calibration.tests.sh",
+          "source_sha256": "af588cd9b24dee3c89f9056ab9478afbba9a8946f5fc375153c1d710f2163c7a",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.016573
+        },
+        {
+          "suite": "tests/p0-hardening.tests.sh",
+          "source_sha256": "15a7e38d06e93e9e69869f5a06ef58d4aaceed5fc0361a1d2a5ab83f741ed658",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.012448
+        },
+        {
+          "suite": "tests/task-lifecycle-enum-parity.tests.sh",
+          "source_sha256": "894707219838c2e346aeb50b78e9cd2b6a3803a224422ad895a14be1385ed56d",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.029998
+        },
+        {
+          "suite": "tests/loop-escalation.tests.sh",
+          "source_sha256": "77613b2b25c67147d00aeb43baf1053aa245002125301e03ff1038d4b726cbd3",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.474758
+        },
+        {
+          "suite": "tests/bootstrap-cross-layer-index.tests.sh",
+          "source_sha256": "4b7ee150057258c73c10a5e83d787454710a92b827f2c0d7f847864bd2e6bff5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 6.990022
+        },
+        {
+          "suite": "tests/resolve-project-context-discovery.tests.sh",
+          "source_sha256": "473bcd9ca3bed825c36cab551f3da248c194d68b93dae84bef7edfdf25890b95",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 3.670658
+        },
+        {
+          "suite": "tests/resolve-project-context-lite.tests.sh",
+          "source_sha256": "01cc8b4dec48ca616daa618ac379e40adc9f2624d96e74c88e54f81ca03b96b2",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.246669
+        },
+        {
+          "suite": "tests/validate-resolver-evidence.tests.sh",
+          "source_sha256": "2d0f934d17b07c12c36a5253b16874af6d18d77c49c881c8a242f3fe55df2be8",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 4.632304
+        },
+        {
+          "suite": "tests/check-risk-upgrade-fragment-fail-closed.tests.sh",
+          "source_sha256": "86876d1b3f1d76f80386b6d1cc9516e578da35153a1b45fd009bcea8a5c65631",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.806921
+        },
+        {
+          "suite": "tests/lite-gate-cli-chain.tests.sh",
+          "source_sha256": "4b7c0ba2e792f02e1f2d684926c6aac62077ed72f59ad127ab113776004e69a2",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.799573
+        },
+        {
+          "suite": "tests/capability-registry-schema.tests.sh",
+          "source_sha256": "f90c9270ba28c2349f0edb376d59895fae59eb6f677fa89bb927f8553ea8419f",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.292627
+        },
+        {
+          "suite": "tests/component-path-diff-basis.tests.sh",
+          "source_sha256": "17a281de648508abe5693299841ae31f31d83dca3b2d3a0ef6b0d5e11923ae5f",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.703749
+        },
+        {
+          "suite": "tests/sdd-domain-multitarget-T-004.tests.sh",
+          "source_sha256": "4ae16522d8e1c801db9bec3ca002ad5cd6f726545b948aab321dcf450a15c1f1",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 20.158102
+        },
+        {
+          "suite": "tests/verification-ci-plan.tests.py",
+          "source_sha256": "cfb1dc5d7fa1c4ca986aab500df1a399d6ada833a3e9817352c3bd817235215e",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 18.797477
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-14/receipt.json",
+      "sha256": "0a3148b4cb837e661d95942efdb70cc106fc930814a0e0129077febca480b057",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-14/invocation.json",
+      "invocation_sha256": "bd6d7207899ef8c1801d53e6d1de28c1b844bbcfe902384c2d3a4f6944b9cdad",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "14",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-14/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:46:49.648530+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/task-prior-pass-receipt.tests.sh",
+          "source_sha256": "0dbf6ce090d3da6afe012039fce0f2ae53279b1ab336994ec7204550ef18de6c",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.364726
+        },
+        {
+          "suite": "tests/review-agent-isolation.tests.sh",
+          "source_sha256": "e4a8c39a40b5c16f6bbb9dd7faec2199ac41fb70ff7c43e8706a69dfe826d146",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 98.669812
+        },
+        {
+          "suite": "tests/emit-run-record-feature-scope.tests.sh",
+          "source_sha256": "be7ee8bc84d275979d02c2596aa126e05c64e5df7f4be05ec8527810704e8a8d",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.693108
+        },
+        {
+          "suite": "tests/phase2-guard-invariants.tests.sh",
+          "source_sha256": "2f3ef6c7ab6faf62028790e9575cbd592c88a32716192970c54978aa31ff1e1a",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.980272
+        },
+        {
+          "suite": "tests/loop-inventory.tests.sh",
+          "source_sha256": "c23fbd30c6bc1d8c8243959c48dae5a0d0b5e77ca88c6c9abeb058b6232654a5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.16768
+        },
+        {
+          "suite": "tests/hitl-wfi-terminal.tests.sh",
+          "source_sha256": "48e137e676b7a61ecab021b7fa6ee658059a6c7246c0fde5c663f2716d20f356",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.26968
+        },
+        {
+          "suite": "tests/capability-summary-schema.tests.sh",
+          "source_sha256": "392d6724dd27f0317142922d34014b8c446031c3c07d8a65638153b1e1aee6f1",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.657628
+        },
+        {
+          "suite": "tests/generate-approval-sidecar.tests.sh",
+          "source_sha256": "f96a468a3adf700224bd0b2d4ebc4510b2e07fc21c19678b03c13eaf80de362e",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 4.441979
+        },
+        {
+          "suite": "tests/approver-registry-schema.tests.sh",
+          "source_sha256": "3c9190ab84ccd534925ed998f948ae2246ff676026d6f4c02916d36cd06df8c6",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.14339
+        },
+        {
+          "suite": "tests/design-sync-scan.tests.sh",
+          "source_sha256": "aeb5f1bbb099379fc797b0de3357fe2ead071fc6dc44bbafe60e63d0a83d3d66",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.924685
+        },
+        {
+          "suite": "tests/resolve-project-context-metamorphic.tests.sh",
+          "source_sha256": "80108d816ec30c94dae0391d71133444ff1807ea4545e45e302041db973785da",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 12.732068
+        },
+        {
+          "suite": "tests/skip-allowlist-manifest.tests.sh",
+          "source_sha256": "397d49ccaaa3804d9dc0ef5cca36e1bc5f3900808075f142561c4aea924f51d0",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.60317
+        },
+        {
+          "suite": "tests/check-risk-upgrade-ineligible-no-reasons.tests.sh",
+          "source_sha256": "77df10c95eb74e10c146708c289ae0b8c924066a305b04f5e0f57afaeb3ec5d2",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.070298
+        },
+        {
+          "suite": "tests/lite-gate-direct-edit-contract.tests.sh",
+          "source_sha256": "2607739276e6b6e985ae559e86e831b8c71bd1ee5ad25ce7382e066b4d4d65f5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.012969
+        },
+        {
+          "suite": "tests/registry-migration-cli.tests.sh",
+          "source_sha256": "93f6ea44301ae5aa4e555509af8fd79f883ba18dfa565cfec50a92bdec8bd526",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 5.782219
+        },
+        {
+          "suite": "tests/component-path-ownership-parity.tests.sh",
+          "source_sha256": "b575836ee45d1b28387fa77dc7677cf39fbd76d80705110c631b115fc2ea583b",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 9.572038
+        },
+        {
+          "suite": "tests/cross-runtime-handoff.tests.sh",
+          "source_sha256": "5c4da1195114dcf99876a9dd46240815d09a577091fc0438f2dbca950f21f774",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 17.051103
+        },
+        {
+          "suite": "tests/quality-nontty-transport.tests.py",
+          "source_sha256": "d807ded8f2b6b5515c47c6f2fbc4a8b821d90dbcc46a75b9051f073a6dbd28e8",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.708764
+        },
+        {
+          "suite": "tests/sdd-domain.tests.ps1",
+          "source_sha256": "64b86bd7188f03cec34469c3c7d5f524cd84c2b37f6264b783f5e97b172002d5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 119.130461
+        },
+        {
+          "suite": "tests/current-byte-capture.tests.py",
+          "source_sha256": "6327f4d77b9d790a584393e4a7480b911b1753ccd722187fc0dd76b976f9579a",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 28.495533
+        },
+        {
+          "suite": "tests/verification-ci.tests.py",
+          "source_sha256": "f42916a4c73547405a98a0a86c2598f5be3aa040fea7cc94d7f8fe53b60ff44c",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 38.430176
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-15/receipt.json",
+      "sha256": "4f02d1f0c4162bbd1cfa4342a18cdb71faa1729d9d14d192984ceba64487023a",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-posix/sharded-16/shard-15/invocation.json",
+      "invocation_sha256": "1aa77f14be0024cef156d2766f60a5a053f3d9769c7dfd10d5d392baa33f6d1a",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-posix",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "15",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-15/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:52:34.709944+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-posix",
+      "results": [
+        {
+          "suite": "tests/ci-claude-install.tests.sh",
+          "source_sha256": "f179d86e578c2b96fe1e59b76e7a14f1c319cfcf54cdaf16ac4256817d47498a",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.046224
+        },
+        {
+          "suite": "tests/task-review-precheck.tests.sh",
+          "source_sha256": "e33c0c60b41c1172f6517f4939dca44785ed2a95af01b00d58eec96235cd8478",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 5.306366
+        },
+        {
+          "suite": "tests/eval.tests.sh",
+          "source_sha256": "a6615a848f63a2cd43ae59cf3280a82a3f1655776c3ac9a244841aecef8fc98a",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.325795
+        },
+        {
+          "suite": "tests/workflow-state-parity.tests.sh",
+          "source_sha256": "65bb2f3a89da593b0ce1db64d56fbda9db28bc617c045657c2f1ac384c5cd2d0",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.701299
+        },
+        {
+          "suite": "tests/phase2-guard-tokenizer.tests.sh",
+          "source_sha256": "7624e6ed7e579073e8f3c808da88c4e22c44e4a65212efdb8405dc19296f3147",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.040046
+        },
+        {
+          "suite": "tests/self-improvement-guard.tests.sh",
+          "source_sha256": "0fd6ba699c43c5e4fd80720312666050854a6076fdb3bfd6f097eec26059d4a6",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.870011
+        },
+        {
+          "suite": "tests/bootstrap-interview-guidance.tests.sh",
+          "source_sha256": "1b16b8012e7540c618c6ddde0845e37abc9e86d80a4dd2efbde6ad250eca51bf",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.041694
+        },
+        {
+          "suite": "tests/model-freshness-check.tests.sh",
+          "source_sha256": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.067807
+        },
+        {
+          "suite": "tests/hook-guard-epic-a1-boundary.tests.sh",
+          "source_sha256": "55c9b5c5b8c6cffa719df0250f0b544fefffb74b3ba5db60ebf6e57e7e06f779",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 9.278859
+        },
+        {
+          "suite": "tests/ship-track-selection-migration.tests.sh",
+          "source_sha256": "c732331d989010f9b1a48cd6775b1022597c45e3e2713baf3f6b04ac03616ae2",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 5.830977
+        },
+        {
+          "suite": "tests/design-sync-standing-consent.tests.sh",
+          "source_sha256": "9e3fdeab9f35c3164907239fd31f62d6840d076d939442dc9a9a38d478b3cfb5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.901383
+        },
+        {
+          "suite": "tests/resolve-project-context-match.tests.sh",
+          "source_sha256": "c84b4ecbf6f06cb24203dc6492b740a5504de60631ea284fea7a239ad70f4527",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 7.535625
+        },
+        {
+          "suite": "tests/resolve-project-context-parity.tests.sh",
+          "source_sha256": "95bad95595729f7e95c9bbfdd4c46adeee4bf90999344cdfa270be556157062c",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 11.479026
+        },
+        {
+          "suite": "tests/golden-baseline-contract.tests.sh",
+          "source_sha256": "a271932143a3fcf2f330c3f54baca6f43d0fb8743273b7ee7cdb1ca1616ccdf0",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 20.241841
+        },
+        {
+          "suite": "tests/lite-gate-full-upgrade-backstop.tests.sh",
+          "source_sha256": "992b854683b3d7caec1afcfb20989d708cab2032bf483e89190bba0693ea0976",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.305726
+        },
+        {
+          "suite": "tests/registry-discovery.tests.sh",
+          "source_sha256": "c3f82f519a2877927a4f0773e1d0be072c374b106fde256d84607454607954b5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.755369
+        },
+        {
+          "suite": "tests/generate-gate-capabilities.tests.sh",
+          "source_sha256": "9b582adc310516f736125a42b257d98b304a70dd24285d362b42e8b48e471672",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.036198
+        },
+        {
+          "suite": "tests/component-path-resolver.tests.sh",
+          "source_sha256": "4b5894b1d60b1a8e21ef885a0d4edd78c636fe6d8014ee29faab567c8522a928",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 3.599826
+        },
+        {
+          "suite": "tests/check-a8-process-integrity.tests.sh",
+          "source_sha256": "8fdea9b8aa80d2f01cd7ffb3431ffd3f5d0b86d8fbd671d5a56e44cc125be729",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.51312
+        },
+        {
+          "suite": "tests/review-conditional-inputs.tests.py",
+          "source_sha256": "7aae44f65473bd2b0ee5df0c9b02a5cbe0fab6416a7f7282fe23056958d36740",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 17.648394
+        },
+        {
+          "suite": "tests/verification-impact.tests.py",
+          "source_sha256": "4d3ce93e8c253521ada3b1e61531ad6d6824953c13ae4d68e0d7081cb78aefcc",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.137981
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-00/receipt.json",
+      "sha256": "18fe794788fd1e8dae774d7aa2679caef755d81daa7c596abfd751dd98a31917",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-00/invocation.json",
+      "invocation_sha256": "7a243f6530233671bef34cc10adaa4acfcef12ac514ec3b80f1e022b744bf003",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "0",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-00/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:39:25.433910+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/wfi-058-outputs-anchor.tests.ps1",
+          "source_sha256": "6a01971aefb4a9c6cf1a50e26cd73f779363db6801bc0a087b69107164bb4550",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.571361
+        },
+        {
+          "suite": "tests/phase2-guard-tokenizer.tests.ps1",
+          "source_sha256": "e4b3fdb8c675ccce1e1e76b607e503f5d66bdb36dde8057676beea5766cb89dc",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.462482
+        },
+        {
+          "suite": "tests/a9-dogfood.tests.ps1",
+          "source_sha256": "df36e6c30a8d72fa16caa957e9a03ff0f369a5a9595aaa23f85657e44de3bfb2",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 359.58662
+        },
+        {
+          "suite": "tests/resolve-project-context-metamorphic.tests.ps1",
+          "source_sha256": "9e4731ab01fc50291aec96f745f7ebc139c94d6fc8a31ec751f33779a6e47e56",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 20.967456
+        },
+        {
+          "suite": "tests/structural-compatibility.tests.ps1",
+          "source_sha256": "ade3456b0349ca2673b921297e2efc8fa66d96f6ed5e25a9bae43c0c6ddc1f06",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 29.493989
+        },
+        {
+          "suite": "tests/check-risk-upgrade-byte-identical.tests.ps1",
+          "source_sha256": "e7039a6d967d3efbf6a4d8b74069f49b103c206a8e32c140df6aec33a72bad20",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 4.602547
+        },
+        {
+          "suite": "tests/lite-gate-summary-absent-active-enforcement.tests.ps1",
+          "source_sha256": "bc3c176765b9fb5be1463b22f16be0a2e72078b75468ca8f2cdb3812346c7281",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.321109
+        },
+        {
+          "suite": "tests/generate-registry-digest.tests.ps1",
+          "source_sha256": "d6ce55b87f8adb799b16d9426eacb76f2136494c45d0c6516eaaad4034d1b2cb",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 7.736284
+        },
+        {
+          "suite": "tests/current-byte-capture.tests.py",
+          "source_sha256": "6327f4d77b9d790a584393e4a7480b911b1753ccd722187fc0dd76b976f9579a",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 26.361121
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-01/receipt.json",
+      "sha256": "d4218eb4270cc8992d494c3e356ac46ee3c06f0695d3e88670043b2d691cf7e8",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-01/invocation.json",
+      "invocation_sha256": "04b581a5b2425aaa44e289a65f88a7e62be2da1792e6b48b280e5cfd44dcb2bd",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "1",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-01/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:46:56.737329+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/wfi-059-evidence-path-base.tests.ps1",
+          "source_sha256": "3cf806fa6818d286099634ea87632821ff849b970cbbba08f2354145bdfe43c2",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.292652
+        },
+        {
+          "suite": "tests/phase2-risk-upgrade.tests.ps1",
+          "source_sha256": "615c2a22b4cfb2b7298601da25668cef50984240353a94c0e4ac6a10f753bb81",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.500374
+        },
+        {
+          "suite": "tests/structure-check-feature-mode.tests.ps1",
+          "source_sha256": "25e0e51eb49372c35de37678e95cdef2b45e84c5ba8d0aab5b848e65cdfa86d8",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 9.656045
+        },
+        {
+          "suite": "tests/agent-capabilities-v2.tests.ps1",
+          "source_sha256": "3e4c34d6749dd471b5efda44480e215e7bca3c3c427e2da276283b6c795990e0",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.635515
+        },
+        {
+          "suite": "tests/resolve-project-context-parity.tests.ps1",
+          "source_sha256": "a600e95e0accf4d4206906f5841bc740df911265204124255d26317123d383df",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 12.014253
+        },
+        {
+          "suite": "tests/golden-baseline-contract.tests.ps1",
+          "source_sha256": "34eac8e56a47944d21eb2fba5e4d0a04864d483ff024dfac87304b10c042648c",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 21.511105
+        },
+        {
+          "suite": "tests/check-risk-upgrade-capability-merge.tests.ps1",
+          "source_sha256": "81e11da762428983104f2f14214ebb359014034f3af3fba4a9da4539e370df9d",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.322557
+        },
+        {
+          "suite": "tests/lite-gate-summary-absent.tests.ps1",
+          "source_sha256": "765b8bf63f3bc278152b26e1e124245a3e032ed261281e00ed73d8f2bd0931b3",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.253111
+        },
+        {
+          "suite": "tests/design-sync-policy.tests.py",
+          "source_sha256": "6e0aa6d58f622d52b1628a22c66c51935c6cdb090e67218a84963d544475a637",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.97343
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-02/receipt.json",
+      "sha256": "d8db12f2a52c2fd7a46673b0471c1386089b2fe2710aeca3285a3b74d2ad25d8",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-02/invocation.json",
+      "invocation_sha256": "097f858333b7d1f96c270ba35f57352721560900a8fac508321eae2be419a0aa",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "2",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-02/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:47:46.054778+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/phase2-sudo-signature.tests.ps1",
+          "source_sha256": "bcb7a471c2b62f776e7107c6d114603459f3a9c40942c82f897c4568c344dc7d",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.411546
+        },
+        {
+          "suite": "tests/agent-model-routing.tests.ps1",
+          "source_sha256": "5709f7f97967ae2fc4909a21dbc46a35813634bc3b81c52d60048e203d6af98a",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.935767
+        },
+        {
+          "suite": "tests/guard-invariants-epic-a1.tests.ps1",
+          "source_sha256": "160b91a9d05c27ea99f60a2dfc7cf8193a3a782a5310e623703fb27aa0db5ec5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.179424
+        },
+        {
+          "suite": "tests/design-sync-scan.tests.ps1",
+          "source_sha256": "35c8036fa35b1e1683ddda06a9a3be44e164dfaea6ceff577ff6edc86e5ee147",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 26.830692
+        },
+        {
+          "suite": "tests/resolver-evidence-schema.tests.ps1",
+          "source_sha256": "65881f0cdaae98c4682dcd9b90a4219c814645f39e07a084fdc9ba994cccead1",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.549151
+        },
+        {
+          "suite": "tests/check-risk-upgrade-fragment-fail-closed.tests.ps1",
+          "source_sha256": "7bc9d4ba65d333a3a87fa00e9bedb9118c53678c69f8083c3ce7dd1af6d2cc22",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 11.096892
+        },
+        {
+          "suite": "tests/lite-gate-summary-consumption.tests.ps1",
+          "source_sha256": "67f03a9dffb4b5839a275e4eb2b66db9c1883dbea146d3acfe2830a9d4bf30db",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.398683
+        },
+        {
+          "suite": "tests/workflow-conditional-inputs.tests.py",
+          "source_sha256": "029e5ddd03c981d84fbcb90469b82d0f5b99304b49dfbb24447770140e5b5de1",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 38.272909
+        },
+        {
+          "suite": "tests/supplemental-delivery-declaration.tests.py",
+          "source_sha256": "4df0a193452a7bce95267b5dd415388732a2de808f498dbddefef0dabf32d361",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 45.776749
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-03/receipt.json",
+      "sha256": "ee70851d5546c65256aace6aa1ff7155019d8d201639b4cbc2a85384ebbb117b",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-03/invocation.json",
+      "invocation_sha256": "6ca0d3a64b48e9bf1843d7d2206889b76a3d8af4c3f6586b580be0a4851510ba",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "3",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-03/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:49:53.668484+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/review-contract-foundation.tests.ps1",
+          "source_sha256": "84d484e7cdf7b3e16daf6029b936db8ad4b5d7f71d467f1c962e1d588139993f",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.481035
+        },
+        {
+          "suite": "tests/workflow-state-registry.tests.ps1",
+          "source_sha256": "52f7a41aaea934c3579402ac6abed32acd39b261f8db6d0f1ded7b2cb9f2d0e0",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.717572
+        },
+        {
+          "suite": "tests/hitl-wfi-terminal.tests.ps1",
+          "source_sha256": "30f0d36635af5dc5a45bd2ddb87d61b6b929efe00b57b34c9e845f8981e3363f",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.664026
+        },
+        {
+          "suite": "tests/apply-human-copy.tests.ps1",
+          "source_sha256": "eca94ed5a6104659c346ddeec6cdf9de22b4d6782b183924054ed4e336f6e311",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 55.11156
+        },
+        {
+          "suite": "tests/plugin-contracts-track-selection.tests.ps1",
+          "source_sha256": "025eef7de18727d8e9224e951655701813ddfcdb6067735fc22ad9edc205a668",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 3.07883
+        },
+        {
+          "suite": "tests/design-sync-standing-consent.tests.ps1",
+          "source_sha256": "0213b165a960522e1a5691e0cf260f7703ecfcf206c1ff25336137e4d1cbf8e3",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.151708
+        },
+        {
+          "suite": "tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1",
+          "source_sha256": "90049e3b79ed197e0a0e9865fad0344196dd812baab322e33375f7fd6683cdfd",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.2622
+        },
+        {
+          "suite": "tests/lite-gate-summary-invalid.tests.ps1",
+          "source_sha256": "7dc9055137b46c27bf7e27c55782efaeeb51660f49fc4297a5f4c298efac9f99",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.329423
+        },
+        {
+          "suite": "tests/t001-evaluation-preparation.tests.py",
+          "source_sha256": "b7028f7bd7c4d392baa053929a07c53dad98b9f6caed74c858e9ed7105c33ffa",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.712099
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-04/receipt.json",
+      "sha256": "edf3506dff985ef6d7ce386e3e182cef3fed032f8971aaaad62ba168a8e97d93",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-04/invocation.json",
+      "invocation_sha256": "205e7f28cf023935dfea31b2c6d7278b4c9e158dda7ea44b82fdfb74b4110e23",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "4",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-04/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:50:57.338685+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/review-hash-normalization.tests.ps1",
+          "source_sha256": "350f0e743b78a37aabe405b16f354094aabd29d581eb70f2bbe6b54e2bc46d32",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.406662
+        },
+        {
+          "suite": "tests/task-context-isolation.tests.ps1",
+          "source_sha256": "13f5e17504fbcfda9d682f1ed656772fbf67c52ac6be07c586bd318aeb49e208",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.794168
+        },
+        {
+          "suite": "tests/claude-registration.tests.ps1",
+          "source_sha256": "029d64abb2030e47678a74ebc4d51b4194a3a44a5c3d93d6852262dea3babb2b",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 5.74622
+        },
+        {
+          "suite": "tests/workflow-state-repository-integration.tests.ps1",
+          "source_sha256": "0c236c7b9ac8b2f230e8ac6606811a83cbede922a7703fc82fceffd23877d807",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.233174
+        },
+        {
+          "suite": "tests/design-system-contract.tests.ps1",
+          "source_sha256": "6e5243a23028d802ce0707f7364c702039b05bdd71595dcefb8f7a939c41d957",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.531818
+        },
+        {
+          "suite": "tests/project-context-schema.tests.ps1",
+          "source_sha256": "8f16ef4d174989537652fc6dfb11328c9cf3da82852989dd52cf6538adfe162b",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.942772
+        },
+        {
+          "suite": "tests/approver-registry-schema.tests.ps1",
+          "source_sha256": "d5413efce23033769cb5023e8d6ff90fc7de751fa78ee0e69a96a71ad2926041",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.49284
+        },
+        {
+          "suite": "tests/hook-guard-epic-a1-boundary.tests.ps1",
+          "source_sha256": "fafb6c1e8194c9323aeefa20e965e8ecdf23f06be6da944e6452d3d39fc1f791",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 104.133067
+        },
+        {
+          "suite": "tests/lite-spec-capability-block.tests.ps1",
+          "source_sha256": "d1d8d4b3bd3a99d903ded48302775031f266ff17abb928f019510de97beccfa8",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.576314
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-05/receipt.json",
+      "sha256": "bd6e6ea1238581f6750094c1f7486bfbeb833d2416552a87738d305ff2979549",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-05/invocation.json",
+      "invocation_sha256": "1b489df6998b953453f99aaba40673da4451421cd541dbaae860881f6b347c90",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "5",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-05/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:52:55.358868+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/cloud-orchestration-contracts.tests.py",
+          "source_sha256": "3f47f344fe3a5a846cdf22e3af51460c80c142e819ad9fc2655a4cb8f933b3a2",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.808038
+        },
+        {
+          "suite": "tests/rollback-1.5.0.tests.ps1",
+          "source_sha256": "957746c3468adcd5c54789d97512fbaef2ad763324f3674519fa376ddd839166",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 3.090019
+        },
+        {
+          "suite": "tests/task-layer-review-inputs.tests.ps1",
+          "source_sha256": "e5ce1c72887f75a8839a661fd3e21fb821681a27489d582147f532f3ae100319",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.843845
+        },
+        {
+          "suite": "tests/hooks.tests.ps1",
+          "source_sha256": "259bef94624b8eeba1d78c780b1330f5735586800dfa7e4ade3a016f2f4e35c4",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 62.152725
+        },
+        {
+          "suite": "tests/workflow-state.tests.ps1",
+          "source_sha256": "a6a4a98ae1559c993c353a5e9228fc0f6bd9715b55375d519dbd7c2138057c8a",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 26.450371
+        },
+        {
+          "suite": "tests/loop-consistency.tests.ps1",
+          "source_sha256": "d06ffed2ddedfcfac517d014f5084ea4466d085732acca170f87ee9dee344b6d",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 20.545087
+        },
+        {
+          "suite": "tests/detect-policy-weakening.tests.ps1",
+          "source_sha256": "3a57edc4b153fff7865c09ea8518dc2b9f541831b3cf9f4eacf1de18923daabd",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 10.826618
+        },
+        {
+          "suite": "tests/promote-golden-baseline-ci-guard.tests.ps1",
+          "source_sha256": "b2ca4b5a0c964d0374dd3444869a78cbdcc5becb11f21e1a3ceb0ff714e74ff1",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.091559
+        },
+        {
+          "suite": "tests/boundary-reference-authorization-parity.tests.ps1",
+          "source_sha256": "7550c27c1e874ce48d5c108a8551853e264051aeb65255030ec26b625b6a18f7",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.40372
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-06/receipt.json",
+      "sha256": "86e988a4a2da2a84641ca43d72963ebfa2f3bb09db45688d71cefd6ca7a79c99",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-06/invocation.json",
+      "invocation_sha256": "8cd92af284b4a30e341cf21646bab64a64185a34c5bb67b15cd99e0738c1e81d",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "6",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-06/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:55:01.729416+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/cloud-orchestration-execution.tests.py",
+          "source_sha256": "dabe98ecf8a47d71da3947c70066c059bb7388f8134a9d069812a2d63507778b",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 14.061366
+        },
+        {
+          "suite": "tests/run-all-python.tests.ps1",
+          "source_sha256": "71d42e12d0fa548dfc22f364ac7d05a9311070317badeae2d4fa60f27425e163",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 4.326315
+        },
+        {
+          "suite": "tests/task-prior-pass-receipt.tests.ps1",
+          "source_sha256": "035182ef005892a32370fa8ab8387d648bdad07329ad77ede8b493ed0b8d0cac",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.647656
+        },
+        {
+          "suite": "tests/loop-driver.tests.ps1",
+          "source_sha256": "5582eaa98288b7344110157ea4bf574167f0c51d705c4462bdc02242499f9530",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.623271
+        },
+        {
+          "suite": "tests/bump-version-gate.tests.ps1",
+          "source_sha256": "aa63f6585248ec935e7f69e301ec80b3f030ae9d1c5f607cdf86a15177b3921a",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 7.402434
+        },
+        {
+          "suite": "tests/human-copy-mirror-freshness.tests.ps1",
+          "source_sha256": "84710daf85bd81f748dd90b70e20bb1ef2c01c6662856bfc6a7050395d2b1d4b",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.467755
+        },
+        {
+          "suite": "tests/domain-review-finalize.tests.py",
+          "source_sha256": "fbebadcda43bdd537a4055a468fc86dc2e583cb83160fc898db9535f9116ff7f",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 68.393225
+        },
+        {
+          "suite": "tests/quality-nontty-transport.tests.py",
+          "source_sha256": "d807ded8f2b6b5515c47c6f2fbc4a8b821d90dbcc46a75b9051f073a6dbd28e8",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.788946
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-07/receipt.json",
+      "sha256": "6efd4c53c5ccf39f7e075ab81c5a566813b32966ffc32479a8d49af596748415",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-07/invocation.json",
+      "invocation_sha256": "2bb791116a405a874b46dbf01aa710379ddef9dd9ba7f43615b12a0396e488ae",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "7",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-07/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:56:41.609475+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/cloud-orchestration-routing.tests.py",
+          "source_sha256": "faedf01b5b959f61f60f3b9ef01d5d01b85758722e70e48cee33329805a99ab5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 25.976387
+        },
+        {
+          "suite": "tests/downstream-review-precheck.tests.ps1",
+          "source_sha256": "88745023bd65e080702d5eafcd0b3158a13794dc2a5e18bd7cb5ac96c6e4897d",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 26.348521
+        },
+        {
+          "suite": "tests/template-validator-parity.tests.ps1",
+          "source_sha256": "fcbf7662e88943a09345816375a8a78e7afe0099be5b7e49930e537a27e0afe4",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.35985
+        },
+        {
+          "suite": "tests/loop-escalation.tests.ps1",
+          "source_sha256": "7a1016a154be172040b0f8dc29dc1ca7a0d58f58b186004b67559130969263a3",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 5.883131
+        },
+        {
+          "suite": "tests/run-panelist-effort.tests.ps1",
+          "source_sha256": "71063e3ec7b19d87f43801ba4885eeda88d250600de60910e533712855458700",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 11.850263
+        },
+        {
+          "suite": "tests/canonicalize-sdd-yaml.tests.ps1",
+          "source_sha256": "66cbfac39ebfe61c4da7ced17ba37118000adeb66267453715e01df95a9d07c5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 21.088601
+        },
+        {
+          "suite": "tests/human-copy-runner-contract.tests.ps1",
+          "source_sha256": "38c4a781c1f1aec92eee267f8e1dcc24eef54dc5b0b82fb56fc04a6f4969b5aa",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 11.825562
+        },
+        {
+          "suite": "tests/registry-discovery.tests.ps1",
+          "source_sha256": "ca12dbdb4642e832ebb1e2f382d156c162909996e526c643a712d56a29b6dd50",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.057851
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-08/receipt.json",
+      "sha256": "bdd72d694a677f0088210f2c018d601d65604b748446fbc239079457f92c49b2",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-08/invocation.json",
+      "invocation_sha256": "fea14ff9699ae9543be38652c32f31ccb106cef962a9d73f4897c74fb9d0cb80",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "8",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-08/receipt.json"
+      ],
+      "started_at": "2026-10-21T21:58:26.170037+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/cloud-orchestration-verification.tests.py",
+          "source_sha256": "b3456601eab14ab9bd4b634d4fd801aa1fa56dfe79b75db4276c782fee0ce4e5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 199.527623
+        },
+        {
+          "suite": "tests/impl-layer-review-inputs.tests.ps1",
+          "source_sha256": "8e348787eda9553953638b5df0e197ac86cd64893ecb438e87950540a53c93f5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 6.63472
+        },
+        {
+          "suite": "tests/scenario.tests.ps1",
+          "source_sha256": "a66afdb415669489f731a2b7f664e75b293bf8aca02238ba34ca92c32b366c96",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 21.947905
+        },
+        {
+          "suite": "tests/uninstall.tests.ps1",
+          "source_sha256": "026a92c2c45371f5afbebfc0c928bcf8f26b88376842213f1dcf7acb00b4e4ad",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.114491
+        },
+        {
+          "suite": "tests/emit-run-record-feature-scope.tests.ps1",
+          "source_sha256": "5036eef87d73ab66769af206757911738bdd9f37d6ed597a795b55ba76992515",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 8.700734
+        },
+        {
+          "suite": "tests/loop-inventory.tests.ps1",
+          "source_sha256": "3f8ef5d41b6010738c453810203a5a6802d4b06b1c020e77bee5a8a11e7fcd3e",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.783748
+        },
+        {
+          "suite": "tests/release-loop-gate.tests.ps1",
+          "source_sha256": "3699f3ea9b487d24b2cb9ee141f20158fc98a3fc23d946b068c9e56fbf1b4676",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.45895
+        },
+        {
+          "suite": "tests/capability-registry-parity.tests.ps1",
+          "source_sha256": "ff339b4df0d2a6db359cdc0189345334d330b2b85d24b8a16046af6b8417dac7",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 7.116242
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-09/receipt.json",
+      "sha256": "4672ae00cca89622a1bb8754e5504499815c108ee7f5959a3e6199d83cfebde3",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-09/invocation.json",
+      "invocation_sha256": "519cce834752ac93bc5b9840e5e4b36d42df933a2d2fb93e394f3d8d010c2613",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "9",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-09/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:02:34.651430+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/install-cloud.tests.py",
+          "source_sha256": "d13ac886d3802d4af5940a782bb89ae3725f6665138d79a3cf1cbe7b1f4e20e5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 133.437963
+        },
+        {
+          "suite": "tests/scripts.tests.ps1",
+          "source_sha256": "55c9d34e690c6987a479f95206d12ebb3d524143789b8f591ca3f947299b93fe",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 112.212918
+        },
+        {
+          "suite": "tests/render-agent-frontmatter.tests.ps1",
+          "source_sha256": "aee0863cfaaf3a16fbaf6d82822442d1a03529a73cab58267b976bc54f308a6d",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 9.527592
+        },
+        {
+          "suite": "tests/model-freshness-check.tests.ps1",
+          "source_sha256": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.358562
+        },
+        {
+          "suite": "tests/compatibility-byte-identical.tests.ps1",
+          "source_sha256": "9a2f11a04f49a618934192ff2264d0686d89a5ca3bc2876ea3a80b2f97e9878d",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 13.435468
+        },
+        {
+          "suite": "tests/capability-registry-schema.tests.ps1",
+          "source_sha256": "343e37ce84d82755d284cad8f6e28c894273692e3383175d8072f73bb13a6c8f",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.76265
+        },
+        {
+          "suite": "tests/evaluate-predicate.tests.ps1",
+          "source_sha256": "b6924bf253cd8e0c24f28228bd8addd86cf78cce23b46e9b58565f2d934d08ca",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 17.650237
+        },
+        {
+          "suite": "tests/upstream-concept-issue.tests.py",
+          "source_sha256": "e47b3cc6abe9cbb7e822557ac3b4508e7c5be77ef79c12c9f1245b43a51d6292",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.955197
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-10/receipt.json",
+      "sha256": "ecad37782619e8a26583b29fa627e31576ef07b47a0b55f3589274c3feb0781a",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-10/invocation.json",
+      "invocation_sha256": "f8fe00552e0d1c85d4131eea40bbd609171f8d9e422518df0562e5fe23481929",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "10",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-10/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:07:24.158070+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/install-uninstall-matrix.tests.ps1",
+          "source_sha256": "cf3b345331d73a0a64d0c91372bd17ade1b2ccc73a9681fc1b2db8a6f8f7fda0",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 13.130053
+        },
+        {
+          "suite": "tests/capability-summary-schema.tests.ps1",
+          "source_sha256": "6f13da9335a67eb9828553b89b0f8735ad2c02986ed191bc06b8b0e73b99a188",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.058826
+        },
+        {
+          "suite": "tests/facet-manifest-parity.tests.ps1",
+          "source_sha256": "0012d58bfe8e0ce61918b34436fb165dc526b228af4dc0b53ef6a4289e4966c3",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 51.262639
+        },
+        {
+          "suite": "tests/validate-approval-sidecar.tests.ps1",
+          "source_sha256": "b885be98175b60c13c063b24ecbbbca297a95f1273779ca1f68cb25206ba9250",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 16.501633
+        },
+        {
+          "suite": "tests/resolve-project-context-block.tests.ps1",
+          "source_sha256": "f09f9c97d53364def990865cef0d242785028781e3f462c71849b0734874a257",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 48.927991
+        },
+        {
+          "suite": "tests/component-path-diff-basis.tests.ps1",
+          "source_sha256": "31d7ecb5438564a1a004af23e37c609e106b4da8bf0b073a6fdacade09b51311",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 13.279386
+        },
+        {
+          "suite": "tests/sdd-domain-multitarget-T-003.tests.py",
+          "source_sha256": "40a50bb063c1a372b57105ab801733051567c479e0c4159575540c0120e78c34",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 26.924498
+        },
+        {
+          "suite": "tests/model-identity.tests.py",
+          "source_sha256": "650239455536821657802793ce284013cc07ba360428ea872ea52540a23759a7",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 10.195882
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-11/receipt.json",
+      "sha256": "b849aced5e3787271cdf675df063b7e72394f9440cb19b126fd1995823e75d62",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-11/invocation.json",
+      "invocation_sha256": "a57d3836ed25f1af56295caf1af9950688b55cf4c10ae6b7aeddba8787a2733c",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "11",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-11/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:10:25.615125+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/install.tests.ps1",
+          "source_sha256": "804fd7074ebe1cc1bb703c09e87afeb233bc40a2c2d88b2f18bf1f8a4df127b4",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 81.34666
+        },
+        {
+          "suite": "tests/facet-manifest-schema.tests.ps1",
+          "source_sha256": "856e959debdead28460fc36df9fa21e332d9c8228439e91967f51b47411dddb6",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.977155
+        },
+        {
+          "suite": "tests/resolve-project-context-caller-contract.tests.ps1",
+          "source_sha256": "7140d946ec8943de370054cc1b9263aa136d282d8c38d2bb1ff74f605e2bbd63",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.223677
+        },
+        {
+          "suite": "tests/check-a8-process-integrity.tests.ps1",
+          "source_sha256": "d169dcac05d4bb1ab32960c1147e24838d4273a18892ab513a2eac2fefccb9db",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.830814
+        },
+        {
+          "suite": "tests/validate-capability-registry.tests.ps1",
+          "source_sha256": "9c5104285130e826561a85644a9aa014ce342dba99e5ac104b9eb4fb2f8ea2d6",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 10.248279
+        },
+        {
+          "suite": "tests/component-path-ownership-parity.tests.ps1",
+          "source_sha256": "035b0d014f5aa7a81cf636f463455557aa7ca5b233d1df1dfa30b91bae6f3f9d",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 8.256724
+        },
+        {
+          "suite": "tests/sdd-domain-multitarget-T-004.tests.py",
+          "source_sha256": "d577d1fbe440849b132038742d020a476253b2a7570a8229556311f0bb85ab2d",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 21.491846
+        },
+        {
+          "suite": "tests/model-observation.tests.py",
+          "source_sha256": "4d6bc7c901cb2db38e1b4210a4f7aa8956248aa72500793d290ed7fdf9e15513",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 19.286905
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-12/receipt.json",
+      "sha256": "e100d3e7954678b1370f28330af0dddba830f026aa574645754be48f35bb953b",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-12/invocation.json",
+      "invocation_sha256": "0075b97a5683912a7880bc5813450dca29ee4b1dff4791a7dd7419d382ceba93",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "12",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-12/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:12:49.445897+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/sdd-domain-multitarget-foundation.tests.py",
+          "source_sha256": "9463abf50ad7c88f5b838038e539cccf36f509d227b64734b04be61b94f556a3",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.779209
+        },
+        {
+          "suite": "tests/installer-idempotency.tests.ps1",
+          "source_sha256": "c4849e1d35ff7b04e9dda4fcd524f3c0cf70e8a83936a5550188c28d0a7b8db6",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 7.470797
+        },
+        {
+          "suite": "tests/facet-manifest-semantics.tests.ps1",
+          "source_sha256": "c8d94287c8a02bbb4c63295647d2c3eca36c50567eb0609557eaef0d41e49c31",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.835099
+        },
+        {
+          "suite": "tests/resolve-project-context-cli.tests.ps1",
+          "source_sha256": "61153fa28ddf1909c38708bdde22eccff911a63839bb91ebbe2c7ef31ab7db31",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.142581
+        },
+        {
+          "suite": "tests/validate-live-host-proof.tests.ps1",
+          "source_sha256": "ff250731382a07ce3cd282dcec8ae28d373810e52a0748719c530166b9ff69d8",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 107.471738
+        },
+        {
+          "suite": "tests/component-path-resolver.tests.ps1",
+          "source_sha256": "242596e5c3c03f708603e71dcb733e7a9ff69e333220f77b151db90bfa44188c",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 34.461233
+        },
+        {
+          "suite": "tests/check-component-coverage.tests.ps1",
+          "source_sha256": "105215a984595f78d18a9658c5771d59e70d67b1cdd6ee4127c60c8dfc8f790c",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 37.748477
+        },
+        {
+          "suite": "tests/model-policy-launch-platform.tests.py",
+          "source_sha256": "e4dfaecadca6dc970507592865e8b5014f56047f4c38794a752206a80cb22810",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.148065
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-13/receipt.json",
+      "sha256": "27e81f3c03485cd1f4a8460337938fa307ccb028682626b162c73e99e61c3fcb",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-13/invocation.json",
+      "invocation_sha256": "21768342956b3dbb6bf10a7732a92d54171b375859b5a6b78a594718c461559b",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "13",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-13/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:16:00.672741+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/validate-repository.ps1",
+          "source_sha256": "544c004d7aa53b9984634b60426b637db94c2c02880ada78665139e670253259",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 26.755643
+        },
+        {
+          "suite": "tests/sdd-domain.tests.ps1",
+          "source_sha256": "64b86bd7188f03cec34469c3c7d5f524cd84c2b37f6264b783f5e97b172002d5",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 120.210746
+        },
+        {
+          "suite": "tests/context-projection-schema.tests.ps1",
+          "source_sha256": "96c33f340badb1fc0e42b5ad19c34779a556b6160aa0cbfefc19d5446c2a76f2",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.297115
+        },
+        {
+          "suite": "tests/facet-manifest-staleness.tests.ps1",
+          "source_sha256": "b6a6ea42f6d59b1210e75798ee0a4bf68aaea9397c0b3e7a7fc94f56a80962fa",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.386996
+        },
+        {
+          "suite": "tests/check-hook-activation-handshake.tests.ps1",
+          "source_sha256": "de6b683a143095c54b629f47f713d3e8c44ba9688fd2008ab207a336dd422114",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 97.972275
+        },
+        {
+          "suite": "tests/resolve-project-context-discovery.tests.ps1",
+          "source_sha256": "2b9fac6192b5f651acb7ecbb1d5f99472542211e3b043fee903ffce3e692b90b",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 4.784052
+        },
+        {
+          "suite": "tests/lite-gate-cli-chain.tests.ps1",
+          "source_sha256": "20a4f4420f3e635baf9d0b199f338eb392373f7ab139ba8f94a0f4fce1e6e1b9",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.242903
+        },
+        {
+          "suite": "tests/model-policy.tests.py",
+          "source_sha256": "00295fff5d8d25b0c38fb4fc0f2f85ef2197e4e5dce64b132354272bd0d65ea7",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 40.684507
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-14/receipt.json",
+      "sha256": "54d80b6eeb123eb2abdcb540920bc173bdab446f23b9e3d86b11a57d31dfa6c8",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-14/invocation.json",
+      "invocation_sha256": "29eb7595e528cf256347e7080e72ad1e8adf37cb045f6ce7ca4ddadf56e3fc96",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "14",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-14/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:20:56.198928+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/cross-model.tests.ps1",
+          "source_sha256": "4dc09912e92114c60b39776c5a1537e8522c3105a87dec9af5959b0b86b3a036",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 115.155217
+        },
+        {
+          "suite": "tests/generate-approval-sidecar.tests.ps1",
+          "source_sha256": "fb7eb37c288178ac106e22643b0978fdaabbd342d16e4dcf2c8d8a380e9c0fb9",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 9.0725
+        },
+        {
+          "suite": "tests/ship-track-selection-migration.tests.ps1",
+          "source_sha256": "4bdf2d97a325432e119a6acda19cb4cd04a989d2f1658157c22bbc52e55f81ad",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 4.125852
+        },
+        {
+          "suite": "tests/resolve-project-context-lite.tests.ps1",
+          "source_sha256": "c0ca5c01ae07e0c70c9820c7408ca7af422623fdcc7ef7745996476372946764",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 2.103405
+        },
+        {
+          "suite": "tests/validate-resolver-evidence.tests.ps1",
+          "source_sha256": "499b0131b73721ed64920a39d42094fbb56edf73b54776720b66220c3d91975e",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 11.580251
+        },
+        {
+          "suite": "tests/check-installed-plugin-drift.tests.ps1",
+          "source_sha256": "932f1d61cdc5116184cd6087bb241df6fb5e9e6353232aff94edeb00d19140c6",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 51.563848
+        },
+        {
+          "suite": "tests/lite-gate-direct-edit-contract.tests.ps1",
+          "source_sha256": "d4a6225cedcea6ea9fc79f900dbf435ce9b4cef2ff4f9aa3164ef94452e743df",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.302292
+        },
+        {
+          "suite": "tests/ownership-digest.tests.ps1",
+          "source_sha256": "57241c324af25cb45e33873520c85471320e449e40675d8e656a719e9e53aa41",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 24.043695
+        }
+      ]
+    },
+    {
+      "receipt": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-15/receipt.json",
+      "sha256": "3f16353ff5ba2bce98f33bb31a1f2aba800cd2e59eb0dfede2df8c282028ab31",
+      "invocation": "specs/ci-model-modernization/verification/T-011/final-author/delivery-inputs/private-local/local-powershell/sharded-16/shard-15/invocation.json",
+      "invocation_sha256": "1068a577ae0ef6ddc61b69e1db47dacd483a01f6e6573ac6bbe4cb13647300eb",
+      "command": [
+        "python3",
+        "-B",
+        "tests/verification.py",
+        "--profile",
+        "local-powershell",
+        "--shard-count",
+        "16",
+        "--shard-index",
+        "15",
+        "--run",
+        "--powershell",
+        "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+        "--receipt",
+        "/workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-15/receipt.json"
+      ],
+      "started_at": "2026-10-21T22:24:34.312545+00:00",
+      "finished_at": null,
+      "finish_time_limit": "Original invocation has no completion timestamp; per-suite durations and original receipts retained, no reconstructed timestamp.",
+      "profile": "local-powershell",
+      "results": [
+        {
+          "suite": "tests/check-placeholders-brownfield.tests.ps1",
+          "source_sha256": "ee4951f364d5799cff21b2810e36ad21b1ef7aed2e215b6c5d316e2ac00eed07",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 1.289312
+        },
+        {
+          "suite": "tests/resolve-project-context-match.tests.ps1",
+          "source_sha256": "f843a1994de123e3444efe8322fbbacad197bf5873f42f18358d47678efc1482",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 11.627227
+        },
+        {
+          "suite": "tests/skip-allowlist-manifest.tests.ps1",
+          "source_sha256": "137366e8f5885f4c383f077228d68033c857b8a931a0c53f212a3f8e23f23e30",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 13.880855
+        },
+        {
+          "suite": "tests/path-lineending-regression.tests.ps1",
+          "source_sha256": "d8e9e392a9a2078c00290897a8b6c80fa3dea4926dc1e29ec1c356da69f97f65",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.493091
+        },
+        {
+          "suite": "tests/cross-runtime-handoff.tests.ps1",
+          "source_sha256": "6ee365237f7fbd7881b4ff6807196bc34e6214896a7e26dfe5d6d89359c0c626",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 24.094671
+        },
+        {
+          "suite": "tests/lite-gate-full-upgrade-backstop.tests.ps1",
+          "source_sha256": "1ca912f85907c0a9488a69dd2f43bf8608db4d285bf397dca535f19b80526a64",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.331369
+        },
+        {
+          "suite": "tests/generate-gate-capabilities.tests.ps1",
+          "source_sha256": "ebc184f41f2a5fe32c67f7c83ee8d4419a5828f690ee4bfbf8d8b000682755f7",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 3.8097
+        },
+        {
+          "suite": "tests/verification-impact.tests.py",
+          "source_sha256": "4d3ce93e8c253521ada3b1e61531ad6d6824953c13ae4d68e0d7081cb78aefcc",
+          "status": "passed",
+          "exit_code": 0,
+          "seconds": 0.154475
+        }
+      ]
+    }
+  ],
+  "spec_provenance": {
+    "specs/ci-model-modernization/acceptance-tests.md": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1",
+    "specs/ci-model-modernization/design.md": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b",
+    "specs/ci-model-modernization/frontend-spec.md": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657",
+    "specs/ci-model-modernization/infra-spec.md": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c",
+    "specs/ci-model-modernization/investigation.md": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d",
+    "specs/ci-model-modernization/requirements.md": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd",
+    "specs/ci-model-modernization/security-spec.md": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48",
+    "specs/ci-model-modernization/tasks.md": "ef21bf440be5e01e60dcefca7993f82eb0fb7ffb770e5d5565a0822a3a0483f6",
+    "specs/ci-model-modernization/traceability.json": "868d37271114f61b93fac452bdd8dc6aedc2ff8c330be040c5c4c86c7d191907",
+    "specs/ci-model-modernization/traceability.md": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd",
+    "specs/ci-model-modernization/ux-spec.md": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+  },
+  "phase1_author_receipt": {
+    "path": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json",
+    "sha256": "b4d6d5ff92ce35592f10d3a76bf29d48f7b9b5b2f499e271cc49308d861d2d74"
+  },
+  "historical_failures_preserved": [
+    "phase1 report validator exit1: Task Attempt Count contained explanation; corrected to integer1 without changing attempt count",
+    "initial placeholder scan exit1 included test-only helper; subsequent production-scope scan exit0 with explicit scope adjudication and no source changes",
+    "original196PASS/8FAIL local run, environment interruptions, four targeted hosted retry histories"
+  ],
+  "unresolved": [
+    "comprehensive final-source lint lacks admitted supporting receipt; scoped final collector ruff/mypy proof retained",
+    "final report/contract/task-state revalidation by Root after these writes",
+    "independent combined-scope implementation QA; actual merge_group/live-cloud limits"
+  ],
+  "actual_actions": [
+    "Read only phase2 admitted inputs and descriptor; mapped existing exact-F commands/results/source hashes and late receipts without product test reruns.",
+    "Corrected actual phase1 report formatting error and authored phase2 report/contract/receipt only.",
+    "No product edits, publication, provider/auth calls, delegation or independent QA."
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "original_public_manifest_sha256": "20203bfd3dcae759787842b2a4b30dbd6bbac56455ba3c2fdef68e5d252d7f77",
+  "original_manifest_entries_verified": 37,
+  "external_raw_index_entries_verified": 91,
+  "envelopes": [
+    {
+      "envelope": "windows-powershell/evidence-manifest.json.base64.json",
+      "original_relative_path": "windows-powershell/evidence-manifest.json",
+      "original_sha256": "731205d717f3d1bcd451aa871e4c146421129db3b80b5ee7399f034f4ce08317"
+    },
+    {
+      "envelope": "windows-powershell/expected-inventory.json.base64.json",
+      "original_relative_path": "windows-powershell/expected-inventory.json",
+      "original_sha256": "24a74c28923f4316b0309537df1afd6ab5be19563f76a6c1ea050359568c6f34"
+    },
+    {
+      "envelope": "windows-powershell/git-inventory.json.base64.json",
+      "original_relative_path": "windows-powershell/git-inventory.json",
+      "original_sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb"
+    },
+    {
+      "envelope": "windows-powershell/git.log.base64.json",
+      "original_relative_path": "windows-powershell/git.log",
+      "original_sha256": "8fe0ab132851339e28db47b4bc08abfe7c366047ade548f8e714b51a471bfc5e"
+    },
+    {
+      "envelope": "windows-powershell/summary.json.base64.json",
+      "original_relative_path": "windows-powershell/summary.json",
+      "original_sha256": "25a967614870345adfafe15d05c7618ee8eff0d0009c88e8211353f3a3ffd4be"
+    },
+    {
+      "envelope": "windows-powershell/zip-inventory.json.base64.json",
+      "original_relative_path": "windows-powershell/zip-inventory.json",
+      "original_sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb"
+    },
+    {
+      "envelope": "windows-powershell/zip.log.base64.json",
+      "original_relative_path": "windows-powershell/zip.log",
+      "original_sha256": "c6e7ab5b0bf1b2035a47667943adf0ea4bf4ad3f0eb6d8d2442be976006391b2"
+    },
+    {
+      "envelope": "windows-pwsh/evidence-manifest.json.base64.json",
+      "original_relative_path": "windows-pwsh/evidence-manifest.json",
+      "original_sha256": "9850ebe4bcfff596d89c3d883b3f39334559d9736d6106396aba14b294010367"
+    },
+    {
+      "envelope": "windows-pwsh/expected-inventory.json.base64.json",
+      "original_relative_path": "windows-pwsh/expected-inventory.json",
+      "original_sha256": "24a74c28923f4316b0309537df1afd6ab5be19563f76a6c1ea050359568c6f34"
+    },
+    {
+      "envelope": "windows-pwsh/git-inventory.json.base64.json",
+      "original_relative_path": "windows-pwsh/git-inventory.json",
+      "original_sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb"
+    },
+    {
+      "envelope": "windows-pwsh/git.log.base64.json",
+      "original_relative_path": "windows-pwsh/git.log",
+      "original_sha256": "fe5559c723fb8997b56bb90be1bca93a751bf5b442f1dc2be20fdffbb9405cde"
+    },
+    {
+      "envelope": "windows-pwsh/summary.json.base64.json",
+      "original_relative_path": "windows-pwsh/summary.json",
+      "original_sha256": "5982275fbe7c74baab53ba3cadd4cb1aeb7b6e713de11d68689161e41bf2e8aa"
+    },
+    {
+      "envelope": "windows-pwsh/zip-inventory.json.base64.json",
+      "original_relative_path": "windows-pwsh/zip-inventory.json",
+      "original_sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb"
+    },
+    {
+      "envelope": "windows-pwsh/zip.log.base64.json",
+      "original_relative_path": "windows-pwsh/zip.log",
+      "original_sha256": "b1a80c10444b215506a3fc71e082bfc3c2b2045674213e015f080568c99558c3"
+    }
+  ],
+  "method": "Decode envelopes to their original_relative_path beneath an external reconstructed distribution directory, check original_sha256, then check original evidence-manifest and two Windows manifests without editing or rehashing original authority."
+}

@@ -1,0 +1,110 @@
+{
+  "profile": "local-posix",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "shards": 16,
+  "suite_count": 204,
+  "result": "PASS",
+  "receipt_set": [
+    {
+      "index": 0,
+      "path": "local-posix/sharded-16/shard-00/receipt.json",
+      "sha256": "75811131cb3398fbf6d089526e6d8760eb171fd546dd699aceefcb3db2230ad5",
+      "suite_count": 1
+    },
+    {
+      "index": 1,
+      "path": "local-posix/sharded-16/shard-01/receipt.json",
+      "sha256": "eaab541a4bb63dd1f2ab5c35486aeea2c6ed7a7481482f3fb1ec951734803ce8",
+      "suite_count": 1
+    },
+    {
+      "index": 2,
+      "path": "local-posix/sharded-16/shard-02/receipt.json",
+      "sha256": "0a78a4cb3444196093accbc3b9412c920026d8750c5901a5d90a17ce85b26b6d",
+      "suite_count": 1
+    },
+    {
+      "index": 3,
+      "path": "local-posix/sharded-16/shard-03/receipt.json",
+      "sha256": "68a6267bc31959867383aaabd63b4dbf6b32e126159faa7d68feaeb61af33d2c",
+      "suite_count": 1
+    },
+    {
+      "index": 4,
+      "path": "local-posix/sharded-16/shard-04/receipt.json",
+      "sha256": "a75a6b890434d5acf0266400db789fee7f30c1588bc72409733040bceef8a3b7",
+      "suite_count": 1
+    },
+    {
+      "index": 5,
+      "path": "local-posix/sharded-16/shard-05/receipt.json",
+      "sha256": "be8ec0f3feecc9476d0e7072c533ada552e82876bc2f4230ef8e0aed51ce6c64",
+      "suite_count": 3
+    },
+    {
+      "index": 6,
+      "path": "local-posix/sharded-16/shard-06/receipt.json",
+      "sha256": "7410c11e0be172e54e23294ce7328e5203d6add4026a992729ebc7b61e6b4e04",
+      "suite_count": 12
+    },
+    {
+      "index": 7,
+      "path": "local-posix/sharded-16/shard-07/receipt.json",
+      "sha256": "b17518bfb043617cf89fbd7280a9a03728cbf9090a2bc9470afd0fedb8c1c9c7",
+      "suite_count": 17
+    },
+    {
+      "index": 8,
+      "path": "local-posix/sharded-16/shard-08/receipt.json",
+      "sha256": "998e41daf06366ab8c407a6c1d0ccb559ac353837bb3d15563db3b13452088a5",
+      "suite_count": 19
+    },
+    {
+      "index": 9,
+      "path": "local-posix/sharded-16/shard-09/receipt.json",
+      "sha256": "d2c24db9b4ac2747b883b77dacfcbd714cf4fecd3e05d240dc8d917bfe22df14",
+      "suite_count": 21
+    },
+    {
+      "index": 10,
+      "path": "local-posix/sharded-16/shard-10/receipt.json",
+      "sha256": "737409fd39a9030e558c502e35b36d079ad0f4a40cdbb5064f39d6bad0f6301b",
+      "suite_count": 21
+    },
+    {
+      "index": 11,
+      "path": "local-posix/sharded-16/shard-11/receipt.json",
+      "sha256": "52df9b27d9e0e3cb6b4886c5b5fa66b1f1182e11b3bb85168b63741678ecc097",
+      "suite_count": 22
+    },
+    {
+      "index": 12,
+      "path": "local-posix/sharded-16/shard-12/receipt.json",
+      "sha256": "90adce92b5eb324a8391eff9729775c2b13f4e187a6c84eebb2bea9f0a1f493f",
+      "suite_count": 21
+    },
+    {
+      "index": 13,
+      "path": "local-posix/sharded-16/shard-13/receipt.json",
+      "sha256": "a3c3ed73206af091ccc01b9ed82ab1004f335e613238375377213326ed4708a0",
+      "suite_count": 21
+    },
+    {
+      "index": 14,
+      "path": "local-posix/sharded-16/shard-14/receipt.json",
+      "sha256": "0a3148b4cb837e661d95942efdb70cc106fc930814a0e0129077febca480b057",
+      "suite_count": 21
+    },
+    {
+      "index": 15,
+      "path": "local-posix/sharded-16/shard-15/receipt.json",
+      "sha256": "4f02d1f0c4162bbd1cfa4342a18cdb71faa1729d9d14d192984ceba64487023a",
+      "suite_count": 21
+    }
+  ],
+  "disjoint_complete_catalog_union": true,
+  "source_pins_match_committed_F": true,
+  "clean_before_after_every_shard": true,
+  "reusable": false,
+  "note": "Complete genuine sharded receipt set, not an unsharded invocation; suite-local declared skips remain in raw logs."
+}

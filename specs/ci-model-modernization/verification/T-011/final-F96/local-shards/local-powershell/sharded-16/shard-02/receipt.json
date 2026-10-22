@@ -1,0 +1,86 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-powershell",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/phase2-sudo-signature.tests.ps1",
+    "tests/agent-model-routing.tests.ps1",
+    "tests/guard-invariants-epic-a1.tests.ps1",
+    "tests/design-sync-scan.tests.ps1",
+    "tests/resolver-evidence-schema.tests.ps1",
+    "tests/check-risk-upgrade-fragment-fail-closed.tests.ps1",
+    "tests/lite-gate-summary-consumption.tests.ps1",
+    "tests/workflow-conditional-inputs.tests.py",
+    "tests/supplemental-delivery-declaration.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/phase2-sudo-signature.tests.ps1",
+      "source_sha256": "bcb7a471c2b62f776e7107c6d114603459f3a9c40942c82f897c4568c344dc7d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.411546
+    },
+    {
+      "suite": "tests/agent-model-routing.tests.ps1",
+      "source_sha256": "5709f7f97967ae2fc4909a21dbc46a35813634bc3b81c52d60048e203d6af98a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.935767
+    },
+    {
+      "suite": "tests/guard-invariants-epic-a1.tests.ps1",
+      "source_sha256": "160b91a9d05c27ea99f60a2dfc7cf8193a3a782a5310e623703fb27aa0db5ec5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.179424
+    },
+    {
+      "suite": "tests/design-sync-scan.tests.ps1",
+      "source_sha256": "35c8036fa35b1e1683ddda06a9a3be44e164dfaea6ceff577ff6edc86e5ee147",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 26.830692
+    },
+    {
+      "suite": "tests/resolver-evidence-schema.tests.ps1",
+      "source_sha256": "65881f0cdaae98c4682dcd9b90a4219c814645f39e07a084fdc9ba994cccead1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.549151
+    },
+    {
+      "suite": "tests/check-risk-upgrade-fragment-fail-closed.tests.ps1",
+      "source_sha256": "7bc9d4ba65d333a3a87fa00e9bedb9118c53678c69f8083c3ce7dd1af6d2cc22",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 11.096892
+    },
+    {
+      "suite": "tests/lite-gate-summary-consumption.tests.ps1",
+      "source_sha256": "67f03a9dffb4b5839a275e4eb2b66db9c1883dbea146d3acfe2830a9d4bf30db",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.398683
+    },
+    {
+      "suite": "tests/workflow-conditional-inputs.tests.py",
+      "source_sha256": "029e5ddd03c981d84fbcb90469b82d0f5b99304b49dfbb24447770140e5b5de1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 38.272909
+    },
+    {
+      "suite": "tests/supplemental-delivery-declaration.tests.py",
+      "source_sha256": "4df0a193452a7bce95267b5dd415388732a2de808f498dbddefef0dabf32d361",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 45.776749
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

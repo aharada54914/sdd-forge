@@ -1,0 +1,20 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-posix",
+  "selected": [
+    "tests/wfi-058-outputs-anchor.tests.sh",
+    "tests/review-contract-foundation-parity.tests.sh",
+    "tests/spec-review-loop.tests.sh",
+    "tests/release-config-lock.tests.sh",
+    "tests/phase2-risk-upgrade.tests.sh",
+    "tests/template-validator-parity.tests.sh",
+    "tests/validate-live-host-proof.tests.sh",
+    "tests/lite-gate-summary-absent-active-enforcement.tests.sh",
+    "tests/evaluate-predicate.tests.sh",
+    "tests/generate-registry-digest.tests.sh",
+    "tests/host-review-preflight.tests.py",
+    "tests/model-identity.tests.py"
+  ],
+  "shard_index": 6,
+  "shard_count": 16
+}

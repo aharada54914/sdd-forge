@@ -1,0 +1,16 @@
+{
+  "label": "contract",
+  "argv": [
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-contract.sh",
+    "specs/ci-model-modernization/verification/T-011.contract.json",
+    "/workspace/sdd-forge"
+  ],
+  "started_at": "2026-10-21T23:37:38Z",
+  "finished_at": "2026-10-21T23:37:38Z",
+  "exit_code": 0,
+  "stdout": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-retry/contract.stdout.log",
+  "stdout_sha256": "0aa41815258af4fe3f1258410058baa9906241b7cb690694293caedcd7595f1e",
+  "stderr": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-retry/contract.stderr.log",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,235 @@
+{
+  "schema": "caller-admission-history/v1",
+  "prepared_at": "2026-10-21T23:55:03.176125+00:00",
+  "scope": "Factual caller-admission chronology only; no product change, new acceptance evidence, independent evaluator result or postreview verdict. This passive history is not an added frozen evaluator input.",
+  "quality_cycle": 1,
+  "same_actual_waiting_actor": true,
+  "actor_context": "/root/t011_final_quality_evaluator",
+  "earlier_failures_and_timeout_preserved": true,
+  "canonical_validator_policy_changed": false,
+  "product_source_changed": false,
+  "actual_declaration_repair": {
+    "role_unlisted_paths_after_repair": [],
+    "forbidden_review_paths_after_repair": [],
+    "source_scratch_equal": true,
+    "focused_supplemental_parser_exit": 0,
+    "interpretation": "Initial new-only interpretation did not satisfy active role-channel coverage; subsequent declaration matched the unchanged active validator and preserved originals."
+  },
+  "attempts": [
+    {
+      "source_receipt_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review/reservation-receipt.json",
+      "source_receipt_sha256": "00be26c275eb5c5ea33330e2239e73abd5176db8c25fafdbba36514f876815b7",
+      "argv": [
+        "python3",
+        "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-006/root-execution/run-subreaper.py",
+        "--receipt",
+        "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review/owner-receipt.json",
+        "--",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "300s",
+        "bash",
+        "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+        "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review/invocation.json",
+        "/workspace/sdd-forge",
+        "--reserve"
+      ],
+      "environment_override": {},
+      "started_at": "2026-10-21T23:38:37Z",
+      "finished_at": "2026-10-21T23:38:42Z",
+      "observed_elapsed_seconds": 5.0,
+      "exit_code": 1,
+      "source_scratch_unchanged": true,
+      "factual_interpretation": "Supplemental declaration rejected for review/cross-feature input delivery; no evaluator launched.",
+      "logs": [
+        {
+          "stream": "stdout",
+          "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review/reservation.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "publication": "Metadata only; original log retained external/private. Successful stdout may contain admission bookkeeping and is not copied."
+        },
+        {
+          "stream": "stderr",
+          "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review/reservation.stderr.log",
+          "sha256": "86fb353bc2a7143fa60d3ba7cc40893ec24db5855cde69009d01a50876c5c17d",
+          "bytes": 201,
+          "publication": "Metadata only; original log retained external/private. Successful stdout may contain admission bookkeeping and is not copied."
+        }
+      ],
+      "caller_execution_index": 1,
+      "delivery_declaration_attempt": 1
+    },
+    {
+      "source_receipt_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-2/reservation-receipt.json",
+      "source_receipt_sha256": "b5115ec5b740cd5aebe41498c33785e080f4318490962c47bf1ce3ae8ccd0ba5",
+      "argv": [
+        "python3",
+        "specs/ci-model-modernization/verification/T-006/root-execution/run-subreaper.py",
+        "--receipt",
+        "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-2/owner-receipt.json",
+        "--",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "300s",
+        "bash",
+        "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+        "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-2/invocation.json",
+        "/workspace/sdd-forge",
+        "--reserve"
+      ],
+      "environment_override": {},
+      "started_at": "2026-10-21T23:40:59Z",
+      "finished_at": "2026-10-21T23:41:04Z",
+      "observed_elapsed_seconds": 5.0,
+      "exit_code": 1,
+      "source_scratch_unchanged": true,
+      "factual_interpretation": "New-only supplemental removed that issue, but the active validator rejected an existing evaluator role path omitted from role coverage; no evaluator launched.",
+      "logs": [
+        {
+          "stream": "stdout",
+          "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-2/reservation.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "publication": "Metadata only; original log retained external/private. Successful stdout may contain admission bookkeeping and is not copied."
+        },
+        {
+          "stream": "stderr",
+          "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-2/reservation.stderr.log",
+          "sha256": "8329f44acefd7b3c1b1cf1cb8bfe642709f01b29231d952a8d7069c9f9f44c2c",
+          "bytes": 190,
+          "publication": "Metadata only; original log retained external/private. Successful stdout may contain admission bookkeeping and is not copied."
+        }
+      ],
+      "caller_execution_index": 2,
+      "delivery_declaration_attempt": 2
+    },
+    {
+      "source_receipt_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/reservation-receipt.json",
+      "source_receipt_sha256": "77db3c89dd749c1dff2b76fd5783c566cd2d85d17a21232021bcd55a84df7156",
+      "argv": [
+        "python3",
+        "specs/ci-model-modernization/verification/T-006/root-execution/run-subreaper.py",
+        "--receipt",
+        "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/owner-receipt.json",
+        "--",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "300s",
+        "bash",
+        "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+        "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/invocation.json",
+        "/workspace/sdd-forge",
+        "--reserve"
+      ],
+      "environment_override": {},
+      "started_at": "2026-10-21T23:42:54Z",
+      "finished_at": "2026-10-21T23:47:54Z",
+      "observed_elapsed_seconds": 300.0,
+      "exit_code": 124,
+      "source_scratch_unchanged": true,
+      "factual_interpretation": "Corrected explicit role-channel coverage reached the unchanged canonical caller check but the external controller deadline expired at300s; no testFAIL or review verdict inferred.",
+      "logs": [
+        {
+          "stream": "stdout",
+          "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/reservation.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "publication": "Metadata only; original log retained external/private. Successful stdout may contain admission bookkeeping and is not copied."
+        },
+        {
+          "stream": "stderr",
+          "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/reservation.stderr.log",
+          "sha256": "c7a801953b691b2552058298ac2eecd97182425da4967556225463459b4a7b87",
+          "bytes": 53,
+          "publication": "Metadata only; original log retained external/private. Successful stdout may contain admission bookkeeping and is not copied."
+        }
+      ],
+      "caller_execution_index": 3,
+      "delivery_declaration_attempt": 3
+    },
+    {
+      "source_receipt_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/reservation-retry-long-deadline/reservation-receipt.json",
+      "source_receipt_sha256": "81198252e236e8324bc1a83528b30803c122726d7f387fa0b18aae30f494be28",
+      "argv": [
+        "python3",
+        "specs/ci-model-modernization/verification/T-006/root-execution/run-subreaper.py",
+        "--receipt",
+        "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/reservation-retry-long-deadline/owner-receipt.json",
+        "--",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "1800s",
+        "bash",
+        "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+        "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/invocation.json",
+        "/workspace/sdd-forge",
+        "--reserve"
+      ],
+      "environment_override": {
+        "LC_ALL": "C"
+      },
+      "started_at": "2026-10-21T23:48:16Z",
+      "finished_at": "2026-10-21T23:51:52Z",
+      "observed_elapsed_seconds": 216.0,
+      "exit_code": 0,
+      "source_scratch_unchanged": true,
+      "factual_interpretation": "Same frozen invocation retried with only LC_ALL=C and an1800s external controller deadline; actual canonical caller admission passed.",
+      "logs": [
+        {
+          "stream": "stdout",
+          "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/reservation-retry-long-deadline/reservation.stdout.log",
+          "sha256": "3caaf2ab8e04f65db86dba16c6c6d2ccbd424bbb609fe282c38a8c2d659a66c1",
+          "bytes": 234,
+          "publication": "Metadata only; original log retained external/private. Successful stdout may contain admission bookkeeping and is not copied."
+        },
+        {
+          "stream": "stderr",
+          "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/reservation-retry-long-deadline/reservation.stderr.log",
+          "sha256": "c7a801953b691b2552058298ac2eecd97182425da4967556225463459b4a7b87",
+          "bytes": 53,
+          "publication": "Metadata only; original log retained external/private. Successful stdout may contain admission bookkeeping and is not copied."
+        }
+      ],
+      "caller_execution_index": 4,
+      "delivery_declaration_attempt": 3
+    }
+  ],
+  "final_caller_admission_exit": 0,
+  "same_frozen_invocation_for_timeout_and_success": true,
+  "deadline_scope": "300s/1800s are external caller-controller deadlines; no product test timeout, quality-cycle count or evaluator criteria changed.",
+  "broken_pipe_diagnostic": "The same sed broken-pipe warning remained in both timed-out and successful stderr. It is retained in original log hashes; success is established by actual canonical caller exit0, not by suppressing diagnostics.",
+  "private_boundary": "No ledger content/pointer, reservation sequence, raw caller invocation, owner reservation payload or raw successful stdout is copied. Commands retain only their actual input file arguments as factual metadata; those private payloads are not distributed.",
+  "source_record_hashes": [
+    {
+      "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review/reservation-receipt.json",
+      "sha256": "00be26c275eb5c5ea33330e2239e73abd5176db8c25fafdbba36514f876815b7"
+    },
+    {
+      "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-2/reservation-receipt.json",
+      "sha256": "b5115ec5b740cd5aebe41498c33785e080f4318490962c47bf1ce3ae8ccd0ba5"
+    },
+    {
+      "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/reservation-receipt.json",
+      "sha256": "77db3c89dd749c1dff2b76fd5783c566cd2d85d17a21232021bcd55a84df7156"
+    },
+    {
+      "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/reservation-retry-long-deadline/reservation-receipt.json",
+      "sha256": "81198252e236e8324bc1a83528b30803c122726d7f387fa0b18aae30f494be28"
+    },
+    {
+      "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-2/preparation-receipt.json",
+      "sha256": "956df5bd896e4d5d7f237b39d4a235c4561d6f265bd0527d2d0ec23ae0d88560"
+    },
+    {
+      "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/preparation-receipt.json",
+      "sha256": "08e0275e2a5c0d624b9ae63c31e42613f704c2d189e410b6136761a86635a979"
+    }
+  ],
+  "caller_executions": 4,
+  "delivery_declarations": 3
+}

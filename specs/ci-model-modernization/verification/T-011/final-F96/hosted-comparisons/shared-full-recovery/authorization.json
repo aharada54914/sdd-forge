@@ -1,0 +1,9 @@
+{
+  "action": "cancel obsolete failed shared full run and dispatch fresh full at unchanged probe head",
+  "authorized_by": "root coordinator under existing user task authority",
+  "run_id": "39658451096",
+  "head_sha": "d8a2155adeb49ea4109874c50e089f2e029cab26",
+  "reason": "actual external Claude CLI setup failure; native version unobserved",
+  "other_runs": "untouched",
+  "recorded_at": "2026-10-21T20:52:50.129598+00:00"
+}

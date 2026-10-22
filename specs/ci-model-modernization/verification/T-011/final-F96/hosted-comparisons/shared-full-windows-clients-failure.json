@@ -1,0 +1,121 @@
+{
+  "run_id": "39658451096",
+  "api_head_sha": "d8a2155adeb49ea4109874c50e089f2e029cab26",
+  "tested_revision": "d8a2155adeb49ea4109874c50e089f2e029cab26",
+  "job": {
+    "completedAt": "2026-10-21T20:39:14Z",
+    "conclusion": "failure",
+    "databaseId": 119426801784,
+    "name": "installers (windows-latest / clients)",
+    "startedAt": "2026-10-21T20:36:37Z",
+    "status": "completed",
+    "steps": [
+      {
+        "conclusion": "success",
+        "name": "Set up job",
+        "number": 1,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "number": 2,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Verify generated guard invariants (Windows)",
+        "number": 3,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Verify generated guard invariants (POSIX)",
+        "number": 4,
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "name": "Install recorded Claude Code CLI",
+        "number": 5,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Validate Claude plugin manifests (real CLI)",
+        "number": 6,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test installer (pwsh)",
+        "number": 7,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test installer idempotency (pwsh; WFI-041)",
+        "number": 8,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test uninstaller (pwsh)",
+        "number": 9,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test Claude registration (pwsh)",
+        "number": 10,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test authenticated remote installer (pwsh)",
+        "number": 11,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test POSIX installer",
+        "number": 12,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test POSIX uninstaller",
+        "number": 13,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Test authenticated remote installer (bash)",
+        "number": 14,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Upload installer test logs",
+        "number": 15,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "number": 30,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Complete job",
+        "number": 31,
+        "status": "completed"
+      }
+    ],
+    "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39658451096/job/119426801784"
+  },
+  "log_sha256": "99f3345482b8b89d3028c661724945d221a0de1a87f814fd15d7ed6daad3518c",
+  "classification": "CLI installation setup failed before product tests; underlying optional dependency/postinstall cause not independently established",
+  "retry_status": "not requested"
+}

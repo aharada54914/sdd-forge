@@ -1,0 +1,684 @@
+{
+  "id": 119427913631,
+  "run_id": 39658418082,
+  "workflow_name": "Test installers and gates",
+  "head_branch": "t011/probe-mcp-96afb59fccea",
+  "run_url": "https://api.github.com/repos/aharada54914/sdd-forge/actions/runs/39658418082",
+  "run_attempt": 1,
+  "node_id": "CR_kwDOS1iq_c8AAAAbznVXnw",
+  "head_sha": "0fd45bffd20f8aa0163918e6fb2e0ef0db2a7fb2",
+  "url": "https://api.github.com/repos/aharada54914/sdd-forge/actions/jobs/119427913631",
+  "html_url": "https://github.com/aharada54914/sdd-forge/actions/runs/39658418082/job/119427913631",
+  "status": "completed",
+  "conclusion": "cancelled",
+  "created_at": "2026-10-21T19:10:46Z",
+  "started_at": "2026-10-21T20:19:41Z",
+  "completed_at": "2026-10-21T21:04:56Z",
+  "name": "version-gates (macos-latest)",
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1,
+      "started_at": "2026-10-21T20:19:42Z",
+      "completed_at": "2026-10-21T20:19:43Z"
+    },
+    {
+      "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 2,
+      "started_at": "2026-10-21T20:19:43Z",
+      "completed_at": "2026-10-21T20:19:54Z"
+    },
+    {
+      "name": "Test bump-version.sh loop-gate prerequisite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 3,
+      "started_at": "2026-10-21T20:19:54Z",
+      "completed_at": "2026-10-21T20:20:29Z"
+    },
+    {
+      "name": "Test bump-version.sh loop-gate prerequisite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 4,
+      "started_at": "2026-10-21T20:20:29Z",
+      "completed_at": "2026-10-21T20:21:14Z"
+    },
+    {
+      "name": "Test release.yml required loop-gate job (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 5,
+      "started_at": "2026-10-21T20:21:14Z",
+      "completed_at": "2026-10-21T20:21:14Z"
+    },
+    {
+      "name": "Test release.yml required loop-gate job (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 6,
+      "started_at": "2026-10-21T20:21:14Z",
+      "completed_at": "2026-10-21T20:21:15Z"
+    },
+    {
+      "name": "Test model-freshness-check suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 7,
+      "started_at": "2026-10-21T20:21:15Z",
+      "completed_at": "2026-10-21T20:21:18Z"
+    },
+    {
+      "name": "Test model-freshness-check suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 8,
+      "started_at": "2026-10-21T20:21:18Z",
+      "completed_at": "2026-10-21T20:21:21Z"
+    },
+    {
+      "name": "Test project-context-schema suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 9,
+      "started_at": "2026-10-21T20:21:21Z",
+      "completed_at": "2026-10-21T20:21:23Z"
+    },
+    {
+      "name": "Test project-context-schema suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 10,
+      "started_at": "2026-10-21T20:21:23Z",
+      "completed_at": "2026-10-21T20:21:26Z"
+    },
+    {
+      "name": "Test A9 unpublished candidate and Pack (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 11,
+      "started_at": "2026-10-21T20:21:26Z",
+      "completed_at": "2026-10-21T20:42:57Z"
+    },
+    {
+      "name": "Test approver-registry-schema suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 12,
+      "started_at": "2026-10-21T20:42:57Z",
+      "completed_at": "2026-10-21T20:42:59Z"
+    },
+    {
+      "name": "Test approver-registry-schema suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 13,
+      "started_at": "2026-10-21T20:42:59Z",
+      "completed_at": "2026-10-21T20:43:00Z"
+    },
+    {
+      "name": "Test canonicalize-sdd-yaml suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 14,
+      "started_at": "2026-10-21T20:43:00Z",
+      "completed_at": "2026-10-21T20:43:13Z"
+    },
+    {
+      "name": "Test canonicalize-sdd-yaml suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 15,
+      "started_at": "2026-10-21T20:43:13Z",
+      "completed_at": "2026-10-21T20:44:03Z"
+    },
+    {
+      "name": "Test generate-approval-sidecar suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 16,
+      "started_at": "2026-10-21T20:44:03Z",
+      "completed_at": "2026-10-21T20:44:14Z"
+    },
+    {
+      "name": "Test generate-approval-sidecar suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 17,
+      "started_at": "2026-10-21T20:44:14Z",
+      "completed_at": "2026-10-21T20:44:52Z"
+    },
+    {
+      "name": "Test detect-policy-weakening suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 18,
+      "started_at": "2026-10-21T20:44:52Z",
+      "completed_at": "2026-10-21T20:45:13Z"
+    },
+    {
+      "name": "Test detect-policy-weakening suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 19,
+      "started_at": "2026-10-21T20:45:13Z",
+      "completed_at": "2026-10-21T20:46:00Z"
+    },
+    {
+      "name": "Test validate-approval-sidecar suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 20,
+      "started_at": "2026-10-21T20:46:00Z",
+      "completed_at": "2026-10-21T20:46:32Z"
+    },
+    {
+      "name": "Test validate-approval-sidecar suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 21,
+      "started_at": "2026-10-21T20:46:32Z",
+      "completed_at": "2026-10-21T20:47:05Z"
+    },
+    {
+      "name": "Test apply-human-copy publisher (Bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 22,
+      "started_at": "2026-10-21T20:47:05Z",
+      "completed_at": "2026-10-21T20:49:51Z"
+    },
+    {
+      "name": "Test apply-human-copy publisher (PowerShell)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 23,
+      "started_at": "2026-10-21T20:49:51Z",
+      "completed_at": "2026-10-21T20:51:49Z"
+    },
+    {
+      "name": "Test hook-activation handshake suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 24,
+      "started_at": "2026-10-21T20:51:49Z",
+      "completed_at": "2026-10-21T20:53:56Z"
+    },
+    {
+      "name": "Test hook-activation handshake suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 25,
+      "started_at": "2026-10-21T20:53:56Z",
+      "completed_at": "2026-10-21T20:58:51Z"
+    },
+    {
+      "name": "Test epic-a1 guard-invariants registration (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 26,
+      "started_at": "2026-10-21T20:58:51Z",
+      "completed_at": "2026-10-21T20:58:55Z"
+    },
+    {
+      "name": "Test epic-a1 guard-invariants registration (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 27,
+      "started_at": "2026-10-21T20:58:55Z",
+      "completed_at": "2026-10-21T20:58:57Z"
+    },
+    {
+      "name": "Test R-10 guard staging exemption and prose pre-filter (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 28,
+      "started_at": "2026-10-21T20:58:57Z",
+      "completed_at": "2026-10-21T20:59:06Z"
+    },
+    {
+      "name": "Test hook-guard epic-a1 write-boundary matrix (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 29,
+      "started_at": "2026-10-21T20:59:06Z",
+      "completed_at": "2026-10-21T20:59:24Z"
+    },
+    {
+      "name": "Test hook-guard epic-a1 write-boundary matrix (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 30,
+      "started_at": "2026-10-21T20:59:24Z",
+      "completed_at": "2026-10-21T21:01:25Z"
+    },
+    {
+      "name": "Test plugin-contracts track-selection contract (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 31,
+      "started_at": "2026-10-21T21:01:25Z",
+      "completed_at": "2026-10-21T21:01:32Z"
+    },
+    {
+      "name": "Test plugin-contracts track-selection contract (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 32,
+      "started_at": "2026-10-21T21:01:32Z",
+      "completed_at": "2026-10-21T21:01:38Z"
+    },
+    {
+      "name": "Test ship track-selection migration (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 33,
+      "started_at": "2026-10-21T21:01:38Z",
+      "completed_at": "2026-10-21T21:01:49Z"
+    },
+    {
+      "name": "Test ship track-selection migration (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 34,
+      "started_at": "2026-10-21T21:01:49Z",
+      "completed_at": "2026-10-21T21:01:54Z"
+    },
+    {
+      "name": "Test capability-registry-schema suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 35,
+      "started_at": "2026-10-21T21:01:54Z",
+      "completed_at": "2026-10-21T21:01:55Z"
+    },
+    {
+      "name": "Test capability-registry-schema suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 36,
+      "started_at": "2026-10-21T21:01:55Z",
+      "completed_at": "2026-10-21T21:01:55Z"
+    },
+    {
+      "name": "Test evaluate-predicate suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 37,
+      "started_at": "2026-10-21T21:01:55Z",
+      "completed_at": "2026-10-21T21:01:59Z"
+    },
+    {
+      "name": "Test evaluate-predicate suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 38,
+      "started_at": "2026-10-21T21:01:59Z",
+      "completed_at": "2026-10-21T21:02:19Z"
+    },
+    {
+      "name": "Test registry-discovery suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 39,
+      "started_at": "2026-10-21T21:02:19Z",
+      "completed_at": "2026-10-21T21:02:20Z"
+    },
+    {
+      "name": "Test registry-discovery suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 40,
+      "started_at": "2026-10-21T21:02:20Z",
+      "completed_at": "2026-10-21T21:02:22Z"
+    },
+    {
+      "name": "Test validate-capability-registry suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 41,
+      "started_at": "2026-10-21T21:02:22Z",
+      "completed_at": "2026-10-21T21:02:26Z"
+    },
+    {
+      "name": "Test validate-capability-registry suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 42,
+      "started_at": "2026-10-21T21:02:26Z",
+      "completed_at": "2026-10-21T21:02:37Z"
+    },
+    {
+      "name": "Test generate-registry-digest suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 43,
+      "started_at": "2026-10-21T21:02:37Z",
+      "completed_at": "2026-10-21T21:02:40Z"
+    },
+    {
+      "name": "Test generate-registry-digest suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 44,
+      "started_at": "2026-10-21T21:02:40Z",
+      "completed_at": "2026-10-21T21:02:49Z"
+    },
+    {
+      "name": "Test generate-gate-capabilities suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 45,
+      "started_at": "2026-10-21T21:02:49Z",
+      "completed_at": "2026-10-21T21:02:52Z"
+    },
+    {
+      "name": "Test generate-gate-capabilities suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 46,
+      "started_at": "2026-10-21T21:02:52Z",
+      "completed_at": "2026-10-21T21:02:56Z"
+    },
+    {
+      "name": "Test capability-registry-parity suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 47,
+      "started_at": "2026-10-21T21:02:56Z",
+      "completed_at": "2026-10-21T21:03:03Z"
+    },
+    {
+      "name": "Test capability-registry-parity suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 48,
+      "started_at": "2026-10-21T21:03:03Z",
+      "completed_at": "2026-10-21T21:03:12Z"
+    },
+    {
+      "name": "Test component-path-resolver suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 49,
+      "started_at": "2026-10-21T21:03:12Z",
+      "completed_at": "2026-10-21T21:03:18Z"
+    },
+    {
+      "name": "Test component-path-resolver suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 50,
+      "started_at": "2026-10-21T21:03:18Z",
+      "completed_at": "2026-10-21T21:03:53Z"
+    },
+    {
+      "name": "Test component-path-diff-basis suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 51,
+      "started_at": "2026-10-21T21:03:53Z",
+      "completed_at": "2026-10-21T21:03:57Z"
+    },
+    {
+      "name": "Test component-path-diff-basis suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 52,
+      "started_at": "2026-10-21T21:03:57Z",
+      "completed_at": "2026-10-21T21:04:17Z"
+    },
+    {
+      "name": "Test ownership-digest suite (bash)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 53,
+      "started_at": "2026-10-21T21:04:17Z",
+      "completed_at": "2026-10-21T21:04:21Z"
+    },
+    {
+      "name": "Test ownership-digest suite (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 54,
+      "started_at": "2026-10-21T21:04:21Z",
+      "completed_at": "2026-10-21T21:04:46Z"
+    },
+    {
+      "name": "Test check-component-coverage suite (bash)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "number": 55,
+      "started_at": "2026-10-21T21:04:46Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test check-component-coverage suite (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 56,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test component-path-ownership parity suite (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 57,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test component-path-ownership parity suite (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 58,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test human-copy-runner-contract suite (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 59,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test human-copy-runner-contract suite (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 60,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test check-risk-upgrade-byte-identical suite (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 61,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test check-risk-upgrade-byte-identical suite (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 62,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test check-risk-upgrade-capability-merge suite (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 63,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test check-risk-upgrade-capability-merge suite (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 64,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test check-risk-upgrade-fragment-fail-closed suite (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 65,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test check-risk-upgrade-fragment-fail-closed suite (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 66,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test check-risk-upgrade-ineligible-no-reasons suite (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 67,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test check-risk-upgrade-ineligible-no-reasons suite (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 68,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test lite-spec-capability-block suite (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 69,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test lite-spec-capability-block suite (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 70,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test lite-gate-summary-consumption suite (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 71,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test lite-gate-summary-consumption suite (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 72,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test lite-gate-summary-absent suite (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 73,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test lite-gate-summary-absent suite (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 74,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test lite-gate-summary-invalid suite (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 75,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test lite-gate-summary-invalid suite (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 76,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test lite-gate-full-upgrade-backstop suite (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 77,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test lite-gate-full-upgrade-backstop suite (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 78,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test lite-gate-summary-absent-active-enforcement suite (bash)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 79,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Test lite-gate-summary-absent-active-enforcement suite (pwsh)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 80,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:52Z"
+    },
+    {
+      "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 160,
+      "started_at": "2026-10-21T21:04:52Z",
+      "completed_at": "2026-10-21T21:04:53Z"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 161,
+      "started_at": "2026-10-21T21:04:53Z",
+      "completed_at": "2026-10-21T21:04:55Z"
+    }
+  ],
+  "check_run_url": "https://api.github.com/repos/aharada54914/sdd-forge/check-runs/119427913631",
+  "labels": [
+    "macos-latest"
+  ],
+  "runner_id": 1000047988,
+  "runner_name": "GitHub Actions 1000047988",
+  "runner_group_id": 0,
+  "runner_group_name": "GitHub Actions"
+}

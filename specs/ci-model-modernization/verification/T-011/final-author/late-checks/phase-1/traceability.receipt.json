@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+    "specs/ci-model-modernization/traceability.json",
+    "/workspace/sdd-forge",
+    "require-evidence"
+  ],
+  "started_at": "2026-10-21T23:16:10.813962+00:00",
+  "finished_at": "2026-10-21T23:16:10.850099+00:00",
+  "exit_code": 0,
+  "stdout_sha256": "58b260e40d432c62df29c91d2134cb74f4e2e54dc388b4905baffb6c12e49340",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "script_sha256": "f735a2b315161a2dfe61e45a199ffc513b8461a2cccb3adf00d74830dc56016d",
+  "execution": "actual final metadata check; not product suite rerun"
+}

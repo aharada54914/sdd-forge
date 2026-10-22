@@ -1,0 +1,16 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-powershell",
+  "selected": [
+    "tests/install-uninstall-matrix.tests.ps1",
+    "tests/capability-summary-schema.tests.ps1",
+    "tests/facet-manifest-parity.tests.ps1",
+    "tests/validate-approval-sidecar.tests.ps1",
+    "tests/resolve-project-context-block.tests.ps1",
+    "tests/component-path-diff-basis.tests.ps1",
+    "tests/sdd-domain-multitarget-T-003.tests.py",
+    "tests/model-identity.tests.py"
+  ],
+  "shard_index": 10,
+  "shard_count": 16
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-posix",
+  "selected": [
+    "tests/cloud-orchestration-contracts.tests.py",
+    "tests/prepare-panelist.tests.sh",
+    "tests/impl-layer-review-inputs.tests.sh",
+    "tests/agent-capabilities-v2.tests.sh",
+    "tests/turn-first-workflow.tests.sh",
+    "tests/constant-parity.tests.sh",
+    "tests/guard-negative-corpus.tests.sh",
+    "tests/guard-cwd-bypass.tests.sh",
+    "tests/repository-release-validation.tests.sh",
+    "tests/boundary-reference-authorization-parity.tests.sh",
+    "tests/check-placeholders-brownfield.tests.sh",
+    "tests/workflow-documentation.tests.sh",
+    "tests/run-panelist-effort.tests.sh",
+    "tests/detect-policy-weakening.tests.sh",
+    "tests/resolve-project-context-block.tests.sh",
+    "tests/structural-compatibility.tests.sh",
+    "tests/lite-gate-summary-invalid.tests.sh",
+    "tests/fixed-review-launch.tests.py",
+    "tests/unified-task-launch.tests.py",
+    "tests/supplemental-delivery-declaration.tests.py",
+    "tests/model-policy-launch-platform.tests.py"
+  ],
+  "shard_index": 9,
+  "shard_count": 16
+}

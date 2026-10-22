@@ -1,0 +1,110 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-posix",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/wfi-058-outputs-anchor.tests.sh",
+    "tests/review-contract-foundation-parity.tests.sh",
+    "tests/spec-review-loop.tests.sh",
+    "tests/release-config-lock.tests.sh",
+    "tests/phase2-risk-upgrade.tests.sh",
+    "tests/template-validator-parity.tests.sh",
+    "tests/validate-live-host-proof.tests.sh",
+    "tests/lite-gate-summary-absent-active-enforcement.tests.sh",
+    "tests/evaluate-predicate.tests.sh",
+    "tests/generate-registry-digest.tests.sh",
+    "tests/host-review-preflight.tests.py",
+    "tests/model-identity.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/wfi-058-outputs-anchor.tests.sh",
+      "source_sha256": "9637fae08b9687c6cc8ace6eec115e27f314785b99c892957202224e4f504f8f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.286582
+    },
+    {
+      "suite": "tests/review-contract-foundation-parity.tests.sh",
+      "source_sha256": "9eb0907a2fe8e173c66df1677b24d936d67674ddbd46a9d9eadfdb6464c84a81",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.401983
+    },
+    {
+      "suite": "tests/spec-review-loop.tests.sh",
+      "source_sha256": "5c101bf7878f909775e73cbbce32c2f5e369df043e0f74547821c0273c0fd1f1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.569359
+    },
+    {
+      "suite": "tests/release-config-lock.tests.sh",
+      "source_sha256": "45ca5bd38cb2eee5042abc4092a1430acc34fafa50f5ab6cddc23a95036b1ea2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.043477
+    },
+    {
+      "suite": "tests/phase2-risk-upgrade.tests.sh",
+      "source_sha256": "e6557e054c2f5190bb8aadb29630196464ede12597343d37ae467c4ac7b17f3d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.002697
+    },
+    {
+      "suite": "tests/template-validator-parity.tests.sh",
+      "source_sha256": "91828ead642f6f3a2b60bfbc50e589ded99e577a79b9f61c25542765ff5dbd0d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.170232
+    },
+    {
+      "suite": "tests/validate-live-host-proof.tests.sh",
+      "source_sha256": "9c1de76dc42494875cfcb81e85c5cafb8876a660d809fd94873c815173942bd5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 66.04915
+    },
+    {
+      "suite": "tests/lite-gate-summary-absent-active-enforcement.tests.sh",
+      "source_sha256": "d431ad64d14fc4a7c28a523746fed8113b5a6a0ffd891968e15005b8016b51cf",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.202838
+    },
+    {
+      "suite": "tests/evaluate-predicate.tests.sh",
+      "source_sha256": "245f11dd50491e89a69a0d3d202d63d7824ca961aba3cd4681652dd912091a43",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.894891
+    },
+    {
+      "suite": "tests/generate-registry-digest.tests.sh",
+      "source_sha256": "f98879e6bb5de6e21960be4a22859c7d45f3d5780a993bb8692b6c9aa0c57e3c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.024191
+    },
+    {
+      "suite": "tests/host-review-preflight.tests.py",
+      "source_sha256": "e4d8dcebbe6c4c412cd84845e1120459e4a268fa4eba27039703d6c9fcc40239",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 11.967849
+    },
+    {
+      "suite": "tests/model-identity.tests.py",
+      "source_sha256": "650239455536821657802793ce284013cc07ba360428ea872ea52540a23759a7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 10.193361
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

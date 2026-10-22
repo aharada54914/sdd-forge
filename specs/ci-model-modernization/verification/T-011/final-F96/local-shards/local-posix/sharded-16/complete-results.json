@@ -1,0 +1,186 @@
+{
+  "profile": "local-posix",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "shard_count": 16,
+  "suite_count": 204,
+  "all_passed": true,
+  "results": [
+    {
+      "profile": "local-posix",
+      "index": 0,
+      "count": 16,
+      "suite_count": 1,
+      "exit": 0,
+      "passed": true,
+      "seconds": 382.177194122,
+      "finished_at": "2026-10-21T21:45:46.168998+00:00",
+      "receipt_sha256": "75811131cb3398fbf6d089526e6d8760eb171fd546dd699aceefcb3db2230ad5"
+    },
+    {
+      "profile": "local-posix",
+      "index": 1,
+      "count": 16,
+      "suite_count": 1,
+      "exit": 0,
+      "passed": true,
+      "seconds": 366.152787959,
+      "finished_at": "2026-10-21T21:51:52.323941+00:00",
+      "receipt_sha256": "eaab541a4bb63dd1f2ab5c35486aeea2c6ed7a7481482f3fb1ec951734803ce8"
+    },
+    {
+      "profile": "local-posix",
+      "index": 2,
+      "count": 16,
+      "suite_count": 1,
+      "exit": 0,
+      "passed": true,
+      "seconds": 135.63648149799997,
+      "finished_at": "2026-10-21T21:54:07.961194+00:00",
+      "receipt_sha256": "0a78a4cb3444196093accbc3b9412c920026d8750c5901a5d90a17ce85b26b6d"
+    },
+    {
+      "profile": "local-posix",
+      "index": 3,
+      "count": 16,
+      "suite_count": 1,
+      "exit": 0,
+      "passed": true,
+      "seconds": 170.60498695299998,
+      "finished_at": "2026-10-21T21:56:58.566853+00:00",
+      "receipt_sha256": "68a6267bc31959867383aaabd63b4dbf6b32e126159faa7d68feaeb61af33d2c"
+    },
+    {
+      "profile": "local-posix",
+      "index": 4,
+      "count": 16,
+      "suite_count": 1,
+      "exit": 0,
+      "passed": true,
+      "seconds": 64.59928801199999,
+      "finished_at": "2026-10-21T21:58:03.166774+00:00",
+      "receipt_sha256": "a75a6b890434d5acf0266400db789fee7f30c1588bc72409733040bceef8a3b7"
+    },
+    {
+      "profile": "local-posix",
+      "index": 5,
+      "count": 16,
+      "suite_count": 3,
+      "exit": 0,
+      "passed": true,
+      "seconds": 55.15773569099997,
+      "finished_at": "2026-10-21T21:58:58.325047+00:00",
+      "receipt_sha256": "be8ec0f3feecc9476d0e7072c533ada552e82876bc2f4230ef8e0aed51ce6c64"
+    },
+    {
+      "profile": "local-posix",
+      "index": 6,
+      "count": 16,
+      "suite_count": 12,
+      "exit": 0,
+      "passed": true,
+      "seconds": 97.97884615400017,
+      "finished_at": "2026-10-21T22:00:36.304671+00:00",
+      "receipt_sha256": "7410c11e0be172e54e23294ce7328e5203d6add4026a992729ebc7b61e6b4e04"
+    },
+    {
+      "profile": "local-posix",
+      "index": 7,
+      "count": 16,
+      "suite_count": 17,
+      "exit": 0,
+      "passed": true,
+      "seconds": 194.03699670700007,
+      "finished_at": "2026-10-21T22:03:50.342174+00:00",
+      "receipt_sha256": "b17518bfb043617cf89fbd7280a9a03728cbf9090a2bc9470afd0fedb8c1c9c7"
+    },
+    {
+      "profile": "local-posix",
+      "index": 8,
+      "count": 16,
+      "suite_count": 19,
+      "exit": 0,
+      "passed": true,
+      "seconds": 884.863947066,
+      "finished_at": "2026-10-21T22:18:35.206681+00:00",
+      "receipt_sha256": "998e41daf06366ab8c407a6c1d0ccb559ac353837bb3d15563db3b13452088a5"
+    },
+    {
+      "profile": "local-posix",
+      "index": 9,
+      "count": 16,
+      "suite_count": 21,
+      "exit": 0,
+      "passed": true,
+      "seconds": 228.3823417579997,
+      "finished_at": "2026-10-21T22:22:23.589702+00:00",
+      "receipt_sha256": "d2c24db9b4ac2747b883b77dacfcbd714cf4fecd3e05d240dc8d917bfe22df14"
+    },
+    {
+      "profile": "local-posix",
+      "index": 10,
+      "count": 16,
+      "suite_count": 21,
+      "exit": 0,
+      "passed": true,
+      "seconds": 409.74554612999964,
+      "finished_at": "2026-10-21T22:29:13.335815+00:00",
+      "receipt_sha256": "737409fd39a9030e558c502e35b36d079ad0f4a40cdbb5064f39d6bad0f6301b"
+    },
+    {
+      "profile": "local-posix",
+      "index": 11,
+      "count": 16,
+      "suite_count": 22,
+      "exit": 0,
+      "passed": true,
+      "seconds": 473.9239057460004,
+      "finished_at": "2026-10-21T22:37:07.260199+00:00",
+      "receipt_sha256": "52df9b27d9e0e3cb6b4886c5b5fa66b1f1182e11b3bb85168b63741678ecc097"
+    },
+    {
+      "profile": "local-posix",
+      "index": 12,
+      "count": 16,
+      "suite_count": 21,
+      "exit": 0,
+      "passed": true,
+      "seconds": 321.114497649,
+      "finished_at": "2026-10-21T22:42:28.375514+00:00",
+      "receipt_sha256": "90adce92b5eb324a8391eff9729775c2b13f4e187a6c84eebb2bea9f0a1f493f"
+    },
+    {
+      "profile": "local-posix",
+      "index": 13,
+      "count": 16,
+      "suite_count": 21,
+      "exit": 0,
+      "passed": true,
+      "seconds": 261.2717212960001,
+      "finished_at": "2026-10-21T22:46:49.647902+00:00",
+      "receipt_sha256": "a3c3ed73206af091ccc01b9ed82ab1004f335e613238375377213326ed4708a0"
+    },
+    {
+      "profile": "local-posix",
+      "index": 14,
+      "count": 16,
+      "suite_count": 21,
+      "exit": 0,
+      "passed": true,
+      "seconds": 345.0607971599993,
+      "finished_at": "2026-10-21T22:52:34.709334+00:00",
+      "receipt_sha256": "0a3148b4cb837e661d95942efdb70cc106fc930814a0e0129077febca480b057"
+    },
+    {
+      "profile": "local-posix",
+      "index": 15,
+      "count": 16,
+      "suite_count": 21,
+      "exit": 0,
+      "passed": true,
+      "seconds": 90.82109959400077,
+      "finished_at": "2026-10-21T22:54:05.531051+00:00",
+      "receipt_sha256": "4f02d1f0c4162bbd1cfa4342a18cdb71faa1729d9d14d192984ceba64487023a"
+    }
+  ],
+  "status_after": ""
+}

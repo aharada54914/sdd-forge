@@ -1,0 +1,12 @@
+{
+  "manifest": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/task-input-manifest.json",
+  "sha256": "2defe81237a85dc9d03244adf61691562fac8bc747a9270ca27a407e9af4a094",
+  "snapshot": "/workspace/t011-final-author-phase4-serialization-snapshot",
+  "inputs": 1752,
+  "actual_author_context": "/root/t011_final_report_author",
+  "run_id": "ci-model-modernization-T-011-final-delivery-phase4-serialization-20261021T233600Z",
+  "original1721_preserved": true,
+  "source_snapshot_pins_match": true,
+  "no_quality_reservation": true,
+  "output_provisioning": "Root must provision only3 exact allowed empty output files/parents outside admittedinputs; preserve everyinput hash"
+}

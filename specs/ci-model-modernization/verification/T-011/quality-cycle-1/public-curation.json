@@ -1,0 +1,36 @@
+{
+  "schema": "final-T011-public-curation-boundary/v1",
+  "created_at": "2026-10-22T00:02:17.162846+00:00",
+  "public_scope": "Original reviewed final-F facts, actual author manifest/admission chain, actual independent PASS, formal bundle, truthful failed lifecycle and supported completion successor.",
+  "private_payload_exclusions": [
+    "identity ledger and native provider sessions",
+    "raw reviewer invocation, supplemental parser/raw reservation payloads and sequence",
+    "private author delivery-inputs and older review-only source/controller inputs",
+    "raw diagnostic logs/ZIPs represented by existing exact external indexes",
+    "unrelated old untracked repository files"
+  ],
+  "private_input_boundary_note": "specs/ci-model-modernization/verification/T-011/final-author/public-curation-note.md",
+  "raw_patch_exclusions": [
+    {
+      "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-completion/tasks.md.patch",
+      "sha256": "66fbaae83e33ab4cde75d94b55741a10393f8f902d7415ab278e15454b0aa40b",
+      "bytes": 618,
+      "reason": "Original unified diff contains whitespace-bearing context markers. Preserve exact private bytes; raw patch is not acceptance/report-Outputs authority and is excluded from Git. Original failed lifecycle results/commands/logs and before snapshots remain public."
+    },
+    {
+      "source_path": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-completion/traceability.md.patch",
+      "sha256": "0326ac74751d65eaef72d1e1296fd6cbbd88cdb3cbff7b8f1f3e19d563b4a0bb",
+      "bytes": 8526,
+      "reason": "Original unified diff contains whitespace-bearing context markers. Preserve exact private bytes; raw patch is not acceptance/report-Outputs authority and is excluded from Git. Original failed lifecycle results/commands/logs and before snapshots remain public."
+    }
+  ],
+  "supported_completion": {
+    "path": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-correction/results.json",
+    "sha256": "f31e75c3b373b443a0127d71054f5686f287e74ed77ff6e2153259656704e7be",
+    "actual_checks_all_exit_zero": true,
+    "historical_failed_record": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-completion/results.json",
+    "historical_traceability_MD_restored_sha256": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd"
+  },
+  "frozen_review_authority_unchanged": true,
+  "receipt_is_postreview_publication_metadata_not_new_product_or_evaluator_input": true
+}

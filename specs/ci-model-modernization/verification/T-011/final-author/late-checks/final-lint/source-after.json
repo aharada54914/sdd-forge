@@ -1,0 +1,16 @@
+{
+  "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py": "ba14efb4c6cc13ec45a58adb785f6c06804ada1fdeebc5841e7244f525161c0b",
+  "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py": "31f8676bb0d682b8d851ee5e376e65e7da913321871e4d88b0e055ccd8fd1fba",
+  "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py": "4a9fa0c679b77959983eb3cc6c0674c03c2c3e3641d41b374fdbae51cb758a3e",
+  "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py": "48a565069a10edb132c98d22d8efc24a714442faad7a71585d3067d06305acf2",
+  "plugins/sdd-quality-loop/scripts/validate-feature-scratch-history.py": "0ca6da3eca4239d4d2bc5c9740effd67866b7f463310d0085f25d59a5fc6af6f",
+  "plugins/sdd-review-loop/scripts/launch-impl-review.py": "b5f9929bacb4a49b5a7e40e9abe0a9855e9d50d15ca0052b680d3866db05ea50",
+  "plugins/sdd-review-loop/scripts/preflight-host-review.py": "1f22be5b97b7b7b5080601a526443cf330e36df2e17c32fbfc118321dc9fa14c",
+  "plugins/sdd-review-loop/scripts/probe-nontty-review.py": "de497ca1a28b3e07ba1b7e717dd629dd66068c78b31698689628cbf494f2108b",
+  "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "fe48d79811f6c72908a8dd08ff25b196b6ef4c9c3af4b165ea175839a3f2c236",
+  "scripts/human_copy_mirrors.py": "39d84c1646268cd5fa91daec0bfaae9e02425daccd002a1db4310a63e72e4c24",
+  "tests/verification-ci.py": "2705fb54c1cdaf5a0bfcadffe700153e401f0be240db40293dd60e9a72ddb6c1",
+  "tests/verification-impact.py": "3cc48436b3c211398c037e1d0c9178286eb14e26485f3e22c9130fb4b904c502",
+  "tests/shared-launch-python/pyproject.toml": "8308097d7ca9084f9e3a02add4d78f96514cefa947c25bab3ed24a7b74393f12",
+  ".github/workflows/test.yml": "db4c6eb728fbf51849c35d4aa78cf44aecc438298bb96c4e663d82cc4285a06e"
+}

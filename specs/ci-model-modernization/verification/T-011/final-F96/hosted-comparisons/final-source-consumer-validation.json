@@ -1,0 +1,281 @@
+{
+  "final_revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "baseline_revision": "f80ac878fb815b029e5b07f9d9dc4035c387bffd",
+  "canonical_validate_activation": "PASS",
+  "activation_reference": {
+    "category": "readme-contract",
+    "path": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/activation.json",
+    "sha256": "9ba9e943d9d80a46e5dda11ca001248d6f12101e7e927b3bea374af6ab9693f5",
+    "rule_sha256": "e706e91fb5716205fddd40953eb3a326679b626260eb5a0c63c1edc2618b1e06",
+    "baseline_revision": "f80ac878fb815b029e5b07f9d9dc4035c387bffd"
+  },
+  "full_obligations": 449,
+  "consumer_inventory_sha256": "c5d04997527f28fdcb3bce4517457d246011b211f2d05051186c4aee0bef7363",
+  "sources": [
+    {
+      "path": "tests/workflow-documentation.tests.sh",
+      "baseline_sha256": "6e1b9eb8a5a3d1ced77e5904c2b13da16f367ad1f9eab87b513d68cc36cb5299",
+      "final_sha256": "6e1b9eb8a5a3d1ced77e5904c2b13da16f367ad1f9eab87b513d68cc36cb5299",
+      "unchanged": true
+    },
+    {
+      "path": "tests/design-system-contract.tests.sh",
+      "baseline_sha256": "50d5d4204499fa78e0afa516826337299c57f2d7f3a7d8eb7806f80db755f64b",
+      "final_sha256": "50d5d4204499fa78e0afa516826337299c57f2d7f3a7d8eb7806f80db755f64b",
+      "unchanged": true
+    },
+    {
+      "path": "tests/design-system-contract.tests.ps1",
+      "baseline_sha256": "6e5243a23028d802ce0707f7364c702039b05bdd71595dcefb8f7a939c41d957",
+      "final_sha256": "6e5243a23028d802ce0707f7364c702039b05bdd71595dcefb8f7a939c41d957",
+      "unchanged": true
+    },
+    {
+      "path": "tests/repository-release-validation.tests.sh",
+      "baseline_sha256": "122f4b2e15fe4f7a7098e1149e3d0a971b2181a6a785f4043622b9cadcd6f2c6",
+      "final_sha256": "122f4b2e15fe4f7a7098e1149e3d0a971b2181a6a785f4043622b9cadcd6f2c6",
+      "unchanged": true
+    },
+    {
+      "path": "tests/validate-repository.ps1",
+      "baseline_sha256": "544c004d7aa53b9984634b60426b637db94c2c02880ada78665139e670253259",
+      "final_sha256": "544c004d7aa53b9984634b60426b637db94c2c02880ada78665139e670253259",
+      "unchanged": true
+    },
+    {
+      "path": "tests/validate-repository.sh",
+      "baseline_sha256": "ae21742a61b0e24117c47f1127d3bf799d351400e717e6dc50ff5d96c6c73092",
+      "final_sha256": "ae21742a61b0e24117c47f1127d3bf799d351400e717e6dc50ff5d96c6c73092",
+      "unchanged": true
+    },
+    {
+      "path": "tests/bump-version-gate.tests.sh",
+      "baseline_sha256": "f3e1f46794ffebae02dc49ee0151b98fe328bace4ee5dff995d6bfba0163ca65",
+      "final_sha256": "f3e1f46794ffebae02dc49ee0151b98fe328bace4ee5dff995d6bfba0163ca65",
+      "unchanged": true
+    },
+    {
+      "path": "tests/bump-version-gate.tests.ps1",
+      "baseline_sha256": "aa63f6585248ec935e7f69e301ec80b3f030ae9d1c5f607cdf86a15177b3921a",
+      "final_sha256": "aa63f6585248ec935e7f69e301ec80b3f030ae9d1c5f607cdf86a15177b3921a",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/bump-version.sh",
+      "baseline_sha256": "4999f5d1c1dd143570548d0913e2c16c2e2bc27c166f7da736199a1649180b47",
+      "final_sha256": "4999f5d1c1dd143570548d0913e2c16c2e2bc27c166f7da736199a1649180b47",
+      "unchanged": true
+    },
+    {
+      "path": "tests/spec-review-loop.tests.sh",
+      "baseline_sha256": "5c101bf7878f909775e73cbbce32c2f5e369df043e0f74547821c0273c0fd1f1",
+      "final_sha256": "5c101bf7878f909775e73cbbce32c2f5e369df043e0f74547821c0273c0fd1f1",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "baseline_sha256": "73a547e30025ad4c54313aaf03a3bec31286e50f90d80c37340c22ffee0603d4",
+      "final_sha256": "73a547e30025ad4c54313aaf03a3bec31286e50f90d80c37340c22ffee0603d4",
+      "unchanged": true
+    },
+    {
+      "path": "tests/component-path-ownership-parity.tests.sh",
+      "baseline_sha256": "b575836ee45d1b28387fa77dc7677cf39fbd76d80705110c631b115fc2ea583b",
+      "final_sha256": "b575836ee45d1b28387fa77dc7677cf39fbd76d80705110c631b115fc2ea583b",
+      "unchanged": true
+    },
+    {
+      "path": "tests/component-path-ownership-parity.tests.ps1",
+      "baseline_sha256": "035b0d014f5aa7a81cf636f463455557aa7ca5b233d1df1dfa30b91bae6f3f9d",
+      "final_sha256": "035b0d014f5aa7a81cf636f463455557aa7ca5b233d1df1dfa30b91bae6f3f9d",
+      "unchanged": true
+    },
+    {
+      "path": "tests/compatibility-byte-identical.tests.sh",
+      "baseline_sha256": "7c8ddcefc26c17540333ffa710f6e7682e24d205942b9568984148334ddf33a6",
+      "final_sha256": "7c8ddcefc26c17540333ffa710f6e7682e24d205942b9568984148334ddf33a6",
+      "unchanged": true
+    },
+    {
+      "path": "tests/compatibility-byte-identical.tests.ps1",
+      "baseline_sha256": "9a2f11a04f49a618934192ff2264d0686d89a5ca3bc2876ea3a80b2f97e9878d",
+      "final_sha256": "9a2f11a04f49a618934192ff2264d0686d89a5ca3bc2876ea3a80b2f97e9878d",
+      "unchanged": true
+    },
+    {
+      "path": "tests/current-byte-capture.tests.py",
+      "baseline_sha256": "6327f4d77b9d790a584393e4a7480b911b1753ccd722187fc0dd76b976f9579a",
+      "final_sha256": "6327f4d77b9d790a584393e4a7480b911b1753ccd722187fc0dd76b976f9579a",
+      "unchanged": true
+    },
+    {
+      "path": "tests/lib/current-byte-capture.py",
+      "baseline_sha256": "fe1adcd1e6debfaa6d044e37d34b06ec06cf6b17302dc2b735c076e53c131497",
+      "final_sha256": "fe1adcd1e6debfaa6d044e37d34b06ec06cf6b17302dc2b735c076e53c131497",
+      "unchanged": true
+    },
+    {
+      "path": "tests/install.tests.sh",
+      "baseline_sha256": "90cdaa3c63da488e85528ec02cf4626d09b48bbeef94dfc8f82d3c730d7eaf52",
+      "final_sha256": "90cdaa3c63da488e85528ec02cf4626d09b48bbeef94dfc8f82d3c730d7eaf52",
+      "unchanged": true
+    },
+    {
+      "path": "tests/install.tests.ps1",
+      "baseline_sha256": "804fd7074ebe1cc1bb703c09e87afeb233bc40a2c2d88b2f18bf1f8a4df127b4",
+      "final_sha256": "804fd7074ebe1cc1bb703c09e87afeb233bc40a2c2d88b2f18bf1f8a4df127b4",
+      "unchanged": true
+    },
+    {
+      "path": "tests/lib/install-payload-check.py",
+      "baseline_sha256": "c12915ccf070c641b663b7f54efcc495000689cf0fce2e27e73ff6e21ca032af",
+      "final_sha256": "c12915ccf070c641b663b7f54efcc495000689cf0fce2e27e73ff6e21ca032af",
+      "unchanged": true
+    },
+    {
+      "path": "tests/install-cloud.tests.py",
+      "baseline_sha256": "d13ac886d3802d4af5940a782bb89ae3725f6665138d79a3cf1cbe7b1f4e20e5",
+      "final_sha256": "d13ac886d3802d4af5940a782bb89ae3725f6665138d79a3cf1cbe7b1f4e20e5",
+      "unchanged": true
+    },
+    {
+      "path": "install.sh",
+      "baseline_sha256": "69622850e204ab139d6a355e2f13c2db65a07d71a25065dc67daa7ee6105cc1a",
+      "final_sha256": "69622850e204ab139d6a355e2f13c2db65a07d71a25065dc67daa7ee6105cc1a",
+      "unchanged": true
+    },
+    {
+      "path": "install.ps1",
+      "baseline_sha256": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1",
+      "final_sha256": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1",
+      "unchanged": true
+    },
+    {
+      "path": "install-payload.txt",
+      "baseline_sha256": "fb3096c0a8192cb01ec3b62bb4861a982098495d0bb161ec7b312fdf22436d93",
+      "final_sha256": "fb3096c0a8192cb01ec3b62bb4861a982098495d0bb161ec7b312fdf22436d93",
+      "unchanged": true
+    },
+    {
+      "path": "tests/verification-impact.py",
+      "baseline_sha256": "3cc48436b3c211398c037e1d0c9178286eb14e26485f3e22c9130fb4b904c502",
+      "final_sha256": "3cc48436b3c211398c037e1d0c9178286eb14e26485f3e22c9130fb4b904c502",
+      "unchanged": true
+    },
+    {
+      "path": "tests/verification-workflow.py",
+      "baseline_sha256": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "final_sha256": "de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb",
+      "unchanged": true
+    },
+    {
+      "path": "tests/verification-catalog.json",
+      "baseline_sha256": "d771c913ec79e345c6cb4a16087bc0a80fc8dc6001fd3a6dfd272a5d553ba2eb",
+      "final_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+      "unchanged": false
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "baseline_sha256": "db4c6eb728fbf51849c35d4aa78cf44aecc438298bb96c4e663d82cc4285a06e",
+      "final_sha256": "db4c6eb728fbf51849c35d4aa78cf44aecc438298bb96c4e663d82cc4285a06e",
+      "unchanged": true
+    },
+    {
+      "path": "tests/cli-hook-enforcement.ps1",
+      "baseline_sha256": "343aa50f12d790619dc5d636831d6f1c7d1559745b9ca289ad67fb28564a3bec",
+      "final_sha256": "343aa50f12d790619dc5d636831d6f1c7d1559745b9ca289ad67fb28564a3bec",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/hooks/claude-hooks.json",
+      "baseline_sha256": "09c76c5dcd5d19d706530786b4728ff4e98e0d96c4d0e82c07bbb1a586c9ea5d",
+      "final_sha256": "09c76c5dcd5d19d706530786b4728ff4e98e0d96c4d0e82c07bbb1a586c9ea5d",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/hooks/hooks.json",
+      "baseline_sha256": "9035e3d5035ccdd093adc634f42fb3686e3a02ab2c7104d26ed15076dfc09b40",
+      "final_sha256": "9035e3d5035ccdd093adc634f42fb3686e3a02ab2c7104d26ed15076dfc09b40",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
+      "baseline_sha256": "6e105f0c5526645564fe5fc60c7f8255fa4daba1f7bb63eb08e198ac69fde2a4",
+      "final_sha256": "6e105f0c5526645564fe5fc60c7f8255fa4daba1f7bb63eb08e198ac69fde2a4",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/classify-readonly-inputs.py",
+      "baseline_sha256": "d62d3accc7fe28a3fe0ca0d6fd1ca739918d0b9878d3f6da05682523d0ee2238",
+      "final_sha256": "d62d3accc7fe28a3fe0ca0d6fd1ca739918d0b9878d3f6da05682523d0ee2238",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/readonly-input-contracts.json",
+      "baseline_sha256": "4527e0d33080d59c9ac95b89bc8e78b3d2932e897bd75b6688b388f830189fb9",
+      "final_sha256": "4527e0d33080d59c9ac95b89bc8e78b3d2932e897bd75b6688b388f830189fb9",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/guard-invariants.json",
+      "baseline_sha256": "76b30eff02a75f3e4b5e3ae9d72e9e7f6e4da759d93c41060035fb8d273558e0",
+      "final_sha256": "76b30eff02a75f3e4b5e3ae9d72e9e7f6e4da759d93c41060035fb8d273558e0",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "baseline_sha256": "ba14efb4c6cc13ec45a58adb785f6c06804ada1fdeebc5841e7244f525161c0b",
+      "final_sha256": "ba14efb4c6cc13ec45a58adb785f6c06804ada1fdeebc5841e7244f525161c0b",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "baseline_sha256": "31935ccdf2fad222561c5bbcc548e39faa2a696613a987cc82e5b80f319075e9",
+      "final_sha256": "31935ccdf2fad222561c5bbcc548e39faa2a696613a987cc82e5b80f319075e9",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "baseline_sha256": "e3006fd5cdc11d86658e6ba44ccff673aff61447c82f353754c2ab7e4bada8b3",
+      "final_sha256": "e3006fd5cdc11d86658e6ba44ccff673aff61447c82f353754c2ab7e4bada8b3",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+      "baseline_sha256": "1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840",
+      "final_sha256": "1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "baseline_sha256": "9380b5f98bf24d595cdb4f81edf3b4ad3ec974a454ed1e2ce3a7c29dd17647cf",
+      "final_sha256": "9380b5f98bf24d595cdb4f81edf3b4ad3ec974a454ed1e2ce3a7c29dd17647cf",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
+      "baseline_sha256": "21953fae0208632708f96cbfda5dbd60854bf6c23c4c02c059e79404dd340873",
+      "final_sha256": "21953fae0208632708f96cbfda5dbd60854bf6c23c4c02c059e79404dd340873",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
+      "baseline_sha256": "d18aadc27964c71afa6ac682757ac624978419b7affd13b5ca3a5579c690cbad",
+      "final_sha256": "d18aadc27964c71afa6ac682757ac624978419b7affd13b5ca3a5579c690cbad",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+      "baseline_sha256": "025be50870db080685a9a51801df1ad708db99ec526bd6e8cc1165b0126321b8",
+      "final_sha256": "025be50870db080685a9a51801df1ad708db99ec526bd6e8cc1165b0126321b8",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "baseline_sha256": "31f8676bb0d682b8d851ee5e376e65e7da913321871e4d88b0e055ccd8fd1fba",
+      "final_sha256": "31f8676bb0d682b8d851ee5e376e65e7da913321871e4d88b0e055ccd8fd1fba",
+      "unchanged": true
+    }
+  ],
+  "interpretation": "43 of44 baseline consumer-source blobs unchanged. Only catalog activation/evidence fields differ; exact normalization equals baseline. Historical baseline source pins were validated, not restamped as final pins."
+}

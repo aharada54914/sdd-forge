@@ -1,0 +1,78 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-powershell",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/validate-repository.ps1",
+    "tests/sdd-domain.tests.ps1",
+    "tests/context-projection-schema.tests.ps1",
+    "tests/facet-manifest-staleness.tests.ps1",
+    "tests/check-hook-activation-handshake.tests.ps1",
+    "tests/resolve-project-context-discovery.tests.ps1",
+    "tests/lite-gate-cli-chain.tests.ps1",
+    "tests/model-policy.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/validate-repository.ps1",
+      "source_sha256": "544c004d7aa53b9984634b60426b637db94c2c02880ada78665139e670253259",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 26.755643
+    },
+    {
+      "suite": "tests/sdd-domain.tests.ps1",
+      "source_sha256": "64b86bd7188f03cec34469c3c7d5f524cd84c2b37f6264b783f5e97b172002d5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 120.210746
+    },
+    {
+      "suite": "tests/context-projection-schema.tests.ps1",
+      "source_sha256": "96c33f340badb1fc0e42b5ad19c34779a556b6160aa0cbfefc19d5446c2a76f2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.297115
+    },
+    {
+      "suite": "tests/facet-manifest-staleness.tests.ps1",
+      "source_sha256": "b6a6ea42f6d59b1210e75798ee0a4bf68aaea9397c0b3e7a7fc94f56a80962fa",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.386996
+    },
+    {
+      "suite": "tests/check-hook-activation-handshake.tests.ps1",
+      "source_sha256": "de6b683a143095c54b629f47f713d3e8c44ba9688fd2008ab207a336dd422114",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 97.972275
+    },
+    {
+      "suite": "tests/resolve-project-context-discovery.tests.ps1",
+      "source_sha256": "2b9fac6192b5f651acb7ecbb1d5f99472542211e3b043fee903ffce3e692b90b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.784052
+    },
+    {
+      "suite": "tests/lite-gate-cli-chain.tests.ps1",
+      "source_sha256": "20a4f4420f3e635baf9d0b199f338eb392373f7ab139ba8f94a0f4fce1e6e1b9",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.242903
+    },
+    {
+      "suite": "tests/model-policy.tests.py",
+      "source_sha256": "00295fff5d8d25b0c38fb4fc0f2f85ef2197e4e5dce64b132354272bd0d65ea7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 40.684507
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

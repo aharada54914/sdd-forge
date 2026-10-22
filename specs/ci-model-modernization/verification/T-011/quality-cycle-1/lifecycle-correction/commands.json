@@ -1,0 +1,67 @@
+[
+  {
+    "label": "task-state",
+    "argv": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "specs/ci-model-modernization/tasks.md",
+      "reports/quality-gate",
+      "reports/implementation/ci-model-modernization",
+      "/workspace/sdd-forge"
+    ],
+    "started_at": "2026-10-22T00:00:31Z",
+    "finished_at": "2026-10-22T00:00:32Z",
+    "exit_code": 0,
+    "stdout": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-correction/task-state.stdout.log",
+    "stdout_sha256": "c585c7b9339c61fa1159e073aa0c39beb06d38d7b3ae672bdea1519085cce68a",
+    "stderr": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-correction/task-state.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "traceability",
+    "argv": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "specs/ci-model-modernization/traceability.json",
+      "/workspace/sdd-forge",
+      "require-evidence"
+    ],
+    "started_at": "2026-10-22T00:00:32Z",
+    "finished_at": "2026-10-22T00:00:32Z",
+    "exit_code": 0,
+    "stdout": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-correction/traceability.stdout.log",
+    "stdout_sha256": "58b260e40d432c62df29c91d2134cb74f4e2e54dc388b4905baffb6c12e49340",
+    "stderr": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-correction/traceability.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "workflow-state",
+    "argv": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-workflow-state.sh"
+    ],
+    "started_at": "2026-10-22T00:00:32Z",
+    "finished_at": "2026-10-22T00:01:09Z",
+    "exit_code": 0,
+    "stdout": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-correction/workflow-state.stdout.log",
+    "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0",
+    "stderr": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-correction/workflow-state.stderr.log",
+    "stderr_sha256": "4a04157a5f7d4d9c1237a7e7a8f156719f8f5aa0ae9accfaf7cdc9852629038f"
+  },
+  {
+    "label": "evidence-bundle",
+    "argv": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+      "specs/ci-model-modernization/verification/T-011.evidence.json",
+      "/workspace/sdd-forge"
+    ],
+    "started_at": "2026-10-22T00:01:09Z",
+    "finished_at": "2026-10-22T00:01:09Z",
+    "exit_code": 0,
+    "stdout": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-correction/evidence-bundle.stdout.log",
+    "stdout_sha256": "914b702ebaf91d7fd099a696239c039e171fa2e46e7ed22ba454a4f4a6eaa0ce",
+    "stderr": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-correction/evidence-bundle.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

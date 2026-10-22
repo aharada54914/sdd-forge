@@ -1,0 +1,16 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-powershell",
+  "selected": [
+    "tests/validate-repository.ps1",
+    "tests/sdd-domain.tests.ps1",
+    "tests/context-projection-schema.tests.ps1",
+    "tests/facet-manifest-staleness.tests.ps1",
+    "tests/check-hook-activation-handshake.tests.ps1",
+    "tests/resolve-project-context-discovery.tests.ps1",
+    "tests/lite-gate-cli-chain.tests.ps1",
+    "tests/model-policy.tests.py"
+  ],
+  "shard_index": 13,
+  "shard_count": 16
+}

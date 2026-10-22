@@ -1,0 +1,22 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-posix",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/workflow-state.tests.sh"
+  ],
+  "results": [
+    {
+      "suite": "tests/workflow-state.tests.sh",
+      "source_sha256": "dffc5e1ea5a7b010d02654b39ceca6c66364d12a9e45580f6ffc22347129de98",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 170.448184
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

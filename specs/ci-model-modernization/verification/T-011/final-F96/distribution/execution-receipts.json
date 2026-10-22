@@ -1,0 +1,149 @@
+[
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-t",
+      "refs/tags/v1.20.0"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-21T23:01:02.748798+00:00",
+    "finished_at": "2026-10-21T23:01:02.750730+00:00",
+    "exit": 0,
+    "log": "tag-type.log",
+    "log_sha256": "ccda8f9a2cb0295182b9a99e4c8270badcc89525850e1e737a294fb426363ac9"
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "refs/tags/v1.20.0^{commit}"
+    ],
+    "cwd": "/workspace/sdd-forge",
+    "started_at": "2026-10-21T23:01:02.750835+00:00",
+    "finished_at": "2026-10-21T23:01:02.752358+00:00",
+    "exit": 0,
+    "log": "tag-commit.log",
+    "log_sha256": "37d7783d25add41f5a638e407e7982bf33b201cbf9b0c468d13a4038cdbdae4c"
+  },
+  {
+    "argv": [
+      "git",
+      "clone",
+      "--shared",
+      "--no-hardlinks",
+      "--no-checkout",
+      "/workspace/sdd-forge",
+      "/workspace/distribution-audit/final-96afb59f/source"
+    ],
+    "cwd": "/workspace",
+    "started_at": "2026-10-21T23:01:02.752855+00:00",
+    "finished_at": "2026-10-21T23:01:02.761038+00:00",
+    "exit": 0,
+    "log": "clone.log",
+    "log_sha256": "d84406fc56878b455ebae2be924484397127706ba4242dc0ff28e551e76ef22b"
+  },
+  {
+    "argv": [
+      "git",
+      "checkout",
+      "--detach",
+      "96afb59fcceab422024d5f2d1abc1b478d7058cf"
+    ],
+    "cwd": "/workspace/distribution-audit/final-96afb59f/source",
+    "started_at": "2026-10-21T23:01:02.761223+00:00",
+    "finished_at": "2026-10-21T23:01:03.775173+00:00",
+    "exit": 0,
+    "log": "checkout.log",
+    "log_sha256": "b2ded5f7bd58d0df1444097fc537bb29c7430bdfa295492da88c5c5f944d1418"
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/workspace/distribution-audit/final-96afb59f/source",
+    "started_at": "2026-10-21T23:01:03.775380+00:00",
+    "finished_at": "2026-10-21T23:01:03.777626+00:00",
+    "exit": 0,
+    "log": "source-head.log",
+    "log_sha256": "37d7783d25add41f5a638e407e7982bf33b201cbf9b0c468d13a4038cdbdae4c"
+  },
+  {
+    "argv": [
+      "git",
+      "status",
+      "--porcelain",
+      "--untracked-files=no"
+    ],
+    "cwd": "/workspace/distribution-audit/final-96afb59f/source",
+    "started_at": "2026-10-21T23:01:03.777770+00:00",
+    "finished_at": "2026-10-21T23:01:04.545095+00:00",
+    "exit": 0,
+    "log": "source-clean-before.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "/workspace/distribution-audit/final-96afb59f/audit.py"
+    ],
+    "cwd": "/workspace",
+    "started_at": "2026-10-21T23:01:04.545746+00:00",
+    "finished_at": "2026-10-21T23:01:11.023034+00:00",
+    "exit": 0,
+    "log": "audit.log",
+    "log_sha256": "5d2bbede043aa45a3c3b25ce7f19bb641a71cadcb8a6d5b17f4c19eef1d03dd2"
+  },
+  {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "/workspace/distribution-audit/final-96afb59f/archive-audit.py"
+    ],
+    "cwd": "/workspace",
+    "started_at": "2026-10-21T23:01:11.023308+00:00",
+    "finished_at": "2026-10-21T23:01:26.086365+00:00",
+    "exit": 0,
+    "log": "archive-audit.log",
+    "log_sha256": "a8ca94cff8d5f9defc365396436a5894450a4a87bf9595da3d43e32e7c729fb0"
+  },
+  {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "/workspace/distribution-audit/final-96afb59f/installed-production.py"
+    ],
+    "cwd": "/workspace",
+    "started_at": "2026-10-21T23:01:26.086647+00:00",
+    "finished_at": "2026-10-21T23:01:27.570279+00:00",
+    "exit": 0,
+    "log": "installed-production.log",
+    "log_sha256": "e1e3b9a560e6bdb1406bf3e299b3f897f7a9ba02006537c85b76b447db717a0a"
+  },
+  {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "/workspace/distribution-audit/final-96afb59f/links.py"
+    ],
+    "cwd": "/workspace",
+    "started_at": "2026-10-21T23:01:27.570549+00:00",
+    "finished_at": "2026-10-21T23:01:27.616790+00:00",
+    "exit": 0,
+    "log": "links.log",
+    "log_sha256": "e2123924c4ce29997fba6bfc75e9ac71c2ab0649c085ca8b7f27f7a2a169675c"
+  },
+  {
+    "argv": [
+      "git",
+      "status",
+      "--porcelain",
+      "--untracked-files=no"
+    ],
+    "cwd": "/workspace/distribution-audit/final-96afb59f/source",
+    "started_at": "2026-10-21T23:01:28.584701+00:00",
+    "finished_at": "2026-10-21T23:01:28.597040+00:00",
+    "exit": 0,
+    "log": "source-clean-after.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

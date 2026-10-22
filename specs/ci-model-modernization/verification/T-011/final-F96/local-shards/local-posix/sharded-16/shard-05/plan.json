@@ -1,0 +1,11 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-posix",
+  "selected": [
+    "tests/wfi-034-scratch-metric.tests.sh",
+    "tests/check-installed-plugin-drift.tests.sh",
+    "tests/task-structured-output.tests.py"
+  ],
+  "shard_index": 5,
+  "shard_count": 16
+}

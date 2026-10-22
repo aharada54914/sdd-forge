@@ -1,0 +1,110 @@
+{
+  "probe": "cloud",
+  "changed_path": "plugins/sdd-azure-cloud/examples/private-vm.bicep",
+  "normal": {
+    "run_id": 39658435079,
+    "api_head_sha": "5b03917593a2fca6d439ca2eeb7d886d756bd4a2",
+    "tested_revision": "8918375ee1295166784053ff06a0592d4a825e1e",
+    "tested_tree": "7f75a129e1527f06a5fdcda58b4617dda6acc152",
+    "mode": "full",
+    "reason": "unknown-path",
+    "selected_count": 449,
+    "omitted_count": 0,
+    "aggregate_status": "PASS",
+    "timing_summary": {
+      "note": "executed_duration_sum_seconds adds per-job intervals; it is not wall-clock and not billable minutes",
+      "executed_duration_sum_seconds": 21230,
+      "span_seconds": 11513,
+      "span_start": "2026-10-21T19:06:38Z",
+      "span_end": "2026-10-21T22:18:31Z",
+      "completeness": {
+        "jobs_total": 46,
+        "jobs_skipped_excluded": 1,
+        "jobs_eligible": 45,
+        "jobs_timed": 45,
+        "complete": true,
+        "missing_reason_counts": {},
+        "missing_reason": null
+      },
+      "snapshot_coverage": {
+        "reported_total_count": 46,
+        "observed_job_count": 46,
+        "all_jobs_present": true,
+        "note": "timing completeness covers supplied jobs only; absent pagination metadata is unknown"
+      }
+    },
+    "evidence": [
+      {
+        "path": "39658435079/plan/plan.json",
+        "sha256": "2529f6ab0115c029901b3756b4a969849bb4c6e6b2115ea61c57a4b25a5783d9"
+      },
+      {
+        "path": "39658435079/aggregate.json",
+        "sha256": "4572584cd30b81fe728f9149608957b31e24d88817e8b681a836f71dc69e510a"
+      },
+      {
+        "path": "39658435079/run-metrics.json",
+        "sha256": "1166c813152764548a1ca16ce2ba2f1fd792c787ce01227d3301b7a5ed3ec9e1"
+      },
+      {
+        "path": "39658435079/transport-report.json",
+        "sha256": "24c212ee4b72646dc308651e688abc64c0d75d0c2d0cbaf4cdb5f27bb53b6ee2"
+      }
+    ]
+  },
+  "full": {
+    "run_id": 39658434467,
+    "api_head_sha": "5b03917593a2fca6d439ca2eeb7d886d756bd4a2",
+    "tested_revision": "5b03917593a2fca6d439ca2eeb7d886d756bd4a2",
+    "tested_tree": "7f75a129e1527f06a5fdcda58b4617dda6acc152",
+    "mode": "full",
+    "reason": "event-full",
+    "selected_count": 449,
+    "omitted_count": 0,
+    "aggregate_status": "PASS",
+    "timing_summary": {
+      "all_attempt_execution_seconds": 23733.0,
+      "accepted_chain_execution_seconds": 20971.0,
+      "retry_overhead_execution_seconds": 2762.0,
+      "run_created_to_final_update_seconds": 13583.0,
+      "all_attempt_observed_span": {
+        "start": "2026-10-21T19:10:56+00:00",
+        "end": "2026-10-21T22:51:03+00:00",
+        "seconds": 13207.0,
+        "note": "Earliest actual execution start to final actual execution end; includes intervening queues and parallel overlap, not sum or billing."
+      },
+      "accepted_chain_observed_span": {
+        "start": "2026-10-21T19:10:56+00:00",
+        "end": "2026-10-21T22:51:03+00:00",
+        "seconds": 13207.0,
+        "note": "Earliest actual execution start to final actual execution end; includes intervening queues and parallel overlap, not sum or billing."
+      }
+    },
+    "evidence": [
+      {
+        "path": "39658434467/plan/plan.json",
+        "sha256": "ba3b548c4b7cd2f27ccedfe798336b728293bb01bc90c229580e9fbc2bce7ea0"
+      },
+      {
+        "path": "39658434467/aggregate.json",
+        "sha256": "1da69a65688360230e7e907d1c05aca669bad3768d956615ff5c5387ad321020"
+      },
+      {
+        "path": "39658434467/retry-aware-metrics.json",
+        "sha256": "e386f0037b789d71e8942808a5b0942e3d8381cfcdf8ba3c74a8e4966c3adb34"
+      },
+      {
+        "path": "39658434467/transport-report.json",
+        "sha256": "b17c1d875a0b36b6ac29536c9d0366fe763369a92a5b6d149d9678f2d99833e4"
+      }
+    ]
+  },
+  "same_tested_tree": true,
+  "selection": "Both actual plans select all449 obligations. Normal unknown-path fallback; manual event-full. No omission savings exist for this probe.",
+  "timing_interpretation": "Separate original timeout and aggregate retry overhead from accepted execution chain. Unequal runner speed/queue and cache states prevent causal timing claims.",
+  "cache_observation": {
+    "path": "representative-cache-observations.json",
+    "sha256": "ccf59cc9253a76cefd7c324cc7c98daf311a1d8b7c32e8c59d1df3203b7b06ee",
+    "scope": "Representative Ubuntu MCP job only; other jobs unobserved."
+  }
+}

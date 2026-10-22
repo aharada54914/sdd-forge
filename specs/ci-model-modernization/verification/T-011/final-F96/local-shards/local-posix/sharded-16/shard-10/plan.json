@@ -1,0 +1,29 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-posix",
+  "selected": [
+    "tests/cloud-orchestration-execution.tests.py",
+    "tests/install-cloud.tests.py",
+    "tests/uninstall.tests.sh",
+    "tests/check-placeholders.tests.sh",
+    "tests/task-context-isolation.tests.sh",
+    "tests/scenario.tests.sh",
+    "tests/workflow-scenarios/workflow-scenarios.tests.sh",
+    "tests/guard-parity.tests.sh",
+    "tests/deterministic-lane-selfcheck.tests.sh",
+    "tests/guard-ps1-ascii.tests.sh",
+    "tests/collection-layer.tests.sh",
+    "tests/bump-version-gate.tests.sh",
+    "tests/facet-manifest-schema.tests.sh",
+    "tests/context-projection-schema.tests.sh",
+    "tests/project-context-schema.tests.sh",
+    "tests/resolve-project-context-caller-contract.tests.sh",
+    "tests/lite-spec-capability-block.tests.sh",
+    "tests/upstream-concept-issue.tests.sh",
+    "tests/fixed-review-precheck-bash.tests.py",
+    "tests/t001-evaluation-preparation.tests.py",
+    "tests/model-policy-launch.tests.py"
+  ],
+  "shard_index": 10,
+  "shard_count": 16
+}

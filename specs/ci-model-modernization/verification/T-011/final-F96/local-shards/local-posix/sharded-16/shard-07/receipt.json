@@ -1,0 +1,150 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-posix",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/ci-suite-wiring.tests.sh",
+    "tests/wfi-059-evidence-path-base.tests.sh",
+    "tests/review-contract-foundation.tests.sh",
+    "tests/second-approval-mask.tests.sh",
+    "tests/workflow-state-ci-integration.tests.sh",
+    "tests/guard-dispatch-fallback.tests.sh",
+    "tests/human-copy-mirror-freshness.tests.sh",
+    "tests/phase2-sudo-signature-static.tests.sh",
+    "tests/design-system-compliance.tests.sh",
+    "tests/release-loop-gate.tests.sh",
+    "tests/facet-manifest-semantics.tests.sh",
+    "tests/lite-gate-summary-absent.tests.sh",
+    "tests/check-component-coverage.tests.sh",
+    "tests/traceability-freeze-contract.tests.py",
+    "tests/concept-review-continuity.tests.py",
+    "tests/spec-review-verify-inputs.tests.py",
+    "tests/model-observation.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/ci-suite-wiring.tests.sh",
+      "source_sha256": "a3111d71e9be9129e0ec696ea8e51dc2aef1be5c6d76fe93342b7b7711cbf61b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.506785
+    },
+    {
+      "suite": "tests/wfi-059-evidence-path-base.tests.sh",
+      "source_sha256": "3760a8f43dc58db8909858e010ebf26b80691b08eaac70eacba1a9e36d28a4ff",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.221861
+    },
+    {
+      "suite": "tests/review-contract-foundation.tests.sh",
+      "source_sha256": "af6ffa2b6af72c00b7271ac802cbda7d5197066038c67097204fdb81a27cafaa",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.582542
+    },
+    {
+      "suite": "tests/second-approval-mask.tests.sh",
+      "source_sha256": "f114f32a13abc85cd25e7ff5b6d02ff34ddf1241402033a9232566f580b4cb14",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 33.5659
+    },
+    {
+      "suite": "tests/workflow-state-ci-integration.tests.sh",
+      "source_sha256": "c03b108519d44486f4ac2440705aaad17aac1e9cd4d2d8f416834e101eba4f64",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.588685
+    },
+    {
+      "suite": "tests/guard-dispatch-fallback.tests.sh",
+      "source_sha256": "fea16dbfe5527b988563192202f2c6916bfa3221e8d66f2dbcec78cf1bb9621d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 9.678879
+    },
+    {
+      "suite": "tests/human-copy-mirror-freshness.tests.sh",
+      "source_sha256": "468023b55cbdf55560ecc214ffdfd05116d040a167a7c7ff3e1c50a9df810e2e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.082916
+    },
+    {
+      "suite": "tests/phase2-sudo-signature-static.tests.sh",
+      "source_sha256": "33661ad8d4b9b5d9963b152b41dc9aef15a4947e3c7edde081b4fe56817b4483",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.030984
+    },
+    {
+      "suite": "tests/design-system-compliance.tests.sh",
+      "source_sha256": "3b25720a3a25fbde7a435975d112dd949c7e5d4842e508965e2fe59e9657ee7b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.094976
+    },
+    {
+      "suite": "tests/release-loop-gate.tests.sh",
+      "source_sha256": "eb81d7c2646ee7a181f643d0de6523b7e1cbdd3563bf64b13b6618436082b824",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.176589
+    },
+    {
+      "suite": "tests/facet-manifest-semantics.tests.sh",
+      "source_sha256": "f1c1561be92512e6727a29aa546311c630b22011c61cb558358a3668b36ff6af",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.477055
+    },
+    {
+      "suite": "tests/lite-gate-summary-absent.tests.sh",
+      "source_sha256": "4a3ec3af07e1ff9b5caf17c234e85e962bc501ecd4485845d376902dc34b80f4",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.007246
+    },
+    {
+      "suite": "tests/check-component-coverage.tests.sh",
+      "source_sha256": "e2bcb0347dcfde6fd1f22f20bdb8448e1c6edeb990bbab667fb2f2bb93b2d460",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.164189
+    },
+    {
+      "suite": "tests/traceability-freeze-contract.tests.py",
+      "source_sha256": "78e688c8949ffad8950b2b5802a957dddc324d05f43700501946da70096735d7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 30.262945
+    },
+    {
+      "suite": "tests/concept-review-continuity.tests.py",
+      "source_sha256": "ce42518a4cea3cb5d71adb3bf57de606708b3d3d839ee185760cbd9044570819",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 75.948871
+    },
+    {
+      "suite": "tests/spec-review-verify-inputs.tests.py",
+      "source_sha256": "ab2796fc7336d0142cd392105a342c3046d8f8db21c57c76b4f8785147e1bbfc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 13.414108
+    },
+    {
+      "suite": "tests/model-observation.tests.py",
+      "source_sha256": "4d6bc7c901cb2db38e1b4210a4f7aa8956248aa72500793d290ed7fdf9e15513",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 19.076356
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

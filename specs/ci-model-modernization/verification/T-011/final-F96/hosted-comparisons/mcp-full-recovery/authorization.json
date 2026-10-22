@@ -1,0 +1,7 @@
+{
+  "run_id": 39658418082,
+  "job_id": 119427913631,
+  "authorized_action": "After original attempt completes, targeted rerun of this cancelled job and dependent aggregate using unchanged workflow and source. Preserve all actual attempts. Stop automatic retries if failure repeats.",
+  "cause": "Actual check annotation: maximum execution time 45m0s; separate macOS arm64 capacity annotation. No timeout or product modification authorized.",
+  "metrics": "Retain failed attempt overhead separately from accepted execution chain; no causal omission savings inferred from setup/capacity failures."
+}

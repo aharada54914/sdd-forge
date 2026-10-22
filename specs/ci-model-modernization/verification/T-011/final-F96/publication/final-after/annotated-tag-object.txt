@@ -1,0 +1,6 @@
+object 96afb59fcceab422024d5f2d1abc1b478d7058cf
+type commit
+tag v1.20.0
+tagger Harada <jrmagneticlevitation@gmail.com> 1792623608 +0000
+
+Release v1.20.0

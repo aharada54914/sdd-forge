@@ -1,0 +1,20 @@
+{
+  "id": 12375537722,
+  "node_id": "MDg6QXJ0aWZhY3QxMjM3NTUzNzcyMg==",
+  "name": "verification-receipts-39658399077-1-e8667b593ea4e60ad2c6c3be3a36edc4a7681dd206d2a5efb9ce32ba977e38fd",
+  "size_in_bytes": 503,
+  "url": "https://api.github.com/repos/aharada54914/sdd-forge/actions/artifacts/12375537722",
+  "archive_download_url": "https://api.github.com/repos/aharada54914/sdd-forge/actions/artifacts/12375537722/zip",
+  "expired": false,
+  "digest": "sha256:b6546b6351cb01ce8fdeef703f0750c2607e19c04462ad6fcad339ce0fb42f02",
+  "created_at": "2026-10-21T19:41:23Z",
+  "updated_at": "2026-10-21T19:41:23Z",
+  "expires_at": "2027-01-19T19:04:26Z",
+  "workflow_run": {
+    "id": 39658399077,
+    "repository_id": 1264102141,
+    "head_repository_id": 1264102141,
+    "head_branch": "t011/probe-readme-96afb59fccea",
+    "head_sha": "035711d21847a69c62c50f23e0f868af4604a3eb"
+  }
+}

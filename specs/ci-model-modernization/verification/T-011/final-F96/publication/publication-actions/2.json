@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "git",
+    "push",
+    "origin",
+    "refs/tags/v1.20.0"
+  ],
+  "cwd": "/workspace/sdd-forge",
+  "started_at": "2026-10-21T23:00:08.662666+00:00",
+  "finished_at": "2026-10-21T23:00:09.905667+00:00",
+  "exit_code": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "991f5e82e3a98ac591ef3fe88b9bb542f0adb89097964dc8e27f4969d1549268"
+}

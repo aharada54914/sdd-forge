@@ -1,0 +1,5 @@
+{
+  "status": "collection-interrupted",
+  "observed": "Original run and both actual attempt job pages saved; artifact collection not begun. External adapter emitted bounded generic rejection. Cause not yet established.",
+  "no_acceptance": true
+}

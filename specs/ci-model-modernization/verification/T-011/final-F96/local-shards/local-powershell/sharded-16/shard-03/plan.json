@@ -1,0 +1,17 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-powershell",
+  "selected": [
+    "tests/review-contract-foundation.tests.ps1",
+    "tests/workflow-state-registry.tests.ps1",
+    "tests/hitl-wfi-terminal.tests.ps1",
+    "tests/apply-human-copy.tests.ps1",
+    "tests/plugin-contracts-track-selection.tests.ps1",
+    "tests/design-sync-standing-consent.tests.ps1",
+    "tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1",
+    "tests/lite-gate-summary-invalid.tests.ps1",
+    "tests/t001-evaluation-preparation.tests.py"
+  ],
+  "shard_index": 3,
+  "shard_count": 16
+}

@@ -1,0 +1,67 @@
+{
+  "purpose": "Factual serialization index only; no rerun, new verdict or retrospective authority",
+  "check_id": "acceptance-tests",
+  "original_contract_sha256": "baf41f1f6836745dbbde4c88cfee15eb983a4f2a234b0e4ce927d8a091bf6233",
+  "original_fields": {
+    "command": "python3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 0 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-00/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 1 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-01/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 2 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-02/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 3 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-03/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 4 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-04/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 5 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-05/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 6 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-06/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 7 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-07/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 8 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-08/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 9 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-09/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 10 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-10/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 11 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-11/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 12 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-12/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 13 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-13/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 14 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-14/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 15 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-15/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 0 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-00/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 1 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-01/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 2 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-02/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 3 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-03/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 4 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-04/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 5 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-05/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 6 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-06/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 7 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-07/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 8 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-08/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 9 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-09/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 10 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-10/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 11 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-11/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 12 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-12/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 13 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-13/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 14 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-14/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 15 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-15/receipt.json",
+    "exit_code": 0,
+    "started_at": "2026-10-21T21:39:23.991754+00:00",
+    "finished_at": null,
+    "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json; specs/ci-model-modernization/verification/T-011/final-F96/distribution/final-eight-path-summary.json; specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json (all14 TEST mapping, explicitly pending actual merge_group); specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/local_shard_mapping",
+    "red_evidence": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json; specs/ci-model-modernization/verification/T-011/final-F96/local-history/local-posix/output/receipt.json",
+    "green_evidence": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json"
+  },
+  "references": [
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json",
+      "sha256": "70a11d4d6f87f128e7bbb450f79bd757c26df02ccc1da62795705c4be312a700"
+    },
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json",
+      "sha256": "7366f6a766c7bf0045c496c89bff3433878b61dbec3c5f83a1e683997df55769"
+    },
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/final-eight-path-summary.json",
+      "sha256": "b5042314427f438bd19aebcebca869a35ec448da7d1d9a88911b4402c5c1b4fe"
+    },
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json",
+      "sha256": "b4d6d5ff92ce35592f10d3a76bf29d48f7b9b5b2f499e271cc49308d861d2d74"
+    },
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json",
+      "sha256": "2083454cabc85ee260394d076f60c2019682090330e47d3f3c8002e52efee69c"
+    },
+    {
+      "field": "red_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json",
+      "sha256": "f7e2ceceb09719e20163565a603c6437fa44071d152577b339c9fe8655206e13"
+    },
+    {
+      "field": "red_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json",
+      "sha256": "ed61d7b25d29070bbf35c68aaf9e284004201ec2b5a7afcfc2512f08ca09ac24"
+    },
+    {
+      "field": "red_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-F96/local-history/local-posix/output/receipt.json",
+      "sha256": "4a92d7de54daa03a66de35e27c40753142370c02e7575fa6cba2050acec8866b"
+    },
+    {
+      "field": "green_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json",
+      "sha256": "70a11d4d6f87f128e7bbb450f79bd757c26df02ccc1da62795705c4be312a700"
+    },
+    {
+      "field": "green_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json",
+      "sha256": "631d0ba93011bbf58c3010a125ae7b20a3514f442074c8c4b6c11bd3c63af22d"
+    }
+  ],
+  "notes": "Contract evidence/red_evidence/green_evidence must each use one existing canonical file. Preserve detailed lists/pointers here. For component coverage use actual producer verdict stdout directly."
+}

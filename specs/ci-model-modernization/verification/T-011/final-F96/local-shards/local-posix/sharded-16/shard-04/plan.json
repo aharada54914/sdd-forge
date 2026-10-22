@@ -1,0 +1,9 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-posix",
+  "selected": [
+    "tests/facet-manifest-parity.tests.sh"
+  ],
+  "shard_index": 4,
+  "shard_count": 16
+}

@@ -1,0 +1,47 @@
+{
+  "purpose": "Factual serialization index only; no rerun, new verdict or retrospective authority",
+  "check_id": "build",
+  "original_contract_sha256": "baf41f1f6836745dbbde4c88cfee15eb983a4f2a234b0e4ce927d8a091bf6233",
+  "original_fields": {
+    "command": "npm run build\ngit diff --exit-code -- dist/\n",
+    "exit_code": 0,
+    "started_at": "2026-10-21T19:06:28Z",
+    "finished_at": "2026-10-21T19:12:10Z",
+    "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/build; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/observations/jobs/1-1.json",
+    "red_evidence": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json (historical correction chronology; no new Red claimed for unchanged predecessor build/type steps)",
+    "green_evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/build"
+  },
+  "references": [
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json",
+      "sha256": "2083454cabc85ee260394d076f60c2019682090330e47d3f3c8002e52efee69c"
+    },
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json",
+      "sha256": "631d0ba93011bbf58c3010a125ae7b20a3514f442074c8c4b6c11bd3c63af22d"
+    },
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/observations/jobs/1-1.json",
+      "sha256": "7bb6c7896b636dd0920fc3fd805175e6293068bf846340baf1d521e344fe4d7b"
+    },
+    {
+      "field": "red_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json",
+      "sha256": "f7e2ceceb09719e20163565a603c6437fa44071d152577b339c9fe8655206e13"
+    },
+    {
+      "field": "red_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json",
+      "sha256": "ed61d7b25d29070bbf35c68aaf9e284004201ec2b5a7afcfc2512f08ca09ac24"
+    },
+    {
+      "field": "green_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json",
+      "sha256": "2083454cabc85ee260394d076f60c2019682090330e47d3f3c8002e52efee69c"
+    }
+  ],
+  "notes": "Contract evidence/red_evidence/green_evidence must each use one existing canonical file. Preserve detailed lists/pointers here. For component coverage use actual producer verdict stdout directly."
+}

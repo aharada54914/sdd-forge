@@ -1,0 +1,78 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-powershell",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/install-cloud.tests.py",
+    "tests/scripts.tests.ps1",
+    "tests/render-agent-frontmatter.tests.ps1",
+    "tests/model-freshness-check.tests.ps1",
+    "tests/compatibility-byte-identical.tests.ps1",
+    "tests/capability-registry-schema.tests.ps1",
+    "tests/evaluate-predicate.tests.ps1",
+    "tests/upstream-concept-issue.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/install-cloud.tests.py",
+      "source_sha256": "d13ac886d3802d4af5940a782bb89ae3725f6665138d79a3cf1cbe7b1f4e20e5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 133.437963
+    },
+    {
+      "suite": "tests/scripts.tests.ps1",
+      "source_sha256": "55c9d34e690c6987a479f95206d12ebb3d524143789b8f591ca3f947299b93fe",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 112.212918
+    },
+    {
+      "suite": "tests/render-agent-frontmatter.tests.ps1",
+      "source_sha256": "aee0863cfaaf3a16fbaf6d82822442d1a03529a73cab58267b976bc54f308a6d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 9.527592
+    },
+    {
+      "suite": "tests/model-freshness-check.tests.ps1",
+      "source_sha256": "a86e405975609db4a2e4f1189592c54ec231e6d22888f3b6019aa9774c9e8141",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.358562
+    },
+    {
+      "suite": "tests/compatibility-byte-identical.tests.ps1",
+      "source_sha256": "9a2f11a04f49a618934192ff2264d0686d89a5ca3bc2876ea3a80b2f97e9878d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 13.435468
+    },
+    {
+      "suite": "tests/capability-registry-schema.tests.ps1",
+      "source_sha256": "343e37ce84d82755d284cad8f6e28c894273692e3383175d8072f73bb13a6c8f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.76265
+    },
+    {
+      "suite": "tests/evaluate-predicate.tests.ps1",
+      "source_sha256": "b6924bf253cd8e0c24f28228bd8addd86cf78cce23b46e9b58565f2d934d08ca",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 17.650237
+    },
+    {
+      "suite": "tests/upstream-concept-issue.tests.py",
+      "source_sha256": "e47b3cc6abe9cbb7e822557ac3b4508e7c5be77ef79c12c9f1245b43a51d6292",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.955197
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

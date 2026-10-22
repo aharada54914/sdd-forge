@@ -1,0 +1,11 @@
+{
+  "origin_main": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+  "origin_main_source": "root refs/remotes/origin/main exact existing object",
+  "PATH_prefix": [
+    "/workspace/.tools/sdd-forge-dev/bin",
+    "/workspace/.tools/bin",
+    "/workspace/.tools/rtk/0.51.0"
+  ],
+  "SDD_TEST_PWSH": "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf"
+}

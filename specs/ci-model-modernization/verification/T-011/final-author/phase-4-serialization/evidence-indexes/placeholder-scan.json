@@ -1,0 +1,37 @@
+{
+  "purpose": "Factual serialization index only; no rerun, new verdict or retrospective authority",
+  "check_id": "placeholder-scan",
+  "original_contract_sha256": "baf41f1f6836745dbbde4c88cfee15eb983a4f2a234b0e4ce927d8a091bf6233",
+  "original_fields": {
+    "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh .agents/plugins/marketplace.json .claude-plugin/marketplace.json .github/workflows/test.yml contracts/verification-ci-plan.schema.json install-payload.txt install.ps1 install.sh plugins/sdd-aws-cloud/.claude-plugin/plugin.json plugins/sdd-aws-cloud/.codex-plugin/plugin.json plugins/sdd-aws-cloud/.plugin/plugin.json plugins/sdd-azure-cloud/.claude-plugin/plugin.json plugins/sdd-azure-cloud/.codex-plugin/plugin.json plugins/sdd-azure-cloud/.plugin/plugin.json plugins/sdd-bootstrap/.claude-plugin/plugin.json plugins/sdd-bootstrap/.codex-plugin/plugin.json plugins/sdd-bootstrap/.plugin/plugin.json plugins/sdd-domain/.claude-plugin/plugin.json plugins/sdd-domain/.codex-plugin/plugin.json plugins/sdd-domain/.plugin/plugin.json plugins/sdd-implementation/.claude-plugin/plugin.json plugins/sdd-implementation/.codex-plugin/plugin.json plugins/sdd-implementation/.plugin/plugin.json plugins/sdd-lite/.claude-plugin/plugin.json plugins/sdd-lite/.codex-plugin/plugin.json plugins/sdd-lite/.plugin/plugin.json plugins/sdd-quality-loop/.claude-plugin/plugin.json plugins/sdd-quality-loop/.codex-plugin/plugin.json plugins/sdd-quality-loop/.plugin/plugin.json plugins/sdd-quality-loop/references/guard-invariants.json plugins/sdd-quality-loop/scripts/generate-guard-invariants.py plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh plugins/sdd-quality-loop/scripts/generated/guard_invariants.py plugins/sdd-review-loop/.claude-plugin/plugin.json plugins/sdd-review-loop/.codex-plugin/plugin.json plugins/sdd-review-loop/.plugin/plugin.json plugins/sdd-ship/.claude-plugin/plugin.json plugins/sdd-ship/.codex-plugin/plugin.json plugins/sdd-ship/.plugin/plugin.json scripts/human_copy_mirrors.py tests/validate-repository.ps1 tests/verification-catalog.json tests/verification-ci.py tests/verification-impact.py",
+    "exit_code": 0,
+    "started_at": "2026-10-21T23:16:50.864912+00:00",
+    "finished_at": "2026-10-21T23:16:50.874781+00:00",
+    "evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-production.receipt.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-scope-correction.json preserves initial test-helper finding and retains production CI scripts",
+    "red_evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-scan.receipt.json",
+    "green_evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-production.receipt.json"
+  },
+  "references": [
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-production.receipt.json",
+      "sha256": "215e2769263f5ca714267038f0cd79de40ce1ce6cd11f014027e98c1d303cb95"
+    },
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-scope-correction.json",
+      "sha256": "15bd2ffe3d461f792b205189c5f69c24a9b1222812c17f6fa18c88732da7655e"
+    },
+    {
+      "field": "red_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-scan.receipt.json",
+      "sha256": "0e7f0e7756edec1a03d33c2257c679acbf06cf4abf6fb03bfeb55ed87c9a795a"
+    },
+    {
+      "field": "green_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-production.receipt.json",
+      "sha256": "215e2769263f5ca714267038f0cd79de40ce1ce6cd11f014027e98c1d303cb95"
+    }
+  ],
+  "notes": "Contract evidence/red_evidence/green_evidence must each use one existing canonical file. Preserve detailed lists/pointers here. For component coverage use actual producer verdict stdout directly."
+}

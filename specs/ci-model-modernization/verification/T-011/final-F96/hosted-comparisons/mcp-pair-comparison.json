@@ -1,0 +1,105 @@
+{
+  "probe": "mcp",
+  "normal": {
+    "run_id": 39658418659,
+    "api_head_sha": "0fd45bffd20f8aa0163918e6fb2e0ef0db2a7fb2",
+    "tested_revision": "f67925da470d720cbc884ca7314f768be3b08d33",
+    "tested_tree": "5a38ac4dc06944bf7420ecc049cab9c54637d4fb",
+    "mode": "full",
+    "reason": "unknown-path",
+    "selected_count": 449,
+    "omitted_count": 0,
+    "aggregate_status": "PASS",
+    "timing_summary": {
+      "note": "executed_duration_sum_seconds adds per-job intervals; it is not wall-clock and not billable minutes",
+      "executed_duration_sum_seconds": 21836,
+      "span_seconds": 11213,
+      "span_start": "2026-10-21T19:05:08Z",
+      "span_end": "2026-10-21T22:12:01Z",
+      "completeness": {
+        "jobs_total": 46,
+        "jobs_skipped_excluded": 1,
+        "jobs_eligible": 45,
+        "jobs_timed": 45,
+        "complete": true,
+        "missing_reason_counts": {},
+        "missing_reason": null
+      },
+      "snapshot_coverage": {
+        "reported_total_count": 46,
+        "observed_job_count": 46,
+        "all_jobs_present": true,
+        "note": "timing completeness covers supplied jobs only; absent pagination metadata is unknown"
+      }
+    },
+    "evidence": [
+      {
+        "path": "39658418659/plan/plan.json",
+        "sha256": "dee5e7ccb1497a4185765bbd68614e34575554460b3a2544db44d19bda57a7ec"
+      },
+      {
+        "path": "39658418659/aggregate.json",
+        "sha256": "20ad4fd34f3b6da865405359d88e4d607b10b78b780d0526f2fdd90c88088d8a"
+      },
+      {
+        "path": "39658418659/run-metrics.json",
+        "sha256": "1617b37290d72122b0d2886baf0369070c4531d0b8eefd858916945a542f4fed"
+      },
+      {
+        "path": "39658418659/transport-report.json",
+        "sha256": "2831ed9a19aff7345b5f92d52515e14cb6aa7d829681d485779a29ba57cd0b72"
+      }
+    ]
+  },
+  "full": {
+    "run_id": 39658418082,
+    "api_head_sha": "0fd45bffd20f8aa0163918e6fb2e0ef0db2a7fb2",
+    "tested_revision": "0fd45bffd20f8aa0163918e6fb2e0ef0db2a7fb2",
+    "tested_tree": "5a38ac4dc06944bf7420ecc049cab9c54637d4fb",
+    "mode": "full",
+    "reason": "event-full",
+    "selected_count": 449,
+    "omitted_count": 0,
+    "aggregate_status": "PASS",
+    "timing_summary": {
+      "all_attempt_execution_seconds": 23108.0,
+      "accepted_chain_execution_seconds": 20362.0,
+      "retry_overhead_execution_seconds": 2746.0,
+      "run_created_to_final_update_seconds": 13327.0,
+      "all_attempt_observed_span": {
+        "start": "2026-10-21T19:05:02+00:00",
+        "end": "2026-10-21T22:46:40+00:00",
+        "seconds": 13298.0,
+        "note": "Earliest actual execution start to final actual execution end; includes intervening queues and parallel overlap, not sum or billing."
+      },
+      "accepted_chain_observed_span": {
+        "start": "2026-10-21T19:05:02+00:00",
+        "end": "2026-10-21T22:46:40+00:00",
+        "seconds": 13298.0,
+        "note": "Earliest actual execution start to final actual execution end; includes intervening queues and parallel overlap, not sum or billing."
+      }
+    },
+    "evidence": [
+      {
+        "path": "39658418082/plan/plan.json",
+        "sha256": "2595769d38809ef5e9b43eef096006a627761fcc3eeb0cdee8cafbf5b3897bd5"
+      },
+      {
+        "path": "39658418082/aggregate.json",
+        "sha256": "dd34d56ba269b270f79bf7ab62e3cd8889e036974b499eca87bca5b652856efb"
+      },
+      {
+        "path": "39658418082/retry-aware-metrics.json",
+        "sha256": "1c69e703e1ed423b56787a151f0db5c40dd61e3a30edf6f425feed701d8fb30a"
+      },
+      {
+        "path": "39658418082/transport-report.json",
+        "sha256": "dd7d838365385644441e84775213d24a5fe1048f06a375535c527f9900101a2e"
+      }
+    ]
+  },
+  "same_tested_tree": true,
+  "selection": "Both actual plans select all449 obligations. Normal unknown-path fallback; manual event-full. No omission savings exist for this probe.",
+  "timing_interpretation": "Separate original timeout and aggregate retry overhead from accepted execution chain. Unequal runner speed/queue and cache states prevent causal timing claims.",
+  "cache_observation": "See bounded representative-cache-observations.json; unobserved jobs remain unknown."
+}

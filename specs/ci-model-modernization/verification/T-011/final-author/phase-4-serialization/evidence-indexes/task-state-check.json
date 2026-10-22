@@ -1,0 +1,27 @@
+{
+  "purpose": "Factual serialization index only; no rerun, new verdict or retrospective authority",
+  "check_id": "task-state-check",
+  "original_contract_sha256": "baf41f1f6836745dbbde4c88cfee15eb983a4f2a234b0e4ce927d8a091bf6233",
+  "original_fields": {
+    "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-model-modernization/tasks.md reports/quality-gate reports/implementation/ci-model-modernization /workspace/sdd-forge",
+    "exit_code": 0,
+    "started_at": "2026-10-21T23:19:52.969702+00:00",
+    "finished_at": "2026-10-21T23:19:54.112172+00:00",
+    "evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/task-state.receipt.json; actual phase1 report check, final phase2 report will be rechecked by Root; no prospective recheck PASS claimed",
+    "red_evidence": "",
+    "green_evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/task-state.receipt.json"
+  },
+  "references": [
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/task-state.receipt.json",
+      "sha256": "3e68252b4e7f917a98983675ec27c5dba57d881b744bfda9fb2277e2adced26c"
+    },
+    {
+      "field": "green_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/task-state.receipt.json",
+      "sha256": "3e68252b4e7f917a98983675ec27c5dba57d881b744bfda9fb2277e2adced26c"
+    }
+  ],
+  "notes": "Contract evidence/red_evidence/green_evidence must each use one existing canonical file. Preserve detailed lists/pointers here. For component coverage use actual producer verdict stdout directly."
+}

@@ -1,0 +1,882 @@
+{
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "frozen_at": "2026-10-21T22:55:06.012234+00:00",
+  "coverage": {
+    "local-posix": 204,
+    "local-powershell": 134
+  },
+  "receipt_count": 32,
+  "note": "Two complete 16-shard receipt sets; Linux POSIX and Linux PowerShell. Raw logs retain suite-local declared skips. Previous failed and interrupted attempts remain separate.",
+  "files": [
+    {
+      "path": "local-posix/sharded-16/source-pins.json",
+      "sha256": "a1b521aad0eba9699db2f953fc6b0c9c8cfef64cce1a6c53d205e7065f6def4d",
+      "bytes": 612
+    },
+    {
+      "path": "local-posix/sharded-16/complete-plan.json",
+      "sha256": "e5434bb29954a4597c4b65a9009bc60634941f8add0f136306c5f2df0d204dc9",
+      "bytes": 22717
+    },
+    {
+      "path": "local-posix/sharded-16/complete-results.json",
+      "sha256": "d3f466c9e456d0209e76be210e5c301390c4f4a64a706736784fa41978d58b9f",
+      "bytes": 5463
+    },
+    {
+      "path": "local-posix/sharded-16/receipt-set-validation.json",
+      "sha256": "84ad1b25099ff522c281c5bb8277c5b25dd2f2a751e57d70d3effdd2856354c2",
+      "bytes": 3660
+    },
+    {
+      "path": "local-posix/sharded-16/progress.json",
+      "sha256": "e62e78237a61aff4f86cd8f99b563f03703c0d1bea54d00ddebc1411015c6852",
+      "bytes": 4919
+    },
+    {
+      "path": "local-posix/sharded-16/shard-00/plan.json",
+      "sha256": "569ce69f8c04e79bde8b8c08bf49cef88c0adab1c70d523365e0eb57f557e601",
+      "bytes": 173
+    },
+    {
+      "path": "local-posix/sharded-16/shard-00/receipt.json",
+      "sha256": "75811131cb3398fbf6d089526e6d8760eb171fd546dd699aceefcb3db2230ad5",
+      "bytes": 668
+    },
+    {
+      "path": "local-posix/sharded-16/shard-00/invocation.json",
+      "sha256": "3820c1bfe0d386363d7f4e8111d9584b3c2fbb994d11950520854c1022e99f32",
+      "bytes": 766
+    },
+    {
+      "path": "local-posix/sharded-16/shard-00/completion.json",
+      "sha256": "f32dbcf0b6b226081554671f37a6620db7bdf735cddfd05ab373867a4893e231",
+      "bytes": 280
+    },
+    {
+      "path": "local-posix/sharded-16/shard-00/run.log",
+      "sha256": "7937e9338067309511d024c4c33e79a889184aa9fe6c2dbdec3e587da72bd1b1",
+      "bytes": 31095
+    },
+    {
+      "path": "local-posix/sharded-16/shard-01/plan.json",
+      "sha256": "553a78b3e6ad51005b8e0103dddcd22a5a1eb85ffdbdb396e040e8c3d637c3d5",
+      "bytes": 161
+    },
+    {
+      "path": "local-posix/sharded-16/shard-01/receipt.json",
+      "sha256": "eaab541a4bb63dd1f2ab5c35486aeea2c6ed7a7481482f3fb1ec951734803ce8",
+      "bytes": 644
+    },
+    {
+      "path": "local-posix/sharded-16/shard-01/invocation.json",
+      "sha256": "d7b9acfb4cf79bec56d64d32788a5ec7a3e21754f6adfbfcb23ba8e66c860754",
+      "bytes": 766
+    },
+    {
+      "path": "local-posix/sharded-16/shard-01/completion.json",
+      "sha256": "d3e8c249bb4b0b287ab4f3d9605727df0e0575e1cf1fc1b96cd3f1102052cffa",
+      "bytes": 280
+    },
+    {
+      "path": "local-posix/sharded-16/shard-01/run.log",
+      "sha256": "f614baba886ac561f3527b5599ba479bbf2a01cfc87a174b0f34bf82ae6e18ca",
+      "bytes": 607
+    },
+    {
+      "path": "local-posix/sharded-16/shard-02/plan.json",
+      "sha256": "747a67fb76cd65c5361a612ec30bd3536021f691fe0cdda6d1a9a5d1e4d29962",
+      "bytes": 174
+    },
+    {
+      "path": "local-posix/sharded-16/shard-02/receipt.json",
+      "sha256": "0a78a4cb3444196093accbc3b9412c920026d8750c5901a5d90a17ce85b26b6d",
+      "bytes": 670
+    },
+    {
+      "path": "local-posix/sharded-16/shard-02/invocation.json",
+      "sha256": "f1acd6157e6032b2494a3cb4fe6071572b246f4340bca9db3c43317b127a1920",
+      "bytes": 766
+    },
+    {
+      "path": "local-posix/sharded-16/shard-02/completion.json",
+      "sha256": "8bb124e5d3b34bbf06e27c19576fa87300a29af3ac697f79d4650c18a3b0fe00",
+      "bytes": 285
+    },
+    {
+      "path": "local-posix/sharded-16/shard-02/run.log",
+      "sha256": "d097c1eb4abf461df539acb7bf3e3ed5c41b9ad6eacb8b4c2615e566e9489957",
+      "bytes": 117719
+    },
+    {
+      "path": "local-posix/sharded-16/shard-03/plan.json",
+      "sha256": "4deb06797de438d54e6f5c80cb67bbdbca4294836a9a4d9d1d67b9a8806dec39",
+      "bytes": 165
+    },
+    {
+      "path": "local-posix/sharded-16/shard-03/receipt.json",
+      "sha256": "68a6267bc31959867383aaabd63b4dbf6b32e126159faa7d68feaeb61af33d2c",
+      "bytes": 652
+    },
+    {
+      "path": "local-posix/sharded-16/shard-03/invocation.json",
+      "sha256": "66a2f45526318c8b84beda33a1d55e1afb96b8666b1f02129ac94101e8edafe6",
+      "bytes": 766
+    },
+    {
+      "path": "local-posix/sharded-16/shard-03/completion.json",
+      "sha256": "ed13a3af49d613e6d924dd625bad6f1e5728d00b717a4ef0e78a5bbda24df56b",
+      "bytes": 285
+    },
+    {
+      "path": "local-posix/sharded-16/shard-03/run.log",
+      "sha256": "6efe91e041f8c4ad34a4ee68dcc3aabd74d8acd2843eaa80597db5621d1964f7",
+      "bytes": 124
+    },
+    {
+      "path": "local-posix/sharded-16/shard-04/plan.json",
+      "sha256": "0ea09e17862dcb66f8162abe7854285b2e38f82e2ab85ab313fa286304953142",
+      "bytes": 172
+    },
+    {
+      "path": "local-posix/sharded-16/shard-04/receipt.json",
+      "sha256": "a75a6b890434d5acf0266400db789fee7f30c1588bc72409733040bceef8a3b7",
+      "bytes": 665
+    },
+    {
+      "path": "local-posix/sharded-16/shard-04/invocation.json",
+      "sha256": "5f54fa6688e21ebcd55cf6dbeccc97d583ac1e1dba4edca2fc654b2986603863",
+      "bytes": 766
+    },
+    {
+      "path": "local-posix/sharded-16/shard-04/completion.json",
+      "sha256": "d7720a48988169f77fd5688cc5d762a3c1fe717c77bc4c542b08d9e28a5ff72f",
+      "bytes": 284
+    },
+    {
+      "path": "local-posix/sharded-16/shard-04/run.log",
+      "sha256": "ceffae6a970aabc29aee04e9dba718b516ea297bee2bec5b8ba6d60410a0264d",
+      "bytes": 45966
+    },
+    {
+      "path": "local-posix/sharded-16/shard-05/plan.json",
+      "sha256": "6588cc6dec24a12bee0eac163188aaf63a7950ba4e46972332632d880d9983a6",
+      "bytes": 269
+    },
+    {
+      "path": "local-posix/sharded-16/shard-05/receipt.json",
+      "sha256": "be8ec0f3feecc9476d0e7072c533ada552e82876bc2f4230ef8e0aed51ce6c64",
+      "bytes": 1237
+    },
+    {
+      "path": "local-posix/sharded-16/shard-05/invocation.json",
+      "sha256": "1094bf306cb01fdee6d5409bcf9b48942511898d7255080a05cd2a655ce5d969",
+      "bytes": 766
+    },
+    {
+      "path": "local-posix/sharded-16/shard-05/completion.json",
+      "sha256": "f95a9c3c9bc94b40d31f0fdbc8fa3373f286ef24c1eea577e8e771882aa23d30",
+      "bytes": 284
+    },
+    {
+      "path": "local-posix/sharded-16/shard-05/run.log",
+      "sha256": "a4bb62423076883f189218a37366d0104e4eabdc3b4c0b08f5af193f428ccdc9",
+      "bytes": 2273
+    },
+    {
+      "path": "local-posix/sharded-16/shard-06/plan.json",
+      "sha256": "10334cbde91c2f89a70d5d23ca66f11ee07585fc6977477a86de316e8a841457",
+      "bytes": 682
+    },
+    {
+      "path": "local-posix/sharded-16/shard-06/receipt.json",
+      "sha256": "7410c11e0be172e54e23294ce7328e5203d6add4026a992729ebc7b61e6b4e04",
+      "bytes": 3765
+    },
+    {
+      "path": "local-posix/sharded-16/shard-06/invocation.json",
+      "sha256": "9757259b17773079883b834ada2366614d8969155b41f796305075a2987e4089",
+      "bytes": 766
+    },
+    {
+      "path": "local-posix/sharded-16/shard-06/completion.json",
+      "sha256": "3e305a8d513370d7d626caad4dd0556e24df0abc163cdb25beda76e898a49d21",
+      "bytes": 285
+    },
+    {
+      "path": "local-posix/sharded-16/shard-06/run.log",
+      "sha256": "58f3ae2aae0a3280f406f6a9c89654e5061f8dfabe5d6a29b350e7c09a44cfb8",
+      "bytes": 19640
+    },
+    {
+      "path": "local-posix/sharded-16/shard-07/plan.json",
+      "sha256": "e4213675898fbe818df7b663d11ca29a0b8dca90f3aa8ff8912ff57104561373",
+      "bytes": 921
+    },
+    {
+      "path": "local-posix/sharded-16/shard-07/receipt.json",
+      "sha256": "b17518bfb043617cf89fbd7280a9a03728cbf9090a2bc9470afd0fedb8c1c9c7",
+      "bytes": 5189
+    },
+    {
+      "path": "local-posix/sharded-16/shard-07/invocation.json",
+      "sha256": "c38485c94d8f52fd176bdd5978563ef8f3424a1a53cb4dc4745e9ebd3dc5ad82",
+      "bytes": 766
+    },
+    {
+      "path": "local-posix/sharded-16/shard-07/completion.json",
+      "sha256": "2ea9a61ad105c2bbca39234aa15a38e026dbc65a4421918afb2c6021b7f78e97",
+      "bytes": 286
+    },
+    {
+      "path": "local-posix/sharded-16/shard-07/run.log",
+      "sha256": "a2e9057536c718218a6f476d463e738e84d794e2df5ba812d4ad1355792c4ec3",
+      "bytes": 33312
+    },
+    {
+      "path": "local-posix/sharded-16/shard-08/plan.json",
+      "sha256": "3a8bab70f99c4ea164032c7d26ceceaf5d948367fd400b560ff3c5094f549da3",
+      "bytes": 1012
+    },
+    {
+      "path": "local-posix/sharded-16/shard-08/receipt.json",
+      "sha256": "998e41daf06366ab8c407a6c1d0ccb559ac353837bb3d15563db3b13452088a5",
+      "bytes": 5752
+    },
+    {
+      "path": "local-posix/sharded-16/shard-08/invocation.json",
+      "sha256": "fa6163f5aec6aff6592f4f8a931819bb212feece143dc314f62bcdbd31b394cb",
+      "bytes": 766
+    },
+    {
+      "path": "local-posix/sharded-16/shard-08/completion.json",
+      "sha256": "7366358bfe7f251a9d2f611fe3de824bfb413bef55f8f50f2016d10842be517a",
+      "bytes": 281
+    },
+    {
+      "path": "local-posix/sharded-16/shard-08/run.log",
+      "sha256": "048c7211aa6fee129669e0ae255c8c0f7bb43d3e0605f4e2f84ca3170d87df43",
+      "bytes": 140106
+    },
+    {
+      "path": "local-posix/sharded-16/shard-09/plan.json",
+      "sha256": "208f0dafe2364d5ca54c2da9e601d41ab4636f997dd09735c3f57cb103ff23ff",
+      "bytes": 1110
+    },
+    {
+      "path": "local-posix/sharded-16/shard-09/receipt.json",
+      "sha256": "d2c24db9b4ac2747b883b77dacfcbd714cf4fecd3e05d240dc8d917bfe22df14",
+      "bytes": 6323
+    },
+    {
+      "path": "local-posix/sharded-16/shard-09/invocation.json",
+      "sha256": "7a10fed7fb6a12b6483e785c9845259115e32207f66187df93ea6c7d3c950214",
+      "bytes": 766
+    },
+    {
+      "path": "local-posix/sharded-16/shard-09/completion.json",
+      "sha256": "8f1b5a8fe0836e7e6be762c596f2ffc58aa406147e13db124a9e2926f65f6ebc",
+      "bytes": 285
+    },
+    {
+      "path": "local-posix/sharded-16/shard-09/run.log",
+      "sha256": "ec8d851bf38c20df0a07f624945c59b96f29e0057e34f9bb7bb43be324c92a42",
+      "bytes": 103718
+    },
+    {
+      "path": "local-posix/sharded-16/shard-10/plan.json",
+      "sha256": "aed98a53b18dc4817b1a5bf147f4319419b3ea2252a170c9ddb19f132b1b03de",
+      "bytes": 1063
+    },
+    {
+      "path": "local-posix/sharded-16/shard-10/receipt.json",
+      "sha256": "737409fd39a9030e558c502e35b36d079ad0f4a40cdbb5064f39d6bad0f6301b",
+      "bytes": 6229
+    },
+    {
+      "path": "local-posix/sharded-16/shard-10/invocation.json",
+      "sha256": "78851a78fc9fed167cbdfbf8996bf76bd941a30955047168f74cb6500f854cc1",
+      "bytes": 768
+    },
+    {
+      "path": "local-posix/sharded-16/shard-10/completion.json",
+      "sha256": "9dcc30dca9cbf7b5c1b9100d55ac49217528a034043db602a86a509a9cf59600",
+      "bytes": 287
+    },
+    {
+      "path": "local-posix/sharded-16/shard-10/run.log",
+      "sha256": "99ec3eb24d03d2a866624866ab0cbfa37bb571497de6515fd6178b2f75372569",
+      "bytes": 153409
+    },
+    {
+      "path": "local-posix/sharded-16/shard-11/plan.json",
+      "sha256": "d0d2d7bd86de24b7608065885874778898c4ff9ef1de519681c8c8fb47d1e364",
+      "bytes": 1116
+    },
+    {
+      "path": "local-posix/sharded-16/shard-11/receipt.json",
+      "sha256": "52df9b27d9e0e3cb6b4886c5b5fa66b1f1182e11b3bb85168b63741678ecc097",
+      "bytes": 6528
+    },
+    {
+      "path": "local-posix/sharded-16/shard-11/invocation.json",
+      "sha256": "37d706fe197c065f35ce817e5e770d4b0fe91ae96c166ab5bc0c3c67a6096eee",
+      "bytes": 768
+    },
+    {
+      "path": "local-posix/sharded-16/shard-11/completion.json",
+      "sha256": "53b7a53b8ba27d015bc4f739a209db52e64bfabdd2c55251d10547064acde2b4",
+      "bytes": 286
+    },
+    {
+      "path": "local-posix/sharded-16/shard-11/run.log",
+      "sha256": "85dd628383658653108b7f23303e7cef687a00231dec8d12028b1c4a012c70c4",
+      "bytes": 90721
+    },
+    {
+      "path": "local-posix/sharded-16/shard-12/plan.json",
+      "sha256": "bfa6c7973b66e5252552d2bb440815f65db709ae620ef74e458266976fee52bf",
+      "bytes": 1124
+    },
+    {
+      "path": "local-posix/sharded-16/shard-12/receipt.json",
+      "sha256": "90adce92b5eb324a8391eff9729775c2b13f4e187a6c84eebb2bea9f0a1f493f",
+      "bytes": 6350
+    },
+    {
+      "path": "local-posix/sharded-16/shard-12/invocation.json",
+      "sha256": "ad2a66d22f638d56b06d9c9cdb67c00ee10b0059036f2fa52b29da37475cfa24",
+      "bytes": 768
+    },
+    {
+      "path": "local-posix/sharded-16/shard-12/completion.json",
+      "sha256": "600965ae6199d61c888b3432c10f1652deb1a907616a9b745e1e7eac5cac5338",
+      "bytes": 282
+    },
+    {
+      "path": "local-posix/sharded-16/shard-12/run.log",
+      "sha256": "b1b3bd555ec39b36737ef53ec6f900a952a957251c11735ef081400893f207a4",
+      "bytes": 61265
+    },
+    {
+      "path": "local-posix/sharded-16/shard-13/plan.json",
+      "sha256": "7520e45ba0e7a3b7ecc6803b3cdb8eba4720109ebfb440d94c9255fba0e82dad",
+      "bytes": 1076
+    },
+    {
+      "path": "local-posix/sharded-16/shard-13/receipt.json",
+      "sha256": "a3c3ed73206af091ccc01b9ed82ab1004f335e613238375377213326ed4708a0",
+      "bytes": 6253
+    },
+    {
+      "path": "local-posix/sharded-16/shard-13/invocation.json",
+      "sha256": "f8236d440ac47130dcffd746796ae21f7cdbbf10df18b8456c1e5c1ee5fec69f",
+      "bytes": 768
+    },
+    {
+      "path": "local-posix/sharded-16/shard-13/completion.json",
+      "sha256": "a555fb46082a9b3c84aabe71a21cd3019a51e38d509868dce41c7aca00f5e38c",
+      "bytes": 286
+    },
+    {
+      "path": "local-posix/sharded-16/shard-13/run.log",
+      "sha256": "c0b4de6b1387f54a1b2a7d8df2b8a13c4082d672b7ce10a5cf20f21d7d6edbdc",
+      "bytes": 89031
+    },
+    {
+      "path": "local-posix/sharded-16/shard-14/plan.json",
+      "sha256": "73139da548ef3befad350ce10e37c476a920564d73bd5ae29f723aadccb7f15a",
+      "bytes": 1102
+    },
+    {
+      "path": "local-posix/sharded-16/shard-14/receipt.json",
+      "sha256": "0a3148b4cb837e661d95942efdb70cc106fc930814a0e0129077febca480b057",
+      "bytes": 6305
+    },
+    {
+      "path": "local-posix/sharded-16/shard-14/invocation.json",
+      "sha256": "bd6d7207899ef8c1801d53e6d1de28c1b844bbcfe902384c2d3a4f6944b9cdad",
+      "bytes": 768
+    },
+    {
+      "path": "local-posix/sharded-16/shard-14/completion.json",
+      "sha256": "515915b1653a1887171ca69a992b8e84bf6392ad3bcbd2d688c8f488a14dfa01",
+      "bytes": 286
+    },
+    {
+      "path": "local-posix/sharded-16/shard-14/run.log",
+      "sha256": "ec7f233d494ea76108105772274f9d5194db3789652727e15546ec3f1690ba62",
+      "bytes": 162540
+    },
+    {
+      "path": "local-posix/sharded-16/shard-15/plan.json",
+      "sha256": "1b65fc4a8a32190b4dc011619c0e6e90b190f2345d47e8309c2fde62264743b2",
+      "bytes": 1103
+    },
+    {
+      "path": "local-posix/sharded-16/shard-15/receipt.json",
+      "sha256": "4f02d1f0c4162bbd1cfa4342a18cdb71faa1729d9d14d192984ceba64487023a",
+      "bytes": 6306
+    },
+    {
+      "path": "local-posix/sharded-16/shard-15/invocation.json",
+      "sha256": "1aa77f14be0024cef156d2766f60a5a053f3d9769c7dfd10d5d392baa33f6d1a",
+      "bytes": 768
+    },
+    {
+      "path": "local-posix/sharded-16/shard-15/completion.json",
+      "sha256": "09b6f646ba0210c07a63e90a10dea3d267ef2f1c86587b658c2a43e61651aedb",
+      "bytes": 286
+    },
+    {
+      "path": "local-posix/sharded-16/shard-15/run.log",
+      "sha256": "df47b6b73abaa6d295574d680e2700322193c2a605b394475e067ceec534f391",
+      "bytes": 111899
+    },
+    {
+      "path": "local-powershell/sharded-16/source-pins.json",
+      "sha256": "a1b521aad0eba9699db2f953fc6b0c9c8cfef64cce1a6c53d205e7065f6def4d",
+      "bytes": 612
+    },
+    {
+      "path": "local-powershell/sharded-16/complete-plan.json",
+      "sha256": "252eab461e86db29411768226c137d08e834d2f03c6c2985d5a292c020f2f4cb",
+      "bytes": 16360
+    },
+    {
+      "path": "local-powershell/sharded-16/complete-results.json",
+      "sha256": "2ef33b35a5dd9312827d6d726b694db6b4df566e704a49dffd1e1c138c35524d",
+      "bytes": 5545
+    },
+    {
+      "path": "local-powershell/sharded-16/receipt-set-validation.json",
+      "sha256": "c82a1d287a99de8e1f4b3389d2c87db82edde29483c71c8e5924e36f185949c0",
+      "bytes": 3735
+    },
+    {
+      "path": "local-powershell/sharded-16/progress.json",
+      "sha256": "e8e64b5fde89e6a280775aae4469eff6af1279f912a30dd8855391a712fe54b6",
+      "bytes": 4996
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-00/plan.json",
+      "sha256": "67f95c892224af1a84942134055369d1df1524eb88e1f483cb93e82137ca2fea",
+      "bytes": 581
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-00/receipt.json",
+      "sha256": "18fe794788fd1e8dae774d7aa2679caef755d81daa7c596abfd751dd98a31917",
+      "bytes": 2993
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-00/invocation.json",
+      "sha256": "7a243f6530233671bef34cc10adaa4acfcef12ac514ec3b80f1e022b744bf003",
+      "bytes": 791
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-00/completion.json",
+      "sha256": "be80a074bd7f2640b1a7812f7a9820042bbc20b7237f7859503911448e54cc6b",
+      "bytes": 290
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-00/run.log",
+      "sha256": "a7151499b77ec8f8f3256d30ff854999e4746dd45e9362174ab4d2e271bbaed8",
+      "bytes": 33273
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-01/plan.json",
+      "sha256": "2cde0cdfcce3bf352cf1cccb203b71c39d0215b7b52724f6dfe109ab5ddf06ac",
+      "bytes": 573
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-01/receipt.json",
+      "sha256": "d4218eb4270cc8992d494c3e356ac46ee3c06f0695d3e88670043b2d691cf7e8",
+      "bytes": 2974
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-01/invocation.json",
+      "sha256": "04b581a5b2425aaa44e289a65f88a7e62be2da1792e6b48b280e5cfd44dcb2bd",
+      "bytes": 791
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-01/completion.json",
+      "sha256": "9ba54916b86bcc901391f3ad9372f9ad8e9fa7381997cfa59e9e9abe5b83662d",
+      "bytes": 289
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-01/run.log",
+      "sha256": "66049f0f0963b7792ab4b48ad2efe11fa35b2db7151435ef688de5a60da79e09",
+      "bytes": 19076
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-02/plan.json",
+      "sha256": "15fb1bb51e7870a3f32a176e9fe9623b38e3cb5e3a5aea5125c72be26cc4c96f",
+      "bytes": 579
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-02/receipt.json",
+      "sha256": "d8db12f2a52c2fd7a46673b0471c1386089b2fe2710aeca3285a3b74d2ad25d8",
+      "bytes": 2989
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-02/invocation.json",
+      "sha256": "097f858333b7d1f96c270ba35f57352721560900a8fac508321eae2be419a0aa",
+      "bytes": 791
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-02/completion.json",
+      "sha256": "ed1ce386221a6dd16110a2ca09de20e05f4ad5c1aa0d764fa7aa2909e277b0ec",
+      "bytes": 290
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-02/run.log",
+      "sha256": "9c44a754263c6863dff87c45a33aa48afd8e0ff6bb7f215c48808249a450c980",
+      "bytes": 38884
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-03/plan.json",
+      "sha256": "e8383b3674c04c3e3d1b03333189c67a3130f53f0f33e0fd6a0e49348c5d1454",
+      "bytes": 582
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-03/receipt.json",
+      "sha256": "ee70851d5546c65256aace6aa1ff7155019d8d201639b4cbc2a85384ebbb117b",
+      "bytes": 2988
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-03/invocation.json",
+      "sha256": "6ca0d3a64b48e9bf1843d7d2206889b76a3d8af4c3f6586b580be0a4851510ba",
+      "bytes": 791
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-03/completion.json",
+      "sha256": "030c742348ec650e8ee3d6a3936e2a24b9d2a4cad13dce6ccc815bd5be720fe7",
+      "bytes": 289
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-03/run.log",
+      "sha256": "988859848090b98a92a214047b6e89215bac801f6688e710c6e8527a09583169",
+      "bytes": 37841
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-04/plan.json",
+      "sha256": "8f0121edd4469a04da1dd00ca0683cc2551426872959c9fc791a4575e019ea2f",
+      "bytes": 573
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-04/receipt.json",
+      "sha256": "edf3506dff985ef6d7ce386e3e182cef3fed032f8971aaaad62ba168a8e97d93",
+      "bytes": 2973
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-04/invocation.json",
+      "sha256": "205e7f28cf023935dfea31b2c6d7278b4c9e158dda7ea44b82fdfb74b4110e23",
+      "bytes": 791
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-04/completion.json",
+      "sha256": "ce3f0d84b6be255cda93e4281cc66ad9786886fccaf1079c8a5545c8b0a13cb0",
+      "bytes": 290
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-04/run.log",
+      "sha256": "5549778eb8eedc83ce5a9e04c7e61835e031199717ddea62d15711d259bce2c4",
+      "bytes": 37378
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-05/plan.json",
+      "sha256": "d5855fa5da427f46b17ee42758b440b54fb9da98d47361d17830c7a04d0888f8",
+      "bytes": 544
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-05/receipt.json",
+      "sha256": "bd6e6ea1238581f6750094c1f7486bfbeb833d2416552a87738d305ff2979549",
+      "bytes": 2918
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-05/invocation.json",
+      "sha256": "1b489df6998b953453f99aaba40673da4451421cd541dbaae860881f6b347c90",
+      "bytes": 791
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-05/completion.json",
+      "sha256": "4aaa706f1400b61ae92b7c117a35ad839f1320c92f2b554e7c88999a5894c119",
+      "bytes": 290
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-05/run.log",
+      "sha256": "a2b07907a5619062b64d6a8fd103801ba43b86508caa04dc155d2246706ae8d3",
+      "bytes": 42941
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-06/plan.json",
+      "sha256": "b256661c53b11c18687a505d603da4547bbf645922ebed81545eb3d6948dd90f",
+      "bytes": 489
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-06/receipt.json",
+      "sha256": "86e988a4a2da2a84641ca43d72963ebfa2f3bb09db45688d71cefd6ca7a79c99",
+      "bytes": 2618
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-06/invocation.json",
+      "sha256": "8cd92af284b4a30e341cf21646bab64a64185a34c5bb67b15cd99e0738c1e81d",
+      "bytes": 791
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-06/completion.json",
+      "sha256": "802c30f2443e6854d3ee34620d73f17d84677fa9cdecfe0c99076ac9bc6d5239",
+      "bytes": 289
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-06/run.log",
+      "sha256": "b64490420ed305103029551e02f1bae1afbdcbd1b7e6819fd65c11684aac8af9",
+      "bytes": 30096
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-07/plan.json",
+      "sha256": "3ede947c792d0927df741e8415b872a019867845a7b47abfd16aecf94907a5eb",
+      "bytes": 501
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-07/receipt.json",
+      "sha256": "6efd4c53c5ccf39f7e075ab81c5a566813b32966ffc32479a8d49af596748415",
+      "bytes": 2644
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-07/invocation.json",
+      "sha256": "2bb791116a405a874b46dbf01aa710379ddef9dd9ba7f43615b12a0396e488ae",
+      "bytes": 791
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-07/completion.json",
+      "sha256": "bc698813c3f7585dc383fc03da1cf31c98430687cbd370d942b1141357302c9a",
+      "bytes": 290
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-07/run.log",
+      "sha256": "372c384f252d29f3d401d2d3f68439e416b72755980cdac23fa0c35074a75cdf",
+      "bytes": 40856
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-08/plan.json",
+      "sha256": "0e3e13d5a00c4448a5fb9bee3683104da838a1688b33f4207e83ca62f498633a",
+      "bytes": 483
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-08/receipt.json",
+      "sha256": "bdd72d694a677f0088210f2c018d601d65604b748446fbc239079457f92c49b2",
+      "bytes": 2605
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-08/invocation.json",
+      "sha256": "fea14ff9699ae9543be38652c32f31ccb106cef962a9d73f4897c74fb9d0cb80",
+      "bytes": 791
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-08/completion.json",
+      "sha256": "a66981e41819a50a87014b5c8c7daa4bd20005ab22ca6533365639b8885ff80d",
+      "bytes": 284
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-08/run.log",
+      "sha256": "c4b95507b24ee3170f8250ea9ac983b5aca003771cd18a53c10b11e7873dd332",
+      "bytes": 44275
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-09/plan.json",
+      "sha256": "5fe34369ee1aaf040465cc850e286b8b2fb0d828dc72a9130f59094cfda2eb91",
+      "bytes": 482
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-09/receipt.json",
+      "sha256": "4672ae00cca89622a1bb8754e5504499815c108ee7f5959a3e6199d83cfebde3",
+      "bytes": 2607
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-09/invocation.json",
+      "sha256": "519cce834752ac93bc5b9840e5e4b36d42df933a2d2fb93e394f3d8d010c2613",
+      "bytes": 791
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-09/completion.json",
+      "sha256": "3ad5f4536e4d469829ac3d4101d1596e3babe6308ca84d8631e4c7a80c3baa50",
+      "bytes": 284
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-09/run.log",
+      "sha256": "e9d3d53c1c2fe77e273f52d6c6a1e17fbff4f08c7772191071bc7073e4fd9285",
+      "bytes": 66354
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-10/plan.json",
+      "sha256": "8856719ff8d4c12840b1d5ac87dcc3ca1542d0940dd0529ff4b21e5c2081e334",
+      "bytes": 515
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-10/receipt.json",
+      "sha256": "ecad37782619e8a26583b29fa627e31576ef07b47a0b55f3589274c3feb0781a",
+      "bytes": 2673
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-10/invocation.json",
+      "sha256": "f8fe00552e0d1c85d4131eea40bbd609171f8d9e422518df0562e5fe23481929",
+      "bytes": 793
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-10/completion.json",
+      "sha256": "5dbeae0457d032bbd8d85b1bb10579a3b3c953e389c1e6e79278de45084c0fed",
+      "bytes": 291
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-10/run.log",
+      "sha256": "67188c69e8f7218dd7eeef663c82fd2acf64973d2094645c028733304acf7126",
+      "bytes": 112009
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-11/plan.json",
+      "sha256": "8dcab4eb5da3ed036eef1a6c14a4f9738c6199f7c3af2479e8ab1660dfac5207",
+      "bytes": 521
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-11/receipt.json",
+      "sha256": "b849aced5e3787271cdf675df063b7e72394f9440cb19b126fd1995823e75d62",
+      "bytes": 2681
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-11/invocation.json",
+      "sha256": "a57d3836ed25f1af56295caf1af9950688b55cf4c10ae6b7aeddba8787a2733c",
+      "bytes": 793
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-11/completion.json",
+      "sha256": "aedf3781b653bed368bb4e9bc146df4c42b2be98def6d41080e03f80fb3542f5",
+      "bytes": 286
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-11/run.log",
+      "sha256": "e8fd6d79f784ecf770fdf9b06d63d781bd0cc3f6d728b9a99081dc1821dc5b2f",
+      "bytes": 39438
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-12/plan.json",
+      "sha256": "f2b69b301c8f0d2d7d4d9cc013a3006e49efcd7ba5b201a9c997a76df426fcbb",
+      "bytes": 528
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-12/receipt.json",
+      "sha256": "e100d3e7954678b1370f28330af0dddba830f026aa574645754be48f35bb953b",
+      "bytes": 2696
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-12/invocation.json",
+      "sha256": "0075b97a5683912a7880bc5813450dca29ee4b1dff4791a7dd7419d382ceba93",
+      "bytes": 793
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-12/completion.json",
+      "sha256": "42d20206cb3342610380b89a51b90803e899b0282a0a8b2709cc84f069bb7ba2",
+      "bytes": 291
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-12/run.log",
+      "sha256": "3e43f39d2d91d62d6a7f9a6a2340be42e8e760ccf6c7e6a1615a93554036a401",
+      "bytes": 36020
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-13/plan.json",
+      "sha256": "0570bd645950c0b1bb4ac66fe2f1ef5444ca493c216792fed4d69e5532c500d5",
+      "bytes": 492
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-13/receipt.json",
+      "sha256": "27e81f3c03485cd1f4a8460337938fa307ccb028682626b162c73e99e61c3fcb",
+      "bytes": 2625
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-13/invocation.json",
+      "sha256": "21768342956b3dbb6bf10a7732a92d54171b375859b5a6b78a594718c461559b",
+      "bytes": 793
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-13/completion.json",
+      "sha256": "a39bc027b6ce8f450d5a14bed3bfc680111dac4a3b35aadf85f61f35353241b0",
+      "bytes": 291
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-13/run.log",
+      "sha256": "3970d20cfa20c9b61550bb60dbfa180dc0904f120127a39f1673ee340553ed9b",
+      "bytes": 161628
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-14/plan.json",
+      "sha256": "afe41fe74d0cff98ad660a259285b8d640aeb8284ac80418f50e7b47a114c498",
+      "bytes": 520
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-14/receipt.json",
+      "sha256": "54d80b6eeb123eb2abdcb540920bc173bdab446f23b9e3d86b11a57d31dfa6c8",
+      "bytes": 2679
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-14/invocation.json",
+      "sha256": "29eb7595e528cf256347e7080e72ad1e8adf37cb045f6ce7ca4ddadf56e3fc96",
+      "bytes": 793
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-14/completion.json",
+      "sha256": "d07408958ee4e2be9f28266de90c26419b61947ff4aea4477105cf6d5640a2e0",
+      "bytes": 291
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-14/run.log",
+      "sha256": "af3c9c2f49e199f5272a0e6ee1cde682ec652db6da6683f6b14e82bca10453ee",
+      "bytes": 69838
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-15/plan.json",
+      "sha256": "b545a2bb4b3fc52aa6cd1d25bb8253948d16a7f8d61c7db42b23adf562d7c5dd",
+      "bytes": 529
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-15/receipt.json",
+      "sha256": "3f16353ff5ba2bce98f33bb31a1f2aba800cd2e59eb0dfede2df8c282028ab31",
+      "bytes": 2695
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-15/invocation.json",
+      "sha256": "1068a577ae0ef6ddc61b69e1db47dacd483a01f6e6573ac6bbe4cb13647300eb",
+      "bytes": 793
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-15/completion.json",
+      "sha256": "9f9b5f107349455c17d28b92969064eb3628f38b471adc0ff03fa2a82d29eaba",
+      "bytes": 290
+    },
+    {
+      "path": "local-powershell/sharded-16/shard-15/run.log",
+      "sha256": "7cee8c12ed7a0847948a43b1806116be7681c04b868cedab177768dcb563c37f",
+      "bytes": 32573
+    },
+    {
+      "path": "final-receipt-set-validation.json",
+      "sha256": "70a11d4d6f87f128e7bbb450f79bd757c26df02ccc1da62795705c4be312a700",
+      "bytes": 8423
+    },
+    {
+      "path": "validate-receipt-set.py",
+      "sha256": "2b63e35d97db2f6ad3d3f088464a2643a4c1e35fc0be4da3eb3f24b277b60a43",
+      "bytes": 3160
+    },
+    {
+      "path": "run-shards.py",
+      "sha256": "737e5a733d250aa92ee6a66cc9d057b69a5a5ccf129905d3b67e27db8b00abaf",
+      "bytes": 4339
+    },
+    {
+      "path": "sharding-assessment.json",
+      "sha256": "42389903739fedb960ae7303615f968f9505d99d5118442135e02f25fae8a9fc",
+      "bytes": 2324
+    }
+  ]
+}

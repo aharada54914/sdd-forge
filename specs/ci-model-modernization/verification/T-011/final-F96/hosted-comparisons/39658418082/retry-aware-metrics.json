@@ -1,0 +1,753 @@
+{
+  "run_id": 39658418082,
+  "api_head_sha": "0fd45bffd20f8aa0163918e6fb2e0ef0db2a7fb2",
+  "tested_revision": "0fd45bffd20f8aa0163918e6fb2e0ef0db2a7fb2",
+  "final_attempt": 2,
+  "method": "Original collector execution_signature deduplicates copied observations; source_job identifies accepted execution origins. Durations sum actual distinct observed executions, not wall-clock or billed time. Run elapsed includes queue/retry delay.",
+  "collector_sha256": "2705fb54c1cdaf5a0bfcadffe700153e401f0be240db40293dd60e9a72ddb6c1",
+  "job_page_inputs": [
+    {
+      "path": "observations/jobs/1-1.json",
+      "sha256": "9fab8749b7e715aa5de4d8c7ec5ef7f58cb1807361142dc5e79b1224df327d9d"
+    },
+    {
+      "path": "observations/jobs/2-1.json",
+      "sha256": "d2ab752bc222739e6a257a850a2e02682b4cd82550c12bff128ebf0a0163dbd6"
+    }
+  ],
+  "distinct_observed_executions": [
+    {
+      "job_id": 119424741622,
+      "name": "A9 advisory activation detection",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T19:05:02Z",
+      "completed_at": "2026-10-21T19:05:05Z",
+      "seconds": 3.0
+    },
+    {
+      "job_id": 119424742275,
+      "name": "ci-plan",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T19:10:27Z",
+      "completed_at": "2026-10-21T19:10:46Z",
+      "seconds": 19.0
+    },
+    {
+      "job_id": 119427913324,
+      "name": "complete POSIX regression inventory",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T20:17:49Z",
+      "completed_at": "2026-10-21T20:56:55Z",
+      "seconds": 2346.0
+    },
+    {
+      "job_id": 119427913419,
+      "name": "test (ubuntu-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T20:24:14Z",
+      "completed_at": "2026-10-21T20:47:07Z",
+      "seconds": 1373.0
+    },
+    {
+      "job_id": 119427913420,
+      "name": "test (windows-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:12:25Z",
+      "completed_at": "2026-10-21T21:28:36Z",
+      "seconds": 971.0
+    },
+    {
+      "job_id": 119427913487,
+      "name": "version-gates (ubuntu-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:01:36Z",
+      "completed_at": "2026-10-21T21:22:36Z",
+      "seconds": 1260.0
+    },
+    {
+      "job_id": 119427913493,
+      "name": "cli-hook-enforcement (ubuntu-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T20:23:52Z",
+      "completed_at": "2026-10-21T20:24:25Z",
+      "seconds": 33.0
+    },
+    {
+      "job_id": 119427913529,
+      "name": "installers (windows-latest / core)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:07:56Z",
+      "completed_at": "2026-10-21T21:15:55Z",
+      "seconds": 479.0
+    },
+    {
+      "job_id": 119427913532,
+      "name": "ci-mcp-tests (ubuntu-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T20:56:54Z",
+      "completed_at": "2026-10-21T20:57:18Z",
+      "seconds": 24.0
+    },
+    {
+      "job_id": 119427913553,
+      "name": "mcp-tests (windows-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T20:35:30Z",
+      "completed_at": "2026-10-21T20:36:34Z",
+      "seconds": 64.0
+    },
+    {
+      "job_id": 119427913558,
+      "name": "installers (windows-latest / mcp)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T20:51:44Z",
+      "completed_at": "2026-10-21T20:53:24Z",
+      "seconds": 100.0
+    },
+    {
+      "job_id": 119427913561,
+      "name": "installers (ubuntu-latest / all)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T20:58:30Z",
+      "completed_at": "2026-10-21T21:03:17Z",
+      "seconds": 287.0
+    },
+    {
+      "job_id": 119427913572,
+      "name": "POSIX unwired shard (3)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:05:55Z",
+      "completed_at": "2026-10-21T21:17:07Z",
+      "seconds": 672.0
+    },
+    {
+      "job_id": 119427913573,
+      "name": "mcp-tests (ubuntu-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T20:40:18Z",
+      "completed_at": "2026-10-21T20:40:55Z",
+      "seconds": 37.0
+    },
+    {
+      "job_id": 119427913595,
+      "name": "installers (windows-latest / clients)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T20:42:32Z",
+      "completed_at": "2026-10-21T20:44:22Z",
+      "seconds": 110.0
+    },
+    {
+      "job_id": 119427913601,
+      "name": "cli-hook-enforcement (windows-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:05:24Z",
+      "completed_at": "2026-10-21T21:06:26Z",
+      "seconds": 62.0
+    },
+    {
+      "job_id": 119427913610,
+      "name": "cli-hook-enforcement (macos-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T22:05:47Z",
+      "completed_at": "2026-10-21T22:06:26Z",
+      "seconds": 39.0
+    },
+    {
+      "job_id": 119427913612,
+      "name": "version-gates-windows-bump (bash)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T20:57:25Z",
+      "completed_at": "2026-10-21T21:01:01Z",
+      "seconds": 216.0
+    },
+    {
+      "job_id": 119427913626,
+      "name": "loops-routing (windows-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:09:39Z",
+      "completed_at": "2026-10-21T21:16:13Z",
+      "seconds": 394.0
+    },
+    {
+      "job_id": 119427913628,
+      "name": "installers (windows-latest / context)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:19:16Z",
+      "completed_at": "2026-10-21T21:22:59Z",
+      "seconds": 223.0
+    },
+    {
+      "job_id": 119427913631,
+      "name": "version-gates (macos-latest)",
+      "attempt": 1,
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T20:19:41Z",
+      "completed_at": "2026-10-21T21:04:56Z",
+      "seconds": 2715.0
+    },
+    {
+      "job_id": 119517314298,
+      "name": "version-gates (macos-latest)",
+      "attempt": 2,
+      "conclusion": "success",
+      "started_at": "2026-10-21T22:17:58Z",
+      "completed_at": "2026-10-21T22:46:08Z",
+      "seconds": 1690.0
+    },
+    {
+      "job_id": 119427913653,
+      "name": "test-windows-heavy (gates)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:04:26Z",
+      "completed_at": "2026-10-21T21:18:06Z",
+      "seconds": 820.0
+    },
+    {
+      "job_id": 119427913666,
+      "name": "ci-mcp-tests (windows-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T20:47:52Z",
+      "completed_at": "2026-10-21T20:48:41Z",
+      "seconds": 49.0
+    },
+    {
+      "job_id": 119427913679,
+      "name": "installers (macos-latest / all)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T22:03:43Z",
+      "completed_at": "2026-10-21T22:14:01Z",
+      "seconds": 618.0
+    },
+    {
+      "job_id": 119427913683,
+      "name": "POSIX unwired shard (0)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:15:46Z",
+      "completed_at": "2026-10-21T21:26:30Z",
+      "seconds": 644.0
+    },
+    {
+      "job_id": 119427913684,
+      "name": "version-gates-windows-lanes (lite)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:00:12Z",
+      "completed_at": "2026-10-21T21:01:33Z",
+      "seconds": 81.0
+    },
+    {
+      "job_id": 119427913703,
+      "name": "mcp-tests (macos-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:33:56Z",
+      "completed_at": "2026-10-21T21:35:19Z",
+      "seconds": 83.0
+    },
+    {
+      "job_id": 119427913741,
+      "name": "cloud-native (macos-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T20:35:10Z",
+      "completed_at": "2026-10-21T20:48:39Z",
+      "seconds": 809.0
+    },
+    {
+      "job_id": 119427913768,
+      "name": "POSIX unwired shard (2)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:17:09Z",
+      "completed_at": "2026-10-21T21:26:48Z",
+      "seconds": 579.0
+    },
+    {
+      "job_id": 119427913774,
+      "name": "version-gates-windows-lanes (ownership)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:27:51Z",
+      "completed_at": "2026-10-21T21:30:39Z",
+      "seconds": 168.0
+    },
+    {
+      "job_id": 119427913816,
+      "name": "ci-mcp-tests (macos-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:41:31Z",
+      "completed_at": "2026-10-21T21:42:04Z",
+      "seconds": 33.0
+    },
+    {
+      "job_id": 119427913818,
+      "name": "version-gates-windows-lanes (capability)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:17:02Z",
+      "completed_at": "2026-10-21T21:20:37Z",
+      "seconds": 215.0
+    },
+    {
+      "job_id": 119427913841,
+      "name": "cloud-native (windows-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:30:50Z",
+      "completed_at": "2026-10-21T21:36:29Z",
+      "seconds": 339.0
+    },
+    {
+      "job_id": 119427913912,
+      "name": "local-env-mcp-tests (windows-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:22:39Z",
+      "completed_at": "2026-10-21T21:23:43Z",
+      "seconds": 64.0
+    },
+    {
+      "job_id": 119427913922,
+      "name": "local-env-mcp-tests (ubuntu-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:19:39Z",
+      "completed_at": "2026-10-21T21:20:07Z",
+      "seconds": 28.0
+    },
+    {
+      "job_id": 119427913979,
+      "name": "cloud-native (ubuntu-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:17:27Z",
+      "completed_at": "2026-10-21T21:27:47Z",
+      "seconds": 620.0
+    },
+    {
+      "job_id": 119427913981,
+      "name": "POSIX unwired shard (1)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:20:10Z",
+      "completed_at": "2026-10-21T21:31:34Z",
+      "seconds": 684.0
+    },
+    {
+      "job_id": 119427913987,
+      "name": "local-env-mcp-tests (macos-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T22:06:29Z",
+      "completed_at": "2026-10-21T22:06:55Z",
+      "seconds": 26.0
+    },
+    {
+      "job_id": 119427913994,
+      "name": "loops-routing (ubuntu-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:08:45Z",
+      "completed_at": "2026-10-21T21:11:47Z",
+      "seconds": 182.0
+    },
+    {
+      "job_id": 119427914005,
+      "name": "version-gates-windows-bump (powershell)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:31:37Z",
+      "completed_at": "2026-10-21T21:35:17Z",
+      "seconds": 220.0
+    },
+    {
+      "job_id": 119427914019,
+      "name": "test (macos-latest)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:44:11Z",
+      "completed_at": "2026-10-21T22:12:29Z",
+      "seconds": 1698.0
+    },
+    {
+      "job_id": 119427914080,
+      "name": "test-windows-heavy (a9)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:20:30Z",
+      "completed_at": "2026-10-21T21:36:49Z",
+      "seconds": 979.0
+    },
+    {
+      "job_id": 119427914094,
+      "name": "test-windows-heavy (compatibility)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:31:59Z",
+      "completed_at": "2026-10-21T21:44:21Z",
+      "seconds": 742.0
+    },
+    {
+      "job_id": 119427914242,
+      "name": "version-gates-windows-lanes (governance)",
+      "attempt": 1,
+      "conclusion": "success",
+      "started_at": "2026-10-21T21:31:48Z",
+      "completed_at": "2026-10-21T21:35:58Z",
+      "seconds": 250.0
+    },
+    {
+      "job_id": 119516613583,
+      "name": "required-checks",
+      "attempt": 1,
+      "conclusion": "failure",
+      "started_at": "2026-10-21T22:14:05Z",
+      "completed_at": "2026-10-21T22:14:36Z",
+      "seconds": 31.0
+    },
+    {
+      "job_id": 119529719951,
+      "name": "required-checks",
+      "attempt": 2,
+      "conclusion": "success",
+      "started_at": "2026-10-21T22:46:11Z",
+      "completed_at": "2026-10-21T22:46:40Z",
+      "seconds": 29.0
+    }
+  ],
+  "accepted_execution_bindings": [
+    {
+      "name": "A9 advisory activation detection",
+      "latest_observation_job_id": 119517364382,
+      "source_execution_job_id": 119424741622,
+      "source_attempt": 1
+    },
+    {
+      "name": "ci-plan",
+      "latest_observation_job_id": 119517313775,
+      "source_execution_job_id": 119424742275,
+      "source_attempt": 1
+    },
+    {
+      "name": "complete POSIX regression inventory",
+      "latest_observation_job_id": 119517315315,
+      "source_execution_job_id": 119427913324,
+      "source_attempt": 1
+    },
+    {
+      "name": "test (ubuntu-latest)",
+      "latest_observation_job_id": 119517315219,
+      "source_execution_job_id": 119427913419,
+      "source_attempt": 1
+    },
+    {
+      "name": "test (windows-latest)",
+      "latest_observation_job_id": 119517315099,
+      "source_execution_job_id": 119427913420,
+      "source_attempt": 1
+    },
+    {
+      "name": "version-gates (ubuntu-latest)",
+      "latest_observation_job_id": 119517314351,
+      "source_execution_job_id": 119427913487,
+      "source_attempt": 1
+    },
+    {
+      "name": "cli-hook-enforcement (ubuntu-latest)",
+      "latest_observation_job_id": 119517315357,
+      "source_execution_job_id": 119427913493,
+      "source_attempt": 1
+    },
+    {
+      "name": "installers (windows-latest / core)",
+      "latest_observation_job_id": 119517315107,
+      "source_execution_job_id": 119427913529,
+      "source_attempt": 1
+    },
+    {
+      "name": "ci-mcp-tests (ubuntu-latest)",
+      "latest_observation_job_id": 119517315221,
+      "source_execution_job_id": 119427913532,
+      "source_attempt": 1
+    },
+    {
+      "name": "mcp-tests (windows-latest)",
+      "latest_observation_job_id": 119517315307,
+      "source_execution_job_id": 119427913553,
+      "source_attempt": 1
+    },
+    {
+      "name": "installers (windows-latest / mcp)",
+      "latest_observation_job_id": 119517314967,
+      "source_execution_job_id": 119427913558,
+      "source_attempt": 1
+    },
+    {
+      "name": "installers (ubuntu-latest / all)",
+      "latest_observation_job_id": 119517316299,
+      "source_execution_job_id": 119427913561,
+      "source_attempt": 1
+    },
+    {
+      "name": "POSIX unwired shard (3)",
+      "latest_observation_job_id": 119517314990,
+      "source_execution_job_id": 119427913572,
+      "source_attempt": 1
+    },
+    {
+      "name": "mcp-tests (ubuntu-latest)",
+      "latest_observation_job_id": 119517315656,
+      "source_execution_job_id": 119427913573,
+      "source_attempt": 1
+    },
+    {
+      "name": "installers (windows-latest / clients)",
+      "latest_observation_job_id": 119517314782,
+      "source_execution_job_id": 119427913595,
+      "source_attempt": 1
+    },
+    {
+      "name": "cli-hook-enforcement (windows-latest)",
+      "latest_observation_job_id": 119517315297,
+      "source_execution_job_id": 119427913601,
+      "source_attempt": 1
+    },
+    {
+      "name": "cli-hook-enforcement (macos-latest)",
+      "latest_observation_job_id": 119517314830,
+      "source_execution_job_id": 119427913610,
+      "source_attempt": 1
+    },
+    {
+      "name": "version-gates-windows-bump (bash)",
+      "latest_observation_job_id": 119517315257,
+      "source_execution_job_id": 119427913612,
+      "source_attempt": 1
+    },
+    {
+      "name": "loops-routing (windows-latest)",
+      "latest_observation_job_id": 119517315230,
+      "source_execution_job_id": 119427913626,
+      "source_attempt": 1
+    },
+    {
+      "name": "installers (windows-latest / context)",
+      "latest_observation_job_id": 119517315585,
+      "source_execution_job_id": 119427913628,
+      "source_attempt": 1
+    },
+    {
+      "name": "version-gates (macos-latest)",
+      "latest_observation_job_id": 119517314298,
+      "source_execution_job_id": 119517314298,
+      "source_attempt": 2
+    },
+    {
+      "name": "test-windows-heavy (gates)",
+      "latest_observation_job_id": 119517315252,
+      "source_execution_job_id": 119427913653,
+      "source_attempt": 1
+    },
+    {
+      "name": "ci-mcp-tests (windows-latest)",
+      "latest_observation_job_id": 119517317962,
+      "source_execution_job_id": 119427913666,
+      "source_attempt": 1
+    },
+    {
+      "name": "installers (macos-latest / all)",
+      "latest_observation_job_id": 119517316351,
+      "source_execution_job_id": 119427913679,
+      "source_attempt": 1
+    },
+    {
+      "name": "POSIX unwired shard (0)",
+      "latest_observation_job_id": 119517315181,
+      "source_execution_job_id": 119427913683,
+      "source_attempt": 1
+    },
+    {
+      "name": "version-gates-windows-lanes (lite)",
+      "latest_observation_job_id": 119517316175,
+      "source_execution_job_id": 119427913684,
+      "source_attempt": 1
+    },
+    {
+      "name": "mcp-tests (macos-latest)",
+      "latest_observation_job_id": 119517315914,
+      "source_execution_job_id": 119427913703,
+      "source_attempt": 1
+    },
+    {
+      "name": "cloud-native (macos-latest)",
+      "latest_observation_job_id": 119517315052,
+      "source_execution_job_id": 119427913741,
+      "source_attempt": 1
+    },
+    {
+      "name": "POSIX unwired shard (2)",
+      "latest_observation_job_id": 119517315547,
+      "source_execution_job_id": 119427913768,
+      "source_attempt": 1
+    },
+    {
+      "name": "version-gates-windows-lanes (ownership)",
+      "latest_observation_job_id": 119517315231,
+      "source_execution_job_id": 119427913774,
+      "source_attempt": 1
+    },
+    {
+      "name": "ci-mcp-tests (macos-latest)",
+      "latest_observation_job_id": 119517315409,
+      "source_execution_job_id": 119427913816,
+      "source_attempt": 1
+    },
+    {
+      "name": "version-gates-windows-lanes (capability)",
+      "latest_observation_job_id": 119517315512,
+      "source_execution_job_id": 119427913818,
+      "source_attempt": 1
+    },
+    {
+      "name": "cloud-native (windows-latest)",
+      "latest_observation_job_id": 119517315083,
+      "source_execution_job_id": 119427913841,
+      "source_attempt": 1
+    },
+    {
+      "name": "local-env-mcp-tests (windows-latest)",
+      "latest_observation_job_id": 119517315093,
+      "source_execution_job_id": 119427913912,
+      "source_attempt": 1
+    },
+    {
+      "name": "local-env-mcp-tests (ubuntu-latest)",
+      "latest_observation_job_id": 119517315341,
+      "source_execution_job_id": 119427913922,
+      "source_attempt": 1
+    },
+    {
+      "name": "cloud-native (ubuntu-latest)",
+      "latest_observation_job_id": 119517315112,
+      "source_execution_job_id": 119427913979,
+      "source_attempt": 1
+    },
+    {
+      "name": "POSIX unwired shard (1)",
+      "latest_observation_job_id": 119517315159,
+      "source_execution_job_id": 119427913981,
+      "source_attempt": 1
+    },
+    {
+      "name": "local-env-mcp-tests (macos-latest)",
+      "latest_observation_job_id": 119517314854,
+      "source_execution_job_id": 119427913987,
+      "source_attempt": 1
+    },
+    {
+      "name": "loops-routing (ubuntu-latest)",
+      "latest_observation_job_id": 119517315839,
+      "source_execution_job_id": 119427913994,
+      "source_attempt": 1
+    },
+    {
+      "name": "version-gates-windows-bump (powershell)",
+      "latest_observation_job_id": 119517315015,
+      "source_execution_job_id": 119427914005,
+      "source_attempt": 1
+    },
+    {
+      "name": "test (macos-latest)",
+      "latest_observation_job_id": 119517314996,
+      "source_execution_job_id": 119427914019,
+      "source_attempt": 1
+    },
+    {
+      "name": "test-windows-heavy (a9)",
+      "latest_observation_job_id": 119517315696,
+      "source_execution_job_id": 119427914080,
+      "source_attempt": 1
+    },
+    {
+      "name": "test-windows-heavy (compatibility)",
+      "latest_observation_job_id": 119517314810,
+      "source_execution_job_id": 119427914094,
+      "source_attempt": 1
+    },
+    {
+      "name": "version-gates-windows-lanes (governance)",
+      "latest_observation_job_id": 119517315098,
+      "source_execution_job_id": 119427914242,
+      "source_attempt": 1
+    },
+    {
+      "name": "required-checks",
+      "latest_observation_job_id": 119529719951,
+      "source_execution_job_id": 119529719951,
+      "source_attempt": 2
+    }
+  ],
+  "retry_overhead_executions": [
+    {
+      "job_id": 119427913631,
+      "name": "version-gates (macos-latest)",
+      "attempt": 1,
+      "conclusion": "cancelled",
+      "started_at": "2026-10-21T20:19:41Z",
+      "completed_at": "2026-10-21T21:04:56Z",
+      "seconds": 2715.0
+    },
+    {
+      "job_id": 119516613583,
+      "name": "required-checks",
+      "attempt": 1,
+      "conclusion": "failure",
+      "started_at": "2026-10-21T22:14:05Z",
+      "completed_at": "2026-10-21T22:14:36Z",
+      "seconds": 31.0
+    }
+  ],
+  "all_attempt_execution_seconds": 23108.0,
+  "accepted_chain_execution_seconds": 20362.0,
+  "retry_overhead_execution_seconds": 2746.0,
+  "run_created_to_final_update_seconds": 13327.0,
+  "cache_observation": "unknown",
+  "causal_savings_claim": false,
+  "all_attempt_observed_span": {
+    "start": "2026-10-21T19:05:02+00:00",
+    "end": "2026-10-21T22:46:40+00:00",
+    "seconds": 13298.0,
+    "note": "Earliest actual execution start to final actual execution end; includes intervening queues and parallel overlap, not sum or billing."
+  },
+  "accepted_chain_observed_span": {
+    "start": "2026-10-21T19:05:02+00:00",
+    "end": "2026-10-21T22:46:40+00:00",
+    "seconds": 13298.0,
+    "note": "Earliest actual execution start to final actual execution end; includes intervening queues and parallel overlap, not sum or billing."
+  }
+}

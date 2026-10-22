@@ -1,0 +1,16 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-powershell",
+  "selected": [
+    "tests/cloud-orchestration-execution.tests.py",
+    "tests/run-all-python.tests.ps1",
+    "tests/task-prior-pass-receipt.tests.ps1",
+    "tests/loop-driver.tests.ps1",
+    "tests/bump-version-gate.tests.ps1",
+    "tests/human-copy-mirror-freshness.tests.ps1",
+    "tests/domain-review-finalize.tests.py",
+    "tests/quality-nontty-transport.tests.py"
+  ],
+  "shard_index": 6,
+  "shard_count": 16
+}

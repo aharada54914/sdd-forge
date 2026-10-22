@@ -1,0 +1,131 @@
+{
+  "schema": "exact-F-publication-receipt/v1",
+  "observed_at": "2026-10-21T23:00:14.392752+00:00",
+  "phase": "after",
+  "candidate_F": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "candidate_tree": "4eaf764badc534b86dcb76c26ee5d3d95cc264a0",
+  "tag": "v1.20.0",
+  "historical_inventory": {
+    "path": "/workspace/t011-release-finalization-prep/remote-tags-before.txt",
+    "sha256": "bf57bfa3d59af045664ebd6bfdf568a4c55690d37a6c3c355baf3bcdbbe303c9",
+    "count": 5
+  },
+  "remote_inventory": {
+    "path": "remote-tags.txt",
+    "sha256": "f0f0025305a662cd992e57fbd6605565eeabf14678b40a845434ebd0448a777d",
+    "count": 7
+  },
+  "changed_or_missing_historical_refs": {},
+  "new_refs": {
+    "refs/tags/v1.20.0": "2df90fa333df31a79f099cc2125e816e5710d9ec",
+    "refs/tags/v1.20.0^{}": "96afb59fcceab422024d5f2d1abc1b478d7058cf"
+  },
+  "checks": {
+    "old_five_refs_unchanged": true,
+    "local_tag_is_annotated": true,
+    "local_tag_points_exact_F": true,
+    "local_tag_name_matches": true,
+    "remote_tag_object_matches_local": true,
+    "remote_peeled_commit_matches_F": true,
+    "only_expected_new_refs": true
+  },
+  "tag_metadata": {
+    "tag_object": "2df90fa333df31a79f099cc2125e816e5710d9ec",
+    "peeled_commit": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+    "tag_object_bytes_sha256": "cc154d32b8e1d5269812c13226805bc43867e1452c39f0140bd3cb715d934e96",
+    "tag_object_path": "annotated-tag-object.txt",
+    "tagger_metadata_policy": "Original public Git tag provenance retained; no authentication material collected."
+  },
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "96afb59fcceab422024d5f2d1abc1b478d7058cf^{commit}"
+      ],
+      "started_at": "2026-10-21T23:00:14.037560+00:00",
+      "finished_at": "2026-10-21T23:00:14.039301+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "37d7783d25add41f5a638e407e7982bf33b201cbf9b0c468d13a4038cdbdae4c",
+      "stderr_bytes": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "96afb59fcceab422024d5f2d1abc1b478d7058cf^{tree}"
+      ],
+      "started_at": "2026-10-21T23:00:14.039312+00:00",
+      "finished_at": "2026-10-21T23:00:14.041364+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "8f0fe8a960f4bdca054cce34b42c3862b2b8d03e50ef6f532da3120f0c63e45c",
+      "stderr_bytes": 0
+    },
+    {
+      "argv": [
+        "git",
+        "ls-remote",
+        "--tags",
+        "origin"
+      ],
+      "started_at": "2026-10-21T23:00:14.041373+00:00",
+      "finished_at": "2026-10-21T23:00:14.386324+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "f0f0025305a662cd992e57fbd6605565eeabf14678b40a845434ebd0448a777d",
+      "stderr_bytes": 0
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-t",
+        "refs/tags/v1.20.0"
+      ],
+      "started_at": "2026-10-21T23:00:14.386630+00:00",
+      "finished_at": "2026-10-21T23:00:14.388350+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "ccda8f9a2cb0295182b9a99e4c8270badcc89525850e1e737a294fb426363ac9",
+      "stderr_bytes": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/tags/v1.20.0"
+      ],
+      "started_at": "2026-10-21T23:00:14.388360+00:00",
+      "finished_at": "2026-10-21T23:00:14.389889+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "c893caa5f013446731d840c139a7b02d833d8a2b81a70b4d00ffe2acd754d028",
+      "stderr_bytes": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/tags/v1.20.0^{commit}"
+      ],
+      "started_at": "2026-10-21T23:00:14.389898+00:00",
+      "finished_at": "2026-10-21T23:00:14.391313+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "37d7783d25add41f5a638e407e7982bf33b201cbf9b0c468d13a4038cdbdae4c",
+      "stderr_bytes": 0
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "tag",
+        "refs/tags/v1.20.0"
+      ],
+      "started_at": "2026-10-21T23:00:14.391323+00:00",
+      "finished_at": "2026-10-21T23:00:14.392647+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "cc154d32b8e1d5269812c13226805bc43867e1452c39f0140bd3cb715d934e96",
+      "stderr_bytes": 0
+    }
+  ],
+  "public_metadata_only": true,
+  "publication_performed_by_this_collector": false,
+  "status": "PASS"
+}

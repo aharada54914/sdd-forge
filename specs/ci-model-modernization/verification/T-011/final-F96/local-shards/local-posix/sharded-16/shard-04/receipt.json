@@ -1,0 +1,22 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-posix",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/facet-manifest-parity.tests.sh"
+  ],
+  "results": [
+    {
+      "suite": "tests/facet-manifest-parity.tests.sh",
+      "source_sha256": "945f2335a0af105e1dab98591d6aeb5feb6f2fa7ecd9019b2ee402375f7a0cde",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 64.441367
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

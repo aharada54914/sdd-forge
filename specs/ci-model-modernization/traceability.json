@@ -1,6 +1,6 @@
 {
   "feature": "ci-model-modernization",
-  "scope": "Incremental task-scoped evidence addendum; no claim that all feature acceptance is complete. Frozen traceability.md retains canonical assignment.",
+  "scope": "Task-scoped evidence addendum. Current completion is recorded in tasks.md and the scoped evidence rows below. Frozen traceability.md preserves the reviewed assignment and its historical status cells: the original task-review digest pins mixed lifecycle states, so changing those cells is not accepted by the existing normalization rule. No unexecuted merge_group or live-cloud validation is claimed.",
   "links": [
     {
       "req": "REQ-001",
@@ -179,7 +179,8 @@
         "TEST-026: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
         "TEST-064: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
         "TEST-065: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
-        "TEST-066: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py"
+        "TEST-066: task-owned planner acceptance in tests/verification-ci-plan.tests.py and legacy shadow tests/verification-impact.tests.py",
+        "TEST-027: T011 assigned current acceptance evidence; exact ownership verified in acceptance-tests.md and tasks.md"
       ],
       "evidence": [
         "specs/ci-model-modernization/verification/T-001/attempt-1/final-command-1.txt",
@@ -215,9 +216,15 @@
         "specs/ci-model-modernization/verification/T-001/ci-integration-fix/implementation-report.md",
         "specs/ci-model-modernization/verification/T-001/ci-integration-fix/verification-summary.json",
         "specs/ci-model-modernization/verification/T-001/ci-integration-fix/schema-source-results.json",
-        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/rollback.json"
+        "specs/ci-model-modernization/verification/T-001/ci-integration-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json",
+        "reports/implementation/ci-model-modernization/T-011.md",
+        "specs/ci-model-modernization/verification/T-011.contract.json",
+        "reports/quality-gate/20261021-ci-model-modernization-T-011-cycle-1.md",
+        "specs/ci-model-modernization/verification/T-011.evidence.json"
       ],
-      "scope": "T-001 planning/obligation/proof protocol only; real execution aggregation, wiring and hosted rollout remain downstream."
+      "scope": "T-001 planning/obligation/proof protocol only; real execution aggregation, wiring and hosted rollout remain downstream. T011 assigned full-obligation parity Done:32 real registered shards cover204 POSIX/134 Linux PowerShell; exact-F hosted449 result accepted. Independent final T011 implementation QA PASS (0 Critical, 0 Major, 0 Minor); actual quality report reports/quality-gate/20261021-ci-model-modernization-T-011-cycle-1.md and generated/checked bundle specs/ci-model-modernization/verification/T-011.evidence.json."
     },
     {
       "req": "REQ-005",
@@ -274,7 +281,9 @@
         "AC-004"
       ],
       "tests": [
-        "TEST-018: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py"
+        "TEST-018: T003 workflow/catalog integration, actual planner-shell/C CLI and dependency integrity acceptance in verification-catalog.tests.py/verification-ci.tests.py/required-checks-posix.tests.py",
+        "TEST-016: T011 assigned current acceptance evidence; exact ownership verified in acceptance-tests.md and tasks.md",
+        "TEST-017: T011 assigned current acceptance evidence; exact ownership verified in acceptance-tests.md and tasks.md"
       ],
       "evidence": [
         "reports/implementation/ci-model-modernization/T-003.md",
@@ -286,9 +295,14 @@
         "specs/ci-model-modernization/verification/T-003/cycle1-fix/implementation-report.md",
         "specs/ci-model-modernization/verification/T-003/cycle1-fix/final-verification-summary.json",
         "specs/ci-model-modernization/verification/T-003/cycle1-fix/final-plan-schema-results.json",
-        "specs/ci-model-modernization/verification/T-003/cycle1-fix/rollback-final-results.json"
+        "specs/ci-model-modernization/verification/T-003/cycle1-fix/rollback-final-results.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json",
+        "reports/implementation/ci-model-modernization/T-011.md",
+        "specs/ci-model-modernization/verification/T-011.contract.json",
+        "reports/quality-gate/20261021-ci-model-modernization-T-011-cycle-1.md",
+        "specs/ci-model-modernization/verification/T-011.evidence.json"
       ],
-      "scope": "T003 deterministic workflow integration only; real hosted/native/cache/performance and category activation remain downstream T011."
+      "scope": "T003 deterministic workflow integration only; real hosted/native/cache/performance and category activation remain downstream T011. T011 assigned hosted/native context and genuine unrelated-heavy omission scope Done; actual README443/6 and accepted full comparison. Independent final T011 implementation QA PASS (0 Critical, 0 Major, 0 Minor); actual quality report reports/quality-gate/20261021-ci-model-modernization-T-011-cycle-1.md and generated/checked bundle specs/ci-model-modernization/verification/T-011.evidence.json."
     },
     {
       "req": "REQ-007",
@@ -670,6 +684,74 @@
         "reports/quality-gate/20261020-ci-model-modernization-T-009-cycle-1.md",
         "specs/ci-model-modernization/verification/T-009.evidence.json"
       ]
+    },
+    {
+      "req": "REQ-009",
+      "acs": [
+        "AC-009"
+      ],
+      "tests": [
+        "TEST-034: T011 assigned current acceptance evidence; exact ownership verified in acceptance-tests.md and tasks.md",
+        "TEST-035: T011 assigned current acceptance evidence; exact ownership verified in acceptance-tests.md and tasks.md",
+        "TEST-036: T011 assigned current acceptance evidence; exact ownership verified in acceptance-tests.md and tasks.md",
+        "TEST-075: T011 assigned current acceptance evidence; exact ownership verified in acceptance-tests.md and tasks.md",
+        "TEST-076: T011 assigned current acceptance evidence; exact ownership verified in acceptance-tests.md and tasks.md",
+        "TEST-077: T011 assigned current acceptance evidence; exact ownership verified in acceptance-tests.md and tasks.md"
+      ],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json",
+        "reports/implementation/ci-model-modernization/T-011.md",
+        "specs/ci-model-modernization/verification/T-011.contract.json",
+        "reports/quality-gate/20261021-ci-model-modernization-T-011-cycle-1.md",
+        "specs/ci-model-modernization/verification/T-011.evidence.json"
+      ],
+      "scope": "T011 assigned four representative normal/full comparisons Done; README443/6, MCP/cloud unknown-path449 and shared449 remain conservative. Native/manual/PR revisions and retry/cache measurements stay distinct; actual merge_group/live cloud unexecuted. Independent final T011 implementation QA PASS (0 Critical, 0 Major, 0 Minor); actual quality report reports/quality-gate/20261021-ci-model-modernization-T-011-cycle-1.md and generated/checked bundle specs/ci-model-modernization/verification/T-011.evidence.json."
+    },
+    {
+      "req": "REQ-010",
+      "acs": [
+        "AC-010"
+      ],
+      "tests": [
+        "TEST-037: T011 assigned current acceptance evidence; exact ownership verified in acceptance-tests.md and tasks.md",
+        "TEST-038: T011 assigned current acceptance evidence; exact ownership verified in acceptance-tests.md and tasks.md"
+      ],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-011/final-F96/distribution/final-eight-path-summary.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/publication/final-after/receipt.json",
+        "specs/ci-model-modernization/verification/T-011/docs-application/application-receipt.json",
+        "specs/ci-model-modernization/verification/T-011/docs-application/scope-audit.json",
+        "reports/implementation/ci-model-modernization/T-011.md",
+        "specs/ci-model-modernization/verification/T-011.contract.json",
+        "reports/quality-gate/20261021-ci-model-modernization-T-011-cycle-1.md",
+        "specs/ci-model-modernization/verification/T-011.evidence.json"
+      ],
+      "scope": "T011 operator documentation and exact-tested immutable release scope Done; docs125/0missing and annotatedv1.20.0→F96 with old5refs unchanged. Independent final T011 implementation QA PASS (0 Critical, 0 Major, 0 Minor); actual quality report reports/quality-gate/20261021-ci-model-modernization-T-011-cycle-1.md and generated/checked bundle specs/ci-model-modernization/verification/T-011.evidence.json."
+    },
+    {
+      "req": "REQ-020",
+      "acs": [
+        "AC-020"
+      ],
+      "tests": [
+        "TEST-128: T011 assigned current acceptance evidence; exact ownership verified in acceptance-tests.md and tasks.md",
+        "TEST-129: T011 assigned current acceptance evidence; exact ownership verified in acceptance-tests.md and tasks.md",
+        "TEST-130: T011 assigned current acceptance evidence; exact ownership verified in acceptance-tests.md and tasks.md"
+      ],
+      "evidence": [
+        "specs/ci-model-modernization/verification/T-011/final-F96/distribution/final-eight-path-summary.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/publication/final-after/receipt.json",
+        "specs/ci-model-modernization/verification/T-011/docs-application/application-receipt.json",
+        "specs/ci-model-modernization/verification/T-011/docs-application/scope-audit.json",
+        ".github/scripts/check-model-freshness.sh",
+        ".github/workflows/model-freshness-check.yml",
+        "contracts/model-policy.v1.json",
+        "reports/implementation/ci-model-modernization/T-011.md",
+        "specs/ci-model-modernization/verification/T-011.contract.json",
+        "reports/quality-gate/20261021-ci-model-modernization-T-011-cycle-1.md",
+        "specs/ci-model-modernization/verification/T-011.evidence.json"
+      ],
+      "scope": "T011 supported-behavior/freshness-source guidance and immutable release scope Done. Source/date uncertainty and current provider limits remain explicit; installed8path payload audit PASS. Independent final T011 implementation QA PASS (0 Critical, 0 Major, 0 Minor); actual quality report reports/quality-gate/20261021-ci-model-modernization-T-011-cycle-1.md and generated/checked bundle specs/ci-model-modernization/verification/T-011.evidence.json."
     }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "reason": "Canonical check-placeholders.sh usage explicitly scopes changed production files, not test fixtures. Initial broad list incorrectly included test-only tests/lib helpers. The sole finding catches unsupported os.symlink in a test fixture; it does not raise an unfinished implementation. Keep original failed scan unchanged.",
+  "excluded_test_helper_paths": [
+    "tests/lib/a2-workflow-evolution.py",
+    "tests/lib/current-byte-capture.py",
+    "tests/lib/install-payload-check.py"
+  ],
+  "production_ci_scripts_retained": [
+    "tests/validate-repository.ps1",
+    "tests/verification-catalog.json",
+    "tests/verification-ci.py",
+    "tests/verification-impact.py"
+  ],
+  "finding_source": "tests/lib/install-payload-check.py:186",
+  "finding_source_sha256": "c12915ccf070c641b663b7f54efcc495000689cf0fce2e27e73ff6e21ca032af",
+  "caller_proof": [
+    "tests/install.tests.sh:15",
+    "tests/install.tests.ps1:14"
+  ],
+  "source_edits": false
+}

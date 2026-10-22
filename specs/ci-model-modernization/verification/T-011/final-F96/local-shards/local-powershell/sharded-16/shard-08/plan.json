@@ -1,0 +1,16 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-powershell",
+  "selected": [
+    "tests/cloud-orchestration-verification.tests.py",
+    "tests/impl-layer-review-inputs.tests.ps1",
+    "tests/scenario.tests.ps1",
+    "tests/uninstall.tests.ps1",
+    "tests/emit-run-record-feature-scope.tests.ps1",
+    "tests/loop-inventory.tests.ps1",
+    "tests/release-loop-gate.tests.ps1",
+    "tests/capability-registry-parity.tests.ps1"
+  ],
+  "shard_index": 8,
+  "shard_count": 16
+}

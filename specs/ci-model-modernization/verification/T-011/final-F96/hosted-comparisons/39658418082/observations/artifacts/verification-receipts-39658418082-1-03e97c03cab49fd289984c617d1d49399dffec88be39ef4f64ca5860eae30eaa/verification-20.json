@@ -1,0 +1,78 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "ci-portable-prechecks",
+  "revision": "0fd45bffd20f8aa0163918e6fb2e0ef0db2a7fb2",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/review-contract-foundation.tests.ps1",
+    "tests/downstream-review-precheck.tests.ps1",
+    "tests/impl-layer-review-inputs.tests.ps1",
+    "tests/task-layer-review-inputs.tests.ps1",
+    "tests/model-observation.tests.py",
+    "tests/model-identity.tests.py",
+    "tests/model-policy.tests.py",
+    "tests/model-policy-launch-platform.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/review-contract-foundation.tests.ps1",
+      "source_sha256": "84d484e7cdf7b3e16daf6029b936db8ad4b5d7f71d467f1c962e1d588139993f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.486122
+    },
+    {
+      "suite": "tests/downstream-review-precheck.tests.ps1",
+      "source_sha256": "88745023bd65e080702d5eafcd0b3158a13794dc2a5e18bd7cb5ac96c6e4897d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 31.261312
+    },
+    {
+      "suite": "tests/impl-layer-review-inputs.tests.ps1",
+      "source_sha256": "8e348787eda9553953638b5df0e197ac86cd64893ecb438e87950540a53c93f5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 7.860358
+    },
+    {
+      "suite": "tests/task-layer-review-inputs.tests.ps1",
+      "source_sha256": "e5ce1c72887f75a8839a661fd3e21fb821681a27489d582147f532f3ae100319",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.906728
+    },
+    {
+      "suite": "tests/model-observation.tests.py",
+      "source_sha256": "4d6bc7c901cb2db38e1b4210a4f7aa8956248aa72500793d290ed7fdf9e15513",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 20.920795
+    },
+    {
+      "suite": "tests/model-identity.tests.py",
+      "source_sha256": "650239455536821657802793ce284013cc07ba360428ea872ea52540a23759a7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 13.979608
+    },
+    {
+      "suite": "tests/model-policy.tests.py",
+      "source_sha256": "00295fff5d8d25b0c38fb4fc0f2f85ef2197e4e5dce64b132354272bd0d65ea7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 51.470522
+    },
+    {
+      "suite": "tests/model-policy-launch-platform.tests.py",
+      "source_sha256": "e4dfaecadca6dc970507592865e8b5014f56047f4c38794a752206a80cb22810",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.125306
+    }
+  ],
+  "revision_after": "0fd45bffd20f8aa0163918e6fb2e0ef0db2a7fb2",
+  "clean_after": true
+}

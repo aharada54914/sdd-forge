@@ -1,0 +1,57 @@
+{
+  "purpose": "Factual serialization index only; no rerun, new verdict or retrospective authority",
+  "check_id": "lint",
+  "original_contract_sha256": "baf41f1f6836745dbbde4c88cfee15eb983a4f2a234b0e4ce927d8a091bf6233",
+  "original_fields": {
+    "command": "/workspace/.tools/sdd-forge-python/bin/ruff check --config tests/shared-launch-python/pyproject.toml plugins/sdd-quality-loop/scripts/generate-guard-invariants.py plugins/sdd-quality-loop/scripts/generated/guard_invariants.py plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py plugins/sdd-quality-loop/scripts/review-conditional-inputs.py plugins/sdd-quality-loop/scripts/validate-feature-scratch-history.py plugins/sdd-review-loop/scripts/launch-impl-review.py plugins/sdd-review-loop/scripts/preflight-host-review.py plugins/sdd-review-loop/scripts/probe-nontty-review.py plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py scripts/human_copy_mirrors.py tests/verification-ci.py tests/verification-impact.py\n/workspace/.tools/ci-audit-bin/actionlint .github/workflows/test.yml",
+    "exit_code": 0,
+    "started_at": "2026-10-21T23:25:02.666181+00:00",
+    "finished_at": "2026-10-21T23:25:02.812258+00:00",
+    "evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/ruff.receipt.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/actionlint.receipt.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/scope.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/source-before.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/source-after.json; specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-3-authoring.json",
+    "red_evidence": "",
+    "green_evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/ruff.receipt.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/actionlint.receipt.json"
+  },
+  "references": [
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/ruff.receipt.json",
+      "sha256": "f84b184f0e8a4548ce32009c4eacd993eab318692de06f953b897d5dbcdc8ff7"
+    },
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/actionlint.receipt.json",
+      "sha256": "8cdd3340b1c780ce8ce1f25a32bf35b764fe07c018b5a6ae07807514aab7e849"
+    },
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/scope.json",
+      "sha256": "9f86578f0db676a2472fcee35fd981e6e4f3cfa57121b8698d5a43558f8ac8b3"
+    },
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/source-before.json",
+      "sha256": "7bbf62390b45a34719992436fc260581d5e627e3f48d4ea8d891e27a6428205b"
+    },
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/source-after.json",
+      "sha256": "7bbf62390b45a34719992436fc260581d5e627e3f48d4ea8d891e27a6428205b"
+    },
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-3-authoring.json",
+      "sha256": "efa5f741cdc09e007002a774698134260c77749345c3f9de81e72ead2069f2d8"
+    },
+    {
+      "field": "green_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/ruff.receipt.json",
+      "sha256": "f84b184f0e8a4548ce32009c4eacd993eab318692de06f953b897d5dbcdc8ff7"
+    },
+    {
+      "field": "green_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/actionlint.receipt.json",
+      "sha256": "8cdd3340b1c780ce8ce1f25a32bf35b764fe07c018b5a6ae07807514aab7e849"
+    }
+  ],
+  "notes": "Contract evidence/red_evidence/green_evidence must each use one existing canonical file. Preserve detailed lists/pointers here. For component coverage use actual producer verdict stdout directly."
+}

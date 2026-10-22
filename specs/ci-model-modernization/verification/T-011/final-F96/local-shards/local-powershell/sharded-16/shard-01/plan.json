@@ -1,0 +1,17 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-powershell",
+  "selected": [
+    "tests/wfi-059-evidence-path-base.tests.ps1",
+    "tests/phase2-risk-upgrade.tests.ps1",
+    "tests/structure-check-feature-mode.tests.ps1",
+    "tests/agent-capabilities-v2.tests.ps1",
+    "tests/resolve-project-context-parity.tests.ps1",
+    "tests/golden-baseline-contract.tests.ps1",
+    "tests/check-risk-upgrade-capability-merge.tests.ps1",
+    "tests/lite-gate-summary-absent.tests.ps1",
+    "tests/design-sync-policy.tests.py"
+  ],
+  "shard_index": 1,
+  "shard_count": 16
+}

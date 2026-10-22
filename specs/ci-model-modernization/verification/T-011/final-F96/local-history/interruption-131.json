@@ -1,0 +1,25 @@
+{
+  "profiles": [
+    {
+      "profile": "local-posix",
+      "attempt": "retry-3",
+      "receipt": false,
+      "exit": false,
+      "mtime": "2026-10-21T21:33:22.494715+00:00",
+      "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+      "status": ""
+    },
+    {
+      "profile": "local-powershell",
+      "attempt": "retry-2",
+      "receipt": false,
+      "exit": false,
+      "mtime": "2026-10-21T21:33:23.146712+00:00",
+      "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+      "status": ""
+    }
+  ],
+  "processes": [],
+  "free_bytes": 2409988096,
+  "wrapper_sha": "863a219256b1318935e58299695e13afe2be0e65b89157c70499deb45e7ddad3"
+}

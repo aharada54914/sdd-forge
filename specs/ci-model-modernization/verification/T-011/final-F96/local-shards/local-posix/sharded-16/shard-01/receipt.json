@@ -1,0 +1,22 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-posix",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/a9-dogfood.tests.sh"
+  ],
+  "results": [
+    {
+      "suite": "tests/a9-dogfood.tests.sh",
+      "source_sha256": "029920ddc66c05c34f68661c9dad4d434134c8b518aed620d26123896a936736",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 365.985847
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

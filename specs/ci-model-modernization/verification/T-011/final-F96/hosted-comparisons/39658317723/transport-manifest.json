@@ -1,0 +1,152 @@
+{
+  "schema": "connector-artifact-transport/v1",
+  "repository": "aharada54914/sdd-forge",
+  "run_id": "39658317723",
+  "head_sha": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "collector": {
+    "path": "/workspace/t011-rollout/checkout/tests/verification-ci.py",
+    "sha256": "2705fb54c1cdaf5a0bfcadffe700153e401f0be240db40293dd60e9a72ddb6c1"
+  },
+  "artifacts": [
+    {
+      "artifact_id": 12375801794,
+      "name": "verification-receipts-39658317723-1-6e86e2e28b5ae20e1a0ac7a4d1a3bd8c5feedd47dde71b1f1e275bb1be3a3fe1",
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12375801794/zip",
+      "zip_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12375801794.zip",
+      "size_bytes": 982,
+      "sha256": "e380fd1c4ee0ff42d91bef0d8a7bae049c2345079eff4e84e9b03345a1e6f06f",
+      "metadata_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/artifact-12375801794.json",
+      "metadata_sha256": "4305d737e6adcdb53be5a3ab4e90c353f961f458e45f12ee4768fc9b0b7d9ec7"
+    },
+    {
+      "artifact_id": 12375707517,
+      "name": "verification-receipts-39658317723-1-28b5640a79b37612b3eb4147af5d32c93a67ec817950b5d203fb91283f864f74",
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12375707517/zip",
+      "zip_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12375707517.zip",
+      "size_bytes": 5082,
+      "sha256": "d351207137887ca2233d509d06ed3b946c40fff5a649cc66cb88f26345d1bd11",
+      "metadata_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/artifact-12375707517.json",
+      "metadata_sha256": "2c8554c1822ed1708bd1bee805511482443941fd2acd60d8f05746c34309fbd7"
+    },
+    {
+      "artifact_id": 12375256715,
+      "name": "verification-receipts-39658317723-1-0052dd62b0404fd2806ae392f12ac4b47274ae363ab2e7705b0298e8b54a2b09",
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12375256715/zip",
+      "zip_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12375256715.zip",
+      "size_bytes": 968,
+      "sha256": "d8988b562c8eb84cddd7c557ace21d98355a7d092139460993b6edb0b66729a0",
+      "metadata_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/artifact-12375256715.json",
+      "metadata_sha256": "5c7710bc9384938565697f05707327f806aaf846bc2668b3caa558e173ed6b0a"
+    },
+    {
+      "artifact_id": 12374415641,
+      "name": "verification-receipts-39658317723-1-8956d4214a40fcef2c6d8bef636941bd2e923026cd5ab0076a582b8f1de2fa38",
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12374415641/zip",
+      "zip_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12374415641.zip",
+      "size_bytes": 521,
+      "sha256": "bfefa3b2a88ec563f56f44d26eac5bbf1a63760aa28a64257e4bea72ea586be4",
+      "metadata_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/artifact-12374415641.json",
+      "metadata_sha256": "99e33ccce57e581c5d78e7b9749f24277193c091401c30a17b3313c2c7459c61"
+    },
+    {
+      "artifact_id": 12374211297,
+      "name": "verification-receipts-39658317723-1-03e97c03cab49fd289984c617d1d49399dffec88be39ef4f64ca5860eae30eaa",
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12374211297/zip",
+      "zip_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12374211297.zip",
+      "size_bytes": 979,
+      "sha256": "aa60e7837e245f75d965613a746c1d70e6aaa6c5b36ef7d0f497f83826af8d3d",
+      "metadata_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/artifact-12374211297.json",
+      "metadata_sha256": "57a9d86a28cfc998a6f9b328c8c13cf684523a3208357d0779b1ca44255af423"
+    },
+    {
+      "artifact_id": 12374175000,
+      "name": "verification-receipts-39658317723-1-4a6a38619ac58c2304420eda986fc1fe292687e5f746d214563e3ff5f94acf01",
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12374175000/zip",
+      "zip_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12374175000.zip",
+      "size_bytes": 2344,
+      "sha256": "3e73af3a994fd302acb1526bc44d1e9d5e324837c9cbce5cdbe55f452cd0f6af",
+      "metadata_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/artifact-12374175000.json",
+      "metadata_sha256": "685dd061bafab882d08baa484a648ded7fa79255ac0e4c8b54fdda77b8014ff9"
+    },
+    {
+      "artifact_id": 12373690435,
+      "name": "verification-receipts-39658317723-1-88ac04ab6c4904308e9b72c92a9e4d88c410b330ab96543e6e925e03d7a459dd",
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12373690435/zip",
+      "zip_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12373690435.zip",
+      "size_bytes": 2409,
+      "sha256": "4a5c6a92d1a99d28154193e3ea853870510e9f2e13f97c68c2b0a29ee266813f",
+      "metadata_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/artifact-12373690435.json",
+      "metadata_sha256": "4238f4b1fb134192fa652ffb1313d91d2379704a9eedc56a4d5a2662f171d6ac"
+    },
+    {
+      "artifact_id": 12373271372,
+      "name": "verification-receipts-39658317723-1-9ed2822033ecc68f41f1947b7e6df187e5f706448804c483b493585e862528ab",
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12373271372/zip",
+      "zip_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12373271372.zip",
+      "size_bytes": 2249,
+      "sha256": "6dad808d6a0b9e0031937fd4000b1c887c107829533856c8a5ffa6e2df7e7e51",
+      "metadata_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/artifact-12373271372.json",
+      "metadata_sha256": "39e1e9a3abe00fd30eabc4da2bed8b243c8acaa9527abbddf5de6036dee99c5b"
+    },
+    {
+      "artifact_id": 12372971506,
+      "name": "verification-receipts-39658317723-1-6b31337cbfe6c8c6e476103a1db55195a5b0365d641f7cad01124f7688e87e17",
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12372971506/zip",
+      "zip_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12372971506.zip",
+      "size_bytes": 502,
+      "sha256": "f12566e1d04667425a2de801440dec07f8ee94b0512257ad238faa3da32ec381",
+      "metadata_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/artifact-12372971506.json",
+      "metadata_sha256": "7a1ee7d0900c74fd29aa36077411b0d38124e917c02f19c33de426306722add3"
+    },
+    {
+      "artifact_id": 12372863997,
+      "name": "verification-receipts-39658317723-1-e8667b593ea4e60ad2c6c3be3a36edc4a7681dd206d2a5efb9ce32ba977e38fd",
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12372863997/zip",
+      "zip_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12372863997.zip",
+      "size_bytes": 502,
+      "sha256": "8363f533448df08fcfddeefa6e94e3ebae4ca1b8f3f7c455ff7f660cafa82a81",
+      "metadata_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/artifact-12372863997.json",
+      "metadata_sha256": "1b5dec4fc6f4234fc324277b7946859449ba1c90012e72ddcc1b2e0cea50dda1"
+    },
+    {
+      "artifact_id": 12372698935,
+      "name": "verification-receipts-39658317723-1-2d516e631412832c9283cfb676f44b6fd4b231da2c666abb9de0a1cdbd661c28",
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12372698935/zip",
+      "zip_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12372698935.zip",
+      "size_bytes": 848,
+      "sha256": "1e2a60aa11f170b5f3875136c23992a16e3fc59f87811695fb9894f9a59751dd",
+      "metadata_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/artifact-12372698935.json",
+      "metadata_sha256": "2b7cd398c8e85ce4309761c52f20122fda1c3d7380e36dc1234dbedeab1052f1"
+    },
+    {
+      "artifact_id": 12372647797,
+      "name": "verification-receipts-39658317723-1-0be87195740229b13fdeae92a0f2cb01b5020b8508322628be022f501e6c6061",
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12372647797/zip",
+      "zip_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12372647797.zip",
+      "size_bytes": 838,
+      "sha256": "ead2048acb799cc2fc7bc39093403b01372fe462a95e9e8e2296272d8fa092d8",
+      "metadata_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/artifact-12372647797.json",
+      "metadata_sha256": "c60aa0909c69ac7f7ecf88093b8c4adbfa53a8df7ea6097cf351c81482489a96"
+    },
+    {
+      "artifact_id": 12372594956,
+      "name": "verification-receipts-39658317723-1-21ad482eb8a27e8f2e5fe13c00e89e5dbb59c0fa5cd78f7ad8502d612c079206",
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12372594956/zip",
+      "zip_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12372594956.zip",
+      "size_bytes": 733,
+      "sha256": "829ea81e41d6665d71bc891687ca8237ee8fc0381938ac8acbd2b091dd77fe89",
+      "metadata_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/artifact-12372594956.json",
+      "metadata_sha256": "3b89d2d23fa641ec1f1c0d66616cba1827cc0a4d9c602940aa37180062b19ec8"
+    },
+    {
+      "artifact_id": 12371509867,
+      "name": "verification-receipts-39658317723-1-80ed411675869244ee9ffd0eed4f32076586190a101d9f19b0aa9a280e88b836",
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12371509867/zip",
+      "zip_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/connector-zips/12371509867.zip",
+      "size_bytes": 847,
+      "sha256": "8f8795bc3bc736599f29961a4a1da1df32850249b6d350259c7d7d255b38a3aa",
+      "metadata_path": "/workspace/t011-rollout/outputs/final-96afb59fccea/39658317723/artifact-12371509867.json",
+      "metadata_sha256": "2e6d44c1aa5c0b8f972e79f6775e9e5de54b6b354cc9e5bd95ce7f1cff71ce20"
+    }
+  ]
+}

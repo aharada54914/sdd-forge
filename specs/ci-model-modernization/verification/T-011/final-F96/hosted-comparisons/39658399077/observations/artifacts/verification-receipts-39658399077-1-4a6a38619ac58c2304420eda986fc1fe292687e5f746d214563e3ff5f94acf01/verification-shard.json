@@ -1,0 +1,246 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "ci-posix-fallback",
+  "revision": "27c183321a3055322283cdb8250d6c023a8c2c36",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/verification-ci.tests.py",
+    "tests/ci-suite-wiring.tests.sh",
+    "tests/adversarial-review-contracts.tests.sh",
+    "tests/install-uninstall-matrix.tests.sh",
+    "tests/wfi-059-evidence-path-base.tests.sh",
+    "tests/workflow-state.tests.sh",
+    "tests/workflow-state-parity.tests.sh",
+    "tests/guard-cwd-bypass.tests.sh",
+    "tests/guard-parity.tests.sh",
+    "tests/phase2-guard-tokenizer.tests.sh",
+    "tests/self-improvement-guard.tests.sh",
+    "tests/task-lifecycle-enum-parity.tests.sh",
+    "tests/task-state-grammar-parity.tests.sh",
+    "tests/task-plan-binding-durability.tests.sh",
+    "tests/review-prompt-calibration.tests.sh",
+    "tests/bootstrap-layer-templates.tests.sh",
+    "tests/facet-manifest-semantics.tests.sh",
+    "tests/context-projection-schema.tests.sh",
+    "tests/facet-manifest-staleness.tests.sh",
+    "tests/facet-manifest-parity.tests.sh",
+    "tests/resolve-project-context-match.tests.sh",
+    "tests/resolve-project-context-cli.tests.sh",
+    "tests/resolve-project-context-discovery.tests.sh",
+    "tests/validate-resolver-evidence.tests.sh",
+    "tests/resolve-project-context-metamorphic.tests.sh",
+    "tests/promote-golden-baseline-ci-guard.tests.sh",
+    "tests/validate-live-host-proof.tests.sh",
+    "tests/lite-gate-cli-chain.tests.sh",
+    "tests/check-a8-process-integrity.tests.sh"
+  ],
+  "results": [
+    {
+      "suite": "tests/verification-ci.tests.py",
+      "source_sha256": "f42916a4c73547405a98a0a86c2598f5be3aa040fea7cc94d7f8fe53b60ff44c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 51.450803
+    },
+    {
+      "suite": "tests/ci-suite-wiring.tests.sh",
+      "source_sha256": "a3111d71e9be9129e0ec696ea8e51dc2aef1be5c6d76fe93342b7b7711cbf61b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 8.32549
+    },
+    {
+      "suite": "tests/adversarial-review-contracts.tests.sh",
+      "source_sha256": "e7562407e8f1de5afb1cd6b2e7353c96f626aafb523e0c2835c7a055ebacc338",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.156537
+    },
+    {
+      "suite": "tests/install-uninstall-matrix.tests.sh",
+      "source_sha256": "d9422cee978d09cff326b2b439ea80f8c3799f2737acad041c26fba88cfdd238",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 47.997104
+    },
+    {
+      "suite": "tests/wfi-059-evidence-path-base.tests.sh",
+      "source_sha256": "3760a8f43dc58db8909858e010ebf26b80691b08eaac70eacba1a9e36d28a4ff",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.244872
+    },
+    {
+      "suite": "tests/workflow-state.tests.sh",
+      "source_sha256": "dffc5e1ea5a7b010d02654b39ceca6c66364d12a9e45580f6ffc22347129de98",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 249.965966
+    },
+    {
+      "suite": "tests/workflow-state-parity.tests.sh",
+      "source_sha256": "65bb2f3a89da593b0ce1db64d56fbda9db28bc617c045657c2f1ac384c5cd2d0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.308923
+    },
+    {
+      "suite": "tests/guard-cwd-bypass.tests.sh",
+      "source_sha256": "89f8e492406108d6579da14324d1ed229ca2158fec0166589622751eea9803cc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.172261
+    },
+    {
+      "suite": "tests/guard-parity.tests.sh",
+      "source_sha256": "1b2e27ea19bf3823b4c27c985e4db8c906c9aa779d6ed597ba0e1956de29c02b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 97.06993
+    },
+    {
+      "suite": "tests/phase2-guard-tokenizer.tests.sh",
+      "source_sha256": "7624e6ed7e579073e8f3c808da88c4e22c44e4a65212efdb8405dc19296f3147",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.040745
+    },
+    {
+      "suite": "tests/self-improvement-guard.tests.sh",
+      "source_sha256": "0fd6ba699c43c5e4fd80720312666050854a6076fdb3bfd6f097eec26059d4a6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.14782
+    },
+    {
+      "suite": "tests/task-lifecycle-enum-parity.tests.sh",
+      "source_sha256": "894707219838c2e346aeb50b78e9cd2b6a3803a224422ad895a14be1385ed56d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.043666
+    },
+    {
+      "suite": "tests/task-state-grammar-parity.tests.sh",
+      "source_sha256": "d8075639ef74cc1d828a48180453051ac62f8366ff09921b890074452566db20",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 31.122854
+    },
+    {
+      "suite": "tests/task-plan-binding-durability.tests.sh",
+      "source_sha256": "7ddfaede26a8c7b0602df9a55988ab8778357343f97d9c4a667481ce8b489cc1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 9.643483
+    },
+    {
+      "suite": "tests/review-prompt-calibration.tests.sh",
+      "source_sha256": "c82920797bc01e7dfb979358d0cb414d769114a08145de0eedd302a9b1691804",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.096793
+    },
+    {
+      "suite": "tests/bootstrap-layer-templates.tests.sh",
+      "source_sha256": "5705201ecf666d98c9ce7b354e0d4b0193eff2ceb9635de83b2846080354528b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.227475
+    },
+    {
+      "suite": "tests/facet-manifest-semantics.tests.sh",
+      "source_sha256": "f1c1561be92512e6727a29aa546311c630b22011c61cb558358a3668b36ff6af",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.670776
+    },
+    {
+      "suite": "tests/context-projection-schema.tests.sh",
+      "source_sha256": "cb839eb4d466c79cc30f47c4c40b330ca6c9eb959106f8beb1c791b2616fa8d0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.461837
+    },
+    {
+      "suite": "tests/facet-manifest-staleness.tests.sh",
+      "source_sha256": "dd78532421b8b15e8968c3ddc37e24df99c963cbb85d91e8083d4450325bf6bc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.951013
+    },
+    {
+      "suite": "tests/facet-manifest-parity.tests.sh",
+      "source_sha256": "945f2335a0af105e1dab98591d6aeb5feb6f2fa7ecd9019b2ee402375f7a0cde",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 130.787024
+    },
+    {
+      "suite": "tests/resolve-project-context-match.tests.sh",
+      "source_sha256": "c84b4ecbf6f06cb24203dc6492b740a5504de60631ea284fea7a239ad70f4527",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 10.027141
+    },
+    {
+      "suite": "tests/resolve-project-context-cli.tests.sh",
+      "source_sha256": "8145152eb02a768f26d7247ce42c1458214c48f58910193e94c8e065a49dc40b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.65095
+    },
+    {
+      "suite": "tests/resolve-project-context-discovery.tests.sh",
+      "source_sha256": "473bcd9ca3bed825c36cab551f3da248c194d68b93dae84bef7edfdf25890b95",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.542398
+    },
+    {
+      "suite": "tests/validate-resolver-evidence.tests.sh",
+      "source_sha256": "2d0f934d17b07c12c36a5253b16874af6d18d77c49c881c8a242f3fe55df2be8",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.050403
+    },
+    {
+      "suite": "tests/resolve-project-context-metamorphic.tests.sh",
+      "source_sha256": "80108d816ec30c94dae0391d71133444ff1807ea4545e45e302041db973785da",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 16.583328
+    },
+    {
+      "suite": "tests/promote-golden-baseline-ci-guard.tests.sh",
+      "source_sha256": "fdb5066fea071f481a2108945219377b1fd195eb5fe350acb539ca3e2bac9eec",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.15234
+    },
+    {
+      "suite": "tests/validate-live-host-proof.tests.sh",
+      "source_sha256": "9c1de76dc42494875cfcb81e85c5cafb8876a660d809fd94873c815173942bd5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 57.470323
+    },
+    {
+      "suite": "tests/lite-gate-cli-chain.tests.sh",
+      "source_sha256": "4b7c0ba2e792f02e1f2d684926c6aac62077ed72f59ad127ab113776004e69a2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.018517
+    },
+    {
+      "suite": "tests/check-a8-process-integrity.tests.sh",
+      "source_sha256": "8fdea9b8aa80d2f01cd7ffb3431ffd3f5d0b86d8fbd671d5a56e44cc125be729",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.767733
+    }
+  ],
+  "revision_after": "27c183321a3055322283cdb8250d6c023a8c2c36",
+  "clean_after": true
+}

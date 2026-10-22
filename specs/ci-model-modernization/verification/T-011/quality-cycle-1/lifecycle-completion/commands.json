@@ -1,0 +1,51 @@
+[
+  {
+    "label": "task-state",
+    "argv": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "specs/ci-model-modernization/tasks.md",
+      "reports/quality-gate",
+      "reports/implementation/ci-model-modernization",
+      "/workspace/sdd-forge"
+    ],
+    "started_at": "2026-10-21T23:58:40Z",
+    "finished_at": "2026-10-21T23:58:41Z",
+    "exit_code": 0,
+    "stdout": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-completion/task-state.stdout.log",
+    "stdout_sha256": "c585c7b9339c61fa1159e073aa0c39beb06d38d7b3ae672bdea1519085cce68a",
+    "stderr": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-completion/task-state.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "traceability",
+    "argv": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+      "specs/ci-model-modernization/traceability.json",
+      "/workspace/sdd-forge",
+      "require-evidence"
+    ],
+    "started_at": "2026-10-21T23:58:41Z",
+    "finished_at": "2026-10-21T23:58:41Z",
+    "exit_code": 0,
+    "stdout": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-completion/traceability.stdout.log",
+    "stdout_sha256": "58b260e40d432c62df29c91d2134cb74f4e2e54dc388b4905baffb6c12e49340",
+    "stderr": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-completion/traceability.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "workflow-state",
+    "argv": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-workflow-state.sh"
+    ],
+    "started_at": "2026-10-21T23:58:41Z",
+    "finished_at": "2026-10-21T23:59:19Z",
+    "exit_code": 1,
+    "stdout": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-completion/workflow-state.stdout.log",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/quality-cycle-1/lifecycle-completion/workflow-state.stderr.log",
+    "stderr_sha256": "e9131fd4a932b100c0a6d822132de80a5fe8c4e0ca3a0d804159ebe02a27e160"
+  }
+]

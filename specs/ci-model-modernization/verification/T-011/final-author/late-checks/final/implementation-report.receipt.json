@@ -1,0 +1,15 @@
+{
+  "label": "implementation-report",
+  "argv": [
+    "bash",
+    "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+    "reports/implementation/ci-model-modernization/T-011.md"
+  ],
+  "started_at": "2026-10-21T23:33:31Z",
+  "finished_at": "2026-10-21T23:33:31Z",
+  "exit_code": 0,
+  "stdout": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final/implementation-report.stdout.log",
+  "stdout_sha256": "a0eb36646f9654b7ef1b674fed63ad247a1febe005869fbf36ce295f5437a10c",
+  "stderr": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final/implementation-report.stderr.log",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

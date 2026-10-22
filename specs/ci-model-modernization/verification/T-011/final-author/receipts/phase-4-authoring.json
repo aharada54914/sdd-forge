@@ -1,0 +1,380 @@
+{
+  "schema": "t011-final-author-serialization-receipt/v1",
+  "created_at": "2026-10-21T23:37:11.365417+00:00",
+  "actual_work_context": "/root/t011_final_report_author",
+  "run_id": "ci-model-modernization-T-011-final-delivery-phase4-serialization-20261021T233600Z",
+  "session_id": "work-agent:root:t011_final_report_author",
+  "agent_instance_id": "work-agent:root:t011_final_report_author",
+  "same_actual_author": true,
+  "provider": "unknown",
+  "model": "unknown",
+  "effort": "unknown",
+  "manifest_path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/task-input-manifest.json",
+  "manifest_sha256": "2defe81237a85dc9d03244adf61691562fac8bc747a9270ca27a407e9af4a094",
+  "input_hash_verification": {
+    "count": 1752,
+    "mismatches": []
+  },
+  "original_report": {
+    "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/phase3-outputs/report.md",
+    "sha256": "5e022e242009879e66898a19e802b9b5748e54f4df6cab4826ac11ecf158bc1e"
+  },
+  "original_contract": {
+    "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/phase3-outputs/contract.json",
+    "sha256": "baf41f1f6836745dbbde4c88cfee15eb983a4f2a234b0e4ce927d8a091bf6233"
+  },
+  "failed_actual_contract_check": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final/contract.stdout.log",
+  "evidence_indexes": {
+    "lint": {
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/lint.json",
+      "sha256": "311a4d59342723568e3ae4adbd2e6d0b87938da2e48389c9817ca4ce15201c0a"
+    },
+    "typecheck": {
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/typecheck.json",
+      "sha256": "8563bb1602d622f34740c3ae061139d871a0cdeab251e05116b1edcfb679e2c2"
+    },
+    "unit-tests": {
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/unit-tests.json",
+      "sha256": "c2598925b5081cdbb4ce40e3e9539d72c8243f6c2b4a99da809f44611085a67e"
+    },
+    "integration-tests": {
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/integration-tests.json",
+      "sha256": "2d80924a0bade16e664f928eb17d366fece88cb194defa6caece7dc37fd4d5b4"
+    },
+    "build": {
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/build.json",
+      "sha256": "36664bc0d3df81f99468e9bb45fec110d4863f220f693e5155ebe0f37450f8a6"
+    },
+    "placeholder-scan": {
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/placeholder-scan.json",
+      "sha256": "d88e637e012544eabbd6325880f0ea608db0a2748cc9fd71e308f82ab065f03f"
+    },
+    "task-state-check": {
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/task-state-check.json",
+      "sha256": "26b1f51d19baaaa0477aa05051a3d9ed4cc230d78b382b0ca7461db653b647a8"
+    },
+    "smoke-run": {
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/smoke-run.json",
+      "sha256": "7f809be762212115fe7a47fe70180e94aca92914dcdea42790e612b2984d9429"
+    },
+    "differential-baseline": {
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/differential-baseline.json",
+      "sha256": "33558cb86b60123e4250f1da28ac380f9a3281901e39780c2d101412322c26d7"
+    },
+    "acceptance-tests": {
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/acceptance-tests.json",
+      "sha256": "f8df2b0e5b593c3ff59afe3457afc13cdd7351ca4ba03e4856f920706493006f"
+    },
+    "regression": {
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/regression.json",
+      "sha256": "2b609f9dc0a348b251b6ed2b74b7dab0c9781bef0da61ab6cf7ea1bf56726364"
+    },
+    "requirement-traceability": {
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/requirement-traceability.json",
+      "sha256": "2d2692fe0feaf1466f670defcf982c64f3f58935b6d32fa2a64a4ace89e5318e"
+    },
+    "check-component-coverage": {
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/check-component-coverage.json",
+      "sha256": "22d63ad20bf77d25c882590d53e572800ad7f8ac9d1a937db7fad5fff9c3fb2e"
+    }
+  },
+  "field_changes": [
+    {
+      "check": "lint",
+      "field": "evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/ruff.receipt.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/actionlint.receipt.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/scope.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/source-before.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/source-after.json; specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-3-authoring.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/lint.json"
+    },
+    {
+      "check": "lint",
+      "field": "green_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/ruff.receipt.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/actionlint.receipt.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/lint.json"
+    },
+    {
+      "check": "lint",
+      "field": "started_at",
+      "before": "2026-10-21T23:25:02.666181+00:00",
+      "after": "2026-10-21T23:25:02Z",
+      "meaning": "Same actual recorded instant represented to whole-second precision; original fractional timestamp preserved in admitted index/receipt."
+    },
+    {
+      "check": "lint",
+      "field": "finished_at",
+      "before": "2026-10-21T23:25:02.812258+00:00",
+      "after": "2026-10-21T23:25:02Z",
+      "meaning": "Same actual recorded instant represented to whole-second precision; original fractional timestamp preserved in admitted index/receipt."
+    },
+    {
+      "check": "typecheck",
+      "field": "evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/typecheck; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/observations/jobs/1-1.json; specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-3-authoring.json#/additional_existing_hosted_typecheck_and_lint (actual configured7 Python Ruff+mypy; separate native invocation)",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/typecheck.json"
+    },
+    {
+      "check": "typecheck",
+      "field": "red_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json (historical correction chronology; no new Red claimed for unchanged predecessor build/type steps)",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/typecheck.json"
+    },
+    {
+      "check": "typecheck",
+      "field": "green_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/typecheck; specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-3-authoring.json#/additional_existing_hosted_typecheck_and_lint",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/typecheck.json"
+    },
+    {
+      "check": "unit-tests",
+      "field": "evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/unit-tests; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/observations/jobs/1-1.json; specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json (includes planner/collector/model unit suites; full argv and source hashes in author receipt)",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/unit-tests.json"
+    },
+    {
+      "check": "unit-tests",
+      "field": "red_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json (historical correction chronology; no new Red claimed for unchanged predecessor build/type steps)",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/unit-tests.json"
+    },
+    {
+      "check": "unit-tests",
+      "field": "green_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/unit-tests",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/unit-tests.json"
+    },
+    {
+      "check": "integration-tests",
+      "field": "evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/integration-tests; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/observations/jobs/1-1.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/integration-tests.json"
+    },
+    {
+      "check": "integration-tests",
+      "field": "red_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json (historical correction chronology; no new Red claimed for unchanged predecessor build/type steps)",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/integration-tests.json"
+    },
+    {
+      "check": "integration-tests",
+      "field": "green_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/integration-tests",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/integration-tests.json"
+    },
+    {
+      "check": "build",
+      "field": "evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/build; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/observations/jobs/1-1.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/build.json"
+    },
+    {
+      "check": "build",
+      "field": "red_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json (historical correction chronology; no new Red claimed for unchanged predecessor build/type steps)",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/build.json"
+    },
+    {
+      "check": "build",
+      "field": "green_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/build",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/build.json"
+    },
+    {
+      "check": "placeholder-scan",
+      "field": "evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-production.receipt.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-scope-correction.json preserves initial test-helper finding and retains production CI scripts",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/placeholder-scan.json"
+    },
+    {
+      "check": "placeholder-scan",
+      "field": "red_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-scan.receipt.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/placeholder-scan.json"
+    },
+    {
+      "check": "placeholder-scan",
+      "field": "green_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-production.receipt.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/placeholder-scan.json"
+    },
+    {
+      "check": "placeholder-scan",
+      "field": "started_at",
+      "before": "2026-10-21T23:16:50.864912+00:00",
+      "after": "2026-10-21T23:16:50Z",
+      "meaning": "Same actual recorded instant represented to whole-second precision; original fractional timestamp preserved in admitted index/receipt."
+    },
+    {
+      "check": "placeholder-scan",
+      "field": "finished_at",
+      "before": "2026-10-21T23:16:50.874781+00:00",
+      "after": "2026-10-21T23:16:50Z",
+      "meaning": "Same actual recorded instant represented to whole-second precision; original fractional timestamp preserved in admitted index/receipt."
+    },
+    {
+      "check": "task-state-check",
+      "field": "evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/task-state.receipt.json; actual phase1 report check, final phase2 report will be rechecked by Root; no prospective recheck PASS claimed",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/task-state-check.json"
+    },
+    {
+      "check": "task-state-check",
+      "field": "green_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/task-state.receipt.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/task-state-check.json"
+    },
+    {
+      "check": "task-state-check",
+      "field": "started_at",
+      "before": "2026-10-21T23:19:52.969702+00:00",
+      "after": "2026-10-21T23:19:52Z",
+      "meaning": "Same actual recorded instant represented to whole-second precision; original fractional timestamp preserved in admitted index/receipt."
+    },
+    {
+      "check": "task-state-check",
+      "field": "finished_at",
+      "before": "2026-10-21T23:19:54.112172+00:00",
+      "after": "2026-10-21T23:19:54Z",
+      "meaning": "Same actual recorded instant represented to whole-second precision; original fractional timestamp preserved in admitted index/receipt."
+    },
+    {
+      "check": "smoke-run",
+      "field": "evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/smoke-run; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/observations/jobs/1-1.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/smoke-run.json"
+    },
+    {
+      "check": "smoke-run",
+      "field": "red_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json (historical correction chronology; no new Red claimed for unchanged predecessor build/type steps)",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/smoke-run.json"
+    },
+    {
+      "check": "smoke-run",
+      "field": "green_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/smoke-run",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/smoke-run.json"
+    },
+    {
+      "check": "differential-baseline",
+      "field": "evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/activation.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/differential-baseline.json"
+    },
+    {
+      "check": "differential-baseline",
+      "field": "red_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/mutation-result.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/differential-baseline.json"
+    },
+    {
+      "check": "differential-baseline",
+      "field": "green_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/differential-baseline.json"
+    },
+    {
+      "check": "acceptance-tests",
+      "field": "evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json; specs/ci-model-modernization/verification/T-011/final-F96/distribution/final-eight-path-summary.json; specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json (all14 TEST mapping, explicitly pending actual merge_group); specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/local_shard_mapping",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/acceptance-tests.json"
+    },
+    {
+      "check": "acceptance-tests",
+      "field": "red_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json; specs/ci-model-modernization/verification/T-011/final-F96/local-history/local-posix/output/receipt.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/acceptance-tests.json"
+    },
+    {
+      "check": "acceptance-tests",
+      "field": "green_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/acceptance-tests.json"
+    },
+    {
+      "check": "acceptance-tests",
+      "field": "started_at",
+      "before": "2026-10-21T21:39:23.991754+00:00",
+      "after": "2026-10-21T21:39:23Z",
+      "meaning": "Same actual recorded instant represented to whole-second precision; original fractional timestamp preserved in admitted index/receipt."
+    },
+    {
+      "check": "regression",
+      "field": "evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json; specs/ci-model-modernization/verification/T-011/final-F96/distribution/final-eight-path-summary.json; specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json (all14 TEST mapping, explicitly pending actual merge_group); specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/local_shard_mapping",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/regression.json"
+    },
+    {
+      "check": "regression",
+      "field": "red_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json; specs/ci-model-modernization/verification/T-011/final-F96/local-history/local-posix/output/receipt.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/regression.json"
+    },
+    {
+      "check": "regression",
+      "field": "green_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/regression.json"
+    },
+    {
+      "check": "regression",
+      "field": "started_at",
+      "before": "2026-10-21T21:39:23.991754+00:00",
+      "after": "2026-10-21T21:39:23Z",
+      "meaning": "Same actual recorded instant represented to whole-second precision; original fractional timestamp preserved in admitted index/receipt."
+    },
+    {
+      "check": "requirement-traceability",
+      "field": "evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/traceability.receipt.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/requirement-traceability.json"
+    },
+    {
+      "check": "requirement-traceability",
+      "field": "green_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/traceability.receipt.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/requirement-traceability.json"
+    },
+    {
+      "check": "requirement-traceability",
+      "field": "started_at",
+      "before": "2026-10-21T23:16:10.813962+00:00",
+      "after": "2026-10-21T23:16:10Z",
+      "meaning": "Same actual recorded instant represented to whole-second precision; original fractional timestamp preserved in admitted index/receipt."
+    },
+    {
+      "check": "requirement-traceability",
+      "field": "finished_at",
+      "before": "2026-10-21T23:16:10.850099+00:00",
+      "after": "2026-10-21T23:16:10Z",
+      "meaning": "Same actual recorded instant represented to whole-second precision; original fractional timestamp preserved in admitted index/receipt."
+    },
+    {
+      "check": "check-component-coverage",
+      "field": "evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/component-coverage.receipt.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/component-coverage.stdout.log: not-applicable (disabled-legacy), manifest not consulted; no component-coverage claim",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/component-coverage.stdout.log"
+    },
+    {
+      "check": "check-component-coverage",
+      "field": "green_evidence",
+      "before": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/component-coverage.receipt.json",
+      "after": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/check-component-coverage.json"
+    },
+    {
+      "check": "check-component-coverage",
+      "field": "started_at",
+      "before": "2026-10-21T23:16:10.862565+00:00",
+      "after": "2026-10-21T23:16:10Z",
+      "meaning": "Same actual recorded instant represented to whole-second precision; original fractional timestamp preserved in admitted index/receipt."
+    },
+    {
+      "check": "check-component-coverage",
+      "field": "finished_at",
+      "before": "2026-10-21T23:16:10.896071+00:00",
+      "after": "2026-10-21T23:16:10Z",
+      "meaning": "Same actual recorded instant represented to whole-second precision; original fractional timestamp preserved in admitted index/receipt."
+    }
+  ],
+  "unchanged": "All per-check passes/required/commands/exit codes/requirements/waivers; original timestamps and historical results stay in admitted indexes and receipts. Unknown timestamps remain null.",
+  "actual_validation": "Author path-existence/admission/hash/UTCZ-format and substantive-field preservation assertions only; Root canonical final validation pending.",
+  "scope": "Serialization-only correction; no product edits/test reruns/provider calls/QA/lifecycle actions."
+}

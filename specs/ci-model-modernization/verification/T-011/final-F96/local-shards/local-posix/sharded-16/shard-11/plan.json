@@ -1,0 +1,30 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-posix",
+  "selected": [
+    "tests/cloud-orchestration-routing.tests.py",
+    "tests/install.tests.sh",
+    "tests/install-uninstall-matrix.tests.sh",
+    "tests/task-layer-full-profile.tests.sh",
+    "tests/impl-review-round2-contract.tests.sh",
+    "tests/agent-model-routing.tests.sh",
+    "tests/rollback-1.5.0.tests.sh",
+    "tests/workflow-state-registry.tests.sh",
+    "tests/criterion-freeze.tests.sh",
+    "tests/schema-engine-identity.tests.sh",
+    "tests/loop-consistency.tests.sh",
+    "tests/facet-manifest-staleness.tests.sh",
+    "tests/canonicalize-sdd-yaml.tests.sh",
+    "tests/validate-approval-sidecar.tests.sh",
+    "tests/resolve-project-context-cli.tests.sh",
+    "tests/compatibility-byte-identical.tests.sh",
+    "tests/promote-golden-baseline-ci-guard.tests.sh",
+    "tests/check-risk-upgrade-byte-identical.tests.sh",
+    "tests/guard-r10-port.tests.ps1",
+    "tests/domain-review-finalize.tests.py",
+    "tests/fixed-review-precheck-ps.tests.py",
+    "tests/model-policy.tests.py"
+  ],
+  "shard_index": 11,
+  "shard_count": 16
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-posix",
+  "selected": [
+    "tests/cloud-orchestration-verification.tests.py",
+    "tests/installer-idempotency.tests.sh",
+    "tests/task-layer-review-inputs.tests.sh",
+    "tests/downstream-review-precheck-parity.tests.sh",
+    "tests/crlf-parity.tests.sh",
+    "tests/apply-branch-protection.tests.sh",
+    "tests/workflow-state-registry-parity.tests.sh",
+    "tests/quality-gate-cycle-limit.tests.sh",
+    "tests/task-state-grammar-parity.tests.sh",
+    "tests/task-plan-binding-durability.tests.sh",
+    "tests/loop-driver.tests.sh",
+    "tests/guard-staging-exemption.tests.sh",
+    "tests/resolver-evidence-schema.tests.sh",
+    "tests/path-lineending-regression.tests.sh",
+    "tests/check-risk-upgrade-capability-merge.tests.sh",
+    "tests/validate-capability-registry.tests.sh",
+    "tests/capability-registry-parity.tests.sh",
+    "tests/ownership-digest.tests.sh",
+    "tests/issue311-scratch-isolation.tests.py",
+    "tests/sdd-domain-multitarget-T-003.tests.py",
+    "tests/fixed-review-state.tests.py"
+  ],
+  "shard_index": 12,
+  "shard_count": 16
+}

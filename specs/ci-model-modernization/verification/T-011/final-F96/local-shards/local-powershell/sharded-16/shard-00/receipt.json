@@ -1,0 +1,86 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-powershell",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/wfi-058-outputs-anchor.tests.ps1",
+    "tests/phase2-guard-tokenizer.tests.ps1",
+    "tests/a9-dogfood.tests.ps1",
+    "tests/resolve-project-context-metamorphic.tests.ps1",
+    "tests/structural-compatibility.tests.ps1",
+    "tests/check-risk-upgrade-byte-identical.tests.ps1",
+    "tests/lite-gate-summary-absent-active-enforcement.tests.ps1",
+    "tests/generate-registry-digest.tests.ps1",
+    "tests/current-byte-capture.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/wfi-058-outputs-anchor.tests.ps1",
+      "source_sha256": "6a01971aefb4a9c6cf1a50e26cd73f779363db6801bc0a087b69107164bb4550",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.571361
+    },
+    {
+      "suite": "tests/phase2-guard-tokenizer.tests.ps1",
+      "source_sha256": "e4b3fdb8c675ccce1e1e76b607e503f5d66bdb36dde8057676beea5766cb89dc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.462482
+    },
+    {
+      "suite": "tests/a9-dogfood.tests.ps1",
+      "source_sha256": "df36e6c30a8d72fa16caa957e9a03ff0f369a5a9595aaa23f85657e44de3bfb2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 359.58662
+    },
+    {
+      "suite": "tests/resolve-project-context-metamorphic.tests.ps1",
+      "source_sha256": "9e4731ab01fc50291aec96f745f7ebc139c94d6fc8a31ec751f33779a6e47e56",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 20.967456
+    },
+    {
+      "suite": "tests/structural-compatibility.tests.ps1",
+      "source_sha256": "ade3456b0349ca2673b921297e2efc8fa66d96f6ed5e25a9bae43c0c6ddc1f06",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 29.493989
+    },
+    {
+      "suite": "tests/check-risk-upgrade-byte-identical.tests.ps1",
+      "source_sha256": "e7039a6d967d3efbf6a4d8b74069f49b103c206a8e32c140df6aec33a72bad20",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.602547
+    },
+    {
+      "suite": "tests/lite-gate-summary-absent-active-enforcement.tests.ps1",
+      "source_sha256": "bc3c176765b9fb5be1463b22f16be0a2e72078b75468ca8f2cdb3812346c7281",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.321109
+    },
+    {
+      "suite": "tests/generate-registry-digest.tests.ps1",
+      "source_sha256": "d6ce55b87f8adb799b16d9426eacb76f2136494c45d0c6516eaaad4034d1b2cb",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 7.736284
+    },
+    {
+      "suite": "tests/current-byte-capture.tests.py",
+      "source_sha256": "6327f4d77b9d790a584393e4a7480b911b1753ccd722187fc0dd76b976f9579a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 26.361121
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

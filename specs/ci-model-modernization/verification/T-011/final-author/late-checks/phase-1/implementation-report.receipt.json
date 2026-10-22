@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "bash",
+    "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+    "reports/implementation/ci-model-modernization/T-011.md"
+  ],
+  "started_at": "2026-10-21T23:19:54.112941+00:00",
+  "finished_at": "2026-10-21T23:19:54.146425+00:00",
+  "exit_code": 1,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "868cb9140877882e943bbd3e7af396f2c3f94dc4df942b900115cbf5d8ecebc5",
+  "script_sha256": "430e0e45c6bb417cd65f7f7f228bb59280d6d0817c8b34236223b8fbd4702029",
+  "report_sha256": "02a4ba32b11837ce28548bbdd047d07198f1365192fd8b7c0a9e1455fda29e3e",
+  "phase": "actual phase1 authored output; phase2 finalreport will be rechecked"
+}

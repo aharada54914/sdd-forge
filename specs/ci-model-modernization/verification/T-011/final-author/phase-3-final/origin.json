@@ -1,0 +1,20 @@
+{
+  "copies": [
+    {
+      "source_snapshot": "/workspace/t011-final-author-phase2-snapshot/reports/implementation/ci-model-modernization/T-011.md",
+      "source_sha256": "a326c3f721882406a19999d7d4ac13e1c5e593da94fa88939859033f0b05d8f7",
+      "copy_path": "specs/ci-model-modernization/verification/T-011/final-author/phase-3-final/phase2-outputs/report.md",
+      "copy_sha256": "a326c3f721882406a19999d7d4ac13e1c5e593da94fa88939859033f0b05d8f7"
+    },
+    {
+      "source_snapshot": "/workspace/t011-final-author-phase2-snapshot/specs/ci-model-modernization/verification/T-011.contract.json",
+      "source_sha256": "2730ea41377d5cd7c20dc61a0c6cdd3676fb90682c872b09558d78fdf29cf50a",
+      "copy_path": "specs/ci-model-modernization/verification/T-011/final-author/phase-3-final/phase2-outputs/contract.json",
+      "copy_sha256": "2730ea41377d5cd7c20dc61a0c6cdd3676fb90682c872b09558d78fdf29cf50a"
+    }
+  ],
+  "phase2_actual_outputs_preserved": true,
+  "preliminary_phase3": "Created before phase2 author completion message arrived, never delivered to author; retained immutable and superseded by this final admission",
+  "author_context": "/root/t011_final_report_author",
+  "product_changes": false
+}

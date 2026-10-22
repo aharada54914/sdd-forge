@@ -1,0 +1,17 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-powershell",
+  "selected": [
+    "tests/wfi-058-outputs-anchor.tests.ps1",
+    "tests/phase2-guard-tokenizer.tests.ps1",
+    "tests/a9-dogfood.tests.ps1",
+    "tests/resolve-project-context-metamorphic.tests.ps1",
+    "tests/structural-compatibility.tests.ps1",
+    "tests/check-risk-upgrade-byte-identical.tests.ps1",
+    "tests/lite-gate-summary-absent-active-enforcement.tests.ps1",
+    "tests/generate-registry-digest.tests.ps1",
+    "tests/current-byte-capture.tests.py"
+  ],
+  "shard_index": 0,
+  "shard_count": 16
+}

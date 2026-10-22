@@ -1,0 +1,32 @@
+{
+  "purpose": "Factual serialization index only; no rerun, new verdict or retrospective authority",
+  "check_id": "check-component-coverage",
+  "original_contract_sha256": "baf41f1f6836745dbbde4c88cfee15eb983a4f2a234b0e4ce927d8a091bf6233",
+  "original_fields": {
+    "command": "bash plugins/sdd-quality-loop/scripts/check-component-coverage.sh --repo-root /workspace/sdd-forge --source-rev 96afb59fcceab422024d5f2d1abc1b478d7058cf --changed-paths-file /workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/changed-paths.txt",
+    "exit_code": 0,
+    "started_at": "2026-10-21T23:16:10.862565+00:00",
+    "finished_at": "2026-10-21T23:16:10.896071+00:00",
+    "evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/component-coverage.receipt.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/component-coverage.stdout.log: not-applicable (disabled-legacy), manifest not consulted; no component-coverage claim",
+    "red_evidence": "",
+    "green_evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/component-coverage.receipt.json"
+  },
+  "references": [
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/component-coverage.receipt.json",
+      "sha256": "a65f47d7c70c40b832ec178f06ae785487fd1fe4a9716414d37663d4c7e8d808"
+    },
+    {
+      "field": "evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/component-coverage.stdout.log",
+      "sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c"
+    },
+    {
+      "field": "green_evidence",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/component-coverage.receipt.json",
+      "sha256": "a65f47d7c70c40b832ec178f06ae785487fd1fe4a9716414d37663d4c7e8d808"
+    }
+  ],
+  "notes": "Contract evidence/red_evidence/green_evidence must each use one existing canonical file. Preserve detailed lists/pointers here. For component coverage use actual producer verdict stdout directly."
+}

@@ -1,0 +1,18 @@
+{
+  "label": "task-state",
+  "argv": [
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+    "specs/ci-model-modernization/tasks.md",
+    "reports/quality-gate",
+    "reports/implementation/ci-model-modernization",
+    "/workspace/sdd-forge"
+  ],
+  "started_at": "2026-10-21T23:33:31Z",
+  "finished_at": "2026-10-21T23:33:32Z",
+  "exit_code": 0,
+  "stdout": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final/task-state.stdout.log",
+  "stdout_sha256": "cab18379978ed30065cd1ebbbfe251fe2e40a041ab032dc5dd3bf1522f1abf3e",
+  "stderr": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final/task-state.stderr.log",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

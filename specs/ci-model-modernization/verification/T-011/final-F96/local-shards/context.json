@@ -1,0 +1,32 @@
+{
+  "schema": "local-F96-public-evidence-context/v1",
+  "candidate_F": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "completed_scope": "Complete genuine sharded receipt sets: Linux POSIX204 and Linux PowerShell134,16shards/profile32original receipts. No unsharded invocation or native Windows claim.",
+  "actual_final_validation": {
+    "path": "final-receipt-set-validation.json",
+    "sha256": "70a11d4d6f87f128e7bbb450f79bd757c26df02ccc1da62795705c4be312a700"
+  },
+  "original_failed_posix": {
+    "receipt": "../local-history/local-posix/output/receipt.json",
+    "result_counts": {
+      "passed": 196,
+      "failed": 8
+    },
+    "interpretation": "Original execution failed196passed/8failed before external environment-only corrections; retained unchanged, never restamped PASS."
+  },
+  "environment_correction": {
+    "source_changes": false,
+    "wrapper_origin_path": "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+    "wrapper_before_sha256": "05529ecb3e4a5bf10b7c2f55a77d9c7a66e891065e174e1e9eec5b2867be492b",
+    "wrapper_after_sha256": "863a219256b1318935e58299695e13afe2be0e65b89157c70499deb45e7ddad3",
+    "change": "absolute /bin/bash shebang and /bin/mkdir only; XDG and native exec unchanged",
+    "focused_original_receipts": 8,
+    "environment_fields": "Only existing explicit tool/ref five-field environment.json; no process environment dump."
+  },
+  "interrupted_attempts": "Original interruption observations report absent complete receipts/exits. Preserve as incomplete, not a testFAIL or PASS. Raw logs remain external with exact path/hash index.",
+  "relative_reference_base": "local-shards/ retains original producer local-posix/sharded-16 and local-powershell/sharded-16 topology so all original validator/manifest relative references resolve without rewriting originals. Raw-only entries intentionally resolve in the external producer root.",
+  "limits": [
+    "Suite-local declared skips remain visible in retained raw logs; suite success is not a claim every internal case executed.",
+    "Hosted/comparison/tag/installed-payload/finalQA are separate scopes and are not concluded by this local evidence."
+  ]
+}

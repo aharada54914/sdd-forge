@@ -1,0 +1,40 @@
+[
+  {
+    "argv": [
+      "bash",
+      "plugins/sdd-implementation/scripts/prepare-task-snapshot.sh",
+      "--manifest",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/final-author/phase-3-final/task-input-manifest.json",
+      "--repo-root",
+      "/workspace/sdd-forge",
+      "--snapshot-root",
+      "/workspace/t011-final-author-phase3-final-snapshot"
+    ],
+    "started_at": "2026-10-21T23:27:00.595158+00:00",
+    "finished_at": "2026-10-21T23:27:01.875844+00:00",
+    "exit_code": 0,
+    "stdout": "specs/ci-model-modernization/verification/T-011/final-author/phase-3-final/admission-logs/0.stdout.log",
+    "stdout_sha256": "5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75",
+    "stderr": "specs/ci-model-modernization/verification/T-011/final-author/phase-3-final/admission-logs/0.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "bash",
+      "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "--manifest",
+      "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/final-author/phase-3-final/task-input-manifest.json",
+      "--snapshot-root",
+      "/workspace/t011-final-author-phase3-final-snapshot",
+      "--expected-task",
+      "T-011"
+    ],
+    "started_at": "2026-10-21T23:27:01.876298+00:00",
+    "finished_at": "2026-10-21T23:27:02.043264+00:00",
+    "exit_code": 0,
+    "stdout": "specs/ci-model-modernization/verification/T-011/final-author/phase-3-final/admission-logs/1.stdout.log",
+    "stdout_sha256": "5c5a224cdcb7cbc7dd87a9f22fc1e02889b8f3a0419b23f5705c63ecf143da75",
+    "stderr": "specs/ci-model-modernization/verification/T-011/final-author/phase-3-final/admission-logs/1.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

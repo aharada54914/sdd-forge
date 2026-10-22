@@ -1,0 +1,17 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-powershell",
+  "selected": [
+    "tests/review-hash-normalization.tests.ps1",
+    "tests/task-context-isolation.tests.ps1",
+    "tests/claude-registration.tests.ps1",
+    "tests/workflow-state-repository-integration.tests.ps1",
+    "tests/design-system-contract.tests.ps1",
+    "tests/project-context-schema.tests.ps1",
+    "tests/approver-registry-schema.tests.ps1",
+    "tests/hook-guard-epic-a1-boundary.tests.ps1",
+    "tests/lite-spec-capability-block.tests.ps1"
+  ],
+  "shard_index": 4,
+  "shard_count": 16
+}

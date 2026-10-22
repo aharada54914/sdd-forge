@@ -1,0 +1,78 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-powershell",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/check-placeholders-brownfield.tests.ps1",
+    "tests/resolve-project-context-match.tests.ps1",
+    "tests/skip-allowlist-manifest.tests.ps1",
+    "tests/path-lineending-regression.tests.ps1",
+    "tests/cross-runtime-handoff.tests.ps1",
+    "tests/lite-gate-full-upgrade-backstop.tests.ps1",
+    "tests/generate-gate-capabilities.tests.ps1",
+    "tests/verification-impact.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/check-placeholders-brownfield.tests.ps1",
+      "source_sha256": "ee4951f364d5799cff21b2810e36ad21b1ef7aed2e215b6c5d316e2ac00eed07",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.289312
+    },
+    {
+      "suite": "tests/resolve-project-context-match.tests.ps1",
+      "source_sha256": "f843a1994de123e3444efe8322fbbacad197bf5873f42f18358d47678efc1482",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 11.627227
+    },
+    {
+      "suite": "tests/skip-allowlist-manifest.tests.ps1",
+      "source_sha256": "137366e8f5885f4c383f077228d68033c857b8a931a0c53f212a3f8e23f23e30",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 13.880855
+    },
+    {
+      "suite": "tests/path-lineending-regression.tests.ps1",
+      "source_sha256": "d8e9e392a9a2078c00290897a8b6c80fa3dea4926dc1e29ec1c356da69f97f65",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.493091
+    },
+    {
+      "suite": "tests/cross-runtime-handoff.tests.ps1",
+      "source_sha256": "6ee365237f7fbd7881b4ff6807196bc34e6214896a7e26dfe5d6d89359c0c626",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 24.094671
+    },
+    {
+      "suite": "tests/lite-gate-full-upgrade-backstop.tests.ps1",
+      "source_sha256": "1ca912f85907c0a9488a69dd2f43bf8608db4d285bf397dca535f19b80526a64",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.331369
+    },
+    {
+      "suite": "tests/generate-gate-capabilities.tests.ps1",
+      "source_sha256": "ebc184f41f2a5fe32c67f7c83ee8d4419a5828f690ee4bfbf8d8b000682755f7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.8097
+    },
+    {
+      "suite": "tests/verification-impact.tests.py",
+      "source_sha256": "4d3ce93e8c253521ada3b1e61531ad6d6824953c13ae4d68e0d7081cb78aefcc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.154475
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

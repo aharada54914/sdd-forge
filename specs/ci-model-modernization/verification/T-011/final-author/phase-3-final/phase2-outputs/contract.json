@@ -1,0 +1,312 @@
+{
+  "task_id": "T-011",
+  "feature": "ci-model-modernization",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "created": "2026-10-21T23:25:34.736899+00:00",
+  "comment": "Actual phase2 final report/contract by same Work context work-agent:root:t011_final_report_author. F=96afb59fcceab422024d5f2d1abc1b478d7058cf. Exact command/source/time scope is in specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json. Scoped existing F hosted/local results and actual late checks support passes; composite command/time ranges are multiple real invocations, not a synthetic rerun. Missing original timestamps remain null. Lint remains false pending comprehensive final-source evidence. Component command exit0 explicitly reports not-applicable(disabled-legacy), not coverage. Task-state receipt is actual phase1; final phase2 task/report/contract rechecks pending. Independent combined-scope QA/Done unclaimed; actual merge_group/live-cloud unavailable. Backend unknown; USD5/strong planning allowance only.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/root-static-observation.json proves final collector pair only; broader current changed-source lint remains without admitted evidence. No waiver.",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/root-static-observation.json",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/typecheck; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/observations/jobs/1-1.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json (historical correction chronology; no new Red claimed for unchanged predecessor build/type steps)",
+      "green_evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/typecheck",
+      "command": "npx tsc --noEmit",
+      "exit_code": 0,
+      "started_at": "2026-10-21T19:04:41Z",
+      "finished_at": "2026-10-21T19:37:21Z"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/unit-tests; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/observations/jobs/1-1.json; specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json (includes planner/collector/model unit suites; full argv and source hashes in author receipt)",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json (historical correction chronology; no new Red claimed for unchanged predecessor build/type steps)",
+      "green_evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/unit-tests",
+      "command": "npm test",
+      "exit_code": 0,
+      "started_at": "2026-10-21T19:04:42Z",
+      "finished_at": "2026-10-21T19:37:36Z"
+    },
+    {
+      "id": "integration-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/integration-tests; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/observations/jobs/1-1.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json (historical correction chronology; no new Red claimed for unchanged predecessor build/type steps)",
+      "green_evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/integration-tests",
+      "command": "./tests/install.tests.ps1 -Lane ${{ matrix.lane }}\nbash -n ./tests/release-host-smoke.sh\n./tests/install.tests.sh 2>&1 | tee \"${{ runner.temp }}/install-tests-sh.log\"\n",
+      "exit_code": 0,
+      "started_at": "2026-10-21T19:04:36Z",
+      "finished_at": "2026-10-21T19:14:11Z"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/build; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/observations/jobs/1-1.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json (historical correction chronology; no new Red claimed for unchanged predecessor build/type steps)",
+      "green_evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/build",
+      "command": "npm run build\ngit diff --exit-code -- dist/\n",
+      "exit_code": 0,
+      "started_at": "2026-10-21T19:06:28Z",
+      "finished_at": "2026-10-21T19:12:10Z"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-production.receipt.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-scope-correction.json preserves initial test-helper finding and retains production CI scripts",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-scan.receipt.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/placeholder-production.receipt.json",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-placeholders.sh .agents/plugins/marketplace.json .claude-plugin/marketplace.json .github/workflows/test.yml contracts/verification-ci-plan.schema.json install-payload.txt install.ps1 install.sh plugins/sdd-aws-cloud/.claude-plugin/plugin.json plugins/sdd-aws-cloud/.codex-plugin/plugin.json plugins/sdd-aws-cloud/.plugin/plugin.json plugins/sdd-azure-cloud/.claude-plugin/plugin.json plugins/sdd-azure-cloud/.codex-plugin/plugin.json plugins/sdd-azure-cloud/.plugin/plugin.json plugins/sdd-bootstrap/.claude-plugin/plugin.json plugins/sdd-bootstrap/.codex-plugin/plugin.json plugins/sdd-bootstrap/.plugin/plugin.json plugins/sdd-domain/.claude-plugin/plugin.json plugins/sdd-domain/.codex-plugin/plugin.json plugins/sdd-domain/.plugin/plugin.json plugins/sdd-implementation/.claude-plugin/plugin.json plugins/sdd-implementation/.codex-plugin/plugin.json plugins/sdd-implementation/.plugin/plugin.json plugins/sdd-lite/.claude-plugin/plugin.json plugins/sdd-lite/.codex-plugin/plugin.json plugins/sdd-lite/.plugin/plugin.json plugins/sdd-quality-loop/.claude-plugin/plugin.json plugins/sdd-quality-loop/.codex-plugin/plugin.json plugins/sdd-quality-loop/.plugin/plugin.json plugins/sdd-quality-loop/references/guard-invariants.json plugins/sdd-quality-loop/scripts/generate-guard-invariants.py plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh plugins/sdd-quality-loop/scripts/generated/guard_invariants.py plugins/sdd-review-loop/.claude-plugin/plugin.json plugins/sdd-review-loop/.codex-plugin/plugin.json plugins/sdd-review-loop/.plugin/plugin.json plugins/sdd-ship/.claude-plugin/plugin.json plugins/sdd-ship/.codex-plugin/plugin.json plugins/sdd-ship/.plugin/plugin.json scripts/human_copy_mirrors.py tests/validate-repository.ps1 tests/verification-catalog.json tests/verification-ci.py tests/verification-impact.py",
+      "exit_code": 0,
+      "started_at": "2026-10-21T23:16:50.864912+00:00",
+      "finished_at": "2026-10-21T23:16:50.874781+00:00"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/task-state.receipt.json; actual phase1 report check, final phase2 report will be rechecked by Root; no prospective recheck PASS claimed",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/task-state.receipt.json",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-model-modernization/tasks.md reports/quality-gate reports/implementation/ci-model-modernization /workspace/sdd-forge",
+      "exit_code": 0,
+      "started_at": "2026-10-21T23:19:52.969702+00:00",
+      "finished_at": "2026-10-21T23:19:54.112172+00:00"
+    },
+    {
+      "id": "smoke-run",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/smoke-run; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/observations/jobs/1-1.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json (historical correction chronology; no new Red claimed for unchanged predecessor build/type steps)",
+      "green_evidence": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/hosted_check_mapping/smoke-run",
+      "command": "bash ./tests/loop-driver.tests.sh\n./tests/loop-driver.tests.ps1",
+      "exit_code": 0,
+      "started_at": "2026-10-21T19:05:09Z",
+      "finished_at": "2026-10-21T19:11:24Z"
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/activation.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/mutation-result.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Not applicable: this CI/model/install release and report/contract authoring changes no product UI or design-system surface.",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Not applicable: this CI/model/install release and report/contract authoring changes no product UI or design-system surface.",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "",
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json; specs/ci-model-modernization/verification/T-011/final-F96/distribution/final-eight-path-summary.json; specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json (all14 TEST mapping, explicitly pending actual merge_group); specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/local_shard_mapping",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json; specs/ci-model-modernization/verification/T-011/final-F96/local-history/local-posix/output/receipt.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json",
+      "command": "python3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 0 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-00/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 1 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-01/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 2 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-02/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 3 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-03/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 4 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-04/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 5 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-05/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 6 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-06/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 7 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-07/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 8 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-08/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 9 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-09/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 10 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-10/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 11 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-11/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 12 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-12/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 13 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-13/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 14 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-14/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 15 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-15/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 0 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-00/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 1 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-01/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 2 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-02/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 3 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-03/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 4 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-04/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 5 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-05/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 6 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-06/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 7 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-07/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 8 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-08/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 9 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-09/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 10 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-10/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 11 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-11/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 12 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-12/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 13 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-13/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 14 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-14/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 15 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-15/receipt.json",
+      "exit_code": 0,
+      "started_at": "2026-10-21T21:39:23.991754+00:00",
+      "finished_at": null
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json; specs/ci-model-modernization/verification/T-011/final-F96/distribution/final-eight-path-summary.json; specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json (all14 TEST mapping, explicitly pending actual merge_group); specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json#/local_shard_mapping",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.json; specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json; specs/ci-model-modernization/verification/T-011/final-F96/local-history/local-posix/output/receipt.json",
+      "green_evidence": "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json; specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json",
+      "command": "python3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 0 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-00/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 1 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-01/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 2 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-02/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 3 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-03/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 4 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-04/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 5 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-05/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 6 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-06/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 7 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-07/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 8 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-08/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 9 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-09/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 10 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-10/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 11 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-11/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 12 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-12/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 13 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-13/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 14 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-14/receipt.json\npython3 -B tests/verification.py --profile local-posix --shard-count 16 --shard-index 15 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-posix/sharded-16/shard-15/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 0 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-00/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 1 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-01/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 2 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-02/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 3 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-03/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 4 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-04/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 5 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-05/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 6 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-06/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 7 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-07/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 8 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-08/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 9 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-09/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 10 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-10/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 11 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-11/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 12 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-12/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 13 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-13/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 14 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-14/receipt.json\npython3 -B tests/verification.py --profile local-powershell --shard-count 16 --shard-index 15 --run --powershell /workspace/.tools/sdd-forge-dev/bin/pwsh --receipt /workspace/native-ci-failures/final-96afb59f/local-powershell/sharded-16/shard-15/receipt.json",
+      "exit_code": 0,
+      "started_at": "2026-10-21T21:39:23.991754+00:00",
+      "finished_at": null
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/traceability.receipt.json",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/traceability.receipt.json",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/ci-model-modernization/traceability.json /workspace/sdd-forge require-evidence",
+      "exit_code": 0,
+      "started_at": "2026-10-21T23:16:10.813962+00:00",
+      "finished_at": "2026-10-21T23:16:10.850099+00:00"
+    },
+    {
+      "id": "check-component-coverage",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/component-coverage.receipt.json; specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/component-coverage.stdout.log: not-applicable (disabled-legacy), manifest not consulted; no component-coverage claim",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-009",
+        "REQ-010",
+        "REQ-020"
+      ],
+      "red_evidence": "",
+      "green_evidence": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/component-coverage.receipt.json",
+      "command": "bash plugins/sdd-quality-loop/scripts/check-component-coverage.sh --repo-root /workspace/sdd-forge --source-rev 96afb59fcceab422024d5f2d1abc1b478d7058cf --changed-paths-file /workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/changed-paths.txt",
+      "exit_code": 0,
+      "started_at": "2026-10-21T23:16:10.862565+00:00",
+      "finished_at": "2026-10-21T23:16:10.896071+00:00"
+    }
+  ],
+  "schema": "verification-contract/v2"
+}

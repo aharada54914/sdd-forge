@@ -1,0 +1,38 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-posix",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/wfi-034-scratch-metric.tests.sh",
+    "tests/check-installed-plugin-drift.tests.sh",
+    "tests/task-structured-output.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/wfi-034-scratch-metric.tests.sh",
+      "source_sha256": "345bca7afcc0cc747dd26d35562d9cb3404b63b45cb5901fbc137a390b0747ae",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.438489
+    },
+    {
+      "suite": "tests/check-installed-plugin-drift.tests.sh",
+      "source_sha256": "4a111a1cb43f7c8e2d0632182b2bc848036a901810ca122166d37e128984b4f2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 54.048164
+    },
+    {
+      "suite": "tests/task-structured-output.tests.py",
+      "source_sha256": "51a17f49fac6570e39c7b7079b539de3b179725dda418184410399cc20299a83",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.513026
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

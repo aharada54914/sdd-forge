@@ -1,0 +1,9 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-posix",
+  "selected": [
+    "tests/workflow-state.tests.sh"
+  ],
+  "shard_index": 3,
+  "shard_count": 16
+}

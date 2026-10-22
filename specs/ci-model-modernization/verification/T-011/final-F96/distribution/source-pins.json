@@ -1,0 +1,38 @@
+{
+  "F": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "files": {
+    "install.sh": "69622850e204ab139d6a355e2f13c2db65a07d71a25065dc67daa7ee6105cc1a",
+    "install.ps1": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1",
+    "install-payload.txt": "fb3096c0a8192cb01ec3b62bb4861a982098495d0bb161ec7b312fdf22436d93",
+    "tests/lib/install-payload-check.py": "c12915ccf070c641b663b7f54efcc495000689cf0fce2e27e73ff6e21ca032af",
+    "tests/lib/current-byte-capture.py": "fe1adcd1e6debfaa6d044e37d34b06ec06cf6b17302dc2b735c076e53c131497",
+    "contracts/model-policy.v1.json": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e",
+    "contracts/model-adoption/ci-model-modernization-20261021.json": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32"
+  },
+  "audit_files": [
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/audit.py",
+      "sha256": "b4d7a5f83c9adb09eddb9a79fc4c1a367da71c1fe6ecba3be8500db4587d2c36"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/archive-audit.py",
+      "sha256": "db62edce80727c6c3c99748712e55950d0f94e3694c24cd5c8762c47ee97004b"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/installed-production.py",
+      "sha256": "82d41beb520de5835d5aa81d31a32bcc29df6034fa864bda98a46a89a9407396"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/links.py",
+      "sha256": "8e289d8ffd2e243c737cc3add31238f7ad2c7c202d42dd886155d0ba62cfdb22"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-windows-plan/audit-windows-release.py",
+      "sha256": "eecb691c21f121fdadb1021593adfb07d8d9b298684e28f038e011fa7a632599"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-windows-plan/final-windows-payload.yml",
+      "sha256": "9b5314ca8a2d9cd774b97bb5415c4a186380eecb00a62cde7867b67036185bff"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-posix",
+  "selected": [
+    "tests/sdd-domain-multitarget-foundation.tests.py",
+    "tests/guards.tests.sh",
+    "tests/approval-boundary.tests.sh",
+    "tests/gates.tests.sh",
+    "tests/downstream-review-precheck.tests.sh",
+    "tests/retrospective-loop.tests.sh",
+    "tests/cross-model.tests.sh",
+    "tests/quality-loop-calibration.tests.sh",
+    "tests/p0-hardening.tests.sh",
+    "tests/task-lifecycle-enum-parity.tests.sh",
+    "tests/loop-escalation.tests.sh",
+    "tests/bootstrap-cross-layer-index.tests.sh",
+    "tests/resolve-project-context-discovery.tests.sh",
+    "tests/resolve-project-context-lite.tests.sh",
+    "tests/validate-resolver-evidence.tests.sh",
+    "tests/check-risk-upgrade-fragment-fail-closed.tests.sh",
+    "tests/lite-gate-cli-chain.tests.sh",
+    "tests/capability-registry-schema.tests.sh",
+    "tests/component-path-diff-basis.tests.sh",
+    "tests/sdd-domain-multitarget-T-004.tests.sh",
+    "tests/verification-ci-plan.tests.py"
+  ],
+  "shard_index": 13,
+  "shard_count": 16
+}

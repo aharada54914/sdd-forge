@@ -1,0 +1,425 @@
+{
+  "final_revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "status": "PASS",
+  "scope": "Dedicated exact-F hosted full verification and four actual normal-PR/manual-full comparison pairs; not final installation audit, release tag, or task-quality verdict.",
+  "collector_sha256": "2705fb54c1cdaf5a0bfcadffe700153e401f0be240db40293dd60e9a72ddb6c1",
+  "runs": [
+    {
+      "run_id": 39658317723,
+      "final_attempt": 1,
+      "event": "workflow_dispatch",
+      "api_head_sha": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+      "tested_revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+      "plan_mode": "full",
+      "plan_reason": "event-full",
+      "selected": 449,
+      "omitted": 0,
+      "status": "PASS",
+      "result_reasons": {
+        "verified": 448,
+        "advisory-inactive": 1
+      },
+      "evidence": [
+        {
+          "path": "39658317723/plan/plan.json",
+          "sha256": "c5159189f6b6de3405e0f01fd765edbfd90e2e944d84ef3546b54a8f16d87deb"
+        },
+        {
+          "path": "39658317723/aggregate.json",
+          "sha256": "631d0ba93011bbf58c3010a125ae7b20a3514f442074c8c4b6c11bd3c63af22d"
+        },
+        {
+          "path": "39658317723/final-run.json",
+          "sha256": "d7b11d223cfda9781112628429e53089bbfe82b9d94559593e4ed605771c3c9d"
+        },
+        {
+          "path": "39658317723/transport-report.json",
+          "sha256": "9ac7dc52b1472050b176678d57745e1e968c53e4de4e1447f5a6c0cf78479a13"
+        },
+        {
+          "path": "39658317723/run-metrics.json",
+          "sha256": "20f64ae1dcd71f65ed36da9ef0700ee5ca6d1633a082b60571f6cbdf103d5f5f"
+        },
+        {
+          "path": "39658317723/observations/collection.json",
+          "sha256": "cdbe51ec17bbbaebd9410eacc7153445fad94e9a4e53f5f7ceebae513d0f14e5"
+        }
+      ]
+    },
+    {
+      "run_id": 39658399077,
+      "final_attempt": 1,
+      "event": "pull_request",
+      "api_head_sha": "035711d21847a69c62c50f23e0f868af4604a3eb",
+      "tested_revision": "27c183321a3055322283cdb8250d6c023a8c2c36",
+      "plan_mode": "affected",
+      "plan_reason": "classified-change",
+      "selected": 443,
+      "omitted": 6,
+      "status": "PASS",
+      "result_reasons": {
+        "verified": 442,
+        "advisory-inactive": 1,
+        "unrelated-category": 6
+      },
+      "evidence": [
+        {
+          "path": "39658399077/plan/plan.json",
+          "sha256": "234dad1217b277a85be9049df3d6a3784851052a72bc88a0dd2f385141ee964a"
+        },
+        {
+          "path": "39658399077/aggregate.json",
+          "sha256": "990be78d4e41edc7d21b18fb16f90ee2e97fac7771e7c11848374f0dc802bf6d"
+        },
+        {
+          "path": "39658399077/final-run.json",
+          "sha256": "46f886600f1e187945ed2be772e5036dce148d558713e748b6698a0a53c3dd33"
+        },
+        {
+          "path": "39658399077/transport-report.json",
+          "sha256": "1102db6dfaec4ced565403f2da0973960c728eb4eea762912cb75a99aa3cbda7"
+        },
+        {
+          "path": "39658399077/run-metrics.json",
+          "sha256": "1ca969fe989bbe263cb2dfed13e771849830eee22411fb1664a5077b9f94b91c"
+        },
+        {
+          "path": "39658399077/observations/collection.json",
+          "sha256": "b8098e1827232bf5ee75d3ccd73f46f46cbf32443724848be41f189bbbbcdbfc"
+        }
+      ]
+    },
+    {
+      "run_id": 39658400137,
+      "final_attempt": 1,
+      "event": "workflow_dispatch",
+      "api_head_sha": "035711d21847a69c62c50f23e0f868af4604a3eb",
+      "tested_revision": "035711d21847a69c62c50f23e0f868af4604a3eb",
+      "plan_mode": "full",
+      "plan_reason": "event-full",
+      "selected": 449,
+      "omitted": 0,
+      "status": "PASS",
+      "result_reasons": {
+        "verified": 448,
+        "advisory-inactive": 1
+      },
+      "evidence": [
+        {
+          "path": "39658400137/plan/plan.json",
+          "sha256": "d19ee3d317f56758d59b4a579a7b03eadc8947e5aa0fa836b55ffd208dbf1114"
+        },
+        {
+          "path": "39658400137/aggregate.json",
+          "sha256": "0b28702c49495209ca35accde3d64735c4d15cd98344096695aa4379f20461e7"
+        },
+        {
+          "path": "39658400137/final-run.json",
+          "sha256": "88f89eb6d46faf9ab3a469cbdfb9ef0e1446ddd1f1d6928bdb97da0068d0d64f"
+        },
+        {
+          "path": "39658400137/transport-report.json",
+          "sha256": "949e5fac789c77e5ed3d1ef8e422d407dc6e2fdc047f0e81e0d11bf89bd251ee"
+        },
+        {
+          "path": "39658400137/run-metrics.json",
+          "sha256": "e0d6d00b8212f7919022ef7d73a54916cbb33d664aff79c7fa8832e352665332"
+        },
+        {
+          "path": "39658400137/observations/collection.json",
+          "sha256": "a36470e305f3827686352e489b9148b82e6b14b8273cd85e9990616f987822a2"
+        }
+      ]
+    },
+    {
+      "run_id": 39658418659,
+      "final_attempt": 1,
+      "event": "pull_request",
+      "api_head_sha": "0fd45bffd20f8aa0163918e6fb2e0ef0db2a7fb2",
+      "tested_revision": "f67925da470d720cbc884ca7314f768be3b08d33",
+      "plan_mode": "full",
+      "plan_reason": "unknown-path",
+      "selected": 449,
+      "omitted": 0,
+      "status": "PASS",
+      "result_reasons": {
+        "verified": 448,
+        "advisory-inactive": 1
+      },
+      "evidence": [
+        {
+          "path": "39658418659/plan/plan.json",
+          "sha256": "dee5e7ccb1497a4185765bbd68614e34575554460b3a2544db44d19bda57a7ec"
+        },
+        {
+          "path": "39658418659/aggregate.json",
+          "sha256": "20ad4fd34f3b6da865405359d88e4d607b10b78b780d0526f2fdd90c88088d8a"
+        },
+        {
+          "path": "39658418659/final-run.json",
+          "sha256": "f4bdc974ec24b09d8b2dc2cd8602ab4a74d5b6798a0f4a0f4936aa10dfd2546d"
+        },
+        {
+          "path": "39658418659/transport-report.json",
+          "sha256": "2831ed9a19aff7345b5f92d52515e14cb6aa7d829681d485779a29ba57cd0b72"
+        },
+        {
+          "path": "39658418659/run-metrics.json",
+          "sha256": "1617b37290d72122b0d2886baf0369070c4531d0b8eefd858916945a542f4fed"
+        },
+        {
+          "path": "39658418659/observations/collection.json",
+          "sha256": "daefe4d2e2a1634f256d754b2e722fe39098311294f82a8e5e574349b5870413"
+        }
+      ]
+    },
+    {
+      "run_id": 39658418082,
+      "final_attempt": 2,
+      "event": "workflow_dispatch",
+      "api_head_sha": "0fd45bffd20f8aa0163918e6fb2e0ef0db2a7fb2",
+      "tested_revision": "0fd45bffd20f8aa0163918e6fb2e0ef0db2a7fb2",
+      "plan_mode": "full",
+      "plan_reason": "event-full",
+      "selected": 449,
+      "omitted": 0,
+      "status": "PASS",
+      "result_reasons": {
+        "verified": 448,
+        "advisory-inactive": 1
+      },
+      "evidence": [
+        {
+          "path": "39658418082/plan/plan.json",
+          "sha256": "2595769d38809ef5e9b43eef096006a627761fcc3eeb0cdee8cafbf5b3897bd5"
+        },
+        {
+          "path": "39658418082/aggregate.json",
+          "sha256": "dd34d56ba269b270f79bf7ab62e3cd8889e036974b499eca87bca5b652856efb"
+        },
+        {
+          "path": "39658418082/final-run.json",
+          "sha256": "089a94effaedae0680d63d04de56ab9c44db23801450f139bbfbc7966e134c61"
+        },
+        {
+          "path": "39658418082/transport-report.json",
+          "sha256": "dd7d838365385644441e84775213d24a5fe1048f06a375535c527f9900101a2e"
+        },
+        {
+          "path": "39658418082/retry-aware-metrics.json",
+          "sha256": "1c69e703e1ed423b56787a151f0db5c40dd61e3a30edf6f425feed701d8fb30a"
+        },
+        {
+          "path": "39658418082/observations/collection.json",
+          "sha256": "fea23371d9bac72400a08ff19455fa2a9250e1de0df09d68bf943551dd3ce1e7"
+        }
+      ]
+    },
+    {
+      "run_id": 39658435079,
+      "final_attempt": 1,
+      "event": "pull_request",
+      "api_head_sha": "5b03917593a2fca6d439ca2eeb7d886d756bd4a2",
+      "tested_revision": "8918375ee1295166784053ff06a0592d4a825e1e",
+      "plan_mode": "full",
+      "plan_reason": "unknown-path",
+      "selected": 449,
+      "omitted": 0,
+      "status": "PASS",
+      "result_reasons": {
+        "verified": 448,
+        "advisory-inactive": 1
+      },
+      "evidence": [
+        {
+          "path": "39658435079/plan/plan.json",
+          "sha256": "2529f6ab0115c029901b3756b4a969849bb4c6e6b2115ea61c57a4b25a5783d9"
+        },
+        {
+          "path": "39658435079/aggregate.json",
+          "sha256": "4572584cd30b81fe728f9149608957b31e24d88817e8b681a836f71dc69e510a"
+        },
+        {
+          "path": "39658435079/final-run.json",
+          "sha256": "ab208ca79902514ac24890f6fb15988f4c8cb933ec1d51a47ca9dbbccc2dbb90"
+        },
+        {
+          "path": "39658435079/transport-report.json",
+          "sha256": "24c212ee4b72646dc308651e688abc64c0d75d0c2d0cbaf4cdb5f27bb53b6ee2"
+        },
+        {
+          "path": "39658435079/run-metrics.json",
+          "sha256": "1166c813152764548a1ca16ce2ba2f1fd792c787ce01227d3301b7a5ed3ec9e1"
+        },
+        {
+          "path": "39658435079/observations/collection.json",
+          "sha256": "38414909fa9ff817f9919ec4fad9b6930781b3693c5f7885c6a177f083ed31a7"
+        }
+      ]
+    },
+    {
+      "run_id": 39658434467,
+      "final_attempt": 2,
+      "event": "workflow_dispatch",
+      "api_head_sha": "5b03917593a2fca6d439ca2eeb7d886d756bd4a2",
+      "tested_revision": "5b03917593a2fca6d439ca2eeb7d886d756bd4a2",
+      "plan_mode": "full",
+      "plan_reason": "event-full",
+      "selected": 449,
+      "omitted": 0,
+      "status": "PASS",
+      "result_reasons": {
+        "verified": 448,
+        "advisory-inactive": 1
+      },
+      "evidence": [
+        {
+          "path": "39658434467/plan/plan.json",
+          "sha256": "ba3b548c4b7cd2f27ccedfe798336b728293bb01bc90c229580e9fbc2bce7ea0"
+        },
+        {
+          "path": "39658434467/aggregate.json",
+          "sha256": "1da69a65688360230e7e907d1c05aca669bad3768d956615ff5c5387ad321020"
+        },
+        {
+          "path": "39658434467/final-run.json",
+          "sha256": "fdef02983668a18e14159c4a09e99c36c4ade2ac0a8814d05fc929fe37206851"
+        },
+        {
+          "path": "39658434467/transport-report.json",
+          "sha256": "b17c1d875a0b36b6ac29536c9d0366fe763369a92a5b6d149d9678f2d99833e4"
+        },
+        {
+          "path": "39658434467/retry-aware-metrics.json",
+          "sha256": "e386f0037b789d71e8942808a5b0942e3d8381cfcdf8ba3c74a8e4966c3adb34"
+        },
+        {
+          "path": "39658434467/observations/collection.json",
+          "sha256": "d2c8d3adc148d976a1baca4399fdcae59fb59c7f270304a82177643e7acbb8c8"
+        }
+      ]
+    },
+    {
+      "run_id": 39658452393,
+      "final_attempt": 2,
+      "event": "pull_request",
+      "api_head_sha": "d8a2155adeb49ea4109874c50e089f2e029cab26",
+      "tested_revision": "bd74b5f62c4d4d3ed46271290c7c2526e8fa05a3",
+      "plan_mode": "full",
+      "plan_reason": "shared-change",
+      "selected": 449,
+      "omitted": 0,
+      "status": "PASS",
+      "result_reasons": {
+        "verified": 448,
+        "advisory-inactive": 1
+      },
+      "evidence": [
+        {
+          "path": "39658452393/plan/plan.json",
+          "sha256": "9542d64eba4deaf18120bece87d0b7da862aed0b7c4663edb7f4ff238cd974d4"
+        },
+        {
+          "path": "39658452393/aggregate.json",
+          "sha256": "f8842577d924301427c40bd69a1413f274f79c1c1d3c81cc3fadb8f0921db8cb"
+        },
+        {
+          "path": "39658452393/final-run.json",
+          "sha256": "8d617414a746121cebba2c9908e90c3a9cb3bd129beae33547ec79ef8e9e7b53"
+        },
+        {
+          "path": "39658452393/transport-report.json",
+          "sha256": "8f95a283d9de049668f94ec1216ed42ad7d06b05e6a2813e72697c3a587645f3"
+        },
+        {
+          "path": "39658452393/retry-aware-metrics.json",
+          "sha256": "3b277e21fc8ff73aa0f18a3f1f0dfb40805209084b7914c16f84e87077130a1c"
+        },
+        {
+          "path": "39658452393/observations/collection.json",
+          "sha256": "d1a5135c8b8e90a75f0cb4832595b37f3fd54848dc8cfd2bfd12d29609ef5d4d"
+        }
+      ]
+    },
+    {
+      "run_id": 39658451096,
+      "final_attempt": 2,
+      "event": "workflow_dispatch",
+      "api_head_sha": "d8a2155adeb49ea4109874c50e089f2e029cab26",
+      "tested_revision": "d8a2155adeb49ea4109874c50e089f2e029cab26",
+      "plan_mode": "full",
+      "plan_reason": "event-full",
+      "selected": 449,
+      "omitted": 0,
+      "status": "PASS",
+      "result_reasons": {
+        "verified": 448,
+        "advisory-inactive": 1
+      },
+      "evidence": [
+        {
+          "path": "39658451096/plan/plan.json",
+          "sha256": "ee8635de1b3fded04a02d000428ec8a96998a91cf5ae00aecda7deada2e089c1"
+        },
+        {
+          "path": "39658451096/aggregate.json",
+          "sha256": "6e46091970a7a1b9ba49dd4bea0255bdbf8b819496c8af6adbf8443f4fd45707"
+        },
+        {
+          "path": "39658451096/final-run.json",
+          "sha256": "32d55024d2cf889405f97c5090e8721f1f171afc30295ed3bfc3bdbba9a285ad"
+        },
+        {
+          "path": "39658451096/transport-report.json",
+          "sha256": "94a5ee58c9b1dc81e271b25a34c4eead8b3b54acb08f9779b22cf3acfdbf940a"
+        },
+        {
+          "path": "39658451096/retry-aware-metrics.json",
+          "sha256": "b65d16da398c739c17c91b17e1766ad8d4a03d10778eae2ab7920985d03d4164"
+        },
+        {
+          "path": "39658451096/observations/collection.json",
+          "sha256": "190dffa139dda8aa95afec0a9962625d0ebe9b45a39196f6e0d969cb4fa1ab1e"
+        }
+      ]
+    }
+  ],
+  "pairs": [
+    {
+      "path": "readme-pair-comparison.json",
+      "sha256": "4829bbbf16246c445e15755db4d4789bf766d4f5136bbd5d1c0f88914d659ea2"
+    },
+    {
+      "path": "mcp-pair-comparison.json",
+      "sha256": "bcd0bc99d3706e9c033b9b52a6e33ec53dacdc842ac1e25037fd0e8ab18eea67"
+    },
+    {
+      "path": "cloud-pair-comparison.json",
+      "sha256": "ede64d793e3973709329021c1a70257bfb2339f447f366dc68a7586c8dca5a2c"
+    },
+    {
+      "path": "shared-pair-comparison.json",
+      "sha256": "c68c4834d3aa7093cf874a77692c4b13197019a07b6d001ee5bb6658cb38f61e"
+    }
+  ],
+  "support": [
+    {
+      "path": "final-source-consumer-validation.json",
+      "sha256": "c5bbb2b7d6ee795351c67a7c588360abc71683deb29e019205762de0bb532b18"
+    },
+    {
+      "path": "representative-cache-observations.json",
+      "sha256": "ccf59cc9253a76cefd7c324cc7c98daf311a1d8b7c32e8c59d1df3203b7b06ee"
+    }
+  ],
+  "retry_policy": "Four original infrastructure/setup failures retained. Each received exactly one targeted job/dependent-aggregate recovery; original planning and all execution attempts preserved.",
+  "measurement_limit": "Execution sums, observed spans, retry overhead and representative cache outcomes are distinct. No causal speedup or billed savings claimed.",
+  "private_exclusions": [
+    "connector-zips",
+    "cache-logs",
+    "raw failure logs",
+    "signed download URLs",
+    "local helper scripts",
+    "private identity ledger"
+  ]
+}

@@ -1,0 +1,151 @@
+{
+  "schema": "t011-final-author-receipt/v1",
+  "created_at": "2026-10-21T23:19:13.891279+00:00",
+  "actual_work_context": "/root/t011_final_report_author",
+  "run_id": "ci-model-modernization-T-011-final-delivery-20261021T231336Z",
+  "session_id": "work-agent:root:t011_final_report_author",
+  "agent_instance_id": "work-agent:root:t011_final_report_author",
+  "provider": "unknown",
+  "model": "unknown",
+  "effort": "unknown",
+  "manifest_path": "specs/ci-model-modernization/verification/T-011/final-author/phase-1/task-input-manifest.json",
+  "manifest_sha256": "f63618fd09e7520a05ac3c0cc94606e406d26a5bca3a87d7aed7562a71bbed2b",
+  "input_hash_validation": {
+    "count": 1674,
+    "mismatches": []
+  },
+  "preserved_historical_output_rows": 1320,
+  "spec_provenance": {
+    "specs/ci-model-modernization/acceptance-tests.md": "c0979ddaee454da8f2cc42b2854d4af0e71eb304788358b861eb19457e07aca1",
+    "specs/ci-model-modernization/design.md": "c1aefb02c1e8d712fb73aea55263b8629939bba9fc63256c2ffeec62e184353b",
+    "specs/ci-model-modernization/frontend-spec.md": "5c235ed0f3c037778b387483307354c4848987f8f1774cab72bd74538f727657",
+    "specs/ci-model-modernization/infra-spec.md": "5a2a164004869072a025d665e8625c37bd2ab6cdc8d402ed053c89233b9a254c",
+    "specs/ci-model-modernization/investigation.md": "4a719c03b1056ebc6da4150cb415ae14633b89b41092e9a0b6a19fbba690568d",
+    "specs/ci-model-modernization/requirements.md": "afd5b507a4c2965b90ac0589f5c06528cbfc1d6f40c11241dba72cebfff8d0dd",
+    "specs/ci-model-modernization/security-spec.md": "2586d0e84e7fce007c5d37c3744dbcb71a0a1f49a36363e48d403906a52f2a48",
+    "specs/ci-model-modernization/tasks.md": "ef21bf440be5e01e60dcefca7993f82eb0fb7ffb770e5d5565a0822a3a0483f6",
+    "specs/ci-model-modernization/traceability.json": "868d37271114f61b93fac452bdd8dc6aedc2ff8c330be040c5c4c86c7d191907",
+    "specs/ci-model-modernization/traceability.md": "37eb73704124a3d77f57e5ba05592f8e5fbd243a57d53f43a5eebdb5240252cd",
+    "specs/ci-model-modernization/ux-spec.md": "89ce7fbe52175abce092d2bfe3c206d728b7363e31a33ab75dbc542344cfd03b"
+  },
+  "assigned_test_mapping": [
+    {
+      "test_id": "TEST-016",
+      "criterion": "| TEST-016 | AC-004 | native names | A small-change hosted PR emits all four exact required contexts and actually runs each native wrapper. |",
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658399077/aggregate.json",
+      "sha256": "990be78d4e41edc7d21b18fb16f90ee2e97fac7771e7c11848374f0dc802bf6d",
+      "assessment": "Actual README PR strict aggregate PASS binds native wrappers and required contexts.",
+      "independent_acceptance": "pending"
+    },
+    {
+      "test_id": "TEST-017",
+      "criterion": "| TEST-017 | AC-004 | optional omission | A proven unrelated heavy group is skipped with a plan reason while related checks execute. |",
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/readme-pair-comparison.json",
+      "sha256": "4829bbbf16246c445e15755db4d4789bf766d4f5136bbd5d1c0f88914d659ea2",
+      "assessment": "Actual README normal selects443/omits6 CLI obligations with plan reasons; full449 PASS; B/M/R supplies mutation and source-consumer proof.",
+      "independent_acceptance": "pending"
+    },
+    {
+      "test_id": "TEST-027",
+      "criterion": "| TEST-027 | AC-006 | full parity | Before/after full invocation inventories and executed native results retain every required suite, argument and OS obligation. |",
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json",
+      "sha256": "7366f6a766c7bf0045c496c89bff3433878b61dbec3c5f83a1e683997df55769",
+      "assessment": "Dedicated exact F full449=448verified+1inactive; local exact204 POSIX/134 Linux PowerShell union. Historical inventory parity remains within combined QA scope.",
+      "independent_acceptance": "pending"
+    },
+    {
+      "test_id": "TEST-034",
+      "criterion": "| TEST-034 | AC-009 | category comparison | Separate docs/configuration, MCP, cloud and shared representative changes produce full-versus-selected observations; only proven categories activate. |",
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json",
+      "sha256": "7366f6a766c7bf0045c496c89bff3433878b61dbec3c5f83a1e683997df55769",
+      "assessment": "Four actual README/docs, MCP, cloud and shared normal/full pairs PASS; only proven README omission activated.",
+      "independent_acceptance": "pending"
+    },
+    {
+      "test_id": "TEST-035",
+      "criterion": "| TEST-035 | AC-009 | hosted/fixture distinction | Evidence labels hosted PR/native/full/manual runs and local merge_group fixtures accurately; unavailable actual merge_group is explicitly pending. |",
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json",
+      "sha256": "7366f6a766c7bf0045c496c89bff3433878b61dbec3c5f83a1e683997df55769",
+      "assessment": "Actual PR and manual workflow_dispatch evidence; actual merge_group pending per OQ-001, local fixture only. Cloud probe is CI, not live cloud deployment.",
+      "independent_acceptance": "pending"
+    },
+    {
+      "test_id": "TEST-036",
+      "criterion": "| TEST-036 | AC-009 | measurement | Reports include exact revision, selected/omitted counts, measured wall/job time and known cache hits without unmeasured percentage claims. |",
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/readme-pair-comparison.json",
+      "sha256": "4829bbbf16246c445e15755db4d4789bf766d4f5136bbd5d1c0f88914d659ea2",
+      "assessment": "Exact revisions, selections, measured spans/job sums, retry-aware metrics and representative cache observations retained; no causal speedup or billing claim.",
+      "independent_acceptance": "pending"
+    },
+    {
+      "test_id": "TEST-037",
+      "criterion": "| TEST-037 | AC-010 | operator docs | Current README and verification/release/contributor docs explain selection, fixed contexts, full switch and failure recovery with valid links. |",
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/doc-link-audit.json",
+      "sha256": "7f362476905cfc2705ff264daa03c15a55449fac4f37053676438d134cc3d7e3",
+      "assessment": "Operator guidance inspected for full switch, fixed contexts, recovery and checkpoint limits;125 links checked/0missing. Final canonical documentation/caller checks pending.",
+      "independent_acceptance": "pending"
+    },
+    {
+      "test_id": "TEST-038",
+      "criterion": "| TEST-038 | AC-010 | release | An immutable new annotated version tag points to the exact full-local/full-hosted tested commit; old tag IDs remain unchanged. |",
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/publication/final-after/receipt.json",
+      "sha256": "ea7223ae886268bd2728cfa0ebe54836207d6c189437ef71afecb93d1e06001e",
+      "assessment": "Annotated v1.20.0 object2df90fa333df31a79f099cc2125e816e5710d9ec peels to exact tested F; five prior refs unchanged.",
+      "independent_acceptance": "pending"
+    },
+    {
+      "test_id": "TEST-075",
+      "criterion": "| TEST-075 | AC-009 | MCP comparison | MCP selection activates only after complete source/dependency/full-result comparison. |",
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/mcp-pair-comparison.json",
+      "sha256": "bcd0bc99d3706e9c033b9b52a6e33ec53dacdc842ac1e25037fd0e8ab18eea67",
+      "assessment": "Both full449; normal unknown-path. MCP omission remains inactive.",
+      "independent_acceptance": "pending"
+    },
+    {
+      "test_id": "TEST-076",
+      "criterion": "| TEST-076 | AC-009 | cloud comparison | Cloud selection activates only after complete source/dependency/full-result comparison. |",
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/cloud-pair-comparison.json",
+      "sha256": "ede64d793e3973709329021c1a70257bfb2339f447f366dc68a7586c8dca5a2c",
+      "assessment": "Both full449; normal unknown-path. Cloud omission remains inactive; no live cloud claim.",
+      "independent_acceptance": "pending"
+    },
+    {
+      "test_id": "TEST-077",
+      "criterion": "| TEST-077 | AC-009 | shared comparison | Shared changes remain full and their complete result is recorded. |",
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/shared-pair-comparison.json",
+      "sha256": "c68c4834d3aa7093cf874a77692c4b13197019a07b6d001ee5bb6658cb38f61e",
+      "assessment": "Both full449; normal shared-change fallback; original failures and targeted recoveries retained.",
+      "independent_acceptance": "pending"
+    },
+    {
+      "test_id": "TEST-128",
+      "criterion": "| TEST-128 | AC-020 | documentation | README/capability/maintenance/launcher/installation docs describe actual supported behavior and limitations. |",
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/final-eight-path-summary.json",
+      "sha256": "b5042314427f438bd19aebcebca869a35ec448da7d1d9a88911b4402c5c1b4fe",
+      "assessment": "Current supported behavior and payload limits mapped to actual eight-path audit; synthetic installed configuration checks are not live discovery/inference. Final documentation sweep pending.",
+      "independent_acceptance": "pending"
+    },
+    {
+      "test_id": "TEST-129",
+      "criterion": "| TEST-129 | AC-020 | freshness source | Current metadata names its source/date without claiming permanent availability. |",
+      "evidence": "docs/agent-capability-matrix.md",
+      "sha256": "5596bc9eed93376ce9ff4d810725c191921a58457af84c042ec1307c3b3bdab2",
+      "assessment": "Current metadata cites2026-10-18 local host and registry/native-trial source, not permanent availability. Final metadata sweep pending.",
+      "independent_acceptance": "pending"
+    },
+    {
+      "test_id": "TEST-130",
+      "criterion": "| TEST-130 | AC-020 | release tag | A new immutable tag targets the exact required tested final commit and prior tags remain unchanged. |",
+      "evidence": "specs/ci-model-modernization/verification/T-011/final-F96/publication/final-after/receipt.json",
+      "sha256": "ea7223ae886268bd2728cfa0ebe54836207d6c189437ef71afecb93d1e06001e",
+      "assessment": "Immutable tag targets exact tested F with prior refs unchanged; independent quality/lifecycle acceptance pending.",
+      "independent_acceptance": "pending"
+    }
+  ],
+  "actual_actions": [
+    "Read only admitted snapshot and descriptor; hash-checked all1674 inputs and resolved1320 draft output hashes.",
+    "Authored report/contract after historical implementation; no product edits or retrospective authorship.",
+    "No product tests, provider/auth calls, publication, independent QA or lifecycle promotion performed."
+  ],
+  "pending": "Canonical late check receipts, final report/contract validation, combined independent implementation QA; existing exact-F evidence should be mapped without rerunning full profiles."
+}

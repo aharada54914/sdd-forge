@@ -1,0 +1,166 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-posix",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/adversarial-review-contracts.tests.sh",
+    "tests/render-agent-frontmatter.tests.sh",
+    "tests/structure-check-feature-mode.tests.sh",
+    "tests/claude-bash-matcher.tests.sh",
+    "tests/review-prompt-calibration.tests.sh",
+    "tests/design-system-contract.tests.sh",
+    "tests/bootstrap-layer-templates.tests.sh",
+    "tests/apply-human-copy.tests.sh",
+    "tests/check-hook-activation-handshake.tests.sh",
+    "tests/guard-invariants-epic-a1.tests.sh",
+    "tests/plugin-contracts-track-selection.tests.sh",
+    "tests/human-copy-runner-contract.tests.sh",
+    "tests/lite-gate-summary-consumption.tests.sh",
+    "tests/design-sync-policy.tests.sh",
+    "tests/concept-test.tests.py",
+    "tests/fixed-review-inputs.tests.py",
+    "tests/workflow-conditional-inputs.tests.py",
+    "tests/unified-launch-order.tests.py",
+    "tests/model-policy-installed.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/adversarial-review-contracts.tests.sh",
+      "source_sha256": "e7562407e8f1de5afb1cd6b2e7353c96f626aafb523e0c2835c7a055ebacc338",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.104751
+    },
+    {
+      "suite": "tests/render-agent-frontmatter.tests.sh",
+      "source_sha256": "c51330aea654902585770f4775303e54457ccbb8bb4311ab375554aec23e1d7c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.157054
+    },
+    {
+      "suite": "tests/structure-check-feature-mode.tests.sh",
+      "source_sha256": "67145552968826b090f2542972f6c1947fe2d30ebed4827627228669436e07dd",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.175234
+    },
+    {
+      "suite": "tests/claude-bash-matcher.tests.sh",
+      "source_sha256": "444f16fe3536d417e0dac6cd13fa03b955fbd3068740f165f72911a80f87f762",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.795251
+    },
+    {
+      "suite": "tests/review-prompt-calibration.tests.sh",
+      "source_sha256": "c82920797bc01e7dfb979358d0cb414d769114a08145de0eedd302a9b1691804",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.079488
+    },
+    {
+      "suite": "tests/design-system-contract.tests.sh",
+      "source_sha256": "50d5d4204499fa78e0afa516826337299c57f2d7f3a7d8eb7806f80db755f64b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.366447
+    },
+    {
+      "suite": "tests/bootstrap-layer-templates.tests.sh",
+      "source_sha256": "5705201ecf666d98c9ce7b354e0d4b0193eff2ceb9635de83b2846080354528b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.190392
+    },
+    {
+      "suite": "tests/apply-human-copy.tests.sh",
+      "source_sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 56.567544
+    },
+    {
+      "suite": "tests/check-hook-activation-handshake.tests.sh",
+      "source_sha256": "24a7af606fa5cd0c987e05776b8b7dabaa5d36ee04069cb7fe30241d78f71955",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 25.715862
+    },
+    {
+      "suite": "tests/guard-invariants-epic-a1.tests.sh",
+      "source_sha256": "883fd0b1413b5c05db5473e168dba7cfda0a37c474909b38b99ea1ec8a07401e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.14605
+    },
+    {
+      "suite": "tests/plugin-contracts-track-selection.tests.sh",
+      "source_sha256": "4002300c41be9e5ea6ab2067f39dce7c830ff8f2854998c62f2e9fc57b3a52c3",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.480755
+    },
+    {
+      "suite": "tests/human-copy-runner-contract.tests.sh",
+      "source_sha256": "854716fb7a1b2fb50aa6e9ef55b9a6ffa8a3f2b0875a86ae347404023a1222c6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 13.715266
+    },
+    {
+      "suite": "tests/lite-gate-summary-consumption.tests.sh",
+      "source_sha256": "263402a343220709433d3c7659af1b8f6833346fd42718cb880cfe67516d358c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.737092
+    },
+    {
+      "suite": "tests/design-sync-policy.tests.sh",
+      "source_sha256": "2d8d4dee5aba570f6c50db8f793ccef6aa1767fc1db8332ad7f2c2428a69784e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.042781
+    },
+    {
+      "suite": "tests/concept-test.tests.py",
+      "source_sha256": "2b0af0f0741b797e399d15719e8cde06b0fa041c31738b8ac86da7cb7c0c2610",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 10.706165
+    },
+    {
+      "suite": "tests/fixed-review-inputs.tests.py",
+      "source_sha256": "83e3d383b3652531f7cf3be8e4b0ed09864e338fd2eb0cf82fab803b8a3bcb54",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.717659
+    },
+    {
+      "suite": "tests/workflow-conditional-inputs.tests.py",
+      "source_sha256": "029e5ddd03c981d84fbcb90469b82d0f5b99304b49dfbb24447770140e5b5de1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 39.238105
+    },
+    {
+      "suite": "tests/unified-launch-order.tests.py",
+      "source_sha256": "ed7815e25d294eb19332eb708a3c0c718c2f328e54147096fb7353cea59c13ff",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 16.40088
+    },
+    {
+      "suite": "tests/model-policy-installed.tests.py",
+      "source_sha256": "78c8181289665d6d5432d95200fc006c2e284773adea1e75f9740d3491c1a4c0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 710.355348
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

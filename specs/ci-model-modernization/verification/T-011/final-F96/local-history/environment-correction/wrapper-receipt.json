@@ -1,0 +1,20 @@
+{
+  "path": "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+  "before_sha256": "05529ecb3e4a5bf10b7c2f55a77d9c7a66e891065e174e1e9eec5b2867be492b",
+  "after_sha256": "863a219256b1318935e58299695e13afe2be0e65b89157c70499deb45e7ddad3",
+  "change": "absolute /bin/bash shebang and /bin/mkdir only; XDG and native exec unchanged",
+  "restricted_PATH": "/workspace/native-ci-failures/final-96afb59f/environment-correction/empty-path",
+  "checks": [
+    {
+      "label": "before",
+      "exit": 127,
+      "expected_exit": 127
+    },
+    {
+      "label": "candidate",
+      "exit": 0,
+      "expected_exit": 0
+    }
+  ],
+  "scope": "external environment provisioning; no repository source change"
+}

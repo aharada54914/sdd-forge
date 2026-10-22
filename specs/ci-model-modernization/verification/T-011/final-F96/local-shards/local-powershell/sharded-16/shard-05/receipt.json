@@ -1,0 +1,86 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-powershell",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/cloud-orchestration-contracts.tests.py",
+    "tests/rollback-1.5.0.tests.ps1",
+    "tests/task-layer-review-inputs.tests.ps1",
+    "tests/hooks.tests.ps1",
+    "tests/workflow-state.tests.ps1",
+    "tests/loop-consistency.tests.ps1",
+    "tests/detect-policy-weakening.tests.ps1",
+    "tests/promote-golden-baseline-ci-guard.tests.ps1",
+    "tests/boundary-reference-authorization-parity.tests.ps1"
+  ],
+  "results": [
+    {
+      "suite": "tests/cloud-orchestration-contracts.tests.py",
+      "source_sha256": "3f47f344fe3a5a846cdf22e3af51460c80c142e819ad9fc2655a4cb8f933b3a2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.808038
+    },
+    {
+      "suite": "tests/rollback-1.5.0.tests.ps1",
+      "source_sha256": "957746c3468adcd5c54789d97512fbaef2ad763324f3674519fa376ddd839166",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.090019
+    },
+    {
+      "suite": "tests/task-layer-review-inputs.tests.ps1",
+      "source_sha256": "e5ce1c72887f75a8839a661fd3e21fb821681a27489d582147f532f3ae100319",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.843845
+    },
+    {
+      "suite": "tests/hooks.tests.ps1",
+      "source_sha256": "259bef94624b8eeba1d78c780b1330f5735586800dfa7e4ade3a016f2f4e35c4",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 62.152725
+    },
+    {
+      "suite": "tests/workflow-state.tests.ps1",
+      "source_sha256": "a6a4a98ae1559c993c353a5e9228fc0f6bd9715b55375d519dbd7c2138057c8a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 26.450371
+    },
+    {
+      "suite": "tests/loop-consistency.tests.ps1",
+      "source_sha256": "d06ffed2ddedfcfac517d014f5084ea4466d085732acca170f87ee9dee344b6d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 20.545087
+    },
+    {
+      "suite": "tests/detect-policy-weakening.tests.ps1",
+      "source_sha256": "3a57edc4b153fff7865c09ea8518dc2b9f541831b3cf9f4eacf1de18923daabd",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 10.826618
+    },
+    {
+      "suite": "tests/promote-golden-baseline-ci-guard.tests.ps1",
+      "source_sha256": "b2ca4b5a0c964d0374dd3444869a78cbdcc5becb11f21e1a3ceb0ff714e74ff1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.091559
+    },
+    {
+      "suite": "tests/boundary-reference-authorization-parity.tests.ps1",
+      "source_sha256": "7550c27c1e874ce48d5c108a8551853e264051aeb65255030ec26b625b6a18f7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.40372
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

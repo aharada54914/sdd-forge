@@ -1,0 +1,230 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "ci-posix-fallback",
+  "revision": "27c183321a3055322283cdb8250d6c023a8c2c36",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/wfi-034-scratch-metric.tests.sh",
+    "tests/installer-idempotency.tests.sh",
+    "tests/check-placeholders.tests.sh",
+    "tests/task-prior-pass-receipt.tests.sh",
+    "tests/impl-review-round2-contract.tests.sh",
+    "tests/turn-first-workflow.tests.sh",
+    "tests/rollback-1.5.0.tests.sh",
+    "tests/workflow-state-ci-integration.tests.sh",
+    "tests/quality-loop-calibration.tests.sh",
+    "tests/claude-bash-matcher.tests.sh",
+    "tests/phase2-risk-upgrade.tests.sh",
+    "tests/guard-ps1-ascii.tests.sh",
+    "tests/schema-engine-identity.tests.sh",
+    "tests/boundary-reference-authorization-parity.tests.sh",
+    "tests/design-system-compliance.tests.sh",
+    "tests/collection-layer.tests.sh",
+    "tests/workflow-documentation.tests.sh",
+    "tests/facet-manifest-schema.tests.sh",
+    "tests/a9-dogfood.tests.sh",
+    "tests/apply-human-copy.tests.sh",
+    "tests/resolver-evidence-schema.tests.sh",
+    "tests/resolve-project-context-lite.tests.sh",
+    "tests/resolve-project-context-parity.tests.sh",
+    "tests/lite-gate-direct-edit-contract.tests.sh",
+    "tests/registry-migration-cli.tests.sh",
+    "tests/cross-runtime-handoff.tests.sh",
+    "tests/design-sync-policy.tests.sh"
+  ],
+  "results": [
+    {
+      "suite": "tests/wfi-034-scratch-metric.tests.sh",
+      "source_sha256": "345bca7afcc0cc747dd26d35562d9cb3404b63b45cb5901fbc137a390b0747ae",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.613503
+    },
+    {
+      "suite": "tests/installer-idempotency.tests.sh",
+      "source_sha256": "088246ed295f1187a5cafa94f1980155c00033a6052292aa4818db23a05ff274",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 7.24437
+    },
+    {
+      "suite": "tests/check-placeholders.tests.sh",
+      "source_sha256": "c840f55447309df1c11735229c93c23d1ecdf3ec00711b91972d55b02c46f255",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.049956
+    },
+    {
+      "suite": "tests/task-prior-pass-receipt.tests.sh",
+      "source_sha256": "0dbf6ce090d3da6afe012039fce0f2ae53279b1ab336994ec7204550ef18de6c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.505816
+    },
+    {
+      "suite": "tests/impl-review-round2-contract.tests.sh",
+      "source_sha256": "9a067863c61043955c4fe41a79814ede70d2877b1b8612ae8ade2636abd8ff29",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.181236
+    },
+    {
+      "suite": "tests/turn-first-workflow.tests.sh",
+      "source_sha256": "095eb4742d32fb47249d511de7ac648cb4c42b7efb8d2ad87f2230436b8fd4e7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.217264
+    },
+    {
+      "suite": "tests/rollback-1.5.0.tests.sh",
+      "source_sha256": "b47d3ab451db22856f40f10aff31b2abc18c6268eab06b20b7437a095a16d965",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 40.497367
+    },
+    {
+      "suite": "tests/workflow-state-ci-integration.tests.sh",
+      "source_sha256": "c03b108519d44486f4ac2440705aaad17aac1e9cd4d2d8f416834e101eba4f64",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.072388
+    },
+    {
+      "suite": "tests/quality-loop-calibration.tests.sh",
+      "source_sha256": "af588cd9b24dee3c89f9056ab9478afbba9a8946f5fc375153c1d710f2163c7a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.021784
+    },
+    {
+      "suite": "tests/claude-bash-matcher.tests.sh",
+      "source_sha256": "444f16fe3536d417e0dac6cd13fa03b955fbd3068740f165f72911a80f87f762",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.952375
+    },
+    {
+      "suite": "tests/phase2-risk-upgrade.tests.sh",
+      "source_sha256": "e6557e054c2f5190bb8aadb29630196464ede12597343d37ae467c4ac7b17f3d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.003487
+    },
+    {
+      "suite": "tests/guard-ps1-ascii.tests.sh",
+      "source_sha256": "b4bc3f019a0534e9b61fc44eeb23f550f392488473746c80b44bd9da85b0d9a7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.033338
+    },
+    {
+      "suite": "tests/schema-engine-identity.tests.sh",
+      "source_sha256": "b53cb2d5cbf2441e70db0b820d3cefb3806da1d10c1c598f558542ef24fded8a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.137812
+    },
+    {
+      "suite": "tests/boundary-reference-authorization-parity.tests.sh",
+      "source_sha256": "029ad1cd46f791f71182bcb4ee8eb302a588502fb8c4e6156b6ef5faa979601d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.057475
+    },
+    {
+      "suite": "tests/design-system-compliance.tests.sh",
+      "source_sha256": "3b25720a3a25fbde7a435975d112dd949c7e5d4842e508965e2fe59e9657ee7b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.108989
+    },
+    {
+      "suite": "tests/collection-layer.tests.sh",
+      "source_sha256": "f1b0e10596f75a21c50fbeb16541137def98306b44b6438de40918256402faeb",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 8.523167
+    },
+    {
+      "suite": "tests/workflow-documentation.tests.sh",
+      "source_sha256": "6e1b9eb8a5a3d1ced77e5904c2b13da16f367ad1f9eab87b513d68cc36cb5299",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.084355
+    },
+    {
+      "suite": "tests/facet-manifest-schema.tests.sh",
+      "source_sha256": "a06ebcb28abdd794afe00543403f5faea26ffee858b12ef193126cd864e5f691",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.210546
+    },
+    {
+      "suite": "tests/a9-dogfood.tests.sh",
+      "source_sha256": "029920ddc66c05c34f68661c9dad4d434134c8b518aed620d26123896a936736",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 479.835418
+    },
+    {
+      "suite": "tests/apply-human-copy.tests.sh",
+      "source_sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 80.04357
+    },
+    {
+      "suite": "tests/resolver-evidence-schema.tests.sh",
+      "source_sha256": "ae7842c858e0ab792f637ff492e67461aaef11354a73ee971c14c6983e00016f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.510435
+    },
+    {
+      "suite": "tests/resolve-project-context-lite.tests.sh",
+      "source_sha256": "01cc8b4dec48ca616daa618ac379e40adc9f2624d96e74c88e54f81ca03b96b2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.789695
+    },
+    {
+      "suite": "tests/resolve-project-context-parity.tests.sh",
+      "source_sha256": "95bad95595729f7e95c9bbfdd4c46adeee4bf90999344cdfa270be556157062c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 18.312813
+    },
+    {
+      "suite": "tests/lite-gate-direct-edit-contract.tests.sh",
+      "source_sha256": "2607739276e6b6e985ae559e86e831b8c71bd1ee5ad25ce7382e066b4d4d65f5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.019924
+    },
+    {
+      "suite": "tests/registry-migration-cli.tests.sh",
+      "source_sha256": "93f6ea44301ae5aa4e555509af8fd79f883ba18dfa565cfec50a92bdec8bd526",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 8.220184
+    },
+    {
+      "suite": "tests/cross-runtime-handoff.tests.sh",
+      "source_sha256": "5c4da1195114dcf99876a9dd46240815d09a577091fc0438f2dbca950f21f774",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 21.908287
+    },
+    {
+      "suite": "tests/design-sync-policy.tests.sh",
+      "source_sha256": "2d8d4dee5aba570f6c50db8f793ccef6aa1767fc1db8332ad7f2c2428a69784e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.489584
+    }
+  ],
+  "revision_after": "27c183321a3055322283cdb8250d6c023a8c2c36",
+  "clean_after": true
+}

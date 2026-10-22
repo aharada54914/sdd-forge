@@ -1,0 +1,29 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-posix",
+  "selected": [
+    "tests/ci-claude-install.tests.sh",
+    "tests/task-review-precheck.tests.sh",
+    "tests/eval.tests.sh",
+    "tests/workflow-state-parity.tests.sh",
+    "tests/phase2-guard-tokenizer.tests.sh",
+    "tests/self-improvement-guard.tests.sh",
+    "tests/bootstrap-interview-guidance.tests.sh",
+    "tests/model-freshness-check.tests.sh",
+    "tests/hook-guard-epic-a1-boundary.tests.sh",
+    "tests/ship-track-selection-migration.tests.sh",
+    "tests/design-sync-standing-consent.tests.sh",
+    "tests/resolve-project-context-match.tests.sh",
+    "tests/resolve-project-context-parity.tests.sh",
+    "tests/golden-baseline-contract.tests.sh",
+    "tests/lite-gate-full-upgrade-backstop.tests.sh",
+    "tests/registry-discovery.tests.sh",
+    "tests/generate-gate-capabilities.tests.sh",
+    "tests/component-path-resolver.tests.sh",
+    "tests/check-a8-process-integrity.tests.sh",
+    "tests/review-conditional-inputs.tests.py",
+    "tests/verification-impact.tests.py"
+  ],
+  "shard_index": 15,
+  "shard_count": 16
+}

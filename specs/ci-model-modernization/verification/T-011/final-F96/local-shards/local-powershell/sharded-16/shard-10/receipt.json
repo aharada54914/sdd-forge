@@ -1,0 +1,78 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-powershell",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/install-uninstall-matrix.tests.ps1",
+    "tests/capability-summary-schema.tests.ps1",
+    "tests/facet-manifest-parity.tests.ps1",
+    "tests/validate-approval-sidecar.tests.ps1",
+    "tests/resolve-project-context-block.tests.ps1",
+    "tests/component-path-diff-basis.tests.ps1",
+    "tests/sdd-domain-multitarget-T-003.tests.py",
+    "tests/model-identity.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/install-uninstall-matrix.tests.ps1",
+      "source_sha256": "cf3b345331d73a0a64d0c91372bd17ade1b2ccc73a9681fc1b2db8a6f8f7fda0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 13.130053
+    },
+    {
+      "suite": "tests/capability-summary-schema.tests.ps1",
+      "source_sha256": "6f13da9335a67eb9828553b89b0f8735ad2c02986ed191bc06b8b0e73b99a188",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.058826
+    },
+    {
+      "suite": "tests/facet-manifest-parity.tests.ps1",
+      "source_sha256": "0012d58bfe8e0ce61918b34436fb165dc526b228af4dc0b53ef6a4289e4966c3",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 51.262639
+    },
+    {
+      "suite": "tests/validate-approval-sidecar.tests.ps1",
+      "source_sha256": "b885be98175b60c13c063b24ecbbbca297a95f1273779ca1f68cb25206ba9250",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 16.501633
+    },
+    {
+      "suite": "tests/resolve-project-context-block.tests.ps1",
+      "source_sha256": "f09f9c97d53364def990865cef0d242785028781e3f462c71849b0734874a257",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 48.927991
+    },
+    {
+      "suite": "tests/component-path-diff-basis.tests.ps1",
+      "source_sha256": "31d7ecb5438564a1a004af23e37c609e106b4da8bf0b073a6fdacade09b51311",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 13.279386
+    },
+    {
+      "suite": "tests/sdd-domain-multitarget-T-003.tests.py",
+      "source_sha256": "40a50bb063c1a372b57105ab801733051567c479e0c4159575540c0120e78c34",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 26.924498
+    },
+    {
+      "suite": "tests/model-identity.tests.py",
+      "source_sha256": "650239455536821657802793ce284013cc07ba360428ea872ea52540a23759a7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 10.195882
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

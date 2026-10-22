@@ -1,0 +1,25 @@
+{
+  "run_id": 39658434467,
+  "job_id": 119428134051,
+  "raw_log_sha256": "06f8ac792424e842f0c142b65ca6f10a059b3e540d470fb38a6d6930ef2b1e73",
+  "interpretation": "Continued passing progress until 28 seconds before cancellation; several earlier successful steps slower than accepted F. Supports bounded retry, does not establish hardware/CPU cause.",
+  "error_annotations_in_log": [
+    "2026-10-21T21:29:14.4864410Z ##[error]The operation was canceled."
+  ],
+  "last_progress": [
+    "2026-10-21T21:27:16.7996200Z PASS: task-review layer inputs",
+    "2026-10-21T21:27:24.0649710Z PASS: full-profile task contract validates complete reviewer manifests",
+    "2026-10-21T21:27:25.7243920Z PASS: Bash normal full-profile task precheck binds complete canonical inputs",
+    "2026-10-21T21:27:27.6434900Z PASS: PowerShell normal full-profile task precheck binds complete canonical inputs",
+    "2026-10-21T21:27:27.6435450Z PASS: full-profile task-review integration",
+    "2026-10-21T21:27:29.2462390Z ok: task review precheck records heading-style blocker dependencies",
+    "2026-10-21T21:27:30.6621730Z ok: task review precheck accepts predecessor contracts from another checkout",
+    "2026-10-21T21:27:31.8469540Z ok: task review precheck denies tampered foreign-checkout contract hashes",
+    "2026-10-21T21:27:33.7028230Z ok: task review precheck denies anchor-less absolute manifest paths",
+    "2026-10-21T21:27:35.5707270Z ok: task review precheck records frozen-artifact Done When items",
+    "2026-10-21T21:27:35.5756120Z ok: task review precheck leaves citation-only Done When items unrecorded",
+    "2026-10-21T21:27:35.5810930Z ok: task review precheck joins Done When continuation lines",
+    "2026-10-21T21:27:37.1243150Z ok: task review precheck twins agree on frozen-artifact Done When items",
+    "2026-10-21T21:28:46.5131650Z ok: sequential reviewer and evaluator contexts are distinct, authorized, and hash-chained"
+  ]
+}

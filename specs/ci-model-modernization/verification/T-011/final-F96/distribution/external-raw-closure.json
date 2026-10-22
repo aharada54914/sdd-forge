@@ -1,0 +1,462 @@
+{
+  "F": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "scope": "Bounded causal inputs/commands/logs, actual archive as one identity object, Windows original artifact ZIPs/metadata; source/install trees represented by exact inventories and F rather than duplicate files.",
+  "public_manifest_sha256": "20203bfd3dcae759787842b2a4b30dbd6bbac56455ba3c2fdef68e5d252d7f77",
+  "files": [
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/archive-audit.json",
+      "bytes": 223,
+      "sha256": "a8ca94cff8d5f9defc365396436a5894450a4a87bf9595da3d43e32e7c729fb0"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/archive-audit.log",
+      "bytes": 223,
+      "sha256": "a8ca94cff8d5f9defc365396436a5894450a4a87bf9595da3d43e32e7c729fb0"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/archive-audit.py",
+      "bytes": 1416,
+      "sha256": "db62edce80727c6c3c99748712e55950d0f94e3694c24cd5c8762c47ee97004b"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/archive-bash-inventory.json",
+      "bytes": 102906,
+      "sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/archive-bash.log",
+      "bytes": 588,
+      "sha256": "a87247b4274fe2b08411719f4baa3dfe587fb4fe6e7d501594446465d64466e1"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/archive-identity.json",
+      "bytes": 492,
+      "sha256": "db36b9fffbd131855b46b6c1b9307b27640218e00ed1c0951ebbccec263864be"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/archive-pwsh-inventory.json",
+      "bytes": 102906,
+      "sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/archive-pwsh.log",
+      "bytes": 592,
+      "sha256": "48cb9cda95c873645955788748ebb0a0b43bbe5916e08a15e30aa6e0a9533ec8"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/audit.log",
+      "bytes": 2008,
+      "sha256": "5d2bbede043aa45a3c3b25ce7f19bb641a71cadcb8a6d5b17f4c19eef1d03dd2"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/audit.py",
+      "bytes": 2390,
+      "sha256": "b4d7a5f83c9adb09eddb9a79fc4c1a367da71c1fe6ecba3be8500db4587d2c36"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/checkout.log",
+      "bytes": 69,
+      "sha256": "b2ded5f7bd58d0df1444097fc537bb29c7430bdfa295492da88c5c5f944d1418"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/clone.log",
+      "bytes": 76,
+      "sha256": "d84406fc56878b455ebae2be924484397127706ba4242dc0ff28e551e76ef22b"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/current-audit.json",
+      "bytes": 2008,
+      "sha256": "5d2bbede043aa45a3c3b25ce7f19bb641a71cadcb8a6d5b17f4c19eef1d03dd2"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/current-bash-install.log",
+      "bytes": 484,
+      "sha256": "1aad9940183ebb3902b96b731491d4a4b420f5d8f5726fa27d09ed714f1ce9f6"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/current-bash-inventory.json",
+      "bytes": 102906,
+      "sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/current-pwsh-install.log",
+      "bytes": 488,
+      "sha256": "5b051cfb0b7fecb021db1843ee6201467a34773e5f4fa55efae23dac4317a11e"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/current-pwsh-inventory.json",
+      "bytes": 102906,
+      "sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/doc-link-audit.json",
+      "bytes": 157,
+      "sha256": "7f362476905cfc2705ff264daa03c15a55449fac4f37053676438d134cc3d7e3"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/execute-linux.py",
+      "bytes": 3350,
+      "sha256": "8bfeb7cfb0cb43e710522fdf92fb9d26edea1d8aadbdd0b49cf4074f9016a1dc"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/execution-receipts.json",
+      "bytes": 4641,
+      "sha256": "93a559d86ca1ce31c6649f9c3da2cfe019e9390fa2c2b961cb2ac0c02045862b"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/execution.log",
+      "bytes": 58,
+      "sha256": "376e82f44705a3a49e414e5d2c14564b8d23171ec51f613f91808f2d6fa0c176"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/expected-inventory.json",
+      "bytes": 102906,
+      "sha256": "8fbf8dd1921fe3aaff6c6deeb619f7a8b0679de6934908f6540892dde8b533ea"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/filename-regression-linkage.json",
+      "bytes": 1583,
+      "sha256": "64642d9757450983ea1087bf39ff9171625f016489627a8d644630767a8b353b"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/final-eight-path-summary.json",
+      "bytes": 4506,
+      "sha256": "b5042314427f438bd19aebcebca869a35ec448da7d1d9a88911b4402c5c1b4fe"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/finalize-proof.py",
+      "bytes": 6727,
+      "sha256": "726e8a0c03e8dbdcca28e2e8fd3802801945b42ccfe13d8e9c885cc9a679db07"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/installed-production.json",
+      "bytes": 617,
+      "sha256": "e1e3b9a560e6bdb1406bf3e299b3f897f7a9ba02006537c85b76b447db717a0a"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/installed-production.log",
+      "bytes": 617,
+      "sha256": "e1e3b9a560e6bdb1406bf3e299b3f897f7a9ba02006537c85b76b447db717a0a"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/installed-production.py",
+      "bytes": 2757,
+      "sha256": "82d41beb520de5835d5aa81d31a32bcc29df6034fa864bda98a46a89a9407396"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/launch-plan.json",
+      "bytes": 4471,
+      "sha256": "5adad695518ad418f469b79131fbe2cb130d75fc5846f7ba6fe21b6ecbd23761"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/links.log",
+      "bytes": 73,
+      "sha256": "e2123924c4ce29997fba6bfc75e9ac71c2ab0649c085ca8b7f27f7a2a169675c"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/links.py",
+      "bytes": 1222,
+      "sha256": "8e289d8ffd2e243c737cc3add31238f7ad2c7c202d42dd886155d0ba62cfdb22"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/linux-summary.json",
+      "bytes": 2588,
+      "sha256": "b67afbad8253d4adf2fefaaa8700508a1e86881bcdd4593bb21ceb67cf68619d"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/local-posix-installer-receipt.json",
+      "bytes": 6528,
+      "sha256": "52df9b27d9e0e3cb6b4886c5b5fa66b1f1182e11b3bb85168b63741678ecc097"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/local-powershell-installer-receipt.json",
+      "bytes": 2681,
+      "sha256": "b849aced5e3787271cdf675df063b7e72394f9440cb19b126fd1995823e75d62"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/production-bash-controls.json",
+      "bytes": 823,
+      "sha256": "fdac55773268559c6cf3bf653e610f2ec30bf03aecd2843e9dbc09f0a944b740"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/production-bash-selection.json",
+      "bytes": 1043,
+      "sha256": "ba06e12a6456d46c3f901178ae0dd4589813f016753b32c36135df92c96561b5"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/production-bash-validation.json",
+      "bytes": 2851,
+      "sha256": "3c7c277e715194774146151e47cb2fee4ce3c21aa59f3d44f6a85fe841f5cf61"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/production-prepare-bash.log",
+      "bytes": 2852,
+      "sha256": "8ccfb98330da2c3af5e75a1e281e90b941fd6a944c1d3bd657e3f1cbb7c01c47"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/production-prepare-pwsh.log",
+      "bytes": 2852,
+      "sha256": "833bc79e11a564d6ad436ef60fb2d2bc2282728211374a71cc332dc2d47b0079"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/production-pwsh-controls.json",
+      "bytes": 823,
+      "sha256": "6502c8b8f56c1e9a3d6e2e694348e5a67ca9f6bc27788bc558fc6b52b53c1d83"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/production-pwsh-selection.json",
+      "bytes": 1043,
+      "sha256": "e56491bb0182b47b85c6b888e4ecf678ed2a17c8a4238a905979f46500419c9c"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/production-pwsh-validation.json",
+      "bytes": 2851,
+      "sha256": "698b3439047e663a3b63c2c25bb5bd0c834229228d04576b67076ced2571f5bf"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/production-selector-bash.json",
+      "bytes": 969,
+      "sha256": "e2838cbcbf21ff08ceef1de11c4d025efd383b8e115d3e272de8f05105fd17de"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/production-selector-pwsh.json",
+      "bytes": 969,
+      "sha256": "2a37d2ada71dcfeca6188b69530f14ef575e2c4ad687aea7c6a34bb63f7e69db"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/public-proof-allowlist.json",
+      "bytes": 2612,
+      "sha256": "f811b252ec905731b4ee3bb72a993c631453f468d140ee511f0797efb5f9321d"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/source-clean-after.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/source-clean-before.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/source-head.log",
+      "bytes": 41,
+      "sha256": "37d7783d25add41f5a638e407e7982bf33b201cbf9b0c468d13a4038cdbdae4c"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/source-pins.json",
+      "bytes": 1890,
+      "sha256": "cab899de1213a0ddd51bd69c0bef080c697c0365d5927c79a11eb981686e8fc3"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/source.tar.gz",
+      "bytes": 40514810,
+      "sha256": "bb7304564e50c11801256646f56b7acbad0d6e4104989fdd70411101d0bfba93"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/source/contracts/model-adoption/ci-model-modernization-20261021.json",
+      "bytes": 10470,
+      "sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/source/contracts/model-policy.v1.json",
+      "bytes": 7749,
+      "sha256": "dc8ff36881f6662227d7622ce06d3a68b802d1dfb3fc098d7ae37dfe599b177e"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/source/install-payload.txt",
+      "bytes": 1776,
+      "sha256": "fb3096c0a8192cb01ec3b62bb4861a982098495d0bb161ec7b312fdf22436d93"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/source/install.ps1",
+      "bytes": 56819,
+      "sha256": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/source/install.sh",
+      "bytes": 54740,
+      "sha256": "69622850e204ab139d6a355e2f13c2db65a07d71a25065dc67daa7ee6105cc1a"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/source/tests/lib/current-byte-capture.py",
+      "bytes": 13153,
+      "sha256": "fe1adcd1e6debfaa6d044e37d34b06ec06cf6b17302dc2b735c076e53c131497"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/source/tests/lib/install-payload-check.py",
+      "bytes": 39332,
+      "sha256": "c12915ccf070c641b663b7f54efcc495000689cf0fce2e27e73ff6e21ca032af"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/tag-binding.json",
+      "bytes": 588,
+      "sha256": "253a08811cf37ca0ed91ee7b1e261b546ba4a44e194579a4423485610bbace02"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/tag-commit.log",
+      "bytes": 41,
+      "sha256": "37d7783d25add41f5a638e407e7982bf33b201cbf9b0c468d13a4038cdbdae4c"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/tag-type.log",
+      "bytes": 4,
+      "sha256": "ccda8f9a2cb0295182b9a99e4c8270badcc89525850e1e737a294fb426363ac9"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-96afb59f/windows-execution-receipts.json",
+      "bytes": 6873,
+      "sha256": "37606c33f3bb83f488d771d2475a24d42126a8ea19f4f5223e115faa5c98ffb1"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-windows-plan/audit-windows-release.py",
+      "bytes": 5295,
+      "sha256": "eecb691c21f121fdadb1021593adfb07d8d9b298684e28f038e011fa7a632599"
+    },
+    {
+      "path": "/workspace/distribution-audit/final-windows-plan/final-windows-payload.yml",
+      "bytes": 1783,
+      "sha256": "9b5314ca8a2d9cd774b97bb5415c4a186380eecb00a62cde7867b67036185bff"
+    },
+    {
+      "path": "/workspace/t011-release-finalization-prep/F96-publication/final-after/receipt.json",
+      "bytes": 4239,
+      "sha256": "ea7223ae886268bd2728cfa0ebe54836207d6c189437ef71afecb93d1e06001e"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/12387444795.zip",
+      "bytes": 99510,
+      "sha256": "cbf6371e8b1f4f82f366b6fb8cc455c51bb0d63deb8e9968fd3db2edf27caab4"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/12387913554.zip",
+      "bytes": 99535,
+      "sha256": "1ddf114330bb7b4785585de7a18d1c7b14222de01904a99b21eb318dbfabe536"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-artifacts.json",
+      "bytes": 1505,
+      "sha256": "cecdf5b93be4ee42ffe4880f9d52a831c32e017fe376db874f620ad08f7fedeb"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-jobs.json",
+      "bytes": 5332,
+      "sha256": "6dc8756c4430f8b785a47e314f7005150b60a6242c1635ac08d44d015af34d04"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-run.json",
+      "bytes": 12626,
+      "sha256": "b4026b2716db633496e0a9e57d31934dee6b70ce5e84d4953347e531d344cd72"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-windows-payload-powershell/evidence-manifest.json",
+      "bytes": 952,
+      "sha256": "731205d717f3d1bcd451aa871e4c146421129db3b80b5ee7399f034f4ce08317"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-windows-payload-powershell/expected-inventory.json",
+      "bytes": 105356,
+      "sha256": "24a74c28923f4316b0309537df1afd6ab5be19563f76a6c1ea050359568c6f34"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-windows-payload-powershell/git-inventory.json",
+      "bytes": 105356,
+      "sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-windows-payload-powershell/git.log",
+      "bytes": 512,
+      "sha256": "8fe0ab132851339e28db47b4bc08abfe7c366047ade548f8e714b51a471bfc5e"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-windows-payload-powershell/summary.json",
+      "bytes": 967,
+      "sha256": "25a967614870345adfafe15d05c7618ee8eff0d0009c88e8211353f3a3ffd4be"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-windows-payload-powershell/zip-inventory.json",
+      "bytes": 105356,
+      "sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-windows-payload-powershell/zip.log",
+      "bytes": 617,
+      "sha256": "c6e7ab5b0bf1b2035a47667943adf0ea4bf4ad3f0eb6d8d2442be976006391b2"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-windows-payload-pwsh/evidence-manifest.json",
+      "bytes": 952,
+      "sha256": "9850ebe4bcfff596d89c3d883b3f39334559d9736d6106396aba14b294010367"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-windows-payload-pwsh/expected-inventory.json",
+      "bytes": 105356,
+      "sha256": "24a74c28923f4316b0309537df1afd6ab5be19563f76a6c1ea050359568c6f34"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-windows-payload-pwsh/git-inventory.json",
+      "bytes": 105356,
+      "sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-windows-payload-pwsh/git.log",
+      "bytes": 523,
+      "sha256": "fe5559c723fb8997b56bb90be1bca93a751bf5b442f1dc2be20fdffbb9405cde"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-windows-payload-pwsh/summary.json",
+      "bytes": 961,
+      "sha256": "5982275fbe7c74baab53ba3cadd4cb1aeb7b6e713de11d68689161e41bf2e8aa"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-windows-payload-pwsh/zip-inventory.json",
+      "bytes": 105356,
+      "sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-windows-payload-pwsh/zip.log",
+      "bytes": 628,
+      "sha256": "b1a80c10444b215506a3fc71e082bfc3c2b2045674213e015f080568c99558c3"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/final-windows-payload.yml",
+      "bytes": 1953,
+      "sha256": "fd163862021a07c05a06f5ff9e05919475afde3eb07e10adc4b7803e96453375"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/initial-run.json",
+      "bytes": 12623,
+      "sha256": "da42df6f9a7b0d54d0e355b3641a6cf822a245d17af340bf41054e0270d81d91"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/latest.json",
+      "bytes": 2647,
+      "sha256": "fee79c6f69f31f96244b3b7581cade88ef98fa264a979a2b69d9dc7a65f7a6f7"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/preparation.json",
+      "bytes": 424,
+      "sha256": "19f11023eb9e7c4c56afb7ee730718da7cbe52b82aef7a3013eba7f27ea02c88"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/published-execution-binding.json",
+      "bytes": 1306,
+      "sha256": "a66f16b61332c78460f9dec7355149ad850244b5df02c90417e3acaadc622c3c"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/published-refs.txt",
+      "bytes": 214,
+      "sha256": "e5a56f20ad8090ddd45b80ac71588017c4157d55deb7aeaa438be6b5f2756142"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/verified-four-path-handoff.json",
+      "bytes": 1106,
+      "sha256": "a54a837da9c3ab3d00789b1d4b8f5ad04711549f2362f1076dbdaaebe0b549bd"
+    },
+    {
+      "path": "/workspace/t011-rollout/final-windows-audit/workflow.diff",
+      "bytes": 1220,
+      "sha256": "0a99999de78337af904938be3441c8188063604a51ef88a7787fae57176e03b4"
+    }
+  ]
+}

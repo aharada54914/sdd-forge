@@ -1,0 +1,3 @@
+# Completion metadata and frozen review matrix
+
+T-001 through T-011 are Done in tasks.md. The scoped traceability.json records their accepted evidence. traceability.md remains the exact reviewed assignment snapshot, including its historical status cells. The original review pinned mixed statuses; the existing gate accepts that raw digest or an all-Planned normalization, so it cannot accept these later status-only edits. The original failed check is preserved. No product code, gate policy, historical contract, implementation report, independent verdict or evidence bundle was changed. The following recheck records govern completion.

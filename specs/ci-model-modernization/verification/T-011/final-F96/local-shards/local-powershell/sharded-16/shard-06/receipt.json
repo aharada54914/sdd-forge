@@ -1,0 +1,78 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-powershell",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/cloud-orchestration-execution.tests.py",
+    "tests/run-all-python.tests.ps1",
+    "tests/task-prior-pass-receipt.tests.ps1",
+    "tests/loop-driver.tests.ps1",
+    "tests/bump-version-gate.tests.ps1",
+    "tests/human-copy-mirror-freshness.tests.ps1",
+    "tests/domain-review-finalize.tests.py",
+    "tests/quality-nontty-transport.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/cloud-orchestration-execution.tests.py",
+      "source_sha256": "dabe98ecf8a47d71da3947c70066c059bb7388f8134a9d069812a2d63507778b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 14.061366
+    },
+    {
+      "suite": "tests/run-all-python.tests.ps1",
+      "source_sha256": "71d42e12d0fa548dfc22f364ac7d05a9311070317badeae2d4fa60f27425e163",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.326315
+    },
+    {
+      "suite": "tests/task-prior-pass-receipt.tests.ps1",
+      "source_sha256": "035182ef005892a32370fa8ab8387d648bdad07329ad77ede8b493ed0b8d0cac",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.647656
+    },
+    {
+      "suite": "tests/loop-driver.tests.ps1",
+      "source_sha256": "5582eaa98288b7344110157ea4bf574167f0c51d705c4462bdc02242499f9530",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.623271
+    },
+    {
+      "suite": "tests/bump-version-gate.tests.ps1",
+      "source_sha256": "aa63f6585248ec935e7f69e301ec80b3f030ae9d1c5f607cdf86a15177b3921a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 7.402434
+    },
+    {
+      "suite": "tests/human-copy-mirror-freshness.tests.ps1",
+      "source_sha256": "84710daf85bd81f748dd90b70e20bb1ef2c01c6662856bfc6a7050395d2b1d4b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.467755
+    },
+    {
+      "suite": "tests/domain-review-finalize.tests.py",
+      "source_sha256": "fbebadcda43bdd537a4055a468fc86dc2e583cb83160fc898db9535f9116ff7f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 68.393225
+    },
+    {
+      "suite": "tests/quality-nontty-transport.tests.py",
+      "source_sha256": "d807ded8f2b6b5515c47c6f2fbc4a8b821d90dbcc46a75b9051f073a6dbd28e8",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.788946
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

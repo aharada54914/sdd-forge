@@ -1,0 +1,105 @@
+{
+  "probe": "shared",
+  "normal": {
+    "run_id": 39658452393,
+    "api_head_sha": "d8a2155adeb49ea4109874c50e089f2e029cab26",
+    "tested_revision": "bd74b5f62c4d4d3ed46271290c7c2526e8fa05a3",
+    "tested_tree": "8863924b55d81ff24dcac42558a478d966669a8f",
+    "mode": "full",
+    "reason": "shared-change",
+    "selected_count": 449,
+    "omitted_count": 0,
+    "aggregate_status": "PASS",
+    "timing_summary": {
+      "all_attempt_execution_seconds": 23157.0,
+      "accepted_chain_execution_seconds": 20389.0,
+      "retry_overhead_execution_seconds": 2768.0,
+      "run_created_to_final_update_seconds": 13947.0,
+      "all_attempt_observed_span": {
+        "start": "2026-10-21T19:07:04+00:00",
+        "end": "2026-10-21T22:57:14+00:00",
+        "seconds": 13810.0,
+        "note": "Earliest actual execution start to final actual execution end; includes intervening queues and parallel overlap, not sum or billing."
+      },
+      "accepted_chain_observed_span": {
+        "start": "2026-10-21T19:07:04+00:00",
+        "end": "2026-10-21T22:57:14+00:00",
+        "seconds": 13810.0,
+        "note": "Earliest actual execution start to final actual execution end; includes intervening queues and parallel overlap, not sum or billing."
+      }
+    },
+    "evidence": [
+      {
+        "path": "39658452393/plan/plan.json",
+        "sha256": "9542d64eba4deaf18120bece87d0b7da862aed0b7c4663edb7f4ff238cd974d4"
+      },
+      {
+        "path": "39658452393/aggregate.json",
+        "sha256": "f8842577d924301427c40bd69a1413f274f79c1c1d3c81cc3fadb8f0921db8cb"
+      },
+      {
+        "path": "39658452393/retry-aware-metrics.json",
+        "sha256": "3b277e21fc8ff73aa0f18a3f1f0dfb40805209084b7914c16f84e87077130a1c"
+      },
+      {
+        "path": "39658452393/transport-report.json",
+        "sha256": "8f95a283d9de049668f94ec1216ed42ad7d06b05e6a2813e72697c3a587645f3"
+      }
+    ]
+  },
+  "full": {
+    "run_id": 39658451096,
+    "api_head_sha": "d8a2155adeb49ea4109874c50e089f2e029cab26",
+    "tested_revision": "d8a2155adeb49ea4109874c50e089f2e029cab26",
+    "tested_tree": "8863924b55d81ff24dcac42558a478d966669a8f",
+    "mode": "full",
+    "reason": "event-full",
+    "selected_count": 449,
+    "omitted_count": 0,
+    "aggregate_status": "PASS",
+    "timing_summary": {
+      "all_attempt_execution_seconds": 20697.0,
+      "accepted_chain_execution_seconds": 20515.0,
+      "retry_overhead_execution_seconds": 182.0,
+      "run_created_to_final_update_seconds": 11449.0,
+      "all_attempt_observed_span": {
+        "start": "2026-10-21T19:05:23+00:00",
+        "end": "2026-10-21T22:15:35+00:00",
+        "seconds": 11412.0,
+        "note": "Earliest actual execution start to final actual execution end; includes intervening queues and parallel overlap, not sum or billing."
+      },
+      "accepted_chain_observed_span": {
+        "start": "2026-10-21T19:05:23+00:00",
+        "end": "2026-10-21T22:15:35+00:00",
+        "seconds": 11412.0,
+        "note": "Earliest actual execution start to final actual execution end; includes intervening queues and parallel overlap, not sum or billing."
+      }
+    },
+    "evidence": [
+      {
+        "path": "39658451096/plan/plan.json",
+        "sha256": "ee8635de1b3fded04a02d000428ec8a96998a91cf5ae00aecda7deada2e089c1"
+      },
+      {
+        "path": "39658451096/aggregate.json",
+        "sha256": "6e46091970a7a1b9ba49dd4bea0255bdbf8b819496c8af6adbf8443f4fd45707"
+      },
+      {
+        "path": "39658451096/retry-aware-metrics.json",
+        "sha256": "b65d16da398c739c17c91b17e1766ad8d4a03d10778eae2ab7920985d03d4164"
+      },
+      {
+        "path": "39658451096/transport-report.json",
+        "sha256": "94a5ee58c9b1dc81e271b25a34c4eead8b3b54acb08f9779b22cf3acfdbf940a"
+      }
+    ]
+  },
+  "same_tested_tree": true,
+  "selection": "Both actual plans select all449 obligations. Normal shared-change fallback; manual event-full. No omission savings exist for this probe.",
+  "timing_interpretation": "Original macOS timeout and external CLI setup failure plus their aggregate retries are retained separately from accepted execution chains. No causal timing or billing savings claim.",
+  "cache_observation": {
+    "path": "representative-cache-observations.json",
+    "sha256": "ccf59cc9253a76cefd7c324cc7c98daf311a1d8b7c32e8c59d1df3203b7b06ee",
+    "scope": "Representative Ubuntu MCP job only; other jobs unobserved."
+  }
+}

@@ -1,0 +1,182 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-posix",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/cloud-orchestration-contracts.tests.py",
+    "tests/prepare-panelist.tests.sh",
+    "tests/impl-layer-review-inputs.tests.sh",
+    "tests/agent-capabilities-v2.tests.sh",
+    "tests/turn-first-workflow.tests.sh",
+    "tests/constant-parity.tests.sh",
+    "tests/guard-negative-corpus.tests.sh",
+    "tests/guard-cwd-bypass.tests.sh",
+    "tests/repository-release-validation.tests.sh",
+    "tests/boundary-reference-authorization-parity.tests.sh",
+    "tests/check-placeholders-brownfield.tests.sh",
+    "tests/workflow-documentation.tests.sh",
+    "tests/run-panelist-effort.tests.sh",
+    "tests/detect-policy-weakening.tests.sh",
+    "tests/resolve-project-context-block.tests.sh",
+    "tests/structural-compatibility.tests.sh",
+    "tests/lite-gate-summary-invalid.tests.sh",
+    "tests/fixed-review-launch.tests.py",
+    "tests/unified-task-launch.tests.py",
+    "tests/supplemental-delivery-declaration.tests.py",
+    "tests/model-policy-launch-platform.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/cloud-orchestration-contracts.tests.py",
+      "source_sha256": "3f47f344fe3a5a846cdf22e3af51460c80c142e819ad9fc2655a4cb8f933b3a2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.901674
+    },
+    {
+      "suite": "tests/prepare-panelist.tests.sh",
+      "source_sha256": "12d0e40aad109fb69099d6dda8d99fb7d066034c5959f7b5037d078e24e0e151",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.154275
+    },
+    {
+      "suite": "tests/impl-layer-review-inputs.tests.sh",
+      "source_sha256": "9d11a218258d2e4246bfb1d17c8ecd9fc63ceb75544a294ad9b3f243167efe1c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.245863
+    },
+    {
+      "suite": "tests/agent-capabilities-v2.tests.sh",
+      "source_sha256": "e85d615fea58381a6f2e65df6852fa7571e1443807478011de4981b1501354b6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.253832
+    },
+    {
+      "suite": "tests/turn-first-workflow.tests.sh",
+      "source_sha256": "095eb4742d32fb47249d511de7ac648cb4c42b7efb8d2ad87f2230436b8fd4e7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.392152
+    },
+    {
+      "suite": "tests/constant-parity.tests.sh",
+      "source_sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.077153
+    },
+    {
+      "suite": "tests/guard-negative-corpus.tests.sh",
+      "source_sha256": "bb834f8357a95f9c90d183c8bb1b136a68803f744ca2a545c8508290ba764666",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 8.043105
+    },
+    {
+      "suite": "tests/guard-cwd-bypass.tests.sh",
+      "source_sha256": "89f8e492406108d6579da14324d1ed229ca2158fec0166589622751eea9803cc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.939896
+    },
+    {
+      "suite": "tests/repository-release-validation.tests.sh",
+      "source_sha256": "122f4b2e15fe4f7a7098e1149e3d0a971b2181a6a785f4043622b9cadcd6f2c6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 104.834215
+    },
+    {
+      "suite": "tests/boundary-reference-authorization-parity.tests.sh",
+      "source_sha256": "029ad1cd46f791f71182bcb4ee8eb302a588502fb8c4e6156b6ef5faa979601d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.037673
+    },
+    {
+      "suite": "tests/check-placeholders-brownfield.tests.sh",
+      "source_sha256": "7ac923f709c252e588bdbf9428300c079b34d0ac4d6df216440adb4d90d72d7a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.198394
+    },
+    {
+      "suite": "tests/workflow-documentation.tests.sh",
+      "source_sha256": "6e1b9eb8a5a3d1ced77e5904c2b13da16f367ad1f9eab87b513d68cc36cb5299",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.073383
+    },
+    {
+      "suite": "tests/run-panelist-effort.tests.sh",
+      "source_sha256": "9deef560ebd9d85381a153f0051a563259a0d2b50b248d49c987e89bf5e1c481",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.693645
+    },
+    {
+      "suite": "tests/detect-policy-weakening.tests.sh",
+      "source_sha256": "8e75b758b7ca08c5c31fa630e45f5b8fa9fbe5d311b4fde70fac00e6b479bb24",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.92157
+    },
+    {
+      "suite": "tests/resolve-project-context-block.tests.sh",
+      "source_sha256": "a06cb73c36ba6d94d53b18638dd4a470388aaf72505372324c2cfa7d9a555890",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 29.126689
+    },
+    {
+      "suite": "tests/structural-compatibility.tests.sh",
+      "source_sha256": "07ef557ecfdab7b84db1127835018f4b915205c159bcdcc42595df7c996918a2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 7.021907
+    },
+    {
+      "suite": "tests/lite-gate-summary-invalid.tests.sh",
+      "source_sha256": "d4ceefe7e16602919357842d9ff3fd41b09348df894659e39f8651dd75508c77",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.188151
+    },
+    {
+      "suite": "tests/fixed-review-launch.tests.py",
+      "source_sha256": "314a068ab50c25754ffbd5b70c4b51e1c52070351f9015321b275fce80826e73",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.852147
+    },
+    {
+      "suite": "tests/unified-task-launch.tests.py",
+      "source_sha256": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.800793
+    },
+    {
+      "suite": "tests/supplemental-delivery-declaration.tests.py",
+      "source_sha256": "4df0a193452a7bce95267b5dd415388732a2de808f498dbddefef0dabf32d361",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 44.305957
+    },
+    {
+      "suite": "tests/model-policy-launch-platform.tests.py",
+      "source_sha256": "e4dfaecadca6dc970507592865e8b5014f56047f4c38794a752206a80cb22810",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.141848
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

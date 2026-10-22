@@ -1,0 +1,182 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-posix",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/cloud-orchestration-execution.tests.py",
+    "tests/install-cloud.tests.py",
+    "tests/uninstall.tests.sh",
+    "tests/check-placeholders.tests.sh",
+    "tests/task-context-isolation.tests.sh",
+    "tests/scenario.tests.sh",
+    "tests/workflow-scenarios/workflow-scenarios.tests.sh",
+    "tests/guard-parity.tests.sh",
+    "tests/deterministic-lane-selfcheck.tests.sh",
+    "tests/guard-ps1-ascii.tests.sh",
+    "tests/collection-layer.tests.sh",
+    "tests/bump-version-gate.tests.sh",
+    "tests/facet-manifest-schema.tests.sh",
+    "tests/context-projection-schema.tests.sh",
+    "tests/project-context-schema.tests.sh",
+    "tests/resolve-project-context-caller-contract.tests.sh",
+    "tests/lite-spec-capability-block.tests.sh",
+    "tests/upstream-concept-issue.tests.sh",
+    "tests/fixed-review-precheck-bash.tests.py",
+    "tests/t001-evaluation-preparation.tests.py",
+    "tests/model-policy-launch.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/cloud-orchestration-execution.tests.py",
+      "source_sha256": "dabe98ecf8a47d71da3947c70066c059bb7388f8134a9d069812a2d63507778b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 13.626281
+    },
+    {
+      "suite": "tests/install-cloud.tests.py",
+      "source_sha256": "d13ac886d3802d4af5940a782bb89ae3725f6665138d79a3cf1cbe7b1f4e20e5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 130.530986
+    },
+    {
+      "suite": "tests/uninstall.tests.sh",
+      "source_sha256": "3df66ff95b91ff496c1d26f628859706591bed40253a2e80ec9d1d1abb99d996",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.641646
+    },
+    {
+      "suite": "tests/check-placeholders.tests.sh",
+      "source_sha256": "c840f55447309df1c11735229c93c23d1ecdf3ec00711b91972d55b02c46f255",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.040609
+    },
+    {
+      "suite": "tests/task-context-isolation.tests.sh",
+      "source_sha256": "8215907fec7fcf618387112bed1d769b5ffa94153a57a0ccfdeb4c6d25aad51c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.993915
+    },
+    {
+      "suite": "tests/scenario.tests.sh",
+      "source_sha256": "340b4d07590e4620abe372cf983c294ea53f5c4f6ee58bcb9047c0cd54868a58",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.962952
+    },
+    {
+      "suite": "tests/workflow-scenarios/workflow-scenarios.tests.sh",
+      "source_sha256": "4472cdeca05e7b2d1a184b2e94c84bd8bc1b30313e0db342adc0c6a5b17d2493",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.472781
+    },
+    {
+      "suite": "tests/guard-parity.tests.sh",
+      "source_sha256": "1b2e27ea19bf3823b4c27c985e4db8c906c9aa779d6ed597ba0e1956de29c02b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 66.596347
+    },
+    {
+      "suite": "tests/deterministic-lane-selfcheck.tests.sh",
+      "source_sha256": "b22a1a3f69883a432c7487794a34b95936fac5aff28deb5e77b55a902b325869",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.479045
+    },
+    {
+      "suite": "tests/guard-ps1-ascii.tests.sh",
+      "source_sha256": "b4bc3f019a0534e9b61fc44eeb23f550f392488473746c80b44bd9da85b0d9a7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.021034
+    },
+    {
+      "suite": "tests/collection-layer.tests.sh",
+      "source_sha256": "f1b0e10596f75a21c50fbeb16541137def98306b44b6438de40918256402faeb",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 8.424558
+    },
+    {
+      "suite": "tests/bump-version-gate.tests.sh",
+      "source_sha256": "f3e1f46794ffebae02dc49ee0151b98fe328bace4ee5dff995d6bfba0163ca65",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 8.480631
+    },
+    {
+      "suite": "tests/facet-manifest-schema.tests.sh",
+      "source_sha256": "a06ebcb28abdd794afe00543403f5faea26ffee858b12ef193126cd864e5f691",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.694943
+    },
+    {
+      "suite": "tests/context-projection-schema.tests.sh",
+      "source_sha256": "cb839eb4d466c79cc30f47c4c40b330ca6c9eb959106f8beb1c791b2616fa8d0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.033216
+    },
+    {
+      "suite": "tests/project-context-schema.tests.sh",
+      "source_sha256": "24f2a43393e39b2870a87aefcc213d3b096366000bfaafff60d31f5263027311",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.575461
+    },
+    {
+      "suite": "tests/resolve-project-context-caller-contract.tests.sh",
+      "source_sha256": "cab22b20ab274878d23b623c297c4c4203b4b6c7d5a9ad32ed357a86e143171a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.032305
+    },
+    {
+      "suite": "tests/lite-spec-capability-block.tests.sh",
+      "source_sha256": "e1d2094ba34704a4d3bf4d32dad526ffa95d84ca04538844c0396525f83bc976",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.177692
+    },
+    {
+      "suite": "tests/upstream-concept-issue.tests.sh",
+      "source_sha256": "00b7c953d83bf90e8835fe31372e1fd618b24381c86b16f4f42a7b0e31b28308",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.909195
+    },
+    {
+      "suite": "tests/fixed-review-precheck-bash.tests.py",
+      "source_sha256": "7a1fd297aa78dc592f79f419f34fd727b1028aae3483275a4928b10b7d658c83",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.59185
+    },
+    {
+      "suite": "tests/t001-evaluation-preparation.tests.py",
+      "source_sha256": "b7028f7bd7c4d392baa053929a07c53dad98b9f6caed74c858e9ed7105c33ffa",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.683741
+    },
+    {
+      "suite": "tests/model-policy-launch.tests.py",
+      "source_sha256": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 164.609106
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

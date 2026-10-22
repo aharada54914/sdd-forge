@@ -1,0 +1,34 @@
+{
+  "F": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "scope": "Previously completed exact-F local profiles; no reruns. Registered installer suites execute tests/lib/install-payload-check.py, including tracked special names under core.quotePath=true and local/archive parity.",
+  "profiles": [
+    {
+      "profile": "local-posix",
+      "receipt": "local-posix-installer-receipt.json",
+      "receipt_sha256": "52df9b27d9e0e3cb6b4886c5b5fa66b1f1182e11b3bb85168b63741678ecc097",
+      "result": {
+        "suite": "tests/install.tests.sh",
+        "source_sha256": "90cdaa3c63da488e85528ec02cf4626d09b48bbeef94dfc8f82d3c730d7eaf52",
+        "status": "passed",
+        "exit_code": 0,
+        "seconds": 46.267884
+      }
+    },
+    {
+      "profile": "local-powershell",
+      "receipt": "local-powershell-installer-receipt.json",
+      "receipt_sha256": "b849aced5e3787271cdf675df063b7e72394f9440cb19b126fd1995823e75d62",
+      "result": {
+        "suite": "tests/install.tests.ps1",
+        "source_sha256": "804fd7074ebe1cc1bb703c09e87afeb233bc40a2c2d88b2f18bf1f8a4df127b4",
+        "status": "passed",
+        "exit_code": 0,
+        "seconds": 81.34666
+      }
+    }
+  ],
+  "raw_profile_manifest_sha256": "5858ec1b8786ad6393e9b5ae689f0c1c5bf761613d27e94c0dfa1111f398a070",
+  "raw_profile_manifest_path": "/workspace/native-ci-failures/final-96afb59f/final-artifact-manifest.json",
+  "full_32_receipt_validation_sha256": "70a11d4d6f87f128e7bbb450f79bd757c26df02ccc1da62795705c4be312a700",
+  "helper_sha256": "c12915ccf070c641b663b7f54efcc495000689cf0fce2e27e73ff6e21ca032af"
+}

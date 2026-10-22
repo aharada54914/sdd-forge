@@ -1,0 +1,11 @@
+{
+  "profile": "local-powershell",
+  "index": 9,
+  "count": 16,
+  "suite_count": 8,
+  "exit": 0,
+  "passed": true,
+  "seconds": 289.50602252,
+  "finished_at": "2026-10-21T22:07:24.157477+00:00",
+  "receipt_sha256": "4672ae00cca89622a1bb8754e5504499815c108ee7f5959a3e6199d83cfebde3"
+}

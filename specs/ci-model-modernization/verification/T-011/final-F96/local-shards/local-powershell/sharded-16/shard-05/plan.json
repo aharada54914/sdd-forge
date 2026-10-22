@@ -1,0 +1,17 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-powershell",
+  "selected": [
+    "tests/cloud-orchestration-contracts.tests.py",
+    "tests/rollback-1.5.0.tests.ps1",
+    "tests/task-layer-review-inputs.tests.ps1",
+    "tests/hooks.tests.ps1",
+    "tests/workflow-state.tests.ps1",
+    "tests/loop-consistency.tests.ps1",
+    "tests/detect-policy-weakening.tests.ps1",
+    "tests/promote-golden-baseline-ci-guard.tests.ps1",
+    "tests/boundary-reference-authorization-parity.tests.ps1"
+  ],
+  "shard_index": 5,
+  "shard_count": 16
+}

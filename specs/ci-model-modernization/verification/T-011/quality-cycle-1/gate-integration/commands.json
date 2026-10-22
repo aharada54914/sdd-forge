@@ -1,0 +1,86 @@
+[
+  {
+    "label": "render-quality-report",
+    "argv": [
+      "python3",
+      "/workspace/t011-quality-gate-preparation/render-quality-report.py",
+      "--result",
+      "specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/evaluator.json",
+      "--result-sha256",
+      "3a876b08e912b80c1dfafa44f0559b9c9188b9928c2dabe7bd63ac9992534e54",
+      "--post-review",
+      "specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/post-review-receipt.json",
+      "--post-review-sha256",
+      "3156cf2abfcb3ca650f1966ac20a778b9a30d33c49a327270ae3adb8217050a8",
+      "--context",
+      "work-agent:root:t011_final_quality_evaluator",
+      "--cycle",
+      "1",
+      "--implementation-report",
+      "reports/implementation/ci-model-modernization/T-011.md",
+      "--implementation-sha256",
+      "c4e077b38770a53927e48195d8ae510e724af7aadc245f1648df91b94fe6d518",
+      "--template",
+      "plugins/sdd-quality-loop/templates/quality-report.template.md",
+      "--output",
+      "reports/quality-gate/20261021-ci-model-modernization-T-011-cycle-1.md"
+    ],
+    "started_at": "2026-10-21T23:58:35Z",
+    "finished_at": "2026-10-21T23:58:35Z",
+    "exit_code": 0,
+    "stdout": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/gate-integration/render-quality-report.stdout.log",
+    "stdout_sha256": "60f77f0a898f3e439c8f40f2a0788dfe6d463b627668094ef9f67d8ba1f322b0",
+    "stderr": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/gate-integration/render-quality-report.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "contract",
+    "argv": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-contract.sh",
+      "specs/ci-model-modernization/verification/T-011.contract.json",
+      "/workspace/sdd-forge"
+    ],
+    "started_at": "2026-10-21T23:58:35Z",
+    "finished_at": "2026-10-21T23:58:35Z",
+    "exit_code": 0,
+    "stdout": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/gate-integration/contract.stdout.log",
+    "stdout_sha256": "0aa41815258af4fe3f1258410058baa9906241b7cb690694293caedcd7595f1e",
+    "stderr": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/gate-integration/contract.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "generate-bundle",
+    "argv": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh",
+      "specs/ci-model-modernization/verification/T-011.contract.json",
+      "reports/quality-gate/20261021-ci-model-modernization-T-011-cycle-1.md",
+      "/workspace/sdd-forge",
+      "specs/ci-model-modernization/verification/T-011.evidence.json"
+    ],
+    "started_at": "2026-10-21T23:58:35Z",
+    "finished_at": "2026-10-21T23:58:35Z",
+    "exit_code": 0,
+    "stdout": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/gate-integration/generate-bundle.stdout.log",
+    "stdout_sha256": "f74274c484561e00b7a3eb5f41a43b7b866fdffc79141bf5613f694fc18072b1",
+    "stderr": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/gate-integration/generate-bundle.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "check-bundle",
+    "argv": [
+      "bash",
+      "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+      "specs/ci-model-modernization/verification/T-011.evidence.json",
+      "/workspace/sdd-forge"
+    ],
+    "started_at": "2026-10-21T23:58:35Z",
+    "finished_at": "2026-10-21T23:58:35Z",
+    "exit_code": 0,
+    "stdout": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/gate-integration/check-bundle.stdout.log",
+    "stdout_sha256": "914b702ebaf91d7fd099a696239c039e171fa2e46e7ed22ba454a4f4a6eaa0ce",
+    "stderr": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/gate-integration/check-bundle.stderr.log",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

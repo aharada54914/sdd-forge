@@ -1,0 +1,197 @@
+{
+  "run_id": 39690567793,
+  "url": "https://github.com/aharada54914/sdd-forge/actions/runs/39690567793",
+  "diagnostic_commit": "2806170b47c26db5f282a59350e990107aaa1816",
+  "product_F": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "event": "push",
+  "workflow_sha256": "fd163862021a07c05a06f5ff9e05919475afde3eb07e10adc4b7803e96453375",
+  "script_sha256": "eecb691c21f121fdadb1021593adfb07d8d9b298684e28f038e011fa7a632599",
+  "jobs": [
+    {
+      "id": 119535441808,
+      "name": "payload (powershell)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-21T23:01:08Z",
+      "completed_at": "2026-10-21T23:02:53Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-21T23:01:08Z",
+          "completed_at": "2026-10-21T23:01:09Z"
+        },
+        {
+          "name": "Enable complete Windows checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-21T23:01:09Z",
+          "completed_at": "2026-10-21T23:01:10Z"
+        },
+        {
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-21T23:01:10Z",
+          "completed_at": "2026-10-21T23:01:27Z"
+        },
+        {
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-21T23:01:27Z",
+          "completed_at": "2026-10-21T23:01:43Z"
+        },
+        {
+          "name": "Audit exact committed Git and ZIP payload",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-21T23:01:43Z",
+          "completed_at": "2026-10-21T23:02:47Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-21T23:02:47Z",
+          "completed_at": "2026-10-21T23:02:48Z"
+        },
+        {
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-21T23:02:48Z",
+          "completed_at": "2026-10-21T23:02:50Z"
+        },
+        {
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-21T23:02:50Z",
+          "completed_at": "2026-10-21T23:02:52Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-21T23:02:52Z",
+          "completed_at": "2026-10-21T23:02:52Z"
+        }
+      ]
+    },
+    {
+      "id": 119535441995,
+      "name": "payload (pwsh)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-21T23:01:08Z",
+      "completed_at": "2026-10-21T23:02:52Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-21T23:01:09Z",
+          "completed_at": "2026-10-21T23:01:10Z"
+        },
+        {
+          "name": "Enable complete Windows checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-21T23:01:10Z",
+          "completed_at": "2026-10-21T23:01:11Z"
+        },
+        {
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-21T23:01:11Z",
+          "completed_at": "2026-10-21T23:01:28Z"
+        },
+        {
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-21T23:01:28Z",
+          "completed_at": "2026-10-21T23:01:43Z"
+        },
+        {
+          "name": "Audit exact committed Git and ZIP payload",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-21T23:01:43Z",
+          "completed_at": "2026-10-21T23:02:46Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-21T23:02:46Z",
+          "completed_at": "2026-10-21T23:02:46Z"
+        },
+        {
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-21T23:02:46Z",
+          "completed_at": "2026-10-21T23:02:48Z"
+        },
+        {
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-21T23:02:48Z",
+          "completed_at": "2026-10-21T23:02:51Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-21T23:02:51Z",
+          "completed_at": "2026-10-21T23:02:51Z"
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12387913554,
+      "name": "final-windows-payload-pwsh",
+      "digest": "sha256:1ddf114330bb7b4785585de7a18d1c7b14222de01904a99b21eb318dbfabe536",
+      "size_in_bytes": 99535,
+      "created_at": "2026-10-21T23:02:46Z"
+    },
+    {
+      "id": 12387444795,
+      "name": "final-windows-payload-powershell",
+      "digest": "sha256:cbf6371e8b1f4f82f366b6fb8cc455c51bb0d63deb8e9968fd3db2edf27caab4",
+      "size_in_bytes": 99510,
+      "created_at": "2026-10-21T23:02:48Z"
+    }
+  ],
+  "raw_metadata_sha256": {
+    "final-run.json": "b4026b2716db633496e0a9e57d31934dee6b70ce5e84d4953347e531d344cd72",
+    "final-jobs.json": "6dc8756c4430f8b785a47e314f7005150b60a6242c1635ac08d44d015af34d04",
+    "final-artifacts.json": "cecdf5b93be4ee42ffe4880f9d52a831c32e017fe376db874f620ad08f7fedeb",
+    "published-execution-binding.json": "a66f16b61332c78460f9dec7355149ad850244b5df02c90417e3acaadc622c3c"
+  }
+}

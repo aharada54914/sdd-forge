@@ -1,0 +1,16 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-powershell",
+  "selected": [
+    "tests/install-cloud.tests.py",
+    "tests/scripts.tests.ps1",
+    "tests/render-agent-frontmatter.tests.ps1",
+    "tests/model-freshness-check.tests.ps1",
+    "tests/compatibility-byte-identical.tests.ps1",
+    "tests/capability-registry-schema.tests.ps1",
+    "tests/evaluate-predicate.tests.ps1",
+    "tests/upstream-concept-issue.tests.py"
+  ],
+  "shard_index": 9,
+  "shard_count": 16
+}

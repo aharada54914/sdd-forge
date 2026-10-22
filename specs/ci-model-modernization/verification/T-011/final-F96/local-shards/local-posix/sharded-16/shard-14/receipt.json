@@ -1,0 +1,182 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-posix",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/task-prior-pass-receipt.tests.sh",
+    "tests/review-agent-isolation.tests.sh",
+    "tests/emit-run-record-feature-scope.tests.sh",
+    "tests/phase2-guard-invariants.tests.sh",
+    "tests/loop-inventory.tests.sh",
+    "tests/hitl-wfi-terminal.tests.sh",
+    "tests/capability-summary-schema.tests.sh",
+    "tests/generate-approval-sidecar.tests.sh",
+    "tests/approver-registry-schema.tests.sh",
+    "tests/design-sync-scan.tests.sh",
+    "tests/resolve-project-context-metamorphic.tests.sh",
+    "tests/skip-allowlist-manifest.tests.sh",
+    "tests/check-risk-upgrade-ineligible-no-reasons.tests.sh",
+    "tests/lite-gate-direct-edit-contract.tests.sh",
+    "tests/registry-migration-cli.tests.sh",
+    "tests/component-path-ownership-parity.tests.sh",
+    "tests/cross-runtime-handoff.tests.sh",
+    "tests/quality-nontty-transport.tests.py",
+    "tests/sdd-domain.tests.ps1",
+    "tests/current-byte-capture.tests.py",
+    "tests/verification-ci.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/task-prior-pass-receipt.tests.sh",
+      "source_sha256": "0dbf6ce090d3da6afe012039fce0f2ae53279b1ab336994ec7204550ef18de6c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.364726
+    },
+    {
+      "suite": "tests/review-agent-isolation.tests.sh",
+      "source_sha256": "e4a8c39a40b5c16f6bbb9dd7faec2199ac41fb70ff7c43e8706a69dfe826d146",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 98.669812
+    },
+    {
+      "suite": "tests/emit-run-record-feature-scope.tests.sh",
+      "source_sha256": "be7ee8bc84d275979d02c2596aa126e05c64e5df7f4be05ec8527810704e8a8d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.693108
+    },
+    {
+      "suite": "tests/phase2-guard-invariants.tests.sh",
+      "source_sha256": "2f3ef6c7ab6faf62028790e9575cbd592c88a32716192970c54978aa31ff1e1a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.980272
+    },
+    {
+      "suite": "tests/loop-inventory.tests.sh",
+      "source_sha256": "c23fbd30c6bc1d8c8243959c48dae5a0d0b5e77ca88c6c9abeb058b6232654a5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.16768
+    },
+    {
+      "suite": "tests/hitl-wfi-terminal.tests.sh",
+      "source_sha256": "48e137e676b7a61ecab021b7fa6ee658059a6c7246c0fde5c663f2716d20f356",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.26968
+    },
+    {
+      "suite": "tests/capability-summary-schema.tests.sh",
+      "source_sha256": "392d6724dd27f0317142922d34014b8c446031c3c07d8a65638153b1e1aee6f1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.657628
+    },
+    {
+      "suite": "tests/generate-approval-sidecar.tests.sh",
+      "source_sha256": "f96a468a3adf700224bd0b2d4ebc4510b2e07fc21c19678b03c13eaf80de362e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.441979
+    },
+    {
+      "suite": "tests/approver-registry-schema.tests.sh",
+      "source_sha256": "3c9190ab84ccd534925ed998f948ae2246ff676026d6f4c02916d36cd06df8c6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.14339
+    },
+    {
+      "suite": "tests/design-sync-scan.tests.sh",
+      "source_sha256": "aeb5f1bbb099379fc797b0de3357fe2ead071fc6dc44bbafe60e63d0a83d3d66",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.924685
+    },
+    {
+      "suite": "tests/resolve-project-context-metamorphic.tests.sh",
+      "source_sha256": "80108d816ec30c94dae0391d71133444ff1807ea4545e45e302041db973785da",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 12.732068
+    },
+    {
+      "suite": "tests/skip-allowlist-manifest.tests.sh",
+      "source_sha256": "397d49ccaaa3804d9dc0ef5cca36e1bc5f3900808075f142561c4aea924f51d0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.60317
+    },
+    {
+      "suite": "tests/check-risk-upgrade-ineligible-no-reasons.tests.sh",
+      "source_sha256": "77df10c95eb74e10c146708c289ae0b8c924066a305b04f5e0f57afaeb3ec5d2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.070298
+    },
+    {
+      "suite": "tests/lite-gate-direct-edit-contract.tests.sh",
+      "source_sha256": "2607739276e6b6e985ae559e86e831b8c71bd1ee5ad25ce7382e066b4d4d65f5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.012969
+    },
+    {
+      "suite": "tests/registry-migration-cli.tests.sh",
+      "source_sha256": "93f6ea44301ae5aa4e555509af8fd79f883ba18dfa565cfec50a92bdec8bd526",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.782219
+    },
+    {
+      "suite": "tests/component-path-ownership-parity.tests.sh",
+      "source_sha256": "b575836ee45d1b28387fa77dc7677cf39fbd76d80705110c631b115fc2ea583b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 9.572038
+    },
+    {
+      "suite": "tests/cross-runtime-handoff.tests.sh",
+      "source_sha256": "5c4da1195114dcf99876a9dd46240815d09a577091fc0438f2dbca950f21f774",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 17.051103
+    },
+    {
+      "suite": "tests/quality-nontty-transport.tests.py",
+      "source_sha256": "d807ded8f2b6b5515c47c6f2fbc4a8b821d90dbcc46a75b9051f073a6dbd28e8",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.708764
+    },
+    {
+      "suite": "tests/sdd-domain.tests.ps1",
+      "source_sha256": "64b86bd7188f03cec34469c3c7d5f524cd84c2b37f6264b783f5e97b172002d5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 119.130461
+    },
+    {
+      "suite": "tests/current-byte-capture.tests.py",
+      "source_sha256": "6327f4d77b9d790a584393e4a7480b911b1753ccd722187fc0dd76b976f9579a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 28.495533
+    },
+    {
+      "suite": "tests/verification-ci.tests.py",
+      "source_sha256": "f42916a4c73547405a98a0a86c2598f5be3aa040fea7cc94d7f8fe53b60ff44c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 38.430176
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

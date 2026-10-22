@@ -1,0 +1,165 @@
+{
+  "schema": "t011-final-author-receipt/v1",
+  "created_at": "2026-10-21T23:30:26.375623+00:00",
+  "actual_work_context": "/root/t011_final_report_author",
+  "same_context_as_phases_1_and_2": true,
+  "run_id": "ci-model-modernization-T-011-final-delivery-phase3-final-20261021T232647Z",
+  "session_id": "work-agent:root:t011_final_report_author",
+  "agent_instance_id": "work-agent:root:t011_final_report_author",
+  "provider": "unknown",
+  "model": "unknown",
+  "effort": "unknown",
+  "manifest_path": "specs/ci-model-modernization/verification/T-011/final-author/phase-3-final/task-input-manifest.json",
+  "manifest_sha256": "f59f769d8f01d997828a2e1e199a2aff3ff7d81c649afb63275615d90d97e1ee",
+  "admitted_input_verification": {
+    "count": 1721,
+    "mismatches": []
+  },
+  "product_revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "historical_authoring_inputs": {
+    "specs/ci-model-modernization/verification/T-011/final-author/phase-3-final/phase2-outputs/report.md": "a326c3f721882406a19999d7d4ac13e1c5e593da94fa88939859033f0b05d8f7",
+    "specs/ci-model-modernization/verification/T-011/final-author/phase-3-final/phase2-outputs/contract.json": "2730ea41377d5cd7c20dc61a0c6cdd3676fb90682c872b09558d78fdf29cf50a",
+    "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json": "b4d6d5ff92ce35592f10d3a76bf29d48f7b9b5b2f499e271cc49308d861d2d74",
+    "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json": "2083454cabc85ee260394d076f60c2019682090330e47d3f3c8002e52efee69c"
+  },
+  "lint_evidence": {
+    "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/actionlint.receipt.json": "8cdd3340b1c780ce8ce1f25a32bf35b764fe07c018b5a6ae07807514aab7e849",
+    "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/actionlint.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/actionlint.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/ruff.receipt.json": "f84b184f0e8a4548ce32009c4eacd993eab318692de06f953b897d5dbcdc8ff7",
+    "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/ruff.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/ruff.stdout.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/scope.json": "9f86578f0db676a2472fcee35fd981e6e4f3cfa57121b8698d5a43558f8ac8b3",
+    "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/source-after.json": "7bbf62390b45a34719992436fc260581d5e627e3f48d4ea8d891e27a6428205b",
+    "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-lint/source-before.json": "7bbf62390b45a34719992436fc260581d5e627e3f48d4ea8d891e27a6428205b"
+  },
+  "lint_commands": {
+    "ruff": {
+      "argv": [
+        "/workspace/.tools/sdd-forge-python/bin/ruff",
+        "check",
+        "--config",
+        "tests/shared-launch-python/pyproject.toml",
+        "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+        "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+        "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+        "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+        "plugins/sdd-quality-loop/scripts/validate-feature-scratch-history.py",
+        "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+        "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+        "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+        "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+        "scripts/human_copy_mirrors.py",
+        "tests/verification-ci.py",
+        "tests/verification-impact.py"
+      ],
+      "started_at": "2026-10-21T23:25:02.666181+00:00",
+      "finished_at": "2026-10-21T23:25:02.710658+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tool_sha256": "21608d3f59dde6c2b74870a92a8281df960eaec228ef8006984323cf277496f0",
+      "source_before": "source-before.json",
+      "tested_product_revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+      "metadata_changes_only_since_tested_revision": true
+    },
+    "actionlint": {
+      "argv": [
+        "/workspace/.tools/ci-audit-bin/actionlint",
+        ".github/workflows/test.yml"
+      ],
+      "started_at": "2026-10-21T23:25:02.803995+00:00",
+      "finished_at": "2026-10-21T23:25:02.812258+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tool_sha256": "9f7dedb4e23f89f2922073d1a6720405b7b520d4f5832ebb96f0d55a2958886c",
+      "source_before": "source-before.json",
+      "tested_product_revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+      "metadata_changes_only_since_tested_revision": true
+    }
+  },
+  "lint_source_before_after_equal": true,
+  "lint_scope": {
+    "configured_project_python": [
+      "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+      "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+      "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+      "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+      "plugins/sdd-quality-loop/scripts/validate-feature-scratch-history.py"
+    ],
+    "changed_production_python": [
+      "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+      "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+      "scripts/human_copy_mirrors.py",
+      "tests/verification-ci.py",
+      "tests/verification-impact.py"
+    ],
+    "rules": "Existing committed Ruff E4/E7/E9/F config; no new lint policy",
+    "workflow": ".github/workflows/test.yml",
+    "excluded_test_only_helpers": "tests/lib and *.tests.py are test assertions/fixtures, not changed production runtime; separately actual suite-verified"
+  },
+  "source_access_limit": {
+    "not_admitted_source_files": [
+      "plugins/sdd-quality-loop/scripts/validate-feature-scratch-history.py",
+      "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+      "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+      "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+      "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py"
+    ],
+    "handling": "Not read. Historical producer before/after source pins and actual receipt support execution; direct author byte verification covers admitted files only."
+  },
+  "additional_existing_hosted_typecheck_and_lint": {
+    "run_id": 39658317723,
+    "job_id": 119424553984,
+    "job_name": "complete POSIX regression inventory",
+    "step": {
+      "completed_at": "2026-10-21T19:13:27Z",
+      "conclusion": "success",
+      "name": "Check shared launch Python and FilesOnly distribution",
+      "number": 10,
+      "started_at": "2026-10-21T19:13:21Z",
+      "status": "completed"
+    },
+    "command": "python3 -m venv \"$RUNNER_TEMP/shared-launch-python\"\n\"$RUNNER_TEMP/shared-launch-python/bin/pip\" install -r tests/shared-launch-python-requirements.txt\n\"$RUNNER_TEMP/shared-launch-python/bin/python\" - <<'PY'\nimport pathlib, subprocess, sys, tomllib\nconfig = pathlib.Path('tests/shared-launch-python/pyproject.toml')\nfiles = tomllib.loads(config.read_text())['tool']['mypy']['files']\nsubprocess.run([sys.executable, '-m', 'ruff', 'check', '--config', str(config), *files], check=True)\nsubprocess.run([sys.executable, '-m', 'mypy', '--config-file', str(config)], check=True)\nPY\n",
+    "workflow_sha256": "db4c6eb728fbf51849c35d4aa78cf44aecc438298bb96c4e663d82cc4285a06e",
+    "jobs_path": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/observations/jobs/1-1.json",
+    "jobs_sha256": "7bb6c7896b636dd0920fc3fd805175e6293068bf846340baf1d521e344fe4d7b",
+    "plan_path": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/plan/plan.json",
+    "plan_sha256": "c5159189f6b6de3405e0f01fd765edbfd90e2e944d84ef3546b54a8f16d87deb",
+    "aggregate_path": "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json",
+    "aggregate_sha256": "631d0ba93011bbf58c3010a125ae7b20a3514f442074c8c4b6c11bd3c63af22d",
+    "obligations": [
+      {
+        "id": "posix-regression:0949ff3f1a612844e49ee20c24f48733847d33f9a390c8264534dc2169d45373",
+        "job": "posix-regression",
+        "matrix": {},
+        "runner": "ubuntu-latest",
+        "step": "Check shared launch Python and FilesOnly distribution",
+        "command_sha256": "446a910fa88cb9933712546689fa1ef8c65ea4b4b6e4ed7aa31b2cd2a25843be",
+        "suites": [],
+        "receipt_required": false
+      }
+    ],
+    "scope": "Existing configured seven Python files via check=True Ruff+mypy; actual native success, not author rerun."
+  },
+  "carried_execution_mapping": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-2-authoring.json",
+  "carried_acceptance_mapping": "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-1-authoring.json",
+  "actual_actions": [
+    "Verified1721 admitted hashes, final lint equal before/after pins, actual Ruff/actionlint receipts and stdout/stderr hashes.",
+    "Mapped existing exact-F shared-launch Python native Ruff+mypy step.",
+    "Authored only final report/contract/phase3 receipt; no product edits/tests/delegation/provider/auth/publication/independent QA."
+  ],
+  "historical_failures_preserved": [
+    "Phase1 report validator exit1 for prose in integer Task Attempt Count; corrected in phase2.",
+    "Initial test-helper placeholder failure and production-scope correction.",
+    "Original196PASS/8FAIL, environment interruptions and four hosted failures/recoveries."
+  ],
+  "pending": [
+    "Root final report/contract/task-state revalidation",
+    "Independent combined-scope implementation QA and lifecycle verdict",
+    "Actual merge_group/live-cloud limits remain pending/unavailable"
+  ]
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "suite": "tests/scenario.tests.sh",
+    "exit": 0
+  },
+  {
+    "suite": "tests/guard-dispatch-fallback.tests.sh",
+    "exit": 0
+  },
+  {
+    "suite": "tests/structural-compatibility.tests.sh",
+    "exit": 0
+  },
+  {
+    "suite": "tests/lite-gate-summary-consumption.tests.sh",
+    "exit": 0
+  },
+  {
+    "suite": "tests/lite-gate-full-upgrade-backstop.tests.sh",
+    "exit": 0
+  },
+  {
+    "suite": "tests/lite-gate-summary-absent-active-enforcement.tests.sh",
+    "exit": 0
+  },
+  {
+    "suite": "tests/cross-runtime-handoff.tests.sh",
+    "exit": 0
+  },
+  {
+    "suite": "tests/model-policy-launch.tests.py",
+    "exit": 0
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "F": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "format": "git archive tar.gz",
+  "sha256": "bb7304564e50c11801256646f56b7acbad0d6e4104989fdd70411101d0bfba93",
+  "compressed_bytes": 40514810,
+  "regular_files": 18136,
+  "uncompressed_file_bytes": 201617050,
+  "symlink_entries": 1,
+  "scope": "Full committed repository archive, including historical specs/reports/tests; temporarily extracted then allowlist-filtered into installed payload. Archive is not published as audit proof."
+}

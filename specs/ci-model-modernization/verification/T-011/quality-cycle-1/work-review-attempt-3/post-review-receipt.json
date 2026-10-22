@@ -1,0 +1,20 @@
+{
+  "observed_at": "2026-10-21T23:57:58Z",
+  "actual_context": "/root/t011_final_quality_evaluator",
+  "identity_scope": "Actual public Work context mapping, not backend UUID. No inferred model/effort override.",
+  "model": "unknown",
+  "effort": "unknown",
+  "actual_backend_id": null,
+  "result_path": "specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/evaluator.json",
+  "result_sha256": "3a876b08e912b80c1dfafa44f0559b9c9188b9928c2dabe7bd63ac9992534e54",
+  "invocation_sha256": "d326d3b88844b08109ca08f1adb0202468dd24a841b0eb580d5cc7303239c9ab",
+  "root_scratch_input_count": 1777,
+  "input_mismatches": [],
+  "verdict_as_returned": "PASS",
+  "counts_as_returned": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "scope": "Delivery integrity only, not reviewer rerun or verdict synthesis"
+}

@@ -1,0 +1,1646 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-posix",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/cloud-orchestration-contracts.tests.py",
+    "tests/cloud-orchestration-routing.tests.py",
+    "tests/cloud-orchestration-execution.tests.py",
+    "tests/cloud-orchestration-verification.tests.py",
+    "tests/install-cloud.tests.py",
+    "tests/sdd-domain-multitarget-foundation.tests.py",
+    "tests/ci-suite-wiring.tests.sh",
+    "tests/ci-claude-install.tests.sh",
+    "tests/wfi-034-scratch-metric.tests.sh",
+    "tests/adversarial-review-contracts.tests.sh",
+    "tests/install.tests.sh",
+    "tests/installer-idempotency.tests.sh",
+    "tests/install-uninstall-matrix.tests.sh",
+    "tests/uninstall.tests.sh",
+    "tests/guards.tests.sh",
+    "tests/approval-boundary.tests.sh",
+    "tests/gates.tests.sh",
+    "tests/check-placeholders.tests.sh",
+    "tests/prepare-panelist.tests.sh",
+    "tests/wfi-058-outputs-anchor.tests.sh",
+    "tests/wfi-059-evidence-path-base.tests.sh",
+    "tests/review-contract-foundation.tests.sh",
+    "tests/review-contract-foundation-parity.tests.sh",
+    "tests/spec-review-loop.tests.sh",
+    "tests/downstream-review-precheck.tests.sh",
+    "tests/impl-layer-review-inputs.tests.sh",
+    "tests/task-layer-review-inputs.tests.sh",
+    "tests/task-layer-full-profile.tests.sh",
+    "tests/downstream-review-precheck-parity.tests.sh",
+    "tests/task-review-precheck.tests.sh",
+    "tests/task-prior-pass-receipt.tests.sh",
+    "tests/impl-review-round2-contract.tests.sh",
+    "tests/impl-review-adr-inputs.tests.sh",
+    "tests/review-agent-isolation.tests.sh",
+    "tests/agent-model-routing.tests.sh",
+    "tests/agent-capabilities-v2.tests.sh",
+    "tests/render-agent-frontmatter.tests.sh",
+    "tests/task-context-isolation.tests.sh",
+    "tests/turn-first-workflow.tests.sh",
+    "tests/retrospective-loop.tests.sh",
+    "tests/emit-run-record-feature-scope.tests.sh",
+    "tests/rollback-1.5.0.tests.sh",
+    "tests/release-config-lock.tests.sh",
+    "tests/cross-model.tests.sh",
+    "tests/eval.tests.sh",
+    "tests/crlf-parity.tests.sh",
+    "tests/constant-parity.tests.sh",
+    "tests/scenario.tests.sh",
+    "tests/workflow-scenarios/workflow-scenarios.tests.sh",
+    "tests/apply-branch-protection.tests.sh",
+    "tests/workflow-state-registry.tests.sh",
+    "tests/workflow-state-registry-parity.tests.sh",
+    "tests/workflow-state.tests.sh",
+    "tests/workflow-state-parity.tests.sh",
+    "tests/second-approval-mask.tests.sh",
+    "tests/workflow-state-ci-integration.tests.sh",
+    "tests/structure-check-feature-mode.tests.sh",
+    "tests/quality-gate-cycle-limit.tests.sh",
+    "tests/quality-loop-calibration.tests.sh",
+    "tests/guard-dispatch-fallback.tests.sh",
+    "tests/guard-negative-corpus.tests.sh",
+    "tests/guard-cwd-bypass.tests.sh",
+    "tests/guard-parity.tests.sh",
+    "tests/claude-bash-matcher.tests.sh",
+    "tests/phase2-guard-invariants.tests.sh",
+    "tests/human-copy-mirror-freshness.tests.sh",
+    "tests/phase2-guard-tokenizer.tests.sh",
+    "tests/phase2-risk-upgrade.tests.sh",
+    "tests/phase2-sudo-signature-static.tests.sh",
+    "tests/self-improvement-guard.tests.sh",
+    "tests/p0-hardening.tests.sh",
+    "tests/deterministic-lane-selfcheck.tests.sh",
+    "tests/guard-ps1-ascii.tests.sh",
+    "tests/repository-release-validation.tests.sh",
+    "tests/template-validator-parity.tests.sh",
+    "tests/criterion-freeze.tests.sh",
+    "tests/task-lifecycle-enum-parity.tests.sh",
+    "tests/task-state-grammar-parity.tests.sh",
+    "tests/task-plan-binding-durability.tests.sh",
+    "tests/schema-engine-identity.tests.sh",
+    "tests/loop-inventory.tests.sh",
+    "tests/loop-driver.tests.sh",
+    "tests/loop-consistency.tests.sh",
+    "tests/review-prompt-calibration.tests.sh",
+    "tests/review-context-boundary.tests.sh",
+    "tests/boundary-reference-authorization-parity.tests.sh",
+    "tests/design-system-contract.tests.sh",
+    "tests/design-system-compliance.tests.sh",
+    "tests/loop-escalation.tests.sh",
+    "tests/hitl-wfi-terminal.tests.sh",
+    "tests/check-placeholders-brownfield.tests.sh",
+    "tests/bootstrap-layer-templates.tests.sh",
+    "tests/bootstrap-interview-guidance.tests.sh",
+    "tests/bootstrap-cross-layer-index.tests.sh",
+    "tests/collection-layer.tests.sh",
+    "tests/workflow-documentation.tests.sh",
+    "tests/bump-version-gate.tests.sh",
+    "tests/release-loop-gate.tests.sh",
+    "tests/run-panelist-effort.tests.sh",
+    "tests/model-freshness-check.tests.sh",
+    "tests/facet-manifest-schema.tests.sh",
+    "tests/facet-manifest-semantics.tests.sh",
+    "tests/capability-summary-schema.tests.sh",
+    "tests/context-projection-schema.tests.sh",
+    "tests/facet-manifest-staleness.tests.sh",
+    "tests/facet-manifest-parity.tests.sh",
+    "tests/project-context-schema.tests.sh",
+    "tests/a9-dogfood.tests.sh",
+    "tests/canonicalize-sdd-yaml.tests.sh",
+    "tests/generate-approval-sidecar.tests.sh",
+    "tests/approver-registry-schema.tests.sh",
+    "tests/detect-policy-weakening.tests.sh",
+    "tests/validate-approval-sidecar.tests.sh",
+    "tests/apply-human-copy.tests.sh",
+    "tests/check-hook-activation-handshake.tests.sh",
+    "tests/guard-invariants-epic-a1.tests.sh",
+    "tests/hook-guard-epic-a1-boundary.tests.sh",
+    "tests/plugin-contracts-track-selection.tests.sh",
+    "tests/ship-track-selection-migration.tests.sh",
+    "tests/guard-staging-exemption.tests.sh",
+    "tests/design-sync-standing-consent.tests.sh",
+    "tests/design-sync-scan.tests.sh",
+    "tests/resolver-evidence-schema.tests.sh",
+    "tests/resolve-project-context-block.tests.sh",
+    "tests/resolve-project-context-match.tests.sh",
+    "tests/resolve-project-context-cli.tests.sh",
+    "tests/resolve-project-context-discovery.tests.sh",
+    "tests/resolve-project-context-lite.tests.sh",
+    "tests/validate-resolver-evidence.tests.sh",
+    "tests/resolve-project-context-parity.tests.sh",
+    "tests/resolve-project-context-metamorphic.tests.sh",
+    "tests/resolve-project-context-caller-contract.tests.sh",
+    "tests/compatibility-byte-identical.tests.sh",
+    "tests/golden-baseline-contract.tests.sh",
+    "tests/structural-compatibility.tests.sh",
+    "tests/skip-allowlist-manifest.tests.sh",
+    "tests/promote-golden-baseline-ci-guard.tests.sh",
+    "tests/path-lineending-regression.tests.sh",
+    "tests/validate-live-host-proof.tests.sh",
+    "tests/human-copy-runner-contract.tests.sh",
+    "tests/check-risk-upgrade-byte-identical.tests.sh",
+    "tests/check-risk-upgrade-capability-merge.tests.sh",
+    "tests/check-risk-upgrade-fragment-fail-closed.tests.sh",
+    "tests/check-risk-upgrade-ineligible-no-reasons.tests.sh",
+    "tests/lite-spec-capability-block.tests.sh",
+    "tests/lite-gate-summary-consumption.tests.sh",
+    "tests/lite-gate-summary-absent.tests.sh",
+    "tests/lite-gate-summary-invalid.tests.sh",
+    "tests/lite-gate-full-upgrade-backstop.tests.sh",
+    "tests/lite-gate-summary-absent-active-enforcement.tests.sh",
+    "tests/lite-gate-direct-edit-contract.tests.sh",
+    "tests/lite-gate-cli-chain.tests.sh",
+    "tests/capability-registry-schema.tests.sh",
+    "tests/evaluate-predicate.tests.sh",
+    "tests/registry-discovery.tests.sh",
+    "tests/registry-migration-cli.tests.sh",
+    "tests/validate-capability-registry.tests.sh",
+    "tests/generate-registry-digest.tests.sh",
+    "tests/generate-gate-capabilities.tests.sh",
+    "tests/capability-registry-parity.tests.sh",
+    "tests/component-path-resolver.tests.sh",
+    "tests/component-path-diff-basis.tests.sh",
+    "tests/ownership-digest.tests.sh",
+    "tests/check-component-coverage.tests.sh",
+    "tests/component-path-ownership-parity.tests.sh",
+    "tests/cross-runtime-handoff.tests.sh",
+    "tests/check-installed-plugin-drift.tests.sh",
+    "tests/check-a8-process-integrity.tests.sh",
+    "tests/sdd-domain-multitarget-T-004.tests.sh",
+    "tests/design-sync-policy.tests.sh",
+    "tests/upstream-concept-issue.tests.sh",
+    "tests/guard-r10-port.tests.ps1",
+    "tests/issue311-scratch-isolation.tests.py",
+    "tests/sdd-domain-multitarget-T-003.tests.py",
+    "tests/quality-nontty-transport.tests.py",
+    "tests/traceability-freeze-contract.tests.py",
+    "tests/sdd-domain.tests.ps1",
+    "tests/current-byte-capture.tests.py",
+    "tests/concept-test.tests.py",
+    "tests/concept-review-continuity.tests.py",
+    "tests/domain-review-finalize.tests.py",
+    "tests/fixed-review-inputs.tests.py",
+    "tests/fixed-review-state.tests.py",
+    "tests/fixed-review-launch.tests.py",
+    "tests/fixed-review-precheck-ps.tests.py",
+    "tests/fixed-review-precheck-bash.tests.py",
+    "tests/review-conditional-inputs.tests.py",
+    "tests/workflow-conditional-inputs.tests.py",
+    "tests/spec-review-verify-inputs.tests.py",
+    "tests/host-review-preflight.tests.py",
+    "tests/unified-launch-order.tests.py",
+    "tests/unified-task-launch.tests.py",
+    "tests/task-structured-output.tests.py",
+    "tests/supplemental-delivery-declaration.tests.py",
+    "tests/t001-evaluation-preparation.tests.py",
+    "tests/verification-impact.tests.py",
+    "tests/verification-ci-plan.tests.py",
+    "tests/verification-ci.tests.py",
+    "tests/model-observation.tests.py",
+    "tests/model-identity.tests.py",
+    "tests/model-policy.tests.py",
+    "tests/model-policy-launch.tests.py",
+    "tests/model-policy-launch-platform.tests.py",
+    "tests/model-policy-installed.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/cloud-orchestration-contracts.tests.py",
+      "source_sha256": "3f47f344fe3a5a846cdf22e3af51460c80c142e819ad9fc2655a4cb8f933b3a2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.855383
+    },
+    {
+      "suite": "tests/cloud-orchestration-routing.tests.py",
+      "source_sha256": "faedf01b5b959f61f60f3b9ef01d5d01b85758722e70e48cee33329805a99ab5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 25.578144
+    },
+    {
+      "suite": "tests/cloud-orchestration-execution.tests.py",
+      "source_sha256": "dabe98ecf8a47d71da3947c70066c059bb7388f8134a9d069812a2d63507778b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 13.135456
+    },
+    {
+      "suite": "tests/cloud-orchestration-verification.tests.py",
+      "source_sha256": "b3456601eab14ab9bd4b634d4fd801aa1fa56dfe79b75db4276c782fee0ce4e5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 196.404436
+    },
+    {
+      "suite": "tests/install-cloud.tests.py",
+      "source_sha256": "d13ac886d3802d4af5940a782bb89ae3725f6665138d79a3cf1cbe7b1f4e20e5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 125.375437
+    },
+    {
+      "suite": "tests/sdd-domain-multitarget-foundation.tests.py",
+      "source_sha256": "9463abf50ad7c88f5b838038e539cccf36f509d227b64734b04be61b94f556a3",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.69312
+    },
+    {
+      "suite": "tests/ci-suite-wiring.tests.sh",
+      "source_sha256": "a3111d71e9be9129e0ec696ea8e51dc2aef1be5c6d76fe93342b7b7711cbf61b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.233504
+    },
+    {
+      "suite": "tests/ci-claude-install.tests.sh",
+      "source_sha256": "f179d86e578c2b96fe1e59b76e7a14f1c319cfcf54cdaf16ac4256817d47498a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.043078
+    },
+    {
+      "suite": "tests/wfi-034-scratch-metric.tests.sh",
+      "source_sha256": "345bca7afcc0cc747dd26d35562d9cb3404b63b45cb5901fbc137a390b0747ae",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.406457
+    },
+    {
+      "suite": "tests/adversarial-review-contracts.tests.sh",
+      "source_sha256": "e7562407e8f1de5afb1cd6b2e7353c96f626aafb523e0c2835c7a055ebacc338",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.119041
+    },
+    {
+      "suite": "tests/install.tests.sh",
+      "source_sha256": "90cdaa3c63da488e85528ec02cf4626d09b48bbeef94dfc8f82d3c730d7eaf52",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 46.205374
+    },
+    {
+      "suite": "tests/installer-idempotency.tests.sh",
+      "source_sha256": "088246ed295f1187a5cafa94f1980155c00033a6052292aa4818db23a05ff274",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.370818
+    },
+    {
+      "suite": "tests/install-uninstall-matrix.tests.sh",
+      "source_sha256": "d9422cee978d09cff326b2b439ea80f8c3799f2737acad041c26fba88cfdd238",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 24.237954
+    },
+    {
+      "suite": "tests/uninstall.tests.sh",
+      "source_sha256": "3df66ff95b91ff496c1d26f628859706591bed40253a2e80ec9d1d1abb99d996",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.494456
+    },
+    {
+      "suite": "tests/guards.tests.sh",
+      "source_sha256": "24e2cec71468b681f190e40ded7c3fb3dc2114c6a538b541a0483f6118f84377",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.784339
+    },
+    {
+      "suite": "tests/approval-boundary.tests.sh",
+      "source_sha256": "236a09eddfd35770643cbc4872b18a7ea2d37ddc8e12e6a390eef62d1b41f72d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.440348
+    },
+    {
+      "suite": "tests/gates.tests.sh",
+      "source_sha256": "854a76133ee6dc6bcac1b308b37ae9fcfa174d087e2ad7826a7ccb32cf4537a6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 12.094941
+    },
+    {
+      "suite": "tests/check-placeholders.tests.sh",
+      "source_sha256": "c840f55447309df1c11735229c93c23d1ecdf3ec00711b91972d55b02c46f255",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.03737
+    },
+    {
+      "suite": "tests/prepare-panelist.tests.sh",
+      "source_sha256": "12d0e40aad109fb69099d6dda8d99fb7d066034c5959f7b5037d078e24e0e151",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.69119
+    },
+    {
+      "suite": "tests/wfi-058-outputs-anchor.tests.sh",
+      "source_sha256": "9637fae08b9687c6cc8ace6eec115e27f314785b99c892957202224e4f504f8f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.284159
+    },
+    {
+      "suite": "tests/wfi-059-evidence-path-base.tests.sh",
+      "source_sha256": "3760a8f43dc58db8909858e010ebf26b80691b08eaac70eacba1a9e36d28a4ff",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.196818
+    },
+    {
+      "suite": "tests/review-contract-foundation.tests.sh",
+      "source_sha256": "af6ffa2b6af72c00b7271ac802cbda7d5197066038c67097204fdb81a27cafaa",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.686539
+    },
+    {
+      "suite": "tests/review-contract-foundation-parity.tests.sh",
+      "source_sha256": "9eb0907a2fe8e173c66df1677b24d936d67674ddbd46a9d9eadfdb6464c84a81",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.29651
+    },
+    {
+      "suite": "tests/spec-review-loop.tests.sh",
+      "source_sha256": "5c101bf7878f909775e73cbbce32c2f5e369df043e0f74547821c0273c0fd1f1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.631554
+    },
+    {
+      "suite": "tests/downstream-review-precheck.tests.sh",
+      "source_sha256": "a5d586e2a4ec272f962103abbcaded7cebd0c726ef90f9373e2e49da9b5047f4",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 31.413924
+    },
+    {
+      "suite": "tests/impl-layer-review-inputs.tests.sh",
+      "source_sha256": "9d11a218258d2e4246bfb1d17c8ecd9fc63ceb75544a294ad9b3f243167efe1c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.206692
+    },
+    {
+      "suite": "tests/task-layer-review-inputs.tests.sh",
+      "source_sha256": "eccfd28dd27f0bd6a97305b0657ec5cd4d98642cb00dbed2e2fffa8a2c43cfbb",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.188709
+    },
+    {
+      "suite": "tests/task-layer-full-profile.tests.sh",
+      "source_sha256": "1f295e22c9c30621d921a889c3bb0f26a6f8e22789395e921359c60ed9f47168",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.724346
+    },
+    {
+      "suite": "tests/downstream-review-precheck-parity.tests.sh",
+      "source_sha256": "0e1f9e51f740ef6178242aee59b01bdb95ac7f60bca1dbfaabde55a7e5a75bb1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 7.440747
+    },
+    {
+      "suite": "tests/task-review-precheck.tests.sh",
+      "source_sha256": "e33c0c60b41c1172f6517f4939dca44785ed2a95af01b00d58eec96235cd8478",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.153007
+    },
+    {
+      "suite": "tests/task-prior-pass-receipt.tests.sh",
+      "source_sha256": "0dbf6ce090d3da6afe012039fce0f2ae53279b1ab336994ec7204550ef18de6c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.375367
+    },
+    {
+      "suite": "tests/impl-review-round2-contract.tests.sh",
+      "source_sha256": "9a067863c61043955c4fe41a79814ede70d2877b1b8612ae8ade2636abd8ff29",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.098016
+    },
+    {
+      "suite": "tests/impl-review-adr-inputs.tests.sh",
+      "source_sha256": "167c7060821864367d8547b9148b283ce1ab1fd8a5f4e4d20ad329b940d31395",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 354.443297
+    },
+    {
+      "suite": "tests/review-agent-isolation.tests.sh",
+      "source_sha256": "e4a8c39a40b5c16f6bbb9dd7faec2199ac41fb70ff7c43e8706a69dfe826d146",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 88.510187
+    },
+    {
+      "suite": "tests/agent-model-routing.tests.sh",
+      "source_sha256": "55b4d7a9a4e2aebf550acabe5961a5278d3c8ce8c9670631d15b7f9bfa2fd532",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 16.275506
+    },
+    {
+      "suite": "tests/agent-capabilities-v2.tests.sh",
+      "source_sha256": "e85d615fea58381a6f2e65df6852fa7571e1443807478011de4981b1501354b6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.263903
+    },
+    {
+      "suite": "tests/render-agent-frontmatter.tests.sh",
+      "source_sha256": "c51330aea654902585770f4775303e54457ccbb8bb4311ab375554aec23e1d7c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.151924
+    },
+    {
+      "suite": "tests/task-context-isolation.tests.sh",
+      "source_sha256": "8215907fec7fcf618387112bed1d769b5ffa94153a57a0ccfdeb4c6d25aad51c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.899984
+    },
+    {
+      "suite": "tests/turn-first-workflow.tests.sh",
+      "source_sha256": "095eb4742d32fb47249d511de7ac648cb4c42b7efb8d2ad87f2230436b8fd4e7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.322021
+    },
+    {
+      "suite": "tests/retrospective-loop.tests.sh",
+      "source_sha256": "2b9e869f514656f07ddde40bcd4d10db38e2686bd83d2168146289c7feba80a5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.11749
+    },
+    {
+      "suite": "tests/emit-run-record-feature-scope.tests.sh",
+      "source_sha256": "be7ee8bc84d275979d02c2596aa126e05c64e5df7f4be05ec8527810704e8a8d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.656114
+    },
+    {
+      "suite": "tests/rollback-1.5.0.tests.sh",
+      "source_sha256": "b47d3ab451db22856f40f10aff31b2abc18c6268eab06b20b7437a095a16d965",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 25.920946
+    },
+    {
+      "suite": "tests/release-config-lock.tests.sh",
+      "source_sha256": "45ca5bd38cb2eee5042abc4092a1430acc34fafa50f5ab6cddc23a95036b1ea2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.044328
+    },
+    {
+      "suite": "tests/cross-model.tests.sh",
+      "source_sha256": "7691268c0021632be748ba394c3c927b2fa83ce1bfe0f318c850dada88f46adb",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 149.95462
+    },
+    {
+      "suite": "tests/eval.tests.sh",
+      "source_sha256": "a6615a848f63a2cd43ae59cf3280a82a3f1655776c3ac9a244841aecef8fc98a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.387662
+    },
+    {
+      "suite": "tests/crlf-parity.tests.sh",
+      "source_sha256": "34c23e71fa2a946161c88e1f2b658f86e4dce4c101dfc027f6131ab4e44f8719",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.103412
+    },
+    {
+      "suite": "tests/constant-parity.tests.sh",
+      "source_sha256": "33b6a8ecf8e4e2df7ad5cce883a3accb5f2b0ebb194062472ff9d78752f67577",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.076347
+    },
+    {
+      "suite": "tests/scenario.tests.sh",
+      "source_sha256": "340b4d07590e4620abe372cf983c294ea53f5c4f6ee58bcb9047c0cd54868a58",
+      "status": "failed",
+      "exit_code": 127,
+      "seconds": 0.565363
+    },
+    {
+      "suite": "tests/workflow-scenarios/workflow-scenarios.tests.sh",
+      "source_sha256": "4472cdeca05e7b2d1a184b2e94c84bd8bc1b30313e0db342adc0c6a5b17d2493",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.479424
+    },
+    {
+      "suite": "tests/apply-branch-protection.tests.sh",
+      "source_sha256": "4cf40dc8b38f67ac3b7b1269c0583670484bdb043a2c074cebc6bd676557220c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.212418
+    },
+    {
+      "suite": "tests/workflow-state-registry.tests.sh",
+      "source_sha256": "529f45341b7a9dbe99dec8df35825511350deb32a9015069c1dd1cf6b3bd94af",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.671628
+    },
+    {
+      "suite": "tests/workflow-state-registry-parity.tests.sh",
+      "source_sha256": "bd1d8e13a0937fdf7327f27e1107c31a437a7f46c051888a61103ab7b5aa3a5a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.238333
+    },
+    {
+      "suite": "tests/workflow-state.tests.sh",
+      "source_sha256": "dffc5e1ea5a7b010d02654b39ceca6c66364d12a9e45580f6ffc22347129de98",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 153.956483
+    },
+    {
+      "suite": "tests/workflow-state-parity.tests.sh",
+      "source_sha256": "65bb2f3a89da593b0ce1db64d56fbda9db28bc617c045657c2f1ac384c5cd2d0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.433802
+    },
+    {
+      "suite": "tests/second-approval-mask.tests.sh",
+      "source_sha256": "f114f32a13abc85cd25e7ff5b6d02ff34ddf1241402033a9232566f580b4cb14",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 33.57661
+    },
+    {
+      "suite": "tests/workflow-state-ci-integration.tests.sh",
+      "source_sha256": "c03b108519d44486f4ac2440705aaad17aac1e9cd4d2d8f416834e101eba4f64",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.44647
+    },
+    {
+      "suite": "tests/structure-check-feature-mode.tests.sh",
+      "source_sha256": "67145552968826b090f2542972f6c1947fe2d30ebed4827627228669436e07dd",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.162851
+    },
+    {
+      "suite": "tests/quality-gate-cycle-limit.tests.sh",
+      "source_sha256": "6ecfb4c154fc26464acbfb4ba1b1bf20a4592e8ddb3fdfa31626068857c04446",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 8.880696
+    },
+    {
+      "suite": "tests/quality-loop-calibration.tests.sh",
+      "source_sha256": "af588cd9b24dee3c89f9056ab9478afbba9a8946f5fc375153c1d710f2163c7a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.016714
+    },
+    {
+      "suite": "tests/guard-dispatch-fallback.tests.sh",
+      "source_sha256": "fea16dbfe5527b988563192202f2c6916bfa3221e8d66f2dbcec78cf1bb9621d",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 4.187965
+    },
+    {
+      "suite": "tests/guard-negative-corpus.tests.sh",
+      "source_sha256": "bb834f8357a95f9c90d183c8bb1b136a68803f744ca2a545c8508290ba764666",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.504367
+    },
+    {
+      "suite": "tests/guard-cwd-bypass.tests.sh",
+      "source_sha256": "89f8e492406108d6579da14324d1ed229ca2158fec0166589622751eea9803cc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.831761
+    },
+    {
+      "suite": "tests/guard-parity.tests.sh",
+      "source_sha256": "1b2e27ea19bf3823b4c27c985e4db8c906c9aa779d6ed597ba0e1956de29c02b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 62.067334
+    },
+    {
+      "suite": "tests/claude-bash-matcher.tests.sh",
+      "source_sha256": "444f16fe3536d417e0dac6cd13fa03b955fbd3068740f165f72911a80f87f762",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.772378
+    },
+    {
+      "suite": "tests/phase2-guard-invariants.tests.sh",
+      "source_sha256": "2f3ef6c7ab6faf62028790e9575cbd592c88a32716192970c54978aa31ff1e1a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.084717
+    },
+    {
+      "suite": "tests/human-copy-mirror-freshness.tests.sh",
+      "source_sha256": "468023b55cbdf55560ecc214ffdfd05116d040a167a7c7ff3e1c50a9df810e2e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.004432
+    },
+    {
+      "suite": "tests/phase2-guard-tokenizer.tests.sh",
+      "source_sha256": "7624e6ed7e579073e8f3c808da88c4e22c44e4a65212efdb8405dc19296f3147",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.040093
+    },
+    {
+      "suite": "tests/phase2-risk-upgrade.tests.sh",
+      "source_sha256": "e6557e054c2f5190bb8aadb29630196464ede12597343d37ae467c4ac7b17f3d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.002925
+    },
+    {
+      "suite": "tests/phase2-sudo-signature-static.tests.sh",
+      "source_sha256": "33661ad8d4b9b5d9963b152b41dc9aef15a4947e3c7edde081b4fe56817b4483",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.026612
+    },
+    {
+      "suite": "tests/self-improvement-guard.tests.sh",
+      "source_sha256": "0fd6ba699c43c5e4fd80720312666050854a6076fdb3bfd6f097eec26059d4a6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.881408
+    },
+    {
+      "suite": "tests/p0-hardening.tests.sh",
+      "source_sha256": "15a7e38d06e93e9e69869f5a06ef58d4aaceed5fc0361a1d2a5ab83f741ed658",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.012711
+    },
+    {
+      "suite": "tests/deterministic-lane-selfcheck.tests.sh",
+      "source_sha256": "b22a1a3f69883a432c7487794a34b95936fac5aff28deb5e77b55a902b325869",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.426659
+    },
+    {
+      "suite": "tests/guard-ps1-ascii.tests.sh",
+      "source_sha256": "b4bc3f019a0534e9b61fc44eeb23f550f392488473746c80b44bd9da85b0d9a7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.019369
+    },
+    {
+      "suite": "tests/repository-release-validation.tests.sh",
+      "source_sha256": "122f4b2e15fe4f7a7098e1149e3d0a971b2181a6a785f4043622b9cadcd6f2c6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 109.045307
+    },
+    {
+      "suite": "tests/template-validator-parity.tests.sh",
+      "source_sha256": "91828ead642f6f3a2b60bfbc50e589ded99e577a79b9f61c25542765ff5dbd0d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.196307
+    },
+    {
+      "suite": "tests/criterion-freeze.tests.sh",
+      "source_sha256": "065ddcbd4b9e3db0157b870a18dc18700d86a52e5d156b72f4fb1ced56efaa5b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.03566
+    },
+    {
+      "suite": "tests/task-lifecycle-enum-parity.tests.sh",
+      "source_sha256": "894707219838c2e346aeb50b78e9cd2b6a3803a224422ad895a14be1385ed56d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.036221
+    },
+    {
+      "suite": "tests/task-state-grammar-parity.tests.sh",
+      "source_sha256": "d8075639ef74cc1d828a48180453051ac62f8366ff09921b890074452566db20",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 9.697201
+    },
+    {
+      "suite": "tests/task-plan-binding-durability.tests.sh",
+      "source_sha256": "7ddfaede26a8c7b0602df9a55988ab8778357343f97d9c4a667481ce8b489cc1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 8.528783
+    },
+    {
+      "suite": "tests/schema-engine-identity.tests.sh",
+      "source_sha256": "b53cb2d5cbf2441e70db0b820d3cefb3806da1d10c1c598f558542ef24fded8a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.096332
+    },
+    {
+      "suite": "tests/loop-inventory.tests.sh",
+      "source_sha256": "c23fbd30c6bc1d8c8243959c48dae5a0d0b5e77ca88c6c9abeb058b6232654a5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.184032
+    },
+    {
+      "suite": "tests/loop-driver.tests.sh",
+      "source_sha256": "7f8c7406d3e465fbb53eaff7c54adb93cd230a02aebad67eac3353356ee5a25c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.704615
+    },
+    {
+      "suite": "tests/loop-consistency.tests.sh",
+      "source_sha256": "6759d2171c7e7690d73b7545851f32ca66c4a100555e87daf7ca937b627fc4fc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 26.069678
+    },
+    {
+      "suite": "tests/review-prompt-calibration.tests.sh",
+      "source_sha256": "c82920797bc01e7dfb979358d0cb414d769114a08145de0eedd302a9b1691804",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.075501
+    },
+    {
+      "suite": "tests/review-context-boundary.tests.sh",
+      "source_sha256": "3c191f24add33c6f0f7acf5dd271a45b14a0435f8b469c62c46a82647e97f6d2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 112.683385
+    },
+    {
+      "suite": "tests/boundary-reference-authorization-parity.tests.sh",
+      "source_sha256": "029ad1cd46f791f71182bcb4ee8eb302a588502fb8c4e6156b6ef5faa979601d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.036112
+    },
+    {
+      "suite": "tests/design-system-contract.tests.sh",
+      "source_sha256": "50d5d4204499fa78e0afa516826337299c57f2d7f3a7d8eb7806f80db755f64b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.318692
+    },
+    {
+      "suite": "tests/design-system-compliance.tests.sh",
+      "source_sha256": "3b25720a3a25fbde7a435975d112dd949c7e5d4842e508965e2fe59e9657ee7b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.088444
+    },
+    {
+      "suite": "tests/loop-escalation.tests.sh",
+      "source_sha256": "77613b2b25c67147d00aeb43baf1053aa245002125301e03ff1038d4b726cbd3",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.335754
+    },
+    {
+      "suite": "tests/hitl-wfi-terminal.tests.sh",
+      "source_sha256": "48e137e676b7a61ecab021b7fa6ee658059a6c7246c0fde5c663f2716d20f356",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.299948
+    },
+    {
+      "suite": "tests/check-placeholders-brownfield.tests.sh",
+      "source_sha256": "7ac923f709c252e588bdbf9428300c079b34d0ac4d6df216440adb4d90d72d7a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.209737
+    },
+    {
+      "suite": "tests/bootstrap-layer-templates.tests.sh",
+      "source_sha256": "5705201ecf666d98c9ce7b354e0d4b0193eff2ceb9635de83b2846080354528b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.180922
+    },
+    {
+      "suite": "tests/bootstrap-interview-guidance.tests.sh",
+      "source_sha256": "1b16b8012e7540c618c6ddde0845e37abc9e86d80a4dd2efbde6ad250eca51bf",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.042108
+    },
+    {
+      "suite": "tests/bootstrap-cross-layer-index.tests.sh",
+      "source_sha256": "4b7ee150057258c73c10a5e83d787454710a92b827f2c0d7f847864bd2e6bff5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.57778
+    },
+    {
+      "suite": "tests/collection-layer.tests.sh",
+      "source_sha256": "f1b0e10596f75a21c50fbeb16541137def98306b44b6438de40918256402faeb",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 8.433782
+    },
+    {
+      "suite": "tests/workflow-documentation.tests.sh",
+      "source_sha256": "6e1b9eb8a5a3d1ced77e5904c2b13da16f367ad1f9eab87b513d68cc36cb5299",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.063268
+    },
+    {
+      "suite": "tests/bump-version-gate.tests.sh",
+      "source_sha256": "f3e1f46794ffebae02dc49ee0151b98fe328bace4ee5dff995d6bfba0163ca65",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 8.383651
+    },
+    {
+      "suite": "tests/release-loop-gate.tests.sh",
+      "source_sha256": "eb81d7c2646ee7a181f643d0de6523b7e1cbdd3563bf64b13b6618436082b824",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.184127
+    },
+    {
+      "suite": "tests/run-panelist-effort.tests.sh",
+      "source_sha256": "9deef560ebd9d85381a153f0051a563259a0d2b50b248d49c987e89bf5e1c481",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.721289
+    },
+    {
+      "suite": "tests/model-freshness-check.tests.sh",
+      "source_sha256": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.040932
+    },
+    {
+      "suite": "tests/facet-manifest-schema.tests.sh",
+      "source_sha256": "a06ebcb28abdd794afe00543403f5faea26ffee858b12ef193126cd864e5f691",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.575815
+    },
+    {
+      "suite": "tests/facet-manifest-semantics.tests.sh",
+      "source_sha256": "f1c1561be92512e6727a29aa546311c630b22011c61cb558358a3668b36ff6af",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.467859
+    },
+    {
+      "suite": "tests/capability-summary-schema.tests.sh",
+      "source_sha256": "392d6724dd27f0317142922d34014b8c446031c3c07d8a65638153b1e1aee6f1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.667055
+    },
+    {
+      "suite": "tests/context-projection-schema.tests.sh",
+      "source_sha256": "cb839eb4d466c79cc30f47c4c40b330ca6c9eb959106f8beb1c791b2616fa8d0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.049251
+    },
+    {
+      "suite": "tests/facet-manifest-staleness.tests.sh",
+      "source_sha256": "dd78532421b8b15e8968c3ddc37e24df99c963cbb85d91e8083d4450325bf6bc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.562186
+    },
+    {
+      "suite": "tests/facet-manifest-parity.tests.sh",
+      "source_sha256": "945f2335a0af105e1dab98591d6aeb5feb6f2fa7ecd9019b2ee402375f7a0cde",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 49.836543
+    },
+    {
+      "suite": "tests/project-context-schema.tests.sh",
+      "source_sha256": "24f2a43393e39b2870a87aefcc213d3b096366000bfaafff60d31f5263027311",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.5444
+    },
+    {
+      "suite": "tests/a9-dogfood.tests.sh",
+      "source_sha256": "029920ddc66c05c34f68661c9dad4d434134c8b518aed620d26123896a936736",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 360.989104
+    },
+    {
+      "suite": "tests/canonicalize-sdd-yaml.tests.sh",
+      "source_sha256": "644981b76e10f6d83304983f475daca950e763c4079f7704e26c9ea476ff464f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.414943
+    },
+    {
+      "suite": "tests/generate-approval-sidecar.tests.sh",
+      "source_sha256": "f96a468a3adf700224bd0b2d4ebc4510b2e07fc21c19678b03c13eaf80de362e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.431441
+    },
+    {
+      "suite": "tests/approver-registry-schema.tests.sh",
+      "source_sha256": "3c9190ab84ccd534925ed998f948ae2246ff676026d6f4c02916d36cd06df8c6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.154246
+    },
+    {
+      "suite": "tests/detect-policy-weakening.tests.sh",
+      "source_sha256": "8e75b758b7ca08c5c31fa630e45f5b8fa9fbe5d311b4fde70fac00e6b479bb24",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.728173
+    },
+    {
+      "suite": "tests/validate-approval-sidecar.tests.sh",
+      "source_sha256": "e53b3a0a3d6d0d0e943e1de8dcf7d19eebb1eb05df428b00e547cea7896adac8",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.844847
+    },
+    {
+      "suite": "tests/apply-human-copy.tests.sh",
+      "source_sha256": "27f88d54e03a438ecf76ee08483f42c5215dcb29312bb655bb4678e59c24d598",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 49.412182
+    },
+    {
+      "suite": "tests/check-hook-activation-handshake.tests.sh",
+      "source_sha256": "24a7af606fa5cd0c987e05776b8b7dabaa5d36ee04069cb7fe30241d78f71955",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 24.462147
+    },
+    {
+      "suite": "tests/guard-invariants-epic-a1.tests.sh",
+      "source_sha256": "883fd0b1413b5c05db5473e168dba7cfda0a37c474909b38b99ea1ec8a07401e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.109427
+    },
+    {
+      "suite": "tests/hook-guard-epic-a1-boundary.tests.sh",
+      "source_sha256": "55c9b5c5b8c6cffa719df0250f0b544fefffb74b3ba5db60ebf6e57e7e06f779",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 9.349664
+    },
+    {
+      "suite": "tests/plugin-contracts-track-selection.tests.sh",
+      "source_sha256": "4002300c41be9e5ea6ab2067f39dce7c830ff8f2854998c62f2e9fc57b3a52c3",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.29556
+    },
+    {
+      "suite": "tests/ship-track-selection-migration.tests.sh",
+      "source_sha256": "c732331d989010f9b1a48cd6775b1022597c45e3e2713baf3f6b04ac03616ae2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.645745
+    },
+    {
+      "suite": "tests/guard-staging-exemption.tests.sh",
+      "source_sha256": "5211b163e57d58e8611426873d4643131fd1bda8bac80f85ab1d61c41dc68b94",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.624947
+    },
+    {
+      "suite": "tests/design-sync-standing-consent.tests.sh",
+      "source_sha256": "9e3fdeab9f35c3164907239fd31f62d6840d076d939442dc9a9a38d478b3cfb5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.962324
+    },
+    {
+      "suite": "tests/design-sync-scan.tests.sh",
+      "source_sha256": "aeb5f1bbb099379fc797b0de3357fe2ead071fc6dc44bbafe60e63d0a83d3d66",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.043757
+    },
+    {
+      "suite": "tests/resolver-evidence-schema.tests.sh",
+      "source_sha256": "ae7842c858e0ab792f637ff492e67461aaef11354a73ee971c14c6983e00016f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.340799
+    },
+    {
+      "suite": "tests/resolve-project-context-block.tests.sh",
+      "source_sha256": "a06cb73c36ba6d94d53b18638dd4a470388aaf72505372324c2cfa7d9a555890",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 28.376662
+    },
+    {
+      "suite": "tests/resolve-project-context-match.tests.sh",
+      "source_sha256": "c84b4ecbf6f06cb24203dc6492b740a5504de60631ea284fea7a239ad70f4527",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 7.779728
+    },
+    {
+      "suite": "tests/resolve-project-context-cli.tests.sh",
+      "source_sha256": "8145152eb02a768f26d7247ce42c1458214c48f58910193e94c8e065a49dc40b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.461054
+    },
+    {
+      "suite": "tests/resolve-project-context-discovery.tests.sh",
+      "source_sha256": "473bcd9ca3bed825c36cab551f3da248c194d68b93dae84bef7edfdf25890b95",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.415171
+    },
+    {
+      "suite": "tests/resolve-project-context-lite.tests.sh",
+      "source_sha256": "01cc8b4dec48ca616daa618ac379e40adc9f2624d96e74c88e54f81ca03b96b2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.318894
+    },
+    {
+      "suite": "tests/validate-resolver-evidence.tests.sh",
+      "source_sha256": "2d0f934d17b07c12c36a5253b16874af6d18d77c49c881c8a242f3fe55df2be8",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.768975
+    },
+    {
+      "suite": "tests/resolve-project-context-parity.tests.sh",
+      "source_sha256": "95bad95595729f7e95c9bbfdd4c46adeee4bf90999344cdfa270be556157062c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 11.077709
+    },
+    {
+      "suite": "tests/resolve-project-context-metamorphic.tests.sh",
+      "source_sha256": "80108d816ec30c94dae0391d71133444ff1807ea4545e45e302041db973785da",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 13.734316
+    },
+    {
+      "suite": "tests/resolve-project-context-caller-contract.tests.sh",
+      "source_sha256": "cab22b20ab274878d23b623c297c4c4203b4b6c7d5a9ad32ed357a86e143171a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.03323
+    },
+    {
+      "suite": "tests/compatibility-byte-identical.tests.sh",
+      "source_sha256": "7c8ddcefc26c17540333ffa710f6e7682e24d205942b9568984148334ddf33a6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.180998
+    },
+    {
+      "suite": "tests/golden-baseline-contract.tests.sh",
+      "source_sha256": "a271932143a3fcf2f330c3f54baca6f43d0fb8743273b7ee7cdb1ca1616ccdf0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 18.68702
+    },
+    {
+      "suite": "tests/structural-compatibility.tests.sh",
+      "source_sha256": "07ef557ecfdab7b84db1127835018f4b915205c159bcdcc42595df7c996918a2",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 2.42193
+    },
+    {
+      "suite": "tests/skip-allowlist-manifest.tests.sh",
+      "source_sha256": "397d49ccaaa3804d9dc0ef5cca36e1bc5f3900808075f142561c4aea924f51d0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.727653
+    },
+    {
+      "suite": "tests/promote-golden-baseline-ci-guard.tests.sh",
+      "source_sha256": "fdb5066fea071f481a2108945219377b1fd195eb5fe350acb539ca3e2bac9eec",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.113347
+    },
+    {
+      "suite": "tests/path-lineending-regression.tests.sh",
+      "source_sha256": "e40f4160da9a21adb8efc51d1ecc092916948024b93266eea015feaf890f0675",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.566502
+    },
+    {
+      "suite": "tests/validate-live-host-proof.tests.sh",
+      "source_sha256": "9c1de76dc42494875cfcb81e85c5cafb8876a660d809fd94873c815173942bd5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 66.410856
+    },
+    {
+      "suite": "tests/human-copy-runner-contract.tests.sh",
+      "source_sha256": "854716fb7a1b2fb50aa6e9ef55b9a6ffa8a3f2b0875a86ae347404023a1222c6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 11.791646
+    },
+    {
+      "suite": "tests/check-risk-upgrade-byte-identical.tests.sh",
+      "source_sha256": "a5faaa33f261b47db5d28d75b6255c616b5b47e4bb9c176d1c0d209188452de0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.37279
+    },
+    {
+      "suite": "tests/check-risk-upgrade-capability-merge.tests.sh",
+      "source_sha256": "c57ac7d82ba4b2a75f48f4ef541fdc527fbab3406903ff9db582c2fe539dda6c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.083538
+    },
+    {
+      "suite": "tests/check-risk-upgrade-fragment-fail-closed.tests.sh",
+      "source_sha256": "86876d1b3f1d76f80386b6d1cc9516e578da35153a1b45fd009bcea8a5c65631",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.859309
+    },
+    {
+      "suite": "tests/check-risk-upgrade-ineligible-no-reasons.tests.sh",
+      "source_sha256": "77df10c95eb74e10c146708c289ae0b8c924066a305b04f5e0f57afaeb3ec5d2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.088823
+    },
+    {
+      "suite": "tests/lite-spec-capability-block.tests.sh",
+      "source_sha256": "e1d2094ba34704a4d3bf4d32dad526ffa95d84ca04538844c0396525f83bc976",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.180014
+    },
+    {
+      "suite": "tests/lite-gate-summary-consumption.tests.sh",
+      "source_sha256": "263402a343220709433d3c7659af1b8f6833346fd42718cb880cfe67516d358c",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 0.034751
+    },
+    {
+      "suite": "tests/lite-gate-summary-absent.tests.sh",
+      "source_sha256": "4a3ec3af07e1ff9b5caf17c234e85e962bc501ecd4485845d376902dc34b80f4",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.006153
+    },
+    {
+      "suite": "tests/lite-gate-summary-invalid.tests.sh",
+      "source_sha256": "d4ceefe7e16602919357842d9ff3fd41b09348df894659e39f8651dd75508c77",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.02094
+    },
+    {
+      "suite": "tests/lite-gate-full-upgrade-backstop.tests.sh",
+      "source_sha256": "992b854683b3d7caec1afcfb20989d708cab2032bf483e89190bba0693ea0976",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 0.011692
+    },
+    {
+      "suite": "tests/lite-gate-summary-absent-active-enforcement.tests.sh",
+      "source_sha256": "d431ad64d14fc4a7c28a523746fed8113b5a6a0ffd891968e15005b8016b51cf",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 0.008432
+    },
+    {
+      "suite": "tests/lite-gate-direct-edit-contract.tests.sh",
+      "source_sha256": "2607739276e6b6e985ae559e86e831b8c71bd1ee5ad25ce7382e066b4d4d65f5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.018142
+    },
+    {
+      "suite": "tests/lite-gate-cli-chain.tests.sh",
+      "source_sha256": "4b7c0ba2e792f02e1f2d684926c6aac62077ed72f59ad127ab113776004e69a2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.813941
+    },
+    {
+      "suite": "tests/capability-registry-schema.tests.sh",
+      "source_sha256": "f90c9270ba28c2349f0edb376d59895fae59eb6f677fa89bb927f8553ea8419f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.304646
+    },
+    {
+      "suite": "tests/evaluate-predicate.tests.sh",
+      "source_sha256": "245f11dd50491e89a69a0d3d202d63d7824ca961aba3cd4681652dd912091a43",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.945289
+    },
+    {
+      "suite": "tests/registry-discovery.tests.sh",
+      "source_sha256": "c3f82f519a2877927a4f0773e1d0be072c374b106fde256d84607454607954b5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.766702
+    },
+    {
+      "suite": "tests/registry-migration-cli.tests.sh",
+      "source_sha256": "93f6ea44301ae5aa4e555509af8fd79f883ba18dfa565cfec50a92bdec8bd526",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.253179
+    },
+    {
+      "suite": "tests/validate-capability-registry.tests.sh",
+      "source_sha256": "5da9c9f7908d46f4cd40a06da84a3e3b29277c9ca37324ed89d8fb490e57ccda",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.292086
+    },
+    {
+      "suite": "tests/generate-registry-digest.tests.sh",
+      "source_sha256": "f98879e6bb5de6e21960be4a22859c7d45f3d5780a993bb8692b6c9aa0c57e3c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.922691
+    },
+    {
+      "suite": "tests/generate-gate-capabilities.tests.sh",
+      "source_sha256": "9b582adc310516f736125a42b257d98b304a70dd24285d362b42e8b48e471672",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.046005
+    },
+    {
+      "suite": "tests/capability-registry-parity.tests.sh",
+      "source_sha256": "9f6394004b8e601fe481f97fcb940032a7747b3094d5c4e8fe2e45bb85a30f29",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.182528
+    },
+    {
+      "suite": "tests/component-path-resolver.tests.sh",
+      "source_sha256": "4b5894b1d60b1a8e21ef885a0d4edd78c636fe6d8014ee29faab567c8522a928",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.652521
+    },
+    {
+      "suite": "tests/component-path-diff-basis.tests.sh",
+      "source_sha256": "17a281de648508abe5693299841ae31f31d83dca3b2d3a0ef6b0d5e11923ae5f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.765295
+    },
+    {
+      "suite": "tests/ownership-digest.tests.sh",
+      "source_sha256": "b71ce7e3ec6eb086bdebbf3d861de71e8c61e1306d1630d35c3ee7b5356197c7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.567547
+    },
+    {
+      "suite": "tests/check-component-coverage.tests.sh",
+      "source_sha256": "e2bcb0347dcfde6fd1f22f20bdb8448e1c6edeb990bbab667fb2f2bb93b2d460",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.277659
+    },
+    {
+      "suite": "tests/component-path-ownership-parity.tests.sh",
+      "source_sha256": "b575836ee45d1b28387fa77dc7677cf39fbd76d80705110c631b115fc2ea583b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 8.671201
+    },
+    {
+      "suite": "tests/cross-runtime-handoff.tests.sh",
+      "source_sha256": "5c4da1195114dcf99876a9dd46240815d09a577091fc0438f2dbca950f21f774",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 17.841487
+    },
+    {
+      "suite": "tests/check-installed-plugin-drift.tests.sh",
+      "source_sha256": "4a111a1cb43f7c8e2d0632182b2bc848036a901810ca122166d37e128984b4f2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 51.473991
+    },
+    {
+      "suite": "tests/check-a8-process-integrity.tests.sh",
+      "source_sha256": "8fdea9b8aa80d2f01cd7ffb3431ffd3f5d0b86d8fbd671d5a56e44cc125be729",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.543007
+    },
+    {
+      "suite": "tests/sdd-domain-multitarget-T-004.tests.sh",
+      "source_sha256": "4ae16522d8e1c801db9bec3ca002ad5cd6f726545b948aab321dcf450a15c1f1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 21.177545
+    },
+    {
+      "suite": "tests/design-sync-policy.tests.sh",
+      "source_sha256": "2d8d4dee5aba570f6c50db8f793ccef6aa1767fc1db8332ad7f2c2428a69784e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.01764
+    },
+    {
+      "suite": "tests/upstream-concept-issue.tests.sh",
+      "source_sha256": "00b7c953d83bf90e8835fe31372e1fd618b24381c86b16f4f42a7b0e31b28308",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.977125
+    },
+    {
+      "suite": "tests/guard-r10-port.tests.ps1",
+      "source_sha256": "09f0fefbed2c7ab1a12f9e91732f2daa2370a40411dc571da4ce4576092474b3",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 164.196002
+    },
+    {
+      "suite": "tests/issue311-scratch-isolation.tests.py",
+      "source_sha256": "6400c23fd9c2f2a017af2de8515c83c1f5b8210b50bede16b7874f09e4db974c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 22.217296
+    },
+    {
+      "suite": "tests/sdd-domain-multitarget-T-003.tests.py",
+      "source_sha256": "40a50bb063c1a372b57105ab801733051567c479e0c4159575540c0120e78c34",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 26.265929
+    },
+    {
+      "suite": "tests/quality-nontty-transport.tests.py",
+      "source_sha256": "d807ded8f2b6b5515c47c6f2fbc4a8b821d90dbcc46a75b9051f073a6dbd28e8",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.770955
+    },
+    {
+      "suite": "tests/traceability-freeze-contract.tests.py",
+      "source_sha256": "78e688c8949ffad8950b2b5802a957dddc324d05f43700501946da70096735d7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 28.483186
+    },
+    {
+      "suite": "tests/sdd-domain.tests.ps1",
+      "source_sha256": "64b86bd7188f03cec34469c3c7d5f524cd84c2b37f6264b783f5e97b172002d5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 117.732076
+    },
+    {
+      "suite": "tests/current-byte-capture.tests.py",
+      "source_sha256": "6327f4d77b9d790a584393e4a7480b911b1753ccd722187fc0dd76b976f9579a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 25.429001
+    },
+    {
+      "suite": "tests/concept-test.tests.py",
+      "source_sha256": "2b0af0f0741b797e399d15719e8cde06b0fa041c31738b8ac86da7cb7c0c2610",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 10.149694
+    },
+    {
+      "suite": "tests/concept-review-continuity.tests.py",
+      "source_sha256": "ce42518a4cea3cb5d71adb3bf57de606708b3d3d839ee185760cbd9044570819",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 67.20517
+    },
+    {
+      "suite": "tests/domain-review-finalize.tests.py",
+      "source_sha256": "fbebadcda43bdd537a4055a468fc86dc2e583cb83160fc898db9535f9116ff7f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 60.779835
+    },
+    {
+      "suite": "tests/fixed-review-inputs.tests.py",
+      "source_sha256": "83e3d383b3652531f7cf3be8e4b0ed09864e338fd2eb0cf82fab803b8a3bcb54",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.558565
+    },
+    {
+      "suite": "tests/fixed-review-state.tests.py",
+      "source_sha256": "7d0877197faf2356c43a7d4f755253b881916f9635909fd58b7e5bf2d4497702",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.184521
+    },
+    {
+      "suite": "tests/fixed-review-launch.tests.py",
+      "source_sha256": "314a068ab50c25754ffbd5b70c4b51e1c52070351f9015321b275fce80826e73",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.510805
+    },
+    {
+      "suite": "tests/fixed-review-precheck-ps.tests.py",
+      "source_sha256": "90abc02403e2d90b42c6d85786e00aa2ff32d52fbf8e0493a82a907cd7f7895a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 18.426338
+    },
+    {
+      "suite": "tests/fixed-review-precheck-bash.tests.py",
+      "source_sha256": "7a1fd297aa78dc592f79f419f34fd727b1028aae3483275a4928b10b7d658c83",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.498631
+    },
+    {
+      "suite": "tests/review-conditional-inputs.tests.py",
+      "source_sha256": "7aae44f65473bd2b0ee5df0c9b02a5cbe0fab6416a7f7282fe23056958d36740",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 15.780262
+    },
+    {
+      "suite": "tests/workflow-conditional-inputs.tests.py",
+      "source_sha256": "029e5ddd03c981d84fbcb90469b82d0f5b99304b49dfbb24447770140e5b5de1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 37.033977
+    },
+    {
+      "suite": "tests/spec-review-verify-inputs.tests.py",
+      "source_sha256": "ab2796fc7336d0142cd392105a342c3046d8f8db21c57c76b4f8785147e1bbfc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 10.727316
+    },
+    {
+      "suite": "tests/host-review-preflight.tests.py",
+      "source_sha256": "e4d8dcebbe6c4c412cd84845e1120459e4a268fa4eba27039703d6c9fcc40239",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 10.349302
+    },
+    {
+      "suite": "tests/unified-launch-order.tests.py",
+      "source_sha256": "ed7815e25d294eb19332eb708a3c0c718c2f328e54147096fb7353cea59c13ff",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 15.29282
+    },
+    {
+      "suite": "tests/unified-task-launch.tests.py",
+      "source_sha256": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.741369
+    },
+    {
+      "suite": "tests/task-structured-output.tests.py",
+      "source_sha256": "51a17f49fac6570e39c7b7079b539de3b179725dda418184410399cc20299a83",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.490235
+    },
+    {
+      "suite": "tests/supplemental-delivery-declaration.tests.py",
+      "source_sha256": "4df0a193452a7bce95267b5dd415388732a2de808f498dbddefef0dabf32d361",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 46.830029
+    },
+    {
+      "suite": "tests/t001-evaluation-preparation.tests.py",
+      "source_sha256": "b7028f7bd7c4d392baa053929a07c53dad98b9f6caed74c858e9ed7105c33ffa",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.722804
+    },
+    {
+      "suite": "tests/verification-impact.tests.py",
+      "source_sha256": "4d3ce93e8c253521ada3b1e61531ad6d6824953c13ae4d68e0d7081cb78aefcc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.144037
+    },
+    {
+      "suite": "tests/verification-ci-plan.tests.py",
+      "source_sha256": "cfb1dc5d7fa1c4ca986aab500df1a399d6ada833a3e9817352c3bd817235215e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 19.821314
+    },
+    {
+      "suite": "tests/verification-ci.tests.py",
+      "source_sha256": "f42916a4c73547405a98a0a86c2598f5be3aa040fea7cc94d7f8fe53b60ff44c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 39.285457
+    },
+    {
+      "suite": "tests/model-observation.tests.py",
+      "source_sha256": "4d6bc7c901cb2db38e1b4210a4f7aa8956248aa72500793d290ed7fdf9e15513",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 18.938846
+    },
+    {
+      "suite": "tests/model-identity.tests.py",
+      "source_sha256": "650239455536821657802793ce284013cc07ba360428ea872ea52540a23759a7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 9.91414
+    },
+    {
+      "suite": "tests/model-policy.tests.py",
+      "source_sha256": "00295fff5d8d25b0c38fb4fc0f2f85ef2197e4e5dce64b132354272bd0d65ea7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 38.710902
+    },
+    {
+      "suite": "tests/model-policy-launch.tests.py",
+      "source_sha256": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 133.081455
+    },
+    {
+      "suite": "tests/model-policy-launch-platform.tests.py",
+      "source_sha256": "e4dfaecadca6dc970507592865e8b5014f56047f4c38794a752206a80cb22810",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.143112
+    },
+    {
+      "suite": "tests/model-policy-installed.tests.py",
+      "source_sha256": "78c8181289665d6d5432d95200fc006c2e284773adea1e75f9740d3491c1a4c0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 681.731795
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

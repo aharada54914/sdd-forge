@@ -1,0 +1,18 @@
+{
+  "requested_at": "2026-10-21T22:13:17.047734+00:00",
+  "run_id": 39658451096,
+  "source_job_id": 119426801784,
+  "command": [
+    "gh",
+    "run",
+    "rerun",
+    "39658451096",
+    "--repo",
+    "aharada54914/sdd-forge",
+    "--job",
+    "119426801784"
+  ],
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "specify only one of `<run-id>` or `--job`\n\nUsage:  gh run rerun [<run-id>] [flags]\n\nFlags:\n  -d, --debug        Rerun with debug logging\n      --failed       Rerun only failed jobs, including dependencies\n  -j, --job string   Rerun a specific job from a run, including dependencies\n  \n"
+}

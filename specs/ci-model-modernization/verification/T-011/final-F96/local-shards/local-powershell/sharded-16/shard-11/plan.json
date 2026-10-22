@@ -1,0 +1,16 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-powershell",
+  "selected": [
+    "tests/install.tests.ps1",
+    "tests/facet-manifest-schema.tests.ps1",
+    "tests/resolve-project-context-caller-contract.tests.ps1",
+    "tests/check-a8-process-integrity.tests.ps1",
+    "tests/validate-capability-registry.tests.ps1",
+    "tests/component-path-ownership-parity.tests.ps1",
+    "tests/sdd-domain-multitarget-T-004.tests.py",
+    "tests/model-observation.tests.py"
+  ],
+  "shard_index": 11,
+  "shard_count": 16
+}

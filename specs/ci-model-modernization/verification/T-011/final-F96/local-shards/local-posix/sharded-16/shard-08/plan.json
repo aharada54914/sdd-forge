@@ -1,0 +1,27 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-posix",
+  "selected": [
+    "tests/adversarial-review-contracts.tests.sh",
+    "tests/render-agent-frontmatter.tests.sh",
+    "tests/structure-check-feature-mode.tests.sh",
+    "tests/claude-bash-matcher.tests.sh",
+    "tests/review-prompt-calibration.tests.sh",
+    "tests/design-system-contract.tests.sh",
+    "tests/bootstrap-layer-templates.tests.sh",
+    "tests/apply-human-copy.tests.sh",
+    "tests/check-hook-activation-handshake.tests.sh",
+    "tests/guard-invariants-epic-a1.tests.sh",
+    "tests/plugin-contracts-track-selection.tests.sh",
+    "tests/human-copy-runner-contract.tests.sh",
+    "tests/lite-gate-summary-consumption.tests.sh",
+    "tests/design-sync-policy.tests.sh",
+    "tests/concept-test.tests.py",
+    "tests/fixed-review-inputs.tests.py",
+    "tests/workflow-conditional-inputs.tests.py",
+    "tests/unified-launch-order.tests.py",
+    "tests/model-policy-installed.tests.py"
+  ],
+  "shard_index": 8,
+  "shard_count": 16
+}

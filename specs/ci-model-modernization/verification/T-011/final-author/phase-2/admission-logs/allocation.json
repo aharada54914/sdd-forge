@@ -1,0 +1,11 @@
+{
+  "manifest": "specs/ci-model-modernization/verification/T-011/final-author/phase-2/task-input-manifest.json",
+  "sha256": "49871c26538bb3d8e9b90daf048dff7fde8524e9eff9536a2ad2f8d6885f26c1",
+  "snapshot": "/workspace/t011-final-author-phase2-snapshot",
+  "actual_work_context": "/root/t011_final_report_author",
+  "logical_run_id": "ci-model-modernization-T-011-final-delivery-phase2-20261021T232156Z",
+  "input_count": 1706,
+  "all_source_snapshot_pins_match": true,
+  "original_phase1_preserved": true,
+  "quality_reservation": false
+}

@@ -1,0 +1,82 @@
+{
+  "schema": "exact-F-publication-receipt/v1",
+  "observed_at": "2026-10-21T22:59:52.879162+00:00",
+  "phase": "before",
+  "candidate_F": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "candidate_tree": "4eaf764badc534b86dcb76c26ee5d3d95cc264a0",
+  "tag": "v1.20.0",
+  "historical_inventory": {
+    "path": "/workspace/t011-release-finalization-prep/remote-tags-before.txt",
+    "sha256": "bf57bfa3d59af045664ebd6bfdf568a4c55690d37a6c3c355baf3bcdbbe303c9",
+    "count": 5
+  },
+  "remote_inventory": {
+    "path": "remote-tags.txt",
+    "sha256": "bf57bfa3d59af045664ebd6bfdf568a4c55690d37a6c3c355baf3bcdbbe303c9",
+    "count": 5
+  },
+  "changed_or_missing_historical_refs": {},
+  "new_refs": {},
+  "checks": {
+    "old_five_refs_unchanged": true,
+    "candidate_absent_remote": true,
+    "candidate_absent_local": true
+  },
+  "tag_metadata": {},
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "96afb59fcceab422024d5f2d1abc1b478d7058cf^{commit}"
+      ],
+      "started_at": "2026-10-21T22:59:52.359255+00:00",
+      "finished_at": "2026-10-21T22:59:52.360984+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "37d7783d25add41f5a638e407e7982bf33b201cbf9b0c468d13a4038cdbdae4c",
+      "stderr_bytes": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "96afb59fcceab422024d5f2d1abc1b478d7058cf^{tree}"
+      ],
+      "started_at": "2026-10-21T22:59:52.360994+00:00",
+      "finished_at": "2026-10-21T22:59:52.362373+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "8f0fe8a960f4bdca054cce34b42c3862b2b8d03e50ef6f532da3120f0c63e45c",
+      "stderr_bytes": 0
+    },
+    {
+      "argv": [
+        "git",
+        "ls-remote",
+        "--tags",
+        "origin"
+      ],
+      "started_at": "2026-10-21T22:59:52.362382+00:00",
+      "finished_at": "2026-10-21T22:59:52.877201+00:00",
+      "exit_code": 0,
+      "stdout_sha256": "bf57bfa3d59af045664ebd6bfdf568a4c55690d37a6c3c355baf3bcdbbe303c9",
+      "stderr_bytes": 0
+    },
+    {
+      "argv": [
+        "git",
+        "show-ref",
+        "--verify",
+        "--quiet",
+        "refs/tags/v1.20.0"
+      ],
+      "started_at": "2026-10-21T22:59:52.877411+00:00",
+      "finished_at": "2026-10-21T22:59:52.879149+00:00",
+      "exit_code": 1,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 0
+    }
+  ],
+  "public_metadata_only": true,
+  "publication_performed_by_this_collector": false,
+  "status": "PASS"
+}

@@ -1,0 +1,277 @@
+{
+  "files": [
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/evidence-manifest.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/evidence-manifest.json",
+      "source_sha256": "20203bfd3dcae759787842b2a4b30dbd6bbac56455ba3c2fdef68e5d252d7f77",
+      "published_sha256": "20203bfd3dcae759787842b2a4b30dbd6bbac56455ba3c2fdef68e5d252d7f77",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/archive-audit.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/archive-audit.json",
+      "source_sha256": "a8ca94cff8d5f9defc365396436a5894450a4a87bf9595da3d43e32e7c729fb0",
+      "published_sha256": "a8ca94cff8d5f9defc365396436a5894450a4a87bf9595da3d43e32e7c729fb0",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/archive-bash-inventory.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/archive-bash-inventory.json",
+      "source_sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d",
+      "published_sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/archive-identity.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/archive-identity.json",
+      "source_sha256": "db36b9fffbd131855b46b6c1b9307b27640218e00ed1c0951ebbccec263864be",
+      "published_sha256": "db36b9fffbd131855b46b6c1b9307b27640218e00ed1c0951ebbccec263864be",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/archive-pwsh-inventory.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/archive-pwsh-inventory.json",
+      "source_sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d",
+      "published_sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/current-audit.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/current-audit.json",
+      "source_sha256": "5d2bbede043aa45a3c3b25ce7f19bb641a71cadcb8a6d5b17f4c19eef1d03dd2",
+      "published_sha256": "5d2bbede043aa45a3c3b25ce7f19bb641a71cadcb8a6d5b17f4c19eef1d03dd2",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/current-bash-inventory.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/current-bash-inventory.json",
+      "source_sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d",
+      "published_sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/current-pwsh-inventory.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/current-pwsh-inventory.json",
+      "source_sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d",
+      "published_sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/doc-link-audit.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/doc-link-audit.json",
+      "source_sha256": "7f362476905cfc2705ff264daa03c15a55449fac4f37053676438d134cc3d7e3",
+      "published_sha256": "7f362476905cfc2705ff264daa03c15a55449fac4f37053676438d134cc3d7e3",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/execution-receipts.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/execution-receipts.json",
+      "source_sha256": "93a559d86ca1ce31c6649f9c3da2cfe019e9390fa2c2b961cb2ac0c02045862b",
+      "published_sha256": "93a559d86ca1ce31c6649f9c3da2cfe019e9390fa2c2b961cb2ac0c02045862b",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/expected-inventory.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/expected-inventory.json",
+      "source_sha256": "8fbf8dd1921fe3aaff6c6deeb619f7a8b0679de6934908f6540892dde8b533ea",
+      "published_sha256": "8fbf8dd1921fe3aaff6c6deeb619f7a8b0679de6934908f6540892dde8b533ea",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/filename-regression-linkage.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/filename-regression-linkage.json",
+      "source_sha256": "64642d9757450983ea1087bf39ff9171625f016489627a8d644630767a8b353b",
+      "published_sha256": "64642d9757450983ea1087bf39ff9171625f016489627a8d644630767a8b353b",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/final-eight-path-summary.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/final-eight-path-summary.json",
+      "source_sha256": "b5042314427f438bd19aebcebca869a35ec448da7d1d9a88911b4402c5c1b4fe",
+      "published_sha256": "b5042314427f438bd19aebcebca869a35ec448da7d1d9a88911b4402c5c1b4fe",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/installed-production.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/installed-production.json",
+      "source_sha256": "e1e3b9a560e6bdb1406bf3e299b3f897f7a9ba02006537c85b76b447db717a0a",
+      "published_sha256": "e1e3b9a560e6bdb1406bf3e299b3f897f7a9ba02006537c85b76b447db717a0a",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/linux-summary.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/linux-summary.json",
+      "source_sha256": "b67afbad8253d4adf2fefaaa8700508a1e86881bcdd4593bb21ceb67cf68619d",
+      "published_sha256": "b67afbad8253d4adf2fefaaa8700508a1e86881bcdd4593bb21ceb67cf68619d",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/local-posix-installer-receipt.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/local-posix-installer-receipt.json",
+      "source_sha256": "52df9b27d9e0e3cb6b4886c5b5fa66b1f1182e11b3bb85168b63741678ecc097",
+      "published_sha256": "52df9b27d9e0e3cb6b4886c5b5fa66b1f1182e11b3bb85168b63741678ecc097",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/local-powershell-installer-receipt.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/local-powershell-installer-receipt.json",
+      "source_sha256": "b849aced5e3787271cdf675df063b7e72394f9440cb19b126fd1995823e75d62",
+      "published_sha256": "b849aced5e3787271cdf675df063b7e72394f9440cb19b126fd1995823e75d62",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/production-prepare-bash.log",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/production-prepare-bash.log",
+      "source_sha256": "8ccfb98330da2c3af5e75a1e281e90b941fd6a944c1d3bd657e3f1cbb7c01c47",
+      "published_sha256": "8ccfb98330da2c3af5e75a1e281e90b941fd6a944c1d3bd657e3f1cbb7c01c47",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/production-prepare-pwsh.log",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/production-prepare-pwsh.log",
+      "source_sha256": "833bc79e11a564d6ad436ef60fb2d2bc2282728211374a71cc332dc2d47b0079",
+      "published_sha256": "833bc79e11a564d6ad436ef60fb2d2bc2282728211374a71cc332dc2d47b0079",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/production-selector-bash.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/production-selector-bash.json",
+      "source_sha256": "e2838cbcbf21ff08ceef1de11c4d025efd383b8e115d3e272de8f05105fd17de",
+      "published_sha256": "e2838cbcbf21ff08ceef1de11c4d025efd383b8e115d3e272de8f05105fd17de",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/production-selector-pwsh.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/production-selector-pwsh.json",
+      "source_sha256": "2a37d2ada71dcfeca6188b69530f14ef575e2c4ad687aea7c6a34bb63f7e69db",
+      "published_sha256": "2a37d2ada71dcfeca6188b69530f14ef575e2c4ad687aea7c6a34bb63f7e69db",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/source-pins.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/source-pins.json",
+      "source_sha256": "cab899de1213a0ddd51bd69c0bef080c697c0365d5927c79a11eb981686e8fc3",
+      "published_sha256": "cab899de1213a0ddd51bd69c0bef080c697c0365d5927c79a11eb981686e8fc3",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/tag-binding.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/tag-binding.json",
+      "source_sha256": "253a08811cf37ca0ed91ee7b1e261b546ba4a44e194579a4423485610bbace02",
+      "published_sha256": "253a08811cf37ca0ed91ee7b1e261b546ba4a44e194579a4423485610bbace02",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-execution-receipts.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/windows-execution-receipts.json",
+      "source_sha256": "37606c33f3bb83f488d771d2475a24d42126a8ea19f4f5223e115faa5c98ffb1",
+      "published_sha256": "37606c33f3bb83f488d771d2475a24d42126a8ea19f4f5223e115faa5c98ffb1",
+      "transformation": "none; exact original bytes"
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-powershell/evidence-manifest.json.base64.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/windows-powershell/evidence-manifest.json",
+      "source_sha256": "731205d717f3d1bcd451aa871e4c146421129db3b80b5ee7399f034f4ce08317",
+      "published_sha256": "0756323067edf8dc7f65d00fa7fe7d35c87ef73f1588b18ec0b49375394ed3ea",
+      "transformation": "Reversible base64 JSON envelope preserves original manifest-bound bytes; normal Git would normalize CRLF or flag original whitespace."
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-powershell/expected-inventory.json.base64.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/windows-powershell/expected-inventory.json",
+      "source_sha256": "24a74c28923f4316b0309537df1afd6ab5be19563f76a6c1ea050359568c6f34",
+      "published_sha256": "ca475c7a376a3664ef913bd1bf5c37b515a16845790346518323cff5ed094abd",
+      "transformation": "Reversible base64 JSON envelope preserves original manifest-bound bytes; normal Git would normalize CRLF or flag original whitespace."
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-powershell/git-inventory.json.base64.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/windows-powershell/git-inventory.json",
+      "source_sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb",
+      "published_sha256": "a456e52922c74335ea253c431b88b04da3a45e71cc5d1455f8ac9b4327615102",
+      "transformation": "Reversible base64 JSON envelope preserves original manifest-bound bytes; normal Git would normalize CRLF or flag original whitespace."
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-powershell/git.log.base64.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/windows-powershell/git.log",
+      "source_sha256": "8fe0ab132851339e28db47b4bc08abfe7c366047ade548f8e714b51a471bfc5e",
+      "published_sha256": "c11c58bed7f415b7c8585c7f94fb1ed5fc2a4e7e4427b11ad42f0223a30f822c",
+      "transformation": "Reversible base64 JSON envelope preserves original manifest-bound bytes; normal Git would normalize CRLF or flag original whitespace."
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-powershell/summary.json.base64.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/windows-powershell/summary.json",
+      "source_sha256": "25a967614870345adfafe15d05c7618ee8eff0d0009c88e8211353f3a3ffd4be",
+      "published_sha256": "46f6221887bb2fddd9b4a76aae0a22a17dd09d6e5852dce59b4861dbdf548938",
+      "transformation": "Reversible base64 JSON envelope preserves original manifest-bound bytes; normal Git would normalize CRLF or flag original whitespace."
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-powershell/zip-inventory.json.base64.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/windows-powershell/zip-inventory.json",
+      "source_sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb",
+      "published_sha256": "dfea64874f81d21b3a1d55d9c4be48891afc445a578c3f2bfb474c433ce19f23",
+      "transformation": "Reversible base64 JSON envelope preserves original manifest-bound bytes; normal Git would normalize CRLF or flag original whitespace."
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-powershell/zip.log.base64.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/windows-powershell/zip.log",
+      "source_sha256": "c6e7ab5b0bf1b2035a47667943adf0ea4bf4ad3f0eb6d8d2442be976006391b2",
+      "published_sha256": "4c456f524c9deaa7e7ba58ac7fe4a6bcf0f88b852876fb617764594016b8239f",
+      "transformation": "Reversible base64 JSON envelope preserves original manifest-bound bytes; normal Git would normalize CRLF or flag original whitespace."
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-pwsh/evidence-manifest.json.base64.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/windows-pwsh/evidence-manifest.json",
+      "source_sha256": "9850ebe4bcfff596d89c3d883b3f39334559d9736d6106396aba14b294010367",
+      "published_sha256": "3eaf0fb8e6028194b21e65c3f8884d9906893ac9601b41e26ebf2a53678fa292",
+      "transformation": "Reversible base64 JSON envelope preserves original manifest-bound bytes; normal Git would normalize CRLF or flag original whitespace."
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-pwsh/expected-inventory.json.base64.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/windows-pwsh/expected-inventory.json",
+      "source_sha256": "24a74c28923f4316b0309537df1afd6ab5be19563f76a6c1ea050359568c6f34",
+      "published_sha256": "99a3c23e55ef5fa8d7755583668ffa4e2a673c6cbe35cb524081a627d7812356",
+      "transformation": "Reversible base64 JSON envelope preserves original manifest-bound bytes; normal Git would normalize CRLF or flag original whitespace."
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-pwsh/git-inventory.json.base64.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/windows-pwsh/git-inventory.json",
+      "source_sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb",
+      "published_sha256": "2806f4db27344d621ad49bacd2278235387cfe3f0a032717d8e2adf49bfe67ea",
+      "transformation": "Reversible base64 JSON envelope preserves original manifest-bound bytes; normal Git would normalize CRLF or flag original whitespace."
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-pwsh/git.log.base64.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/windows-pwsh/git.log",
+      "source_sha256": "fe5559c723fb8997b56bb90be1bca93a751bf5b442f1dc2be20fdffbb9405cde",
+      "published_sha256": "e329396a62e23f33559b1fdd41263ba1edb7e0e86008b91529ab9143971c0995",
+      "transformation": "Reversible base64 JSON envelope preserves original manifest-bound bytes; normal Git would normalize CRLF or flag original whitespace."
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-pwsh/summary.json.base64.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/windows-pwsh/summary.json",
+      "source_sha256": "5982275fbe7c74baab53ba3cadd4cb1aeb7b6e713de11d68689161e41bf2e8aa",
+      "published_sha256": "18d869f422d51af36a755de1c3251c315710eaea6398971575447e28c5b9f5b4",
+      "transformation": "Reversible base64 JSON envelope preserves original manifest-bound bytes; normal Git would normalize CRLF or flag original whitespace."
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-pwsh/zip-inventory.json.base64.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/windows-pwsh/zip-inventory.json",
+      "source_sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb",
+      "published_sha256": "fe736e2cc77f61025f34a07e26c4a02fda77539b2c1f5327eec5af0c8060e5aa",
+      "transformation": "Reversible base64 JSON envelope preserves original manifest-bound bytes; normal Git would normalize CRLF or flag original whitespace."
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-pwsh/zip.log.base64.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/public-evidence/windows-pwsh/zip.log",
+      "source_sha256": "b1a80c10444b215506a3fc71e082bfc3c2b2045674213e015f080568c99558c3",
+      "published_sha256": "adb88d44ef6172b7288dac0ce2c40f51726a0f24bbf5fa026f5ba0cf9071ec4d",
+      "transformation": "Reversible base64 JSON envelope preserves original manifest-bound bytes; normal Git would normalize CRLF or flag original whitespace."
+    },
+    {
+      "public_path": "specs/ci-model-modernization/verification/T-011/final-F96/distribution/external-raw-closure.json",
+      "source_path": "/workspace/distribution-audit/final-96afb59f/private-raw-closure.json",
+      "source_sha256": "d25ee631c3c4e08d883be32b35704eb9b4c5d7c3fec4f0328687017735746a3d",
+      "published_sha256": "d25ee631c3c4e08d883be32b35704eb9b4c5d7c3fec4f0328687017735746a3d",
+      "transformation": "none; exact original metadata-only external closure index; no raw payloads copied"
+    }
+  ]
+}

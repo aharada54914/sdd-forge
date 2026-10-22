@@ -1,0 +1,78 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-powershell",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/sdd-domain-multitarget-foundation.tests.py",
+    "tests/installer-idempotency.tests.ps1",
+    "tests/facet-manifest-semantics.tests.ps1",
+    "tests/resolve-project-context-cli.tests.ps1",
+    "tests/validate-live-host-proof.tests.ps1",
+    "tests/component-path-resolver.tests.ps1",
+    "tests/check-component-coverage.tests.ps1",
+    "tests/model-policy-launch-platform.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/sdd-domain-multitarget-foundation.tests.py",
+      "source_sha256": "9463abf50ad7c88f5b838038e539cccf36f509d227b64734b04be61b94f556a3",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.779209
+    },
+    {
+      "suite": "tests/installer-idempotency.tests.ps1",
+      "source_sha256": "c4849e1d35ff7b04e9dda4fcd524f3c0cf70e8a83936a5550188c28d0a7b8db6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 7.470797
+    },
+    {
+      "suite": "tests/facet-manifest-semantics.tests.ps1",
+      "source_sha256": "c8d94287c8a02bbb4c63295647d2c3eca36c50567eb0609557eaef0d41e49c31",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.835099
+    },
+    {
+      "suite": "tests/resolve-project-context-cli.tests.ps1",
+      "source_sha256": "61153fa28ddf1909c38708bdde22eccff911a63839bb91ebbe2c7ef31ab7db31",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.142581
+    },
+    {
+      "suite": "tests/validate-live-host-proof.tests.ps1",
+      "source_sha256": "ff250731382a07ce3cd282dcec8ae28d373810e52a0748719c530166b9ff69d8",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 107.471738
+    },
+    {
+      "suite": "tests/component-path-resolver.tests.ps1",
+      "source_sha256": "242596e5c3c03f708603e71dcb733e7a9ff69e333220f77b151db90bfa44188c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 34.461233
+    },
+    {
+      "suite": "tests/check-component-coverage.tests.ps1",
+      "source_sha256": "105215a984595f78d18a9658c5771d59e70d67b1cdd6ee4127c60c8dfc8f790c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 37.748477
+    },
+    {
+      "suite": "tests/model-policy-launch-platform.tests.py",
+      "source_sha256": "e4dfaecadca6dc970507592865e8b5014f56047f4c38794a752206a80cb22810",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.148065
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

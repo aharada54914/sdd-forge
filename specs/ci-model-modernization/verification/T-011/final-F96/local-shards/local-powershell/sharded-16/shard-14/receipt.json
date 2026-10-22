@@ -1,0 +1,78 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-powershell",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/cross-model.tests.ps1",
+    "tests/generate-approval-sidecar.tests.ps1",
+    "tests/ship-track-selection-migration.tests.ps1",
+    "tests/resolve-project-context-lite.tests.ps1",
+    "tests/validate-resolver-evidence.tests.ps1",
+    "tests/check-installed-plugin-drift.tests.ps1",
+    "tests/lite-gate-direct-edit-contract.tests.ps1",
+    "tests/ownership-digest.tests.ps1"
+  ],
+  "results": [
+    {
+      "suite": "tests/cross-model.tests.ps1",
+      "source_sha256": "4dc09912e92114c60b39776c5a1537e8522c3105a87dec9af5959b0b86b3a036",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 115.155217
+    },
+    {
+      "suite": "tests/generate-approval-sidecar.tests.ps1",
+      "source_sha256": "fb7eb37c288178ac106e22643b0978fdaabbd342d16e4dcf2c8d8a380e9c0fb9",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 9.0725
+    },
+    {
+      "suite": "tests/ship-track-selection-migration.tests.ps1",
+      "source_sha256": "4bdf2d97a325432e119a6acda19cb4cd04a989d2f1658157c22bbc52e55f81ad",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.125852
+    },
+    {
+      "suite": "tests/resolve-project-context-lite.tests.ps1",
+      "source_sha256": "c0ca5c01ae07e0c70c9820c7408ca7af422623fdcc7ef7745996476372946764",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.103405
+    },
+    {
+      "suite": "tests/validate-resolver-evidence.tests.ps1",
+      "source_sha256": "499b0131b73721ed64920a39d42094fbb56edf73b54776720b66220c3d91975e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 11.580251
+    },
+    {
+      "suite": "tests/check-installed-plugin-drift.tests.ps1",
+      "source_sha256": "932f1d61cdc5116184cd6087bb241df6fb5e9e6353232aff94edeb00d19140c6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 51.563848
+    },
+    {
+      "suite": "tests/lite-gate-direct-edit-contract.tests.ps1",
+      "source_sha256": "d4a6225cedcea6ea9fc79f900dbf435ce9b4cef2ff4f9aa3164ef94452e743df",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.302292
+    },
+    {
+      "suite": "tests/ownership-digest.tests.ps1",
+      "source_sha256": "57241c324af25cb45e33873520c85471320e449e40675d8e656a719e9e53aa41",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 24.043695
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

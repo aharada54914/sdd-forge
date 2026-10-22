@@ -1,0 +1,104 @@
+{
+  "kind": "Bounded actual-author serialization correction, no source/tests or actual verdict changes",
+  "actual_author_context": "/root/t011_final_report_author",
+  "same_actual_author_continues": true,
+  "phase3_manifest": {
+    "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-3-final/task-input-manifest.json",
+    "sha256": "f59f769d8f01d997828a2e1e199a2aff3ff7d81c649afb63275615d90d97e1ee"
+  },
+  "prior_outputs": [
+    {
+      "source": "reports/implementation/ci-model-modernization/T-011.md",
+      "source_sha256": "5e022e242009879e66898a19e802b9b5748e54f4df6cab4826ac11ecf158bc1e",
+      "copy": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/phase3-outputs/report.md",
+      "sha256": "5e022e242009879e66898a19e802b9b5748e54f4df6cab4826ac11ecf158bc1e"
+    },
+    {
+      "source": "specs/ci-model-modernization/verification/T-011.contract.json",
+      "source_sha256": "baf41f1f6836745dbbde4c88cfee15eb983a4f2a234b0e4ce927d8a091bf6233",
+      "copy": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/phase3-outputs/contract.json",
+      "sha256": "baf41f1f6836745dbbde4c88cfee15eb983a4f2a234b0e4ce927d8a091bf6233"
+    }
+  ],
+  "failed_actual_contract_check": "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final/contract.stdout.log",
+  "indexes": [
+    {
+      "check_id": "lint",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/lint.json",
+      "sha256": "311a4d59342723568e3ae4adbd2e6d0b87938da2e48389c9817ca4ce15201c0a"
+    },
+    {
+      "check_id": "typecheck",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/typecheck.json",
+      "sha256": "8563bb1602d622f34740c3ae061139d871a0cdeab251e05116b1edcfb679e2c2"
+    },
+    {
+      "check_id": "unit-tests",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/unit-tests.json",
+      "sha256": "c2598925b5081cdbb4ce40e3e9539d72c8243f6c2b4a99da809f44611085a67e"
+    },
+    {
+      "check_id": "integration-tests",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/integration-tests.json",
+      "sha256": "2d80924a0bade16e664f928eb17d366fece88cb194defa6caece7dc37fd4d5b4"
+    },
+    {
+      "check_id": "build",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/build.json",
+      "sha256": "36664bc0d3df81f99468e9bb45fec110d4863f220f693e5155ebe0f37450f8a6"
+    },
+    {
+      "check_id": "placeholder-scan",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/placeholder-scan.json",
+      "sha256": "d88e637e012544eabbd6325880f0ea608db0a2748cc9fd71e308f82ab065f03f"
+    },
+    {
+      "check_id": "task-state-check",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/task-state-check.json",
+      "sha256": "26b1f51d19baaaa0477aa05051a3d9ed4cc230d78b382b0ca7461db653b647a8"
+    },
+    {
+      "check_id": "smoke-run",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/smoke-run.json",
+      "sha256": "7f809be762212115fe7a47fe70180e94aca92914dcdea42790e612b2984d9429"
+    },
+    {
+      "check_id": "differential-baseline",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/differential-baseline.json",
+      "sha256": "33558cb86b60123e4250f1da28ac380f9a3281901e39780c2d101412322c26d7"
+    },
+    {
+      "check_id": "acceptance-tests",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/acceptance-tests.json",
+      "sha256": "f8df2b0e5b593c3ff59afe3457afc13cdd7351ca4ba03e4856f920706493006f"
+    },
+    {
+      "check_id": "regression",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/regression.json",
+      "sha256": "2b609f9dc0a348b251b6ed2b74b7dab0c9781bef0da61ab6cf7ea1bf56726364"
+    },
+    {
+      "check_id": "requirement-traceability",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/requirement-traceability.json",
+      "sha256": "2d2692fe0feaf1466f670defcf982c64f3f58935b6d32fa2a64a4ace89e5318e"
+    },
+    {
+      "check_id": "check-component-coverage",
+      "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-4-serialization/evidence-indexes/check-component-coverage.json",
+      "sha256": "22d63ad20bf77d25c882590d53e572800ad7f8ac9d1a937db7fad5fff9c3fb2e"
+    }
+  ],
+  "required_changes": [
+    "each evidence/red_evidence/green_evidence is one real file; use index or actual named receipt, no semicolon or JSON pointer in contract filepath",
+    "component evidence direct late-checks/phase-1/component-coverage.stdout.log with actual producer digest",
+    "actual timestamps UTCZ seconds; preserve fractional originals in factual index, never claim rerun",
+    "update report exact contract Outputs hash after actual contract serialization; preserve original1320+existing actual later outputs",
+    "same actual phase4 manifest citation/run/session/receipt, provider/model/effort unknown; no new fresh actor or actualmodel claim"
+  ],
+  "new_outputs": [
+    "reports/implementation/ci-model-modernization/T-011.md",
+    "specs/ci-model-modernization/verification/T-011.contract.json",
+    "specs/ci-model-modernization/verification/T-011/final-author/receipts/phase-4-authoring.json"
+  ],
+  "product_tests_or_qa_runs_authorized": false
+}

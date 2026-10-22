@@ -1,0 +1,119 @@
+{
+  "observations": [
+    {
+      "run": "39658317723",
+      "job_id": 119424553525,
+      "job_name": "mcp-tests (ubuntu-latest)",
+      "scope": "Only actual GitHub Actions dependency-cache restore/save messages for this representative Ubuntu MCP job; npm package-level cache lines excluded. Other jobs remain unobserved.",
+      "restore": "miss",
+      "raw_log_sha256": "482accf033f5c3b8c24edb99dbf3aa308e1269761075d1438d1f6a2ec948c796",
+      "lines": [
+        "2026-10-21T19:10:55.7804313Z Cache not found for input keys: npm-Linux-node22-v22.23.3-workflow_dispatch-trusted-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186",
+        "2026-10-21T19:11:22.8020561Z Cache saved with key: npm-Linux-node22-v22.23.3-workflow_dispatch-trusted-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186"
+      ]
+    },
+    {
+      "run": "39658399077",
+      "job_id": 119426036000,
+      "job_name": "mcp-tests (ubuntu-latest)",
+      "scope": "Only actual GitHub Actions dependency-cache restore/save messages for this representative Ubuntu MCP job; npm package-level cache lines excluded. Other jobs remain unobserved.",
+      "restore": "miss",
+      "raw_log_sha256": "3408e240abc399bc1370e6c0d19661148d21cc2b5559796f50696b8582dc066e",
+      "lines": [
+        "2026-10-21T19:38:33.2168160Z Cache not found for input keys: npm-Linux-node22-v22.23.3-pull_request-625-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186",
+        "2026-10-21T19:39:01.8384163Z Cache saved with key: npm-Linux-node22-v22.23.3-pull_request-625-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186"
+      ]
+    },
+    {
+      "run": "39658400137",
+      "job_id": 119427346333,
+      "job_name": "mcp-tests (ubuntu-latest)",
+      "scope": "Only actual GitHub Actions dependency-cache restore/save messages for this representative Ubuntu MCP job; npm package-level cache lines excluded. Other jobs remain unobserved.",
+      "restore": "hit",
+      "raw_log_sha256": "cf8a807db40fe304e7f94e15725d301721d03eff78dd0f2814c158f678cac71c",
+      "lines": [
+        "2026-10-21T21:16:06.7657288Z Cache hit for: npm-Linux-node22-v22.23.3-workflow_dispatch-trusted-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186",
+        "2026-10-21T21:16:07.9911875Z Cache Size: ~52 MB (54814624 B)",
+        "2026-10-21T21:16:08.0739558Z Cache restored successfully",
+        "2026-10-21T21:16:08.0824295Z Cache restored from key: npm-Linux-node22-v22.23.3-workflow_dispatch-trusted-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186",
+        "2026-10-21T21:16:28.9745815Z Cache hit occurred on the primary key npm-Linux-node22-v22.23.3-workflow_dispatch-trusted-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186, not saving cache."
+      ]
+    },
+    {
+      "run": "39658418659",
+      "job_id": 119425367285,
+      "job_name": "mcp-tests (ubuntu-latest)",
+      "scope": "Only actual GitHub Actions dependency-cache restore/save messages for this representative Ubuntu MCP job; npm package-level cache lines excluded. Other jobs remain unobserved.",
+      "restore": "miss",
+      "raw_log_sha256": "3e56db77e3ca8a40a1f6e594ba7574e56d3281aaf2a180bbcb5da5441c2d22cb",
+      "lines": [
+        "2026-10-21T19:13:10.8411534Z Cache not found for input keys: npm-Linux-node22-v22.23.3-pull_request-626-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186",
+        "2026-10-21T19:13:39.0044421Z Cache saved with key: npm-Linux-node22-v22.23.3-pull_request-626-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186"
+      ]
+    },
+    {
+      "run": "39658435079",
+      "job_id": 119425998818,
+      "job_name": "mcp-tests (ubuntu-latest)",
+      "scope": "Only actual GitHub Actions dependency-cache restore/save messages for this representative Ubuntu MCP job; npm package-level cache lines excluded. Other jobs remain unobserved.",
+      "restore": "hit",
+      "raw_log_sha256": "3f7afbcda1fb91374e55f5f558528354f0e02e5b6cd5d6627e8b1d0fd6467310",
+      "lines": [
+        "2026-10-21T20:38:22.6165931Z Cache hit for: npm-Linux-node22-v22.23.3-pull_request-627-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186",
+        "2026-10-21T20:38:23.6318763Z Cache Size: ~52 MB (54813988 B)",
+        "2026-10-21T20:38:23.7290021Z Cache restored successfully",
+        "2026-10-21T20:38:23.7365502Z Cache restored from key: npm-Linux-node22-v22.23.3-pull_request-627-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186",
+        "2026-10-21T20:38:41.6356885Z Cache hit occurred on the primary key npm-Linux-node22-v22.23.3-pull_request-627-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186, not saving cache."
+      ]
+    },
+    {
+      "run": "39658451096",
+      "job_id": 119426801502,
+      "job_name": "mcp-tests (ubuntu-latest)",
+      "scope": "Only actual GitHub Actions dependency-cache restore/save messages for this representative Ubuntu MCP job; npm package-level cache lines excluded. Other jobs remain unobserved.",
+      "restore": "miss",
+      "raw_log_sha256": "810ccc7e43997aec25f2c42d8c1a9e49ebf2d5458cd1d52422ee29731e143464",
+      "lines": [
+        "2026-10-21T19:31:08.9462990Z Cache not found for input keys: npm-Linux-node22-v22.23.3-workflow_dispatch-trusted-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186",
+        "2026-10-21T19:31:35.5508586Z Cache saved with key: npm-Linux-node22-v22.23.3-workflow_dispatch-trusted-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186"
+      ]
+    },
+    {
+      "run": "39658418082",
+      "job_id": 119427913573,
+      "job_name": "mcp-tests (ubuntu-latest)",
+      "scope": "Only actual GitHub Actions dependency-cache restore/save messages for this representative Ubuntu MCP job; npm package-level cache lines excluded. Other jobs remain unobserved.",
+      "restore": "miss",
+      "raw_log_sha256": "eabcf57d8ef2c60ff5ff73fb39e9bb98e96f74c45f82d810d2bdc0a5ec2d32c7",
+      "lines": [
+        "2026-10-21T20:40:26.2959194Z Cache not found for input keys: npm-Linux-node22-v22.23.3-workflow_dispatch-trusted-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186",
+        "2026-10-21T20:40:53.1581716Z Cache saved with key: npm-Linux-node22-v22.23.3-workflow_dispatch-trusted-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186"
+      ]
+    },
+    {
+      "run": "39658434467",
+      "job_id": 119428134906,
+      "job_name": "mcp-tests (ubuntu-latest)",
+      "scope": "Only actual GitHub Actions dependency-cache restore/save messages for this representative Ubuntu MCP job; npm package-level cache lines excluded. Other jobs remain unobserved.",
+      "restore": "miss",
+      "raw_log_sha256": "a2c51e11aae240ac206d0296e18c36c48e8822cb956536de7e23cc534ea1f174",
+      "lines": [
+        "2026-10-21T21:26:26.2678361Z Cache not found for input keys: npm-Linux-node22-v22.23.3-workflow_dispatch-trusted-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186",
+        "2026-10-21T21:26:51.8176952Z Cache saved with key: npm-Linux-node22-v22.23.3-workflow_dispatch-trusted-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186"
+      ]
+    },
+    {
+      "run": "39658452393",
+      "job_id": 119427083886,
+      "job_name": "mcp-tests (ubuntu-latest)",
+      "scope": "Only actual GitHub Actions dependency-cache restore/save messages for this representative Ubuntu MCP job; npm package-level cache lines excluded. Other jobs remain unobserved.",
+      "restore": "miss",
+      "raw_log_sha256": "b4cc4e2576e227fc46390ca5b93a0cace3f897e6ad4ddef74279dae52bc61c8a",
+      "lines": [
+        "2026-10-21T20:40:55.6139268Z Cache not found for input keys: npm-Linux-node22-v22.23.3-pull_request-628-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186",
+        "2026-10-21T20:41:23.5635840Z Cache saved with key: npm-Linux-node22-v22.23.3-pull_request-628-3c0637e6202f5c5d1e9e89d1c079c0c2826b12375ed810e2564baa11568cd186"
+      ]
+    }
+  ],
+  "extrapolation": "No run-wide cache hit rate or causal timing/savings inferred. Each observation describes the original job execution, not copied rerun observations."
+}

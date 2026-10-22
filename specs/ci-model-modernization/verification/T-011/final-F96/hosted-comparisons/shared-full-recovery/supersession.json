@@ -1,0 +1,7 @@
+{
+  "previous_proposal": "cancel and fresh full",
+  "previous_actions_performed": [],
+  "current_authorized_action": "wait for original attempt completion, then rerun failed job119426801784 and dependent aggregate only",
+  "reason": "existing RT008 partial-rerun contract supports actual preserved history and original plan",
+  "recorded_at": "2026-10-21T20:53:02.302128+00:00"
+}

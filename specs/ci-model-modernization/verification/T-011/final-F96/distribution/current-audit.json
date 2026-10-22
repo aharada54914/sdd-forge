@@ -1,0 +1,64 @@
+{
+  "bash": {
+    "argv": [
+      "bash",
+      "/workspace/distribution-audit/final-96afb59f/source/install.sh",
+      "--source-directory",
+      "/workspace/distribution-audit/final-96afb59f/source",
+      "--install-root",
+      "/workspace/distribution-audit/final-96afb59f/current-bash-installed",
+      "--target",
+      "FilesOnly",
+      "--skip-plugin-install",
+      "--skip-agent-install"
+    ],
+    "exit": 0,
+    "files": 612,
+    "bytes": 11177675,
+    "forbidden": [],
+    "mcp_files": [
+      "mcp/ci-mcp/package.json",
+      "mcp/sdd-forge-mcp/package.json",
+      "mcp/local-env-mcp/package.json",
+      "mcp/ci-mcp/dist/index.js",
+      "mcp/sdd-forge-mcp/dist/index.js",
+      "mcp/local-env-mcp/dist/index.js"
+    ]
+  },
+  "pwsh": {
+    "argv": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoProfile",
+      "-File",
+      "/workspace/distribution-audit/final-96afb59f/source/install.ps1",
+      "-SourceDirectory",
+      "/workspace/distribution-audit/final-96afb59f/source",
+      "-InstallRoot",
+      "/workspace/distribution-audit/final-96afb59f/current-pwsh-installed",
+      "-Target",
+      "FilesOnly",
+      "-SkipPluginInstall",
+      "-SkipAgentInstall"
+    ],
+    "exit": 0,
+    "files": 612,
+    "bytes": 11177675,
+    "forbidden": [],
+    "mcp_files": [
+      "mcp/ci-mcp/package.json",
+      "mcp/sdd-forge-mcp/package.json",
+      "mcp/local-env-mcp/package.json",
+      "mcp/ci-mcp/dist/index.js",
+      "mcp/sdd-forge-mcp/dist/index.js",
+      "mcp/local-env-mcp/dist/index.js"
+    ]
+  },
+  "parity": true,
+  "source_mode": "Clean detached shared clone of exact 96afb59f; no hardlinks; committed bytes",
+  "head": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "source_sha256": {
+    "install.sh": "69622850e204ab139d6a355e2f13c2db65a07d71a25065dc67daa7ee6105cc1a",
+    "install.ps1": "f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1",
+    "install-payload.txt": "fb3096c0a8192cb01ec3b62bb4861a982098495d0bb161ec7b312fdf22436d93"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "tests/verification.py": "c77fb7ccb2942afae49d747328462e174e03a7479ac05322608990c6bf1daaf1",
+  "tests/verification-catalog.json": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "tests/verification-timings.json": "dc20362834826bd087a00b42243d4436a8266e67d7616346fcde3649952a33fd",
+  "mcp/sdd-forge-mcp/package-lock.json": "2073331df48c2e05d7547aee4bde63a291c3940c5ece5bbb363a186b127c1608",
+  "mcp/ci-mcp/package-lock.json": "79d1c7dd2d99d4f0ad4a76a4055928d11b0cc24e665d46ec3bf416f9255db4f8",
+  "environment_wrapper": "863a219256b1318935e58299695e13afe2be0e65b89157c70499deb45e7ddad3"
+}

@@ -1,0 +1,215 @@
+{
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "ci-model-modernization",
+  "task_id": "T-011",
+  "identity": "work-agent:root:t011_final_quality_evaluator",
+  "run_id": "work-agent:root:t011_final_quality_evaluator",
+  "host_session_id": "work-agent:root:t011_final_quality_evaluator",
+  "model": "unknown",
+  "effort": "unknown",
+  "actual_backend_id": null,
+  "verdict": "PASS",
+  "counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "findings": [],
+  "verification_observations": [
+    {
+      "observation": "Verified canonical invocation SHA-256 d326d3b88844b08109ca08f1adb0202468dd24a841b0eb580d5cc7303239c9ab. Independently hashed all 1,777 admitted scratch inputs before review and again after read-only verification; every pin matched. No root repository, identity ledger, authentication material or prior evaluator answers were used.",
+      "paths": [
+        "specs/ci-model-modernization/verification/T-011/quality-cycle-1/work-review-attempt-3/invocation.json"
+      ],
+      "result": "PASS"
+    },
+    {
+      "observation": "Inspected approved T-011 scope, its expanded correction requirements, all 14 assigned acceptance cases, requirements REQ-004/006/009/010/020, design and ADR 0037. T-010 is recorded Done in the admitted task document. Evaluated using the actual evaluator descriptor and quality calibration, treating implementation report statements as claims.",
+      "paths": [
+        "specs/ci-model-modernization/tasks.md",
+        "specs/ci-model-modernization/acceptance-tests.md",
+        "specs/ci-model-modernization/requirements.md",
+        "specs/ci-model-modernization/design.md",
+        "docs/adr/0037-conservative-ci-selection.md",
+        ".codex/agents/sdd-evaluator.toml",
+        "plugins/sdd-quality-loop/references/quality-gate-calibration.md"
+      ],
+      "result": "PASS"
+    },
+    {
+      "observation": "Read line-level bounded selection logic at verification-impact.py:336 and :474, condition grammar at verification-workflow.py:310 and :330, and all four readiness tests at verification-ci-plan.tests.py:1518. Executed python3 -B tests/verification-ci-plan.tests.py OmissionReadinessTests -v in admitted scratch: 4 tests PASS. Unknown predicates, missing matrix keys and altered setup command/site remain rejected or mandatory. Read original meaningful Red (one failure/one typed error), test-only commit a72eab2e, subsequent product application, 54-test Green and exact subset rollback records.",
+      "paths": [
+        "tests/verification-impact.py",
+        "tests/verification-workflow.py",
+        "tests/verification-ci-plan.tests.py",
+        "specs/ci-model-modernization/verification/T-011/readiness-implementation/test-first-commit.json",
+        "specs/ci-model-modernization/verification/T-011/readiness-implementation/focused-red.log",
+        "specs/ci-model-modernization/verification/T-011/readiness-implementation/product-apply.json",
+        "specs/ci-model-modernization/verification/T-011/readiness-implementation/full54.log",
+        "specs/ci-model-modernization/verification/T-011/readiness-implementation/rollback-results.json"
+      ],
+      "result": "PASS"
+    },
+    {
+      "observation": "Inspected workflow npm cache environment writes at test.yml:1138/1191/1244/1517 and cloud dependency setup at :1508 onward. Cache binds at runtime before npm consumption; existing runtime/OS/lock/event/PR keys and pinned dependency setup remain. Separate workflow test-only commit 61e831b5, observed Red, subsequent scoped checks and baseline/candidate/revert/restore results establish the context correction independently of readiness.",
+      "paths": [
+        ".github/workflows/test.yml",
+        "specs/ci-model-modernization/verification/T-011/ci-dispatch-fix/test-first-commit.json",
+        "specs/ci-model-modernization/verification/T-011/ci-dispatch-fix/checks.json",
+        "specs/ci-model-modernization/verification/T-011/ci-dispatch-fix/rollback.json",
+        "specs/ci-model-modernization/verification/T-011/ci-native-followup/runtime-setup/results.json"
+      ],
+      "result": "PASS"
+    },
+    {
+      "observation": "Inspected installer allowlist parsing, case-sensitive path selection, symlink/reparse refusal, staged cloud dependency reconstruction and atomic replacement in install.sh:729-810/1120 onward and install.ps1:595-622/953-1024. MCP placement limits dist payload to index.js plus package.json. Windows ZIP uses standard containment-aware extraction and preserves link metadata for later rejection. bash -n install.sh passed. Separate installer test-only commit b434b1c0, meaningful developer-payload Red, actual Bash/PowerShell Green and reverted/restored runtime results are retained; Windows native metadata Red/Green and final test/runtime hashes are separately recorded.",
+      "paths": [
+        "install.sh",
+        "install.ps1",
+        "install-payload.txt",
+        "tests/lib/install-payload-check.py",
+        "specs/ci-model-modernization/verification/T-011/distribution-correction/formal-red.json",
+        "specs/ci-model-modernization/verification/T-011/distribution-correction/verification.json",
+        "specs/ci-model-modernization/verification/T-011/distribution-correction/rollback.json",
+        "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/final-source-and-test-chronology.json",
+        "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/metadata-red-ps51-test-excerpt.log",
+        "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/native-excerpts/metadata-green-ps51-test-excerpt.log"
+      ],
+      "result": "PASS"
+    },
+    {
+      "observation": "Inspected exact predecessor/live hash handling in human_copy_mirrors.py:165-198 and negative controls in human-copy-mirrors-classification.tests.py:128-207. No general mismatch exemption was introduced. Tests-first commit 0cd5bc3a precedes runtime application; original mirror misclassification and guard 405/7 Red, current mirror31/guard412 Green and executed rollback distinguish old known guard defect from current success. Executed python3 -B plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check: exit 0, all four generated counterparts consistent.",
+      "paths": [
+        "scripts/human_copy_mirrors.py",
+        "tests/human-copy-mirrors-classification.tests.py",
+        "plugins/sdd-quality-loop/references/guard-invariants.json",
+        "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+        "specs/ci-model-modernization/verification/T-011/ci-hosted-followups/tests-first-record.json",
+        "specs/ci-model-modernization/verification/T-011/ci-hosted-followups/root-mirror-added-tests-red.log",
+        "specs/ci-model-modernization/verification/T-011/ci-hosted-followups/root-guard-added-tests-red.log",
+        "specs/ci-model-modernization/verification/T-011/ci-hosted-followups/verification.json",
+        "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/executed-rollback/results.json"
+      ],
+      "result": "PASS"
+    },
+    {
+      "observation": "Reviewed all thirteen hosted followup causes against bounded source patches, original diagnostics, regression/control results and final exact-F execution evidence: installer ownership; Windows archive transport; restricted-PATH forwarding; independent payload compatibility oracle; current A2 candidate; exact phase2 successor; explicit POSIX simulation; additive protected membership; installed project-registry fixture; inactive A9 labels; domain-reverse managed-handoff assertion; deterministic lane names/receipts; README consumer and whole-job closure. Fixture repairs retain meaningful negative assertions. Inactive A9 permits only empty or exactly requested labels with no assigned runner/execution. Later fixture and long-path validation is not falsely attributed as earlier TDD. Cache/startup and Git maintenance isolation retain their actual observed scope.",
+      "paths": [
+        "specs/ci-model-modernization/verification/T-011/hosted-platform-followup/README.md",
+        "specs/ci-model-modernization/verification/T-011/hosted-platform-additional-followup/README.md",
+        "specs/ci-model-modernization/verification/T-011/hosted-platform-late-followup/README.md",
+        "specs/ci-model-modernization/verification/T-011/windows-archive-runtime-followup/README.md",
+        "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/candidate-source.patch",
+        "specs/ci-model-modernization/verification/T-011/a9-skipped-label-followup/report.json",
+        "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/candidate-source.patch",
+        "specs/ci-model-modernization/verification/T-011/domain-reverse-stale-assertion-followup/simplified-current-green.stdout.log",
+        "specs/ci-model-modernization/verification/T-011/B7d-lane-selfcheck-followup/lane-fix/controls-and-rollback-results.json",
+        "specs/ci-model-modernization/verification/T-011/readme-job-closure-followup/catalog-regression/negative-controls.json",
+        "specs/ci-model-modernization/verification/T-011/ci-runtime-fixture-followup/cache-boundary-result.json",
+        "specs/ci-model-modernization/verification/T-011/ci-runtime-fixture-followup/a9-maintenance-result.json"
+      ],
+      "result": "PASS"
+    },
+    {
+      "observation": "TEST-016/017/027: independently traversed nine final hosted collections, verified every raw observation/artifact digest (decoding byte-preserving envelopes in memory), and matched every aggregate PASS row to its actual successful job, successful named step, native runner label and source attempt. Dedicated F has 448 verified plus 1 intentionally inactive obligation. README PR has 442 verified, 1 inactive and 6 NOT_SELECTED CLI obligations, with full counterpart 449. Inspected fail-closed aggregate implementation at verification-ci.py:568-650. This was independent receipt checking, not a new hosted execution.",
+      "paths": [
+        "tests/verification-ci.py",
+        "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/nine-run-four-pair-summary.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658317723/aggregate.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658399077/aggregate.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/39658399077/observations/collection.json"
+      ],
+      "result": "PASS"
+    },
+    {
+      "observation": "TEST-017/034: independently compared actual mutation result IDs against selected consumer groups/suites: all 179 failing obligations are selected, and all six omitted CLI obligations actually passed. Baseline is 448 verified plus 1 inactive; mutation remains FAIL with 269 verified/179 failed/1 inactive. Current catalog activates only exact README.md, retaining all sixteen non-CLI groups and six explicit suites. Source-consumer validation binds the baseline and final hashes; no broad Markdown class is enabled.",
+      "paths": [
+        "tests/verification-catalog.json",
+        "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/baseline-result.json",
+        "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/mutation-plan.json",
+        "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/mutation-result.json",
+        "specs/ci-model-modernization/verification/T-011/activation-f80ac878fb81/consumer-inventory.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/final-source-consumer-validation.json"
+      ],
+      "result": "PASS"
+    },
+    {
+      "observation": "TEST-027/038/130: independently recomputed the exact disjoint union of all 32 original local shard receipts against the current catalog. All results passed with exit 0, matching before/after F revision, clean flags and catalog digest: local-posix 204 suites, local-powershell 134 suites. These are genuine sharded profiles, not a claimed unsharded invocation. Original incomplete/failed environment attempts remain separate.",
+      "paths": [
+        "tests/verification-catalog.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/final-receipt-set-validation.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-posix/sharded-16/shard-00/receipt.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/local-shards/local-powershell/sharded-16/shard-00/receipt.json"
+      ],
+      "result": "PASS"
+    },
+    {
+      "observation": "TEST-034/035/036/075/076/077: four actual normal/full pairs preserve identical tested trees within each pair, exact revisions, selections, timing and retry history. MCP/cloud unknown paths and shared changes remain full449. README normal span7047s/job sum21537s versus full12886s/20380s is explicitly not causal speedup or billing savings. Representative cache observations are scoped. Actual merge_group is explicitly pending per OQ-001, as permitted by TEST-035; no local fixture is presented as hosted or live cloud proof.",
+      "paths": [
+        "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/readme-pair-comparison.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/mcp-pair-comparison.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/cloud-pair-comparison.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/shared-pair-comparison.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/hosted-comparisons/representative-cache-observations.json",
+        "specs/ci-model-modernization/acceptance-tests.md"
+      ],
+      "result": "PASS"
+    },
+    {
+      "observation": "Installation and TEST-128: independently decoded Windows inventory envelopes, validated their original-byte SHA-256, and compared all eight actual installed maps plus both Windows expected maps against the Linux independent expected map. Every map is identical: 612 files and 11,177,675 bytes, with no specs/reports/tests/.github paths. Read actual Linux execution and native Windows receipts. Remote ZIP download is a local boundary stub over a complete committed ZIP, not a live authenticated download. Synthetic installed model checks remain correctly labeled.",
+      "paths": [
+        "specs/ci-model-modernization/verification/T-011/final-F96/distribution/expected-inventory.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/distribution/current-bash-inventory.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/distribution/current-pwsh-inventory.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/distribution/archive-bash-inventory.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/distribution/archive-pwsh-inventory.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-pwsh/git-inventory.json.base64.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-pwsh/zip-inventory.json.base64.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-powershell/git-inventory.json.base64.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-powershell/zip-inventory.json.base64.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/distribution/execution-receipts.json",
+        "specs/ci-model-modernization/verification/T-011/final-F96/distribution/windows-execution-receipts.json"
+      ],
+      "result": "PASS"
+    },
+    {
+      "observation": "TEST-037/128/129: inspected current verification/release guidance for conservative force-full behavior, typed incompatible-input failure, fixed contexts, exact-F release, and merge/live-cloud limits; capability documentation identifies the dated 2026-10-18 host/registry observation instead of permanent availability. Saved doc-link audit reports 125 checked and no broken payload links. Documentation distinguishes installed-payload reduction from unchanged full transient archive size.",
+      "paths": [
+        "README.md",
+        "docs/verification.md",
+        "docs/contributor/release-runbook.md",
+        "docs/agent-capability-matrix.md",
+        "specs/ci-model-modernization/verification/T-011/final-F96/distribution/doc-link-audit.json",
+        "reports/implementation/ci-model-modernization/T-011.md"
+      ],
+      "result": "PASS"
+    },
+    {
+      "observation": "TEST-038/130: recomputed Git SHA-1 over the actual annotated tag object bytes including Git object header, obtaining 2df90fa333df31a79f099cc2125e816e5710d9ec. Tag names v1.20.0 and points to exact tested F 96afb59fcceab422024d5f2d1abc1b478d7058cf. Independently compared raw historical and final remote-tag inventories: all five preexisting refs unchanged. Saved publication commands/receipt bind this observation; no network action performed during review.",
+      "paths": [
+        "specs/ci-model-modernization/verification/T-011/final-F96/publication/final-after/annotated-tag-object.txt",
+        "specs/ci-model-modernization/verification/T-011/final-F96/publication/final-after/remote-tags.txt",
+        "specs/ci-model-modernization/verification/T-011/final-F96/publication/historical-remote-tags-before.txt",
+        "specs/ci-model-modernization/verification/T-011/final-F96/publication/final-after/receipt.json"
+      ],
+      "result": "PASS"
+    },
+    {
+      "observation": "Read admitted final-retry producer stdout: verification contract passed for T-011, IMPLEMENTATION_REPORT_OK, and task-state passed for 11 tasks. These are delivery-check evidence and were not used as a substitute for independent implementation review.",
+      "paths": [
+        "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-retry/contract.stdout.log",
+        "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-retry/implementation-report.stdout.log",
+        "specs/ci-model-modernization/verification/T-011/final-author/late-checks/final-retry/task-state.stdout.log"
+      ],
+      "result": "PASS"
+    }
+  ],
+  "cannot_verify_limits": [
+    "No new full product suite, hosted run, native Windows/macOS runtime run or network/authentication action was performed by this evaluator. Native/full behavior is supported by admitted original commands, raw observations, source hashes and receipts; focused read-only readiness and generated-protection checks were freshly executed.",
+    "The snapshot is an admitted source/evidence subset, not an independently fetched Git checkout of all historical commits. Historical chronology and non-admitted source bytes are evaluated from pinned producer records and original evidence; full private raw logs, Git history, archive binaries and authentication state were neither requested nor inspected.",
+    "Actual merge_group remains unavailable/pending per OQ-001 and TEST-035. Live cloud deployment is out of this task scope. Neither limitation is promoted to an executed PASS.",
+    "Windows archive audits use a complete committed Git ZIP supplied at the download boundary by a local stub; no live GitHub archive authentication is proven. Installed model selection checks use synthetic verified-configuration fixtures and do not prove live discovery, inference or backend identity.",
+    "The verdict applies to the admitted frozen combined T-011 implementation and evidence. It does not itself perform lifecycle transitions, merge, publication or approval of future source changes. Backend model, effort and actual backend identifier remain unknown."
+  ]
+}

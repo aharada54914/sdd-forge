@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.sh",
+    "--repo-root",
+    "/workspace/sdd-forge",
+    "--source-rev",
+    "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+    "--changed-paths-file",
+    "/workspace/sdd-forge/specs/ci-model-modernization/verification/T-011/final-author/late-checks/phase-1/changed-paths.txt"
+  ],
+  "started_at": "2026-10-21T23:16:10.862565+00:00",
+  "finished_at": "2026-10-21T23:16:10.896071+00:00",
+  "exit_code": 0,
+  "stdout_sha256": "5c94806043b3bb89199f95190c1dca31080118fc6589b5d4b210499d3293383c",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "script_sha256": "487e96a95f4aa999173ecb33ce8b1b0525bff5456360202ca84250383c0628d4",
+  "execution": "actual final metadata check; not product suite rerun"
+}

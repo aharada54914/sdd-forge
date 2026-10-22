@@ -1,0 +1,22 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": null,
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/guard-dispatch-fallback.tests.sh"
+  ],
+  "results": [
+    {
+      "suite": "tests/guard-dispatch-fallback.tests.sh",
+      "source_sha256": "fea16dbfe5527b988563192202f2c6916bfa3221e8d66f2dbcec78cf1bb9621d",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 8.48462
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

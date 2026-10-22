@@ -1,0 +1,16 @@
+{
+  "F": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "tag": "v1.20.0",
+  "tag_object": "2df90fa333df31a79f099cc2125e816e5710d9ec",
+  "publication_receipt_sha256": "ea7223ae886268bd2728cfa0ebe54836207d6c189437ef71afecb93d1e06001e",
+  "remote_tag_verified_at": "2026-10-21T23:00:14.392752+00:00",
+  "checks": {
+    "old_five_refs_unchanged": true,
+    "local_tag_is_annotated": true,
+    "local_tag_points_exact_F": true,
+    "local_tag_name_matches": true,
+    "remote_tag_object_matches_local": true,
+    "remote_peeled_commit_matches_F": true,
+    "only_expected_new_refs": true
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "run_id": 39658434467,
+  "job_id": 119428134051,
+  "action": "One targeted job and dependent aggregate rerun, only after original attempt completes. No repeat after another failure. Preserve actual all-attempt records.",
+  "condition_confirmed": "Actual check annotations state 45m timeout. Raw log records passing progress immediately before cancellation. Accepted B/F counterpart passed. Hardware cause not established.",
+  "source_frozen": true,
+  "timeout_unchanged": true
+}

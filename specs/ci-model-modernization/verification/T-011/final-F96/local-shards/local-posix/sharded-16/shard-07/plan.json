@@ -1,0 +1,25 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-posix",
+  "selected": [
+    "tests/ci-suite-wiring.tests.sh",
+    "tests/wfi-059-evidence-path-base.tests.sh",
+    "tests/review-contract-foundation.tests.sh",
+    "tests/second-approval-mask.tests.sh",
+    "tests/workflow-state-ci-integration.tests.sh",
+    "tests/guard-dispatch-fallback.tests.sh",
+    "tests/human-copy-mirror-freshness.tests.sh",
+    "tests/phase2-sudo-signature-static.tests.sh",
+    "tests/design-system-compliance.tests.sh",
+    "tests/release-loop-gate.tests.sh",
+    "tests/facet-manifest-semantics.tests.sh",
+    "tests/lite-gate-summary-absent.tests.sh",
+    "tests/check-component-coverage.tests.sh",
+    "tests/traceability-freeze-contract.tests.py",
+    "tests/concept-review-continuity.tests.py",
+    "tests/spec-review-verify-inputs.tests.py",
+    "tests/model-observation.tests.py"
+  ],
+  "shard_index": 7,
+  "shard_count": 16
+}

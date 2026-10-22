@@ -1,0 +1,9 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-posix",
+  "selected": [
+    "tests/a9-dogfood.tests.sh"
+  ],
+  "shard_index": 1,
+  "shard_count": 16
+}

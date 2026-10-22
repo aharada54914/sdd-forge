@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/workspace/.tools/ci-audit-bin/actionlint",
+    ".github/workflows/test.yml"
+  ],
+  "started_at": "2026-10-21T23:25:02.803995+00:00",
+  "finished_at": "2026-10-21T23:25:02.812258+00:00",
+  "exit_code": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "tool_sha256": "9f7dedb4e23f89f2922073d1a6720405b7b520d4f5832ebb96f0d55a2958886c",
+  "source_before": "source-before.json",
+  "tested_product_revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "metadata_changes_only_since_tested_revision": true
+}

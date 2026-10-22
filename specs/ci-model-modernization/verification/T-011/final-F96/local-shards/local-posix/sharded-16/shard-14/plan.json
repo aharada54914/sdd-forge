@@ -1,0 +1,29 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-posix",
+  "selected": [
+    "tests/task-prior-pass-receipt.tests.sh",
+    "tests/review-agent-isolation.tests.sh",
+    "tests/emit-run-record-feature-scope.tests.sh",
+    "tests/phase2-guard-invariants.tests.sh",
+    "tests/loop-inventory.tests.sh",
+    "tests/hitl-wfi-terminal.tests.sh",
+    "tests/capability-summary-schema.tests.sh",
+    "tests/generate-approval-sidecar.tests.sh",
+    "tests/approver-registry-schema.tests.sh",
+    "tests/design-sync-scan.tests.sh",
+    "tests/resolve-project-context-metamorphic.tests.sh",
+    "tests/skip-allowlist-manifest.tests.sh",
+    "tests/check-risk-upgrade-ineligible-no-reasons.tests.sh",
+    "tests/lite-gate-direct-edit-contract.tests.sh",
+    "tests/registry-migration-cli.tests.sh",
+    "tests/component-path-ownership-parity.tests.sh",
+    "tests/cross-runtime-handoff.tests.sh",
+    "tests/quality-nontty-transport.tests.py",
+    "tests/sdd-domain.tests.ps1",
+    "tests/current-byte-capture.tests.py",
+    "tests/verification-ci.tests.py"
+  ],
+  "shard_index": 14,
+  "shard_count": 16
+}

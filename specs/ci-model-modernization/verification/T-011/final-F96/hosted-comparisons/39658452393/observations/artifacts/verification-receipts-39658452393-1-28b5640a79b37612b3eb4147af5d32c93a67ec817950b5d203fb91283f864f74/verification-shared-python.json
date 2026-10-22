@@ -1,0 +1,166 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "ci-shared-python",
+  "revision": "bd74b5f62c4d4d3ed46271290c7c2526e8fa05a3",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/current-byte-capture.tests.py",
+    "tests/concept-test.tests.py",
+    "tests/concept-review-continuity.tests.py",
+    "tests/fixed-review-inputs.tests.py",
+    "tests/fixed-review-state.tests.py",
+    "tests/fixed-review-launch.tests.py",
+    "tests/fixed-review-precheck-ps.tests.py",
+    "tests/fixed-review-precheck-bash.tests.py",
+    "tests/review-conditional-inputs.tests.py",
+    "tests/workflow-conditional-inputs.tests.py",
+    "tests/spec-review-verify-inputs.tests.py",
+    "tests/host-review-preflight.tests.py",
+    "tests/unified-launch-order.tests.py",
+    "tests/unified-task-launch.tests.py",
+    "tests/task-structured-output.tests.py",
+    "tests/supplemental-delivery-declaration.tests.py",
+    "tests/t001-evaluation-preparation.tests.py",
+    "tests/model-policy-launch.tests.py",
+    "tests/model-policy-installed.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/current-byte-capture.tests.py",
+      "source_sha256": "6327f4d77b9d790a584393e4a7480b911b1753ccd722187fc0dd76b976f9579a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 30.221245
+    },
+    {
+      "suite": "tests/concept-test.tests.py",
+      "source_sha256": "2b0af0f0741b797e399d15719e8cde06b0fa041c31738b8ac86da7cb7c0c2610",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 11.119417
+    },
+    {
+      "suite": "tests/concept-review-continuity.tests.py",
+      "source_sha256": "ce42518a4cea3cb5d71adb3bf57de606708b3d3d839ee185760cbd9044570819",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 94.762733
+    },
+    {
+      "suite": "tests/fixed-review-inputs.tests.py",
+      "source_sha256": "83e3d383b3652531f7cf3be8e4b0ed09864e338fd2eb0cf82fab803b8a3bcb54",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.777305
+    },
+    {
+      "suite": "tests/fixed-review-state.tests.py",
+      "source_sha256": "7d0877197faf2356c43a7d4f755253b881916f9635909fd58b7e5bf2d4497702",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.223616
+    },
+    {
+      "suite": "tests/fixed-review-launch.tests.py",
+      "source_sha256": "314a068ab50c25754ffbd5b70c4b51e1c52070351f9015321b275fce80826e73",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.472973
+    },
+    {
+      "suite": "tests/fixed-review-precheck-ps.tests.py",
+      "source_sha256": "90abc02403e2d90b42c6d85786e00aa2ff32d52fbf8e0493a82a907cd7f7895a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 35.014208
+    },
+    {
+      "suite": "tests/fixed-review-precheck-bash.tests.py",
+      "source_sha256": "7a1fd297aa78dc592f79f419f34fd727b1028aae3483275a4928b10b7d658c83",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.40858
+    },
+    {
+      "suite": "tests/review-conditional-inputs.tests.py",
+      "source_sha256": "7aae44f65473bd2b0ee5df0c9b02a5cbe0fab6416a7f7282fe23056958d36740",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 28.120981
+    },
+    {
+      "suite": "tests/workflow-conditional-inputs.tests.py",
+      "source_sha256": "029e5ddd03c981d84fbcb90469b82d0f5b99304b49dfbb24447770140e5b5de1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 48.978445
+    },
+    {
+      "suite": "tests/spec-review-verify-inputs.tests.py",
+      "source_sha256": "ab2796fc7336d0142cd392105a342c3046d8f8db21c57c76b4f8785147e1bbfc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 20.060795
+    },
+    {
+      "suite": "tests/host-review-preflight.tests.py",
+      "source_sha256": "e4d8dcebbe6c4c412cd84845e1120459e4a268fa4eba27039703d6c9fcc40239",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 18.247188
+    },
+    {
+      "suite": "tests/unified-launch-order.tests.py",
+      "source_sha256": "ed7815e25d294eb19332eb708a3c0c718c2f328e54147096fb7353cea59c13ff",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 23.927162
+    },
+    {
+      "suite": "tests/unified-task-launch.tests.py",
+      "source_sha256": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.466842
+    },
+    {
+      "suite": "tests/task-structured-output.tests.py",
+      "source_sha256": "51a17f49fac6570e39c7b7079b539de3b179725dda418184410399cc20299a83",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.504271
+    },
+    {
+      "suite": "tests/supplemental-delivery-declaration.tests.py",
+      "source_sha256": "4df0a193452a7bce95267b5dd415388732a2de808f498dbddefef0dabf32d361",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 83.358479
+    },
+    {
+      "suite": "tests/t001-evaluation-preparation.tests.py",
+      "source_sha256": "b7028f7bd7c4d392baa053929a07c53dad98b9f6caed74c858e9ed7105c33ffa",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.346961
+    },
+    {
+      "suite": "tests/model-policy-launch.tests.py",
+      "source_sha256": "e4f8a9a14b88c709b38f3d4d0c2c0b51c5d74f321275f161b01cb8af5a003e82",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 209.467941
+    },
+    {
+      "suite": "tests/model-policy-installed.tests.py",
+      "source_sha256": "78c8181289665d6d5432d95200fc006c2e284773adea1e75f9740d3491c1a4c0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 892.331544
+    }
+  ],
+  "revision_after": "bd74b5f62c4d4d3ed46271290c7c2526e8fa05a3",
+  "clean_after": true
+}

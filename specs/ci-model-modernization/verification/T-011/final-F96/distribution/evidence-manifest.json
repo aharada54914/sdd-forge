@@ -1,0 +1,191 @@
+{
+  "F": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "tag": "v1.20.0",
+  "files": [
+    {
+      "path": "archive-audit.json",
+      "bytes": 223,
+      "sha256": "a8ca94cff8d5f9defc365396436a5894450a4a87bf9595da3d43e32e7c729fb0"
+    },
+    {
+      "path": "archive-bash-inventory.json",
+      "bytes": 102906,
+      "sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d"
+    },
+    {
+      "path": "archive-identity.json",
+      "bytes": 492,
+      "sha256": "db36b9fffbd131855b46b6c1b9307b27640218e00ed1c0951ebbccec263864be"
+    },
+    {
+      "path": "archive-pwsh-inventory.json",
+      "bytes": 102906,
+      "sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d"
+    },
+    {
+      "path": "current-audit.json",
+      "bytes": 2008,
+      "sha256": "5d2bbede043aa45a3c3b25ce7f19bb641a71cadcb8a6d5b17f4c19eef1d03dd2"
+    },
+    {
+      "path": "current-bash-inventory.json",
+      "bytes": 102906,
+      "sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d"
+    },
+    {
+      "path": "current-pwsh-inventory.json",
+      "bytes": 102906,
+      "sha256": "88c45cf9878bba50f521cba2f3b024ab2b51314485670e03ff9ab02cb9baaf6d"
+    },
+    {
+      "path": "doc-link-audit.json",
+      "bytes": 157,
+      "sha256": "7f362476905cfc2705ff264daa03c15a55449fac4f37053676438d134cc3d7e3"
+    },
+    {
+      "path": "execution-receipts.json",
+      "bytes": 4641,
+      "sha256": "93a559d86ca1ce31c6649f9c3da2cfe019e9390fa2c2b961cb2ac0c02045862b"
+    },
+    {
+      "path": "expected-inventory.json",
+      "bytes": 102906,
+      "sha256": "8fbf8dd1921fe3aaff6c6deeb619f7a8b0679de6934908f6540892dde8b533ea"
+    },
+    {
+      "path": "filename-regression-linkage.json",
+      "bytes": 1583,
+      "sha256": "64642d9757450983ea1087bf39ff9171625f016489627a8d644630767a8b353b"
+    },
+    {
+      "path": "final-eight-path-summary.json",
+      "bytes": 4506,
+      "sha256": "b5042314427f438bd19aebcebca869a35ec448da7d1d9a88911b4402c5c1b4fe"
+    },
+    {
+      "path": "installed-production.json",
+      "bytes": 617,
+      "sha256": "e1e3b9a560e6bdb1406bf3e299b3f897f7a9ba02006537c85b76b447db717a0a"
+    },
+    {
+      "path": "linux-summary.json",
+      "bytes": 2588,
+      "sha256": "b67afbad8253d4adf2fefaaa8700508a1e86881bcdd4593bb21ceb67cf68619d"
+    },
+    {
+      "path": "local-posix-installer-receipt.json",
+      "bytes": 6528,
+      "sha256": "52df9b27d9e0e3cb6b4886c5b5fa66b1f1182e11b3bb85168b63741678ecc097"
+    },
+    {
+      "path": "local-powershell-installer-receipt.json",
+      "bytes": 2681,
+      "sha256": "b849aced5e3787271cdf675df063b7e72394f9440cb19b126fd1995823e75d62"
+    },
+    {
+      "path": "production-prepare-bash.log",
+      "bytes": 2852,
+      "sha256": "8ccfb98330da2c3af5e75a1e281e90b941fd6a944c1d3bd657e3f1cbb7c01c47"
+    },
+    {
+      "path": "production-prepare-pwsh.log",
+      "bytes": 2852,
+      "sha256": "833bc79e11a564d6ad436ef60fb2d2bc2282728211374a71cc332dc2d47b0079"
+    },
+    {
+      "path": "production-selector-bash.json",
+      "bytes": 969,
+      "sha256": "e2838cbcbf21ff08ceef1de11c4d025efd383b8e115d3e272de8f05105fd17de"
+    },
+    {
+      "path": "production-selector-pwsh.json",
+      "bytes": 969,
+      "sha256": "2a37d2ada71dcfeca6188b69530f14ef575e2c4ad687aea7c6a34bb63f7e69db"
+    },
+    {
+      "path": "source-pins.json",
+      "bytes": 1890,
+      "sha256": "cab899de1213a0ddd51bd69c0bef080c697c0365d5927c79a11eb981686e8fc3"
+    },
+    {
+      "path": "tag-binding.json",
+      "bytes": 588,
+      "sha256": "253a08811cf37ca0ed91ee7b1e261b546ba4a44e194579a4423485610bbace02"
+    },
+    {
+      "path": "windows-execution-receipts.json",
+      "bytes": 6873,
+      "sha256": "37606c33f3bb83f488d771d2475a24d42126a8ea19f4f5223e115faa5c98ffb1"
+    },
+    {
+      "path": "windows-powershell/evidence-manifest.json",
+      "bytes": 952,
+      "sha256": "731205d717f3d1bcd451aa871e4c146421129db3b80b5ee7399f034f4ce08317"
+    },
+    {
+      "path": "windows-powershell/expected-inventory.json",
+      "bytes": 105356,
+      "sha256": "24a74c28923f4316b0309537df1afd6ab5be19563f76a6c1ea050359568c6f34"
+    },
+    {
+      "path": "windows-powershell/git-inventory.json",
+      "bytes": 105356,
+      "sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb"
+    },
+    {
+      "path": "windows-powershell/git.log",
+      "bytes": 512,
+      "sha256": "8fe0ab132851339e28db47b4bc08abfe7c366047ade548f8e714b51a471bfc5e"
+    },
+    {
+      "path": "windows-powershell/summary.json",
+      "bytes": 967,
+      "sha256": "25a967614870345adfafe15d05c7618ee8eff0d0009c88e8211353f3a3ffd4be"
+    },
+    {
+      "path": "windows-powershell/zip-inventory.json",
+      "bytes": 105356,
+      "sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb"
+    },
+    {
+      "path": "windows-powershell/zip.log",
+      "bytes": 617,
+      "sha256": "c6e7ab5b0bf1b2035a47667943adf0ea4bf4ad3f0eb6d8d2442be976006391b2"
+    },
+    {
+      "path": "windows-pwsh/evidence-manifest.json",
+      "bytes": 952,
+      "sha256": "9850ebe4bcfff596d89c3d883b3f39334559d9736d6106396aba14b294010367"
+    },
+    {
+      "path": "windows-pwsh/expected-inventory.json",
+      "bytes": 105356,
+      "sha256": "24a74c28923f4316b0309537df1afd6ab5be19563f76a6c1ea050359568c6f34"
+    },
+    {
+      "path": "windows-pwsh/git-inventory.json",
+      "bytes": 105356,
+      "sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb"
+    },
+    {
+      "path": "windows-pwsh/git.log",
+      "bytes": 523,
+      "sha256": "fe5559c723fb8997b56bb90be1bca93a751bf5b442f1dc2be20fdffbb9405cde"
+    },
+    {
+      "path": "windows-pwsh/summary.json",
+      "bytes": 961,
+      "sha256": "5982275fbe7c74baab53ba3cadd4cb1aeb7b6e713de11d68689161e41bf2e8aa"
+    },
+    {
+      "path": "windows-pwsh/zip-inventory.json",
+      "bytes": 105356,
+      "sha256": "a57e7bdeff08ce36b41b94cde836cce2cfee60ab09976334fce206d71d480cdb"
+    },
+    {
+      "path": "windows-pwsh/zip.log",
+      "bytes": 628,
+      "sha256": "b1a80c10444b215506a3fc71e082bfc3c2b2045674213e015f080568c99558c3"
+    }
+  ]
+}

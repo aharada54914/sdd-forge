@@ -1,0 +1,16 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-powershell",
+  "selected": [
+    "tests/cloud-orchestration-routing.tests.py",
+    "tests/downstream-review-precheck.tests.ps1",
+    "tests/template-validator-parity.tests.ps1",
+    "tests/loop-escalation.tests.ps1",
+    "tests/run-panelist-effort.tests.ps1",
+    "tests/canonicalize-sdd-yaml.tests.ps1",
+    "tests/human-copy-runner-contract.tests.ps1",
+    "tests/registry-discovery.tests.ps1"
+  ],
+  "shard_index": 7,
+  "shard_count": 16
+}

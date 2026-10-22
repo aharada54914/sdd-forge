@@ -1,0 +1,38 @@
+[
+  {
+    "path": ".github",
+    "blob_href": "https://github.com/aharada54914/sdd-forge/blob/5b03917593a2fca6d439ca2eeb7d886d756bd4a2/.github",
+    "start_line": 1,
+    "start_column": null,
+    "end_line": 1,
+    "end_column": null,
+    "annotation_level": "failure",
+    "title": "",
+    "message": "The job has exceeded the maximum execution time of 45m0s",
+    "raw_details": ""
+  },
+  {
+    "path": ".github",
+    "blob_href": "https://github.com/aharada54914/sdd-forge/blob/5b03917593a2fca6d439ca2eeb7d886d756bd4a2/.github",
+    "start_line": 97,
+    "start_column": null,
+    "end_line": 97,
+    "end_column": null,
+    "annotation_level": "failure",
+    "title": "",
+    "message": "The operation was canceled.",
+    "raw_details": ""
+  },
+  {
+    "path": ".github",
+    "blob_href": "https://github.com/aharada54914/sdd-forge/blob/5b03917593a2fca6d439ca2eeb7d886d756bd4a2/.github",
+    "start_line": 1,
+    "start_column": null,
+    "end_line": 1,
+    "end_column": null,
+    "annotation_level": "notice",
+    "title": "",
+    "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+    "raw_details": ""
+  }
+]

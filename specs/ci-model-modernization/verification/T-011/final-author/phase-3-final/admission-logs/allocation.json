@@ -1,0 +1,11 @@
+{
+  "manifest": "specs/ci-model-modernization/verification/T-011/final-author/phase-3-final/task-input-manifest.json",
+  "sha256": "f59f769d8f01d997828a2e1e199a2aff3ff7d81c649afb63275615d90d97e1ee",
+  "snapshot": "/workspace/t011-final-author-phase3-final-snapshot",
+  "run_id": "ci-model-modernization-T-011-final-delivery-phase3-final-20261021T232647Z",
+  "same_actual_author": "/root/t011_final_report_author",
+  "inputs": 1721,
+  "source_snapshot_pins_match": true,
+  "exact_allowed_output_files_writable": true,
+  "quality_reservation": false
+}

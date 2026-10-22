@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh"
+  ],
+  "started_at": "2026-10-21T23:15:32.484388+00:00",
+  "finished_at": "2026-10-21T23:16:10.813343+00:00",
+  "exit_code": 0,
+  "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0",
+  "stderr_sha256": "4a04157a5f7d4d9c1237a7e7a8f156719f8f5aa0ae9accfaf7cdc9852629038f",
+  "script_sha256": "bd168e57efa163636d916d97baaa963d96a9b33566e61258d1cb3bea4fdda1a1",
+  "execution": "actual final metadata check; not product suite rerun"
+}

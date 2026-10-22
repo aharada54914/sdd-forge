@@ -1,0 +1,186 @@
+{
+  "profile": "local-powershell",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "shard_count": 16,
+  "suite_count": 134,
+  "all_passed": true,
+  "results": [
+    {
+      "profile": "local-powershell",
+      "index": 0,
+      "count": 16,
+      "suite_count": 9,
+      "exit": 0,
+      "passed": true,
+      "seconds": 451.30156531800003,
+      "finished_at": "2026-10-21T21:46:56.735529+00:00",
+      "receipt_sha256": "18fe794788fd1e8dae774d7aa2679caef755d81daa7c596abfd751dd98a31917"
+    },
+    {
+      "profile": "local-powershell",
+      "index": 1,
+      "count": 16,
+      "suite_count": 9,
+      "exit": 0,
+      "passed": true,
+      "seconds": 49.31680966299996,
+      "finished_at": "2026-10-21T21:47:46.054148+00:00",
+      "receipt_sha256": "d4218eb4270cc8992d494c3e356ac46ee3c06f0695d3e88670043b2d691cf7e8"
+    },
+    {
+      "profile": "local-powershell",
+      "index": 2,
+      "count": 16,
+      "suite_count": 9,
+      "exit": 0,
+      "passed": true,
+      "seconds": 127.61231475900001,
+      "finished_at": "2026-10-21T21:49:53.667100+00:00",
+      "receipt_sha256": "d8db12f2a52c2fd7a46673b0471c1386089b2fe2710aeca3285a3b74d2ad25d8"
+    },
+    {
+      "profile": "local-powershell",
+      "index": 3,
+      "count": 16,
+      "suite_count": 9,
+      "exit": 0,
+      "passed": true,
+      "seconds": 63.66923780100001,
+      "finished_at": "2026-10-21T21:50:57.337737+00:00",
+      "receipt_sha256": "ee70851d5546c65256aace6aa1ff7155019d8d201639b4cbc2a85384ebbb117b"
+    },
+    {
+      "profile": "local-powershell",
+      "index": 4,
+      "count": 16,
+      "suite_count": 9,
+      "exit": 0,
+      "passed": true,
+      "seconds": 118.01846436300002,
+      "finished_at": "2026-10-21T21:52:55.357158+00:00",
+      "receipt_sha256": "edf3506dff985ef6d7ce386e3e182cef3fed032f8971aaaad62ba168a8e97d93"
+    },
+    {
+      "profile": "local-powershell",
+      "index": 5,
+      "count": 16,
+      "suite_count": 9,
+      "exit": 0,
+      "passed": true,
+      "seconds": 126.36991888500006,
+      "finished_at": "2026-10-21T21:55:01.728795+00:00",
+      "receipt_sha256": "bd6e6ea1238581f6750094c1f7486bfbeb833d2416552a87738d305ff2979549"
+    },
+    {
+      "profile": "local-powershell",
+      "index": 6,
+      "count": 16,
+      "suite_count": 8,
+      "exit": 0,
+      "passed": true,
+      "seconds": 99.87938645700001,
+      "finished_at": "2026-10-21T21:56:41.608811+00:00",
+      "receipt_sha256": "86e988a4a2da2a84641ca43d72963ebfa2f3bb09db45688d71cefd6ca7a79c99"
+    },
+    {
+      "profile": "local-powershell",
+      "index": 7,
+      "count": 16,
+      "suite_count": 8,
+      "exit": 0,
+      "passed": true,
+      "seconds": 104.56012188199998,
+      "finished_at": "2026-10-21T21:58:26.169604+00:00",
+      "receipt_sha256": "6efd4c53c5ccf39f7e075ab81c5a566813b32966ffc32479a8d49af596748415"
+    },
+    {
+      "profile": "local-powershell",
+      "index": 8,
+      "count": 16,
+      "suite_count": 8,
+      "exit": 0,
+      "passed": true,
+      "seconds": 248.48071611,
+      "finished_at": "2026-10-21T22:02:34.650760+00:00",
+      "receipt_sha256": "bdd72d694a677f0088210f2c018d601d65604b748446fbc239079457f92c49b2"
+    },
+    {
+      "profile": "local-powershell",
+      "index": 9,
+      "count": 16,
+      "suite_count": 8,
+      "exit": 0,
+      "passed": true,
+      "seconds": 289.50602252,
+      "finished_at": "2026-10-21T22:07:24.157477+00:00",
+      "receipt_sha256": "4672ae00cca89622a1bb8754e5504499815c108ee7f5959a3e6199d83cfebde3"
+    },
+    {
+      "profile": "local-powershell",
+      "index": 10,
+      "count": 16,
+      "suite_count": 8,
+      "exit": 0,
+      "passed": true,
+      "seconds": 181.45610549699995,
+      "finished_at": "2026-10-21T22:10:25.614185+00:00",
+      "receipt_sha256": "ecad37782619e8a26583b29fa627e31576ef07b47a0b55f3589274c3feb0781a"
+    },
+    {
+      "profile": "local-powershell",
+      "index": 11,
+      "count": 16,
+      "suite_count": 8,
+      "exit": 0,
+      "passed": true,
+      "seconds": 143.829968732,
+      "finished_at": "2026-10-21T22:12:49.445101+00:00",
+      "receipt_sha256": "b849aced5e3787271cdf675df063b7e72394f9440cb19b126fd1995823e75d62"
+    },
+    {
+      "profile": "local-powershell",
+      "index": 12,
+      "count": 16,
+      "suite_count": 8,
+      "exit": 0,
+      "passed": true,
+      "seconds": 191.22629927199978,
+      "finished_at": "2026-10-21T22:16:00.672203+00:00",
+      "receipt_sha256": "e100d3e7954678b1370f28330af0dddba830f026aa574645754be48f35bb953b"
+    },
+    {
+      "profile": "local-powershell",
+      "index": 13,
+      "count": 16,
+      "suite_count": 8,
+      "exit": 0,
+      "passed": true,
+      "seconds": 295.52546972300024,
+      "finished_at": "2026-10-21T22:20:56.198218+00:00",
+      "receipt_sha256": "27e81f3c03485cd1f4a8460337938fa307ccb028682626b162c73e99e61c3fcb"
+    },
+    {
+      "profile": "local-powershell",
+      "index": 14,
+      "count": 16,
+      "suite_count": 8,
+      "exit": 0,
+      "passed": true,
+      "seconds": 218.11267229299983,
+      "finished_at": "2026-10-21T22:24:34.311608+00:00",
+      "receipt_sha256": "54d80b6eeb123eb2abdcb540920bc173bdab446f23b9e3d86b11a57d31dfa6c8"
+    },
+    {
+      "profile": "local-powershell",
+      "index": 15,
+      "count": 16,
+      "suite_count": 8,
+      "exit": 0,
+      "passed": true,
+      "seconds": 55.83467959900008,
+      "finished_at": "2026-10-21T22:25:30.147233+00:00",
+      "receipt_sha256": "3f16353ff5ba2bce98f33bb31a1f2aba800cd2e59eb0dfede2df8c282028ab31"
+    }
+  ],
+  "status_after": ""
+}

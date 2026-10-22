@@ -1,0 +1,21 @@
+{
+  "configured_project_python": [
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+    "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
+    "plugins/sdd-review-loop/scripts/preflight-host-review.py",
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+    "plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py",
+    "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py",
+    "plugins/sdd-quality-loop/scripts/validate-feature-scratch-history.py"
+  ],
+  "changed_production_python": [
+    "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py",
+    "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py",
+    "scripts/human_copy_mirrors.py",
+    "tests/verification-ci.py",
+    "tests/verification-impact.py"
+  ],
+  "rules": "Existing committed Ruff E4/E7/E9/F config; no new lint policy",
+  "workflow": ".github/workflows/test.yml",
+  "excluded_test_only_helpers": "tests/lib and *.tests.py are test assertions/fixtures, not changed production runtime; separately actual suite-verified"
+}

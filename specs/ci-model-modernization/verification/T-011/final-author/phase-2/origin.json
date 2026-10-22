@@ -1,0 +1,40 @@
+{
+  "kind": "AFTER-implementation phase2 admission, not retrospective product authority",
+  "actual_author_work_context": "/root/t011_final_report_author",
+  "same_fresh_author_continues": true,
+  "phase1_manifest": {
+    "path": "specs/ci-model-modernization/verification/T-011/final-author/phase-1/task-input-manifest.json",
+    "sha256": "f63618fd09e7520a05ac3c0cc94606e406d26a5bca3a87d7aed7562a71bbed2b"
+  },
+  "copied_facts": [
+    {
+      "source": "reports/implementation/ci-model-modernization/T-011.md",
+      "source_sha256": "02a4ba32b11837ce28548bbdd047d07198f1365192fd8b7c0a9e1455fda29e3e",
+      "copy_path": "specs/ci-model-modernization/verification/T-011/final-author/phase-2/phase1-outputs/phase1-report.md",
+      "copy_sha256": "02a4ba32b11837ce28548bbdd047d07198f1365192fd8b7c0a9e1455fda29e3e",
+      "scope": "Actual phase1 author output, not final report/contract input at same canonical path"
+    },
+    {
+      "source": "specs/ci-model-modernization/verification/T-011.contract.json",
+      "source_sha256": "723c0a14a5eae7899e2dc5e2aaa7a4c3a289980cd73a5487dc2622e6fcea7253",
+      "copy_path": "specs/ci-model-modernization/verification/T-011/final-author/phase-2/phase1-outputs/phase1-contract.json",
+      "copy_sha256": "723c0a14a5eae7899e2dc5e2aaa7a4c3a289980cd73a5487dc2622e6fcea7253",
+      "scope": "Actual phase1 author output, not final report/contract input at same canonical path"
+    },
+    {
+      "source": "reports/task-review/ci-model-modernization/attempt-4/round-3/precheck-result.json",
+      "source_sha256": "b7ce933bb3b1d76c681997a95305172933efe71f831896a66fa22308bf35b214",
+      "copy_path": "specs/ci-model-modernization/verification/T-011/final-author/phase-2/current-task-stage/precheck-result.json",
+      "copy_sha256": "b7ce933bb3b1d76c681997a95305172933efe71f831896a66fa22308bf35b214",
+      "scope": "Exact mechanical current planning fact, not prior reviewer answer/opinion, never restamped"
+    },
+    {
+      "source": "reports/task-review/ci-model-modernization/attempt-4/round-3/dependency-graph.json",
+      "source_sha256": "aa88eb42f8eb2117e0ad1cdfccf4a44a072140809919ea06dff23f12b66b6026",
+      "copy_path": "specs/ci-model-modernization/verification/T-011/final-author/phase-2/current-task-stage/dependency-graph.json",
+      "copy_sha256": "aa88eb42f8eb2117e0ad1cdfccf4a44a072140809919ea06dff23f12b66b6026",
+      "scope": "Exact mechanical current planning fact, not prior reviewer answer/opinion, never restamped"
+    }
+  ],
+  "backend_model_session": "unknown; public Work context mapping only"
+}

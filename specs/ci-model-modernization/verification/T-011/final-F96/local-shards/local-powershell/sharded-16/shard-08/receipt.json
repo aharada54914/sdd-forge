@@ -1,0 +1,78 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-powershell",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/cloud-orchestration-verification.tests.py",
+    "tests/impl-layer-review-inputs.tests.ps1",
+    "tests/scenario.tests.ps1",
+    "tests/uninstall.tests.ps1",
+    "tests/emit-run-record-feature-scope.tests.ps1",
+    "tests/loop-inventory.tests.ps1",
+    "tests/release-loop-gate.tests.ps1",
+    "tests/capability-registry-parity.tests.ps1"
+  ],
+  "results": [
+    {
+      "suite": "tests/cloud-orchestration-verification.tests.py",
+      "source_sha256": "b3456601eab14ab9bd4b634d4fd801aa1fa56dfe79b75db4276c782fee0ce4e5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 199.527623
+    },
+    {
+      "suite": "tests/impl-layer-review-inputs.tests.ps1",
+      "source_sha256": "8e348787eda9553953638b5df0e197ac86cd64893ecb438e87950540a53c93f5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.63472
+    },
+    {
+      "suite": "tests/scenario.tests.ps1",
+      "source_sha256": "a66afdb415669489f731a2b7f664e75b293bf8aca02238ba34ca92c32b366c96",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 21.947905
+    },
+    {
+      "suite": "tests/uninstall.tests.ps1",
+      "source_sha256": "026a92c2c45371f5afbebfc0c928bcf8f26b88376842213f1dcf7acb00b4e4ad",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.114491
+    },
+    {
+      "suite": "tests/emit-run-record-feature-scope.tests.ps1",
+      "source_sha256": "5036eef87d73ab66769af206757911738bdd9f37d6ed597a795b55ba76992515",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 8.700734
+    },
+    {
+      "suite": "tests/loop-inventory.tests.ps1",
+      "source_sha256": "3f8ef5d41b6010738c453810203a5a6802d4b06b1c020e77bee5a8a11e7fcd3e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.783748
+    },
+    {
+      "suite": "tests/release-loop-gate.tests.ps1",
+      "source_sha256": "3699f3ea9b487d24b2cb9ee141f20158fc98a3fc23d946b068c9e56fbf1b4676",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.45895
+    },
+    {
+      "suite": "tests/capability-registry-parity.tests.ps1",
+      "source_sha256": "ff339b4df0d2a6db359cdc0189345334d330b2b85d24b8a16046af6b8417dac7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 7.116242
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

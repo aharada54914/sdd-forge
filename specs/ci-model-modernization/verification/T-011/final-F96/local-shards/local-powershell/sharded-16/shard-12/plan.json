@@ -1,0 +1,16 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-powershell",
+  "selected": [
+    "tests/sdd-domain-multitarget-foundation.tests.py",
+    "tests/installer-idempotency.tests.ps1",
+    "tests/facet-manifest-semantics.tests.ps1",
+    "tests/resolve-project-context-cli.tests.ps1",
+    "tests/validate-live-host-proof.tests.ps1",
+    "tests/component-path-resolver.tests.ps1",
+    "tests/check-component-coverage.tests.ps1",
+    "tests/model-policy-launch-platform.tests.py"
+  ],
+  "shard_index": 12,
+  "shard_count": 16
+}

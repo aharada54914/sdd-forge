@@ -1,0 +1,86 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-powershell",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/review-hash-normalization.tests.ps1",
+    "tests/task-context-isolation.tests.ps1",
+    "tests/claude-registration.tests.ps1",
+    "tests/workflow-state-repository-integration.tests.ps1",
+    "tests/design-system-contract.tests.ps1",
+    "tests/project-context-schema.tests.ps1",
+    "tests/approver-registry-schema.tests.ps1",
+    "tests/hook-guard-epic-a1-boundary.tests.ps1",
+    "tests/lite-spec-capability-block.tests.ps1"
+  ],
+  "results": [
+    {
+      "suite": "tests/review-hash-normalization.tests.ps1",
+      "source_sha256": "350f0e743b78a37aabe405b16f354094aabd29d581eb70f2bbe6b54e2bc46d32",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.406662
+    },
+    {
+      "suite": "tests/task-context-isolation.tests.ps1",
+      "source_sha256": "13f5e17504fbcfda9d682f1ed656772fbf67c52ac6be07c586bd318aeb49e208",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.794168
+    },
+    {
+      "suite": "tests/claude-registration.tests.ps1",
+      "source_sha256": "029d64abb2030e47678a74ebc4d51b4194a3a44a5c3d93d6852262dea3babb2b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.74622
+    },
+    {
+      "suite": "tests/workflow-state-repository-integration.tests.ps1",
+      "source_sha256": "0c236c7b9ac8b2f230e8ac6606811a83cbede922a7703fc82fceffd23877d807",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.233174
+    },
+    {
+      "suite": "tests/design-system-contract.tests.ps1",
+      "source_sha256": "6e5243a23028d802ce0707f7364c702039b05bdd71595dcefb8f7a939c41d957",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.531818
+    },
+    {
+      "suite": "tests/project-context-schema.tests.ps1",
+      "source_sha256": "8f16ef4d174989537652fc6dfb11328c9cf3da82852989dd52cf6538adfe162b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.942772
+    },
+    {
+      "suite": "tests/approver-registry-schema.tests.ps1",
+      "source_sha256": "d5413efce23033769cb5023e8d6ff90fc7de751fa78ee0e69a96a71ad2926041",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.49284
+    },
+    {
+      "suite": "tests/hook-guard-epic-a1-boundary.tests.ps1",
+      "source_sha256": "fafb6c1e8194c9323aeefa20e965e8ecdf23f06be6da944e6452d3d39fc1f791",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 104.133067
+    },
+    {
+      "suite": "tests/lite-spec-capability-block.tests.ps1",
+      "source_sha256": "d1d8d4b3bd3a99d903ded48302775031f266ff17abb928f019510de97beccfa8",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.576314
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

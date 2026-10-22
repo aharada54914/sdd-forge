@@ -1,0 +1,158 @@
+{
+  "schema": "connector-artifact-transport-report/v1",
+  "recorded_at": "2026-10-21T22:13:46.529259+00:00",
+  "manifest_sha256": "4b350204d49a76537cd09511db45161c2a860d51f016b6161f8cca2394ffcd00",
+  "controller_sha256": "c0a406a82ad7deabc997882fadc53ed3cba84f3844ab2e0115e231b3d3b446e2",
+  "collector": {
+    "path": "/workspace/t011-rollout/checkout/tests/verification-ci.py",
+    "sha256": "2705fb54c1cdaf5a0bfcadffe700153e401f0be240db40293dd60e9a72ddb6c1"
+  },
+  "repository": "aharada54914/sdd-forge",
+  "run_id": "39658418659",
+  "head_sha": "0fd45bffd20f8aa0163918e6fb2e0ef0db2a7fb2",
+  "artifacts": [
+    {
+      "artifact_id": 12378506841,
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12378506841/zip",
+      "name": "verification-receipts-39658418659-1-6e86e2e28b5ae20e1a0ac7a4d1a3bd8c5feedd47dde71b1f1e275bb1be3a3fe1",
+      "sha256": "cfadfe2cd84af49ee6b90a90da69e1956f38f0a1a57dd037e9f82507bcc03a02",
+      "size_bytes": 982,
+      "metadata_sha256": "e60287f24a9f1beb252b856241d916846413df67d180e3b190017c79c2ec210f",
+      "fresh_metadata_checked": true,
+      "zip_response_headers_observed": false
+    },
+    {
+      "artifact_id": 12378390423,
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12378390423/zip",
+      "name": "verification-receipts-39658418659-1-28b5640a79b37612b3eb4147af5d32c93a67ec817950b5d203fb91283f864f74",
+      "sha256": "10d1d91ade521345f9b81d3e4556bf4944d5ab74816ce9a4ea57e8810c304de8",
+      "size_bytes": 5092,
+      "metadata_sha256": "c38138600e6a4a8146e0350d7dfbda4b747624c66abfa34ee0a4baf088429757",
+      "fresh_metadata_checked": true,
+      "zip_response_headers_observed": false
+    },
+    {
+      "artifact_id": 12377673941,
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12377673941/zip",
+      "name": "verification-receipts-39658418659-1-8956d4214a40fcef2c6d8bef636941bd2e923026cd5ab0076a582b8f1de2fa38",
+      "sha256": "6a8c163c7539f409981ac99c0115a652547a01d7777fa846366acb3acb9f530e",
+      "size_bytes": 522,
+      "metadata_sha256": "d465e46ba3c7628323696598fcbd4b30e07c3eb04d041eb915f838f16b1411a5",
+      "fresh_metadata_checked": true,
+      "zip_response_headers_observed": false
+    },
+    {
+      "artifact_id": 12377423903,
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12377423903/zip",
+      "name": "verification-receipts-39658418659-1-21ad482eb8a27e8f2e5fe13c00e89e5dbb59c0fa5cd78f7ad8502d612c079206",
+      "sha256": "e7fbe6e2d0bab6ebdb47bb86f0e5b26aab224fca7dff7c87921695e2289abe26",
+      "size_bytes": 735,
+      "metadata_sha256": "39c0352b303ba7de99852274dc0e76b5fe3a93aca323cf125a52142319bf38b7",
+      "fresh_metadata_checked": true,
+      "zip_response_headers_observed": false
+    },
+    {
+      "artifact_id": 12377237478,
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12377237478/zip",
+      "name": "verification-receipts-39658418659-1-0052dd62b0404fd2806ae392f12ac4b47274ae363ab2e7705b0298e8b54a2b09",
+      "sha256": "a6cfa5330704a8a8d312b748aa8610afc11148be67eb35c19da331c20a1f4acd",
+      "size_bytes": 970,
+      "metadata_sha256": "83a1d4961a77f044f0322aed58b9ab6d3d008b369fbb99f2776c848bcf9387d6",
+      "fresh_metadata_checked": true,
+      "zip_response_headers_observed": false
+    },
+    {
+      "artifact_id": 12376981029,
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12376981029/zip",
+      "name": "verification-receipts-39658418659-1-9ed2822033ecc68f41f1947b7e6df187e5f706448804c483b493585e862528ab",
+      "sha256": "9968744dc9661558b0888190d3c2e4b6c3735b615a315e6c101f1ce4451209cd",
+      "size_bytes": 2247,
+      "metadata_sha256": "c1365776c20b98bbcc81941652f2ade825d5da2c75342637b301c963931ada61",
+      "fresh_metadata_checked": true,
+      "zip_response_headers_observed": false
+    },
+    {
+      "artifact_id": 12376861345,
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12376861345/zip",
+      "name": "verification-receipts-39658418659-1-88ac04ab6c4904308e9b72c92a9e4d88c410b330ab96543e6e925e03d7a459dd",
+      "sha256": "b4b53de2161d5f2b4ca7a9222b2424a1a06a8ea02e0a84014b57d181415afbf8",
+      "size_bytes": 2413,
+      "metadata_sha256": "df9355678d851e16dde002ab27ec78a91fdd630254dc3242329abc7d4b161375",
+      "fresh_metadata_checked": true,
+      "zip_response_headers_observed": false
+    },
+    {
+      "artifact_id": 12375542435,
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12375542435/zip",
+      "name": "verification-receipts-39658418659-1-0be87195740229b13fdeae92a0f2cb01b5020b8508322628be022f501e6c6061",
+      "sha256": "a62f5d90687f6c7cef929b4dbbe5a9202cf6c7f73df059761cd71fe450e461cd",
+      "size_bytes": 841,
+      "metadata_sha256": "51fe94d096b27d3ab4b6c6d73d328319b1481137a349ae126141627e28b730c1",
+      "fresh_metadata_checked": true,
+      "zip_response_headers_observed": false
+    },
+    {
+      "artifact_id": 12375491611,
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12375491611/zip",
+      "name": "verification-receipts-39658418659-1-6b31337cbfe6c8c6e476103a1db55195a5b0365d641f7cad01124f7688e87e17",
+      "sha256": "58d1b878e00c42f9bd659408b2cda954a1851659876fc39be748ce94b200038e",
+      "size_bytes": 501,
+      "metadata_sha256": "93ec3906650403e93ef6d752ad3de82b669720b3b480da3bb8487d2a030d92a8",
+      "fresh_metadata_checked": true,
+      "zip_response_headers_observed": false
+    },
+    {
+      "artifact_id": 12375047605,
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12375047605/zip",
+      "name": "verification-receipts-39658418659-1-03e97c03cab49fd289984c617d1d49399dffec88be39ef4f64ca5860eae30eaa",
+      "sha256": "b58f2215034969d7cb27a465128c640cec296f4bfd88e012a7921cfec742169a",
+      "size_bytes": 979,
+      "metadata_sha256": "5db954829901898a389cfa65d2d81367704ec94d1b9c98958f6cb4c9c89d4149",
+      "fresh_metadata_checked": true,
+      "zip_response_headers_observed": false
+    },
+    {
+      "artifact_id": 12374620906,
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12374620906/zip",
+      "name": "verification-receipts-39658418659-1-4a6a38619ac58c2304420eda986fc1fe292687e5f746d214563e3ff5f94acf01",
+      "sha256": "39ca0023292985b68dbb1a0f795eef57b182e84e4f889fd6e9cb2ed216866c9a",
+      "size_bytes": 2338,
+      "metadata_sha256": "a3662ce7e96870f7d3c6d6a368d2350261f3a718fe27059e2e6ab38b45a3e9df",
+      "fresh_metadata_checked": true,
+      "zip_response_headers_observed": false
+    },
+    {
+      "artifact_id": 12373476507,
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12373476507/zip",
+      "name": "verification-receipts-39658418659-1-e8667b593ea4e60ad2c6c3be3a36edc4a7681dd206d2a5efb9ce32ba977e38fd",
+      "sha256": "d4be4eb3d037c9f29be61f68ee2c2d73295a960bc624041b96539f5f6ef88ede",
+      "size_bytes": 502,
+      "metadata_sha256": "9526561a550a25f19a72f17a1f895246db828afdc2e16c2c27f7f52dd72c5f95",
+      "fresh_metadata_checked": true,
+      "zip_response_headers_observed": false
+    },
+    {
+      "artifact_id": 12373298232,
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12373298232/zip",
+      "name": "verification-receipts-39658418659-1-2d516e631412832c9283cfb676f44b6fd4b231da2c666abb9de0a1cdbd661c28",
+      "sha256": "509f78d1d392590dfcb1522705a59c685218782d536e955083037e6e5c12efa8",
+      "size_bytes": 849,
+      "metadata_sha256": "26adbe11798e46da0056c5c8a5907674990ddf00cf1289a8ff994110abe98fc0",
+      "fresh_metadata_checked": true,
+      "zip_response_headers_observed": false
+    },
+    {
+      "artifact_id": 12373228126,
+      "endpoint": "/repos/aharada54914/sdd-forge/actions/artifacts/12373228126/zip",
+      "name": "verification-receipts-39658418659-1-80ed411675869244ee9ffd0eed4f32076586190a101d9f19b0aa9a280e88b836",
+      "sha256": "087002e9721c8f91547db1dd968da9683de05089e4e8d294cadeca571264689a",
+      "size_bytes": 849,
+      "metadata_sha256": "6677673a7d439a9b5549df5a7ee88dbf4e0da8b0c06c940590efa3641847309a",
+      "fresh_metadata_checked": true,
+      "zip_response_headers_observed": false
+    }
+  ],
+  "transport": "pre-downloaded connector ZIP bytes; all other API calls use original gh transport",
+  "collector_logic": "unchanged collect/validate/extract; aggregation not invoked by this controller",
+  "status": "collection-completed-not-aggregate-acceptance"
+}

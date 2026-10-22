@@ -1,0 +1,190 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-posix",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/cloud-orchestration-routing.tests.py",
+    "tests/install.tests.sh",
+    "tests/install-uninstall-matrix.tests.sh",
+    "tests/task-layer-full-profile.tests.sh",
+    "tests/impl-review-round2-contract.tests.sh",
+    "tests/agent-model-routing.tests.sh",
+    "tests/rollback-1.5.0.tests.sh",
+    "tests/workflow-state-registry.tests.sh",
+    "tests/criterion-freeze.tests.sh",
+    "tests/schema-engine-identity.tests.sh",
+    "tests/loop-consistency.tests.sh",
+    "tests/facet-manifest-staleness.tests.sh",
+    "tests/canonicalize-sdd-yaml.tests.sh",
+    "tests/validate-approval-sidecar.tests.sh",
+    "tests/resolve-project-context-cli.tests.sh",
+    "tests/compatibility-byte-identical.tests.sh",
+    "tests/promote-golden-baseline-ci-guard.tests.sh",
+    "tests/check-risk-upgrade-byte-identical.tests.sh",
+    "tests/guard-r10-port.tests.ps1",
+    "tests/domain-review-finalize.tests.py",
+    "tests/fixed-review-precheck-ps.tests.py",
+    "tests/model-policy.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/cloud-orchestration-routing.tests.py",
+      "source_sha256": "faedf01b5b959f61f60f3b9ef01d5d01b85758722e70e48cee33329805a99ab5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 25.134661
+    },
+    {
+      "suite": "tests/install.tests.sh",
+      "source_sha256": "90cdaa3c63da488e85528ec02cf4626d09b48bbeef94dfc8f82d3c730d7eaf52",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 46.267884
+    },
+    {
+      "suite": "tests/install-uninstall-matrix.tests.sh",
+      "source_sha256": "d9422cee978d09cff326b2b439ea80f8c3799f2737acad041c26fba88cfdd238",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 24.122352
+    },
+    {
+      "suite": "tests/task-layer-full-profile.tests.sh",
+      "source_sha256": "1f295e22c9c30621d921a889c3bb0f26a6f8e22789395e921359c60ed9f47168",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.434944
+    },
+    {
+      "suite": "tests/impl-review-round2-contract.tests.sh",
+      "source_sha256": "9a067863c61043955c4fe41a79814ede70d2877b1b8612ae8ade2636abd8ff29",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.117058
+    },
+    {
+      "suite": "tests/agent-model-routing.tests.sh",
+      "source_sha256": "55b4d7a9a4e2aebf550acabe5961a5278d3c8ce8c9670631d15b7f9bfa2fd532",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 18.983405
+    },
+    {
+      "suite": "tests/rollback-1.5.0.tests.sh",
+      "source_sha256": "b47d3ab451db22856f40f10aff31b2abc18c6268eab06b20b7437a095a16d965",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 24.993369
+    },
+    {
+      "suite": "tests/workflow-state-registry.tests.sh",
+      "source_sha256": "529f45341b7a9dbe99dec8df35825511350deb32a9015069c1dd1cf6b3bd94af",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.575836
+    },
+    {
+      "suite": "tests/criterion-freeze.tests.sh",
+      "source_sha256": "065ddcbd4b9e3db0157b870a18dc18700d86a52e5d156b72f4fb1ced56efaa5b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 7.051798
+    },
+    {
+      "suite": "tests/schema-engine-identity.tests.sh",
+      "source_sha256": "b53cb2d5cbf2441e70db0b820d3cefb3806da1d10c1c598f558542ef24fded8a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.098889
+    },
+    {
+      "suite": "tests/loop-consistency.tests.sh",
+      "source_sha256": "6759d2171c7e7690d73b7545851f32ca66c4a100555e87daf7ca937b627fc4fc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 23.66567
+    },
+    {
+      "suite": "tests/facet-manifest-staleness.tests.sh",
+      "source_sha256": "dd78532421b8b15e8968c3ddc37e24df99c963cbb85d91e8083d4450325bf6bc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.524779
+    },
+    {
+      "suite": "tests/canonicalize-sdd-yaml.tests.sh",
+      "source_sha256": "644981b76e10f6d83304983f475daca950e763c4079f7704e26c9ea476ff464f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.293688
+    },
+    {
+      "suite": "tests/validate-approval-sidecar.tests.sh",
+      "source_sha256": "e53b3a0a3d6d0d0e943e1de8dcf7d19eebb1eb05df428b00e547cea7896adac8",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 6.683862
+    },
+    {
+      "suite": "tests/resolve-project-context-cli.tests.sh",
+      "source_sha256": "8145152eb02a768f26d7247ce42c1458214c48f58910193e94c8e065a49dc40b",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.456538
+    },
+    {
+      "suite": "tests/compatibility-byte-identical.tests.sh",
+      "source_sha256": "7c8ddcefc26c17540333ffa710f6e7682e24d205942b9568984148334ddf33a6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.910811
+    },
+    {
+      "suite": "tests/promote-golden-baseline-ci-guard.tests.sh",
+      "source_sha256": "fdb5066fea071f481a2108945219377b1fd195eb5fe350acb539ca3e2bac9eec",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.111728
+    },
+    {
+      "suite": "tests/check-risk-upgrade-byte-identical.tests.sh",
+      "source_sha256": "a5faaa33f261b47db5d28d75b6255c616b5b47e4bb9c176d1c0d209188452de0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.354684
+    },
+    {
+      "suite": "tests/guard-r10-port.tests.ps1",
+      "source_sha256": "09f0fefbed2c7ab1a12f9e91732f2daa2370a40411dc571da4ce4576092474b3",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 159.393154
+    },
+    {
+      "suite": "tests/domain-review-finalize.tests.py",
+      "source_sha256": "fbebadcda43bdd537a4055a468fc86dc2e583cb83160fc898db9535f9116ff7f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 57.95139
+    },
+    {
+      "suite": "tests/fixed-review-precheck-ps.tests.py",
+      "source_sha256": "90abc02403e2d90b42c6d85786e00aa2ff32d52fbf8e0493a82a907cd7f7895a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 17.762935
+    },
+    {
+      "suite": "tests/model-policy.tests.py",
+      "source_sha256": "00295fff5d8d25b0c38fb4fc0f2f85ef2197e4e5dce64b132354272bd0d65ea7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 39.865434
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

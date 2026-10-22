@@ -1,0 +1,9 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-posix",
+  "selected": [
+    "tests/impl-review-adr-inputs.tests.sh"
+  ],
+  "shard_index": 0,
+  "shard_count": 16
+}

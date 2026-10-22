@@ -1,0 +1,182 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "local-posix",
+  "revision": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "908ee09fb0b671e6d145978e9c517d074506b571c3342cccb251cecf34575df4",
+  "selected": [
+    "tests/ci-claude-install.tests.sh",
+    "tests/task-review-precheck.tests.sh",
+    "tests/eval.tests.sh",
+    "tests/workflow-state-parity.tests.sh",
+    "tests/phase2-guard-tokenizer.tests.sh",
+    "tests/self-improvement-guard.tests.sh",
+    "tests/bootstrap-interview-guidance.tests.sh",
+    "tests/model-freshness-check.tests.sh",
+    "tests/hook-guard-epic-a1-boundary.tests.sh",
+    "tests/ship-track-selection-migration.tests.sh",
+    "tests/design-sync-standing-consent.tests.sh",
+    "tests/resolve-project-context-match.tests.sh",
+    "tests/resolve-project-context-parity.tests.sh",
+    "tests/golden-baseline-contract.tests.sh",
+    "tests/lite-gate-full-upgrade-backstop.tests.sh",
+    "tests/registry-discovery.tests.sh",
+    "tests/generate-gate-capabilities.tests.sh",
+    "tests/component-path-resolver.tests.sh",
+    "tests/check-a8-process-integrity.tests.sh",
+    "tests/review-conditional-inputs.tests.py",
+    "tests/verification-impact.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/ci-claude-install.tests.sh",
+      "source_sha256": "f179d86e578c2b96fe1e59b76e7a14f1c319cfcf54cdaf16ac4256817d47498a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.046224
+    },
+    {
+      "suite": "tests/task-review-precheck.tests.sh",
+      "source_sha256": "e33c0c60b41c1172f6517f4939dca44785ed2a95af01b00d58eec96235cd8478",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.306366
+    },
+    {
+      "suite": "tests/eval.tests.sh",
+      "source_sha256": "a6615a848f63a2cd43ae59cf3280a82a3f1655776c3ac9a244841aecef8fc98a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.325795
+    },
+    {
+      "suite": "tests/workflow-state-parity.tests.sh",
+      "source_sha256": "65bb2f3a89da593b0ce1db64d56fbda9db28bc617c045657c2f1ac384c5cd2d0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.701299
+    },
+    {
+      "suite": "tests/phase2-guard-tokenizer.tests.sh",
+      "source_sha256": "7624e6ed7e579073e8f3c808da88c4e22c44e4a65212efdb8405dc19296f3147",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.040046
+    },
+    {
+      "suite": "tests/self-improvement-guard.tests.sh",
+      "source_sha256": "0fd6ba699c43c5e4fd80720312666050854a6076fdb3bfd6f097eec26059d4a6",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.870011
+    },
+    {
+      "suite": "tests/bootstrap-interview-guidance.tests.sh",
+      "source_sha256": "1b16b8012e7540c618c6ddde0845e37abc9e86d80a4dd2efbde6ad250eca51bf",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.041694
+    },
+    {
+      "suite": "tests/model-freshness-check.tests.sh",
+      "source_sha256": "c9652b8005cca2e134122d5c31539e3c4e81588277c3f4b411012c1116537ed2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.067807
+    },
+    {
+      "suite": "tests/hook-guard-epic-a1-boundary.tests.sh",
+      "source_sha256": "55c9b5c5b8c6cffa719df0250f0b544fefffb74b3ba5db60ebf6e57e7e06f779",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 9.278859
+    },
+    {
+      "suite": "tests/ship-track-selection-migration.tests.sh",
+      "source_sha256": "c732331d989010f9b1a48cd6775b1022597c45e3e2713baf3f6b04ac03616ae2",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.830977
+    },
+    {
+      "suite": "tests/design-sync-standing-consent.tests.sh",
+      "source_sha256": "9e3fdeab9f35c3164907239fd31f62d6840d076d939442dc9a9a38d478b3cfb5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.901383
+    },
+    {
+      "suite": "tests/resolve-project-context-match.tests.sh",
+      "source_sha256": "c84b4ecbf6f06cb24203dc6492b740a5504de60631ea284fea7a239ad70f4527",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 7.535625
+    },
+    {
+      "suite": "tests/resolve-project-context-parity.tests.sh",
+      "source_sha256": "95bad95595729f7e95c9bbfdd4c46adeee4bf90999344cdfa270be556157062c",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 11.479026
+    },
+    {
+      "suite": "tests/golden-baseline-contract.tests.sh",
+      "source_sha256": "a271932143a3fcf2f330c3f54baca6f43d0fb8743273b7ee7cdb1ca1616ccdf0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 20.241841
+    },
+    {
+      "suite": "tests/lite-gate-full-upgrade-backstop.tests.sh",
+      "source_sha256": "992b854683b3d7caec1afcfb20989d708cab2032bf483e89190bba0693ea0976",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.305726
+    },
+    {
+      "suite": "tests/registry-discovery.tests.sh",
+      "source_sha256": "c3f82f519a2877927a4f0773e1d0be072c374b106fde256d84607454607954b5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.755369
+    },
+    {
+      "suite": "tests/generate-gate-capabilities.tests.sh",
+      "source_sha256": "9b582adc310516f736125a42b257d98b304a70dd24285d362b42e8b48e471672",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 2.036198
+    },
+    {
+      "suite": "tests/component-path-resolver.tests.sh",
+      "source_sha256": "4b5894b1d60b1a8e21ef885a0d4edd78c636fe6d8014ee29faab567c8522a928",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.599826
+    },
+    {
+      "suite": "tests/check-a8-process-integrity.tests.sh",
+      "source_sha256": "8fdea9b8aa80d2f01cd7ffb3431ffd3f5d0b86d8fbd671d5a56e44cc125be729",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.51312
+    },
+    {
+      "suite": "tests/review-conditional-inputs.tests.py",
+      "source_sha256": "7aae44f65473bd2b0ee5df0c9b02a5cbe0fab6416a7f7282fe23056958d36740",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 17.648394
+    },
+    {
+      "suite": "tests/verification-impact.tests.py",
+      "source_sha256": "4d3ce93e8c253521ada3b1e61531ad6d6824953c13ae4d68e0d7081cb78aefcc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.137981
+    }
+  ],
+  "revision_after": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+  "clean_after": true
+}

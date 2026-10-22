@@ -1,0 +1,16 @@
+{
+  "schema": "verification-plan/v1",
+  "profile": "local-powershell",
+  "selected": [
+    "tests/cross-model.tests.ps1",
+    "tests/generate-approval-sidecar.tests.ps1",
+    "tests/ship-track-selection-migration.tests.ps1",
+    "tests/resolve-project-context-lite.tests.ps1",
+    "tests/validate-resolver-evidence.tests.ps1",
+    "tests/check-installed-plugin-drift.tests.ps1",
+    "tests/lite-gate-direct-edit-contract.tests.ps1",
+    "tests/ownership-digest.tests.ps1"
+  ],
+  "shard_index": 14,
+  "shard_count": 16
+}
