@@ -39,3 +39,11 @@ counts are not a permanent rule, and the checker was not present at the old HEAD
 ## Limits
 
 Syntax only: not schema, encoding or consumer compatibility. Local tests do not establish weekly recovery; a real authorized weekly run on the final HEAD with all five checks successful and both `improve` and the recovery finalizer successful is still required, and it also depends on the separate managed-model request prerequisite (`SDD_SELF_IMPROVEMENT_REQUEST`). Tests: `tests/repository-syntax.tests.py`, prompt contract in `tests/self-improvement-guard.tests.sh`.
+
+The read-only [Actions readiness probe](https://github.com/aharada54914/sdd-forge/actions/runs/39812329518)
+at `62ace211` confirmed that the request variable was unset and no request file
+was available through it; the default registry was present. It printed only
+booleans and invoked no model. This is a separate pre-audit blocker, not proof
+of the original October 19 failure's cause. A configured path alone also cannot
+establish fresh observation data or valid model selection. The temporary probe
+workflow is removed after recording this result.
