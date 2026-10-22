@@ -66,6 +66,13 @@ claude-code-action(ピン留めした v1.0.178, action.yml)がセッションに
 4. **テスト実行**: Linux で実行可能なスイートを必ず回す:
    `bash tests/guards.tests.sh`、`bash tests/install.tests.sh`、
    `python3 -m py_compile`、`node --check`、全 JSON / YAML のパース検証。
+   パース検証はリポジトリルートで
+   `"${SDD_SYNTAX_PYTHON:-python3}" -I -B .github/scripts/check-repository-syntax.py`
+   を実行し、その終了コードを `json_yaml` とする。ディレクトリやフィクスチャを除外せず、
+   独自のパース手順に置き換えない。セッションで追加した JSON / YAML は `git add` するか
+   `--path <相対パス>` で渡す。未検証の未追跡 JSON / YAML が残ると終了コード 1 となり
+   `json_yaml` は失敗であり、部分的な成功とは扱わない。
+   `complete_candidate_coverage` と失敗パス・分類を最終報告に残す。
 5. **Issue 起票**: 監査結果を 1 本の Issue にまとめる(前述の `DEFAULT_WORKFLOW_TOKEN` を使い、
    `gh label create self-improvement --color 1D76DB --description "weekly automated audit" 2>/dev/null || true`
    してから `gh issue create --label self-improvement`)。発見ゼロなら Issue も PR も作らず終了してよい。

@@ -1,0 +1,40 @@
+name: Issue 620 audit input readiness
+
+on:
+  push:
+    branches: [fix/issue-620-audit-syntax]
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Report presence of managed audit inputs
+        env:
+          SDD_AUDIT_REQUEST: ${{ vars.SDD_SELF_IMPROVEMENT_REQUEST }}
+          SDD_AUDIT_REGISTRY: ${{ vars.SDD_SELF_IMPROVEMENT_REGISTRY || 'contracts/agent-model-capabilities.v2.json' }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path, PurePosixPath
+          root = Path.cwd().resolve()
+          def inspect(name):
+              value = os.environ.get(name, '')
+              path = PurePosixPath(value)
+              canonical = bool(value) and not path.is_absolute() and path.as_posix() == value and '..' not in path.parts and '\\' not in value and ':' not in value
+              present = False
+              if canonical:
+                  target = root / value
+                  present = target.resolve() == target and target.is_file()
+              return {'configured': bool(value), 'canonical_relative_path': canonical,
+                      'regular_file_in_checkout': present}
+          print(json.dumps({'request': inspect('SDD_AUDIT_REQUEST'),
+                            'registry': inspect('SDD_AUDIT_REGISTRY'),
+                            'scope': 'presence only; no model launch or freshness claim'}))
+          PY

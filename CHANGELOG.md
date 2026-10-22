@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Weekly self-improvement `json_yaml` check (#620): add `.github/scripts/check-repository-syntax.py`, a deterministic strict UTF-8 JSON / PyYAML syntax check of tracked working-tree bytes with exact path+SHA256 handling of six legacy BOM records and two intentional negative fixtures; any unvalidated untracked candidate fails the check by count only (stage it or pass `--path`), `--path` uses a host-independent portable grammar, and a leading BOM is accepted for YAML only. The prompt names the exact command and both workflows install pinned `PyYAML==6.0.3`. Syntax validation only; actual weekly recovery is not claimed.
+
 ## v1.20.0 (2026-10-21)
 
 ### Added

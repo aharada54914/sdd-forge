@@ -332,12 +332,16 @@ prompt_contract() {
     '候補に関係する文書のみ本文を読む' \
     'bash tests/guards.tests.sh' 'bash tests/install.tests.sh' \
     'python3 -m py_compile' 'node --check' '全 JSON / YAML のパース検証' \
+    '"${SDD_SYNTAX_PYTHON:-python3}" -I -B .github/scripts/check-repository-syntax.py' \
+    'ディレクトリやフィクスチャを除外せず' 'git add' '--path' \
+    '未検証の未追跡 JSON / YAML が残ると終了コード 1' \
     '必須検証に未実施・失敗があれば PR は作成せず' \
     '一部完了' '監査完了やワークフロー復旧と主張しない' \
     '次回の再開点' '発見ゼロや PR なしの場合も報告を残す'; do
-    grep -Fq "$phrase" "$prompt" || return 1
+    grep -Fq -- "$phrase" "$prompt" || return 1
   done
-  ! grep -Fq '存在する場合は全件読み' "$prompt"
+  ! grep -Fq '存在する場合は全件読み' "$prompt" \
+    && ! grep -Eq 'check-repository-syntax\.py[^`]*(--exclude|--skip)|tests/fixtures/\*\*' "$prompt"
 }
 
 if prompt_contract "$TARGET_PROMPT"; then
@@ -350,6 +354,8 @@ fi
 # assertion's sensitivity, not whether a model follows the prompt at runtime.
 for phrase in '開始から8分、または40ターン' '候補に関係する文書のみ本文を読む' \
   'bash tests/guards.tests.sh' 'python3 -m py_compile' \
+  '.github/scripts/check-repository-syntax.py' 'ディレクトリやフィクスチャを除外せず' \
+  '未検証の未追跡 JSON / YAML が残ると終了コード 1' \
   '必須検証に未実施・失敗があれば PR は作成せず' \
   '監査完了やワークフロー復旧と主張しない' \
   '発見ゼロや PR なしの場合も報告を残す'; do
@@ -358,6 +364,17 @@ for phrase in '開始から8分、または40ターン' '候補に関係する�
     fail "ISSUE-559: contract check accepted a missing requirement: $phrase"
   else
     ok "ISSUE-559: contract check rejects a missing requirement: $phrase"
+  fi
+done
+
+# ISSUE-620: a blanket exclusion added to the syntax check must be rejected.
+for skip in '`.github/scripts/check-repository-syntax.py --exclude tests/fixtures`' \
+  'JSON / YAML の検証では tests/fixtures/** を対象外とする'; do
+  { cat "$TARGET_PROMPT"; printf '%s\n' "$skip"; } > "$WORK/skipping-prompt.md"
+  if prompt_contract "$WORK/skipping-prompt.md"; then
+    fail "ISSUE-620: contract check accepted a blanket syntax-check skip: $skip"
+  else
+    ok "ISSUE-620: contract check rejects a blanket syntax-check skip: $skip"
   fi
 done
 
