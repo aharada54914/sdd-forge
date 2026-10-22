@@ -28,7 +28,8 @@ changing the completion predicate or historical evidence.
 - Exceptions are exact path+SHA256 records in the script, and every record must be present:
   - six frozen legacy JSON records with one leading BOM, stripped in memory and reported in `legacy_bom`;
   - two intentional negative fixtures under `tests/fixtures/capability-resolver/resolve-project-context-block/` that must still fail with `invalid_json` / `invalid_utf8`, reported in `expected_negative`.
-  Changed bytes, a moved copy, a repaired fixture or a missing record fail. No directory is skipped.
+  Changed bytes, a moved copy, a repaired fixture or a missing record fail. No tracked directory is skipped.
+- Runtime outputs vs candidates: the weekly managed prepare step writes run-local controls (`selection.json`, `controls.json`, `validation.json`, `claude-sdk-entry`) under `.sdd-self-improvement/<session>/` before the audit. They are runtime state, not repository inputs, so `.gitignore` ignores only the root directory (`/.sdd-self-improvement/`). Without this rule, prepare's own outputs were counted in `untracked_unchecked` and failed coverage. The rule is anchored: an unrelated untracked JSON, nested or similarly named directories (`docs/.sdd-self-improvement/`, `.sdd-self-improvement-notes/`, `sdd-self-improvement/`) and a force-added or tracked file under the runtime directory remain candidates and still fail when unvalidated or malformed. The checker, completion predicate and frozen exceptions are unchanged.
 - Parser: `PyYAML==6.0.3` (`tests/repository-syntax-requirements.txt`), installed into a venv by the weekly workflow and the POSIX regression CI job, exported as `SDD_SYNTAX_PYTHON`.
 
 Applied to the tracked inputs based on `07ed2e98`, the new checker passes with
@@ -38,7 +39,7 @@ counts are not a permanent rule, and the checker was not present at the old HEAD
 
 ## Limits
 
-Syntax only: not schema, encoding or consumer compatibility. Local tests do not establish weekly recovery; a real authorized weekly run on the final HEAD with all five checks successful and both `improve` and the recovery finalizer successful is still required, and it also depends on the separate managed-model request prerequisite (`SDD_SELF_IMPROVEMENT_REQUEST`). Tests: `tests/repository-syntax.tests.py`, prompt contract in `tests/self-improvement-guard.tests.sh`.
+Syntax only: not schema, encoding or consumer compatibility. Local tests do not establish weekly recovery; a real authorized weekly run on the final HEAD with all five checks successful and both `improve` and the recovery finalizer successful is still required, and it also depends on the separate managed-model request prerequisite (`SDD_SELF_IMPROVEMENT_REQUEST`). Tests: `tests/repository-syntax.tests.py` (13 tests, three of them for the runtime ignore boundary), prompt contract in `tests/self-improvement-guard.tests.sh`.
 
 The read-only [Actions readiness probe](https://github.com/aharada54914/sdd-forge/actions/runs/39812329518)
 at `62ace211` confirmed that the request variable was unset and no request file

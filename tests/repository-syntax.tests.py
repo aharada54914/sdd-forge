@@ -41,6 +41,10 @@ LEGACY_BOM = {
 }
 EXCEPTIONS = {**EXPECTED_NEGATIVE, **LEGACY_BOM}
 CANARY = 'PRIVATE-' + 'SYNTAX-CANARY'
+# Shape of the weekly workflow's managed prepare output directory (self-improvement.yml).
+RUNTIME = '.sdd-self-improvement/0b6c1f6e-2f1d-4c84-9a52-3d1f5b7f9e10'
+RUNTIME_OUTPUTS = {'selection.json': 'model-selection/v1', 'controls.json': 'model-launch-controls/v1',
+                   'validation.json': 'model-launch-validation/v1'}
 
 
 def sha(path):
@@ -247,6 +251,57 @@ class RepositorySyntaxTests(unittest.TestCase):
         rc, report = self.run_checker(fixture.root, '--path', 'config/new.yaml')
         self.assertEqual((rc, report['result'], report['counts']['explicit']), (0, 'pass', 1), report)
         self.assertTrue(report['complete_candidate_coverage'])
+
+    def runtime_fixture(self):
+        """Fixture with the repository's real .gitignore, staged before the weekly prepare writes its outputs."""
+        fixture = self.fixture()
+        fixture.write('.gitignore', (ROOT / '.gitignore').read_bytes())
+        fixture.stage()
+        for name, schema in RUNTIME_OUTPUTS.items():
+            fixture.write(f'{RUNTIME}/{name}', json.dumps({'schema': schema}).encode())
+        fixture.write(f'{RUNTIME}/claude-sdk-entry', b'#!/usr/bin/env python3\n')
+        return fixture
+
+    def git_list(self, root, *args):
+        out = subprocess.run(['git', '-C', str(root), 'ls-files', *args],
+                             capture_output=True, text=True, check=True).stdout
+        return set(out.splitlines())
+
+    def test_root_runtime_outputs_are_ignored_and_coverage_passes(self):
+        fixture = self.runtime_fixture()
+        runtime = {f'{RUNTIME}/{name}' for name in (*RUNTIME_OUTPUTS, 'claude-sdk-entry')}
+        rc, report = self.run_checker(fixture.root)
+        self.assertEqual((rc, report['result'], report['failures']), (0, 'pass', []), report)
+        self.assertEqual(report['counts'], {'json': 9, 'yaml': 2, 'explicit': 0, 'untracked_unchecked': 0})
+        self.assertTrue(report['complete_candidate_coverage'])
+        fixture.stage()  # the normal staging command must not pick up runtime controls either
+        self.assertFalse(runtime & self.git_list(fixture.root, '--cached'))
+        self.assertEqual(runtime, self.git_list(fixture.root, '--others', '--ignored', '--exclude-standard')
+                         & runtime)
+
+    def test_runtime_ignore_does_not_hide_other_candidates(self):
+        unrelated = 'notes.json'
+        similar = ('docs/.sdd-self-improvement/a.json', 'plugins/x/.sdd-self-improvement/b.yaml',
+                   '.sdd-self-improvement-notes/c.json', 'sdd-self-improvement/d.json')
+        for paths in ((unrelated,), similar):
+            with self.subTest(paths=paths):
+                fixture = self.runtime_fixture()
+                for rel in paths:
+                    fixture.write(rel, b'{}')
+                self.assertEqual(set(paths), self.git_list(fixture.root, '--others', '--exclude-standard'))
+                rc, report = self.run_checker(fixture.root)
+                self.assertEqual((rc, report['result'], report['failures']), (1, 'fail', []), report)
+                self.assertEqual(report['counts']['untracked_unchecked'], len(paths))
+                self.assertFalse(report['complete_candidate_coverage'])
+
+    def test_force_added_malformed_runtime_json_still_fails(self):
+        fixture = self.runtime_fixture()
+        rel = f'{RUNTIME}/controls.json'
+        fixture.write(rel, b'{')
+        git(fixture.root, 'add', '-f', rel)
+        self.assertIn(rel, self.git_list(fixture.root, '--cached'))
+        report = self.assert_only_failure(fixture, rel, 'invalid_json')
+        self.assertEqual(report['counts']['untracked_unchecked'], 0)
 
     def test_usage_and_dependency_errors(self):
         fixture = self.fixture()
