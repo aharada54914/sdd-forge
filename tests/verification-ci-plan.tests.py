@@ -1486,17 +1486,25 @@ class PreparedVerifierIntegrationTests(unittest.TestCase):
             artifacts.append(dict(id=300 + index, name=fixtures.receipt_name('123', attempt, job, matrix),
                 expired=False, workflow_run={'id': 123, 'head_sha': fixture.revision}))
             archives[300 + index] = raw.getvalue()
-        def request(endpoint):
+        refreshed = []
+        def request(endpoint, timeout=None):
             if endpoint.endswith('/runs/123'):
                 return copy.deepcopy(fixture.api_run), {}
+            if '/actions/jobs/' in endpoint:
+                # Individual re-read of the same still-unfinished instance (issue 619).
+                refreshed.append(endpoint)
+                return copy.deepcopy(next(j for j in fixture.jobs if endpoint.endswith(f"/jobs/{j['id']}"))), {}
             if '/jobs?' in endpoint:
                 return {'total_count': len(fixture.jobs), 'jobs': copy.deepcopy(fixture.jobs)}, {}
             return {'total_count': len(artifacts), 'artifacts': copy.deepcopy(artifacts)}, {}
         def archive_request(endpoint):
             return archives[int(endpoint.split('/artifacts/')[1].split('/')[0])], {}
         destination = fixture.scratch / 'actual-collection'
-        with patch.object(ci, 'api_get', side_effect=request), patch.object(ci, 'api_response', side_effect=archive_request):
+        with (patch.object(ci, 'api_get', side_effect=request), patch.object(ci, 'api_response', side_effect=archive_request),
+              patch.object(ci.time, 'sleep')):
             ci.collect('owner/repo', '123', destination)
+        # The running verifier is never awaited; an unfinished execution job is re-read within budget only.
+        self.assertEqual(refreshed, [] if prepared else ['/repos/owner/repo/actions/jobs/200'] * ci.REFRESH_ROUNDS)
         result = ci.aggregate(fixture.root, fixture.plan, destination, '123', fixture.revision)
         self.assertEqual(len([r for r in result['results'] if r['status'] == 'PASS']), 7)
         if prepared:

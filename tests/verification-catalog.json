@@ -1553,6 +1553,13 @@
       ]
     },
     {
+      "path": "tests/repository-syntax.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
       "path": "tests/required-checks-posix.tests.py",
       "runtime": "python",
       "ci_jobs": [
@@ -2493,7 +2500,8 @@
       "tests/model-policy.tests.py",
       "tests/model-policy-launch.tests.py",
       "tests/model-policy-launch-platform.tests.py",
-      "tests/model-policy-installed.tests.py"
+      "tests/model-policy-installed.tests.py",
+      "tests/repository-syntax.tests.py"
     ],
     "local-powershell": [
       "tests/cloud-orchestration-contracts.tests.py",
@@ -2738,7 +2746,8 @@
       "tests/supplemental-delivery-declaration.tests.py",
       "tests/t001-evaluation-preparation.tests.py",
       "tests/model-policy-launch.tests.py",
-      "tests/model-policy-installed.tests.py"
+      "tests/model-policy-installed.tests.py",
+      "tests/repository-syntax.tests.py"
     ],
     "ci-a7-native": [
       "tests/golden-baseline-contract.tests.ps1",
