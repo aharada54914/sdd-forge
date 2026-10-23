@@ -169,6 +169,8 @@ Rules:
                 -RedirectStandardOutput $rawOutput `
                 -RedirectStandardError  (Join-Path $scratch "stderr.txt") `
                 -PassThru -NoNewWindow
+            # Cache the native handle before waiting so Desktop retains the exit code.
+            $null = $proc.Handle
         } finally {
             if ($hadDeadline) { $env:SDD_PANELIST_DEADLINE_EPOCH_MS = $savedDeadline }
             else { Remove-Item Env:SDD_PANELIST_DEADLINE_EPOCH_MS -ErrorAction SilentlyContinue }
