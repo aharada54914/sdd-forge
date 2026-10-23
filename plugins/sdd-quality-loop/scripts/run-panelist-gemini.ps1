@@ -85,7 +85,7 @@ if (-not (Test-Path $InputPath)) {
 
 # ── Check CLI availability ───────────────────────────────────────────────────
 if (-not (Get-Command "gemini" -ErrorAction SilentlyContinue)) {
-    [Console]::Error.WriteLine("run-panelist-gemini: gemini CLI not found in PATH — skipping Gemini panelist (graceful degrade)")
+    [Console]::Error.WriteLine("run-panelist-gemini: gemini CLI not found in PATH; skipping Gemini panelist (graceful degrade)")
     exit 1
 }
 

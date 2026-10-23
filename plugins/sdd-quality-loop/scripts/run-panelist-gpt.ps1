@@ -162,7 +162,7 @@ function Resolve-CodexCommand {
 $CodexCmd = Resolve-CodexCommand
 
 if (-not $CodexCmd) {
-    [Console]::Error.WriteLine("run-panelist-gpt: codex CLI not found in PATH (or only resolves to codex-sync) — skipping GPT panelist (graceful degrade)")
+    [Console]::Error.WriteLine("run-panelist-gpt: codex CLI not found in PATH (or only resolves to codex-sync); skipping GPT panelist (graceful degrade)")
     exit 1
 }
 
