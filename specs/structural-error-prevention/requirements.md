@@ -6,7 +6,7 @@ Spec-Review-Status: Pending
 
 Issue: [#601](https://github.com/aharada54914/sdd-forge/issues/601). This preliminary Draft was authored by Codex on 2026-10-23 against `d1719e6632d497d22af20a17704c6d6a27246efd`. An actual Claude author attempt stopped at a usage limit before producing files; it is not authorship or review evidence for these documents. No formal review, task approval, implementation, or verification result is asserted.
 
-Repository contributors need to know which recurring mistakes existing mechanisms prevent, which executable coverage is missing, and which decisions remain human. The historical source map is `docs/contributor/issue-601-structural-prevention.md`; its older baseline is not current implementation evidence. Current-tree corrections are in design.md.
+Repository contributors need to know which recurring mistakes existing mechanisms prevent, which executable coverage is missing, and which decisions remain human. The historical source map is `docs/contributor/issue-601-structural-prevention.md`; its older baseline is not current implementation evidence. Current-tree corrections are in design.md; its shared-state-reverification section requires rechecking the catalog and consumers at formal review and implementation entry.
 
 ## Requirements and Acceptance Criteria
 

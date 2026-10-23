@@ -12,4 +12,4 @@ Execute selected catalog suites and inspect receipts/output. Keep required-runti
 
 ## Deployment and Rollback
 
-No deployment or migration. Changes enter through normal reviewed repository changes after task approval. If registration exposes a failure, fix or report it; do not suppress the suite to manufacture success. Any rollback uses existing review/approval processes and preserves evidence. TEST-002/004/006/007 cover execution and compatibility; future retention remains separate.
+No deployment or migration. Changes enter through normal reviewed repository changes after task approval. If registration exposes a failure, fix or report it; do not suppress the suite to manufacture success. Any rollback uses existing review/approval processes and preserves evidence. TEST-002a, TEST-002b, TEST-002c, TEST-004a, TEST-004b, TEST-004c, TEST-004d, TEST-004e, TEST-004f, TEST-006a, TEST-006b, TEST-006c, TEST-006d, TEST-006e, TEST-006f, TEST-006g, TEST-006h, TEST-006i, TEST-006j, TEST-006k, TEST-006l, TEST-006m, TEST-007a, TEST-007b, TEST-007c, TEST-007d, TEST-007e, TEST-007f cover execution and compatibility; future retention remains separate.

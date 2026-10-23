@@ -14,4 +14,4 @@ Retain strict-current path/hash/admission checks and historical parsing compatib
 
 ## Verification
 
-TEST-003/006 verify isolated fixture mutation and unchanged protected artifacts/approval defenses; TEST-005/009 preserve evidence and causal boundaries. No secret-bearing artifacts are required for the handoff.
+TEST-003a, TEST-003b, TEST-003c, TEST-003d, TEST-003e, TEST-003f, TEST-003g, TEST-003h, TEST-003i, TEST-003j, TEST-003k, TEST-006a, TEST-006b, TEST-006c, TEST-006d, TEST-006e, TEST-006f, TEST-006g, TEST-006h, TEST-006i, TEST-006j, TEST-006k, TEST-006l, TEST-006m verify isolated fixture mutation and unchanged protected artifacts/approval defenses; TEST-005a, TEST-005b, TEST-005c, TEST-005d, TEST-005e, TEST-005f, TEST-005g, TEST-005h, TEST-005i, TEST-005j, TEST-009a, TEST-009b, TEST-009c, TEST-009d, TEST-009e preserve evidence and causal boundaries. No secret-bearing artifacts are required for the handoff.

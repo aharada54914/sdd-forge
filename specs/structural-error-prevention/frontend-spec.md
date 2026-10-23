@@ -12,4 +12,4 @@ N/A — no change: no client state, API payload or persisted frontend model. Evi
 
 ## Verification
 
-Confirm the implementation diff remains within the declared contributor/test integration scope (TEST-006); frontend build and browser tests are not required for unchanged frontend behavior.
+Confirm the implementation diff remains within the declared contributor/test integration scope (TEST-006a, TEST-006b, TEST-006c, TEST-006d, TEST-006e, TEST-006f, TEST-006g, TEST-006h, TEST-006i, TEST-006j, TEST-006k, TEST-006l, TEST-006m); frontend build and browser tests are not required for unchanged frontend behavior.

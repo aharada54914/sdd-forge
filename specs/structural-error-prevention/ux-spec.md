@@ -12,4 +12,4 @@ No new UI or persisted workflow states. Existing WFI/task states retain their me
 
 ## Verification
 
-TEST-001/005/008/009 inspect source-backed interpretation and readable evidence boundaries. Accessibility/UI interaction tests are N/A because no UI is added.
+TEST-001a, TEST-001b, TEST-001c, TEST-005a, TEST-005b, TEST-005c, TEST-005d, TEST-005e, TEST-005f, TEST-005g, TEST-005h, TEST-005i, TEST-005j, TEST-008a, TEST-008b, TEST-008c, TEST-008d, TEST-009a, TEST-009b, TEST-009c, TEST-009d, TEST-009e inspect source-backed interpretation and readable evidence boundaries. Accessibility/UI interaction tests are N/A because no UI is added.
