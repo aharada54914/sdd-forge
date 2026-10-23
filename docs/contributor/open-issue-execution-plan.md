@@ -1,5 +1,68 @@
 # Open issue dependency and execution plan
 
+## Current status — 2026-10-23
+
+This section supersedes the historical progress snapshot below; its dependency
+structure remains useful and must still be rechecked against each live Issue.
+GitHub now has **33 open Issues**. Only #619 has been closed in this work sequence.
+
+- **#619 resolved on the user-selected `work` branch.** PRs #629/#634 were integrated
+  through #635 (`d1719e66`); PR #636 adds the four neighboring JSON writers and is
+  merged as `45c2e927e202c70379b56ad6c63f80474f7ba27c`. Its tree equals the tested
+  merge `eb5210f8d4b9ebe8ae814a0205833dd7177f41ca`. Final native
+  [run 39886069005](https://github.com/aharada54914/sdd-forge/actions/runs/39886069005),
+  attempt 1: 46 completed jobs, **449 PASS + one expected inactive-A9 skip**,
+  all 449 execution origins from attempt 1. Plan digest:
+  `3afb4a5c16275e705149a142d26e04624316e3e5304661267fc68b7e0d396765`.
+  Installer verification includes 36 obligations across six CI cells.
+  [Neighbor evidence](issue-619-neighbor-writers.md) preserves actual Desktop/Core
+  comparisons and failed attempts. Six historical records remain unchanged and
+  their original producer/runtime remains unknown. This does not claim whole-script
+  Desktop support, a default-main deployment, or #620 recovery.
+- **#620 remains open.** The deterministic syntax checker, bounded metadata refresh
+  and aggregate correction are integrated. Genuine fresh model requests,
+  role-specific adoption evidence and a complete real weekly audit remain required.
+  Six Claude weekly-audit candidates passed structural checks in an isolated fixed
+  experiment; Codex comparison trials and blind semantic judgment are incomplete.
+  Structural success is not model adoption or a completed production audit.
+- **#601 Draft is pushed** on `feat/issue-601-structural-prevention`, latest
+  `21bef3dc623d9c0f8cdb5b4108ebc934b8e8c126`. Nine draft documents, AGENTS and registry
+  synchronization define three proposed tasks and 61 planned TEST IDs. Scoped
+  workflow-state, placeholder, reference and mapping checks passed. Three independent
+  content pre-review findings were corrected and their limited recheck found no
+  remaining finding. Formal gates, human task approval, implementation and full CI
+  remain pending; `tasks-proposal.md` is deliberately not a formal task plan.
+- **#605 is [Draft PR #637](https://github.com/aharada54914/sdd-forge/pull/637)**,
+  source `a2459d59`, with 200 planned acceptance cases. Initial CI 39888236068 was
+  cancelled while the preliminary Draft and integration base were being prepared;
+  it is not a PASS. Fresh final-head/base CI is required before merge. #614/#594
+  remain Draft PRs #631/#633 with formal review and implementation outstanding.
+- **Formal review has two separate prerequisites.** A six-file host-registration
+  helper proposal has an independent pre-review and corrected-plan recheck, but its
+  specific task and limited exception to prior formal-review ordering await human
+  selection. Root AGENTS still forbids Draft implementation; closed #61 supplies no
+  fallback. Actual native host provenance, role separation, protected mechanisms and
+  model-adoption requirements remain mandatory. Model evaluation is role-specific:
+  weekly-auditor or implementer evidence cannot authorize spec/design/task reviewers.
+  Codex CLI reauthentication is pending; the earlier device code expired. Claude's
+  actual usage limit resets at **2026-10-23 14:20 JST**; verify availability then
+  before assigning unfinished work, without repeating completed fallback drafting.
+- **#197 cannot close from normal CI.** Current candidate/validator use 11 components
+  while the approved specification retains a closed nine-component scope. Resolve
+  that discrepancy and the missing task source through the existing review process
+  before publication. Candidate validation alone is not activation approval.
+  A real advisory release cycle, human required-promotion decision, post-promotion
+  feature E2E and WFI disposition are still necessary; #187 depends on these.
+
+Default `main` remains `fcb8275a42061b8132ea88a36e69b02f4487be71` at this update.
+Whole-branch main integration/release and operational/human acceptance remain
+separate actions. No new feature is represented as implemented by its Draft packet.
+The installed payload remains governed by the narrowed manifest; temporary remote
+archive download size is a separate known limitation. The current installer CI
+checks supplement, rather than re-date, the earlier exact eight-path payload audit.
+
+## Historical snapshot — 2026-10-22
+
 Dependency snapshot: 2026-10-22; integration update: 2026-10-23. The 34 open Issues were rechecked against GitHub; their
 bodies had not changed since the dependency extraction. Baseline: `work` at
 `07ed2e984ec58160892e765d7c437c47d5daf332`; default `main` is still `fcb8275`.
