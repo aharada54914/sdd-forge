@@ -32,3 +32,24 @@ All six inspected file prefixes are `EF BB BF`. They remain unchanged. Counts ar
 Git commit dates and schema resemblance do not establish the shell, runtime edition, command invocation, or original writer. The exact original producer/runtime for all six is unavailable from inspected metadata/history. Existing bytes prove presence of a BOM, not that any particular neighboring script caused it. Preserve these frozen records; do not rewrite or re-sign them to make contemporary strict readers pass. If historic compatibility is required, design an explicit import/migration boundary with original hash retention instead of mutating evidence.
 
 Conclusion: source-level JSON encoding risk is concretely localized in four neighboring writers, with strict consumers identified for evidence bundles and panelist verdicts. Whole-script5.1 execution and neighbor-specific native BOM reproduction remain unproven; one concrete earlier5.1 blocker and two timeout-path constraints prevent a blanket runnable claim. The fifth writer emits text and needs a separate contract-driven justification for changes.
+
+## 2026-10-23 implementation and actual native comparison
+
+The investigation above is preserved as the pre-change snapshot. Commit `8cc6c95a` implements explicit BOM-free JSON publication in the four named writers, preserving PowerShell-relative paths, validator line framing, and rejection-before-publication. The bundle's multiargument `Join-Path` was separately corrected. Tests call the real producers with synthetic project data; panelist tests replace only the external provider CLI and verify that stub was actually invoked. No provider inference is involved.
+
+[Native comparison run 39885524625](https://github.com/aharada54914/sdd-forge/actions/runs/39885524625) succeeded at source `7b54be1a2414e7ae3bccec09621d2a324c07bdd4`, comparing exact baseline `4a55833441fe5d5e2ec76b6ed058efc3a7a7e13b` bytes against the corrected source. The same current regression helper is used on both sources. Each job retains raw baseline/current logs and a hash-bound comparison record.
+
+| Producer suite | Native runtime | Baseline passed/failed | Corrected passed/failed |
+|---|---|---|---|
+| Run record | Desktop 5.1.26100.33648 | 9/9: three BOM/strict-Python/strict-Node failures per output case | 18/0 |
+| Run record | Core 7.6.7 | 18/0 | 18/0 |
+| Evidence bundle | Desktop 5.1.26100.33648 | 3/7: earlier Join-Path failure prevents publication; not a demonstrated BOM output | 19/0 |
+| Evidence bundle | Core 7.6.7 | 18/1: static Desktop-compatible Join-Path check only; encoding passes | 19/0 |
+| GPT/Gemini verdicts | Desktop 5.1.26100.33648 | 11/20: source parsing fails before the CLI/writer; not a demonstrated BOM output | 49/0 |
+| GPT/Gemini verdicts | Core 7.6.6 | 49/0 | 49/0 |
+
+The failed attempts remain visible. [Run 39884932110](https://github.com/aharada54914/sdd-forge/actions/runs/39884932110) revealed Desktop parsing errors from an em dash in two diagnostic string literals; its diagnostic Python console also failed to render two baseline logs before executing current producers. [Run 39885230460](https://github.com/aharada54914/sdd-forge/actions/runs/39885230460) fixed those paths and isolated Desktop panelists returning a null child-process ExitCode after a successful wait. Reading the same process Handle before waiting preserves the native exit code; success, provider failure, and invalid-verdict paths then passed in the final run. No failure was converted to zero or an expected skip.
+
+The three helpers are registered as delegated suites under the existing feature-scope, scripts, and cross-model parents. Windows parents explicitly run Core and Desktop; Linux prints an explicit Desktop-unavailable skip. Local Core parents passed 59 and 106 assertions, selected-policy run-record tests passed 16 cases, and the catalog passed 47 tests. The local scripts-parent log reached its success line but its process exit was lost after an external interruption; it is not recorded as a recovered local success. Normal PR CI remains a separate final-head requirement. The temporary diagnostic workflow is removed after obtaining this evidence; the permanent regressions stay in the existing CI paths.
+
+This verifies the named publication paths, not every Desktop route: model/effort flag handling, timeout tree termination, and selected-policy non-ASCII stdin remain outside this native comparison. Prompt TEXT and `prepare-panelist-input.ps1` are unchanged because JSON-BOM rejection does not establish a text-transport defect. The historical six files remain byte-for-byte unchanged, with original producer/runtime unknown; none is re-signed, imported with relaxed validation, or retrospectively attributed to a current script.
