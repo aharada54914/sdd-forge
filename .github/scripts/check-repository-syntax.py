@@ -126,10 +126,14 @@ def main():
         import yaml
     except ImportError:
         stop('dependency_missing')
-    root = Path(options.root).resolve()
     try:
-        top = subprocess.run(['git', '-C', str(root), 'rev-parse', '--show-toplevel'],
-                             capture_output=True, text=True, check=False).stdout.strip()
+        root = Path(options.root).resolve()
+    except (OSError, RuntimeError):  # RuntimeError: symlink loop before Python 3.13
+        stop('usage')
+    try:
+        # Bytes, not text: a non-UTF-8 path must not raise on git's stdout or stderr.
+        top = os.fsdecode(subprocess.run(['git', '-C', str(root), 'rev-parse', '--show-toplevel'],
+                                         capture_output=True, check=False).stdout.removesuffix(b'\n'))
     except OSError:
         stop('git')
     if not top or Path(top).resolve() != root:

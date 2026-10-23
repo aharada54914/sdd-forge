@@ -344,6 +344,38 @@ class RepositorySyntaxTests(unittest.TestCase):
         self.assertEqual((result.returncode, result.stderr), (0, ''))
         self.assertTrue(result.stdout.startswith('usage:'), result.stdout)
 
+    def test_missing_and_file_roots_use_the_json_envelope(self):
+        fixture = self.fixture()
+        folder = fixture.root.parent
+        (folder / 'file.json').write_bytes(b'{}')
+        for root in (folder / 'missing', folder / 'file.json'):
+            with self.subTest(root=root.name):
+                rc, report = self.run_checker(None, '--root', str(root))
+                self.assertEqual((rc, report), (2, {'schema': 'repository-syntax-check/v1',
+                                                    'result': 'error', 'category': 'usage'}))
+
+    def test_circular_root_uses_the_json_envelope(self):
+        fixture = self.fixture()
+        loop = fixture.root.parent / 'loop'
+        try:
+            loop.symlink_to('loop')
+        except (OSError, NotImplementedError):
+            self.skipTest('native symlink creation is unavailable')
+        rc, report = self.run_checker(None, '--root', str(loop))
+        self.assertEqual((rc, report), (2, {'schema': 'repository-syntax-check/v1',
+                                            'result': 'error', 'category': 'usage'}))
+
+    def test_non_utf8_repository_name_is_scanned(self):
+        fixture = self.fixture()
+        undecodable = fixture.root.parent / os.fsdecode(b'bad\xff')
+        try:
+            undecodable.mkdir()
+        except (OSError, UnicodeEncodeError):
+            self.skipTest('filesystem rejects non-UTF-8 names')
+        git(undecodable, 'init', '-q')
+        rc, report = self.run_checker(None, '--root', str(undecodable))
+        self.assertEqual((rc, report['result'], report['counts']['json']), (1, 'fail', 0), report)
+
 
 if __name__ == '__main__':
     unittest.main()
