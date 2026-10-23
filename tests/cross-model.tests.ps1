@@ -531,6 +531,20 @@ $panelistRunners = @(
         Write-Host "SKIP: CM-016 Windows PowerShell 5.1 producer not available on this host; 5.1 aggregate encoding unverified here"
     }
 
+    # CM-017 (issue #619): legacy panelist verdict bytes per real producer runtime,
+    # against a fake codex/gemini CLI. Each run proves only the runtime it names.
+    $panelistEncodingHelper = Join-Path $PSScriptRoot "panelist-verdict-encoding.tests.ps1"
+    & $currentRuntime -NoProfile -ExecutionPolicy Bypass -File $panelistEncodingHelper -Producer $currentRuntime -ExpectEdition Core
+    if ($LASTEXITCODE -eq 0) { Ok "CM-017: panelist verdicts are BOM-free strict JSON under current pwsh" }
+    else { Fail "CM-017: panelist verdict encoding check failed under current pwsh" }
+    if ($desktop) {
+        & $desktop.Source -NoProfile -ExecutionPolicy Bypass -File $panelistEncodingHelper -Producer $desktop.Source -ExpectEdition Desktop
+        if ($LASTEXITCODE -eq 0) { Ok "CM-017: panelist verdicts are BOM-free strict JSON under Windows PowerShell 5.1" }
+        else { Fail "CM-017: panelist verdict encoding check failed under Windows PowerShell 5.1" }
+    } else {
+        Write-Host "SKIP: CM-017 Windows PowerShell 5.1 producer not available on this host; 5.1 verdict encoding unverified here"
+    }
+
     # ============================================================================
     # TEST-003 / TEST-012: PowerShell runner timeout configuration
     # ============================================================================

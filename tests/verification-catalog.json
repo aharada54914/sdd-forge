@@ -785,6 +785,11 @@
       "delegated_to": "tests/agent-model-routing.tests.sh"
     },
     {
+      "path": "tests/emit-run-record-encoding.tests.ps1",
+      "runtime": "powershell",
+      "delegated_to": "tests/emit-run-record-feature-scope.tests.ps1"
+    },
+    {
       "path": "tests/emit-run-record-feature-scope.tests.ps1",
       "runtime": "powershell",
       "ci_jobs": [
@@ -825,6 +830,11 @@
       "path": "tests/evaluator-scratch-metrics.tests.py",
       "runtime": "python",
       "delegated_to": "tests/wfi-034-scratch-metric.tests.sh"
+    },
+    {
+      "path": "tests/evidence-bundle-encoding.tests.ps1",
+      "runtime": "powershell",
+      "delegated_to": "tests/scripts.tests.ps1"
     },
     {
       "path": "tests/facet-manifest-parity.tests.ps1",
@@ -1368,6 +1378,11 @@
     {
       "path": "tests/p0-hardening.tests.sh",
       "runtime": "bash"
+    },
+    {
+      "path": "tests/panelist-verdict-encoding.tests.ps1",
+      "runtime": "powershell",
+      "delegated_to": "tests/cross-model.tests.ps1"
     },
     {
       "path": "tests/path-lineending-regression.tests.ps1",

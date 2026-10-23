@@ -162,7 +162,7 @@ function Resolve-CodexCommand {
 $CodexCmd = Resolve-CodexCommand
 
 if (-not $CodexCmd) {
-    [Console]::Error.WriteLine("run-panelist-gpt: codex CLI not found in PATH (or only resolves to codex-sync) — skipping GPT panelist (graceful degrade)")
+    [Console]::Error.WriteLine("run-panelist-gpt: codex CLI not found in PATH (or only resolves to codex-sync); skipping GPT panelist (graceful degrade)")
     exit 1
 }
 
@@ -258,6 +258,8 @@ Rules:
                 -RedirectStandardOutput $rawOutput `
                 -RedirectStandardError  (Join-Path $scratch "stderr.txt") `
                 -PassThru -NoNewWindow
+            # Cache the native handle before waiting so Desktop retains the exit code.
+            $null = $proc.Handle
         } finally {
             if ($hadDeadline) { $env:SDD_PANELIST_DEADLINE_EPOCH_MS = $savedDeadline }
             else { Remove-Item Env:SDD_PANELIST_DEADLINE_EPOCH_MS -ErrorAction SilentlyContinue }
@@ -431,7 +433,12 @@ Rules:
     $verdict.feature = $Feature
     $verdict.vendor  = "openai"
 
-    $verdict | ConvertTo-Json -Depth 10 | Set-Content -Encoding Utf8 -Path $outPath
+    # Issue #619: Set-Content -Encoding Utf8 writes a BOM on Windows PowerShell 5.1.
+    # .NET resolves relative paths against the process directory, not the PS location.
+    $outFullPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($outPath)
+    [System.IO.File]::WriteAllText($outFullPath,
+        (($verdict | ConvertTo-Json -Depth 10) + [Environment]::NewLine),
+        (New-Object System.Text.UTF8Encoding($false)))
     [Console]::Error.WriteLine("run-panelist-gpt: verdict written to $outPath")
     Write-Host $outPath
 

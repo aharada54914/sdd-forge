@@ -610,6 +610,22 @@ None.
     } else {
         Fail "AC-026: validator did not reject a report missing the Effort line (exit=$LASTEXITCODE): $missingEffortOutput"
     }
+
+    # RR-619 (issue #619): record bytes per real producer runtime. The helper
+    # launches the producer itself, so each run proves only the runtime it names.
+    $encodingHelper = Join-Path $PSScriptRoot "emit-run-record-encoding.tests.ps1"
+    $currentRuntime = (Get-Process -Id $PID).Path
+    & $currentRuntime -NoProfile -ExecutionPolicy Bypass -File $encodingHelper -Producer $currentRuntime -ExpectEdition Core
+    if ($LASTEXITCODE -eq 0) { Ok "RR-619: run records are BOM-free strict JSON under current pwsh" }
+    else { Fail "RR-619: run-record encoding check failed under current pwsh" }
+    $desktop = if ($IsWindows) { Get-Command powershell.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1 }
+    if ($desktop) {
+        & $desktop.Source -NoProfile -ExecutionPolicy Bypass -File $encodingHelper -Producer $desktop.Source -ExpectEdition Desktop
+        if ($LASTEXITCODE -eq 0) { Ok "RR-619: run records are BOM-free strict JSON under Windows PowerShell 5.1" }
+        else { Fail "RR-619: run-record encoding check failed under Windows PowerShell 5.1" }
+    } else {
+        Write-Output "SKIP: RR-619 Windows PowerShell 5.1 producer not available on this host; 5.1 run-record encoding unverified here"
+    }
 } finally {
     Remove-Item -Recurse -Force $work -ErrorAction SilentlyContinue
 }

@@ -2689,6 +2689,20 @@ Status: Planned
     $script:gateOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File $liteScript (Join-Path $workDir "lite-tasks-L6.md") $liteQgDir $liteImplDir $workDir 2>&1
     Assert-ExitCode "L6: lite CRLF tasks.md passes same as LF" $LASTEXITCODE 0
 
+    # EB-619 (issue #619): evidence-bundle bytes per real producer runtime. The helper
+    # launches the producer itself, so each run proves only the runtime it names.
+    $encodingHelper = Join-Path $PSScriptRoot "evidence-bundle-encoding.tests.ps1"
+    $currentRuntime = (Get-Process -Id $PID).Path
+    $script:gateOutput = & $currentRuntime -NoProfile -ExecutionPolicy Bypass -File $encodingHelper -Producer $currentRuntime -ExpectEdition Core 2>&1
+    Assert-ExitCode "EB-619: evidence bundle is BOM-free strict JSON under current pwsh" $LASTEXITCODE 0
+    $desktop = if ($IsWindows) { Get-Command powershell.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1 }
+    if ($desktop) {
+        $script:gateOutput = & $desktop.Source -NoProfile -ExecutionPolicy Bypass -File $encodingHelper -Producer $desktop.Source -ExpectEdition Desktop 2>&1
+        Assert-ExitCode "EB-619: evidence bundle is BOM-free strict JSON under Windows PowerShell 5.1" $LASTEXITCODE 0
+    } else {
+        Write-Host "SKIP: EB-619 Windows PowerShell 5.1 producer not available on this host; 5.1 bundle encoding unverified here"
+    }
+
     Write-Host "Script gate tests passed."
 } finally {
     Pop-Location

@@ -1834,7 +1834,22 @@ class ModelRunRecords(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr[:1600])
         paths = list((self.root / 'reports/runs').glob('RUN-*.json'))
         self.assertEqual(len(paths), 1)
-        return json.loads(paths[0].read_bytes())
+        # Issue #619: json.loads(bytes) silently strips a UTF-8 BOM, so check raw bytes
+        # and keep the validator's multiline stdout with one native newline per line.
+        raw = paths[0].read_bytes()
+        self.assertFalse(raw.startswith(b'\xef\xbb\xbf'), shell + ' emitter wrote a UTF-8 BOM')
+        text = raw.decode('utf-8')
+        record = json.loads(text)
+        self.assertEqual(text, json.dumps(record, ensure_ascii=False, indent=2).replace('\n', os.linesep) + os.linesep,
+                         shell + ' emitter changed the validator line framing')
+        node = shutil.which('node')
+        if node:  # Node's JSON.parse also rejects a leading BOM when reading the published bytes.
+            parsed = subprocess.run([node, '-e', 'process.stdout.write(JSON.stringify(JSON.parse('
+                                     'require("fs").readFileSync(process.argv[1], "utf8"))))', str(paths[0])],
+                                    capture_output=True, timeout=60, check=False)
+            self.assertEqual(parsed.returncode, 0, shell + ' record rejected by Node: ' + parsed.stderr.decode()[-400:])
+            self.assertEqual(json.loads(parsed.stdout.decode('utf-8')), record)
+        return record
 
     def reject_record(self, shell, **options):
         result = self.emit(shell, **options)

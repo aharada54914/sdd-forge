@@ -1,13 +1,14 @@
 # Open issue dependency and execution plan
 
-Snapshot: 2026-10-22. Final progress is maintained on `docs/issue-execution-results`
-to keep the validation base `work` fixed at `913573ca`. The 34 open Issues were rechecked against GitHub; their
+Dependency snapshot: 2026-10-22; integration update: 2026-10-23. The 34 open Issues were rechecked against GitHub; their
 bodies had not changed since the dependency extraction. Baseline: `work` at
 `07ed2e984ec58160892e765d7c437c47d5daf332`; default `main` is still `fcb8275`.
 Dependencies below describe acceptance/integration prerequisites, not an assertion
 that all predecessors need completion before any design work can start.
 
 ## Current execution
+
+PR #635 was merged into `work` at `d1719e6632d497d22af20a17704c6d6a27246efd` after native run 39881975684 passed **449 obligations plus one expected skip**, all execution origins from attempt 1. Its fixed source was `86437dda`, base `913573ca`, and tested merge `0708d657`; retained plan digest `5fba4c02efd3ed8c449fa89a636a9e078e37c0fbc92ce6d4a05870b30bda76dc`. The merge preserves #629 and #634 ancestry, and GitHub confirms both PRs merged. Their earlier results below remain historical evidence. #619's four neighboring JSON writers subsequently passed six native comparison jobs at `7b54be1a`; [details and preserved failures](issue-619-neighbor-writers.md#2026-10-23-implementation-and-actual-native-comparison). Their normal integration CI is still required. Neither #619 nor #620 is closed by the aggregate merge alone.
 
 | Issue | Reviewable work | Remaining acceptance |
 |---|---|---|
@@ -23,7 +24,7 @@ No Issue is closed by this plan. A passing local check, draft specification or
 bounded producer correction is not equivalent to the complete Issue acceptance.
 PRs #629, #631, #633 and #634 target `work`; #630 is closed without merging and points to #634. [PR #632](https://github.com/aharada54914/sdd-forge/pull/632) is a separate CI follow-up stacked on #629: re-read unfinished job metadata under one shared 60-second deadline without weakening identity or aggregation. Local collector/planner tests pass (89/54). Native run 39820601216 attempt 1 passed at source `232e940f`, tested merge `e2da7032`: 448 verified obligations plus one expected skip, all execution origins from attempt 1. PR #632 is closed without merging as superseded by #634, which includes the same collector code/tests and now has a successful combined native result. The successful native run does not prove that the refresh branch was exercised; original incident observation bytes remain unavailable.
 
-PRs #629 and #634 are ready for review; #631 and #633 remain draft. No PR has been merged. Merging the entire modernization branch into `main` is a separate integration action. Live checks and the exact tested merge revision are authoritative; a passing draft PR does not satisfy formal feature reviews.
+PRs #629, #634 and #635 are merged into `work`; #631 and #633 remain draft. Merging the entire modernization branch into `main` is a separate integration action. Live checks and the exact tested merge revision are authoritative; a passing draft PR does not satisfy formal feature reviews.
 
 Coding and draft corrections were delegated to actual Claude CLI sessions;
 separate content checks and native CI supplied additional evidence. Claude completed the #619/#620 fixes, #614/#594 drafts and CI refresh corrections. During #605 drafting it reported a session limit: `resets 9:10pm (UTC)` on 2026-10-22. Do not retry before **2026-10-22 21:10 UTC / 2026-10-23 06:10 JST**; verify availability after that time before delegating again. Codex completed the interrupted docs-only packet; remaining CI verification is recorded separately. After reset, inspect the current branch before resuming any prior Claude context so that completed fallback work is not duplicated.

@@ -311,9 +311,15 @@ if ($selectedModel) {
     $verified = $record | ConvertTo-Json -Depth 6 | & python3 $validator @modelArguments
     if ($LASTEXITCODE -ne 0) { exit 1 }
     # Only publish after every linked artifact and explicit actor field is checked.
-    $verified | Set-Content -Encoding Utf8 $out
+    # Keep Set-Content's framing: each validator stdout line ends with a native newline.
+    $outText = ''
+    foreach ($line in $verified) { $outText += [string]$line + [Environment]::NewLine }
 } else {
-    $record | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $out
+    $outText = ($record | ConvertTo-Json -Depth 6) + [Environment]::NewLine
 }
+# Issue #619: Set-Content -Encoding Utf8 writes a BOM on Windows PowerShell 5.1.
+# .NET resolves relative paths against the process directory, not the PS location.
+$outFullPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($out)
+[System.IO.File]::WriteAllText($outFullPath, $outText, (New-Object System.Text.UTF8Encoding($false)))
 Write-Host "emit-run-record: wrote $out"
 exit 0
