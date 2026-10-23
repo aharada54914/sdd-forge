@@ -198,10 +198,12 @@ $gitGeneratedDirty = (-not [string]::IsNullOrWhiteSpace(($statusResult | Out-Str
 
 function Get-SpecRevision {
     param([Parameter(Mandatory)][string]$FeatureSlug, [Parameter(Mandatory)][string]$AbsRoot)
+    # Windows PowerShell 5.1 accepts only Path and ChildPath for Join-Path.
+    $specDir = Join-Path (Join-Path $AbsRoot "specs") $FeatureSlug
     $specFiles = @(
-        (Join-Path $AbsRoot "specs" $FeatureSlug "requirements.md"),
-        (Join-Path $AbsRoot "specs" $FeatureSlug "design.md"),
-        (Join-Path $AbsRoot "specs" $FeatureSlug "acceptance-tests.md")
+        (Join-Path $specDir "requirements.md"),
+        (Join-Path $specDir "design.md"),
+        (Join-Path $specDir "acceptance-tests.md")
     )
     $hasher = [System.Security.Cryptography.SHA256]::Create()
     $foundAny = $false
@@ -479,9 +481,13 @@ if (-not (Test-Path $outputDir)) {
     New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 }
 
-$bundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $resolvedOutputPath
-# Ensure trailing newline
-Add-Content -Value "" -Encoding Utf8 $resolvedOutputPath
+# Issue #619: Set-Content -Encoding Utf8 writes a BOM on Windows PowerShell 5.1.
+# .NET resolves relative paths against the process directory, not the PS location.
+# The second newline is the former Add-Content trailing-newline append.
+$bundleFullPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($resolvedOutputPath)
+[System.IO.File]::WriteAllText($bundleFullPath,
+    (($bundle | ConvertTo-Json -Depth 6) + [Environment]::NewLine + [Environment]::NewLine),
+    (New-Object System.Text.UTF8Encoding($false)))
 
 $artifactCount = $artifacts.Count
 $shortCommit = $gitCommit.Substring(0, 12)

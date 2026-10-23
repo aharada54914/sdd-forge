@@ -290,7 +290,12 @@ Rules:
     $verdict.feature = $Feature
     $verdict.vendor  = "google"
 
-    $verdict | ConvertTo-Json -Depth 10 | Set-Content -Encoding Utf8 -Path $outPath
+    # Issue #619: Set-Content -Encoding Utf8 writes a BOM on Windows PowerShell 5.1.
+    # .NET resolves relative paths against the process directory, not the PS location.
+    $outFullPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($outPath)
+    [System.IO.File]::WriteAllText($outFullPath,
+        (($verdict | ConvertTo-Json -Depth 10) + [Environment]::NewLine),
+        (New-Object System.Text.UTF8Encoding($false)))
     [Console]::Error.WriteLine("run-panelist-gemini: verdict written to $outPath")
     Write-Host $outPath
 
