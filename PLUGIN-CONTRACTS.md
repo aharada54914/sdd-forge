@@ -465,6 +465,41 @@ candidates, not that the script attempted an illegal write.
 
 ---
 
+## Review host registration helper → review validators
+
+`plugins/sdd-quality-loop/scripts/initialize-review-identity.py` writes only
+`review-identity-ledger/v1` records the Bash/PowerShell review-context validators
+already accept, plus append-mode receipts.
+
+| Mode | Arguments | Success line (exit 0) |
+|---|---|---|
+| fresh Copilot (unchanged) | `--root R --copilot-events E` | `REVIEW_HOST_REGISTERED` |
+| Claude append | `--root R --register-existing --claude-result F --claude-transcript T` | `REVIEW_HOST_REGISTERED sequence=N record_sha256=H run_id=S host_session_id=S` (suffix ` unpublished_receipt=completes` when finishing an interrupted append) or `REVIEW_HOST_ALREADY_REGISTERED …` |
+| Claude check | same plus `--check-only` | `REVIEW_HOST_CHECK_REGISTRABLE …` or `REVIEW_HOST_ALREADY_REGISTERED …`; writes nothing |
+
+Refusals exit 1 with one line: `REVIEW_HOST_BLOCKED:`, `REVIEW_HOST_BUSY:` (lock held;
+retry) or `REVIEW_HOST_UNPUBLISHED:` (receipt without ledger record, or a receipt still
+hard-linked to exactly one staging name after an interrupted write; preserved, never
+mutated — see the boundary reference for the manual recovery). Messages
+are fixed text and never contain input content. Mixing modes, missing append inputs or
+unknown options exit 2. There is no option to choose run/session IDs, role, or ledger path.
+
+Append writes one `host`/`orchestrator` record (`sequence` = tip + 1,
+`previous_record_sha256` = tip hash, no `allowed_inputs_sha256` or
+`scratch_declaration_sha256`) and one receipt
+`reports/review-context/host-registrations/<record_sha256>.json` with schema
+`review-host-registration/v1` and exactly the keys `schema`, `host`, `source_kind`,
+`cli_version`, `canonical_root`, `result` (`sha256`, `bytes`), `transcript` (`path`,
+`sha256`, `bytes`), `run_id`, `host_session_id`, `sequence`, `record_sha256`,
+`ledger_before_sha256`, `ledger_after_sha256`, `before_record_count`, `receipt_sha256`
+(SHA-256 of the compact sorted-key JSON of the other keys; corruption detection, not a
+signature). Existing record values and order are preserved; whole-file bytes are not.
+Consumers that read the ledger at its fixed path are unaffected by the receipt
+directory; the fresh mode still treats any review-context entry as prior history.
+Behaviour, supported scope and trust limits: `plugins/sdd-review-loop/references/review-context-boundary.md`.
+
+---
+
 ## Plugin Dependency Declarations
 
 The `Depends On` column is authoritative for the nine plugins accepted by
