@@ -323,6 +323,27 @@ class RepositorySyntaxTests(unittest.TestCase):
         rc, report = self.run_checker(fixture.root, python_args=('-I', '-B', '-S'))
         self.assertEqual((rc, report['result'], report['category']), (2, 'error', 'dependency_missing'), report)
 
+    def test_argument_errors_use_the_json_envelope_without_echo(self):
+        fixture = self.fixture()
+        fixture.stage()
+        cases = {
+            'unknown option': (fixture.root, '--' + CANARY),
+            'unknown option value': (fixture.root, '--exclude=' + CANARY),
+            'stray positional': (fixture.root, CANARY),
+            'missing --path value': (fixture.root, '--path'),
+            'missing --root value': (None, '--root'),
+        }
+        for name, (root, *args) in cases.items():
+            with self.subTest(name):
+                rc, report = self.run_checker(root, *args)
+                self.assertEqual((rc, report), (2, {'schema': 'repository-syntax-check/v1',
+                                                    'result': 'error', 'category': 'usage'}))
+        # --help keeps argparse's normal text and success exit.
+        result = subprocess.run([PYTHON, '-I', '-B', str(SCRIPT), '--help'],
+                                capture_output=True, text=True, check=False)
+        self.assertEqual((result.returncode, result.stderr), (0, ''))
+        self.assertTrue(result.stdout.startswith('usage:'), result.stdout)
+
 
 if __name__ == '__main__':
     unittest.main()

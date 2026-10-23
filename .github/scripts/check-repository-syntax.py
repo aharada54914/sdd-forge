@@ -119,6 +119,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('--root', default=str(Path(__file__).resolve().parents[2]))
     parser.add_argument('--path', action='append', default=[])
+    # Argument errors use the fixed envelope; argparse's message would echo user input.
+    parser.error = lambda message: stop('usage')
     options = parser.parse_args()
     try:
         import yaml
