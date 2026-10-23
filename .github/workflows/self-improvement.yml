@@ -107,6 +107,15 @@ jobs:
             > "$RUNNER_TEMP/pre_session_pr_refs.txt" \
             || : > "$RUNNER_TEMP/pre_session_pr_refs.txt"
 
+      # Pinned general YAML parser for the prompt's step-4 syntax check (issue #620).
+      # A missing parser makes the checker exit nonzero; it is never a successful skip.
+      - name: Install repository syntax parser
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/repository-syntax-python"
+          "$RUNNER_TEMP/repository-syntax-python/bin/pip" install -r tests/repository-syntax-requirements.txt
+          echo "SDD_SYNTAX_PYTHON=$RUNNER_TEMP/repository-syntax-python/bin/python" >> "$GITHUB_ENV"
+
       # Same native version/install operation as the pinned action. A custom SDK executable
       # skips its installer, so retain it here before preparing the managed boundary.
       - name: Install native Claude for managed action

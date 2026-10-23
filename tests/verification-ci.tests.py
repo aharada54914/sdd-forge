@@ -1105,17 +1105,22 @@ from pathlib import Path
 args=sys.argv[1:]
 assert args[0]=='api' and args[args.index('--method')+1]=='GET'
 assert 'X-GitHub-Api-Version: 2026-03-10' in args
-responses=json.loads((Path(__file__).parent/'responses.json').read_text())
-sys.stdout.buffer.write(b'HTTP/2.0 200 OK\\r\\n\\r\\n'+base64.b64decode(responses[args[-1]]))
+here=Path(__file__).parent
+responses=json.loads((here/'responses.json').read_text())
+with (here/'calls.log').open('a') as log:
+    log.write(args[-1]+'\\n')
+value=responses[args[-1]]
+if isinstance(value,list):
+    # Sequenced observations of one endpoint; the final response repeats.
+    value=value[min((here/'calls.log').read_text().splitlines().count(args[-1]),len(value))-1]
+sys.stdout.buffer.write(b'HTTP/2.0 200 OK\\r\\n\\r\\n'+base64.b64decode(value))
 ''')
         fake.chmod(0o755)
         self.environment = {**os.environ, 'PATH': str(self.bin) + os.pathsep + os.environ['PATH']}
         self.original_jobs = copy.deepcopy(self.jobs)
         self.original_receipts = copy.deepcopy(self.receipts)
 
-    def collect_cli(self, mutate=None, expected=0):
-        self.serial += 1
-        target = self.scratch / ('collected-' + str(self.serial))
+    def serve(self, mutate=None):
         prefix = '/repos/owner/repo/actions'
         responses: dict[str, Any] = {prefix + '/runs/123': copy.deepcopy(self.api_run)}
         for attempt in range(1, self.api_run['run_attempt'] + 1):
@@ -1132,10 +1137,21 @@ sys.stdout.buffer.write(b'HTTP/2.0 200 OK\\r\\n\\r\\n'+base64.b64decode(response
         responses[prefix + '/runs/123/artifacts?per_page=100'] = dict(total_count=len(artifacts), artifacts=artifacts)
         if mutate:
             mutate(responses)
-        wire = {endpoint: base64.b64encode(value if isinstance(value, bytes) else P.canonical(value)).decode()
+        def encode(value):
+            return base64.b64encode(value if isinstance(value, bytes) else P.canonical(value)).decode()
+        wire = {endpoint: [encode(v) for v in value] if isinstance(value, list) else encode(value)
                 for endpoint, value in responses.items()}
         (self.bin / 'responses.json').write_text(json.dumps(wire))
-        command = [sys.executable, '-B', str(SCRIPT), 'collect', '--repository', 'owner/repo',
+        (self.bin / 'calls.log').write_text('')
+
+    def calls(self):
+        return (self.bin / 'calls.log').read_text().splitlines()
+
+    def collect_cli(self, mutate=None, expected=0):
+        self.serial += 1
+        target = self.scratch / ('collected-' + str(self.serial))
+        self.serve(mutate)
+        command =[sys.executable, '-B', str(SCRIPT), 'collect', '--repository', 'owner/repo',
                    '--run-id', '123', '--output-dir', str(target)]
         result = subprocess.run(command, env=self.environment, capture_output=True, text=True)
         self.assertNotIn('Traceback', result.stdout + result.stderr)
@@ -1394,6 +1410,153 @@ sys.stdout.buffer.write(b'HTTP/2.0 200 OK\\r\\n\\r\\n'+base64.b64decode(response
                     self.assertEqual(json.loads(output.read_text()), payload)
                     self.assertFalse(result.stderr)
 
+    # Issue 619: a jobs list can still report an execution job in progress after it
+    # completed. Only observed nonterminal rows are re-read, by individual GET.
+    def stale(self, job):
+        job.update(status='in_progress', conclusion=None, completed_at=None)
+        job['steps'][-1].update(status='in_progress', conclusion=None, completed_at=None)
+        return job
+
+    def collect_refreshing(self, details, mutate=None):
+        """Real collector and fake gh transport in process, so refresh delays are observable."""
+        def respond(responses):
+            if mutate:
+                mutate(responses)
+            for jid, sequence in details.items():
+                responses[f'/repos/owner/repo/actions/jobs/{jid}'] = sequence
+        self.serve(respond)
+        self.serial += 1
+        target = self.scratch / ('collected-' + str(self.serial))
+        with patch.dict(os.environ, PATH=self.environment['PATH']), patch('time.sleep') as sleep:
+            self.ci.collect('owner/repo', '123', target)
+        return target, sleep
+
+    def refreshes(self):
+        return [call for call in self.calls() if call.startswith('/repos/owner/repo/actions/jobs/')]
+
+    def runner_rows(self, result, runner):
+        ids = {o['id'] for o in self.plan['obligations'] if o['runner'] == runner}
+        return [row for row in result['results'] if row['obligation_id'] in ids]
+
+    def test_issue619_stale_nonterminal_job_refreshes_to_actual_terminal_response(self):
+        completed = copy.deepcopy(self.jobs[0])
+        pending = copy.deepcopy(self.stale(self.jobs[0]))
+        observations, sleep = self.collect_refreshing({100: [pending, completed]})
+        self.assertEqual(self.refreshes(), ['/repos/owner/repo/actions/jobs/100'] * 2)
+        self.assertEqual(sleep.call_count, 1)
+        page = json.loads((observations / 'jobs/1-1.json').read_text())
+        self.assertEqual(page['jobs'][0], completed, 'the actual refreshed response is persisted')
+        result = self.aggregate_cli(observations)
+        self.assertEqual({(r['job_id'], r['source_attempt']) for r in result['results']}, {(100, 1), (101, 1), (102, 1)})
+
+    def test_issue619_perpetual_nonterminal_job_exhausts_budget_and_still_fails(self):
+        pending = copy.deepcopy(self.stale(self.jobs[0]))
+        self.receipts.pop(0)
+        observations, sleep = self.collect_refreshing({100: [pending]})
+        refreshes = self.refreshes()
+        self.assertGreater(len(refreshes), 1, 'a stale nonterminal row is re-read')
+        self.assertEqual(set(refreshes), {'/repos/owner/repo/actions/jobs/100'})
+        self.assertEqual(sleep.call_count, len(refreshes) - 1)
+        self.assertLessEqual(sum(call.args[0] for call in sleep.call_args_list), 60,
+                             'mocked inter-round sleeps stay within the 60-second refresh budget')
+        page = json.loads((observations / 'jobs/1-1.json').read_text())
+        self.assertEqual(page['jobs'][0], pending, 'the real incomplete observation is persisted')
+        result = self.aggregate_cli(observations, expected=1)
+        rows = self.runner_rows(result, 'ubuntu-latest')
+        self.assertTrue(rows)
+        for row in rows:
+            self.assertEqual((row['status'], row['reason'], row['job_id'], row['source_attempt']),
+                             ('FAIL', 'evidence-missing', None, None))
+        self.assertTrue(all(r['status'] == 'PASS' for r in self.runner_rows(result, 'macos-latest')))
+
+    def test_issue619_slow_refreshes_share_one_deadline_and_cap_request_timeouts(self):
+        """Fake clock: each individual job read takes 30 s; three jobs stay unfinished."""
+        for job in self.jobs:
+            self.stale(job)
+        self.receipts = []
+        details = {job['id']: [copy.deepcopy(job)] for job in self.jobs}
+        clock, timeouts, sleeps = [1000.0], [], []
+        real_run = subprocess.run
+        def run(command, **kwargs):
+            if command[-1].startswith('/repos/owner/repo/actions/jobs/'):
+                timeouts.append(kwargs.get('timeout'))
+                clock[0] += 30
+            return real_run(command, **kwargs)
+        def sleep(seconds):
+            sleeps.append(seconds)
+            clock[0] += seconds
+        def respond(responses):
+            for jid, sequence in details.items():
+                responses[f'/repos/owner/repo/actions/jobs/{jid}'] = sequence
+        self.serve(respond)
+        target = self.scratch / 'collected-deadline'
+        with (patch.dict(os.environ, PATH=self.environment['PATH']), patch('time.monotonic', lambda: clock[0]),
+              patch('time.sleep', sleep), patch.object(self.ci.subprocess, 'run', run)):
+            self.ci.collect('owner/repo', '123', target)
+        # 60 s budget: the first read may use all of it, the second only what remains,
+        # and at the deadline no third read, sleep or later round starts.
+        self.assertEqual(self.refreshes(), ['/repos/owner/repo/actions/jobs/100', '/repos/owner/repo/actions/jobs/101'])
+        self.assertEqual(timeouts, [60, 30])
+        self.assertEqual(sleeps, [])
+        page = json.loads((target / 'jobs/1-1.json').read_text())
+        self.assertEqual(page['jobs'], [details[j['id']][0] for j in self.jobs], 'actual unfinished rows persist')
+        result = self.aggregate_cli(target, expected=1)
+        for row in result['results']:
+            self.assertEqual((row['status'], row['reason'], row['job_id']), ('FAIL', 'evidence-missing', None))
+
+    def test_issue619_refreshed_wrong_identity_rejects_collection(self):
+        completed = copy.deepcopy(self.jobs[0])
+        self.stale(self.jobs[0])
+        for field, value in (('id', 999), ('run_id', 124), ('run_attempt', 2), ('head_sha', 'b' * 40),
+                             ('name', 'test (macos-latest)'), (None, [completed])):
+            with self.subTest(field=field):
+                wrong = value if field is None else {**copy.deepcopy(completed), field: value}
+                with self.assertRaises(ValueError):
+                    self.collect_refreshing({100: [wrong]})
+                self.assertIn('/repos/owner/repo/actions/jobs/100', self.refreshes())
+                self.assertFalse((self.scratch / f'collected-{self.serial}' / 'collection.json').exists())
+
+    def test_issue619_terminal_failure_is_not_refreshed_or_retried(self):
+        self.jobs[0]['conclusion'] = 'failure'
+        self.jobs[0]['steps'][-1]['conclusion'] = 'failure'
+        observations, sleep = self.collect_refreshing({})
+        self.assertEqual(self.refreshes(), [])
+        sleep.assert_not_called()
+        result = self.aggregate_cli(observations, expected=1)
+        for row in self.runner_rows(result, 'ubuntu-latest'):
+            self.assertEqual((row['status'], row['reason'], row['job_id']), ('FAIL', 'execution-failed', 100))
+
+    def test_issue619_active_control_is_never_awaited(self):
+        completed = copy.deepcopy(self.jobs[0])
+        self.stale(self.jobs[0])
+        self.jobs.append(dict(id=999, run_id=123, run_attempt=1, head_sha=self.revision, name='required-checks',
+                              labels=['ubuntu-latest'], runner_id=2000, runner_name='host-control',
+                              status='in_progress', conclusion=None, started_at='2026-10-19T10:02:00Z',
+                              completed_at=None, steps=[dict(name='Collect actual same-run execution observations',
+                                                             number=1, status='in_progress', conclusion=None,
+                                                             started_at='2026-10-19T10:02:00Z', completed_at=None)]))
+        observations, sleep = self.collect_refreshing({100: [completed]})
+        self.assertEqual(self.refreshes(), ['/repos/owner/repo/actions/jobs/100'])
+        sleep.assert_not_called()
+        self.aggregate_cli(observations)
+
+    def test_issue619_older_success_cannot_mask_latest_incomplete_attempt(self):
+        self.rerun()
+        for job in self.jobs[:3]:
+            job['conclusion'] = 'success'
+            job['steps'][-1]['conclusion'] = 'success'
+        for _, _, receipt, _, _ in self.receipts[:3]:
+            receipt['results'][0].update(status='passed', exit_code=0)
+        pending = copy.deepcopy(self.stale(self.jobs[3]))
+        self.receipts.pop(3)
+        observations, _ = self.collect_refreshing({200: [pending]})
+        self.assertTrue(self.refreshes())
+        self.assertEqual(set(self.refreshes()), {'/repos/owner/repo/actions/jobs/200'})
+        result = self.aggregate_cli(observations, expected=1)
+        for row in self.runner_rows(result, 'ubuntu-latest'):
+            self.assertEqual((row['status'], row['reason'], row['job_id']), ('FAIL', 'evidence-missing', None))
+        self.assertEqual({(r['job_id'], r['source_attempt']) for r in result['results'] if r['status'] == 'PASS'},
+                         {(201, 2), (202, 2)})
 
 
 class DependencyCacheIntegrationTests(unittest.TestCase):

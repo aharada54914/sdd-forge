@@ -515,6 +515,22 @@ $panelistRunners = @(
         Fail "CM-015: aggregate JSON not created"
     }
 
+    # CM-016 (issue #619): aggregate bytes per real producer runtime. The helper
+    # launches the producer itself, so each run proves only the runtime it names.
+    $encodingHelper = Join-Path $PSScriptRoot "cross-model-encoding.tests.ps1"
+    $currentRuntime = (Get-Process -Id $PID).Path
+    & $currentRuntime -NoProfile -ExecutionPolicy Bypass -File $encodingHelper -Producer $currentRuntime -ExpectEdition Core
+    if ($LASTEXITCODE -eq 0) { Ok "CM-016: aggregate is BOM-free strict JSON under current pwsh" }
+    else { Fail "CM-016: aggregate encoding check failed under current pwsh" }
+    $desktop = if ($IsWindows) { Get-Command powershell.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1 }
+    if ($desktop) {
+        & $desktop.Source -NoProfile -ExecutionPolicy Bypass -File $encodingHelper -Producer $desktop.Source -ExpectEdition Desktop
+        if ($LASTEXITCODE -eq 0) { Ok "CM-016: aggregate is BOM-free strict JSON under Windows PowerShell 5.1" }
+        else { Fail "CM-016: aggregate encoding check failed under Windows PowerShell 5.1" }
+    } else {
+        Write-Host "SKIP: CM-016 Windows PowerShell 5.1 producer not available on this host; 5.1 aggregate encoding unverified here"
+    }
+
     # ============================================================================
     # TEST-003 / TEST-012: PowerShell runner timeout configuration
     # ============================================================================

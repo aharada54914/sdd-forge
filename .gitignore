@@ -16,3 +16,7 @@ AGENT_STOP
 # R-10 scratchpad handoff leftovers (human-cp staging areas; never commit)
 scratchpad-T006/
 scratchpad-T007/
+
+# Weekly self-improvement managed-prepare runtime outputs (issue #620). Root only:
+# nested or similarly named directories and force-added files stay syntax candidates.
+/.sdd-self-improvement/

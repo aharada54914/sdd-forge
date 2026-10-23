@@ -618,6 +618,11 @@
       "delegated_to": "tests/cross-model.tests.ps1"
     },
     {
+      "path": "tests/cross-model-encoding.tests.ps1",
+      "runtime": "powershell",
+      "delegated_to": "tests/cross-model.tests.ps1"
+    },
+    {
       "path": "tests/cross-model-process-state.tests.py",
       "runtime": "python",
       "delegated_to": "tests/cross-model.tests.sh"
@@ -1550,6 +1555,13 @@
       "runtime": "bash",
       "ci_jobs": [
         "test"
+      ]
+    },
+    {
+      "path": "tests/repository-syntax.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
       ]
     },
     {
@@ -2493,7 +2505,8 @@
       "tests/model-policy.tests.py",
       "tests/model-policy-launch.tests.py",
       "tests/model-policy-launch-platform.tests.py",
-      "tests/model-policy-installed.tests.py"
+      "tests/model-policy-installed.tests.py",
+      "tests/repository-syntax.tests.py"
     ],
     "local-powershell": [
       "tests/cloud-orchestration-contracts.tests.py",
@@ -2738,7 +2751,8 @@
       "tests/supplemental-delivery-declaration.tests.py",
       "tests/t001-evaluation-preparation.tests.py",
       "tests/model-policy-launch.tests.py",
-      "tests/model-policy-installed.tests.py"
+      "tests/model-policy-installed.tests.py",
+      "tests/repository-syntax.tests.py"
     ],
     "ci-a7-native": [
       "tests/golden-baseline-contract.tests.ps1",
