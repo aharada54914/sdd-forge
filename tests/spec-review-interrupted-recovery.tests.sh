@@ -33,6 +33,9 @@ def chain_record(seq,stage,role,run,session,previous,binding=None):
  record['record_sha256']=sha(payload.encode());return record
 
 def fixture(root):
+ for ext in ("sh","ps1"):
+  path=f"plugins/sdd-quality-loop/scripts/validate-review-context-set.{ext}"
+  put(root,path,(ROOT/path).read_bytes())
  for name in ('requirements.md','acceptance-tests.md','investigation.md'):
   put(root,f'specs/{FEATURE}/{name}',('Spec-Review-Status: Pending\n' if name=='requirements.md' else '')+'Synthetic disposable fixture.\n')
  put(root,CAL,(ROOT/CAL).read_bytes())
@@ -53,6 +56,11 @@ def fixture(root):
   dump(root,PRIOR+'/reviewer-'+role+'.json',dict(schema='spec-reviewer-'+role+'/v1',stage='spec',**identity,verdict='NEEDS_WORK' if i==0 else 'PASS',checks=checks if i==0 else [dict(id=id,result='PASS',severity='Minor',finding='Synthetic pass') for id in ids_b]))
  dump(root,PRIOR+'/integrated-verdict.json',dict(schema='spec-review-integrated-verdict/v1',stage='spec',feature=FEATURE,attempt=3,round=2,reviewer_a_run_id=reviewers[0]['run_id'],reviewer_b_run_id=reviewers[1]['run_id'],reviewer_a_host_session_id=reviewers[0]['host_session_id'],reviewer_b_host_session_id=reviewers[1]['host_session_id'],finding_counts=dict(critical=0,major=1,minor=0),verdict='NEEDS_WORK',warningCount=0))
  dump(root,PRIOR+'/spec-review-contract.json',dict(schema='spec-review-contract/v1',stage='spec',feature=FEATURE,attempt=3,round=2,requirements_sha256=pre['requirements_sha256'],acceptance_sha256=pre['acceptance_sha256'],investigation_sha256=pre['investigation_sha256'],reviewers=reviewers,run_id='synthetic-prior-orchestrator',verdict='NEEDS_WORK',warningCount=0))
+ investigation_path=f'specs/{FEATURE}/investigation.md'
+ put(root,investigation_path,(root/investigation_path).read_bytes()+b'Synthetic correction after NEEDS_WORK.\n')
+ pins=sorted([ref(root,f'specs/{FEATURE}/{name}') for name in ('requirements.md','acceptance-tests.md','investigation.md')]+[ref(root,CAL)],key=lambda pin:pin['path'])
+ pre['investigation_sha256']=digest(root/investigation_path)
+ pre['input_sha256']=sha(':'.join(pre[key] for key in ('requirements_sha256','acceptance_sha256','investigation_sha256')).encode())
  pre['round']=3;pre['edit_summary']='Synthetic source correction';dump(root,SOURCE+'/precheck-result.json',pre)
  genesis=chain_record(1,'host','orchestrator','synthetic-host','synthetic-host-session','')
  dump(root,LEDGER,dict(schema='review-identity-ledger/v1',records=[genesis]))
@@ -64,7 +72,7 @@ def fixture(root):
  dump(root,LEDGER,dict(schema='review-identity-ledger/v1',records=[genesis,reserved]))
  put(root,SOURCE+'/reviewer-a-reservation.txt',f"REVIEW_CONTEXT_OK {reserved['record_sha256']} sequence=2 previous_record_sha256={genesis['record_sha256']} pre_append_tip_sequence=1 identity_unique=yes\n")
  dump(root,SOURCE+'/reviewer-a-host-receipt.json',dict(host='Synthetic disposable host',rpc='thread/start',threadId=invocation['host_session_id'],sessionId=invocation['host_session_id'],review_execution_started=False))
- dump(root,SOURCE+'/reviewer-a.json',dict(schema='spec-reviewer-a/v1',stage='spec',role='spec-reviewer-a',run_id=invocation['run_id'],host_session_id=invocation['host_session_id'],allowed_input_manifest=inputs,verdict='BLOCKED',checks=[dict(id=id,result='FAIL',severity='Major',finding='Review blocked before substantive reading because manifest hash verification was denied.') for id in ids_a]))
+ dump(root,SOURCE+'/reviewer-a.json',dict(schema='spec-reviewer-a/v1',stage='spec',role='spec-reviewer-a',run_id=invocation['run_id'],host_session_id=invocation['host_session_id'],allowed_input_manifest=inputs,verdict='BLOCKED',checks=[dict(id=id,result='SKIP' if id=='DOMAIN-CONFORMANCE' else 'FAIL',severity='Major',finding='Explicit skip condition supplied: the domain directory is absent.' if id=='DOMAIN-CONFORMANCE' else 'Review blocked before substantive reading because manifest hash verification was denied.') for id in ids_a]))
  put(root,SOURCE+'/spec-review-report.md','# Synthetic interruption diagnostic\n\nExecution: BLOCKED before substantive review\n\nReviewer B was not launched following the launch-boundary stop.\n')
  inventory=sorted([ref(root,SOURCE+'/'+n) for n in ('precheck-result.json','reviewer-a.json','reviewer-a-reservation.txt','reviewer-a-host-receipt.json','spec-review-report.md')]+[ref(root,INV)],key=lambda x:x['path'])
  record=dict(schema='spec-review-interrupted-recovery/v1',feature=FEATURE,source=dict(attempt=3,round=3),target=dict(attempt=4,round=1),authorization=dict(path=AUTH,sha256='0'*64),previous_contract=ref(root,PRIOR+'/spec-review-contract.json'),interrupted_precheck=ref(root,SOURCE+'/precheck-result.json'),pinned_inputs=pins,interrupted_artifacts=inventory,reviewer_a=dict(invocation=ref(root,INV),sequence=2,stage='spec',role='spec-reviewer-a',run_id=invocation['run_id'],host_session_id=invocation['host_session_id'],record_sha256=reserved['record_sha256']))
@@ -157,15 +165,18 @@ def mutations(record):
   elif type(current)is dict:values += [('array',[])]
   elif type(current)is list:values += [('object',{})]
   for name,value in values:add(f'TEST-051-F{index:02}::{label}::{name}',setfield(path,value),False)
+  if type(current)is str:
+   for name,value in [('boolean-true',True),('array-value',[current]),('object-value',{'value':current}),('number',1)]:
+    add(f'TEST-051-F{index:02}::{label}::{name}',setfield(path,value))
  for index,path in enumerate(references,1):
   for field in ('path','sha256'):
    add(f'TEST-050::reference-{index:02}.{field}::missing',delete(path+(field,)),False)
    add(f'TEST-051::reference-{index:02}.{field}::null',setfield(path+(field,),None),False)
   for name,value in [('null',None),('uppercase','A'*64),('nonhex','g'*64),('short','a'*63),('incorrect','0'*64)]:
-   add(f'TEST-057-H{index:02}::{name}',setfield(path+('sha256',),value),False)
-  add(f'TEST-057-H{index:02}::missing',delete(path+('sha256',)),False)
+   add(f'TEST-057-H{index:02}::{name}',setfield(path+('sha256',),value),index!=1)
+  add(f'TEST-057-H{index:02}::missing',delete(path+('sha256',)),index!=1)
   for name,value in [('empty',''),('absolute','/tmp/synthetic'),('drive','C:/synthetic'),('traversal','../synthetic'),('dot','./synthetic'),('empty-segment','synthetic//file'),('backslash','synthetic\\file'),('tab','synthetic\tfile'),('newline','synthetic\nfile'),('nul','synthetic\0file'),('control','synthetic\x1ffile'),('del','synthetic\x7ffile')]:
-   add(f'TEST-083-P{index:02}::{name}',setfield(path+('path',),value),False)
+   add(f'TEST-083-P{index:02}::{name}',setfield(path+('path',),value),index!=1)
  # Every closed object, including every distinct reference occurrence.
  objects=[(),('source',),('target',),('reviewer_a',)]+references
  for path in objects:
@@ -189,6 +200,16 @@ def mutations(record):
    add('TEST-053::'+label+('::escaped-duplicate' if escaped else '::duplicate'),duplicate,False)
  for test,path,value in [('044',('schema',),'wrong/v1'),('054',('schema',),'SPEC-review-interrupted-recovery/v1'),('045',('feature',),'other-feature'),('046',('source','attempt'),2),('047',('source','round'),2),('048',('target','attempt'),5),('049',('target','round'),2),('009',('source','attempt'),2),('010',('target','attempt'),5),('011',('target','round'),2)]:
   add('TEST-'+test+'::value',setfield(path,value))
+
+ for encoding in ('utf-16','utf-16-be','utf-8-sig'):
+  def record_encoding(root,rec,encoding=encoding):
+   raw=json.dumps(rec).encode(encoding)
+   if encoding=='utf-16-be':raw=b'\xfe\xff'+raw
+   put(root,RECORD,raw);return 'raw'
+  add('TEST-056::record-encoding::'+encoding,record_encoding,False)
+ def authorization_utf16(root,rec):
+  put(root,AUTH,(root/AUTH).read_text().encode('utf-16'));rec['authorization']=ref(root,AUTH)
+ add('TEST-035::authorization-UTF16',authorization_utf16,False)
  def corrupt(root,rec):put(root,RECORD,'{ malformed');return 'raw'
  add('TEST-056::malformed',corrupt,False)
  def status(value):
@@ -235,6 +256,148 @@ def mutations(record):
  add('TEST-079::later-valid-record',later,False,True)
  def reorder(root,rec):put(root,RECORD,json.dumps(dict(reversed(list(rec.items()))),ensure_ascii=False,separators=(', ',': '))+'\n');return 'raw'
  add('CONTROL::canonical-binding-key-order-and-whitespace',reorder,False,True)
+
+ # Exact source/identity sibling mutations: update raw enclosing references and the
+ # authorization digest, leaving only the intended semantic counterpart wrong.
+ def repin(root,rec,path):
+  for pin in rec['interrupted_artifacts']+[rec['previous_contract'],rec['interrupted_precheck'],rec['reviewer_a']['invocation']]:
+   if pin['path']==path:pin['sha256']=digest(root/path)
+ def nested_file(path,field,value,remove=False):
+  def edit(root,rec):
+   obj=load(root,path);target=at(obj,field[:-1])
+   if remove:target.pop(field[-1],None)
+   else:target[field[-1]]=value
+   dump(root,path,obj);repin(root,rec,path)
+   if path==PRIOR+'/integrated-summary.json':
+    # Refresh both owning manifests and the contract reference so the chosen
+    # summary inconsistency reaches own-stage semantics, not an old hash.
+    contract=load(root,PRIOR+'/spec-review-contract.json')
+    raw_b=load(root,PRIOR+'/reviewer-b.json')
+    for manifest in (contract['reviewers'][1]['allowed_input_manifest'],raw_b['allowed_input_manifest']):
+     for pin in manifest:
+      if pin['path']==path:pin['sha256']=digest(root/path)
+    dump(root,PRIOR+'/reviewer-b.json',raw_b)
+    dump(root,PRIOR+'/spec-review-contract.json',contract)
+    repin(root,rec,PRIOR+'/spec-review-contract.json')
+  return edit
+ for field,value in [('schema','wrong/v1'),('stage','impl'),('feature','other-feature'),('attempt',2),('round',1),('run_id',''),('warningCount',1),('requirements_sha256','0'*64),('acceptance_sha256','0'*64),('investigation_sha256','0'*64)]:
+  add('TEST-017::prior-contract::'+field,nested_file(PRIOR+'/spec-review-contract.json',(field,),value))
+ for field,value in [('schema','wrong/v1'),('attempt',1),('round',1),('generated_at',None),('reviewer_a_fail_count',0),('reviewer_a_pass_count',0),('reviewer_a_skip_count',1)]:
+  add('TEST-021::summary::'+field,nested_file(PRIOR+'/integrated-summary.json',(field,),value))
+ for field,value in [('id','wrong-check'),('result','SKIP'),('severity','Critical')]:
+  add('TEST-021::summary-check::'+field,nested_file(PRIOR+'/integrated-summary.json',('reviewer_a_checks',0,field),value))
+ for index,role in enumerate(('a','b')):
+  for field,value in [('role','wrong-role'),('run_id','synthetic-wrong'),('host_session_id','synthetic-wrong-session')]:
+   add('TEST-022::prior-reviewer-'+role+'::'+field,nested_file(PRIOR+'/spec-review-contract.json',('reviewers',index,field),value))
+  for field,value in [('path','specs/other-feature/requirements.md'),('sha256','0'*64)]:
+   add('TEST-022::prior-reviewer-'+role+'::manifest-'+field,nested_file(PRIOR+'/spec-review-contract.json',('reviewers',index,'allowed_input_manifest',0,field),value))
+  for field,value in [('role','wrong-role'),('run_id','synthetic-wrong'),('host_session_id','synthetic-wrong-session'),('verdict','UNKNOWN')]:
+   add('TEST-022::prior-raw-'+role+'::'+field,nested_file(PRIOR+'/reviewer-'+role+'.json',(field,),value))
+ for field,value in [('schema','wrong/v1'),('stage','impl'),('feature','other-feature'),('attempt',1),('round',1),('reviewer_a_run_id','wrong'),('reviewer_b_run_id','wrong'),('reviewer_a_host_session_id','wrong'),('reviewer_b_host_session_id','wrong'),('warningCount',1),('verdict','BLOCKED')]:
+  add('TEST-023::integrated-verdict::'+field,nested_file(PRIOR+'/integrated-verdict.json',(field,),value))
+ for field in ('critical','major','minor'):
+  add('TEST-023::integrated-verdict::finding_counts.'+field,nested_file(PRIOR+'/integrated-verdict.json',('finding_counts',field),9))
+
+ def rebound_precheck_type(root,rec,key):
+  path=SOURCE+'/precheck-result.json';pre=load(root,path);pre[key]=True;dump(root,path,pre)
+  inv=load(root,INV)
+  for pin in inv['allowed_input_manifest']:
+   if pin['path']==path:pin['sha256']=digest(root/path)
+  dump(root,INV,inv)
+  raw=load(root,SOURCE+'/reviewer-a.json');raw['allowed_input_manifest']=inv['allowed_input_manifest'];dump(root,SOURCE+'/reviewer-a.json',raw)
+  ledger=load(root,LEDGER);binding=sha('\n'.join(pin['path']+'\t'+pin['sha256'] for pin in inv['allowed_input_manifest']).encode())
+  old=ledger['records'][1];new=chain_record(old['sequence'],old['stage'],old['role'],old['run_id'],old['host_session_id'],old['previous_record_sha256'],binding);ledger['records'][1]=new;dump(root,LEDGER,ledger)
+  rec['reviewer_a']['record_sha256']=new['record_sha256']
+  receipt=SOURCE+'/reviewer-a-reservation.txt';put(root,receipt,(root/receipt).read_text().replace(old['record_sha256'],new['record_sha256']))
+  for changed in (path,INV,SOURCE+'/reviewer-a.json',receipt):repin(root,rec,changed)
+ for key in ('schema','stage','feature','spec_review_status_field','requirements_sha256','acceptance_sha256','investigation_sha256','calibration_sha256','input_sha256'):
+  add('TEST-062::rebound-precheck-boolean::'+key,lambda root,rec,key=key:rebound_precheck_type(root,rec,key))
+ for field,value in [('schema','wrong/v1'),('stage','impl'),('feature','other-feature'),('attempt',2),('round',2),('spec_review_status_field','Passed'),('requirements_sha256','0'*64),('acceptance_sha256','0'*64),('investigation_sha256','0'*64),('calibration_sha256','0'*64),('input_sha256','0'*64)]:
+  add('TEST-062::precheck::'+field,nested_file(SOURCE+'/precheck-result.json',(field,),value))
+ for field,value in [('schema','wrong/v1'),('stage','impl'),('role','spec-reviewer-b'),('run_id','wrong'),('host_session_id','wrong'),('verdict','PASS')]:
+  add('TEST-063::raw::'+field,nested_file(SOURCE+'/reviewer-a.json',(field,),value))
+ for field,value in [('result','PASS'),('id','UNKNOWN-CHECK'),('severity','Unknown'),('finding','Completed substantive review: requirement is ambiguous.')]:
+  add('TEST-034::substantive-check::'+field,nested_file(SOURCE+'/reviewer-a.json',('checks',0,field),value))
+ for field in ('id','result','severity'):
+  add('TEST-034::diagnostic-boolean::'+field,nested_file(SOURCE+'/reviewer-a.json',('checks',0,field),True))
+ add('TEST-034::domain-skip-without-unreadability',nested_file(SOURCE+'/reviewer-a.json',('checks',),[dict(id='DOMAIN-CONFORMANCE',result='SKIP',severity='Major',finding='Explicit skip condition supplied: no domain directory.')]))
+ for field,value in [('review_execution_started',None),('review_execution_started','false'),('sessionId','wrong'),('threadId','wrong')]:
+  add('TEST-064::host::'+field+'::'+str(value),nested_file(SOURCE+'/reviewer-a-host-receipt.json',(field,),value))
+
+ for field in ('sessionId','threadId'):
+  add('TEST-064::host-boolean::'+field,nested_file(SOURCE+'/reviewer-a-host-receipt.json',(field,),True))
+ for field in ('schema','stage','role','run_id','host_session_id','verdict'):
+  add('TEST-063::raw-boolean::'+field,nested_file(SOURCE+'/reviewer-a.json',(field,),True))
+ add('TEST-066::invocation-boolean-feature',nested_file(INV,('feature',),True))
+ def overflow_json(root,rec):
+  path=SOURCE+'/reviewer-a-host-receipt.json';raw=(root/path).read_text().rstrip();put(root,path,raw[:-1]+',"unexpected_number":1e999}');repin(root,rec,path)
+ add('TEST-064::host-nonstandard-JSON-overflow',overflow_json)
+ for name,value in [('NaN',float('nan')),('Infinity',float('inf'))]:
+  add('TEST-064::host-nonstandard-JSON-'+name,nested_file(SOURCE+'/reviewer-a-host-receipt.json',('unexpected_number',),value))
+ for field,value in [('schema','wrong/v1'),('input_mode','inline'),('fallback_mode','inline'),('read_only',False),('feature','other-feature'),('identity_ledger_path','reports/other-ledger.json'),('identity_ledger_sha256','INVALID'),('sequence',3),('stage','impl'),('role','spec-reviewer-b'),('run_id','wrong'),('host_session_id','wrong'),('previous_record_sha256','0'*64)]:
+  add('TEST-066::invocation::'+field,nested_file(INV,(field,),value))
+ for field,value in [('path','specs/other-feature/requirements.md'),('sha256','0'*64)]:
+  add('TEST-076::invocation-input::'+field,nested_file(INV,('allowed_input_manifest',0,field),value))
+ for key in ('record_sha256','sequence','previous_record_sha256','pre_append_tip_sequence','identity_unique'):
+  def receipt(root,rec,key=key):
+   path=SOURCE+'/reviewer-a-reservation.txt';text=(root/path).read_text()
+   if key=='record_sha256':text=text.replace(rec['reviewer_a']['record_sha256'],'0'*64)
+   else:text=re.sub(key+r'=[^\s]+',key+'=invalid',text)
+   put(root,path,text);repin(root,rec,path)
+  add('TEST-065::receipt::'+key,receipt)
+ def changed_report(root,rec):
+  path=SOURCE+'/spec-review-report.md';put(root,path,'Execution: BLOCKED before substantive review\nReviewer B was not launched\nVERDICT: PASS\n');repin(root,rec,path)
+ add('TEST-030::final-report-verdict',changed_report)
+ for field,value in [('sequence',3),('stage','impl'),('role','spec-reviewer-b'),('run_id','wrong'),('host_session_id','wrong'),('record_sha256','0'*64),('previous_record_sha256','0'*64),('allowed_inputs_sha256','0'*64)]:
+  add('TEST-'+{'sequence':'069','stage':'072','role':'073','run_id':'070','host_session_id':'071','record_sha256':'074','previous_record_sha256':'075','allowed_inputs_sha256':'076'}[field]+'::persisted::'+field,nested_file(LEDGER,('records',1,field),value),False)
+ add('TEST-075::broken-prefix',nested_file(LEDGER,('records',0,'run_id'),'changed-genesis'),False)
+ def append_reviewer(root,rec,role='b',run='synthetic-b',session='synthetic-session-b',bound=True,manifest=True,other_round=False):
+  ledger=load(root,LEDGER);inv=load(root,INV);inv.update(sequence=3,run_id=run,host_session_id=session,role='spec-reviewer-'+role,previous_record_sha256=ledger['records'][-1]['record_sha256'])
+  if other_round:
+   for pin in inv['allowed_input_manifest']:
+    if pin['path']==SOURCE+'/precheck-result.json':pin.update(ref(root,PRIOR+'/precheck-result.json'))
+  binding=sha('\n'.join(p['path']+'\t'+p['sha256'] for p in inv['allowed_input_manifest']).encode()) if bound else None
+  ledger['records'].append(chain_record(3,'spec','spec-reviewer-'+role,run,session,ledger['records'][-1]['record_sha256'],binding));dump(root,LEDGER,ledger)
+  if manifest:dump(root,f'reports/review-context/{FEATURE}-spec-a3r{2 if other_round else 3}-{role}-invocation.json',inv)
+ def b_invocation(root,rec):
+  inv=load(root,INV);inv.update(role='spec-reviewer-b',run_id='synthetic-b',host_session_id='synthetic-b-session');dump(root,f'reports/review-context/{FEATURE}-spec-a3r3-b-invocation.json',inv)
+ add('TEST-024::B-invocation',b_invocation)
+ for kind in ('omitted-source-pin','misdeclared-feature'):
+  def ambiguous_invocation(root,rec,kind=kind):
+   b_invocation(root,rec);path=f'reports/review-context/{FEATURE}-spec-a3r3-b-invocation.json';inv=load(root,path)
+   if kind=='omitted-source-pin':inv['allowed_input_manifest']=[p for p in inv['allowed_input_manifest'] if p['path']!=SOURCE+'/precheck-result.json']
+   else:inv['feature']='other-feature'
+   dump(root,path,inv)
+  add('TEST-080::canonical-B-'+kind,ambiguous_invocation)
+
+ add('TEST-025::orphan-bound-B',lambda root,rec:append_reviewer(root,rec,manifest=False))
+ add('TEST-080::orphan-unbound-B',lambda root,rec:append_reviewer(root,rec,bound=False,manifest=False))
+ add('TEST-080::unbound-correlated-B',lambda root,rec:append_reviewer(root,rec,bound=False))
+ add('TEST-077::duplicate-persisted-identity',lambda root,rec:append_reviewer(root,rec,role='a',run=rec['reviewer_a']['run_id'],session=rec['reviewer_a']['host_session_id'],manifest=False))
+ add('TEST-078::partial-run-collision',lambda root,rec:append_reviewer(root,rec,run=rec['reviewer_a']['run_id'],manifest=False))
+ add('TEST-078::partial-session-collision',lambda root,rec:append_reviewer(root,rec,session=rec['reviewer_a']['host_session_id'],manifest=False))
+ add('TEST-079::later-valid-other-round-reviewer',lambda root,rec:append_reviewer(root,rec,other_round=True),False,True)
+ def unrelated_b(root,rec):
+  other='synthetic-unrelated-feature';prepath=f'reports/spec-review/{other}/attempt-1/round-1/precheck-result.json'
+  pre=load(root,SOURCE+'/precheck-result.json');pre.update(feature=other,attempt=1,round=1);dump(root,prepath,pre)
+  for name in ('requirements.md','acceptance-tests.md','investigation.md'):
+   put(root,f'specs/{other}/{name}',(root/f'specs/{FEATURE}/{name}').read_bytes())
+  inputs=sorted([ref(root,f'specs/{other}/{name}') for name in ('requirements.md','acceptance-tests.md','investigation.md')]+[ref(root,CAL),ref(root,prepath)],key=lambda pin:pin['path'])
+  ledger=load(root,LEDGER);inv=load(root,INV);inv.update(feature=other,role='spec-reviewer-b',run_id='synthetic-unrelated-b',host_session_id='synthetic-unrelated-b-session',sequence=3,previous_record_sha256=ledger['records'][-1]['record_sha256'],allowed_input_manifest=inputs)
+  dump(root,f'reports/review-context/{other}-spec-a1r1-b-invocation.json',inv)
+  binding=sha('\n'.join(pin['path']+'\t'+pin['sha256'] for pin in inputs).encode())
+  ledger['records'].append(chain_record(3,'spec','spec-reviewer-b',inv['run_id'],inv['host_session_id'],ledger['records'][-1]['record_sha256'],binding))
+  ledger['records'].append(chain_record(4,'host','orchestrator','synthetic-unrelated-host','synthetic-unrelated-host-session',ledger['records'][-1]['record_sha256']))
+  dump(root,LEDGER,ledger)
+ add('TEST-079::later-unrelated-B-shared-calibration-and-host',unrelated_b,False,True)
+
+ add('TEST-008::source-not-latest',setfield(('source','round'),2))
+ add('TEST-036::authorization-raw-hash',setfield(('authorization','sha256'),'0'*64),False)
+ for test,key,value in [('037','Feature','other-feature'),('038','Source Attempt','2'),('039','Target Attempt','5'),('040','Maximum Rounds','4'),('043','Recovery Binding SHA256','0'*64)]:
+  def binding_line(root,rec,key=key,value=value):
+   text=re.sub('^'+key+':.*$',key+': '+value,(root/AUTH).read_text(),flags=re.M);put(root,AUTH,text);rec['authorization']=ref(root,AUTH)
+  add('TEST-'+test+'::binding',binding_line,False)
+ add('TEST-081::prior-contract-raw-hash',setfield(('previous_contract','sha256'),'0'*64),False)
  return cases
 
 def main():
@@ -251,13 +414,17 @@ def main():
    if not ok:failed+=1;print((result.stdout+result.stderr).strip(),flush=True)
    else:passed+=1
   cases=mutations(record)
+  selected=os.environ.get('SDD_RECOVERY_TEST_FILTER')
+  if selected:cases=[case for case in cases if selected in case[0]]
   # An absent predicate is Red, never negative-case success. Preserve designed names,
   # but do not execute hundreds of identical missing-function failures as coverage.
   if result.returncode==90:
    for name,*_ in cases:print('NOT_RUN '+RUNTIME+' '+name+' admission absent',flush=True)
   elif failed==0:
-   for number,(name,edit,reauthorize,accept) in enumerate(cases):
-    target=scratch/'mutation';shutil.copytree(base,target)
+   from concurrent.futures import ThreadPoolExecutor
+   def execute_case(item):
+    number,(name,edit,reauthorize,accept)=item
+    target=scratch/('mutation-'+str(number));shutil.copytree(base,target)
     rec=copy.deepcopy(record);raw=edit(target,rec)
     if raw!='raw':
      if reauthorize:authorize(target,rec)
@@ -266,10 +433,16 @@ def main():
     unchanged=snapshot(target)==before_case
     no_target=not os.path.lexists(target/f'reports/spec-review/{FEATURE}/attempt-4')
     ok=(result.returncode==0 if accept else result.returncode==1) and unchanged and no_target
-    print(('PASS' if ok else 'FAIL')+' '+RUNTIME+' '+name+' exit='+str(result.returncode)+' immutable='+str(unchanged)+' no_target='+str(no_target),flush=True)
-    if not ok:failed+=1;print((result.stdout+result.stderr).strip(),flush=True)
-    else:passed+=1
+    line=('PASS' if ok else 'FAIL')+' '+RUNTIME+' '+name+' exit='+str(result.returncode)+' immutable='+str(unchanged)+' no_target='+str(no_target)
+    detail=(result.stdout+result.stderr).strip()
     shutil.rmtree(target)
+    return ok,line,detail
+   # Independent disposable roots; ordered output retains every named outcome.
+   with ThreadPoolExecutor(max_workers=4) as pool:
+    for ok,line,detail in pool.map(execute_case,enumerate(cases)):
+     print(line,flush=True)
+     if not ok:failed+=1;print(detail,flush=True)
+     else:passed+=1
  print('RESULT '+RUNTIME+' passed='+str(passed)+' failures='+str(failed)+' designed='+str(len(cases)),flush=True)
  return int(failed>0)
 if __name__=='__main__':sys.exit(main())

@@ -428,6 +428,162 @@ validate_contract() {
   [[ "$(jq -r .verdict "$contract")" == "$expected_merged" && "$(jq -r .warningCount "$contract")" == "$expected_warning" ]]
 }
 
+# Pure admission only. The caller owns human-origin verification and publication.
+validate_interrupted_recovery() {
+  local record=$1 metadata source_attempt source_round invocation previous expected_manifest
+  metadata=$(python3 - "$repo_root" "$feature" "$attempt" "$round" "$record" <<'PY'
+import hashlib, json, math, os, pathlib, re, sys
+root=pathlib.Path(sys.argv[1]); feature=sys.argv[2]; attempt=int(sys.argv[3]); round_number=int(sys.argv[4])
+def need(condition,reason):
+    if not condition: raise ValueError(reason)
+def sha(data): return hashlib.sha256(data).hexdigest()
+def canonical(obj): return json.dumps(obj,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode('utf-8')
+def pairs(items):
+    obj={}
+    for key,value in items:
+        need(key not in obj,'duplicate JSON member');obj[key]=value
+    return obj
+def invalid_constant(value): raise ValueError('nonstandard JSON number '+value)
+def finite_float(value):
+    number=float(value);need(math.isfinite(number),'JSON number overflow');return number
+def parse(path): return json.loads(path.read_text(encoding='utf-8'),object_pairs_hook=pairs,parse_constant=invalid_constant,parse_float=finite_float)
+def keys(obj,names): need(type(obj)is dict and set(obj)==set(names.split()),'closed record fields')
+def integer(value): return type(value)is int and value>0
+def digest(value): return type(value)is str and re.fullmatch('[0-9a-f]{64}',value) is not None
+def real(path,directory=False):
+    need(type(path)is str and path and not re.search(r'[\\\x00-\x1f\x7f:]',path),'invalid reference path')
+    parts=path.split('/');need(all(p not in ('','.','..') for p in parts),'noncanonical reference path')
+    current=root
+    for part in parts:
+        current=current/part;need(not current.is_symlink(),'linked reference component')
+        need(os.path.lexists(current),'missing reference component')
+        need(part in os.listdir(current.parent),'reference case differs from directory entry')
+    need(current.is_dir() if directory else current.is_file(),'reference type')
+    return current
+def reference(obj):
+    keys(obj,'path sha256');need(digest(obj['sha256']),'reference SHA256 format')
+    path=real(obj['path']);need(sha(path.read_bytes())==obj['sha256'],'reference SHA256 mismatch');return path
+def sorted_refs(items,count):
+    need(type(items)is list and len(items)==count,'reference inventory size')
+    for item in items:reference(item)
+    paths=[x['path'] for x in items];need(paths==sorted(set(paths)),'reference order or duplicate')
+def relative(path):
+    need(type(path)is str,'invocation path type')
+    value=path.replace('\\','/')
+    prefix=str(root).replace('\\','/')+'/'
+    if value.startswith(prefix):value=value[len(prefix):]
+    return value
+try:
+    record_path=pathlib.Path(sys.argv[5])
+    if record_path.is_absolute():record_path=record_path.relative_to(root)
+    data=parse(real(str(record_path)))
+    keys(data,'schema feature source target authorization previous_contract interrupted_precheck pinned_inputs interrupted_artifacts reviewer_a')
+    need(data['schema']=='spec-review-interrupted-recovery/v1','recovery schema')
+    need(type(data['feature'])is str and re.fullmatch('[a-z0-9][a-z0-9-]*',data['feature']) and data['feature']==feature,'recovery feature')
+    for side in ('source','target'):
+        keys(data[side],'attempt round');need(all(integer(v) for v in data[side].values()),'recovery integer type')
+    source=data['source'];target=data['target'];n=source['attempt'];r=source['round']
+    need(r in (2,3) and target==dict(attempt=attempt,round=round_number) and attempt==n+1 and round_number==1,'source/target transition')
+    report=f'reports/spec-review/{feature}';source_dir=f'{report}/attempt-{n}/round-{r}';prior_dir=f'{report}/attempt-{n}/round-{r-1}'
+    attempt_dir=real(f'{report}/attempt-{n}',True)
+    rounds=[int(p.name[6:]) for p in attempt_dir.iterdir() if re.fullmatch(r'round-[1-3]',p.name)]
+    need(rounds and max(rounds)==r,'source is not latest round')
+    status=real(f'specs/{feature}/requirements.md').read_text(encoding='utf-8').splitlines()
+    need([line for line in status if line.startswith('Spec-Review-Status:')]==['Spec-Review-Status: Pending'],'source status is not exactly Pending')
+    reference(data['authorization']);reference(data['previous_contract']);reference(data['interrupted_precheck'])
+    need(data['previous_contract']['path']==prior_dir+'/spec-review-contract.json','prior contract canonical path')
+    need(data['interrupted_precheck']['path']==source_dir+'/precheck-result.json','source precheck canonical path')
+    sorted_refs(data['pinned_inputs'],4);sorted_refs(data['interrupted_artifacts'],6)
+    expected_inputs={f'specs/{feature}/{name}' for name in ('requirements.md','acceptance-tests.md','investigation.md')}
+    calibration='plugins/sdd-review-loop/references/spec-review-calibration.md';expected_inputs.add(calibration)
+    need({x['path'] for x in data['pinned_inputs']}==expected_inputs,'canonical input paths')
+    pins={x['path']:x['sha256'] for x in data['pinned_inputs']}
+    local_names={'precheck-result.json','reviewer-a.json','reviewer-a-reservation.txt','reviewer-a-host-receipt.json','spec-review-report.md'}
+    invocation_path=f'reports/review-context/{feature}-spec-a{n}r{r}-a-invocation.json'
+    expected_inventory={source_dir+'/'+name for name in local_names}|{invocation_path}
+    inventory={x['path']:x['sha256'] for x in data['interrupted_artifacts']}
+    need(set(inventory)==expected_inventory,'canonical interrupted inventory')
+    source_path=real(source_dir,True)
+    need({p.name for p in source_path.iterdir()}==local_names,'unexpected interrupted source entry')
+    need(data['interrupted_precheck']['sha256']==inventory[source_dir+'/precheck-result.json'],'repeated precheck pin')
+    a=data['reviewer_a'];keys(a,'invocation sequence stage role run_id host_session_id record_sha256')
+    need(integer(a['sequence']) and a['stage']=='spec' and a['role']=='spec-reviewer-a','reviewer identity shape')
+    need(all(type(a[k])is str and a[k].strip() for k in ('run_id','host_session_id')) and digest(a['record_sha256']),'reviewer identity values')
+    reference(a['invocation']);need(a['invocation']==dict(path=invocation_path,sha256=inventory[invocation_path]),'repeated invocation pin')
+    body={k:v for k,v in data.items() if k!='authorization'}
+    expected={'Feature':feature,'Source Attempt':str(n),'Source Round':str(r),'Target Attempt':str(attempt),'Target Round':'1','Maximum Rounds':'3','Decision':'Authorize interrupted A-before-B recovery','Recovery Binding SHA256':sha(canonical(body))}
+    lines=real(data['authorization']['path']).read_text(encoding='utf-8').splitlines()
+    for key,value in expected.items():need([line for line in lines if line.startswith(key+':')]==[key+': '+value],'authorization binding '+key)
+    pre=parse(real(source_dir+'/precheck-result.json'))
+    need(type(pre)is dict and pre.get('schema')=='spec-review-precheck/v1' and pre.get('stage')=='spec' and pre.get('feature')==feature and type(pre.get('attempt'))is int and pre['attempt']==n and type(pre.get('round'))is int and pre['round']==r and pre.get('spec_review_status_field')=='Pending','interrupted precheck identity')
+    hashes=[]
+    for name,key in [('requirements.md','requirements_sha256'),('acceptance-tests.md','acceptance_sha256'),('investigation.md','investigation_sha256')]:
+        pin=pins[f'specs/{feature}/{name}'];need(pre.get(key)==pin,'interrupted precheck input pin');hashes.append(pin)
+    need(pre.get('calibration_sha256')==pins[calibration] and pre.get('input_sha256')==sha(':'.join(hashes).encode()),'interrupted precheck composite/calibration pin')
+    inv=parse(real(invocation_path));need(type(inv)is dict and inv.get('feature')==feature,'invocation feature')
+    for key in ('sequence','stage','role','run_id','host_session_id'):need(type(inv.get(key))is type(a[key]) and inv[key]==a[key],'invocation identity mismatch')
+    expected_manifest=sorted(data['pinned_inputs']+[data['interrupted_precheck']],key=lambda x:x['path'])
+    need(type(inv.get('allowed_input_manifest'))is list,'invocation input manifest')
+    normalized=[dict(path=relative(x.get('path')),sha256=x.get('sha256')) for x in inv['allowed_input_manifest']]
+    need(sorted(normalized,key=lambda x:x['path'])==expected_manifest,'invocation repeated input pins')
+    raw=parse(real(source_dir+'/reviewer-a.json'));host=parse(real(source_dir+'/reviewer-a-host-receipt.json'))
+    need(type(host)is dict and host.get('review_execution_started')is False and host.get('sessionId')==a['host_session_id'] and host.get('threadId')==a['host_session_id'],'interruption host receipt')
+    need(type(raw)is dict and raw.get('schema')=='spec-reviewer-a/v1' and raw.get('stage')=='spec' and raw.get('role')=='spec-reviewer-a' and raw.get('run_id')==a['run_id'] and raw.get('host_session_id')==a['host_session_id'] and raw.get('verdict')=='BLOCKED','interruption raw identity/verdict')
+    need(raw.get('allowed_input_manifest')==inv['allowed_input_manifest'],'raw repeated input pins')
+    checks=raw.get('checks');need(type(checks)is list and checks,'interruption diagnostic checks')
+    for check in checks:
+        need(type(check)is dict and type(check.get('finding'))is str,'interruption diagnostic shape')
+        domain_skip=check.get('id')=='DOMAIN-CONFORMANCE' and check.get('result')=='SKIP' and check['finding'].startswith('Explicit skip condition supplied:')
+        need(domain_skip or (check.get('result')=='FAIL' and check['finding'].startswith('Review blocked before substantive reading') and ('denied' in check['finding'] or 'unreadable' in check['finding'])),'completed substantive reviewer output')
+    report_text=real(source_dir+'/spec-review-report.md').read_text(encoding='utf-8')
+    need('Execution: BLOCKED before substantive review' in report_text.splitlines() and 'Reviewer B was not launched' in report_text and not re.search(r'^(?:VERDICT|Verdict|Integrated Verdict):',report_text,re.M),'source diagnostic report')
+    ledger=parse(real('reports/review-context/identity-ledger.json'))
+    records=ledger.get('records');need(type(records)is list,'ledger records')
+    matches=[x for x in records if x.get('run_id')==a['run_id'] and x.get('host_session_id')==a['host_session_id']]
+    need(len(matches)==1,'persisted A identity missing or duplicated');persisted=matches[0]
+    for key in ('sequence','stage','role','run_id','host_session_id','record_sha256'):need(type(persisted.get(key))is type(a[key]) and persisted[key]==a[key],'persisted A identity mismatch')
+    binding=sha('\n'.join(x['path']+'\t'+x['sha256'] for x in inv['allowed_input_manifest']).encode())
+    need(persisted.get('allowed_inputs_sha256')==binding,'persisted A input binding missing or changed')
+    receipt=real(source_dir+'/reviewer-a-reservation.txt').read_text(encoding='utf-8').splitlines()
+    expected_receipt=f"REVIEW_CONTEXT_OK {a['record_sha256']} sequence={a['sequence']} previous_record_sha256={persisted.get('previous_record_sha256')} pre_append_tip_sequence={a['sequence']-1} identity_unique=yes"
+    need(receipt==[expected_receipt],'A reservation receipt facts')
+    # Every other spec reviewer needs a correlated invocation; orphan or legacy
+    # unbound identities cannot establish absence for this source.
+    invocations=[]
+    context=real('reports/review-context',True)
+    for path in context.iterdir():
+        if path.name.endswith('-invocation.json'):
+            if path.name.startswith(f'{feature}-spec-a{n}r{r}-'):
+                need(path.name==pathlib.PurePosixPath(invocation_path).name,'another canonical source launch')
+            candidate=parse(real('reports/review-context/'+path.name));need(type(candidate)is dict,'invocation correlation shape')
+            inputs=candidate.get('allowed_input_manifest');need(type(inputs)is list,'invocation correlation inputs')
+            if any(relative(x.get('path'))==source_dir+'/precheck-result.json' for x in inputs):
+                need(path.name==pathlib.PurePosixPath(invocation_path).name and candidate==inv,'another source invocation')
+            invocations.append(candidate)
+    for persisted_other in records:
+        if persisted_other.get('stage')!='spec' or persisted_other.get('run_id')==a['run_id']:continue
+        related=[v for v in invocations if v.get('run_id')==persisted_other.get('run_id') and v.get('host_session_id')==persisted_other.get('host_session_id')]
+        need(len(related)==1,'ambiguous later spec reservation')
+        candidate=related[0];other_binding=sha('\n'.join(x['path']+'\t'+x['sha256'] for x in candidate['allowed_input_manifest']).encode())
+        need(persisted_other.get('allowed_inputs_sha256')==other_binding,'uncorrelated later input binding')
+        need(not any(relative(x['path'])==source_dir+'/precheck-result.json' for x in candidate['allowed_input_manifest']),'source reviewer already reserved')
+    print(n);print(r);print(invocation_path);print(prior_dir+'/spec-review-contract.json')
+except (OSError,ValueError,KeyError,TypeError,AttributeError,UnicodeError) as error:
+    print('ERROR: interrupted recovery: '+str(error),file=sys.stderr);sys.exit(1)
+PY
+  ) || return 1
+  source_attempt=$(sed -n '1p' <<<"$metadata")
+  source_round=$(sed -n '2p' <<<"$metadata")
+  invocation=$(sed -n '3p' <<<"$metadata")
+  previous=$(sed -n '4p' <<<"$metadata")
+  validate_contract "$repo_root/$previous" "$source_attempt" "$((source_round - 1))" NEEDS_WORK "$(dirname "$repo_root/$previous")/precheck-result.json" || return 1
+  expected_manifest=$(jq -c --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "" "$jq_relative_path"'
+    [.allowed_input_manifest[] | {path:(.path | relative_path),sha256}] | sort_by(.path)' "$repo_root/$invocation") || return 1
+  validate_reviewer_output "$report_root/attempt-${source_attempt}/round-${source_round}/reviewer-a.json" spec-reviewer-a "$expected_manifest" \
+    "$(jq -r .run_id "$repo_root/$invocation")" "$(jq -r .host_session_id "$repo_root/$invocation")" || return 1
+  bash "$repo_root/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh" "$repo_root/$invocation" "$repo_root" >/dev/null || return 1
+}
+
 if [[ "$round" -gt 1 ]]; then
   prior_dir="${report_root}/attempt-${attempt}/round-$((round - 1))"
   prior_contract="${prior_dir}/spec-review-contract.json"
