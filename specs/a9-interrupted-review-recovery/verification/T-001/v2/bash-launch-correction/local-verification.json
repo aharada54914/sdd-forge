@@ -1,0 +1,40 @@
+{
+  "created_at": "2026-10-24T11:20:22.570406+00:00",
+  "base": "7dffd37b3de7c46700259e6876a5c9daaabd06f0",
+  "change": "Guard empty positional expansion under nounset on old macOS Bash; preserve exact provided arguments.",
+  "old_harness_sha256": "9ad841a45612250dbff1284d92615e7ffd4fd1936872f12c3bdc959aa29835f9",
+  "new_harness_sha256": "d2f726f7b242563b41a4622320592f610c42d88348ee5e2df8c662b83370de2e",
+  "python_payload_byte_identical": true,
+  "python_payload_sha256": "5b4373e9925fc865514db4d3204370e6eff93ed3cb16831a0ff567337370788f",
+  "argument_and_exit_controls": [
+    {
+      "args": [],
+      "exit": 0,
+      "forwarded_exact": true
+    },
+    {
+      "args": [
+        ""
+      ],
+      "exit": 0,
+      "forwarded_exact": true
+    },
+    {
+      "args": [
+        "a b",
+        "*",
+        "--literal",
+        "$x"
+      ],
+      "exit": 0,
+      "forwarded_exact": true
+    },
+    {
+      "args": [],
+      "downstream_exit": 7,
+      "actual_exit": 7
+    }
+  ],
+  "native_red": "Actual macOS CI40087047427 line5 @: unbound variable; before Bash cases.",
+  "limits": "These local forwarding controls use current Linux Bash, not a local Bash3 reproduction. Native macOS Green pending; no PowerShell suite rerun because wrapper-extracted Python is unchanged."
+}

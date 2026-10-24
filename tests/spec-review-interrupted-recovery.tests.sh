@@ -2,7 +2,7 @@
 # Disposable synthetic source fixtures; never read a working repository ledger.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd -P)
-python3 - "$ROOT" bash "${@}" <<'PY'
+python3 - "$ROOT" bash ${1+"$@"} <<'PY'
 import copy, hashlib, json, os, pathlib, re, shlex, shutil, subprocess, sys, tempfile
 ROOT=pathlib.Path(sys.argv[1]); RUNTIME=sys.argv[2]
 PWSH=os.environ.get('SDD_TEST_PWSH','pwsh')

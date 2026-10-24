@@ -1,0 +1,9 @@
+2026-10-24T11:16:15.0391360Z spec-review-precheck: complete. Output written to /Users/runner/work/sdd-forge/sdd-forge/reports/spec-review/spec-review-fixture-29413-10705/attempt-1/round-1/
+2026-10-24T11:16:15.4200610Z spec-review-precheck: complete. Output written to /Users/runner/work/sdd-forge/sdd-forge/reports/spec-review/spec-review-fixture-29413-10705/attempt-2/round-1/
+2026-10-24T11:16:15.7156210Z spec-review-precheck: complete. Output written to /Users/runner/work/sdd-forge/sdd-forge/reports/spec-review/spec-review-fixture-29413-10705/attempt-2/round-1/
+2026-10-24T11:16:16.0606290Z spec-review-precheck: complete. Output written to /Users/runner/work/sdd-forge/sdd-forge/reports/spec-review/spec-review-fixture-29413-10705/attempt-2/round-1/
+2026-10-24T11:16:16.3507200Z spec-review-precheck: complete. Output written to /Users/runner/work/sdd-forge/sdd-forge/reports/spec-review/spec-review-fixture-29413-10705/attempt-2/round-1/
+2026-10-24T11:16:16.6597180Z ok: spec review precheck enforces state, hashes, replay, reset, and safe paths
+2026-10-24T11:16:16.6657400Z /Users/runner/work/sdd-forge/sdd-forge/tests/spec-review-interrupted-recovery.tests.sh: line 5: @: unbound variable
+2026-10-24T11:16:16.6752380Z ##[error]Process completed with exit code 1.
+2026-10-24T11:16:16.6850390Z ##[group]Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9

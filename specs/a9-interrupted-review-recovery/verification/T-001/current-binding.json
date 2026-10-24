@@ -1,8 +1,8 @@
 {
   "schema": "a9-t001-additive-current-binding/v1",
-  "state": "Exact old reviewed task restored; approvedv2 amendment pending genuine formal rebinding; T001 In Progress; corrected macOS/CI disposition open",
-  "created_at": "2026-10-24T10:38:28.745865+00:00",
-  "base_head": "d4d10f8a6666608f09eaa307d28073bcb41a123f",
+  "state": "Old reviewed task retained; approvedv2 pending formal rebinding; T001 In Progress; native macOS PowerShell731 PASS and separate Bash launch corrected, final-head CI pending",
+  "created_at": "2026-10-24T11:26:27.994376+00:00",
+  "base_head": "7dffd37b3de7c46700259e6876a5c9daaabd06f0",
   "source": [
     {
       "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
@@ -18,7 +18,7 @@
     },
     {
       "path": "tests/spec-review-interrupted-recovery.tests.sh",
-      "sha256": "9ad841a45612250dbff1284d92615e7ffd4fd1936872f12c3bdc959aa29835f9"
+      "sha256": "d2f726f7b242563b41a4622320592f610c42d88348ee5e2df8c662b83370de2e"
     },
     {
       "path": "tests/spec-review-loop.tests.sh",
@@ -712,7 +712,7 @@
     },
     {
       "path": "tests/spec-review-interrupted-recovery.tests.sh",
-      "sha256": "9ad841a45612250dbff1284d92615e7ffd4fd1936872f12c3bdc959aa29835f9"
+      "sha256": "d2f726f7b242563b41a4622320592f610c42d88348ee5e2df8c662b83370de2e"
     },
     {
       "path": "tests/spec-review-loop.tests.sh",
@@ -721,6 +721,26 @@
     {
       "path": "tests/verification-catalog.json",
       "sha256": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/bash-launch-correction/README.md",
+      "sha256": "c59a118572f0deaa62caed7391137a73f680ae9dd183e8d77da2fd86bcfdfe86"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/bash-launch-correction/independent-review.json",
+      "sha256": "87be7f6902ba9ffdc3f350c0705500a8efc976b4b1a10ed80d597b3bb050a599"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/bash-launch-correction/local-verification.json",
+      "sha256": "f39becd18dc052ecd10b8d8822e68d869d3351ee2fdf4694d01b6a27aca01f2c"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/bash-launch-correction/prior-native-bash-failure.log",
+      "sha256": "9dbc9476e7a9ff04c5c2dd264b83849f847582982db2f8fb8aa89a7a74c80276"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/bash-launch-correction/prior-native-macos-proof.json",
+      "sha256": "8c723df553599427f1c2402b4c99e655da36710b8c899bc31447cdc2a0150a7e"
     }
   ],
   "historical_bindings": [
@@ -745,16 +765,19 @@
   ],
   "source_delta": {
     "only_changed_source": "tests/spec-review-interrupted-recovery.tests.sh",
-    "before_sha256": "7a4eb91262f8e6bf97da089565d691fa9745e6a658805b16c88571901b67a85c",
-    "after_sha256": "9ad841a45612250dbff1284d92615e7ffd4fd1936872f12c3bdc959aa29835f9",
+    "before_sha256": "9ad841a45612250dbff1284d92615e7ffd4fd1936872f12c3bdc959aa29835f9",
+    "after_sha256": "d2f726f7b242563b41a4622320592f610c42d88348ee5e2df8c662b83370de2e",
     "production_prechecks_unchanged": true,
+    "embedded_python_byte_identical": true,
+    "embedded_python_sha256": "5b4373e9925fc865514db4d3204370e6eff93ed3cb16831a0ff567337370788f",
     "original_assertions_names_order_and_four_workers_preserved": true
   },
   "independent_reviews": {
     "v2_substantive_md_sha256": "81849e1928db76ae46bdd127f106dd551e8f85a02aa30ec2d40bb2b2e2f9147e",
     "integrated_framing_md_sha256": "9fc189a40c426eb08bb97d6ac7a68859a20d106cb04f2c50419ed2206a512416",
     "cache_correction_md_sha256": "d41fbd670f5485461f09ac5c2318ed6255b91f32c63fa3d14a48ca0a9194d937",
-    "scope": "bounded ordinary Work reviews; no formal quality/task gate"
+    "scope": "bounded ordinary Work reviews; no formal quality/task gate",
+    "bash_launch_correction_sha256": "87be7f6902ba9ffdc3f350c0705500a8efc976b4b1a10ed80d597b3bb050a599"
   },
   "evidence_scopes": {
     "original_local_bash": "731PASS at original harness pin; no new full Bash execution claimed",
@@ -764,9 +787,10 @@
       "718PASS/13SIGABRT",
       "728PASS/3SIGABRT"
     ],
-    "corrected_local_powershell": "731PASS at new harness pin,161.58s, Linux PowerShell7.6.7/.NET10.0.13; same731names/order",
-    "corrected_macos": "unverified; required",
-    "origin": "nine bounded negative observations accepted; frozen experiment FAIL and proof unverified"
+    "corrected_local_powershell": "731PASS at cache-isolation harness9ad841a4,161.58s,LinuxPowerShell7.6.7/.NET10.0.13; unchanged embeddedPython in currentd2f726f7; no new local PowerShell run",
+    "corrected_macos": "At7d/9ad harness, actual PowerShell731PASS on7.6.6/.NET10.0.12/Arm64/macOS26.6.2; later Bash launch failed before cases. Currentd2 harness native Bash/final-head CI pending.",
+    "origin": "nine bounded negative observations accepted; frozen experiment FAIL and proof unverified",
+    "bash_launch_local": "Current Linux Bash: exact zero/empty/spaced/literal argument forwarding and childexit7; no localBash3 reproduction or fullsuite rerun"
   },
   "limits": [
     "No fullCI/ImplementationComplete/qualityPASS/Done",
@@ -787,5 +811,20 @@
     },
     "all_feature_validation": false,
     "ledger_access": false
-  }
+  },
+  "prior_binding": {
+    "commit": "7dffd37b3de7c46700259e6876a5c9daaabd06f0",
+    "path": "specs/a9-interrupted-review-recovery/verification/T-001/current-binding.json",
+    "sha256": "8c42e34049700649104e5e3c7f82433fad868e1e732b7ce470ffa0307e59073a"
+  },
+  "source_delta_history": [
+    {
+      "only_changed_source": "tests/spec-review-interrupted-recovery.tests.sh",
+      "before_sha256": "7a4eb91262f8e6bf97da089565d691fa9745e6a658805b16c88571901b67a85c",
+      "after_sha256": "9ad841a45612250dbff1284d92615e7ffd4fd1936872f12c3bdc959aa29835f9",
+      "production_prechecks_unchanged": true,
+      "original_assertions_names_order_and_four_workers_preserved": true,
+      "scope": "Prior cache-isolation correction; native macOS PowerShell731 passed at this source pin"
+    }
+  ]
 }
