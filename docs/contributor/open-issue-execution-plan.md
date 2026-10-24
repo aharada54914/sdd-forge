@@ -1,6 +1,6 @@
 # Open issue dependency and execution plan
 
-## Current status — 2026-10-24 14:07 UTC
+## Current status — 2026-10-24 15:17 UTC
 
 This section supersedes older authentication, task-exception, author-limit and
 execution-status statements below. The historical dependency graph is unchanged.
@@ -80,6 +80,18 @@ have not been released or integrated into `main`.
   remain ordered dependents. Implementation approval excludes live historical
   recovery and A9 activation; actual recovery requires its original human
   approval/application provenance.
+- **Evaluator adoption is also on hold.** A separately versioned first-role
+  Opus/high qualification completed four native calls and a fresh Work judgment
+  with candidate identity withheld: **one ACCEPT, one NEEDS_WORK and two UNCLEAR**.
+  Both defect outputs identified the Critical missing validation call and omitted
+  build, but two outputs misquoted checker-hash suffixes while claiming a match.
+  The actual artifact hashes match; the false statements are in the responses.
+  The clean-case catalog-to-commit ownership concern remains unresolved and is
+  not classified as a false positive. These results do not satisfy the frozen
+  all-criteria/two-repetition adoption rule. The previous one-call experiment and
+  its three unrun cells remain preserved, alongside independently confirmed
+  parser overconstraints and two real test-coverage gaps corrected before the
+  four-call qualification. There is no evaluator adoption or T-001 quality PASS.
 - **Other feature work remains open.** #614/#594/#605/#601 retain draft work in
   [#631](https://github.com/aharada54914/sdd-forge/pull/631),
   [#633](https://github.com/aharada54914/sdd-forge/pull/633),
