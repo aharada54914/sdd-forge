@@ -19,17 +19,17 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 5502cbe57ef18103e95e88bdfb886d675ff66b3c
+          ref: b9977419be155d76a6c459b16b77ff27f5f34ef3
           fetch-depth: 0
           persist-credentials: false
-      - name: Compare exact baseline and corrected Desktop producers
+      - name: Compare parser-corrected historical baseline and corrected Desktop producers
         shell: python
         run: |
-          import hashlib, json, pathlib, re, shutil, subprocess, sys, tempfile
+          import difflib, hashlib, json, pathlib, re, shutil, subprocess, sys, tempfile
           sys.stdout.reconfigure(encoding='utf-8', errors='backslashreplace')
           root = pathlib.Path.cwd()
           baseline = '3f1db88e85c1c41a082d2dae5cbcdd148e0b7353'
-          candidate = '5502cbe57ef18103e95e88bdfb886d675ff66b3c'
+          candidate = 'b9977419be155d76a6c459b16b77ff27f5f34ef3'
           head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
           if head != candidate:
               raise SystemExit('Candidate checkout differs from pinned source')
@@ -37,22 +37,39 @@ jobs:
           helper = 'tests/panelist-verdict-encoding.tests.ps1'
           (old / 'tests').mkdir()
           shutil.copyfile(root / helper, old / helper)
+          output = root / 'encoding-comparison'
+          output.mkdir()
           pins = {helper: {'candidate': hashlib.sha256((root / helper).read_bytes()).hexdigest()}}
           prefix = 'plugins/sdd-quality-loop/scripts/'
           for name in ('prepare-panelist-input', 'run-panelist-gpt', 'run-panelist-gemini'):
               relative = prefix + name + '.ps1'
               target = old / relative
               target.parent.mkdir(parents=True, exist_ok=True)
-              target.write_bytes(subprocess.check_output(['git', 'show', baseline + ':' + relative]))
-              pins[relative] = {label: hashlib.sha256((source / relative).read_bytes()).hexdigest()
-                                for label, source in (('baseline', old), ('candidate', root))}
-          output = root / 'encoding-comparison'
-          output.mkdir()
+              original = subprocess.check_output(['git', 'show', baseline + ':' + relative])
+              derived = original
+              if name == 'prepare-panelist-input':
+                  if hashlib.sha256(original).hexdigest() != '8b782db2163ed17f9ebde2bf5be7bfefb599093df7764aaf7645f7aad189573d':
+                      raise SystemExit('Unexpected original preparer bytes')
+                  lines = original.decode('utf-8').splitlines(keepends=True)
+                  for number in (245, 1004, 1008, 1268):
+                      if lines[number].count('\u2014') != 1:
+                          raise SystemExit('Unexpected parser-only transform target')
+                      lines[number] = lines[number].replace('\u2014', '$([char]0x2014)')
+                  derived = ''.join(lines).encode('utf-8')
+                  if hashlib.sha256(derived).hexdigest() != 'a74027de1cb5a41577ca45090e4923412eb953780cc35dc7ca4b1d334bdac7b4':
+                      raise SystemExit('Unexpected parser-only derived bytes')
+                  (output / 'counterfactual-baseline-transform.patch').write_text(''.join(difflib.unified_diff(
+                      original.decode('utf-8').splitlines(keepends=True), derived.decode('utf-8').splitlines(keepends=True),
+                      fromfile='exact-3f1/' + relative, tofile='parser-only-counterfactual/' + relative)), encoding='utf-8')
+              target.write_bytes(derived)
+              pins[relative] = {'baseline_original': hashlib.sha256(original).hexdigest(),
+                                'baseline_parser_corrected': hashlib.sha256(derived).hexdigest(),
+                                'candidate': hashlib.sha256((root / relative).read_bytes()).hexdigest()}
           producer = shutil.which('powershell.exe')
           if not producer:
               raise SystemExit('Required native Desktop runtime missing')
           records = []
-          for label, source in (('baseline', old), ('candidate', root)):
+          for label, source in (('baseline-parser-corrected', old), ('candidate', root)):
               argv = [producer, '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(source / helper),
                       '-Producer', producer, '-ExpectEdition', 'Desktop']
               try:
@@ -71,15 +88,15 @@ jobs:
                                 for case in ('pass', 'needs-work', 'session', 'cli-failure', 'invalid-verdict')}
               complete = (len(summaries) == 1 and sum(map(int, summaries[0])) == 98
                           and len(runtime) == 1 and len(calls) == 10 and set(calls) == expected_calls)
-              expected_outcome = complete and (int(summaries[0][1]) > 0 if label == 'baseline'
+              expected_outcome = complete and (int(summaries[0][1]) > 0 if label == 'baseline-parser-corrected'
                                                else summaries[0] == ('98', '0'))
               records.append({'source': label, 'argv': argv, 'exit_code': code, 'timed_out': timed_out,
                               'complete_98_native_cases': complete, 'expected_outcome': expected_outcome,
                               'log_sha256': hashlib.sha256(raw).hexdigest()})
               (output / 'comparison.json').write_text(json.dumps({
-                  'baseline': baseline, 'candidate': candidate, 'edition': 'Desktop', 'source_sha256': pins,
+                  'baseline_original_commit': baseline, 'baseline_kind': 'counterfactual-parser-only-correction', 'candidate': candidate, 'edition': 'Desktop', 'source_sha256': pins,
                   'runs': records,
-                  'scope': 'Same candidate helper, three baseline producers only. Actual native Desktop and fake CLIs; baseline failures require log classification, not automatic BOM attribution.'
+                  'scope': 'Same candidate helper; three historical producers, with four explicitly recorded preparer literal-only parser corrections. Counterfactual baseline, not exact historical bytes. Actual Desktop and fake CLIs; failures require classification.'
               }, indent=2) + '\n', encoding='utf-8')
               if timed_out:
                   break
