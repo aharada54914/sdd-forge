@@ -1,0 +1,23 @@
+[
+  {
+    "runtime": "bash",
+    "command": [
+      "bash",
+      "tests/spec-review-interrupted-recovery.tests.sh"
+    ],
+    "exit_code": 1,
+    "output": "specs/a9-interrupted-review-recovery/verification/T-001/red-bash.log"
+  },
+  {
+    "runtime": "powershell",
+    "command": [
+      "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+      "-NoLogo",
+      "-NoProfile",
+      "-File",
+      "tests/spec-review-interrupted-recovery.tests.ps1"
+    ],
+    "exit_code": 1,
+    "output": "specs/a9-interrupted-review-recovery/verification/T-001/red-powershell.log"
+  }
+]

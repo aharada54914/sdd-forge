@@ -1,0 +1,13 @@
+PASS bash CONTROL::prior-own-stage-NEEDS_WORK exit=0 immutable=True
+PASS bash CONTROL::persisted-A-real-verifier exit=0 immutable=True
+PASS bash CONTROL::valid-interrupted-admission exit=0 immutable=True
+PASS bash TEST-062::rebound-precheck-boolean::schema exit=1 immutable=True no_target=True
+PASS bash TEST-062::rebound-precheck-boolean::stage exit=1 immutable=True no_target=True
+PASS bash TEST-062::rebound-precheck-boolean::feature exit=1 immutable=True no_target=True
+PASS bash TEST-062::rebound-precheck-boolean::spec_review_status_field exit=1 immutable=True no_target=True
+PASS bash TEST-062::rebound-precheck-boolean::requirements_sha256 exit=1 immutable=True no_target=True
+PASS bash TEST-062::rebound-precheck-boolean::acceptance_sha256 exit=1 immutable=True no_target=True
+PASS bash TEST-062::rebound-precheck-boolean::investigation_sha256 exit=1 immutable=True no_target=True
+PASS bash TEST-062::rebound-precheck-boolean::calibration_sha256 exit=1 immutable=True no_target=True
+PASS bash TEST-062::rebound-precheck-boolean::input_sha256 exit=1 immutable=True no_target=True
+RESULT bash passed=12 failures=0 designed=9

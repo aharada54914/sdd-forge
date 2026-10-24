@@ -1,0 +1,55 @@
+{
+  "base": "f8746874413e96775f4b64671a3696be2cc90e7d",
+  "files": [
+    {
+      "path": "specs/a9-interrupted-review-recovery/requirements.md",
+      "base_sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983",
+      "current_sha256": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983",
+      "identical": true
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/design.md",
+      "base_sha256": "3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e",
+      "current_sha256": "3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e",
+      "identical": true
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
+      "base_sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9",
+      "current_sha256": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9",
+      "identical": true
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/traceability.md",
+      "base_sha256": "69bce6e35065a25ed6b14d2b07f4707416844f37ea6a7c2570ef5b95145fcb19",
+      "current_sha256": "69bce6e35065a25ed6b14d2b07f4707416844f37ea6a7c2570ef5b95145fcb19",
+      "identical": true
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/ux-spec.md",
+      "base_sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1",
+      "current_sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1",
+      "identical": true
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/frontend-spec.md",
+      "base_sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52",
+      "current_sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52",
+      "identical": true
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/infra-spec.md",
+      "base_sha256": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e",
+      "current_sha256": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e",
+      "identical": true
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/security-spec.md",
+      "base_sha256": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f",
+      "current_sha256": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f",
+      "identical": true
+    }
+  ],
+  "task_change": "exact receipt-backed three Approval edits plus only T-001 Planned \u2192 In Progress",
+  "task_body_preserved": true
+}

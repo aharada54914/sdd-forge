@@ -1,0 +1,41 @@
+{
+  "scope": "actual canonical helpers only; supplemental unit probe, not whole-admission/origin proof",
+  "source_sha256": {
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "88062b265569f02573565aa904d26b4385eea5f4e45b82e4c819732f476752f2",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "fc41fea4e6c6c3eeb39bb2e9ca4f5f96d7a1a9c70ce78fe47d9934000966b60e"
+  },
+  "cases": [
+    {
+      "runtime": "bash-production-python",
+      "case": "unicode-ensure-ascii",
+      "actual": "{\"value\":\"\\u00e9\\ud83d\\ude00\"}",
+      "expected": "{\"value\":\"\\u00e9\\ud83d\\ude00\"}",
+      "passed": true
+    },
+    {
+      "runtime": "powershell-native",
+      "case": "unicode-ensure-ascii",
+      "actual": "{\"value\":\"\\u00e9\\ud83d\\ude00\"}",
+      "expected": "{\"value\":\"\\u00e9\\ud83d\\ude00\"}",
+      "exit_code": 0,
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "runtime": "bash-production-python",
+      "case": "retain-array-order",
+      "actual": "{\"a\":0,\"z\":[2,1]}",
+      "expected": "{\"a\":0,\"z\":[2,1]}",
+      "passed": true
+    },
+    {
+      "runtime": "powershell-native",
+      "case": "retain-array-order",
+      "actual": "{\"a\":0,\"z\":[2,1]}",
+      "expected": "{\"a\":0,\"z\":[2,1]}",
+      "exit_code": 0,
+      "stderr": "",
+      "passed": true
+    }
+  ]
+}

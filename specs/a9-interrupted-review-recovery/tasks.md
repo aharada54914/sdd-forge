@@ -9,8 +9,8 @@ Draft -> Approved -> In Progress -> Implementation Complete -> Done. Humans appr
 ## T-001 Closed recovery admission and source evidence validation
 
 Source Issue: Approved separate A9 interrupted-review recovery scope
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: In Progress
 Risk: high
 Risk Rationale: Authorization/provenance admission and persisted review-state mutation must fail closed (REQ-002, REQ-003).
 Required Workflow: tdd
@@ -62,7 +62,7 @@ Human task approval and independent task-review gate pending. Actual recovery ad
 ## T-002 Explicit recovery transition and locked publication
 
 Source Issue: Approved separate A9 interrupted-review recovery scope
-Approval: Draft
+Approval: Approved
 Status: Planned
 Risk: high
 Risk Rationale: Authorization/provenance admission and persisted review-state mutation must fail closed (REQ-001, REQ-004).
@@ -115,7 +115,7 @@ Human task approval and independent task-review gate pending. Actual recovery ad
 ## T-003 Provenance consumption and compatibility proof
 
 Source Issue: Approved separate A9 interrupted-review recovery scope
-Approval: Draft
+Approval: Approved
 Status: Planned
 Risk: high
 Risk Rationale: Authorization/provenance admission and persisted review-state mutation must fail closed (REQ-005).

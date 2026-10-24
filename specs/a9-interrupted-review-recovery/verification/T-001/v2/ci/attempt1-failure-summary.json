@@ -1,0 +1,47 @@
+{
+  "head": "f0e1da226fe41e49c852053192143e58b1016fb6",
+  "base": "1c95ede8cee678159b4983f25e4a43298d8d1e8c",
+  "tested_revision": "3b3bf161ffa2865f205e3bbe78ea13398fc8feb2",
+  "run_id": 40079456437,
+  "attempt": 1,
+  "conclusion": "failure",
+  "plan_sha256": "5cd1b99d27d8cc8733c17928ecb3c75e68f699e75bac79154b1218d4bca00d6c",
+  "canonical_status": "FAIL",
+  "canonical_reason": "execution-failed",
+  "obligation_counts": {
+    "PASS": 416,
+    "EXPECTED_SKIP": 1,
+    "FAIL": 33
+  },
+  "verified_real_execution_origins": 449,
+  "source_attempt_counts": {
+    "1": 449
+  },
+  "job_counts": {
+    "success": 43,
+    "skipped": 1,
+    "failure": 2
+  },
+  "failed_source_jobs": [
+    120831257817
+  ],
+  "control_failure_job": 120836661141,
+  "macos_suite": "718PASS/13FAIL;13nativeSIGABRT/FileLoadException; runtime cause not yet proven transient",
+  "windows_suite": "731PASS/0FAIL; exact source/receipt/job verified",
+  "installer_obligations": 36,
+  "installer_cells": 6,
+  "all_installer_origins_pass": true,
+  "rerun": "not performed by collector",
+  "formal_acceptance": "pending, no merge/closure",
+  "evidence_sha256": {
+    "plan.json": "542511ffd9aa16e42359f167c25b0ce63cf78e61e695887c3b5ba1cf3aae2b75",
+    "aggregate-attempt1-failure.json": "0c2cb11327750e006e14fd1b2ccbbabb0d75747d4cbd4a1f163702de3adabf3a",
+    "required-checks-attempt1-failure.log": "ce840046fdc8b85bf5d693eabcfec26156660b9f6d000b40cee19903c35de87c",
+    "run-attempt1-final.json": "acaf0cb6c89080eff70b087132c1337b1a2db918778fe54430d54583712fa17f",
+    "jobs-attempt1-final.json": "b71fa2252ba9a124567fad1099cf9bf7998528d75b9b6dce4849987f6e0e0b8d",
+    "macos-test-failure.log": "de439350960e1b2a770a2104c3e5e4eb5203de34a3767a96ac23e52f41406be6",
+    "macos-failed-verification-20.json": "14345b1b31b187879549cf1ab5b0bc43ca5c2791d5bb75dccb449ce0e96e874f",
+    "native-windows-suite-proof.json": "82a184425db16573317f1dd19a16d07d0560428a4cbfb06e103f8baded0d1ccf",
+    "installer-origins-attempt1.json": "20c4071795971149353800cc2416130832642c5be5e67b6f2a1eb0b2475f572e"
+  }
+}

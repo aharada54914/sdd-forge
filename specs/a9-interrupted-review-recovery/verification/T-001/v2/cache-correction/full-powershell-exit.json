@@ -1,0 +1,12 @@
+{
+  "exit": 0,
+  "seconds": 161.5775899887085,
+  "command": [
+    "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+    "-NoLogo",
+    "-NoProfile",
+    "-File",
+    "tests/spec-review-interrupted-recovery.tests.ps1"
+  ],
+  "filter": null
+}

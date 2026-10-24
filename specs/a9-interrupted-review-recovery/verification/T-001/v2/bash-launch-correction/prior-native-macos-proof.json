@@ -1,0 +1,49 @@
+{
+  "head": "7dffd37b3de7c46700259e6876a5c9daaabd06f0",
+  "base": "1c95ede8cee678159b4983f25e4a43298d8d1e8c",
+  "tested_revision": "76b51ef292c34ed9b6d06c0b675499c3f8f1ce71",
+  "tested_tree": "88dacc233a7e668dd6a3ad153b4c212556b9b33b",
+  "run_id": 40087047427,
+  "attempt": 1,
+  "plan_sha256": "13d464440d986b5ddf6ad8938bad0f68c282df31803e1b2794e3936843909be0",
+  "catalog_sha256": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317",
+  "job_id": 120852423604,
+  "job_name": "test (macos-latest)",
+  "job_conclusion": "failure",
+  "failed_step": "[deterministic] Test portable review-loop prechecks (bash)",
+  "failure": "Bash recovery harness line5 @: unbound variable before cases; separate from successful pwsh suite",
+  "pwsh_step_conclusion": "success",
+  "runtime": {
+    "architecture": "Arm64",
+    "executable": "/usr/local/microsoft/powershell/7/pwsh",
+    "os": "macOS 26.6.2",
+    "runtime": ".NET 10.0.12",
+    "version": "7.6.6"
+  },
+  "native_named_cases": 731,
+  "native_pass": 731,
+  "native_fail": 0,
+  "native_summary": "RESULT powershell passed=731 failures=0 designed=728",
+  "suite": {
+    "suite": "tests/spec-review-interrupted-recovery.tests.ps1",
+    "source_sha256": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "status": "passed",
+    "exit_code": 0,
+    "seconds": 380.907688
+  },
+  "artifact_id": 12557284827,
+  "artifact_digest": "sha256:f347e05b23134f636951827a68d6784bf5985c9e830032ddbeb0576d4d538571",
+  "receipt_clean_before": true,
+  "receipt_clean_after": true,
+  "all_six_source_pins": {
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "fc41fea4e6c6c3eeb39bb2e9ca4f5f96d7a1a9c70ce78fe47d9934000966b60e",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "88062b265569f02573565aa904d26b4385eea5f4e45b82e4c819732f476752f2",
+    "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "tests/spec-review-interrupted-recovery.tests.sh": "9ad841a45612250dbff1284d92615e7ffd4fd1936872f12c3bdc959aa29835f9",
+    "tests/spec-review-loop.tests.sh": "4bbc3cc63f97e8f954dd2731a8a609656fe1fbf66a80bc900a8a9eb8862ff79b",
+    "tests/verification-catalog.json": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317"
+  },
+  "log_sha256": "232d0aa3c97783a87b0a76eb467a27834f20f70ae6e27b83b8e7304620a698bb",
+  "receipt_sha256": "c2ef0f726777130ca4181ec2d1f6089a5f501efa06f388723cf0b96584e9a3b4",
+  "scope": "Native pwsh suite/step success only; same macOS job failed later Bash step. Full CI cannot PASS."
+}

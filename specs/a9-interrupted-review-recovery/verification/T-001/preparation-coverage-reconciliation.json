@@ -1,0 +1,138 @@
+{
+  "schema": "a9-t001-preparation-reconciliation/v1",
+  "preparation_count": 752,
+  "actual_variants_per_runtime": 728,
+  "not_equivalent_counts": true,
+  "required_base_ids": "TEST-008 through TEST-083 inclusive (76); 74 executable, 041/042 origin procedures unexecuted",
+  "required_expanded_ids": [
+    "TEST-050-F01",
+    "TEST-050-F02",
+    "TEST-050-F03",
+    "TEST-050-F04",
+    "TEST-050-F05",
+    "TEST-050-F06",
+    "TEST-050-F07",
+    "TEST-050-F08",
+    "TEST-050-F09",
+    "TEST-050-F10",
+    "TEST-050-F11",
+    "TEST-050-F12",
+    "TEST-050-F13",
+    "TEST-050-F14",
+    "TEST-050-F15",
+    "TEST-050-F16",
+    "TEST-050-F17",
+    "TEST-050-F18",
+    "TEST-050-F19",
+    "TEST-050-F20",
+    "TEST-050-F21",
+    "TEST-051-F01",
+    "TEST-051-F02",
+    "TEST-051-F03",
+    "TEST-051-F04",
+    "TEST-051-F05",
+    "TEST-051-F06",
+    "TEST-051-F07",
+    "TEST-051-F08",
+    "TEST-051-F09",
+    "TEST-051-F10",
+    "TEST-051-F11",
+    "TEST-051-F12",
+    "TEST-051-F13",
+    "TEST-051-F14",
+    "TEST-051-F15",
+    "TEST-051-F16",
+    "TEST-051-F17",
+    "TEST-051-F18",
+    "TEST-051-F19",
+    "TEST-051-F20",
+    "TEST-051-F21",
+    "TEST-057-H01",
+    "TEST-057-H02",
+    "TEST-057-H03",
+    "TEST-057-H04",
+    "TEST-057-H05",
+    "TEST-057-H06",
+    "TEST-057-H07",
+    "TEST-057-H08",
+    "TEST-057-H09",
+    "TEST-057-H10",
+    "TEST-057-H11",
+    "TEST-057-H12",
+    "TEST-057-H13",
+    "TEST-057-H14",
+    "TEST-083-P01",
+    "TEST-083-P02",
+    "TEST-083-P03",
+    "TEST-083-P04",
+    "TEST-083-P05",
+    "TEST-083-P06",
+    "TEST-083-P07",
+    "TEST-083-P08",
+    "TEST-083-P09",
+    "TEST-083-P10",
+    "TEST-083-P11",
+    "TEST-083-P12",
+    "TEST-083-P13",
+    "TEST-083-P14",
+    "TEST-050-A01",
+    "TEST-050-A02",
+    "TEST-050-A03",
+    "TEST-050-A04",
+    "TEST-050-A05",
+    "TEST-050-A06",
+    "TEST-050-A07",
+    "TEST-050-A08"
+  ],
+  "required_mapping_artifact": "case-inventory.json",
+  "actual_historical_evidence_artifact": "case-evidence.json",
+  "record_digest_slot": {
+    "missing": "TEST-050-F21::reviewer_a.record_sha256::missing",
+    "null": "TEST-051-F21::reviewer_a.record_sha256::null",
+    "uppercase": "TEST-057::reviewer_a.record_sha256::uppercase",
+    "nonhex": "TEST-057::reviewer_a.record_sha256::nonhex",
+    "short": "TEST-057::reviewer_a.record_sha256::short",
+    "incorrect": [
+      "TEST-074::identity",
+      "TEST-074::persisted::record_sha256"
+    ]
+  },
+  "canonical_preparation_variants": {
+    "object-key-order": {
+      "status": "full admission positive",
+      "evidence": "CONTROL::canonical-binding-key-order-and-whitespace"
+    },
+    "unicode-escaped-equivalent-values": {
+      "status": "full admission positive",
+      "evidence": "TEST-043::canonical-binding-unicode-escaped-equivalent"
+    },
+    "extra-final-newline-in-hash-input": {
+      "status": "full admission negative",
+      "evidence": "TEST-043::canonical-binding-extra-final-newline"
+    },
+    "wrong-ensure-ascii": {
+      "status": "actual production canonical helper unit probe; whole-admission distinguishing variant not executed",
+      "evidence": "canonical-helper-probe.json / unicode-ensure-ascii",
+      "reason": "Existing persisted identity verifier restricts IDs to ASCII, as are canonical bound paths and schema values. ensure_ascii false produces identical bytes for an admissible ASCII body. Unit probe uses real helper with non-ASCII and supplementary Unicode; it is not claimed as valid whole admission."
+    },
+    "omit-additional-field": {
+      "status": "full admission negative with bound target omitted from digest only",
+      "evidence": "TEST-043::canonical-binding-omit-target",
+      "reason": "No unknown field is added to the closed recovery schema."
+    },
+    "sort-array-order": {
+      "status": "full admission negative reordered digest plus actual helper order-preservation unit probe",
+      "evidence": [
+        "TEST-043::canonical-binding-reorder-array",
+        "canonical-helper-probe.json / retain-array-order"
+      ],
+      "reason": "Sorting already sorted valid inventories is a no-op. The helper probe retains nonsorted [2,1], while full admission rejects digest computed with reversed inventory."
+    }
+  },
+  "remaining_unexecuted": {
+    "TEST-041": "unsigned conversation copy asserted signed; independent orchestrator behavior pending",
+    "TEST-042": "original human approval and human application exact-content/digest mismatch and missing/agent-only alternatives; independent orchestrator behavior pending",
+    "formal_report_orchestrator_preflight_extras": "175-field preflight contains report/traceability/origin boundaries and T002/T003 handoffs. These are designs, not native admission cases. No actual report-admission/origin/traceability gate is claimed."
+  },
+  "assertion_limit": "The preparation list is not asserted to have a one-to-one executed equivalent for every derived entry. Frozen assigned variants map to actual test names separately; supplement coverage does not erase procedural or formal gaps."
+}

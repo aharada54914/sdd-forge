@@ -1,0 +1,9 @@
+PASS bash CONTROL::prior-own-stage-NEEDS_WORK exit=0 immutable=True
+PASS bash CONTROL::persisted-A-real-verifier exit=0 immutable=True
+PASS bash CONTROL::valid-interrupted-admission exit=0 immutable=True
+PASS bash TEST-051-F01::schema::null exit=1 immutable=True no_target=True
+PASS bash TEST-051-F01::schema::boolean-true exit=1 immutable=True no_target=True
+PASS bash TEST-051-F01::schema::array-value exit=1 immutable=True no_target=True
+PASS bash TEST-051-F01::schema::object-value exit=1 immutable=True no_target=True
+PASS bash TEST-051-F01::schema::number exit=1 immutable=True no_target=True
+RESULT bash passed=8 failures=0 designed=5

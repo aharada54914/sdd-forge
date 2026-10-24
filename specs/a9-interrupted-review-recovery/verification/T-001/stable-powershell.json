@@ -1,0 +1,32 @@
+{
+  "runtime": "powershell",
+  "command": [
+    "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+    "-NoLogo",
+    "-NoProfile",
+    "-File",
+    "tests/spec-review-interrupted-recovery.tests.ps1"
+  ],
+  "started_utc": "2026-10-24T07:56:07.816466+00:00",
+  "finished_utc": "2026-10-24T07:59:50.078247+00:00",
+  "exit_code": 0,
+  "source_before": {
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "3403caa958c01eae9dff21bbd3add09f650ee829b2090b759cedbd420fcb2878",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "475933d20fb314b8f714bd24df2220e3127a78815afa808432c21bc8754a92c4",
+    "tests/spec-review-interrupted-recovery.tests.sh": "d98fd63093275af7d328870dda9cced3da493d4fd5fce2939d638f32f1505bbb",
+    "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "tests/spec-review-loop.tests.sh": "4bbc3cc63f97e8f954dd2731a8a609656fe1fbf66a80bc900a8a9eb8862ff79b",
+    "tests/verification-catalog.json": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317"
+  },
+  "source_after": {
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "3403caa958c01eae9dff21bbd3add09f650ee829b2090b759cedbd420fcb2878",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "475933d20fb314b8f714bd24df2220e3127a78815afa808432c21bc8754a92c4",
+    "tests/spec-review-interrupted-recovery.tests.sh": "d98fd63093275af7d328870dda9cced3da493d4fd5fce2939d638f32f1505bbb",
+    "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "tests/spec-review-loop.tests.sh": "4bbc3cc63f97e8f954dd2731a8a609656fe1fbf66a80bc900a8a9eb8862ff79b",
+    "tests/verification-catalog.json": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317"
+  },
+  "source_unchanged": true,
+  "filter": null,
+  "output": "specs/a9-interrupted-review-recovery/verification/T-001/stable-powershell.log"
+}

@@ -1,0 +1,72 @@
+{
+  "base": "f8746874413e96775f4b64671a3696be2cc90e7d",
+  "scope": "only precheck twins reverted inside synthetic temporary repositories",
+  "results": [
+    {
+      "runtime": "bash",
+      "scenario": "interrupted-source",
+      "exit_code": 1,
+      "historical_bytes_unchanged": true,
+      "partial_target_quarantined": true,
+      "no_unexpected_target": true,
+      "passed": true,
+      "stdout": "",
+      "stderr": "ERROR: spec-review-precheck: reset requires a terminal PASS or BLOCKED contract\n"
+    },
+    {
+      "runtime": "bash",
+      "scenario": "terminal-reset",
+      "exit_code": 0,
+      "historical_bytes_unchanged": true,
+      "partial_target_quarantined": true,
+      "no_unexpected_target": true,
+      "passed": true,
+      "stdout": "spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/rollback-0uuaq3pf/bash-terminal-reset/reports/spec-review/synthetic-a9-recovery/attempt-4/round-1/\n",
+      "stderr": ""
+    },
+    {
+      "runtime": "bash",
+      "scenario": "partial-target",
+      "exit_code": 1,
+      "historical_bytes_unchanged": true,
+      "partial_target_quarantined": true,
+      "no_unexpected_target": true,
+      "passed": true,
+      "stdout": "",
+      "stderr": "ERROR: spec-review-precheck: round destination already exists (replay is forbidden)\n"
+    },
+    {
+      "runtime": "powershell",
+      "scenario": "interrupted-source",
+      "exit_code": 1,
+      "historical_bytes_unchanged": true,
+      "partial_target_quarantined": true,
+      "no_unexpected_target": true,
+      "passed": true,
+      "stdout": "",
+      "stderr": "ERROR: spec-review-precheck: reset requires a terminal PASS or BLOCKED contract\n"
+    },
+    {
+      "runtime": "powershell",
+      "scenario": "terminal-reset",
+      "exit_code": 0,
+      "historical_bytes_unchanged": true,
+      "partial_target_quarantined": true,
+      "no_unexpected_target": true,
+      "passed": true,
+      "stdout": "spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/rollback-0uuaq3pf/powershell-terminal-reset/reports/spec-review/synthetic-a9-recovery/attempt-4/round-1/\n",
+      "stderr": ""
+    },
+    {
+      "runtime": "powershell",
+      "scenario": "partial-target",
+      "exit_code": 1,
+      "historical_bytes_unchanged": true,
+      "partial_target_quarantined": true,
+      "no_unexpected_target": true,
+      "passed": true,
+      "stdout": "",
+      "stderr": "ERROR: spec-review-precheck: round destination already exists (replay is forbidden)\n"
+    }
+  ]
+}

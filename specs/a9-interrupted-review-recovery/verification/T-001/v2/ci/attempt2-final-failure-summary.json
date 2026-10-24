@@ -1,0 +1,41 @@
+{
+  "head": "f0e1da226fe41e49c852053192143e58b1016fb6",
+  "base": "1c95ede8cee678159b4983f25e4a43298d8d1e8c",
+  "tested_revision": "3b3bf161ffa2865f205e3bbe78ea13398fc8feb2",
+  "run_id": 40079456437,
+  "attempt": 2,
+  "canonical_status": "FAIL",
+  "canonical_reason": "execution-failed",
+  "counts": {
+    "PASS": 416,
+    "EXPECTED_SKIP": 1,
+    "FAIL": 33
+  },
+  "actual_source_attempt_counts": {
+    "1": 416,
+    "2": 33
+  },
+  "actual_rerun_execution_jobs": [
+    120837500791
+  ],
+  "failed_control_job": 120841613288,
+  "copied_attempt2_success_rows_not_claimed_as_new_execution": true,
+  "all449_origins_verified": true,
+  "installer36_obligations_6_cells": "all PASS from actual source attempt1, unchanged head",
+  "one_authorized_rerun_only": true,
+  "no_further_retry": true,
+  "all731_case_names_preserved": true,
+  "macos_attempt2_result": "728PASS+3FAIL SIGABRT; prior13failurecases now pass,3previouslypassingH13cases now abort",
+  "formal_acceptance": "pending; no merge/closure",
+  "evidence_sha256": {
+    "attempt2/aggregate-failure.json": "dea0f7ef29ceb5c6d6b8c13fd4facd5a856336f7aefaeec509e31c34751297d3",
+    "attempt2/required-checks-failure.log": "a488e45f4de986f86f7d23e6d74c2a6de45287dfb3fe13ee6e27116eecff4d4d",
+    "attempt2/run-final.json": "aee93dc358ae1bae29da17a41b16ceae83fd965fe69bbeb4379e312c3de2e40a",
+    "attempt2/jobs-final.json": "126d4082a1ff093995e5f69ce037ffcd0e84237c5633b554b7131a895d562a43",
+    "attempt2/macos-failure.log": "8ef00ac60044bd73e2e839af64b1606a467057976209e615f33e58f0a8c51b3f",
+    "attempt2/macos-verification-20.json": "32e45c3ed02af9500ba6288e34d57d4f6cdb855e4849b1ed043716aa094c83cf",
+    "attempt2/macos-two-attempt-comparison.json": "850c7e406b3792682ba14f5e37f6f7acff51e3005a06e3206bd5eaba2978dace",
+    "attempt1-failure-summary.json": "6516218dfba9b58dcc11c131efa4f4ebbc6fe13544b9d84d1748c7214d6631c4",
+    "native-windows-suite-proof.json": "82a184425db16573317f1dd19a16d07d0560428a4cbfb06e103f8baded0d1ccf"
+  }
+}

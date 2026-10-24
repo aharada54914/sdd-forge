@@ -1,0 +1,7 @@
+PASS bash CONTROL::prior-own-stage-NEEDS_WORK exit=0 immutable=True
+PASS bash CONTROL::persisted-A-real-verifier exit=0 immutable=True
+PASS bash CONTROL::valid-interrupted-admission exit=0 immutable=True
+PASS bash TEST-057::reviewer_a.record_sha256::uppercase exit=1 immutable=True no_target=True
+PASS bash TEST-057::reviewer_a.record_sha256::nonhex exit=1 immutable=True no_target=True
+PASS bash TEST-057::reviewer_a.record_sha256::short exit=1 immutable=True no_target=True
+RESULT bash passed=6 failures=0 designed=3

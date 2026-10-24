@@ -1,0 +1,6 @@
+PASS bash CONTROL::prior-own-stage-NEEDS_WORK exit=0 immutable=True
+PASS bash CONTROL::persisted-A-real-verifier exit=0 immutable=True
+PASS bash CONTROL::valid-interrupted-admission exit=0 immutable=True
+PASS bash TEST-064::host-nonstandard-JSON-NaN exit=1 immutable=True no_target=True
+PASS bash TEST-064::host-nonstandard-JSON-Infinity exit=1 immutable=True no_target=True
+RESULT bash passed=5 failures=0 designed=2

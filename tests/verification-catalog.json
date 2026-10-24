@@ -1907,6 +1907,25 @@
       "runtime": "bash"
     },
     {
+      "path": "tests/spec-review-interrupted-recovery.tests.ps1",
+      "runtime": "powershell",
+      "requires": [
+        "python"
+      ],
+      "ci_jobs": [
+        "test",
+        "test-windows-heavy"
+      ]
+    },
+    {
+      "path": "tests/spec-review-interrupted-recovery.tests.sh",
+      "runtime": "bash",
+      "requires": [
+        "python"
+      ],
+      "delegated_to": "tests/spec-review-loop.tests.sh"
+    },
+    {
       "path": "tests/spec-review-loop.tests.sh",
       "runtime": "bash",
       "ci_jobs": [
@@ -2657,7 +2676,8 @@
       "tests/model-observation.tests.py",
       "tests/model-identity.tests.py",
       "tests/model-policy.tests.py",
-      "tests/model-policy-launch-platform.tests.py"
+      "tests/model-policy-launch-platform.tests.py",
+      "tests/spec-review-interrupted-recovery.tests.ps1"
     ],
     "ci-posix-fallback": [
       "tests/verification-ci-plan.tests.py",
@@ -2783,7 +2803,8 @@
       "tests/model-observation.tests.py",
       "tests/model-identity.tests.py",
       "tests/model-policy.tests.py",
-      "tests/model-policy-launch-platform.tests.py"
+      "tests/model-policy-launch-platform.tests.py",
+      "tests/spec-review-interrupted-recovery.tests.ps1"
     ]
   }
 }

@@ -1,0 +1,54 @@
+[
+  {
+    "function": "validate_contract",
+    "runtime": "sh",
+    "sha256": {
+      "baseline": "f7bbb09dc27e6417883aa3a36dd8c8622ed50e0609742b707b3d14cb4dfcb84e",
+      "regression": "f7bbb09dc27e6417883aa3a36dd8c8622ed50e0609742b707b3d14cb4dfcb84e"
+    },
+    "unchanged": true
+  },
+  {
+    "function": "validate_reviewer_output",
+    "runtime": "sh",
+    "sha256": {
+      "baseline": "3f6bbf3736f915307fe9be3558f97b9411ac33d8b5f8d1ed1ce95a29b91ea6fe",
+      "regression": "3f6bbf3736f915307fe9be3558f97b9411ac33d8b5f8d1ed1ce95a29b91ea6fe"
+    },
+    "unchanged": true
+  },
+  {
+    "function": "Test-ValidateContract",
+    "runtime": "ps1",
+    "sha256": {
+      "baseline": "78834b54ff8229d8989406e46265a30f61787bfe2a05602bf874f94f46609b9f",
+      "regression": "78834b54ff8229d8989406e46265a30f61787bfe2a05602bf874f94f46609b9f"
+    },
+    "unchanged": true
+  },
+  {
+    "function": "Test-ValidateReviewerOutput",
+    "runtime": "ps1",
+    "sha256": {
+      "baseline": "e846a12ff9f1b8dff67919b52b764da55c289853355ca2d7e2cc95dca2bbdae8",
+      "regression": "e846a12ff9f1b8dff67919b52b764da55c289853355ca2d7e2cc95dca2bbdae8"
+    },
+    "unchanged": true
+  },
+  {
+    "file": "validate-review-context-set.sh",
+    "sha256": {
+      "baseline": "47e7d8de3281e3b20b52a2c03ecde820167a20149bbdaac6022d7ebe4f7e9735",
+      "regression": "47e7d8de3281e3b20b52a2c03ecde820167a20149bbdaac6022d7ebe4f7e9735"
+    },
+    "unchanged": true
+  },
+  {
+    "file": "validate-review-context-set.ps1",
+    "sha256": {
+      "baseline": "e6325e03773792ad28081447a5884e040fa537f9261f81f13c87d6d597064cda",
+      "regression": "e6325e03773792ad28081447a5884e040fa537f9261f81f13c87d6d597064cda"
+    },
+    "unchanged": true
+  }
+]

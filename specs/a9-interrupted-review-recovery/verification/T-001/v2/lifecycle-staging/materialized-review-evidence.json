@@ -1,0 +1,368 @@
+{
+  "source_head": "d4d10f8a6666608f09eaa307d28073bcb41a123f",
+  "scope": "only exact three public feature review directories; no ledger access",
+  "file_count": 60,
+  "total_bytes": 178354,
+  "files": [
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-1/design-round-1-proposed-changes.md",
+      "bytes": 2444,
+      "sha256": "a53fac3fb8197b4b32467cbdae4d34944067c4bc8d0015b023847030ea396ba9",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-1/impl-review-contract.json",
+      "bytes": 5255,
+      "sha256": "3479946ee820aca21041f7c25142b0bdc67e72e194ab43a333913ce9bbb8f5ea",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-1/integrated-summary.json",
+      "bytes": 519,
+      "sha256": "322f03a7ee8fcac644ecebfe1fd650263efae5bcec99c1d897c4ba62da89dc30",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-1/integrated-verdict.json",
+      "bytes": 357,
+      "sha256": "ede720c343272f57f8ed221e06d14467829e04f34d220bc56812f9f3b5da843c",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-1/precheck-result.json",
+      "bytes": 990,
+      "sha256": "ef6dd62c15eae3cf67c9923c99c714b3ac02ac38beb9da82cb533659fc2bcec4",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-1/reviewer-a.json",
+      "bytes": 6983,
+      "sha256": "75e3557e2ee4a37e5f2902abfcfe8a5347c7e322c568225a24834b379456a313",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-1/reviewer-b.json",
+      "bytes": 7031,
+      "sha256": "53242244c09bec4c19bf97b743200e72d808d48d2e2b75484c23bd2d961ed049",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-2/impl-review-contract.json",
+      "bytes": 5720,
+      "sha256": "2d35d9d03fd1dbb3e311fb68e1074a64a89552aa53554fd4d63924ba126d55ae",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-2/integrated-summary.json",
+      "bytes": 524,
+      "sha256": "7a4c648bb729a630def09369c283bd7b369ab6fa4e8a74c142523dec32df1585",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-2/integrated-verdict.json",
+      "bytes": 345,
+      "sha256": "91a5df3e2464b19d2c5d96136204da1112235ae2ccc3a7e10140fc51bed7d2bd",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-2/precheck-result.json",
+      "bytes": 990,
+      "sha256": "a1181941c9cb7471a73d0134ac04167a4d60ebe1103b4b290c4ba5b4edcf3c18",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-2/reviewer-a.json",
+      "bytes": 7217,
+      "sha256": "79c11d4c58913bc89a5a4b98ee4e7e484b2ebc2fc1cfd37767cfc412be9885c0",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/impl-review/a9-interrupted-review-recovery/attempt-1/round-2/reviewer-b.json",
+      "bytes": 7176,
+      "sha256": "be20f26d4f69219830f597251381ded84580e20fb8f03b306135ac0cac62cebb",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-1/integrated-summary.json",
+      "bytes": 906,
+      "sha256": "5081d009de89411d589050ffcea9f00e1faaf41ede9d96902ebc452c583147d7",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-1/integrated-verdict.json",
+      "bytes": 543,
+      "sha256": "3af583496d60fba184ef596113bd9e5d9d2da94f979eb0c7e952fe087c56908b",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-1/precheck-result.json",
+      "bytes": 655,
+      "sha256": "04c339c4badfa612d2a7f5f24f36a348cf9c005fb6ed0dd943af25e9c1f3e4f6",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-1/reviewer-a.json",
+      "bytes": 4725,
+      "sha256": "da55aabbfad2e942404db1f31c271625ec2de9296b715924590d89c960f3f4c1",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-1/reviewer-b.json",
+      "bytes": 5717,
+      "sha256": "02f161227f6df86d7655a43b974a458822ea9e8d9876d8f68d99792b1bfe716c",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-1/spec-review-contract.json",
+      "bytes": 2669,
+      "sha256": "b90dc70b5e7c59c80172ef48e0c749bbeb61303116c61b913ac9697403afec48",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-1/spec-review-report.md",
+      "bytes": 1405,
+      "sha256": "62f85e50313a0f247a2479be7fc9faa42fced45f259c2f410c1b3634ea0652a6",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-2/integrated-summary.json",
+      "bytes": 903,
+      "sha256": "fa4c27039f09cecc7299d7224f365084b02544b73f064e61526799ea8aaf11a8",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-2/integrated-verdict.json",
+      "bytes": 537,
+      "sha256": "917af4f2db9f737f45637eb52fe18ca7f83a6b029f2984c298fcdd218cd7d45a",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-2/precheck-result.json",
+      "bytes": 796,
+      "sha256": "ca580155674d636eb7302185e8ac511ace52f2d3328d6a67ecc8d51a2d106f54",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-2/reviewer-a.json",
+      "bytes": 4172,
+      "sha256": "a60d06008d50471b23f9edec907ab547b177917993dca928986d5453692abd98",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-2/reviewer-b.json",
+      "bytes": 4117,
+      "sha256": "f04d641ce6d02525c62827f49201e8573729cca49ad96e2cd7daadd15c17aaa1",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-2/spec-review-contract.json",
+      "bytes": 2663,
+      "sha256": "0868a59ca188a62b9b97fb665002c58bcd02f9425bb6622c122607c71c834cd8",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/spec-review/a9-interrupted-review-recovery/attempt-1/round-2/spec-review-report.md",
+      "bytes": 2458,
+      "sha256": "9f40c772bb7687f7e22da0e9193afb2d8d771d3dcb056e16ef5ddbeff4627a2a",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-1/dependency-graph.json",
+      "bytes": 299,
+      "sha256": "9fc9dd15c464d954cb4fd0320eb70783169f3abd96f84098394a93662380d8ab",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-1/integrated-summary.json",
+      "bytes": 553,
+      "sha256": "9e20485c9d20dc689050c6ad255e60d3aa523b435759496812269393f6e541c1",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-1/integrated-verdict.json",
+      "bytes": 357,
+      "sha256": "545b648144660d16f3dbdc091042d797fbd3cfac9de9dc1cf27f64db143ddd57",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-1/precheck-result.json",
+      "bytes": 1188,
+      "sha256": "a96a4b753cc76627b071c0bc6e5cf8a96933201cb23fdc948e24f587779e65d2",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-1/reviewer-a.json",
+      "bytes": 8764,
+      "sha256": "2b8dcea7a2963c720a4ad47e594e482c0b1e65741af7ebb39469878414a779cd",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-1/reviewer-b.json",
+      "bytes": 7635,
+      "sha256": "1d5887a6834fcba6f10e0b592412c6f98f3730e87eec30409cee27bf375f44a7",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-1/task-review-contract.json",
+      "bytes": 6682,
+      "sha256": "995c7e7731a738476a44f07ae0bbbe093d9d521f8b0501fe2b2b0041596d2ce0",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-1/tasks-round-1-proposed-changes.md",
+      "bytes": 2189,
+      "sha256": "3621d29094085d5b0cd14defe5cd1e3eed2aba313b294d8477ad83248cf992e6",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-2/dependency-graph.json",
+      "bytes": 299,
+      "sha256": "284ace8fe7562fb1d1d95ccb69b83832452d90ef49d2ece8e919732c624e7d0d",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-2/human-edit-summary.md",
+      "bytes": 733,
+      "sha256": "2c49664763bb09beaa6072fd2bbc4fdaa9e54db94b044674ea4263245011d6e4",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-2/integrated-summary.json",
+      "bytes": 553,
+      "sha256": "e3e7167678ce1c0c2318c06cc1459c50260e43829952d51dd770721035fd0e27",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-2/integrated-verdict.json",
+      "bytes": 357,
+      "sha256": "10a09ab8c94d101104ce53e84764510fba4d3b4ea39901d65494f09bdfa8b0b5",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-2/precheck-result.json",
+      "bytes": 1188,
+      "sha256": "946945b807b8be776150cd21dab620ad97b137466537797969807ef382deea04",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-2/reviewer-a.json",
+      "bytes": 8528,
+      "sha256": "c2cf6f0c36970b83ad492cca3cb6b6d4e0407876097027fdc6c5edd54386e7f6",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-2/reviewer-b.json",
+      "bytes": 6952,
+      "sha256": "f6c72789499bbe29d09effcbdf24351b1286cd2781f079cca1efff5790b187ca",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-2/task-review-contract.json",
+      "bytes": 7139,
+      "sha256": "5f9ca8877893b19bdf55d037e2e977aa84acc34ad607590e7a1455ffa1ef5978",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-2/tasks-round-2-proposed-changes.md",
+      "bytes": 2239,
+      "sha256": "f29e1b548273f55f3096559655e7b6a3ba7cfc4e38c215a8429083f18c27c8c6",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-3/dependency-graph.json",
+      "bytes": 299,
+      "sha256": "11fca48f993705d97b9defe2b7606e4a8302f3145db5ba53b3cd923e0da23d7b",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-3/human-edit-summary.md",
+      "bytes": 493,
+      "sha256": "a944a0ca274e27241beb8be04c000de5d3b66733f5d27327215ec8467d583853",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-3/integrated-summary.json",
+      "bytes": 549,
+      "sha256": "3a7edcea39fafe9ca5e09ee69967d142d9efc3fb1f14772bbdf1574f2f446283",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-3/integrated-verdict.json",
+      "bytes": 357,
+      "sha256": "bae426fcb6fde2bf39222d6283230325aabf398af1b0f03b7ef8d6200ae5ae77",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-3/precheck-result.json",
+      "bytes": 1188,
+      "sha256": "ed07ff785fadb4a605bcad2d9a880fbfe1e2e5e5fec32cb79a49511542821e70",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-3/reviewer-a.json",
+      "bytes": 5665,
+      "sha256": "9639c75a5e6a3d206fafc9ed684c81e71ca8debee8f32c1b9160676f69404f2f",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-3/reviewer-b.json",
+      "bytes": 4669,
+      "sha256": "44570e777f8fc3eea4a67455e8bcdeb18c36487273113a4c0a0661b06bafafc0",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-3/task-review-contract.json",
+      "bytes": 6119,
+      "sha256": "5615975739baedca3e37e6b220fc54dd3cc5fb995060dc0dbb771111ff0dfef1",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-1/round-3/terminal-report.md",
+      "bytes": 1598,
+      "sha256": "f0ffab34230e5c3fad34590252e5fe84f96836345158af97d0ba1e7e59782356",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-2/round-1/dependency-graph.json",
+      "bytes": 299,
+      "sha256": "87eeb82eb60cdecf9ac822a4f122466aebf07477b70ae4d30f050ec9fa4b440d",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-2/round-1/integrated-summary.json",
+      "bytes": 553,
+      "sha256": "98aa672b2be127978330f81784b0d3a504e0d69f05264e114ea47272db18f0cc",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-2/round-1/integrated-verdict.json",
+      "bytes": 345,
+      "sha256": "3c81d9cffd2077f2bf0829fdf0eae3e2de61bab3dbe1b64fad8bb86970465da5",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-2/round-1/precheck-result.json",
+      "bytes": 1188,
+      "sha256": "e2d50daca31018d0b2c487b0ead6819f71839ffd9c7358923f5a17dfc7818f95",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-2/round-1/reviewer-a.json",
+      "bytes": 7683,
+      "sha256": "56ec2c3f4c4836ef17aa8ed3d5c3326046daad413e479e849069835721e6da37",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-2/round-1/reviewer-b.json",
+      "bytes": 7211,
+      "sha256": "408fc65f84c568bcd6d5ff3a613b59d9ce6b13c013c1e43416eb0d76baac9392",
+      "action": "materialized exact tracked Git blob"
+    },
+    {
+      "path": "reports/task-review/a9-interrupted-review-recovery/attempt-2/round-1/task-review-contract.json",
+      "bytes": 6666,
+      "sha256": "84847b0976a8852f97db783fadfbf3a58452c09dce69e544a30b817b3ce7e7ee",
+      "action": "materialized exact tracked Git blob"
+    }
+  ]
+}

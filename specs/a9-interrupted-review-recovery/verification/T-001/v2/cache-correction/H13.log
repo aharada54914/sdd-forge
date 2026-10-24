@@ -1,0 +1,11 @@
+RUNTIME powershell {"architecture": "X64", "executable": "/workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh", "os": "Debian GNU/Linux 13 (trixie)", "runtime": ".NET 10.0.13", "version": "7.6.7"}
+PASS powershell CONTROL::prior-own-stage-NEEDS_WORK exit=0 immutable=True
+PASS powershell CONTROL::persisted-A-real-verifier exit=0 immutable=True
+PASS powershell CONTROL::valid-interrupted-admission exit=0 immutable=True
+PASS powershell TEST-057-H13::null exit=1 immutable=True no_target=True
+PASS powershell TEST-057-H13::uppercase exit=1 immutable=True no_target=True
+PASS powershell TEST-057-H13::nonhex exit=1 immutable=True no_target=True
+PASS powershell TEST-057-H13::short exit=1 immutable=True no_target=True
+PASS powershell TEST-057-H13::incorrect exit=1 immutable=True no_target=True
+PASS powershell TEST-057-H13::missing exit=1 immutable=True no_target=True
+RESULT powershell passed=9 failures=0 designed=6

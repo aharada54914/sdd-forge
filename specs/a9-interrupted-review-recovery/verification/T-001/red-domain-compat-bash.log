@@ -1,0 +1,6 @@
+PASS bash CONTROL::prior-own-stage-NEEDS_WORK exit=0 immutable=True
+PASS bash CONTROL::persisted-A-real-verifier exit=0 immutable=True
+PASS bash CONTROL::valid-interrupted-admission exit=0 immutable=True
+FAIL bash TEST-079::later-unrelated-domain-real-verifier exit=1 immutable=True no_target=True
+ERROR: interrupted recovery: ambiguous invocation precheck path
+RESULT bash passed=3 failures=1 designed=1

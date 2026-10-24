@@ -1,0 +1,19 @@
+{
+  "python_compile": "PASS",
+  "changed_existing_functions": [
+    "run_driver",
+    "run_identity",
+    "mutations",
+    "main"
+  ],
+  "original_logic_after_reversing_authorized_changes": "byte-identical",
+  "unchanged_files": {
+    "tests/spec-review-interrupted-recovery.tests.ps1": true,
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": true,
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": true,
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh": true,
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1": true,
+    "specs/a9-interrupted-review-recovery/tasks.md": true
+  },
+  "four_workers_preserved": true
+}

@@ -1,0 +1,8 @@
+PASS powershell CONTROL::prior-own-stage-NEEDS_WORK exit=0 immutable=True
+PASS powershell CONTROL::persisted-A-real-verifier exit=0 immutable=True
+PASS powershell CONTROL::valid-interrupted-admission exit=0 immutable=True
+FAIL powershell TEST-080::canonical-B-omitted-source-pin exit=0 immutable=True no_target=True
+REVIEW_CONTEXT_OK 5d675348128346e0112a6a97d5b5c9e36fb4da6315446c7af60293cf8605c76b sequence=2 previous_record_sha256=fa287cba92cb5be703d80a6ece0eb4c2edce47cf1230d77593feb7afa58c370f pre_append_tip_sequence=- identity_unique=yes
+FAIL powershell TEST-080::canonical-B-misdeclared-feature exit=0 immutable=True no_target=True
+REVIEW_CONTEXT_OK 5d675348128346e0112a6a97d5b5c9e36fb4da6315446c7af60293cf8605c76b sequence=2 previous_record_sha256=fa287cba92cb5be703d80a6ece0eb4c2edce47cf1230d77593feb7afa58c370f pre_append_tip_sequence=- identity_unique=yes
+RESULT powershell passed=3 failures=2 designed=2

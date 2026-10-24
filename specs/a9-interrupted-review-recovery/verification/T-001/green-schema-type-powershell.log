@@ -1,0 +1,9 @@
+PASS powershell CONTROL::prior-own-stage-NEEDS_WORK exit=0 immutable=True
+PASS powershell CONTROL::persisted-A-real-verifier exit=0 immutable=True
+PASS powershell CONTROL::valid-interrupted-admission exit=0 immutable=True
+PASS powershell TEST-051-F01::schema::null exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F01::schema::boolean-true exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F01::schema::array-value exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F01::schema::object-value exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F01::schema::number exit=1 immutable=True no_target=True
+RESULT powershell passed=8 failures=0 designed=5

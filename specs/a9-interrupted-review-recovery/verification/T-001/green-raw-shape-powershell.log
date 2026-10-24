@@ -1,0 +1,10 @@
+PASS powershell CONTROL::prior-own-stage-NEEDS_WORK exit=0 immutable=True
+PASS powershell CONTROL::persisted-A-real-verifier exit=0 immutable=True
+PASS powershell CONTROL::valid-interrupted-admission exit=0 immutable=True
+PASS powershell TEST-034::semantic exit=1 immutable=True no_target=True
+PASS powershell TEST-034::substantive-check::result exit=1 immutable=True no_target=True
+PASS powershell TEST-034::substantive-check::id exit=1 immutable=True no_target=True
+PASS powershell TEST-034::substantive-check::severity exit=1 immutable=True no_target=True
+PASS powershell TEST-034::substantive-check::finding exit=1 immutable=True no_target=True
+PASS powershell TEST-034::domain-skip-without-unreadability exit=1 immutable=True no_target=True
+RESULT powershell passed=9 failures=0 designed=6

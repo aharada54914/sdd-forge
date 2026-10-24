@@ -1,0 +1,57 @@
+{
+  "schema": "a9-t001-origin-procedures/v1",
+  "state": "independent procedural verification pending",
+  "actual_live_recovery": "not performed; excluded by task approval",
+  "authentication_boundary": "Orchestrator matches original human approval and human application to exact artifact/content digest before calling recovery. The validator authenticates no human author.",
+  "cases": [
+    {
+      "id": "TEST-041",
+      "name": "unsigned-conversation-copy-claimed-as-signed",
+      "expected": "block before invocation; conversation prose is not a signature",
+      "result": "not independently executed"
+    },
+    {
+      "id": "TEST-042",
+      "name": "agent-self-claim",
+      "expected": "block before invocation",
+      "result": "not independently executed"
+    },
+    {
+      "id": "TEST-042",
+      "name": "agent-summary",
+      "expected": "block before invocation",
+      "result": "not independently executed"
+    },
+    {
+      "id": "TEST-042",
+      "name": "artifact-alone",
+      "expected": "block before invocation",
+      "result": "not independently executed"
+    },
+    {
+      "id": "TEST-042",
+      "name": "human-copy-log-alone",
+      "expected": "block before invocation",
+      "result": "not independently executed"
+    },
+    {
+      "id": "TEST-042",
+      "name": "missing-original-user-approval",
+      "expected": "block before invocation",
+      "result": "not independently executed"
+    },
+    {
+      "id": "TEST-042",
+      "name": "missing-human-application",
+      "expected": "block before invocation",
+      "result": "not independently executed"
+    },
+    {
+      "id": "TEST-042",
+      "name": "application-content-or-binding-mismatch",
+      "expected": "block before invocation",
+      "result": "not independently executed"
+    }
+  ],
+  "limits": "Synthetic test authorizations are clearly fictional and establish only content/hash validation. Genuine task implementation approval is retained separately and does not satisfy AUTH-001."
+}

@@ -1,0 +1,18 @@
+{
+  "mode": "before",
+  "harness_sha256": "7a4eb91262f8e6bf97da089565d691fa9745e6a658805b16c88571901b67a85c",
+  "child_exits": [
+    0,
+    0
+  ],
+  "cache_paths": [
+    "/workspace/.tools/sdd-forge-dev/powershell/cache/powershell",
+    "/workspace/.tools/sdd-forge-dev/powershell/cache/powershell"
+  ],
+  "cache_paths_distinct": false,
+  "outside_fixture": true,
+  "removed_after_exit": false,
+  "parent_environment_unchanged": true,
+  "HOME_config_data_preserved": true,
+  "isolation_contract_pass": false
+}
