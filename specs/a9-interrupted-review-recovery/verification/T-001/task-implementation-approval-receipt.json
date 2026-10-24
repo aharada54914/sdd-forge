@@ -1,0 +1,33 @@
+{
+  "schema": "external-task-approval-receipt/v1",
+  "receipt_written_utc": "2026-10-24T06:55:08.068508+00:00",
+  "user_message_utc": null,
+  "timestamp_note": "Receipt write time only; original user reply has no independent UTC timestamp in supplied transcript.",
+  "question": "#197 の中断を回復する既存の3タスク（T-001 証拠・権限の検証、T-002 明示的な回復処理、T-003 後続処理との互換性確認）の実装を承認しますか？ [タスク仕様](/workspace/sdd-forge/specs/a9-interrupted-review-recovery/tasks.md)は保存済みレビュー結果とのハッシュ一致を確認しました。リポジトリの [AGENTS.md](/workspace/sdd-forge/AGENTS.md:9) が「A human reviews the specification and changes selected tasks to Approved」と定め、3件とも現在は Approval: Draft のため、この具体的なタスク選択を確認しています。実際の過去記録の回復・A9 の運用開始・required 化は、この承認には含めません。",
+  "answer": "承認する",
+  "questionItemId": [
+    "request_user_input_async",
+    "call_4eac64c538da4b1bba110b064ccec97a",
+    0
+  ],
+  "origin": "Actual user-channel structured reply in the current root thread; exact question/answer forwarded by parent /root to child /root/review_bootstrap_route.",
+  "approved_feature": "a9-interrupted-review-recovery",
+  "approved_tasks": [
+    "T-001",
+    "T-002",
+    "T-003"
+  ],
+  "approved_scope": "Implementation of the exact linked three-task plan, serial T-001 then T-002 then T-003; all required preflight, TDD, runtime checks and independent quality gates remain.",
+  "excluded": [
+    "Actual recovery of historical review records",
+    "A9 operational activation",
+    "Required-mode promotion",
+    "AUTH-001 actual human application event",
+    "Model adoption or review identity evidence"
+  ],
+  "task_path": "specs/a9-interrupted-review-recovery/tasks.md",
+  "task_original_sha256": "03d38f8d4caf17d99066ced438d5eae842092b20830189cc3373afa71d4e4d8b",
+  "task_approved_copy_sha256": "145eddc14595b1328701233c0165bfe8d6738487d8ca54d9109a6f2698da863f",
+  "base_commit": "f8746874413e96775f4b64671a3696be2cc90e7d",
+  "mutation": "External proposed patch only: exactly three Approval: Draft lines become Approval: Approved. Status remains Planned, all task body bytes preserved. Not yet applied to any repository."
+}

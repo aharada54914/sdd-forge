@@ -1,0 +1,1406 @@
+{
+  "state": "Complete design mapping for listed fields; tests not authored/run; implementation remains blocked on genuine Red checkpoint and actual fixture proof",
+  "base": "f8746874413e96775f4b64671a3696be2cc90e7d",
+  "rows": [
+    {
+      "field": "recovery.schema",
+      "counterpart": "Closed recovery record schema literal",
+      "named_failing_mismatch_test": "TEST-050-F01::missing; TEST-051-F01::wrong-type; TEST-044::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.feature",
+      "counterpart": "CLI feature and source/target prechecks",
+      "named_failing_mismatch_test": "TEST-050-F02::missing; TEST-051-F02::wrong-type; TEST-045::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.source",
+      "counterpart": "Actual immediately preceding attempt latest round",
+      "named_failing_mismatch_test": "TEST-050-F03::missing; TEST-051-F03::wrong-type; TEST-008::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.source.attempt",
+      "counterpart": "Actual source attempt, target.attempt - 1",
+      "named_failing_mismatch_test": "TEST-050-F04::missing; TEST-051-F04::wrong-type; TEST-046::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.source.round",
+      "counterpart": "Actual latest source round, previous_contract.round + 1",
+      "named_failing_mismatch_test": "TEST-050-F05::missing; TEST-051-F05::wrong-type; TEST-047::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.target",
+      "counterpart": "CLI attempt and round",
+      "named_failing_mismatch_test": "TEST-050-F06::missing; TEST-051-F06::wrong-type; TEST-048::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.target.attempt",
+      "counterpart": "CLI attempt, source.attempt + 1",
+      "named_failing_mismatch_test": "TEST-050-F07::missing; TEST-051-F07::wrong-type; TEST-048::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.target.round",
+      "counterpart": "CLI round and constant 1",
+      "named_failing_mismatch_test": "TEST-050-F08::missing; TEST-051-F08::wrong-type; TEST-049::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.authorization",
+      "counterpart": "Eight bare binding lines, exact raw bytes, canonical record digest",
+      "named_failing_mismatch_test": "TEST-050-F09::missing; TEST-051-F09::wrong-type; TEST-035::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.previous_contract",
+      "counterpart": "Canonical source previous round own-stage NEEDS_WORK contract",
+      "named_failing_mismatch_test": "TEST-050-F10::missing; TEST-051-F10::wrong-type; TEST-016::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_precheck",
+      "counterpart": "Canonical source precheck-result.json; repeated inventory entry",
+      "named_failing_mismatch_test": "TEST-050-F11::missing; TEST-051-F11::wrong-type; TEST-062::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.pinned_inputs",
+      "counterpart": "Exactly four sorted unique canonical inputs; source precheck and invocation",
+      "named_failing_mismatch_test": "TEST-050-F12::missing; TEST-051-F12::wrong-type; TEST-058::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_artifacts",
+      "counterpart": "Exactly six sorted unique canonical references; five local files plus external invocation",
+      "named_failing_mismatch_test": "TEST-050-F13::missing; TEST-051-F13::wrong-type; TEST-068::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.reviewer_a",
+      "counterpart": "Persisted A identity, invocation and reservation receipt",
+      "named_failing_mismatch_test": "TEST-050-F14::missing; TEST-051-F14::wrong-type; TEST-069::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.reviewer_a.invocation",
+      "counterpart": "Exact same path/hash as inventory a_invocation",
+      "named_failing_mismatch_test": "TEST-050-F15::missing; TEST-051-F15::wrong-type; TEST-066::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.reviewer_a.sequence",
+      "counterpart": "Invocation sequence and persisted historical record sequence",
+      "named_failing_mismatch_test": "TEST-050-F16::missing; TEST-051-F16::wrong-type; TEST-069::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.reviewer_a.stage",
+      "counterpart": "Invocation/persisted stage and literal spec",
+      "named_failing_mismatch_test": "TEST-050-F17::missing; TEST-051-F17::wrong-type; TEST-072::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.reviewer_a.role",
+      "counterpart": "Invocation/persisted role and literal spec-reviewer-a",
+      "named_failing_mismatch_test": "TEST-050-F18::missing; TEST-051-F18::wrong-type; TEST-073::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.reviewer_a.run_id",
+      "counterpart": "Invocation, persisted record, raw diagnostic and host identity",
+      "named_failing_mismatch_test": "TEST-050-F19::missing; TEST-051-F19::wrong-type; TEST-070::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.reviewer_a.host_session_id",
+      "counterpart": "Invocation, persisted record and allocation host receipt",
+      "named_failing_mismatch_test": "TEST-050-F20::missing; TEST-051-F20::wrong-type; TEST-071::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.reviewer_a.record_sha256",
+      "counterpart": "Recomputed historical record SHA and reservation REVIEW_CONTEXT_OK hash",
+      "named_failing_mismatch_test": "TEST-050-F21::missing; TEST-051-F21::wrong-type; TEST-074::counterpart-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.authorization.path",
+      "counterpart": "Canonical authorization role-specific repository path and same path in source/invocation/inventory",
+      "named_failing_mismatch_test": "TEST-083-P01::authorization::path-mutation; TEST-050::authorization.path::missing",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.authorization.sha256",
+      "counterpart": "Exact bytes at admitted canonical authorization path, plus all repeated pins",
+      "named_failing_mismatch_test": "TEST-057-H01::authorization::incorrect; TEST-057-H01::authorization::missing/null/uppercase/nonhex/short",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.previous_contract.path",
+      "counterpart": "Canonical previous_contract role-specific repository path and same path in source/invocation/inventory",
+      "named_failing_mismatch_test": "TEST-083-P02::previous_contract::path-mutation; TEST-050::previous_contract.path::missing",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.previous_contract.sha256",
+      "counterpart": "Exact bytes at admitted canonical previous_contract path, plus all repeated pins",
+      "named_failing_mismatch_test": "TEST-057-H02::previous_contract::incorrect; TEST-057-H02::previous_contract::missing/null/uppercase/nonhex/short",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_precheck.path",
+      "counterpart": "Canonical interrupted_precheck role-specific repository path and same path in source/invocation/inventory",
+      "named_failing_mismatch_test": "TEST-083-P03::interrupted_precheck::path-mutation; TEST-050::interrupted_precheck.path::missing",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_precheck.sha256",
+      "counterpart": "Exact bytes at admitted canonical interrupted_precheck path, plus all repeated pins",
+      "named_failing_mismatch_test": "TEST-057-H03::interrupted_precheck::incorrect; TEST-057-H03::interrupted_precheck::missing/null/uppercase/nonhex/short",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.pinned_inputs.requirements.path",
+      "counterpart": "Canonical pinned_inputs.requirements role-specific repository path and same path in source/invocation/inventory",
+      "named_failing_mismatch_test": "TEST-083-P04::pinned_inputs.requirements::path-mutation; TEST-050::pinned_inputs.requirements.path::missing",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.pinned_inputs.requirements.sha256",
+      "counterpart": "Exact bytes at admitted canonical pinned_inputs.requirements path, plus all repeated pins",
+      "named_failing_mismatch_test": "TEST-057-H04::pinned_inputs.requirements::incorrect; TEST-057-H04::pinned_inputs.requirements::missing/null/uppercase/nonhex/short",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.pinned_inputs.acceptance.path",
+      "counterpart": "Canonical pinned_inputs.acceptance role-specific repository path and same path in source/invocation/inventory",
+      "named_failing_mismatch_test": "TEST-083-P05::pinned_inputs.acceptance::path-mutation; TEST-050::pinned_inputs.acceptance.path::missing",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.pinned_inputs.acceptance.sha256",
+      "counterpart": "Exact bytes at admitted canonical pinned_inputs.acceptance path, plus all repeated pins",
+      "named_failing_mismatch_test": "TEST-057-H05::pinned_inputs.acceptance::incorrect; TEST-057-H05::pinned_inputs.acceptance::missing/null/uppercase/nonhex/short",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.pinned_inputs.investigation.path",
+      "counterpart": "Canonical pinned_inputs.investigation role-specific repository path and same path in source/invocation/inventory",
+      "named_failing_mismatch_test": "TEST-083-P06::pinned_inputs.investigation::path-mutation; TEST-050::pinned_inputs.investigation.path::missing",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.pinned_inputs.investigation.sha256",
+      "counterpart": "Exact bytes at admitted canonical pinned_inputs.investigation path, plus all repeated pins",
+      "named_failing_mismatch_test": "TEST-057-H06::pinned_inputs.investigation::incorrect; TEST-057-H06::pinned_inputs.investigation::missing/null/uppercase/nonhex/short",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.pinned_inputs.calibration.path",
+      "counterpart": "Canonical pinned_inputs.calibration role-specific repository path and same path in source/invocation/inventory",
+      "named_failing_mismatch_test": "TEST-083-P07::pinned_inputs.calibration::path-mutation; TEST-050::pinned_inputs.calibration.path::missing",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.pinned_inputs.calibration.sha256",
+      "counterpart": "Exact bytes at admitted canonical pinned_inputs.calibration path, plus all repeated pins",
+      "named_failing_mismatch_test": "TEST-057-H07::pinned_inputs.calibration::incorrect; TEST-057-H07::pinned_inputs.calibration::missing/null/uppercase/nonhex/short",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.precheck.path",
+      "counterpart": "Canonical interrupted_artifacts.precheck role-specific repository path and same path in source/invocation/inventory",
+      "named_failing_mismatch_test": "TEST-083-P08::interrupted_artifacts.precheck::path-mutation; TEST-050::interrupted_artifacts.precheck.path::missing",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.precheck.sha256",
+      "counterpart": "Exact bytes at admitted canonical interrupted_artifacts.precheck path, plus all repeated pins",
+      "named_failing_mismatch_test": "TEST-057-H08::interrupted_artifacts.precheck::incorrect; TEST-057-H08::interrupted_artifacts.precheck::missing/null/uppercase/nonhex/short",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_raw.path",
+      "counterpart": "Canonical interrupted_artifacts.a_raw role-specific repository path and same path in source/invocation/inventory",
+      "named_failing_mismatch_test": "TEST-083-P09::interrupted_artifacts.a_raw::path-mutation; TEST-050::interrupted_artifacts.a_raw.path::missing",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_raw.sha256",
+      "counterpart": "Exact bytes at admitted canonical interrupted_artifacts.a_raw path, plus all repeated pins",
+      "named_failing_mismatch_test": "TEST-057-H09::interrupted_artifacts.a_raw::incorrect; TEST-057-H09::interrupted_artifacts.a_raw::missing/null/uppercase/nonhex/short",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_reservation.path",
+      "counterpart": "Canonical interrupted_artifacts.a_reservation role-specific repository path and same path in source/invocation/inventory",
+      "named_failing_mismatch_test": "TEST-083-P10::interrupted_artifacts.a_reservation::path-mutation; TEST-050::interrupted_artifacts.a_reservation.path::missing",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_reservation.sha256",
+      "counterpart": "Exact bytes at admitted canonical interrupted_artifacts.a_reservation path, plus all repeated pins",
+      "named_failing_mismatch_test": "TEST-057-H10::interrupted_artifacts.a_reservation::incorrect; TEST-057-H10::interrupted_artifacts.a_reservation::missing/null/uppercase/nonhex/short",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_host_receipt.path",
+      "counterpart": "Canonical interrupted_artifacts.a_host_receipt role-specific repository path and same path in source/invocation/inventory",
+      "named_failing_mismatch_test": "TEST-083-P11::interrupted_artifacts.a_host_receipt::path-mutation; TEST-050::interrupted_artifacts.a_host_receipt.path::missing",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_host_receipt.sha256",
+      "counterpart": "Exact bytes at admitted canonical interrupted_artifacts.a_host_receipt path, plus all repeated pins",
+      "named_failing_mismatch_test": "TEST-057-H11::interrupted_artifacts.a_host_receipt::incorrect; TEST-057-H11::interrupted_artifacts.a_host_receipt::missing/null/uppercase/nonhex/short",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.diagnostic_report.path",
+      "counterpart": "Canonical interrupted_artifacts.diagnostic_report role-specific repository path and same path in source/invocation/inventory",
+      "named_failing_mismatch_test": "TEST-083-P12::interrupted_artifacts.diagnostic_report::path-mutation; TEST-050::interrupted_artifacts.diagnostic_report.path::missing",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.diagnostic_report.sha256",
+      "counterpart": "Exact bytes at admitted canonical interrupted_artifacts.diagnostic_report path, plus all repeated pins",
+      "named_failing_mismatch_test": "TEST-057-H12::interrupted_artifacts.diagnostic_report::incorrect; TEST-057-H12::interrupted_artifacts.diagnostic_report::missing/null/uppercase/nonhex/short",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_invocation.path",
+      "counterpart": "Canonical interrupted_artifacts.a_invocation role-specific repository path and same path in source/invocation/inventory",
+      "named_failing_mismatch_test": "TEST-083-P13::interrupted_artifacts.a_invocation::path-mutation; TEST-050::interrupted_artifacts.a_invocation.path::missing",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_invocation.sha256",
+      "counterpart": "Exact bytes at admitted canonical interrupted_artifacts.a_invocation path, plus all repeated pins",
+      "named_failing_mismatch_test": "TEST-057-H13::interrupted_artifacts.a_invocation::incorrect; TEST-057-H13::interrupted_artifacts.a_invocation::missing/null/uppercase/nonhex/short",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.reviewer_a.invocation.path",
+      "counterpart": "Canonical reviewer_a.invocation role-specific repository path and same path in source/invocation/inventory",
+      "named_failing_mismatch_test": "TEST-083-P14::reviewer_a.invocation::path-mutation; TEST-050::reviewer_a.invocation.path::missing",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "recovery.reviewer_a.invocation.sha256",
+      "counterpart": "Exact bytes at admitted canonical reviewer_a.invocation path, plus all repeated pins",
+      "named_failing_mismatch_test": "TEST-057-H14::reviewer_a.invocation::incorrect; TEST-057-H14::reviewer_a.invocation::missing/null/uppercase/nonhex/short",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "authorization.Feature",
+      "counterpart": "recovery record feature; exactly one bare line",
+      "named_failing_mismatch_test": "TEST-050-A01::missing-line; TEST-050-A01::duplicate-line; TEST-050-A01::changed-value",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "authorization.Source Attempt",
+      "counterpart": "recovery record source.attempt; exactly one bare line",
+      "named_failing_mismatch_test": "TEST-050-A02::missing-line; TEST-050-A02::duplicate-line; TEST-050-A02::changed-value",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "authorization.Source Round",
+      "counterpart": "recovery record source.round; exactly one bare line",
+      "named_failing_mismatch_test": "TEST-050-A03::missing-line; TEST-050-A03::duplicate-line; TEST-050-A03::changed-value",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "authorization.Target Attempt",
+      "counterpart": "recovery record target.attempt; exactly one bare line",
+      "named_failing_mismatch_test": "TEST-050-A04::missing-line; TEST-050-A04::duplicate-line; TEST-050-A04::changed-value",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "authorization.Target Round",
+      "counterpart": "exactly 1, matching target.round; exactly one bare line",
+      "named_failing_mismatch_test": "TEST-050-A05::missing-line; TEST-050-A05::duplicate-line; TEST-050-A05::changed-value",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "authorization.Maximum Rounds",
+      "counterpart": "exactly 3; exactly one bare line",
+      "named_failing_mismatch_test": "TEST-050-A06::missing-line; TEST-050-A06::duplicate-line; TEST-050-A06::changed-value",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "authorization.Decision",
+      "counterpart": "exactly `Authorize interrupted A-before-B recovery`; exactly one bare line",
+      "named_failing_mismatch_test": "TEST-050-A07::missing-line; TEST-050-A07::duplicate-line; TEST-050-A07::changed-value",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "authorization.Recovery Binding SHA256",
+      "counterpart": "lowercase 64-hex canonical record digest defined in requirements.md; exactly one bare line",
+      "named_failing_mismatch_test": "TEST-050-A08::missing-line; TEST-050-A08::duplicate-line; TEST-050-A08::changed-value",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_precheck.schema",
+      "counterpart": "spec-review-precheck/v1",
+      "named_failing_mismatch_test": "TEST-062::schema-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_precheck.stage",
+      "counterpart": "spec",
+      "named_failing_mismatch_test": "TEST-062::stage-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_precheck.feature",
+      "counterpart": "record.feature / CLI feature",
+      "named_failing_mismatch_test": "TEST-062::feature-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_precheck.attempt",
+      "counterpart": "record.source.attempt",
+      "named_failing_mismatch_test": "TEST-046::source-precheck-attempt",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_precheck.round",
+      "counterpart": "record.source.round",
+      "named_failing_mismatch_test": "TEST-047::source-precheck-round",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_precheck.spec_review_status_field",
+      "counterpart": "Exact Pending; current requirements Spec-Review-Status",
+      "named_failing_mismatch_test": "TEST-012/013/014/015::status",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_precheck.requirements_sha256",
+      "counterpart": "live requirements bytes, pinned_inputs and invocation",
+      "named_failing_mismatch_test": "TEST-058::live-requirements",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_precheck.acceptance_sha256",
+      "counterpart": "live acceptance bytes, pinned_inputs and invocation",
+      "named_failing_mismatch_test": "TEST-059::live-acceptance",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_precheck.investigation_sha256",
+      "counterpart": "required live investigation bytes, pinned_inputs and invocation",
+      "named_failing_mismatch_test": "TEST-060::live-investigation",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_precheck.calibration_sha256",
+      "counterpart": "live calibration bytes, pinned_inputs and invocation",
+      "named_failing_mismatch_test": "TEST-061::live-calibration",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_precheck.input_sha256",
+      "counterpart": "existing SHA(requirements:acceptance:investigation) composite",
+      "named_failing_mismatch_test": "TEST-082::composite-mismatch",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_precheck.edit_summary",
+      "counterpart": "raw source precheck hash and immutable source bytes",
+      "named_failing_mismatch_test": "TEST-062::altered-edit-summary",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_precheck.reset",
+      "counterpart": "raw source precheck hash and immutable source bytes",
+      "named_failing_mismatch_test": "TEST-062::altered-reset",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_precheck.generated_at",
+      "counterpart": "raw source precheck hash and immutable source bytes, no freshness rewrite",
+      "named_failing_mismatch_test": "TEST-062::altered-generated-at",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.schema",
+      "counterpart": "spec-review-contract/v1",
+      "named_failing_mismatch_test": "TEST-017::schema",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.stage",
+      "counterpart": "spec",
+      "named_failing_mismatch_test": "TEST-017::stage",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.feature",
+      "counterpart": "CLI and source feature",
+      "named_failing_mismatch_test": "TEST-017::feature",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.attempt",
+      "counterpart": "source.attempt",
+      "named_failing_mismatch_test": "TEST-017::attempt",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.round",
+      "counterpart": "source.round - 1",
+      "named_failing_mismatch_test": "TEST-017::round",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.verdict",
+      "counterpart": "NEEDS_WORK and integrated verdict",
+      "named_failing_mismatch_test": "TEST-018/019/023::verdict",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.requirements_sha256",
+      "counterpart": "saved previous precheck and reviewer manifests",
+      "named_failing_mismatch_test": "TEST-022::requirements_sha256",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.acceptance_sha256",
+      "counterpart": "saved previous precheck and reviewer manifests",
+      "named_failing_mismatch_test": "TEST-022::acceptance_sha256",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.investigation_sha256",
+      "counterpart": "existing own-stage legacy normalization and reviewer manifest",
+      "named_failing_mismatch_test": "TEST-022::investigation_sha256",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.run_id",
+      "counterpart": "existing own-stage nonempty orchestrator identity rule",
+      "named_failing_mismatch_test": "TEST-017::run_id",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.warningCount",
+      "counterpart": "summary counts and existing verdict rule",
+      "named_failing_mismatch_test": "TEST-021/023::warningCount",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.reviewers.a.role",
+      "counterpart": "Existing own-stage reviewer a output and expected current-stage manifest",
+      "named_failing_mismatch_test": "TEST-022::reviewer-a::role",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.reviewers.a.run_id",
+      "counterpart": "Existing own-stage reviewer a output and expected current-stage manifest",
+      "named_failing_mismatch_test": "TEST-022::reviewer-a::run_id",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.reviewers.a.host_session_id",
+      "counterpart": "Existing own-stage reviewer a output and expected current-stage manifest",
+      "named_failing_mismatch_test": "TEST-022::reviewer-a::host_session_id",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.reviewers.a.allowed_input_manifest[].path",
+      "counterpart": "Existing own-stage reviewer a output and expected current-stage manifest",
+      "named_failing_mismatch_test": "TEST-022::reviewer-a::allowed_input_manifest[].path",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.reviewers.a.allowed_input_manifest[].sha256",
+      "counterpart": "Existing own-stage reviewer a output and expected current-stage manifest",
+      "named_failing_mismatch_test": "TEST-022::reviewer-a::allowed_input_manifest[].sha256",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.reviewers.b.role",
+      "counterpart": "Existing own-stage reviewer b output and expected current-stage manifest",
+      "named_failing_mismatch_test": "TEST-022::reviewer-b::role",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.reviewers.b.run_id",
+      "counterpart": "Existing own-stage reviewer b output and expected current-stage manifest",
+      "named_failing_mismatch_test": "TEST-022::reviewer-b::run_id",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.reviewers.b.host_session_id",
+      "counterpart": "Existing own-stage reviewer b output and expected current-stage manifest",
+      "named_failing_mismatch_test": "TEST-022::reviewer-b::host_session_id",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.reviewers.b.allowed_input_manifest[].path",
+      "counterpart": "Existing own-stage reviewer b output and expected current-stage manifest",
+      "named_failing_mismatch_test": "TEST-022::reviewer-b::allowed_input_manifest[].path",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_contract.reviewers.b.allowed_input_manifest[].sha256",
+      "counterpart": "Existing own-stage reviewer b output and expected current-stage manifest",
+      "named_failing_mismatch_test": "TEST-022::reviewer-b::allowed_input_manifest[].sha256",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_summary.schema",
+      "counterpart": "Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts",
+      "named_failing_mismatch_test": "TEST-021::summary::schema",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_summary.attempt",
+      "counterpart": "Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts",
+      "named_failing_mismatch_test": "TEST-021::summary::attempt",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_summary.round",
+      "counterpart": "Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts",
+      "named_failing_mismatch_test": "TEST-021::summary::round",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_summary.generated_at",
+      "counterpart": "Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts",
+      "named_failing_mismatch_test": "TEST-021::summary::generated_at",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_summary.reviewer_a_checks[].id",
+      "counterpart": "Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts",
+      "named_failing_mismatch_test": "TEST-021::summary::reviewer_a_checks[].id",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_summary.reviewer_a_checks[].result",
+      "counterpart": "Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts",
+      "named_failing_mismatch_test": "TEST-021::summary::reviewer_a_checks[].result",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_summary.reviewer_a_checks[].severity",
+      "counterpart": "Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts",
+      "named_failing_mismatch_test": "TEST-021::summary::reviewer_a_checks[].severity",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_summary.reviewer_a_fail_count",
+      "counterpart": "Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts",
+      "named_failing_mismatch_test": "TEST-021::summary::reviewer_a_fail_count",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_summary.reviewer_a_pass_count",
+      "counterpart": "Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts",
+      "named_failing_mismatch_test": "TEST-021::summary::reviewer_a_pass_count",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_summary.reviewer_a_skip_count",
+      "counterpart": "Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts",
+      "named_failing_mismatch_test": "TEST-021::summary::reviewer_a_skip_count",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_integrated_verdict.schema",
+      "counterpart": "Existing own-stage contract/summary/reviewer identity and finding count counterpart",
+      "named_failing_mismatch_test": "TEST-023::integrated-verdict::schema",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_integrated_verdict.stage",
+      "counterpart": "Existing own-stage contract/summary/reviewer identity and finding count counterpart",
+      "named_failing_mismatch_test": "TEST-023::integrated-verdict::stage",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_integrated_verdict.feature",
+      "counterpart": "Existing own-stage contract/summary/reviewer identity and finding count counterpart",
+      "named_failing_mismatch_test": "TEST-023::integrated-verdict::feature",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_integrated_verdict.attempt",
+      "counterpart": "Existing own-stage contract/summary/reviewer identity and finding count counterpart",
+      "named_failing_mismatch_test": "TEST-023::integrated-verdict::attempt",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_integrated_verdict.round",
+      "counterpart": "Existing own-stage contract/summary/reviewer identity and finding count counterpart",
+      "named_failing_mismatch_test": "TEST-023::integrated-verdict::round",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_integrated_verdict.reviewer_a_run_id",
+      "counterpart": "Existing own-stage contract/summary/reviewer identity and finding count counterpart",
+      "named_failing_mismatch_test": "TEST-023::integrated-verdict::reviewer_a_run_id",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_integrated_verdict.reviewer_b_run_id",
+      "counterpart": "Existing own-stage contract/summary/reviewer identity and finding count counterpart",
+      "named_failing_mismatch_test": "TEST-023::integrated-verdict::reviewer_b_run_id",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_integrated_verdict.reviewer_a_host_session_id",
+      "counterpart": "Existing own-stage contract/summary/reviewer identity and finding count counterpart",
+      "named_failing_mismatch_test": "TEST-023::integrated-verdict::reviewer_a_host_session_id",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_integrated_verdict.reviewer_b_host_session_id",
+      "counterpart": "Existing own-stage contract/summary/reviewer identity and finding count counterpart",
+      "named_failing_mismatch_test": "TEST-023::integrated-verdict::reviewer_b_host_session_id",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_integrated_verdict.finding_counts.critical",
+      "counterpart": "Existing own-stage contract/summary/reviewer identity and finding count counterpart",
+      "named_failing_mismatch_test": "TEST-023::integrated-verdict::finding_counts.critical",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_integrated_verdict.finding_counts.major",
+      "counterpart": "Existing own-stage contract/summary/reviewer identity and finding count counterpart",
+      "named_failing_mismatch_test": "TEST-023::integrated-verdict::finding_counts.major",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_integrated_verdict.finding_counts.minor",
+      "counterpart": "Existing own-stage contract/summary/reviewer identity and finding count counterpart",
+      "named_failing_mismatch_test": "TEST-023::integrated-verdict::finding_counts.minor",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_integrated_verdict.verdict",
+      "counterpart": "Existing own-stage contract/summary/reviewer identity and finding count counterpart",
+      "named_failing_mismatch_test": "TEST-023::integrated-verdict::verdict",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "previous_integrated_verdict.warningCount",
+      "counterpart": "Existing own-stage contract/summary/reviewer identity and finding count counterpart",
+      "named_failing_mismatch_test": "TEST-023::integrated-verdict::warningCount",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "persisted_A.sequence",
+      "counterpart": "Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash",
+      "named_failing_mismatch_test": "TEST-069::sequence",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "persisted_A.run_id",
+      "counterpart": "Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash",
+      "named_failing_mismatch_test": "TEST-070::run_id",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "persisted_A.host_session_id",
+      "counterpart": "Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash",
+      "named_failing_mismatch_test": "TEST-071::host_session_id",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "persisted_A.stage",
+      "counterpart": "Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash",
+      "named_failing_mismatch_test": "TEST-072::stage",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "persisted_A.role",
+      "counterpart": "Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash",
+      "named_failing_mismatch_test": "TEST-073::role",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "persisted_A.record_sha256",
+      "counterpart": "Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash",
+      "named_failing_mismatch_test": "TEST-074::record_sha256",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "persisted_A.previous_record_sha256",
+      "counterpart": "Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash",
+      "named_failing_mismatch_test": "TEST-075::previous_record_sha256",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "persisted_A.allowed_inputs_sha256",
+      "counterpart": "Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash",
+      "named_failing_mismatch_test": "TEST-076::allowed_inputs_sha256",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_invocation.schema",
+      "counterpart": "Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics",
+      "named_failing_mismatch_test": "TEST-066::invocation::schema",
+      "owner": "T-001",
+      "note": "Historical ledger hash is not tested against current tip; TEST-079 must accept valid later records.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_invocation.input_mode",
+      "counterpart": "Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics",
+      "named_failing_mismatch_test": "TEST-066::invocation::input_mode",
+      "owner": "T-001",
+      "note": "Historical ledger hash is not tested against current tip; TEST-079 must accept valid later records.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_invocation.fallback_mode",
+      "counterpart": "Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics",
+      "named_failing_mismatch_test": "TEST-066::invocation::fallback_mode",
+      "owner": "T-001",
+      "note": "Historical ledger hash is not tested against current tip; TEST-079 must accept valid later records.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_invocation.read_only",
+      "counterpart": "Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics",
+      "named_failing_mismatch_test": "TEST-066::invocation::read_only",
+      "owner": "T-001",
+      "note": "Historical ledger hash is not tested against current tip; TEST-079 must accept valid later records.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_invocation.feature",
+      "counterpart": "Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics",
+      "named_failing_mismatch_test": "TEST-066::invocation::feature",
+      "owner": "T-001",
+      "note": "Historical ledger hash is not tested against current tip; TEST-079 must accept valid later records.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_invocation.identity_ledger_path",
+      "counterpart": "Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics",
+      "named_failing_mismatch_test": "TEST-066::invocation::identity_ledger_path",
+      "owner": "T-001",
+      "note": "Historical ledger hash is not tested against current tip; TEST-079 must accept valid later records.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_invocation.identity_ledger_sha256",
+      "counterpart": "Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics",
+      "named_failing_mismatch_test": "TEST-066::invocation::identity_ledger_sha256",
+      "owner": "T-001",
+      "note": "Historical ledger hash is not tested against current tip; TEST-079 must accept valid later records.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_invocation.allowed_input_manifest[].path",
+      "counterpart": "Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics",
+      "named_failing_mismatch_test": "TEST-076::invocation::allowed_input_manifest[].path",
+      "owner": "T-001",
+      "note": "Historical ledger hash is not tested against current tip; TEST-079 must accept valid later records.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_invocation.allowed_input_manifest[].sha256",
+      "counterpart": "Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics",
+      "named_failing_mismatch_test": "TEST-076::invocation::allowed_input_manifest[].sha256",
+      "owner": "T-001",
+      "note": "Historical ledger hash is not tested against current tip; TEST-079 must accept valid later records.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_reservation.REVIEW_CONTEXT_OK.record_sha256",
+      "counterpart": "Existing receipt grammar and historical A chain facts, not current tip",
+      "named_failing_mismatch_test": "TEST-065::receipt::record_sha256",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_reservation.REVIEW_CONTEXT_OK.sequence",
+      "counterpart": "Existing receipt grammar and historical A chain facts, not current tip",
+      "named_failing_mismatch_test": "TEST-065::receipt::sequence",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_reservation.REVIEW_CONTEXT_OK.previous_record_sha256",
+      "counterpart": "Existing receipt grammar and historical A chain facts, not current tip",
+      "named_failing_mismatch_test": "TEST-065::receipt::previous_record_sha256",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_reservation.REVIEW_CONTEXT_OK.pre_append_tip_sequence",
+      "counterpart": "Existing receipt grammar and historical A chain facts, not current tip",
+      "named_failing_mismatch_test": "TEST-065::receipt::pre_append_tip_sequence",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_reservation.REVIEW_CONTEXT_OK.identity_unique",
+      "counterpart": "Existing receipt grammar and historical A chain facts, not current tip",
+      "named_failing_mismatch_test": "TEST-065::receipt::identity_unique",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_host_receipt.review_execution_started",
+      "counterpart": "Exact false, consistent unreadable-input interruption",
+      "named_failing_mismatch_test": "TEST-033::execution-started",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_host_receipt.host_session_id",
+      "counterpart": "A allocation session and invocation identity",
+      "named_failing_mismatch_test": "TEST-071::host-receipt-session",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_raw.verdict",
+      "counterpart": "BLOCKED interruption diagnostic only; never integrated result",
+      "named_failing_mismatch_test": "TEST-034::completed-substantive-review",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "A_raw.allowed_input_manifest",
+      "counterpart": "Pinned source precheck/live inputs/calibration and invocation",
+      "named_failing_mismatch_test": "TEST-063::altered-raw-input-pin",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_diagnostic_report.bytes",
+      "counterpart": "Immutable raw hash and explicit launch failure / B-not-launched diagnosis; no final integrated verdict",
+      "named_failing_mismatch_test": "TEST-067::altered-report; TEST-030::integrated-result",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "source_inventory.members",
+      "counterpart": "Exactly five local entries; one external A invocation; no B/integrated artifacts/subdirectory",
+      "named_failing_mismatch_test": "TEST-024/026/027/028/029/030/031/032/068",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "B_absence.invocations_and_reserved_bindings",
+      "counterpart": "Same feature/source precheck path and reserved input-binding attribution; absence must be provable",
+      "named_failing_mismatch_test": "TEST-024::B-invocation; TEST-025::orphan-B-reservation; TEST-080::ambiguous-attribution",
+      "owner": "T-001",
+      "note": "",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.recovery.record_path",
+      "counterpart": "admitted record canonical path",
+      "named_failing_mismatch_test": "TEST-097::record-path",
+      "owner": "T-003",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.recovery.record_sha256",
+      "counterpart": "raw admitted record bytes",
+      "named_failing_mismatch_test": "TEST-097::record-hash",
+      "owner": "T-003",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.schema",
+      "counterpart": "spec-review-precheck/v1",
+      "named_failing_mismatch_test": "TEST-001::schema",
+      "owner": "T-002",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.stage",
+      "counterpart": "spec",
+      "named_failing_mismatch_test": "TEST-001::stage",
+      "owner": "T-002",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.feature",
+      "counterpart": "CLI/record.feature",
+      "named_failing_mismatch_test": "TEST-001::feature",
+      "owner": "T-002",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.attempt",
+      "counterpart": "record.target.attempt",
+      "named_failing_mismatch_test": "TEST-001::attempt",
+      "owner": "T-002",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.round",
+      "counterpart": "record.target.round",
+      "named_failing_mismatch_test": "TEST-001::round",
+      "owner": "T-002",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.spec_review_status_field",
+      "counterpart": "Pending/current immutable status",
+      "named_failing_mismatch_test": "TEST-096::status",
+      "owner": "T-002",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.requirements_sha256",
+      "counterpart": "same fresh live requirements pin",
+      "named_failing_mismatch_test": "TEST-092::requirements",
+      "owner": "T-002",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.acceptance_sha256",
+      "counterpart": "same fresh live acceptance pin",
+      "named_failing_mismatch_test": "TEST-092::acceptance",
+      "owner": "T-002",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.investigation_sha256",
+      "counterpart": "same fresh live investigation pin",
+      "named_failing_mismatch_test": "TEST-092::investigation",
+      "owner": "T-002",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.calibration_sha256",
+      "counterpart": "same fresh calibration pin",
+      "named_failing_mismatch_test": "TEST-092::calibration",
+      "owner": "T-002",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.input_sha256",
+      "counterpart": "same existing composite input digest",
+      "named_failing_mismatch_test": "TEST-082::target-composite",
+      "owner": "T-002",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.edit_summary",
+      "counterpart": "existing recovery-compatible writer semantics",
+      "named_failing_mismatch_test": "TEST-001::edit-summary",
+      "owner": "T-002",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.reset",
+      "counterpart": "false",
+      "named_failing_mismatch_test": "TEST-001::reset",
+      "owner": "T-002",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "target_precheck.generated_at",
+      "counterpart": "actual target generation time; not copied/retimestamped evidence",
+      "named_failing_mismatch_test": "TEST-001::generated-at",
+      "owner": "T-002",
+      "note": "Accounted for across task handoff; no target publication by T-001 admission.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "implementation_evidence.Run ID",
+      "counterpart": "actual implementation context/run record; no made-up reserved identity",
+      "named_failing_mismatch_test": "EVIDENCE::run-id-mismatch",
+      "owner": "T-001",
+      "note": "Report-only verification fixture; planned until actual context/evidence exists. Does not create quality verdict or identity.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "implementation_evidence.Task Attempt Count",
+      "counterpart": "actual task execution attempt history",
+      "named_failing_mismatch_test": "EVIDENCE::task-attempt-count-mismatch",
+      "owner": "T-001",
+      "note": "Report-only verification fixture; planned until actual context/evidence exists. Does not create quality verdict or identity.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "implementation_evidence.spec_revision",
+      "counterpart": "exact current frozen input digest set",
+      "named_failing_mismatch_test": "EVIDENCE::spec-revision-mismatch",
+      "owner": "T-001",
+      "note": "Report-only verification fixture; planned until actual context/evidence exists. Does not create quality verdict or identity.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "implementation_evidence.environment",
+      "counterpart": "actual Bash/PowerShell/tool versions and executed commands",
+      "named_failing_mismatch_test": "EVIDENCE::environment-mismatch",
+      "owner": "T-001",
+      "note": "Report-only verification fixture; planned until actual context/evidence exists. Does not create quality verdict or identity.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "implementation_evidence.verdict",
+      "counterpart": "actual independent quality verdict/report counterpart",
+      "named_failing_mismatch_test": "EVIDENCE::verdict-mismatch",
+      "owner": "T-001",
+      "note": "Report-only verification fixture; planned until actual context/evidence exists. Does not create quality verdict or identity.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "implementation_evidence.Critical",
+      "counterpart": "actual independent finding list",
+      "named_failing_mismatch_test": "EVIDENCE::critical-count-mismatch",
+      "owner": "T-001",
+      "note": "Report-only verification fixture; planned until actual context/evidence exists. Does not create quality verdict or identity.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "implementation_evidence.Major",
+      "counterpart": "actual independent finding list",
+      "named_failing_mismatch_test": "EVIDENCE::major-count-mismatch",
+      "owner": "T-001",
+      "note": "Report-only verification fixture; planned until actual context/evidence exists. Does not create quality verdict or identity.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "implementation_evidence.Minor",
+      "counterpart": "actual independent finding list",
+      "named_failing_mismatch_test": "EVIDENCE::minor-count-mismatch",
+      "owner": "T-001",
+      "note": "Report-only verification fixture; planned until actual context/evidence exists. Does not create quality verdict or identity.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "implementation_evidence.reviewer.run_id",
+      "counterpart": "actual independent reviewer reservation",
+      "named_failing_mismatch_test": "EVIDENCE::reviewer-run-mismatch",
+      "owner": "T-001",
+      "note": "Report-only verification fixture; planned until actual context/evidence exists. Does not create quality verdict or identity.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "implementation_evidence.reviewer.host_session_id",
+      "counterpart": "actual independent reviewer host/session receipt",
+      "named_failing_mismatch_test": "EVIDENCE::reviewer-session-mismatch",
+      "owner": "T-001",
+      "note": "Report-only verification fixture; planned until actual context/evidence exists. Does not create quality verdict or identity.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "implementation_evidence.input_manifest.path",
+      "counterpart": "actual path-safe review input artifact",
+      "named_failing_mismatch_test": "EVIDENCE::input-manifest-path-mismatch",
+      "owner": "T-001",
+      "note": "Report-only verification fixture; planned until actual context/evidence exists. Does not create quality verdict or identity.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "implementation_evidence.input_manifest.sha256",
+      "counterpart": "exact bytes at the cited input manifest",
+      "named_failing_mismatch_test": "EVIDENCE::input-manifest-hash-mismatch",
+      "owner": "T-001",
+      "note": "Report-only verification fixture; planned until actual context/evidence exists. Does not create quality verdict or identity.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "implementation_evidence.provenance",
+      "counterpart": "actual commands/checkpoint commit/output/rollback records",
+      "named_failing_mismatch_test": "EVIDENCE::provenance-mismatch",
+      "owner": "T-001",
+      "note": "Report-only verification fixture; planned until actual context/evidence exists. Does not create quality verdict or identity.",
+      "test_execution": "not run"
+    },
+    {
+      "field": "implementation_evidence.traceability",
+      "counterpart": "T001 \u2192 REQ002/003 \u2192 AC002/003 \u2192 every assigned TEST ID and variant; execution addendum only",
+      "named_failing_mismatch_test": "EVIDENCE::coverage-claim-mismatch",
+      "owner": "T-001",
+      "note": "Report-only verification fixture; planned until actual context/evidence exists. Does not create quality verdict or identity.",
+      "test_execution": "not run"
+    }
+  ]
+}

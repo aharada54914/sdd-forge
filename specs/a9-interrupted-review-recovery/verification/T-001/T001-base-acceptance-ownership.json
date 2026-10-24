@@ -1,0 +1,470 @@
+{
+  "base": "f8746874413e96775f4b64671a3696be2cc90e7d",
+  "state": "Planned test design, no execution claimed",
+  "cases": [
+    {
+      "id": "TEST-008",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Source round 2 while round 3 exists rejects."
+    },
+    {
+      "id": "TEST-009",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Source attempt 2 for target 4 rejects."
+    },
+    {
+      "id": "TEST-010",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Target attempt 5 for source 3 rejects."
+    },
+    {
+      "id": "TEST-011",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Target round 2 rejects."
+    },
+    {
+      "id": "TEST-012",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Passed status rejects without normalizing it."
+    },
+    {
+      "id": "TEST-013",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Missing status rejects."
+    },
+    {
+      "id": "TEST-014",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Unknown non-Pending status rejects."
+    },
+    {
+      "id": "TEST-015",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Mis-cased Pending rejects."
+    },
+    {
+      "id": "TEST-016",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Prior NEEDS_WORK contract absent rejects."
+    },
+    {
+      "id": "TEST-017",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Prior contract malformed rejects."
+    },
+    {
+      "id": "TEST-018",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Prior contract PASS rejects."
+    },
+    {
+      "id": "TEST-019",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Prior contract BLOCKED rejects."
+    },
+    {
+      "id": "TEST-020",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Prior summary missing rejects own-stage validation."
+    },
+    {
+      "id": "TEST-021",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Prior summary counts inconsistent rejects."
+    },
+    {
+      "id": "TEST-022",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Prior reviewer manifest inconsistent rejects."
+    },
+    {
+      "id": "TEST-023",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Prior integrated verdict inconsistent rejects."
+    },
+    {
+      "id": "TEST-024",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "B invocation for source round rejects."
+    },
+    {
+      "id": "TEST-025",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "B ledger reservation attributable to source round rejects, even without local output."
+    },
+    {
+      "id": "TEST-026",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "B reservation receipt present rejects."
+    },
+    {
+      "id": "TEST-027",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "B raw output present rejects."
+    },
+    {
+      "id": "TEST-028",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "B host receipt present rejects."
+    },
+    {
+      "id": "TEST-029",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Integrated summary present rejects."
+    },
+    {
+      "id": "TEST-030",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Integrated verdict present rejects."
+    },
+    {
+      "id": "TEST-031",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Integrated contract present rejects."
+    },
+    {
+      "id": "TEST-032",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "Completed NEEDS_WORK round as source rejects."
+    },
+    {
+      "id": "TEST-033",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "A host receipt says execution started rejects v1 shape."
+    },
+    {
+      "id": "TEST-034",
+      "requirement": "REQ-002",
+      "acceptance": "AC-002",
+      "assertion": "A output asserts completed substantive review instead of unreadable-input interruption rejects."
+    },
+    {
+      "id": "TEST-035",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Authorization file absent rejects."
+    },
+    {
+      "id": "TEST-036",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Authorization hash wrong rejects."
+    },
+    {
+      "id": "TEST-037",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Authorization names another feature rejects."
+    },
+    {
+      "id": "TEST-038",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Authorization names another source rejects."
+    },
+    {
+      "id": "TEST-039",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Authorization names another target rejects."
+    },
+    {
+      "id": "TEST-040",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Authorization permits more than three rounds rejects."
+    },
+    {
+      "id": "TEST-041",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Unsigned conversation copy claimed as a signed receipt rejects."
+    },
+    {
+      "id": "TEST-042",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Orchestrator rejects launch without matching original human user-channel approval plus actual human application report for the exact content/binding digest; agent selfclaim, summary, artifact alone or human-copy log alone rejects. Validator separately rejects content/hash/binding mismatch; it does not authenticate human authorship."
+    },
+    {
+      "id": "TEST-043",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Authorization recovery digest wrong rejects."
+    },
+    {
+      "id": "TEST-044",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Wrong schema rejects."
+    },
+    {
+      "id": "TEST-045",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Record feature does not match CLI feature rejects."
+    },
+    {
+      "id": "TEST-046",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Record source attempt disagrees with actual source rejects."
+    },
+    {
+      "id": "TEST-047",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Record source round disagrees with actual source rejects."
+    },
+    {
+      "id": "TEST-048",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Record target attempt disagrees with CLI target rejects."
+    },
+    {
+      "id": "TEST-049",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Record target round disagrees with CLI target rejects."
+    },
+    {
+      "id": "TEST-050",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Missing required field (one fixture per closed-contract field) rejects."
+    },
+    {
+      "id": "TEST-051",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Wrong type (one fixture per field; boolean/fractional/string attempt) rejects."
+    },
+    {
+      "id": "TEST-052",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Unknown field rejects at each object level."
+    },
+    {
+      "id": "TEST-053",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Duplicate decoded JSON member at each object level rejects."
+    },
+    {
+      "id": "TEST-054",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Case-variant schema rejects."
+    },
+    {
+      "id": "TEST-055",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Case-variant field rejects at each level."
+    },
+    {
+      "id": "TEST-056",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Malformed JSON rejects."
+    },
+    {
+      "id": "TEST-057",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Malformed/uppercase/non-64hex digest rejects (each hash slot independently)."
+    },
+    {
+      "id": "TEST-058",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Changed live requirements rejects."
+    },
+    {
+      "id": "TEST-059",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Changed live acceptance tests rejects."
+    },
+    {
+      "id": "TEST-060",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Changed live investigation rejects."
+    },
+    {
+      "id": "TEST-061",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Changed live calibration rejects."
+    },
+    {
+      "id": "TEST-062",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Missing/altered interrupted precheck rejects (two fixtures)."
+    },
+    {
+      "id": "TEST-063",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Missing/altered A raw rejects (two fixtures)."
+    },
+    {
+      "id": "TEST-064",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Missing/altered A allocation host receipt rejects (two fixtures)."
+    },
+    {
+      "id": "TEST-065",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Missing/altered A reservation receipt rejects (two fixtures)."
+    },
+    {
+      "id": "TEST-066",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Missing/altered A invocation rejects (two fixtures)."
+    },
+    {
+      "id": "TEST-067",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Missing/altered interrupted diagnostic source report rejects (two fixtures)."
+    },
+    {
+      "id": "TEST-068",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Missing/extra/duplicate inventory entry rejects (three fixtures)."
+    },
+    {
+      "id": "TEST-069",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Wrong persisted sequence rejects."
+    },
+    {
+      "id": "TEST-070",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Wrong run identity rejects."
+    },
+    {
+      "id": "TEST-071",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Wrong host-session identity rejects."
+    },
+    {
+      "id": "TEST-072",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Wrong stage rejects."
+    },
+    {
+      "id": "TEST-073",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Wrong role rejects."
+    },
+    {
+      "id": "TEST-074",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Wrong record hash rejects."
+    },
+    {
+      "id": "TEST-075",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Tampered previous hash / ledger prefix rejects (two fixtures)."
+    },
+    {
+      "id": "TEST-076",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Wrong reserved input binding rejects."
+    },
+    {
+      "id": "TEST-077",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Duplicate persisted identity rejects."
+    },
+    {
+      "id": "TEST-078",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Partial run/session collision rejects (each field)."
+    },
+    {
+      "id": "TEST-079",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Later valid ledger records accept; no current-tip hash requirement."
+    },
+    {
+      "id": "TEST-080",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "B absence cannot be established from manifest/ledger correlation rejects."
+    },
+    {
+      "id": "TEST-081",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Prior contract digest wrong rejects."
+    },
+    {
+      "id": "TEST-082",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Interrupted precheck composite input digest inconsistent rejects."
+    },
+    {
+      "id": "TEST-083",
+      "requirement": "REQ-003",
+      "acceptance": "AC-003",
+      "assertion": "Empty/absolute/traversal/backslash/control-character path rejects (each reference slot)."
+    }
+  ],
+  "excluded": [
+    "TEST-057-H15",
+    "TEST-083-P15"
+  ],
+  "all_runtimes": [
+    "bash",
+    "powershell"
+  ]
+}
