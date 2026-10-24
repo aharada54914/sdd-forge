@@ -954,7 +954,7 @@ class PolicySelection(unittest.TestCase):
         refs = [ref for model in policy['models'] for ref in model['adoption']]
         for ref in refs:
             with self.subTest(role=ref['role']), tempfile.TemporaryDirectory() as folder:
-                root = Path(folder)
+                root = Path(folder).resolve()
                 for original in refs:
                     target = root / original['path']
                     target.parent.mkdir(parents=True, exist_ok=True)

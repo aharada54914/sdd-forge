@@ -7138,6 +7138,66 @@ class InstalledSelfImprovementTests(unittest.TestCase):
         wrong_terminal = copy.deepcopy(baseline); wrong_terminal[-1]['is_error'] = True
         with self.assertRaises(ValueError): validate(wrong_terminal[:1] + [quota] + wrong_terminal[1:])
 
+    def test_capture_accepts_observed_seven_day_warning_quota_metadata(self):
+        spec = importlib.util.spec_from_file_location('workflow_quota_warning_test', ROOT / '.github/scripts/prepare-self-improvement.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        helper = module.load_entry(ROOT / ADAPTER)._load_helper()
+        session, nonce = str(uuid.uuid4()), 'fixture-nonce'
+        baseline = [dict(type='system', subtype='init', session_id=session, model='claude-opus-5-5',
+                         claude_code_version='2.1.303', cwd=os.getcwd(), tools=[]),
+                    dict(type='assistant', session_id=session, message=dict(model='claude-opus-5-5',
+                         content=[dict(type='text', text=nonce)])),
+                    dict(type='result', subtype='success', session_id=session, is_error=False, num_turns=1, result=nonce)]
+        # Synthetic copy of the observed primary-warning metadata shape; identity/nonce are fixture-only.
+        def warning(utilization):
+            return dict(type='rate_limit_event', session_id=session, uuid=str(uuid.uuid4()), rate_limit_info={
+                'status': 'allowed_warning', 'resetsAt': 1793044800, 'rateLimitType': 'seven_day',
+                'utilization': utilization, 'overageStatus': 'rejected', 'overageDisabledReason': 'out_of_credits',
+                'isUsingOverage': False, 'surpassedThreshold': .75,
+                'unifiedWindows': {'five_hour': {'utilization': .14, 'resetsAt': 1792855200},
+                                   'seven_day': {'utilization': utilization, 'resetsAt': 1793044800}},
+                'overageEnabled': True})
+        def validate(rows):
+            return module.validate_events(helper, ('\n'.join(json.dumps(row) for row in rows) + '\n').encode(),
+                                          session, 'opus', 'medium', nonce, module.EXPECTED_VERSION)
+        first, second = warning(.77), warning(.78)
+        self.assertEqual(validate(baseline[:1] + [first, second] + baseline[1:])['rate_limit_events'], 2)
+        self.assertEqual(validate(baseline + [first])['rate_limit_events'], 1)
+        info_negatives = [('status', 'rejected'), ('status', 'unknown'), ('status', 'allowed'),
+                          ('rateLimitType', 'five_hour'), ('isUsingOverage', True), ('isUsingOverage', 0),
+                          ('overageStatus', 'allowed'), ('overageDisabledReason', 'unknown'),
+                          ('overageEnabled', 1), ('overageEnabled', False), ('utilization', True),
+                          ('utilization', '0.77'), ('utilization', .7), ('utilization', .78), ('utilization', 1.5),
+                          ('surpassedThreshold', True), ('surpassedThreshold', 0), ('surpassedThreshold', 1.2),
+                          ('surpassedThreshold', .8), ('resetsAt', 1792855200), ('resetsAt', 0),
+                          ('resetsAt', '1793044800'), ('extra', 'x')]
+        for key, value in info_negatives:
+            with self.subTest(key=key, value=value):
+                bad = copy.deepcopy(first); bad['rate_limit_info'][key] = value
+                with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+        for key in ('utilization', 'surpassedThreshold', 'overageEnabled', 'unifiedWindows'):
+            with self.subTest(missing=key):
+                bad = copy.deepcopy(first); del bad['rate_limit_info'][key]
+                with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+        for window, key, value in [('seven_day', 'utilization', .5), ('seven_day', 'resetsAt', 1793044801),
+                                   ('five_hour', 'utilization', 2), ('five_hour', 'resetsAt', True),
+                                   ('seven_day', 'extra', 1)]:
+            with self.subTest(window=window, key=key, value=value):
+                bad = copy.deepcopy(first); bad['rate_limit_info']['unifiedWindows'][window][key] = value
+                with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+        bad = copy.deepcopy(first); del bad['rate_limit_info']['unifiedWindows']['five_hour']
+        with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+        # Warning-only fields are not admitted onto the original allowed/five_hour shape.
+        bad = copy.deepcopy(first); bad['rate_limit_info'].update(status='allowed', rateLimitType='five_hour')
+        with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+        for key, value in [('session_id', 'wrong'), ('uuid', 'not-a-uuid'), ('extra', 1)]:
+            with self.subTest(event=key):
+                bad = copy.deepcopy(first); bad[key] = value
+                with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+        wrong_terminal = copy.deepcopy(baseline); wrong_terminal[-1]['is_error'] = True
+        with self.assertRaises(ValueError): validate(wrong_terminal[:1] + [first] + wrong_terminal[1:])
+
     def test_capture_public_summary_is_allowlisted_for_success_and_failure(self):
         installed = self.prep.install('bash')
         self.capture_setup()
