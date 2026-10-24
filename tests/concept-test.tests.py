@@ -1268,6 +1268,118 @@ class ClaudeHostAppendTests(unittest.TestCase):
         (nested / 'T-001.md').unlink()
         self.assertEqual('REVIEW_HOST_REGISTERED', self.register()['outcome'])
 
+    def test_existing_host_retry_rechecks_implementation_evidence(self):
+        self.assertEqual('REVIEW_HOST_REGISTERED', self.register()['outcome'])
+        report = self.put('reports/implementation/f/T-001.md', f'Run ID: {self.session}\n')
+        self.assert_blocked(message='already recorded by implementation evidence')
+        report.write_text('Run ID: impl-run\n')
+        resumed = self.transcript.read_bytes() + (json.dumps(self.lines(self.session)[3]) + '\n').encode()
+        self.transcript.write_bytes(resumed)  # Clean same-ID resume stays valid.
+        self.assertEqual('REVIEW_HOST_ALREADY_REGISTERED', self.register(check_only=True)['outcome'])
+        self.assertEqual('REVIEW_HOST_ALREADY_REGISTERED', self.register()['outcome'])
+        self.put('handoffs/f/inputs.json', '{"run_id":')
+        self.assert_blocked(error=(ValueError, OSError))
+        (self.root / 'handoffs/f/inputs.json').unlink()
+        hidden = self.root / 'reports/implementation/f'
+        real_scandir = os.scandir
+
+        def scandir(path='.'):
+            if os.fspath(path) == os.fspath(hidden):
+                raise PermissionError(errno.EACCES, 'simulated unreadable directory')
+            return real_scandir(path)
+        with mock.patch.object(identity.os, 'scandir', scandir):
+            self.assert_blocked(message='implementation evidence directory is unreadable')
+        if os.geteuid() != 0:  # root ignores directory modes; the injected case above still runs
+            mode = hidden.stat().st_mode
+            hidden.chmod(0)
+            self.addCleanup(hidden.chmod, mode)
+            try:
+                self.assert_blocked(message='implementation evidence directory is unreadable')
+            finally:
+                hidden.chmod(mode)
+        self.assertEqual('REVIEW_HOST_ALREADY_REGISTERED', self.register()['outcome'])
+
+    def test_domain_entrypoint_routes_existing_ledger_claude_host(self):
+        skill = (ROOT / 'plugins/sdd-domain/skills/domain-review-loop/SKILL.md').read_text()
+        boundary = (ROOT / 'plugins/sdd-review-loop/references/review-context-boundary.md').read_text()
+        heading = 'Registering a Claude host into an existing ledger'
+        self.assertIn('## ' + heading, boundary)
+        self.assertIn(heading, skill)
+        self.assertNotIn('skip initialization', skill)
+        command = ('python3 plugins/sdd-quality-loop/scripts/initialize-review-identity.py --root <repository-root> '
+                   '--register-existing --claude-result <captured result> --claude-transcript <native transcript>')
+        lines = [line.strip() for line in skill.splitlines()]
+        self.assertEqual(lines[lines.index(command + ' --check-only') + 1], command)  # check first, then append
+        for text in ('--copilot-events', '--register-existing', '--check-only', 'before reviewer A',
+                     'same native session ID is resumed', 'external operator', 'hard stop'):
+            self.assertIn(text, skill)
+
+    def test_known_path_only_manifest_citations(self):
+        target = 'handoffs/T-007-input-manifest.json'
+        report = 'reports/implementation/f/T-007.md'
+        forms = ['Input manifest: `{}`.', 'Input manifest: `{}` (TASK_INPUT_OK).']
+
+        def manifest(**fields):
+            return json.dumps(dict(dict(schema='task-input-manifest/v1', task_id='T-007', run_id='impl-run',
+                                        session_id='impl-session'), **fields))
+        for form in forms:
+            with self.subTest(form=form):
+                self.put(target, manifest())
+                self.put(report, 'Run ID: impl-run\n' + form.format(target) + '\n')
+                self.assertEqual('REVIEW_HOST_CHECK_REGISTRABLE', self.register(check_only=True)['outcome'])
+                for field in ('run_id', 'session_id'):
+                    self.put(target, manifest(**{field: self.session}))
+                    self.assert_blocked(message='already recorded by implementation evidence')
+                for document in (manifest(schema='other/v1'), manifest(run_id=''), manifest(session_id=7),
+                                 json.dumps(dict(schema='task-input-manifest/v1', run_id='impl-run')), '{"a":'):
+                    self.put(target, document)
+                    self.assert_blocked(error=(ValueError, OSError))
+                self.put(target, manifest())
+                (self.root / target).unlink()
+                self.assert_blocked(error=(ValueError, OSError))
+                outside = self.put('elsewhere/m.json', manifest())
+                (self.root / target).symlink_to(outside)
+                self.assert_blocked(error=ValueError)
+                (self.root / target).unlink()
+                self.put(target, manifest())
+                os.link(self.root / target, self.base / 'manifest-alias.json')
+                self.assert_blocked(error=ValueError)
+                (self.base / 'manifest-alias.json').unlink()
+        self.put('handoffs/T-007-input-manifest.txt', manifest())
+        self.put('specs/f/T-007-input-manifest.json', manifest())
+        explicit = 'Input manifest: `{}`, SHA-256 `{}`.'
+        rejected = [forms[0].format('handoffs/../specs/f/T-007-input-manifest.json'),
+                    forms[0].format('handoffs/./T-007-input-manifest.json'),
+                    forms[0].format('specs/f/T-007-input-manifest.json'),
+                    forms[0].format('handoffs/T-007-input-manifest.txt'),
+                    forms[0].format('/handoffs/T-007-input-manifest.json'),
+                    'Input manifest: `{}` (OTHER).'.format(target), 'Input manifest: `{}`'.format(target),
+                    'Input manifest: {}.'.format(target),
+                    explicit.format(target, '0' * 64), explicit.format(target, 'abc'),
+                    'Input manifest: `{}`, SHA-256 `{}` (TASK_INPUT_OK).'.format(target, '0' * 64)]
+        for line in rejected:
+            with self.subTest(line=line):
+                self.put(report, 'Run ID: impl-run\n' + line + '\n')
+                self.assert_blocked(error=(ValueError, OSError))
+        self.put(report, 'Run ID: impl-run\n' + explicit.format(target, sha((self.root / target).read_bytes())) + '\n')
+        self.assertEqual('REVIEW_HOST_CHECK_REGISTRABLE', self.register(check_only=True)['outcome'])
+        # A path-only target is still part of the recheck fingerprint before publication.
+        self.put(report, 'Run ID: impl-run\n' + forms[1].format(target) + '\n')
+        real_scan, calls = identity.implementation_identities, []
+
+        def scan_then_change(root):
+            calls.append(root)
+            if len(calls) == 2:
+                self.put(target, manifest(run_id='other-run'))
+            return real_scan(root)
+        before = self.state()
+        with mock.patch.object(identity, 'implementation_identities', scan_then_change), \
+                self.assertRaises(identity.Blocked) as caught:
+            self.register()
+        self.assertIn('implementation evidence changed', str(caught.exception))
+        self.assertEqual((len(calls), self.state()), (2, before))
+        self.assertEqual('REVIEW_HOST_REGISTERED', self.register()['outcome'])
+
     def test_staging_hardlink_interruption_is_unpublished(self):
         real_unlink = Path.unlink
 

@@ -428,6 +428,14 @@ not appear in the bounded implementation evidence: Run/Session lines and
 `Input manifest:` citations in `reports/implementation/**/*.md`, JSON under
 `reports/implementation`, `handoffs` and `reports/quality-gate`, and the
 `implementation_manifest`/supplemental declarations that invocations reference.
+Explicit ``Input manifest: `<path>`, SHA-256 `<hex>` `` citations must match that hash
+exactly. Two historical path-only forms are also read, only for canonical
+`handoffs/**/*.json` targets: ``Input manifest: `<path>`.`` and
+``Input manifest: `<path>` (TASK_INPUT_OK).``. Their target must be a safe, single-link
+`task-input-manifest/v1` with nonempty `run_id`/`session_id`; its observed bytes join the
+identity scan and the pre-publication fingerprint. This is a conservative exclusion
+only: no historical digest exists for such a citation, and none is inferred or attested.
+Any other citation shape, or a malformed or wrong explicit hash, stops registration.
 Unreadable files or directories (at any depth, including an evidence root itself),
 malformed JSON, links, hash mismatches or limit overruns stop registration;
 this is not proof that no unreferenced manifest exists. Also exclude, by comparing the
@@ -436,8 +444,10 @@ audit (implementers, reviewers, probes) — the helper takes no exclusion list.
 
 **Retry and interruption.** Re-running with the same inputs reports
 `REVIEW_HOST_ALREADY_REGISTERED` only when the host row, its receipt and the original
-result agree exactly; the transcript may have grown by a later same-ID resume, but the
-bound prefix must be unchanged. A receipt without its ledger record is
+result agree exactly and the identity is still absent from the bounded implementation
+evidence (a registered host later reused as an implementer is refused, as is unreadable
+evidence); the transcript may have grown by a later same-ID resume, but the bound
+prefix must be unchanged. A receipt without its ledger record is
 `REVIEW_HOST_UNPUBLISHED`: it is completed only by the identical append against an
 unchanged ledger (`ledger_before_sha256` must equal the current ledger); otherwise it
 is preserved and reported, never rebased, overwritten or deleted.

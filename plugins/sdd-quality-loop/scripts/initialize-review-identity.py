@@ -447,14 +447,14 @@ def implementation_identities(root):
             identities.update(document[key] for key in ('run_id', 'session_id', 'host_session_id')
                               if isinstance(document.get(key), str))
 
-    def follow(reference, manifest=True):
+    def follow(reference, manifest=True, path_only=False):
         if (not isinstance(reference, dict) or set(reference) != {'path', 'sha256'}
                 or not isinstance(reference['path'], str) or not RELATIVE.fullmatch(reference['path'])
                 or any(part in ('.', '..') for part in reference['path'].split('/'))
-                or not is_digest(reference['sha256'])):
+                or not (is_digest(reference['sha256']) or (path_only and reference['sha256'] is None))):
             raise Blocked('implementation manifest reference is malformed')
         raw = load(reference['path'])
-        if digest(raw) != reference['sha256']:
+        if reference['sha256'] is not None and digest(raw) != reference['sha256']:
             raise Blocked('implementation manifest reference hash does not match')
         document = strict_json(raw.decode('utf-8'))
         collect(document, manifest)
@@ -467,9 +467,15 @@ def implementation_identities(root):
                 identities.add(match.group(1).strip().strip('`'))
             if line.startswith('Input manifest:'):
                 citation = re.fullmatch(r'Input manifest: `([^`]+)`, SHA-256 `([0-9a-f]{64})`(?:\..*)?', line)
-                if not citation:
+                # Known historical path-only forms: the target's observed bytes join the scan and
+                # fingerprint, but no original digest is implied or attested.
+                legacy = re.fullmatch(r'Input manifest: `(handoffs/[^`]+\.json)`(?:\.| \(TASK_INPUT_OK\)\.)', line)
+                if citation:
+                    follow(dict(path=citation.group(1), sha256=citation.group(2)))
+                elif legacy:
+                    follow(dict(path=legacy.group(1), sha256=None), path_only=True)
+                else:
                     raise Blocked('implementation report manifest citation is malformed')
-                follow(dict(path=citation.group(1), sha256=citation.group(2)))
 
     def unreadable(error):
         raise Blocked('implementation evidence directory is unreadable') from error
@@ -610,6 +616,9 @@ def register_existing(root, result, transcript, check_only=False):
             if not is_digest(receipt['ledger_before_sha256']) or raw != receipt_bytes(
                     root, record, evidence, receipt['ledger_before_sha256'], after):
                 raise Blocked('registration receipt does not match the ledger record and native evidence')
+            # A registered host later reused as an implementer is a collision, not a valid registration.
+            if session in implementation_identities(root)[0]:
+                raise Blocked('candidate identity is already recorded by implementation evidence')
             return dict(outcome='REVIEW_HOST_ALREADY_REGISTERED', record=record)
         if current != native['raw']:
             raise Blocked('Claude transcript changed during registration; register only a stopped session')
