@@ -83,11 +83,34 @@ invent it to obtain a pass. There are no caller-supplied identity arguments.
 The helper does not reserve a reviewer or emit `REVIEW_CONTEXT_OK`.
 
 Use it only before any review/implementation history exists. If a ledger
-already exists, skip initialization and use the normal chain validation below;
-the helper refuses to replace any existing ledger, including malformed ones.
-A missing ledger with prior history, an unsupported host, or unavailable native
-metadata is a hard stop, not permission to reconstruct identities. Initial
-registration currently supports Copilot's native version-1 session-start event.
+already exists, do not run the fresh mode; it refuses to replace any existing
+ledger, including malformed ones. A missing ledger with prior history, an
+unsupported host, or unavailable native metadata is a hard stop, not permission
+to reconstruct identities. Initial registration currently supports Copilot's
+native version-1 session-start event.
+
+If a ledger already exists and its host record is the orchestrating host, use the
+normal chain validation below. If the orchestrator is instead a Claude Code native
+session not yet in that ledger, register it **before reviewer A of the round**,
+never inside a round that already has a reviewer A reservation:
+
+1. That orchestrator session finishes its preparation turn and stops; its
+   original captured result and native transcript are kept.
+2. An external operator (not the running session, and not a controller or Work
+   identity standing in for it) runs from the repository root, first with
+   `--check-only` and then, only after that check succeeds, without it:
+
+   ```text
+   python3 plugins/sdd-quality-loop/scripts/initialize-review-identity.py --root <repository-root> --register-existing --claude-result <captured result> --claude-transcript <native transcript> --check-only
+   python3 plugins/sdd-quality-loop/scripts/initialize-review-identity.py --root <repository-root> --register-existing --claude-result <captured result> --claude-transcript <native transcript>
+   ```
+3. The same native session ID is resumed and continues as orchestrator; a
+   different or forked ID cannot borrow the registration.
+
+Accepted evidence, supported scope, exclusions, receipts and retry/recovery rules
+are defined only in `plugins/sdd-review-loop/references/review-context-boundary.md`
+("Registering a Claude host into an existing ledger"). Any refusal is a hard stop. The registered
+host never acts as domain reviewer A or B, and reviewer model policy is unchanged.
 
 Read `domain/context-map.md` and confirm every one of the seven canonical
 `domain/` artifacts exists (per `domain-interviewer`'s Seven-Stage Sequence
