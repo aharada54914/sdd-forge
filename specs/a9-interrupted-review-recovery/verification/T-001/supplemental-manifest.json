@@ -1,0 +1,24 @@
+{
+  "scope": "Supplemental review/distribution/baseline integration evidence; original final-manifest and six source pins unchanged",
+  "files": [
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/independent-review-final.md",
+      "sha256": "b44a8ee574136013d6bcca1c2b164156155660e092ca0fa6f96b9ae1b3b2b187"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/independent-review-final.json",
+      "sha256": "303ccf519a29a46d213e7a07904fd18dae6702df5c08fe6b6539d7f8f2efc49c"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/distribution-audit.json",
+      "sha256": "8859f314e4774b679ae6d4b14dec417904d4b92f784c8de441a1c8d2ceb48aee"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/baseline-integration.json",
+      "sha256": "a88bbb6437a1d81f9fe50953cd25aac63913af809ac894a2430256d91c85b0d4"
+    }
+  ],
+  "original_manifest_sha256": "cc1482ea9625936756e2d68143e712145f35adf22bb61524197e7f50b0c707fb",
+  "formal_quality": "pending",
+  "wording_proposal": "v1 withdrawn; v2 pending user authorization, neither applied"
+}

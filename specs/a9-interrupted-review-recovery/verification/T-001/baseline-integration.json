@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-24T08:27:26.450074+00:00",
+  "author_candidate": "f5815d27cbc87ead72fb9c539cad31fa4a3ecc95",
+  "incoming": "1c95ede8cee678159b4983f25e4a43298d8d1e8c",
+  "ancestor": "f8746874413e96775f4b64671a3696be2cc90e7d",
+  "changed_path_overlap": [],
+  "public_ledger_blobs": [
+    "7d43d96357d82f367b022acf8a7b0c0b982a19ba",
+    "7d43d96357d82f367b022acf8a7b0c0b982a19ba",
+    "7d43d96357d82f367b022acf8a7b0c0b982a19ba"
+  ],
+  "commit": "f95a0deeee523dc7ec2c02bc859eee0d081417a8",
+  "tree": "27670d239d8a3d753527288b15ca6b3c6ebb0368",
+  "six_source_pins": {
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "88062b265569f02573565aa904d26b4385eea5f4e45b82e4c819732f476752f2",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "fc41fea4e6c6c3eeb39bb2e9ca4f5f96d7a1a9c70ce78fe47d9934000966b60e",
+    "tests/spec-review-interrupted-recovery.tests.sh": "7a4eb91262f8e6bf97da089565d691fa9745e6a658805b16c88571901b67a85c",
+    "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "tests/spec-review-loop.tests.sh": "4bbc3cc63f97e8f954dd2731a8a609656fe1fbf66a80bc900a8a9eb8862ff79b",
+    "tests/verification-catalog.json": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317"
+  },
+  "manifest_sha256": "cc1482ea9625936756e2d68143e712145f35adf22bb61524197e7f50b0c707fb",
+  "formal_task_status": "In Progress; no Done or quality PASS"
+}

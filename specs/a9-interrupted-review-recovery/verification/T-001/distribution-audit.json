@@ -1,0 +1,14 @@
+{
+  "source": "f5815d27cbc87ead72fb9c539cad31fa4a3ecc95",
+  "base": "f8746874413e96775f4b64671a3696be2cc90e7d",
+  "changed_paths": 109,
+  "installed_changed_paths": [
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh"
+  ],
+  "installed_paths_added": [],
+  "excluded_count": 107,
+  "selector": "existing tests/lib/install-payload-check.py admitted()",
+  "manifest_sha256": "fb3096c0a8192cb01ec3b62bb4861a982098495d0bb161ec7b312fdf22436d93",
+  "limitations": "Static exact-Git delta selection; no new installer runtime run; remote archive is still downloaded before filtering."
+}
