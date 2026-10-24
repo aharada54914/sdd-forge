@@ -1,0 +1,95 @@
+name: Issue 642 native Desktop input encoding comparison
+
+on:
+  push:
+    branches: [verify/issue-642-native-desktop]
+
+permissions:
+  contents: read
+
+env:
+  GIT_CONFIG_COUNT: "1"
+  GIT_CONFIG_KEY_0: core.longpaths
+  GIT_CONFIG_VALUE_0: "true"
+
+jobs:
+  encoding:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 5502cbe57ef18103e95e88bdfb886d675ff66b3c
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Compare exact baseline and corrected Desktop producers
+        shell: python
+        run: |
+          import hashlib, json, pathlib, re, shutil, subprocess, sys, tempfile
+          sys.stdout.reconfigure(encoding='utf-8', errors='backslashreplace')
+          root = pathlib.Path.cwd()
+          baseline = '3f1db88e85c1c41a082d2dae5cbcdd148e0b7353'
+          candidate = '5502cbe57ef18103e95e88bdfb886d675ff66b3c'
+          head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          if head != candidate:
+              raise SystemExit('Candidate checkout differs from pinned source')
+          old = pathlib.Path(tempfile.mkdtemp(prefix='encoding-baseline-'))
+          helper = 'tests/panelist-verdict-encoding.tests.ps1'
+          (old / 'tests').mkdir()
+          shutil.copyfile(root / helper, old / helper)
+          pins = {helper: {'candidate': hashlib.sha256((root / helper).read_bytes()).hexdigest()}}
+          prefix = 'plugins/sdd-quality-loop/scripts/'
+          for name in ('prepare-panelist-input', 'run-panelist-gpt', 'run-panelist-gemini'):
+              relative = prefix + name + '.ps1'
+              target = old / relative
+              target.parent.mkdir(parents=True, exist_ok=True)
+              target.write_bytes(subprocess.check_output(['git', 'show', baseline + ':' + relative]))
+              pins[relative] = {label: hashlib.sha256((source / relative).read_bytes()).hexdigest()
+                                for label, source in (('baseline', old), ('candidate', root))}
+          output = root / 'encoding-comparison'
+          output.mkdir()
+          producer = shutil.which('powershell.exe')
+          if not producer:
+              raise SystemExit('Required native Desktop runtime missing')
+          records = []
+          for label, source in (('baseline', old), ('candidate', root)):
+              argv = [producer, '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(source / helper),
+                      '-Producer', producer, '-ExpectEdition', 'Desktop']
+              try:
+                  result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=240)
+                  raw, code, timed_out = result.stdout, result.returncode, False
+              except subprocess.TimeoutExpired as error:
+                  raw, code, timed_out = error.stdout or b'', None, True
+              (output / (label + '.log')).write_bytes(raw)
+              print(label, 'exit', code, 'timed_out', timed_out)
+              text = raw.decode('utf-8', errors='replace')
+              print(text)
+              summaries = re.findall(r'^Results: (\d+) passed, (\d+) failed\r?$', text, re.MULTILINE)
+              runtime = re.findall(r'^producer runtime: .+ => Desktop 5\.1\.\d+(?:\.\d+)? 2\r?$', text, re.MULTILINE)
+              calls = re.findall(r'^ok: CM-017 \[Desktop/(gpt|gemini)/(pass|needs-work|session|cli-failure|invalid-verdict)\] fake CLI \(not a provider\) was invoked\r?$', text, re.MULTILINE)
+              expected_calls = {(vendor, case) for vendor in ('gpt', 'gemini')
+                                for case in ('pass', 'needs-work', 'session', 'cli-failure', 'invalid-verdict')}
+              complete = (len(summaries) == 1 and sum(map(int, summaries[0])) == 98
+                          and len(runtime) == 1 and len(calls) == 10 and set(calls) == expected_calls)
+              expected_outcome = complete and (int(summaries[0][1]) > 0 if label == 'baseline'
+                                               else summaries[0] == ('98', '0'))
+              records.append({'source': label, 'argv': argv, 'exit_code': code, 'timed_out': timed_out,
+                              'complete_98_native_cases': complete, 'expected_outcome': expected_outcome,
+                              'log_sha256': hashlib.sha256(raw).hexdigest()})
+              (output / 'comparison.json').write_text(json.dumps({
+                  'baseline': baseline, 'candidate': candidate, 'edition': 'Desktop', 'source_sha256': pins,
+                  'runs': records,
+                  'scope': 'Same candidate helper, three baseline producers only. Actual native Desktop and fake CLIs; baseline failures require log classification, not automatic BOM attribution.'
+              }, indent=2) + '\n', encoding='utf-8')
+              if timed_out:
+                  break
+          if not any(r['timed_out'] for r in records):
+              shutil.rmtree(old)
+          raise SystemExit(0 if len(records) == 2 and all(r['expected_outcome'] and not r['timed_out'] for r in records)
+                           and records[0]['exit_code'] != 0 and records[1]['exit_code'] == 0 else 1)
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: issue-642-native-Desktop-comparison
+          path: encoding-comparison/
+          if-no-files-found: error
