@@ -248,11 +248,12 @@ try {
                     if ($sourceText.Contains($note) -and $sourceText.EndsWith($bundleText + $nl)) {
                         Ok "$label scratch input preserves non-ASCII bundle and appended native newline"
                     } else { Fail "$label scratch input changed bundle text or newline framing" }
-                    # Start-Process text redirection appends one native newline.
-                    if ($inputText -ceq ($sourceText + $nl)) {
-                        Ok "$label actual CLI stdin preserves scratch text and transport newline"
+                    # Windows redirects the file handle; Unix text redirection appends one native newline.
+                    $expectedInput = if ($onWindows) { $sourceText } else { $sourceText + $nl }
+                    if ($inputText -ceq $expectedInput) {
+                        Ok "$label actual CLI stdin preserves exact runtime transport framing"
                     } else {
-                        Fail "$label actual CLI stdin differs from scratch text plus transport newline"
+                        Fail "$label actual CLI stdin differs from exact runtime transport framing"
                         foreach ($capturePath in @($sourcePath, $env:STUB_INPUT)) {
                             $capturedBytes = [System.IO.File]::ReadAllBytes($capturePath)
                             $prefix = [BitConverter]::ToString($capturedBytes, 0, [Math]::Min(32, $capturedBytes.Length))
