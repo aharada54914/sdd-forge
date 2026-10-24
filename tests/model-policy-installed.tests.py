@@ -6917,7 +6917,7 @@ class InstalledSelfImprovementTests(unittest.TestCase):
                                 SDD_ACTION_FIXTURE_VERSION=case.observation['cli_version'],
                                 SDD_ACTION_FIXTURE_RECORD=str(self.record), SDD_ACTION_FIXTURE_CANARY='kept')
 
-    def maintained_prepare(self, installed, *, request='request.json', rejected=False):
+    def maintained_prepare(self, installed, *, request='request.json', rejected=False, capture=False):
         case = self.case
         source = (ROOT / '.github/workflows/self-improvement.yml').read_text()
         marker = '- name: Prepare managed self-improvement session'
@@ -6929,14 +6929,18 @@ class InstalledSelfImprovementTests(unittest.TestCase):
         output.unlink(missing_ok=True)
         environment = dict(case.environment, SDD_MANAGED_ENTRY=str(installed / ADAPTER),
                            SDD_SELF_IMPROVEMENT_REQUEST=request, SDD_SELF_IMPROVEMENT_REGISTRY='registry.json',
+                           SDD_CAPTURE_CONFIGURATION='true' if capture else 'false',
+                           SDD_SELF_IMPROVEMENT_PREPARE=str(ROOT / '.github/scripts/prepare-self-improvement.py'),
                            CLAUDE_NATIVE_EXECUTABLE=str(self.prep.executable), GITHUB_RUN_ID=case.run_id,
                            GITHUB_RUN_ATTEMPT='1', RUNNER_TEMP=str(case.base), GITHUB_OUTPUT=str(output))
         result = case.run_process([launch.BASH, '-e', '-o', 'pipefail', '-c', script], environment,
                                   timeout=120, label='maintained self-improvement prepare fixture')
+        self.last_prepare_result = result
         if rejected:
             self.assertEqual(result.returncode, 2, result.stdout + result.stderr[-1500:])
             self.assertEqual(json.loads(result.stderr)['schema'], 'model-policy-error/v1')
-            self.assertFalse(self.record.exists())
+            if not capture:
+                self.assertFalse(self.record.exists())
             self.assertFalse(output.exists(), 'a rejected prepare emitted GitHub managed outputs')
             return result
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr[-1500:])
@@ -6944,6 +6948,274 @@ class InstalledSelfImprovementTests(unittest.TestCase):
         wrapper = Path(values['executable'])
         self.assertTrue(wrapper.is_file() and os.access(wrapper, os.X_OK))
         return values
+
+    def capture_setup(self):
+        self.case.request['cli'] = {'model_id': 'anthropic/opus', 'policy': 'pinned'}
+        self.case.request['requested_effort'] = 'medium'
+        self.case.request['risk'] = 'medium'
+        self.case.save()
+        self.case.environment['SDD_ACTION_FIXTURE_VERSION'] = '2.1.303 (Claude Code)'
+        self.case.environment['SDD_ACTION_FIXTURE_HELP'] += '\n  --print  mode\n  --verbose  mode\n  --tools  list\n  --include-hook-events  hooks\n'
+        (self.case.root / 'observation.json').unlink()
+
+    def test_manual_capture_supplies_missing_observation_and_preserves_settings(self):
+        installed = self.prep.install('bash')
+        self.capture_setup()
+        self.case.environment['SDD_ACTION_FIXTURE_PROBE'] = 'hook'
+        before = tree(self.case.home)
+        prepared = self.maintained_prepare(installed, capture=True)
+        self.assertTrue(Path(prepared['executable']).is_file())
+        recorded = json.loads(self.record.read_text())
+        self.assertEqual(recorded['canary'], 'kept')
+        self.assertEqual(recorded['probe_calls'], 1)
+        self.assertEqual(tree(self.case.home), before)
+        self.assertEqual(recorded['argv'][recorded['argv'].index('--tools') + 1], '')
+        for forbidden in ('--settings', '--setting-sources', '--strict-mcp-config', '--mcp-config', '--bare', '--safe-mode', '--dangerously-skip-permissions'):
+            self.assertNotIn(forbidden, recorded['argv'])
+        parent = Path(prepared['output_dir']).parent
+        receipt = json.loads((self.case.root / parent / 'capture-receipt.json').read_text())
+        observation = json.loads((self.case.root / parent / 'observation.json').read_text())
+        self.assertEqual(receipt['status'], 'configured-invocation-accepted')
+        self.assertEqual(receipt['events']['hook_events'], 1)
+        self.assertEqual(receipt['events']['advertised_tools'], ['mcp__configured__read'])
+        self.assertIn('not an isolation or prevention proof', receipt['events']['tool_boundary'])
+        self.assertNotEqual(receipt['probe_session'], prepared['session_id'])
+        self.assertEqual(receipt['launch_session'], prepared['session_id'])
+        self.assertEqual((receipt['configured_model'], receipt['events']['observed_model_label']), ('opus', 'claude-opus-5-5'))
+        self.assertEqual(observation['observed_at'], receipt['completed_at'])
+        self.assertEqual(observation['models'], [{'native_id': 'opus', 'efforts': ['medium'], 'available': True}])
+        self.assertIn(launch.sha_file(self.case.root / parent / 'capture-receipt.json'), observation['reason'])
+        self.assertIn('backend identity remain unverified', observation['reason'])
+        self.assertTrue(receipt['unresolved_authority'])
+        self.assertRegex(receipt['local_authority_sha256'], r'^[0-9a-f]{64}$')
+        self.assertRegex(receipt['effective_native_overrides_sha256'], r'^[0-9a-f]{64}$')
+        self.assertNotIn('kept', json.dumps(receipt))
+
+    def test_manual_capture_bad_native_results_preserve_failure_bytes_without_observation(self):
+        installed = self.prep.install('bash')
+        self.capture_setup()
+        for mode in ('nonce', 'session', 'label', 'is-error', 'init-only', 'duplicate', 'tool', 'server-tool',
+                     'unknown', 'reroute', 'malformed', 'nonzero', 'overflow', 'stderr-overflow'):
+            with self.subTest(mode=mode):
+                self.case.environment['SDD_ACTION_FIXTURE_PROBE'] = mode
+                before = set((self.case.root / '.sdd-self-improvement').glob('*')) if (self.case.root / '.sdd-self-improvement').exists() else set()
+                calls_before = json.loads(self.record.read_text()).get('probe_calls', 0) if self.record.exists() else 0
+                self.maintained_prepare(installed, capture=True, rejected=True)
+                self.assertEqual(json.loads(self.record.read_text())['probe_calls'], calls_before + 1)
+                created = set((self.case.root / '.sdd-self-improvement').glob('*')) - before
+                self.assertEqual(len(created), 1)
+                folder = created.pop()
+                receipt = json.loads((folder / 'capture-receipt.json').read_text())
+                self.assertEqual(receipt['status'], 'failed')
+                self.assertFalse((folder / 'observation.json').exists())
+                self.assertFalse((folder / 'managed').exists())
+                self.assertTrue((folder / 'stdout.log').stat().st_size)
+                self.assertTrue((folder / 'stderr.log').stat().st_size)
+                self.assertLessEqual((folder / 'stdout.log').stat().st_size, 1024 * 1024 + 1)
+                self.assertLessEqual((folder / 'stderr.log').stat().st_size, 1024 * 1024 + 1)
+                self.assertEqual(receipt['stdout_sha256'], launch.sha_file(folder / 'stdout.log'))
+                self.assertEqual(receipt['stderr_sha256'], launch.sha_file(folder / 'stderr.log'))
+
+    def test_manual_capture_rejects_preprobe_conflicts_without_native_work(self):
+        installed = self.prep.install('bash')
+        self.capture_setup()
+        original = copy.deepcopy(self.case.policy)
+        for mode in ('unadopted', 'wrong-role', 'wrong-effort', 'wrong-version', 'settings', 'native-env'):
+            with self.subTest(mode=mode):
+                self.record.unlink(missing_ok=True)
+                self.case.policy = copy.deepcopy(original)
+                self.case.request['role'] = 'self-improvement'
+                self.case.request['requested_effort'] = 'medium'
+                self.case.environment['SDD_ACTION_FIXTURE_VERSION'] = '2.1.303 (Claude Code)'
+                if mode == 'unadopted': self.case.policy_model('anthropic/opus')['adoption'] = []
+                if mode == 'wrong-role': self.case.request['role'] = 'task-reviewer-a'
+                if mode == 'wrong-effort': self.case.request['requested_effort'] = 'high'
+                if mode == 'wrong-version': self.case.environment['SDD_ACTION_FIXTURE_VERSION'] = '2.1.296 (Claude Code)'
+                if mode == 'settings': (self.case.root / '.claude/settings.local.json').write_text('{"maxEffortLevel":"low"}')
+                if mode == 'native-env': self.case.environment['ANTHROPIC_DEFAULT_OPUS_MODEL'] = 'sonnet'
+                self.case.save()
+                (self.case.root / 'observation.json').unlink()
+                self.maintained_prepare(installed, capture=True, rejected=True)
+                self.assertFalse(self.record.exists(), 'configuration failure spent native work')
+                (self.case.root / '.claude/settings.local.json').write_text('{}')
+                self.case.environment.pop('ANTHROPIC_DEFAULT_OPUS_MODEL', None)
+
+    def test_manual_capture_rejects_input_settings_executable_and_adoption_drift(self):
+        installed = self.prep.install('bash')
+        self.capture_setup()
+        targets = [self.case.root / 'request.json', self.case.root / 'policy.json',
+                   self.case.root / 'registry.json', self.case.root / 'opus-fixture-adoption.json',
+                   self.case.root / '.claude/settings.local.json', self.prep.executable]
+        for target in targets:
+            with self.subTest(target=target.name):
+                original = target.read_bytes()
+                self.case.environment['SDD_ACTION_FIXTURE_DRIFT'] = str(target)
+                self.maintained_prepare(installed, capture=True, rejected=True)
+                self.assertFalse(list((self.case.root / '.sdd-self-improvement').glob('*/observation.json')))
+                target.write_bytes(original)
+
+    def test_manual_capture_default_template_needs_no_repository_variable(self):
+        installed = self.prep.install('bash')
+        self.capture_setup()
+        template = self.case.root / '.github/self-improvement-request.template.json'
+        template.parent.mkdir(exist_ok=True)
+        template.write_text(json.dumps(self.case.request))
+        original = template.read_bytes()
+        prepared = self.maintained_prepare(installed, capture=True, request='')
+        self.assertTrue(Path(prepared['executable']).is_file())
+        self.assertEqual(template.read_bytes(), original)
+        self.assertFalse((self.case.root / 'observation.json').exists())
+
+    def test_manual_capture_rejects_unsafe_input_and_existing_scope_without_probe(self):
+        installed = self.prep.install('bash')
+        self.capture_setup()
+        linked = self.case.root / 'linked.json'
+        linked.symlink_to(self.case.root / 'request.json')
+        for path in ('../request.json', str(self.case.root / 'request.json'), 'linked.json'):
+            with self.subTest(path=path):
+                self.maintained_prepare(installed, capture=True, request=path, rejected=True)
+                self.assertFalse(self.record.exists())
+        spec = importlib.util.spec_from_file_location('workflow_replay_test', ROOT / '.github/scripts/prepare-self-improvement.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        entry = module.load_entry(installed / ADAPTER)
+        root = self.case.root / '.sdd-self-improvement'
+        root.mkdir(exist_ok=True)
+        (root / 'existing').mkdir()
+        (root / 'existing/retained.txt').write_text('old evidence')
+        before = tree(root)
+        cwd = os.getcwd()
+        try:
+            os.chdir(self.case.root)
+            with self.assertRaises(FileExistsError):
+                module.capture(entry, entry._load_helper(), self.case.environment, 'request.json', 'registry.json',
+                               str(self.prep.executable), 'existing', self.case.run_id, '1')
+        finally:
+            os.chdir(cwd)
+        self.assertEqual(tree(root), before)
+        self.assertFalse(self.record.exists())
+
+    def test_capture_accepts_only_observed_allowed_quota_metadata(self):
+        spec = importlib.util.spec_from_file_location('workflow_quota_test', ROOT / '.github/scripts/prepare-self-improvement.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        helper = module.load_entry(ROOT / ADAPTER)._load_helper()
+        session, nonce = str(uuid.uuid4()), 'fixture-nonce'
+        baseline = [dict(type='system', subtype='init', session_id=session, model='claude-opus-5-5',
+                         claude_code_version='2.1.303', cwd=os.getcwd(), tools=[]),
+                    dict(type='assistant', session_id=session, message=dict(model='claude-opus-5-5',
+                         content=[dict(type='text', text=nonce)])),
+                    dict(type='result', subtype='success', session_id=session, is_error=False, num_turns=1, result=nonce)]
+        # Synthetic copy of the observed CLI2.1.303 metadata shape; identity/nonce are fixture-only.
+        quota = dict(type='rate_limit_event', session_id=session, uuid=str(uuid.uuid4()), rate_limit_info={
+            'status': 'allowed', 'resetsAt': 1792837200, 'rateLimitType': 'five_hour',
+            'overageStatus': 'rejected', 'overageDisabledReason': 'out_of_credits', 'isUsingOverage': False,
+            'unifiedWindows': {'five_hour': {'utilization': .82, 'resetsAt': 1792837200},
+                               'seven_day': {'utilization': .75, 'resetsAt': 1793044800}}})
+        def validate(rows):
+            return module.validate_events(helper, ('\n'.join(json.dumps(row) for row in rows) + '\n').encode(),
+                                          session, 'opus', 'medium', nonce, module.EXPECTED_VERSION)
+        self.assertEqual(validate(baseline)['actual_tool_calls'], 0)
+        for position in (1, 3):
+            rows = baseline[:position] + [quota] + baseline[position:]
+            self.assertEqual(validate(rows)['rate_limit_events'], 1)
+        negatives = [('rate_limit_info', 'status', 'rejected'), ('rate_limit_info', 'status', 'unknown'),
+                     ('rate_limit_info', 'isUsingOverage', True), ('rate_limit_info', 'rateLimitType', 'unknown'),
+                     ('rate_limit_info', 'resetsAt', True), ('rate_limit_info', 'overageStatus', 'unknown'),
+                     ('rate_limit_info', 'overageDisabledReason', 'unknown'), ('rate_limit_info', 'extra', 'x')]
+        for parent, key, value in negatives:
+            with self.subTest(key=key, value=value):
+                bad = copy.deepcopy(quota); bad[parent][key] = value
+                with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+        for key, value in [('extra', 1), ('session_id', 'wrong'), ('uuid', 'not-a-uuid')]:
+            bad = copy.deepcopy(quota); bad[key] = value
+            with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+        for key, value in [('utilization', True), ('utilization', 2), ('resetsAt', '1792837200'), ('extra', 1)]:
+            bad = copy.deepcopy(quota); bad['rate_limit_info']['unifiedWindows']['five_hour'][key] = value
+            with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+        bad = copy.deepcopy(quota); del bad['rate_limit_info']['unifiedWindows']['seven_day']
+        with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+        wrong_terminal = copy.deepcopy(baseline); wrong_terminal[-1]['is_error'] = True
+        with self.assertRaises(ValueError): validate(wrong_terminal[:1] + [quota] + wrong_terminal[1:])
+
+    def test_capture_public_summary_is_allowlisted_for_success_and_failure(self):
+        installed = self.prep.install('bash')
+        self.capture_setup()
+        canary = 'PRIVATE-CAPTURE-CANARY-DO-NOT-LOG'
+        self.case.environment['SDD_ACTION_FIXTURE_SECRET'] = canary
+        expected = {'capture_status', 'failure_code', 'configured_model', 'effort', 'cli_version',
+                    'reported_model_label', 'actual_tool_calls', 'exit_code', 'started_at', 'completed_at',
+                    'stdout_sha256', 'stderr_sha256', 'receipt_sha256', 'backend_identity', 'raw_evidence'}
+        for mode in ('success', 'nonce', 'nonzero'):
+            with self.subTest(mode=mode):
+                self.case.environment['SDD_ACTION_FIXTURE_PROBE'] = mode
+                before = set((self.case.root / '.sdd-self-improvement').glob('*')) if (self.case.root / '.sdd-self-improvement').exists() else set()
+                self.maintained_prepare(installed, capture=True, rejected=mode != 'success')
+                folder = (set((self.case.root / '.sdd-self-improvement').glob('*')) - before).pop()
+                receipt = json.loads((folder / 'capture-receipt.json').read_text())
+                output = self.last_prepare_result.stdout
+                self.assertEqual(len(output.splitlines()), 1)
+                summary = json.loads(output)['configured_capture_summary']
+                self.assertEqual(set(summary), expected)
+                self.assertEqual(summary['capture_status'], 'success' if mode == 'success' else 'failed')
+                self.assertEqual(summary['configured_model'], 'opus')
+                self.assertEqual(summary['receipt_sha256'], launch.sha_file(folder / 'capture-receipt.json'))
+                self.assertEqual(summary['stdout_sha256'], launch.sha_file(folder / 'stdout.log'))
+                self.assertEqual(summary['stderr_sha256'], launch.sha_file(folder / 'stderr.log'))
+                self.assertEqual(summary['backend_identity'], 'unverified')
+                self.assertEqual(summary['raw_evidence'], 'private-runner-only-not-retained')
+                self.assertIn(canary, (folder / 'stderr.log').read_text())
+                for private in (canary, receipt['nonce'], receipt['probe_session'], receipt['launch_session'],
+                                str(folder), 'mcp__configured__read', 'PRIVATE-ARBITRARY-ERROR'):
+                    self.assertNotIn(private, output + self.last_prepare_result.stderr)
+                if mode == 'success':
+                    self.assertEqual(summary['actual_tool_calls'], 0)
+                    self.assertEqual(summary['reported_model_label'], 'claude-opus-5-5')
+                    self.assertIsNone(summary['failure_code'])
+                else:
+                    self.assertIsNone(summary['actual_tool_calls'])
+                    self.assertIsNone(summary['reported_model_label'])
+                    self.assertFalse((folder / 'observation.json').exists())
+                    self.assertIn(summary['failure_code'], ('probe-terminal-failure', 'probe-nonzero-exit'))
+
+    def test_capture_summary_drops_arbitrary_exception_and_private_field_values(self):
+        import contextlib
+        import io
+        spec = importlib.util.spec_from_file_location('workflow_summary_privacy_test', ROOT / '.github/scripts/prepare-self-improvement.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        canary = 'PRIVATE-ARBITRARY-ERROR-AND-SECRET'
+        receipt = {key: canary for key in ('configured_model', 'effort', 'cli_version', 'started_at', 'completed_at',
+                                          'stdout_sha256', 'stderr_sha256', 'nonce', 'session_id', 'argv', 'settings', 'env')}
+        receipt['exit_code'] = True
+        receipt['events'] = {'observed_model_label': canary, 'actual_tool_calls': False, 'advertised_tools': [canary]}
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output): module.emit_summary(receipt, canary, canary)
+        self.assertNotIn(canary, output.getvalue())
+        summary = json.loads(output.getvalue())['configured_capture_summary']
+        self.assertEqual(summary['failure_code'], 'capture-validation-failed')
+        self.assertEqual(summary['capture_status'], 'failed')
+        for key in ('configured_model', 'effort', 'cli_version', 'reported_model_label', 'actual_tool_calls', 'exit_code',
+                    'started_at', 'completed_at', 'stdout_sha256', 'stderr_sha256', 'receipt_sha256'):
+            self.assertIsNone(summary[key])
+
+    def test_capture_transport_timeout_retains_bounded_failure_bytes_and_reaps(self):
+        spec = importlib.util.spec_from_file_location('workflow_probe_test', ROOT / '.github/scripts/prepare-self-improvement.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        entry = module.load_entry(ROOT / ADAPTER)
+        directory = self.case.base / 'probe-timeout'
+        directory.mkdir()
+        descriptor = os.open(directory, entry.DIRECTORY_FLAGS)
+        try:
+            command = [sys.executable, '-c', 'import sys,time;print("partial",flush=True);print("error-partial",file=sys.stderr,flush=True);time.sleep(120)']
+            result, raw = module.capture_process(entry._load_helper(), command, dict(self.case.environment), b'', descriptor, entry, seconds=.15)
+        finally:
+            os.close(descriptor)
+        self.assertEqual(result['failure'], 'probe-timeout')
+        self.assertIn(b'partial', raw)
+        self.assertIn(b'error-partial', (directory / 'stderr.log').read_bytes())
+        self.assertFalse((directory / 'observation.json').exists())
 
     def action_settings(self, patch=None):
         # Pinned setupClaudeCodeSettings merges input and enables project MCP servers, after preparation.
@@ -7095,7 +7367,7 @@ class InstalledSelfImprovementTests(unittest.TestCase):
                      '--model ${{ steps.managed_self_improvement.outputs.model }}',
                      '--effort ${{ steps.managed_self_improvement.outputs.effort }}',
                      '--max-turns 75', '--allowedTools "Bash,Read,Write,Edit,MultiEdit,Glob,Grep,WebFetch,TodoWrite"',
-                     'cron: "0 0 * * 1"', 'workflow_dispatch: {}',
+                     'cron: "0 0 * * 1"', 'capture_configuration:', 'default: false',
                      'claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}',
                      'github_token: ${{ secrets.SDD_SESSION_PR_TOKEN || secrets.GITHUB_TOKEN }}',
                      'bash .github/scripts/self-improvement-pr-guard.sh "$changed"',

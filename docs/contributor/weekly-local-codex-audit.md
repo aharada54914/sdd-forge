@@ -19,6 +19,34 @@ gh run list --repo aharada54914/sdd-forge --workflow=self-improvement.yml --limi
 
 併せて所有者が Codex アプリの定期設定と直近の実行履歴を照合する。設定が有効であることと完走は区別し、両経路が有効なら重複 Issue/PR を避ける運用を決めてから実行する。この訂正ではスケジュールや有効状態を変更していない。
 
+## Actions の手動設定確認（2026-10-24、#620）
+
+手動 `workflow_dispatch` の `capture_configuration: true` は、採用済み
+self-improvement 用の明示的な Opus/medium 設定を一度だけ確認し、直後に既存の
+managed Action preparation へ渡す。リポジトリ変数の更新は不要で、request 変数が
+空なら `.github/self-improvement-request.template.json` を使う。CLI は
+`2.1.303 (Claude Code)` に固定し、nonce 応答・セッション・成功イベント・実ツール
+呼出しの不在と設定の不変性を確認する。観測した `claude-opus-5-5` は公開採用証拠
+に固定された表示ラベルであり、バックエンドの認証済みIDとは主張しない。
+
+この確認は通常の設定・フックと MCP 権限を保持し、60秒・1回、再試行なしで行う。
+実際のイベントでツール呼出しがなかったことを確認するもので、呼出し不能や隔離を
+証明するものではない。advertised tools と実呼出しは区別して記録する。失敗時の
+stdout/stderr と receipt は `.sdd-self-improvement/<scope>/` 内に非公開モードで
+残し、認証情報や設定全文をログへ出さない。成功時だけ既存形式の observation と
+実行専用 request を作り、300秒の鮮度制限を変えずに消費する。監査本体が後で変更
+する設定も既存の allocation 検査対象であり、確認成功だけで監査完走とはしない。
+
+runner 破棄後の確認用に、成功・失敗とも許可項目だけの JSON 要約を workflow ログへ
+残す。設定したモデル・effort・CLI 版、検証できた表示ラベルと実ツール数、固定の
+失敗コード、終了コード・時刻、stream/receipt の SHA256 を記録する。生データ、
+設定、session ID、nonce、ツール名、パス、任意の例外文は出力しない。生の証拠は
+runner 内だけに残り破棄後には再生できず、要約は backend 認証を主張しない。
+
+既定値は false。定期実行には依然として有効な request/新鮮な observation の供給が
+必要であり、この手動経路の追加は定期運用の復旧を意味しない。実際の hosted audit
+と5項目の検査・completion/finalizer の結果を確認するまで #620 の復旧を宣言しない。
+
 ## ローカル運用の移行時設定（2026-09-05）
 
 - 名称: sdd-forge 週次セルフ改善監査

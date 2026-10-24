@@ -33,7 +33,13 @@ name: Weekly Self-Improvement
 on:
   schedule:
     - cron: "0 0 * * 1" # 毎週月曜 00:00 UTC = 09:00 JST
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      capture_configuration:
+        description: Capture one fresh configured invocation before the manual audit
+        type: boolean
+        required: false
+        default: false
 
 # 権限は実際に使うものだけに最小化する(REQ-005 / AC-010, security-spec.md B2)。
 # id-token: write は削除済み。ピン留めした
@@ -129,44 +135,20 @@ jobs:
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           echo "CLAUDE_NATIVE_EXECUTABLE=$(readlink -f "$HOME/.local/bin/claude")" >> "$GITHUB_ENV"
 
-      # Supply a fresh existing request/observation via nonsecret repository variables.
-      # Missing or stale evidence fails closed; this workflow does not produce availability.
+      # Manual opt-in captures one real configuration and immediately consumes it.
+      # Scheduled runs still require provisioned fresh inputs; no scheduled recovery is implied.
       - name: Prepare managed self-improvement session
         id: managed_self_improvement
         shell: bash
         env:
           SDD_MANAGED_ENTRY: ${{ github.workspace }}/plugins/sdd-implementation/scripts/managed-model-entry.py
+          SDD_SELF_IMPROVEMENT_PREPARE: ${{ github.workspace }}/.github/scripts/prepare-self-improvement.py
           SDD_SELF_IMPROVEMENT_REQUEST: ${{ vars.SDD_SELF_IMPROVEMENT_REQUEST }}
           SDD_SELF_IMPROVEMENT_REGISTRY: ${{ vars.SDD_SELF_IMPROVEMENT_REGISTRY || 'contracts/agent-model-capabilities.v2.json' }}
+          SDD_CAPTURE_CONFIGURATION: ${{ github.event_name == 'workflow_dispatch' && inputs.capture_configuration && 'true' || 'false' }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         run: |
-          python3 - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-          import subprocess
-          import sys
-          import uuid
-
-          session = str(uuid.uuid4())
-          output = '.sdd-self-improvement/' + session
-          Path('.sdd-self-improvement').mkdir(exist_ok=True)
-          command = [sys.executable, '-I', '-B', os.environ['SDD_MANAGED_ENTRY'], 'claude-action-prepare',
-                     '--request', os.environ.get('SDD_SELF_IMPROVEMENT_REQUEST', ''),
-                     '--registry', os.environ['SDD_SELF_IMPROVEMENT_REGISTRY'],
-                     '--role', 'self-improvement', '--host', 'claude-code',
-                     '--run-id', os.environ['GITHUB_RUN_ID'], '--session-id', session,
-                     '--attempt', os.environ['GITHUB_RUN_ATTEMPT'], '--output-dir', output,
-                     '--require-actual-id', 'false', '--executable', os.environ['CLAUDE_NATIVE_EXECUTABLE']]
-          result = subprocess.run(command, stdout=subprocess.PIPE, check=False)
-          if result.returncode:
-              raise SystemExit(result.returncode)
-          selected = json.loads(result.stdout)['selection']['resolved']
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as stream:
-              for name, value in dict(executable=str(Path(output, 'claude-sdk-entry').resolve()),
-                                      model=selected['native_id'], effort=selected['effort'],
-                                      session_id=session, output_dir=output).items():
-                  print(name + '=' + value, file=stream)
-          PY
+          python3 -I -B "$SDD_SELF_IMPROVEMENT_PREPARE"
 
       - name: Run Claude self-improvement session
         id: claude_session
