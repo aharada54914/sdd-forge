@@ -10,6 +10,7 @@ import json
 import os
 from pathlib import Path
 import stat
+import shutil
 import socket
 import warnings
 import subprocess
@@ -719,6 +720,118 @@ class AggregateTests(AggregateFixture):
             self.api_run['pull_requests'][0][field]['sha'] = 'f'*40
             self.invoke(expected=1)
             self.api_run['pull_requests'][0][field]['sha'] = fixture.base if field == 'base' else fixture.head
+
+    def test_pr_rebuild_binds_parser_lock_closure_not_unrelated_graph(self):
+        fixture = self.use_pr_fixture()
+        lock_path = 'mcp/sdd-forge-mcp/package-lock.json'
+        parser_entry = {'version': '5.4.3', 'resolved': 'https://registry.npmjs.org/js-yaml/-/js-yaml-5.4.3.tgz',
+                        'integrity': 'sha512-yzzNtgczwgoVHNigCyKTXcQJU4Y8t/ikU4UxXW0BvrLfHTGWZhsNcOT2s/a7vn81/'
+                                     '4KqVnNmHjaUEPlvWnNwVw==',
+                        'license': 'MIT', 'dependencies': {'argparse': '^2.0.1'}, 'bin': {'js-yaml': 'bin/js-yaml.mjs'}}
+        base_lock = {'lockfileVersion': 3, 'packages': {
+            '': {'dependencies': {'js-yaml': '^5.4.3', 'unrelated': '^1.0.0'}},
+            'node_modules/js-yaml': parser_entry,
+            'node_modules/argparse': {'version': '2.0.1', 'integrity': 'sha512-argparse', 'license': 'Python-2.0'},
+            'node_modules/unrelated': {'version': '1.0.0', 'integrity': 'sha512-old'}}}
+        fixture.git('checkout', '-q', fixture.base)
+        fixture.write(lock_path, json.dumps(base_lock))
+        fixture.base = fixture.commit('trusted base parser lock')
+        subprocess.run(['git', '-C', str(fixture.trusted), 'fetch', '-q', str(fixture.root), fixture.base], check=True)
+        subprocess.run(['git', '-C', str(fixture.trusted), 'checkout', '-q', fixture.base], check=True)
+        fixture.write('docs/guide.txt', 'security patch head')
+        fixture.head = fixture.commit('subject head')
+        package = {'name': 'js-yaml', 'version': '5.4.3', 'main': './dist/js-yaml.cjs.js'}
+        # The planner inventory binds the installed parser bytes copied into the trusted base.
+        (fixture.trusted / 'mcp/sdd-forge-mcp/node_modules/js-yaml').mkdir(parents=True)
+        (fixture.trusted / 'mcp/sdd-forge-mcp/node_modules/js-yaml/package.json').write_text(json.dumps(package))
+        parser_code = 'module.exports = {}; // bounded parser-byte fixture\n'
+        parser_file = 'mcp/sdd-forge-mcp/node_modules/js-yaml/dist/js-yaml.cjs.js'
+        (fixture.trusted / parser_file).parent.mkdir()
+        (fixture.trusted / parser_file).write_text(parser_code)
+        self.plan = fixture.plan()
+        run = dict(self.api_run, head_sha=fixture.head,
+                   pull_requests=[{'base': {'sha': fixture.base}, 'head': {'sha': fixture.head}}])
+        self.plan['api_head_sha'] = fixture.head
+        ci = module(SCRIPT, 'parser_closure_ci')
+        installed = self.scratch / 'installed'
+
+        def rebuild(lock, manifest=package, code=parser_code):
+            shutil.rmtree(installed, ignore_errors=True)
+            (installed / 'mcp/sdd-forge-mcp/node_modules/js-yaml').mkdir(parents=True)
+            (installed / 'mcp/sdd-forge-mcp/node_modules/js-yaml/package.json').write_text(json.dumps(manifest))
+            (installed / parser_file).parent.mkdir()
+            (installed / parser_file).write_text(code)
+            (installed / lock_path).write_text(json.dumps(lock))
+            with patch.object(ci, 'ROOT', installed):
+                return ci.rebuild_plan(fixture.root, run, self.plan)
+
+        unrelated = copy.deepcopy(base_lock)
+        unrelated['packages']['node_modules/unrelated'].update(version='1.0.1', integrity='sha512-new')
+        unrelated['packages']['node_modules/added'] = {'version': '3.0.0'}
+        self.assertIsNotNone(rebuild(unrelated))
+        # This is the existing canonical-plan check, not a new parser trust mechanism.
+        with self.assertRaisesRegex(ValueError, 'plan disagrees with independent trusted reconstruction'):
+            rebuild(unrelated, code=parser_code + '// changed without changing package metadata\n')
+        for raw in ('[]', '{"packages":null}', '{"packages":[]}', '{',
+                    '{"packages":{},"packages":{}}'):
+            with self.subTest(malformed=raw), self.assertRaises(ValueError):
+                ci.parser_lock_closure(raw)
+        for name in ('js-yaml', 'argparse'):
+            for field in ('dependencies', 'optionalDependencies', 'peerDependencies'):
+                for value in ([], None, 'argparse'):
+                    malformed = copy.deepcopy(base_lock)
+                    malformed['packages']['node_modules/' + name][field] = value
+                    with self.subTest(package=name, field=field, value=value), self.assertRaises(ValueError):
+                        ci.parser_lock_closure(json.dumps(malformed))
+            for value in ([], None, 'package'):
+                malformed = copy.deepcopy(base_lock)
+                malformed['packages']['node_modules/' + name] = value
+                with self.subTest(entry=name, value=value), self.assertRaises(ValueError):
+                    ci.parser_lock_closure(json.dumps(malformed))
+        for field in ('dependencies', 'optionalDependencies', 'peerDependencies'):
+            unsupported = copy.deepcopy(base_lock)
+            unsupported['packages']['node_modules/argparse'][field] = {'extra': '^1.0.0'}
+            with self.subTest(argparse=field), self.assertRaises(ValueError):
+                ci.parser_lock_closure(json.dumps(unsupported))
+        unsupported = copy.deepcopy(base_lock)
+        unsupported['packages']['node_modules/argparse/node_modules/extra'] = {'version': '1.0.0'}
+        with self.assertRaises(ValueError):
+            ci.parser_lock_closure(json.dumps(unsupported))
+        drifts = {}
+        for field, value in (('version', '5.4.4'), ('resolved', 'https://example.invalid/js-yaml.tgz'),
+                             ('integrity', 'sha512-drift'), ('dependencies', {'argparse': '^2.0.2'}),
+                             ('bin', {'js-yaml': 'bin/other.mjs'})):
+            drifts['parser-' + field] = copy.deepcopy(base_lock)
+            drifts['parser-' + field]['packages']['node_modules/js-yaml'][field] = value
+        drifts['transitive'] = copy.deepcopy(base_lock)
+        drifts['transitive']['packages']['node_modules/argparse']['integrity'] = 'sha512-drift'
+        drifts['transitive-missing'] = copy.deepcopy(base_lock)
+        del drifts['transitive-missing']['packages']['node_modules/argparse']
+        drifts['nested'] = copy.deepcopy(base_lock)
+        drifts['nested']['packages']['node_modules/js-yaml/node_modules/argparse'] = {'version': '9.0.0'}
+        for name, lock in drifts.items():
+            with self.subTest(drift=name):
+                with self.assertRaisesRegex(ValueError, 'parser'):
+                    rebuild(lock)
+        for field, value in (('version', '5.4.4'), ('main', './dist/js-yaml.mjs'), ('name', 'other')):
+            with self.subTest(installed=field):
+                with self.assertRaisesRegex(ValueError, 'parser'):
+                    rebuild(base_lock, {**package, field: value})
+        # A closure beyond the CLI-only argparse dependency is unsupported even when base and head agree.
+        unsupported = copy.deepcopy(base_lock)
+        unsupported['packages']['node_modules/js-yaml']['dependencies']['extra'] = '^1.0.0'
+        unsupported['packages']['node_modules/extra'] = {'version': '1.0.0'}
+        fixture.git('checkout', '-q', fixture.base)
+        fixture.write(lock_path, json.dumps(unsupported))
+        fixture.base = fixture.commit('unsupported parser closure in base')
+        subprocess.run(['git', '-C', str(fixture.trusted), 'fetch', '-q', str(fixture.root), fixture.base], check=True)
+        subprocess.run(['git', '-C', str(fixture.trusted), 'checkout', '-q', fixture.base], check=True)
+        fixture.write('docs/guide.txt', 'later head')
+        fixture.head = fixture.commit('subject head on unsupported base')
+        self.plan = fixture.plan()
+        run.update(head_sha=fixture.head, pull_requests=[{'base': {'sha': fixture.base}, 'head': {'sha': fixture.head}}])
+        with self.assertRaisesRegex(ValueError, 'unsupported parser dependency closure'):
+            rebuild(unsupported)
 
     def test_history_unstarted_cancel_then_true_success(self):
         self.api_run['run_attempt'] = 2

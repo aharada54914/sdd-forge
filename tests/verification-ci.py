@@ -465,6 +465,28 @@ def source_job(history):
     return latest, origin
 
 
+def parser_lock_closure(raw):
+    # The required dist/js-yaml.cjs.js has no require(); argparse is declared only for bin/js-yaml.mjs.
+    try:
+        packages = P.strict_json(raw)['packages']
+        if not isinstance(packages, dict):
+            raise ValueError('invalid parser lock packages')
+        entry, argparse_entry = packages['node_modules/js-yaml'], packages['node_modules/argparse']
+        if not isinstance(entry, dict) or not isinstance(argparse_entry, dict):
+            raise ValueError('invalid parser lock entries')
+        fields = ('dependencies', 'optionalDependencies', 'peerDependencies')
+        if any(not isinstance(package.get(field, {}), dict)
+               for package in (entry, argparse_entry) for field in fields):
+            raise ValueError('invalid parser dependency mapping')
+        nested = any(key.startswith(('node_modules/js-yaml/', 'node_modules/argparse/')) for key in packages)
+        declared = set().union(*(entry.get(field, {}) for field in fields))
+    except (KeyError, TypeError, AttributeError) as error:
+        raise ValueError('invalid parser lock') from error
+    if nested or declared != {'argparse'} or any(argparse_entry.get(field) for field in fields):
+        raise ValueError('unsupported parser dependency closure')
+    return entry, argparse_entry
+
+
 def rebuild_plan(root, run, plan):
     tested = P.git(root, 'rev-parse', 'HEAD').decode().strip()
     if P.git(root, 'status', '--porcelain', '--untracked-files=no'):
@@ -492,7 +514,11 @@ def rebuild_plan(root, run, plan):
             parser = ROOT / 'mcp/sdd-forge-mcp/node_modules/js-yaml'
             lock = 'mcp/sdd-forge-mcp/package-lock.json'
             if parser.exists() and (trusted / lock).is_file():
-                if (ROOT / lock).read_bytes() != (trusted / lock).read_bytes():
+                manifest = read_json(parser / 'package.json')
+                installed = parser_lock_closure((ROOT / lock).read_bytes())
+                if (installed != parser_lock_closure((trusted / lock).read_bytes())
+                        or [manifest.get(k) for k in ('name', 'version', 'main')]
+                        != ['js-yaml', installed[0]['version'], './dist/js-yaml.cjs.js']):
                     raise ValueError('trusted parser lock differs from installed parser')
                 shutil.copytree(parser, trusted / 'mcp/sdd-forge-mcp/node_modules/js-yaml')
             normal = P.make_plan(trusted_root=trusted, base=base, head=head, force_full='false', **arguments)
