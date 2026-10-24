@@ -1285,8 +1285,11 @@ if (-not (Test-Path $outDir)) {
     New-Item -ItemType Directory -Path $outDir -Force | Out-Null
 }
 
-Set-Content -Encoding Utf8 -Path $OutPath -Value $bundle -NoNewline
-Add-Content -Encoding Utf8 -Path $OutPath -Value ""
+# Issue #619: Set-Content -Encoding Utf8 writes a BOM on Windows PowerShell 5.1.
+# .NET resolves relative paths against the process directory, not the PS location.
+$outFullPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutPath)
+[System.IO.File]::WriteAllText($outFullPath, ($bundle + [Environment]::NewLine),
+    (New-Object System.Text.UTF8Encoding($false)))
 
 # ── Emit digest (and threaded effort, if supplied) to stdout ────────────────
 # AC-036: --effort is threaded through verbatim on a second stdout line, so

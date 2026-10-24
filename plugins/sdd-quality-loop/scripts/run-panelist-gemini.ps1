@@ -149,7 +149,9 @@ Rules:
     $bundleContent = Get-Content -Raw -Encoding Utf8 $InputPath
     $stdinContent = "## Sanitized Input Bundle`n`n" + $bundleContent
     $stdinBundleFile = Join-Path $scratch "stdin-bundle.txt"
-    Set-Content -Encoding Utf8 -Path $stdinBundleFile -Value $stdinContent
+    # Issue #619: Set-Content -Encoding Utf8 writes a BOM on Windows PowerShell 5.1.
+    [System.IO.File]::WriteAllText($stdinBundleFile, ($stdinContent + [Environment]::NewLine),
+        (New-Object System.Text.UTF8Encoding($false)))
 
     [Console]::Error.WriteLine("run-panelist-gemini: invoking gemini --model $Model -p <prompt> (task=$TaskId feature=$Feature)")
 
