@@ -1,6 +1,6 @@
 # Open issue dependency and execution plan
 
-## Current status — 2026-10-24 13:34 UTC
+## Current status — 2026-10-24 14:07 UTC
 
 This section supersedes older authentication, task-exception, author-limit and
 execution-status statements below. The historical dependency graph is unchanged.
@@ -52,9 +52,16 @@ have not been released or integrated into `main`.
   source adjudication of D5. Spec-reviewer-B remains unadopted. Its completed
   clarified-fixture Sonnet/medium experiment has **zero PASS, two FAIL and two
   ADJUDICATION_PENDING outcomes**: clean citation defects, missed dirty D4 and unresolved
-  source-grounded concerns remain recorded. The prospective Opus/high comparison
-  has not run and awaits control clarification. These small adaptive experiments
-  do not establish domain/amendment coverage or normal settings/hooks equivalence.
+  source-grounded concerns remain recorded. A separately versioned Opus/high
+  qualification completed four native calls with no retries: independent semantic
+  judgment accepted three outputs and rejected one for unsupported mandatory
+  design demands. Both dirty repetitions detected all five seeded defects; that
+  recall does not erase the false positive. **B adoption remains on hold** under
+  the existing all-criteria/two-repetition promotion rule. Its control was clarified
+  before these calls, so it is not a paired comparison against the earlier Sonnet
+  inputs. The same Work judge knew the profile/history; only output/repetition
+  mapping was hidden. These small adaptive experiments do not establish
+  domain/amendment coverage or normal settings/hooks equivalence.
 - **Task-reviewer-A/B adoption also awaits a human decision.** Eight native
   Sonnet/medium outputs passed their contracts; independent semantic judgment
   accepted all eight outputs and supported 92 checks. Candidate decisions remain
