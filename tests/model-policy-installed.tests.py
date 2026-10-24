@@ -7095,7 +7095,7 @@ class InstalledSelfImprovementTests(unittest.TestCase):
         self.assertEqual(tree(root), before)
         self.assertFalse(self.record.exists())
 
-    def test_capture_accepts_only_observed_allowed_quota_metadata(self):
+    def test_capture_quota_status_is_separate_from_incidental_telemetry(self):
         spec = importlib.util.spec_from_file_location('workflow_quota_test', ROOT / '.github/scripts/prepare-self-improvement.py')
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -7119,24 +7119,53 @@ class InstalledSelfImprovementTests(unittest.TestCase):
         for position in (1, 3):
             rows = baseline[:position] + [quota] + baseline[position:]
             self.assertEqual(validate(rows)['rate_limit_events'], 1)
-        negatives = [('rate_limit_info', 'status', 'rejected'), ('rate_limit_info', 'status', 'unknown'),
-                     ('rate_limit_info', 'isUsingOverage', True), ('rate_limit_info', 'rateLimitType', 'unknown'),
+        # Quota telemetry never establishes nonce success or capacity/billing guarantees.
+        for status in ('allowed', 'allowed_warning'):
+            minimal = copy.deepcopy(quota); minimal['rate_limit_info'] = {'status': status}
+            self.assertEqual(validate(baseline[:1] + [minimal] + baseline[1:])['rate_limit_events'], 1)
+        for info in (None, [], 'allowed', {}, {'status': None}, {'status': True},
+                     {'status': []}, {'status': 'unknown'}, {'status': 'rejected'}):
+            bad = copy.deepcopy(quota); bad['rate_limit_info'] = info
+            with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+        incidental = [('rate_limit_info', 'isUsingOverage', True), ('rate_limit_info', 'rateLimitType', 'unknown'),
                      ('rate_limit_info', 'resetsAt', True), ('rate_limit_info', 'overageStatus', 'unknown'),
                      ('rate_limit_info', 'overageDisabledReason', 'unknown'), ('rate_limit_info', 'extra', 'x')]
-        for parent, key, value in negatives:
+        for parent, key, value in incidental:
             with self.subTest(key=key, value=value):
                 bad = copy.deepcopy(quota); bad[parent][key] = value
-                with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+                self.assertEqual(validate(baseline[:1] + [bad] + baseline[1:])['rate_limit_events'], 1)
         for key, value in [('extra', 1), ('session_id', 'wrong'), ('uuid', 'not-a-uuid')]:
             bad = copy.deepcopy(quota); bad[key] = value
             with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
         for key, value in [('utilization', True), ('utilization', 2), ('resetsAt', '1792837200'), ('extra', 1)]:
             bad = copy.deepcopy(quota); bad['rate_limit_info']['unifiedWindows']['five_hour'][key] = value
-            with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+            self.assertEqual(validate(baseline[:1] + [bad] + baseline[1:])['rate_limit_events'], 1)
         bad = copy.deepcopy(quota); del bad['rate_limit_info']['unifiedWindows']['seven_day']
-        with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+        self.assertEqual(validate(baseline[:1] + [bad] + baseline[1:])['rate_limit_events'], 1)
         wrong_terminal = copy.deepcopy(baseline); wrong_terminal[-1]['is_error'] = True
         with self.assertRaises(ValueError): validate(wrong_terminal[:1] + [quota] + wrong_terminal[1:])
+        for key in ('error', 'fallback_model', 'fallbackModel', 'reroute', 'rerouted'):
+            bad = copy.deepcopy(quota); bad[key] = 'fixture-conflict'
+            with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+        for rows in (baseline[:2], baseline + [baseline[-1]], [quota]):
+            with self.assertRaises(ValueError): validate(rows)
+        wrong_nonce = copy.deepcopy(baseline); wrong_nonce[-1]['result'] = 'wrong'
+        with self.assertRaises(ValueError): validate(wrong_nonce[:1] + [quota] + wrong_nonce[1:])
+        tool = copy.deepcopy(baseline); tool[1]['message']['content'] = [{'type': 'tool_use', 'name': 'fixture'}]
+        with self.assertRaises(ValueError): validate(tool[:1] + [quota] + tool[1:])
+        unknown = copy.deepcopy(quota); unknown['type'] = 'unknown_event'
+        with self.assertRaises(ValueError): validate(baseline[:1] + [unknown] + baseline[1:])
+        import contextlib
+        import io
+        canary = 'PRIVATE-OPAQUE-QUOTA-CANARY'
+        private = copy.deepcopy(quota); private['rate_limit_info']['extension'] = {'private': canary}
+        events = validate(baseline[:1] + [private] + baseline[1:])
+        self.assertNotIn(canary, json.dumps(events))
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            module.emit_summary({'status': 'configured-invocation-accepted', 'events': events,
+                                 'quota': private['rate_limit_info']}, 'a' * 64)
+        self.assertNotIn(canary, output.getvalue())
 
     def test_capture_accepts_observed_seven_day_warning_quota_metadata(self):
         spec = importlib.util.spec_from_file_location('workflow_quota_warning_test', ROOT / '.github/scripts/prepare-self-improvement.py')
@@ -7164,7 +7193,7 @@ class InstalledSelfImprovementTests(unittest.TestCase):
         first, second = warning(.77), warning(.78)
         self.assertEqual(validate(baseline[:1] + [first, second] + baseline[1:])['rate_limit_events'], 2)
         self.assertEqual(validate(baseline + [first])['rate_limit_events'], 1)
-        info_negatives = [('status', 'rejected'), ('status', 'unknown'), ('status', 'allowed'),
+        incidental = [('status', 'allowed'),
                           ('rateLimitType', 'five_hour'), ('isUsingOverage', True), ('isUsingOverage', 0),
                           ('overageStatus', 'allowed'), ('overageDisabledReason', 'unknown'),
                           ('overageEnabled', 1), ('overageEnabled', False), ('utilization', True),
@@ -7172,25 +7201,25 @@ class InstalledSelfImprovementTests(unittest.TestCase):
                           ('surpassedThreshold', True), ('surpassedThreshold', 0), ('surpassedThreshold', 1.2),
                           ('surpassedThreshold', .8), ('resetsAt', 1792855200), ('resetsAt', 0),
                           ('resetsAt', '1793044800'), ('extra', 'x')]
-        for key, value in info_negatives:
+        for key, value in incidental:
             with self.subTest(key=key, value=value):
                 bad = copy.deepcopy(first); bad['rate_limit_info'][key] = value
-                with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+                self.assertEqual(validate(baseline[:1] + [bad] + baseline[1:])['rate_limit_events'], 1)
         for key in ('utilization', 'surpassedThreshold', 'overageEnabled', 'unifiedWindows'):
             with self.subTest(missing=key):
                 bad = copy.deepcopy(first); del bad['rate_limit_info'][key]
-                with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+                self.assertEqual(validate(baseline[:1] + [bad] + baseline[1:])['rate_limit_events'], 1)
         for window, key, value in [('seven_day', 'utilization', .5), ('seven_day', 'resetsAt', 1793044801),
                                    ('five_hour', 'utilization', 2), ('five_hour', 'resetsAt', True),
                                    ('seven_day', 'extra', 1)]:
             with self.subTest(window=window, key=key, value=value):
                 bad = copy.deepcopy(first); bad['rate_limit_info']['unifiedWindows'][window][key] = value
-                with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+                self.assertEqual(validate(baseline[:1] + [bad] + baseline[1:])['rate_limit_events'], 1)
         bad = copy.deepcopy(first); del bad['rate_limit_info']['unifiedWindows']['five_hour']
-        with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
-        # Warning-only fields are not admitted onto the original allowed/five_hour shape.
+        self.assertEqual(validate(baseline[:1] + [bad] + baseline[1:])['rate_limit_events'], 1)
+        # Incidental warning fields do not change the meaning of an allowed primary status.
         bad = copy.deepcopy(first); bad['rate_limit_info'].update(status='allowed', rateLimitType='five_hour')
-        with self.assertRaises(ValueError): validate(baseline[:1] + [bad] + baseline[1:])
+        self.assertEqual(validate(baseline[:1] + [bad] + baseline[1:])['rate_limit_events'], 1)
         for key, value in [('session_id', 'wrong'), ('uuid', 'not-a-uuid'), ('extra', 1)]:
             with self.subTest(event=key):
                 bad = copy.deepcopy(first); bad[key] = value

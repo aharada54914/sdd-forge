@@ -137,40 +137,14 @@ def capture_process(helper, command, environment, payload, directory, entry, *, 
 
 
 def allowed_quota_event(event):
-    """Only observed CLI2.1.303 available-quota shapes with unused/rejected overage."""
+    """Quota metadata is incidental; only its primary status can contradict success."""
     if set(event) != {'type', 'rate_limit_info', 'uuid', 'session_id'}:
         return False
     if not isinstance(event['uuid'], str) or str(uuid.UUID(event['uuid'])) != event['uuid']:
         return False
     info = event['rate_limit_info']
-    keys = {'status', 'resetsAt', 'rateLimitType', 'overageStatus', 'overageDisabledReason',
-            'isUsingOverage', 'unifiedWindows'}
-    if not isinstance(info, dict):
-        return False
-    warning = info.get('status') == 'allowed_warning'
-    if warning:
-        if set(info) != keys | {'utilization', 'surpassedThreshold', 'overageEnabled'}:
-            return False
-        if (info['rateLimitType'] != 'seven_day' or info['overageEnabled'] is not True
-                or type(info['utilization']) not in (int, float)
-                or type(info['surpassedThreshold']) not in (int, float)
-                or not 0 < info['surpassedThreshold'] <= info['utilization'] <= 1):
-            return False
-    elif set(info) != keys or info['status'] != 'allowed' or info['rateLimitType'] != 'five_hour':
-        return False
-    if (info['overageStatus'] != 'rejected' or info['overageDisabledReason'] != 'out_of_credits'
-            or info['isUsingOverage'] is not False or type(info['resetsAt']) is not int or info['resetsAt'] <= 0):
-        return False
-    windows = info['unifiedWindows']
-    if not isinstance(windows, dict) or set(windows) != {'five_hour', 'seven_day'}:
-        return False
-    for window in windows.values():
-        if (not isinstance(window, dict) or set(window) != {'utilization', 'resetsAt'}
-                or type(window['utilization']) not in (int, float) or not 0 <= window['utilization'] <= 1
-                or type(window['resetsAt']) is not int or window['resetsAt'] <= 0):
-            return False
-    return not warning or (info['utilization'] == windows['seven_day']['utilization']
-                           and info['resetsAt'] == windows['seven_day']['resetsAt'])
+    return (isinstance(info, dict) and isinstance(info.get('status'), str)
+            and info['status'] in ('allowed', 'allowed_warning'))
 
 
 def validate_events(helper, raw, session, native, effort, nonce, version):
