@@ -243,7 +243,7 @@ if (-not $ConsentKind) {
 
 if (-not $ConsentKind) {
     [Console]::Error.WriteLine(
-        "prepare-panelist-input: consent denied for $TaskId — no Cross-Model: enabled flag in $TasksFile and no valid SDD_SUDO token")
+        "prepare-panelist-input: consent denied for $TaskId $([char]0x2014) no Cross-Model: enabled flag in $TasksFile and no valid SDD_SUDO token")
     exit 1
 }
 
@@ -1002,11 +1002,11 @@ function Build-PpiDeclaredContent {
     foreach ($row in $script:PpiDeclaredRows) {
         switch ($row.Staleness) {
             "StaleHash" {
-                $header = "# ---- $($row.RowPath) (declared output — CURRENT worktree content; implementation report's declared hash for this path is STALE, the file has changed since the report was written) ----"
+                $header = "# ---- $($row.RowPath) (declared output $([char]0x2014) CURRENT worktree content; implementation report's declared hash for this path is STALE, the file has changed since the report was written) ----"
             }
             "Missing" {
                 $commit = Get-PpiDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId
-                $header = "# ---- $($row.RowPath) (declared output — MISSING from the worktree; implementation report's declaration for this path is STALE, it matched only at declaration commit $commit, the path no longer exists in the current tree) ----"
+                $header = "# ---- $($row.RowPath) (declared output $([char]0x2014) MISSING from the worktree; implementation report's declaration for this path is STALE, it matched only at declaration commit $commit, the path no longer exists in the current tree) ----"
             }
             default {
                 $header = "# ---- $($row.RowPath) (declared output) ----"
@@ -1266,7 +1266,7 @@ if ($MaxBytes) {
             # replaces.
             $rawContentBytes = [System.Text.Encoding]::UTF8.GetByteCount("$($script:PpiContentPrefix)$step3Content$($script:PpiContentSuffix)")
             $declaredContentBytes = [System.Text.Encoding]::UTF8.GetByteCount($script:PpiDeclaredContent)
-            [Console]::Error.WriteLine("prepare-panelist-input: sanitized bundle exceeds --max-bytes for ${Feature}/${TaskId} even after eliding $elidedCount task-evidence file(s) and $declaredElidedCount declared-output file(s) (${bundleBytes} > ${maxBytesInt} bytes) — refusing to write a silently-truncated bundle.")
+            [Console]::Error.WriteLine("prepare-panelist-input: sanitized bundle exceeds --max-bytes for ${Feature}/${TaskId} even after eliding $elidedCount task-evidence file(s) and $declaredElidedCount declared-output file(s) (${bundleBytes} > ${maxBytesInt} bytes) $([char]0x2014) refusing to write a silently-truncated bundle.")
             [Console]::Error.WriteLine("  spec documents + task verification + implementation report: ${rawContentBytes} bytes")
             [Console]::Error.WriteLine("  of which declared-outputs content:                          ${declaredContentBytes} bytes")
             [Console]::Error.WriteLine("  sanitized bundle (header + content) that would have been written: ${bundleBytes} bytes")

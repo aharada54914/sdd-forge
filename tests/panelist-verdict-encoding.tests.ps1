@@ -251,7 +251,17 @@ try {
                     # Start-Process text redirection appends one native newline.
                     if ($inputText -ceq ($sourceText + $nl)) {
                         Ok "$label actual CLI stdin preserves scratch text and transport newline"
-                    } else { Fail "$label actual CLI stdin differs from scratch text plus transport newline" }
+                    } else {
+                        Fail "$label actual CLI stdin differs from scratch text plus transport newline"
+                        foreach ($capturePath in @($sourcePath, $env:STUB_INPUT)) {
+                            $capturedBytes = [System.IO.File]::ReadAllBytes($capturePath)
+                            $prefix = [BitConverter]::ToString($capturedBytes, 0, [Math]::Min(32, $capturedBytes.Length))
+                            $suffix = [BitConverter]::ToString($capturedBytes, [Math]::Max(0, $capturedBytes.Length - 32))
+                            $hash = (Get-FileHash -LiteralPath $capturePath -Algorithm SHA256).Hash
+                            Write-Host ("fixture input bytes: {0} length={1} sha256={2} first32={3} last32={4}" -f
+                                (Split-Path -Leaf $capturePath), $capturedBytes.Length, $hash, $prefix, $suffix)
+                        }
+                    }
                 } catch { Fail "$label captured input is not strict UTF-8" }
             } else { Fail "$label fake CLI did not retain actual stdin and scratch source" }
 
