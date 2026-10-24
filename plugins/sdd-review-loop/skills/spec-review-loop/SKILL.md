@@ -79,10 +79,21 @@ Before each reviewer launch, persist one
 role, feature, host-issued run/session IDs, canonical input paths and SHA-256
 values, plus the current hash and final record hash of
 `reports/review-context/identity-ledger.json`. The canonical identity ledger
-must already contain the invoking host/implementation identity and every prior
+must already contain the invoking host identity and every prior
 review/evaluation reservation; if it is missing, stale, malformed, or has a
 broken hash chain, stop. Never reconstruct history from caller-supplied ID
-lists.
+lists. Implementation actors are bound by their `task-input-manifest/v1` and
+implementation report, not by host rows, and earlier specification authors are
+not retroactively added to the ledger.
+
+If the orchestrating host is a Claude Code session that is not yet in an existing
+ledger, register it once, while that native session is stopped, with
+`initialize-review-identity.py --register-existing --claude-result <captured result>
+--claude-transcript <native transcript>` (first with `--check-only`), then resume the
+same session ID. A fresh Copilot project instead uses `--copilot-events`. Accepted
+evidence, supported scope, receipts and retry rules are in
+`references/review-context-boundary.md` ("Registering a Claude host into an
+existing ledger"). The registered host never acts as reviewer A or B.
 
 Immediately before launching the named reviewer, reserve its identity with one
 of:
