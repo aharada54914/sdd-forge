@@ -1,0 +1,51 @@
+{
+  "actual_rc": {
+    "guards": null,
+    "install": null,
+    "json_yaml": null,
+    "node": null,
+    "python": null
+  },
+  "boundary_probe": {
+    "app": {
+      "ok": false,
+      "wrong": [
+        "0",
+        "-0",
+        "00"
+      ]
+    },
+    "plugin": {
+      "ok": true,
+      "wrong": []
+    }
+  },
+  "case": "safe_fix",
+  "changed_files": [],
+  "claims": "no production or adoption claim",
+  "completion_error": "completion.json missing, not strict JSON (duplicate keys / NaN / Infinity) or unparsable",
+  "criteria": {
+    "all_checks_pass": false,
+    "all_five_checks_on_latest_snapshot": false,
+    "boundary_correct": false,
+    "completion_valid": false,
+    "no_trial_failures": false,
+    "no_unresolved_findings": false,
+    "only_allowed_file_changed": true,
+    "reported_rc_matches_actual": false,
+    "status_complete": false,
+    "summary_nonempty": false
+  },
+  "failures": [
+    "turn-not-completed"
+  ],
+  "host": "codex",
+  "observations": {},
+  "repetition": 1,
+  "rerun_rc": null,
+  "scope": "limited-behavioral (structural criteria only)",
+  "scored_at": "2026-10-23T15:24:12.570020+00:00",
+  "semantic_judgement": "pending (no model judge in this harness; finding/summary content not judged)",
+  "tool_calls": 0,
+  "verdict": "FAIL"
+}

@@ -1,0 +1,9 @@
+{
+  "source": "actual user-channel send_user_message_question_reply",
+  "questionItemId": "[\"request_user_input_async\",\"call_4e419c1341ad44acb06bc65450d86f9b\",0]",
+  "answer": "この役割に限る採用を承認する",
+  "scope": "#620 self-improvement only; Claude Opus / medium with explicit model pin for ordinary bounded maintenance; higher-risk floors remain; not formal specification/design/task/quality reviewer adoption. Final actual hosted weekly audit still required.",
+  "approved_patch_sha256": "aab185d1999d885db421ce97f7161ade1e452987de41951e7c013186ff62ef49",
+  "receipt_written_at": "2026-10-24T09:40:25.585059+00:00",
+  "timestamp_note": "Receipt-write time, not an inferred original message timestamp."
+}

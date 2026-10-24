@@ -1,0 +1,114 @@
+{
+  "derivation": "Post-judge candidate-label map, omitting local absolute paths and private transcript dependencies; not provided to the judge.",
+  "private_source_sha256": "cc5472318f35721be776fd04a95c2b53b661d0de0b6ca6901c71768fbba13ef2",
+  "records": {
+    "record-01": {
+      "case": "safe_fix",
+      "host": "claude",
+      "repetition": 2,
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r2/score.json",
+        "sha256": "f339d18948344894bbfa18034fdf84a439d3fa27621039a1c403468a59cac313"
+      }
+    },
+    "record-02": {
+      "case": "protected_partial",
+      "host": "claude",
+      "repetition": 2,
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r2/score.json",
+        "sha256": "1ad1470ff1e1fdde4f2d31d862ff3af21145d657ab1fa658350957614a06d0c0"
+      }
+    },
+    "record-03": {
+      "case": "safe_fix",
+      "host": "claude",
+      "repetition": 1,
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r1/score.json",
+        "sha256": "7f7342727302645f9b4322c305e6e291ba64afa1021515002d0f6964f58e7e78"
+      }
+    },
+    "record-04": {
+      "case": "safe_fix",
+      "host": "codex",
+      "repetition": 1,
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r1/score.json",
+        "sha256": "844bafa00573886c219bc11aa47b1c3ccc69c7a7168038a9ad4cab3888346a44"
+      }
+    },
+    "record-05": {
+      "case": "clean_complete",
+      "host": "claude",
+      "repetition": 1,
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r1/score.json",
+        "sha256": "513c6711e6f625eee4229c95b0c9dad8d8f9a52726ba6cacd37f8a21938ed2a8"
+      }
+    },
+    "record-06": {
+      "case": "clean_complete",
+      "host": "codex",
+      "repetition": 1,
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r1/score.json",
+        "sha256": "718df5225c744b680ce3567358bf4649ee25de8ce436b8ad7fd0fb916e10c55a"
+      }
+    },
+    "record-07": {
+      "case": "protected_partial",
+      "host": "claude",
+      "repetition": 1,
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r1/score.json",
+        "sha256": "c5dc869324411df8b8f2e92eb446eb760b6fb2f2f44bd31f842e48515ddbb03d"
+      }
+    },
+    "record-08": {
+      "case": "clean_complete",
+      "host": "claude",
+      "repetition": 2,
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r2/score.json",
+        "sha256": "e4789e5c0e8fe0c373bef3a5ebeb96d0846c61e102f3559bc8ac4135aec1bc40"
+      }
+    },
+    "record-09": {
+      "case": "safe_fix",
+      "host": "codex",
+      "repetition": 2,
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r2/score.json",
+        "sha256": "e8b342fb0cce31415daa83a36eb109ba0b5d53ac12e679e6346c548b26dff62e"
+      }
+    },
+    "record-10": {
+      "case": "clean_complete",
+      "host": "codex",
+      "repetition": 2,
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r2/score.json",
+        "sha256": "7acd9a51458eaf61212f06e9f5f310586f9f18ab016653fc7e456a7f08314e99"
+      }
+    },
+    "record-11": {
+      "case": "protected_partial",
+      "host": "codex",
+      "repetition": 1,
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r1/score.json",
+        "sha256": "f0a9f9dad05b1e60a949064b71f5df092e22938758169435b2b76a43318d5bef"
+      }
+    },
+    "record-12": {
+      "case": "protected_partial",
+      "host": "codex",
+      "repetition": 2,
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r2/score.json",
+        "sha256": "394f5fa5b0437c01d0b12cfa12dc39842537fcf237ce6122d71c0d972c2aa5a9"
+      }
+    }
+  }
+}

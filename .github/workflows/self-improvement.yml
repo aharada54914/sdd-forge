@@ -122,7 +122,7 @@ jobs:
         shell: bash
         run: |
           for attempt in 1 2 3; do
-            if curl -fsSL https://claude.ai/install.sh | bash -s -- 2.1.296; then break; fi
+            if curl -fsSL https://claude.ai/install.sh | bash -s -- 2.1.303; then break; fi
             [ "$attempt" -lt 3 ] || exit 1
             sleep 5
           done

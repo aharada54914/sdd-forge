@@ -207,7 +207,13 @@
       "hosts": {
         "claude-code": "opus"
       },
-      "adoption": []
+      "adoption": [
+        {
+          "role": "self-improvement",
+          "path": "contracts/model-adoption/self-improvement-20261023.json",
+          "sha256": "782b7afab5e6ee1a4e452393de8721d46b72d44765cf8ac92117736ed539ba2b"
+        }
+      ]
     },
     {
       "id": "openai/gpt-5.1-codex-mini",

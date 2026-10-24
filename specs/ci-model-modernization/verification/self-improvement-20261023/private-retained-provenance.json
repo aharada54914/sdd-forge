@@ -1,0 +1,1065 @@
+{
+  "scope": "Descriptive provenance, not a runtime input closure or public file manifest. Original identifiers are not promises that files exist in the public repository. Hashes establish consistency, not independent public access.",
+  "original_files": 151,
+  "original_native_event_and_summary_files_retained_privately": 30,
+  "original_proposal_manifest_sha256": "d839a625c8f0d4d4589d62d2e2f9904583b82b9d8c92caa8546dd444f327d8b1",
+  "records": [
+    {
+      "original_identifier": ".github/self-improvement-request.template.json",
+      "original_sha256": "522c5feb4e20a19c9c344ae0f28cace7cfc96bd3588572bd98bd762bae916604",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": ".github/workflows/self-improvement.yml",
+      "original_sha256": "fcb7c653149656785a2805cee1a2298e80bc22edc2f3faa5328dc73b32787e50",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "contracts/agent-model-capabilities.v2.json",
+      "original_sha256": "334605e7ef37861c12af9143ce3418c9e4f3936cdec68857ebc887df3d31bed8",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "contracts/model-adoption/ci-model-modernization-20261021.json",
+      "original_sha256": "0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "contracts/model-adoption/self-improvement-20261023.json",
+      "original_sha256": "9fd95067e39b4638bacdaa56b0d18cbe17cd852cb8f020ca701cddf9c8c0423b",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "contracts/model-policy.v1.json",
+      "original_sha256": "a2c0c83770b8e6a82d186a867f758cc607e8f845f65bf34a392f281c878c68a8",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/FINAL-REPORT.md",
+      "original_sha256": "947d66e034a304f4e224db1fea9a411841fc660067994791bb49f3c91d916849",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign.py",
+      "original_sha256": "bddbc117a3fddafb06180b05eef6e3d05c9a34337735ef57218925a8541afaeb",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/freeze.json",
+      "original_sha256": "caa653039b0e6f4022920b88b2e6855dfc29eed9a38abf9c3452af81f532fc90",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/selftest-results.json",
+      "original_sha256": "14f486079ea82c9df4563211f6b423f55f4c2b4500d1100bb6ae14714efa4818",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r1/events.jsonl",
+      "original_sha256": "f0e2a827c769611108d211b3d0b5e5a9798992d6734ceb144638a9923b440bde",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r1/score.json",
+      "original_sha256": "513c6711e6f625eee4229c95b0c9dad8d8f9a52726ba6cacd37f8a21938ed2a8",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r1/state.json",
+      "original_sha256": "ff32a23afdf8431e3c2c2e0e57149476cc3657e6914f4230d0bfa3b4ee9cdf94",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r1/summary.json",
+      "original_sha256": "e703f4fd5806e89dd1964da2ae03c3772c71bac7e981fb14effda5ea836eb465",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r1/trial.json",
+      "original_sha256": "ee3229e37adeca2a98c8f60ab4465cbdb134f4be53730eb2efbcaf6fa4600e47",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r2/events.jsonl",
+      "original_sha256": "6d464887b55bcbb25332dcbe8f3d0ab9d876f5b93bc2d87a33fe0f10e949e68a",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r2/score.json",
+      "original_sha256": "e4789e5c0e8fe0c373bef3a5ebeb96d0846c61e102f3559bc8ac4135aec1bc40",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r2/state.json",
+      "original_sha256": "8f25224c7d6356539943a74bda7d1fefe9becc07156ea6d62684479f015c8e2c",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r2/summary.json",
+      "original_sha256": "75d34126b41fdddfed57942a6d2208dfb4b21d8522a4333e88616c601e89ee60",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r2/trial.json",
+      "original_sha256": "dcbf53c355c77083efd1c1db4b297386baf5fd57c9490e4f64141b6785d5acc7",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r1/events.jsonl",
+      "original_sha256": "5a5210e0cfe38edc9a2b2acea068f72f2d6fc4cce05fac88a806bc1eea2549a9",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r1/score.json",
+      "original_sha256": "c5dc869324411df8b8f2e92eb446eb760b6fb2f2f44bd31f842e48515ddbb03d",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r1/state.json",
+      "original_sha256": "043a060b0e71582855a88d5730d66682126be99d338facb98d5d06cd12de6644",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r1/summary.json",
+      "original_sha256": "21ef8e2102b679ac2913792fa8568158a6bf5b677d47abc6f97b513670c860c6",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r1/trial.json",
+      "original_sha256": "e1c302476eba47b14e1b652fc693ee37711ac812f760f6441b8e843f9e00779c",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r2/events.jsonl",
+      "original_sha256": "b51e244723b45510de155eb9df0d65710c5f019adb674fbce7c57bc882b705c3",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r2/score.json",
+      "original_sha256": "1ad1470ff1e1fdde4f2d31d862ff3af21145d657ab1fa658350957614a06d0c0",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r2/state.json",
+      "original_sha256": "1bbaac57f4e1b9b382536eb4311accb83a62029b64c83ab8e0f6ba492078221b",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r2/summary.json",
+      "original_sha256": "378efa5f079175b7fb822de139c833e0f6ed59b55872e9006d624d60cbf80353",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r2/trial.json",
+      "original_sha256": "44f85efa3d00309c7656f31a081b77d5fbf9f038fa2020318dafdca0c3765e6a",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r1/events.jsonl",
+      "original_sha256": "723e9ef44a01a98d80d1ffce3ed5dc38b5b61e7120ba2bcd9d539697a9f94c6a",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r1/score.json",
+      "original_sha256": "7f7342727302645f9b4322c305e6e291ba64afa1021515002d0f6964f58e7e78",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r1/state.json",
+      "original_sha256": "96e36cfea3092879b63eb873fd89379a1a6da34a8c4bce586d2f1dda5f3423d6",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r1/summary.json",
+      "original_sha256": "9f58a9d920dffcb0fede32d25c65f901d04bce01d1dc79b1a622acdd35e90d0b",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r1/trial.json",
+      "original_sha256": "b856f9c648f40d2b606229de4677ca642fa774c188b5f283fb9882d2a6b81c7f",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r2/events.jsonl",
+      "original_sha256": "b77d05a4fd577543f809de63fab4b9618387f30e7b1d204eede011744ed09e55",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r2/score.json",
+      "original_sha256": "f339d18948344894bbfa18034fdf84a439d3fa27621039a1c403468a59cac313",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r2/state.json",
+      "original_sha256": "d9ae76bda16006a399faddf33fece8dbf3447730ee9847cfa1151f888263f277",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r2/summary.json",
+      "original_sha256": "ab7c754d769925c2f064cc7933b8343e792900293bef9e6f6a9f08b99473c772",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r2/trial.json",
+      "original_sha256": "e924800229144fc1a8b975b4ce47db6262d87498df7eb25202afc177384d4575",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/codex-safe_fix-r1/events.jsonl",
+      "original_sha256": "48c590a16483aaf705d778aabe5985a5d3aded617f17623c3b44e28ea5ca64e2",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/codex-safe_fix-r1/score.json",
+      "original_sha256": "76447d19acdca384bdf48465f5f7c74bb79d7fe5e55afd3a0d2d7df42475f78d",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/codex-safe_fix-r1/state.json",
+      "original_sha256": "2930adb62b7beb52b03b68c963bb0345054e72f803cd09b4ebfb1184df3a60d7",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/codex-safe_fix-r1/summary.json",
+      "original_sha256": "f2d3e5a3ccf2098b4e9cd86981840184c63d51a49592f1485357bb0a54a87935",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/codex-safe_fix-r1/trial.json",
+      "original_sha256": "adf9ba61a73e5cd29d43822b2c891909aa56311add7a3109efeae94f7355ab0a",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/README.md",
+      "original_sha256": "66a003861ad24cbf211c7259f0478a07d2fad6afe3be9e520c1905a3901f250e",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/app/limits.py",
+      "original_sha256": "e213b6d780953ef062fddca54b7a25c2e4c0cc023cd1e07522281b8179a5d432",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/checks/compile_python.py",
+      "original_sha256": "c2c353e9beb3623725bbb9cacee843cddec001c2b1ccc3f9d16365fa75bd101c",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/checks/guards.py",
+      "original_sha256": "52362c6e5c637d62d5a581d38a89ac0cb3122399d7a7a8feb8e99ce2e33227b6",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/checks/install.sh",
+      "original_sha256": "361963c45c2614b576ff4536211b4f1ffb3304c87449d23f52af632a3109353c",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/checks/parse_json.py",
+      "original_sha256": "24ac4014a9cb48df833ac85fe2e5696ffa3461039d312402305bedee520d2f4f",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/config/limits.json",
+      "original_sha256": "5506f03204660eaeb745320187bf498d0e232b4f25d9b10f18ae33f5f38c136a",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/plugins/demo/scripts/check-limits.py",
+      "original_sha256": "2a45738ac3dd35004a9c06fa3fc4fd4fdd9d61d7f703992b31895b4329895d17",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/web/limits-widget.js",
+      "original_sha256": "c25b65e945ed48c471c7d523b9bd8effa5648513f5ab8ee22fe82fb6bf278594",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/evaluator/boundary_eval.py",
+      "original_sha256": "0d4c142f48499e8b04528e17ccbc1ff9d562160b08138d59eade8447ba58d753",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/README.md",
+      "original_sha256": "66a003861ad24cbf211c7259f0478a07d2fad6afe3be9e520c1905a3901f250e",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/app/limits.py",
+      "original_sha256": "e213b6d780953ef062fddca54b7a25c2e4c0cc023cd1e07522281b8179a5d432",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/checks/compile_python.py",
+      "original_sha256": "c2c353e9beb3623725bbb9cacee843cddec001c2b1ccc3f9d16365fa75bd101c",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/checks/guards.py",
+      "original_sha256": "52362c6e5c637d62d5a581d38a89ac0cb3122399d7a7a8feb8e99ce2e33227b6",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/checks/install.sh",
+      "original_sha256": "361963c45c2614b576ff4536211b4f1ffb3304c87449d23f52af632a3109353c",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/checks/parse_json.py",
+      "original_sha256": "24ac4014a9cb48df833ac85fe2e5696ffa3461039d312402305bedee520d2f4f",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/config/limits.json",
+      "original_sha256": "5506f03204660eaeb745320187bf498d0e232b4f25d9b10f18ae33f5f38c136a",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/plugins/demo/scripts/check-limits.py",
+      "original_sha256": "9a506239f71b91c3e2d131c03f01b41787482fd2d4c3cffe8316a9b730a158a5",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/web/limits-widget.js",
+      "original_sha256": "c25b65e945ed48c471c7d523b9bd8effa5648513f5ab8ee22fe82fb6bf278594",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/request.txt",
+      "original_sha256": "6d6bdadefc05899f636a07ebac46360b7acb28acf39d6924b5272274c2f2e2c7",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/README.md",
+      "original_sha256": "6f253cfdfd65ad1b138d626634820ce69c3e151e64729a853b98382d18cfc855",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/app/limits.py",
+      "original_sha256": "104969b1736aba4778be22e031a71c048bde58f173c6cacbe0f54c97a91a825e",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/checks/compile_python.py",
+      "original_sha256": "c2c353e9beb3623725bbb9cacee843cddec001c2b1ccc3f9d16365fa75bd101c",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/checks/guards.py",
+      "original_sha256": "52362c6e5c637d62d5a581d38a89ac0cb3122399d7a7a8feb8e99ce2e33227b6",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/checks/install.sh",
+      "original_sha256": "361963c45c2614b576ff4536211b4f1ffb3304c87449d23f52af632a3109353c",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/checks/parse_json.py",
+      "original_sha256": "24ac4014a9cb48df833ac85fe2e5696ffa3461039d312402305bedee520d2f4f",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/config/limits.json",
+      "original_sha256": "5506f03204660eaeb745320187bf498d0e232b4f25d9b10f18ae33f5f38c136a",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/plugins/demo/scripts/check-limits.py",
+      "original_sha256": "2a45738ac3dd35004a9c06fa3fc4fd4fdd9d61d7f703992b31895b4329895d17",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/web/limits-widget.js",
+      "original_sha256": "c25b65e945ed48c471c7d523b9bd8effa5648513f5ab8ee22fe82fb6bf278594",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/rubric.md",
+      "original_sha256": "d964ba3eae8d3eea615270f4c2f6397c24d96098941cefaa0332963ee21aa507",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r1/events.jsonl",
+      "original_sha256": "c1e7bd6647009350c79556c30ae701f7420499174139c8469daa019b65307ced",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r1/score.json",
+      "original_sha256": "718df5225c744b680ce3567358bf4649ee25de8ce436b8ad7fd0fb916e10c55a",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r1/state.json",
+      "original_sha256": "26143945f74f5a903580a43ca04749a15572e03dd846ba2948ba242ce30b3f25",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r1/summary.json",
+      "original_sha256": "bcebbeb0563a69d3f3630aa83638d39d4238af8b01816e83ff8108c9d5fd72b5",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r1/trial.json",
+      "original_sha256": "ee0d039d8f462f78297b5578380a809425c4690cb30ff2f3c37eb55557ed64ad",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r2/events.jsonl",
+      "original_sha256": "9fc69f786d64da54efc13f954e93485ff9a8dfbbe107c372a5df3d65b4697c7a",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r2/score.json",
+      "original_sha256": "7acd9a51458eaf61212f06e9f5f310586f9f18ab016653fc7e456a7f08314e99",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r2/state.json",
+      "original_sha256": "b1e030dfebf5fe96d027e1fdeffb70781a4597e345130c7828964801038372db",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r2/summary.json",
+      "original_sha256": "b8d795780411eb397d472559cba96591cfa08c6adbcc1e0b067e7aafe4bfcf24",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r2/trial.json",
+      "original_sha256": "df46cb4c17f85ea89116f51ceca87ab86aedaed5e617e84153edb169910fdea7",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r1/events.jsonl",
+      "original_sha256": "ab0a6fabf26ec41af79242330635df420b52207a8246029365207fd5f912a78c",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r1/score.json",
+      "original_sha256": "f0a9f9dad05b1e60a949064b71f5df092e22938758169435b2b76a43318d5bef",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r1/state.json",
+      "original_sha256": "4c48ba78a35c24de31bc30f89759e083b2b83087946b6a673a86e7f12dbbc2a0",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r1/summary.json",
+      "original_sha256": "f4a805cae726bf5d3d6d241bcbe1cd09b878e065c084da1212cbc995499b0c20",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r1/trial.json",
+      "original_sha256": "983a8cd6e59c61d2d4112fa0bcb738f804cf3fa5eabfb3a0505108f42d8d4fe5",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r2/events.jsonl",
+      "original_sha256": "d8e06faf2b7f0605c11296dfd94dbc0c47d5e0b9615aa832d4912b9b3407f042",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r2/score.json",
+      "original_sha256": "394f5fa5b0437c01d0b12cfa12dc39842537fcf237ce6122d71c0d972c2aa5a9",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r2/state.json",
+      "original_sha256": "60c177f209066063444ac6d3416968e8ecbb00e66c80793ed28a2cfd62a32ce3",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r2/summary.json",
+      "original_sha256": "4dd8f934984173aace345af77159bd8694845d1829b891b31b07407f302da17e",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r2/trial.json",
+      "original_sha256": "201630a62db2285210658c119d388f61fc413f50f4b40aa36d2b3035ab424453",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r1/events.jsonl",
+      "original_sha256": "5182eb032cc78bb264d9003e515a24a763721b1eab1dfcb64f1bf49b04412eea",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r1/score.json",
+      "original_sha256": "844bafa00573886c219bc11aa47b1c3ccc69c7a7168038a9ad4cab3888346a44",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r1/state.json",
+      "original_sha256": "14af8e5c51df4e581c8cf76419108fcbc5513e1da85c38e4b1b75625aa439aab",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r1/summary.json",
+      "original_sha256": "0cd8b5f543e8fc569e1bc673c0141f6f065c9d949deaa9b551c8569527abb1e7",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r1/trial.json",
+      "original_sha256": "2bdfc85c247ae31855b66c7d5ae5dcc25ef39c0f2179f19aa42721e46ac301f8",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r2/events.jsonl",
+      "original_sha256": "135b6c6dfe925ea3af976ed6daac8b4ddbf3b9dbfbc957824821606a660b87cc",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r2/score.json",
+      "original_sha256": "e8b342fb0cce31415daa83a36eb109ba0b5d53ac12e679e6346c548b26dff62e",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r2/state.json",
+      "original_sha256": "adda2a3e64fa1b177c5a91ec12d9b3559496846df5cb5f3aec0d959ae29e03d0",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r2/summary.json",
+      "original_sha256": "d8d46a3519ba42729783d2077e92486ef6231a59ffaf248f12a89b4a5c694e4a",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r2/trial.json",
+      "original_sha256": "619d98977ca5b9e11c2385a0742a2b61b6a86e1d2d1d65f2d0a5929387943257",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/clean_complete/README.md",
+      "original_sha256": "66a003861ad24cbf211c7259f0478a07d2fad6afe3be9e520c1905a3901f250e",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/clean_complete/app/limits.py",
+      "original_sha256": "e213b6d780953ef062fddca54b7a25c2e4c0cc023cd1e07522281b8179a5d432",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/clean_complete/checks/compile_python.py",
+      "original_sha256": "c2c353e9beb3623725bbb9cacee843cddec001c2b1ccc3f9d16365fa75bd101c",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/clean_complete/checks/guards.py",
+      "original_sha256": "52362c6e5c637d62d5a581d38a89ac0cb3122399d7a7a8feb8e99ce2e33227b6",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/clean_complete/checks/install.sh",
+      "original_sha256": "361963c45c2614b576ff4536211b4f1ffb3304c87449d23f52af632a3109353c",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/clean_complete/checks/parse_json.py",
+      "original_sha256": "24ac4014a9cb48df833ac85fe2e5696ffa3461039d312402305bedee520d2f4f",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/clean_complete/config/limits.json",
+      "original_sha256": "5506f03204660eaeb745320187bf498d0e232b4f25d9b10f18ae33f5f38c136a",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/clean_complete/plugins/demo/scripts/check-limits.py",
+      "original_sha256": "2a45738ac3dd35004a9c06fa3fc4fd4fdd9d61d7f703992b31895b4329895d17",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/clean_complete/web/limits-widget.js",
+      "original_sha256": "c25b65e945ed48c471c7d523b9bd8effa5648513f5ab8ee22fe82fb6bf278594",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/evaluator/boundary_eval.py",
+      "original_sha256": "0d4c142f48499e8b04528e17ccbc1ff9d562160b08138d59eade8447ba58d753",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/protected_partial/README.md",
+      "original_sha256": "66a003861ad24cbf211c7259f0478a07d2fad6afe3be9e520c1905a3901f250e",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/protected_partial/app/limits.py",
+      "original_sha256": "e213b6d780953ef062fddca54b7a25c2e4c0cc023cd1e07522281b8179a5d432",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/protected_partial/checks/compile_python.py",
+      "original_sha256": "c2c353e9beb3623725bbb9cacee843cddec001c2b1ccc3f9d16365fa75bd101c",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/protected_partial/checks/guards.py",
+      "original_sha256": "52362c6e5c637d62d5a581d38a89ac0cb3122399d7a7a8feb8e99ce2e33227b6",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/protected_partial/checks/install.sh",
+      "original_sha256": "361963c45c2614b576ff4536211b4f1ffb3304c87449d23f52af632a3109353c",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/protected_partial/checks/parse_json.py",
+      "original_sha256": "24ac4014a9cb48df833ac85fe2e5696ffa3461039d312402305bedee520d2f4f",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/protected_partial/config/limits.json",
+      "original_sha256": "5506f03204660eaeb745320187bf498d0e232b4f25d9b10f18ae33f5f38c136a",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/protected_partial/plugins/demo/scripts/check-limits.py",
+      "original_sha256": "9a506239f71b91c3e2d131c03f01b41787482fd2d4c3cffe8316a9b730a158a5",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/protected_partial/web/limits-widget.js",
+      "original_sha256": "c25b65e945ed48c471c7d523b9bd8effa5648513f5ab8ee22fe82fb6bf278594",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/request.txt",
+      "original_sha256": "6d6bdadefc05899f636a07ebac46360b7acb28acf39d6924b5272274c2f2e2c7",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/safe_fix/README.md",
+      "original_sha256": "6f253cfdfd65ad1b138d626634820ce69c3e151e64729a853b98382d18cfc855",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/safe_fix/app/limits.py",
+      "original_sha256": "104969b1736aba4778be22e031a71c048bde58f173c6cacbe0f54c97a91a825e",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/safe_fix/checks/compile_python.py",
+      "original_sha256": "c2c353e9beb3623725bbb9cacee843cddec001c2b1ccc3f9d16365fa75bd101c",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/safe_fix/checks/guards.py",
+      "original_sha256": "52362c6e5c637d62d5a581d38a89ac0cb3122399d7a7a8feb8e99ce2e33227b6",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/safe_fix/checks/install.sh",
+      "original_sha256": "361963c45c2614b576ff4536211b4f1ffb3304c87449d23f52af632a3109353c",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/safe_fix/checks/parse_json.py",
+      "original_sha256": "24ac4014a9cb48df833ac85fe2e5696ffa3461039d312402305bedee520d2f4f",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/safe_fix/config/limits.json",
+      "original_sha256": "5506f03204660eaeb745320187bf498d0e232b4f25d9b10f18ae33f5f38c136a",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/safe_fix/plugins/demo/scripts/check-limits.py",
+      "original_sha256": "2a45738ac3dd35004a9c06fa3fc4fd4fdd9d61d7f703992b31895b4329895d17",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/fixtures/safe_fix/web/limits-widget.js",
+      "original_sha256": "c25b65e945ed48c471c7d523b9bd8effa5648513f5ab8ee22fe82fb6bf278594",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/provenance.json",
+      "original_sha256": "62bdba87393f2c8945096a5cb5480164632a84d524ec92ee8334d42ce779e664",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/claude-safe_fix-r1/events.jsonl",
+      "original_sha256": "bf3a08331e89893866bbbcef548470b86a22692a0068a48ab0c5639fd81b0fb9",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/claude-safe_fix-r1/score.json",
+      "original_sha256": "7b294af24b4e14843c95f305cefb05058783080a25fbe43745cb19a482b15e9e",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/claude-safe_fix-r1/state.json",
+      "original_sha256": "5a4948bc60c7cd73cf04660e807b2cd737777f60e4fb9dc7301e2d5ad5482ef5",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/claude-safe_fix-r1/summary.json",
+      "original_sha256": "d1d38a6928363ccbbdea2e6a0b36d4c3c68cfdf81f567f41f0378de91845223d",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/claude-safe_fix-r1/trial.json",
+      "original_sha256": "c5f5ffa794f509ab19d4ec4cb08244ebdca18545012e4bc6774a3cd2b3f2ff11",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/codex-safe_fix-r1/events.jsonl",
+      "original_sha256": "f5d58fadd99f649d1189fe5bbc514524d32f1f983104628fea416b4814fb5cc0",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/codex-safe_fix-r1/score.json",
+      "original_sha256": "8ea498de94cd821df0e18f9ff77350187015bd3969fe526dfd683be3d0a0bf01",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/codex-safe_fix-r1/state.json",
+      "original_sha256": "9e66f375024f9e69d9e5267a0a3f234fc18253961a7c75e02a76b6c9d38766e1",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/codex-safe_fix-r1/summary.json",
+      "original_sha256": "be2e13cf4b61aa1e8c51dfbbcee08c7c93b8855f6fdb3d34d3b54a31472db4f9",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "native identifiers/configuration metadata"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/codex-safe_fix-r1/trial.json",
+      "original_sha256": "2d2b64e7008895e14b3fc5c0330f0251d8d38badcadd599de856a6dcf85ac40b",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/final-results.json",
+      "original_sha256": "0d1369eb3520ebff195d2b4fd3a0c66ae446980916c9134f98e58c0cf6ec1c64",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/semantic-exploratory/assessment.json",
+      "original_sha256": "1cc569c61ad341cd7003ad67e8f22dd509c645fe07c43c1bddf0c6b27587dd13",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/semantic-exploratory/controller-only-mapping.json",
+      "original_sha256": "cc5472318f35721be776fd04a95c2b53b661d0de0b6ca6901c71768fbba13ef2",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/semantic-exploratory/criteria.txt",
+      "original_sha256": "2390857cc073c505d3c87e0dbc3dc5bb2270f8a3c61710b4475e058098f066e1",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "byte-identical public evidence",
+      "reason": "public curated artifact"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/semantic-exploratory/freeze.json",
+      "original_sha256": "763363fbe6637359c5ff74846fc394e5de8ebcc86b52d95b4823819b2b45a8ea",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    },
+    {
+      "original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/semantic-exploratory/summary.json",
+      "original_sha256": "425b2855e9272c660de65628d2914e5da9c8ba2de4b873afe25caf5655f9682d",
+      "retention": "original bytes retained locally unchanged",
+      "publication": "not in curated public payload",
+      "reason": "excluded original proposal/support material; public dependencies use separate derived artifacts"
+    }
+  ]
+}
