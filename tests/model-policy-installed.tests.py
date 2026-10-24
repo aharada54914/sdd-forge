@@ -528,6 +528,9 @@ class ManagedCodexRoles(ManagedFixture):
     def fixture_policy(self):
         """Trusted policy; only fixture lifecycle/adoption of the trusted Codex mapping differ."""
         policy = copy.deepcopy(self.trusted_policy)
+        # Synthetic transport evidence must not inherit uncopied live adoptions.
+        for candidate in policy['models']:
+            candidate['adoption'] = []
         evidence = launch.canonical({'fixture_only': True,
                                      'claim': 'T-008 fixture adoption; no access, behavior or adoption claim'})
         (self.root / 'codex-fixture-adoption.json').write_bytes(evidence)
