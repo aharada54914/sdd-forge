@@ -1,0 +1,235 @@
+{
+  "head": "f0e1da226fe41e49c852053192143e58b1016fb6",
+  "base": "1c95ede8cee678159b4983f25e4a43298d8d1e8c",
+  "tested_revision": "3b3bf161ffa2865f205e3bbe78ea13398fc8feb2",
+  "source_pins": {
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "fc41fea4e6c6c3eeb39bb2e9ca4f5f96d7a1a9c70ce78fe47d9934000966b60e",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "88062b265569f02573565aa904d26b4385eea5f4e45b82e4c819732f476752f2",
+    "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "tests/spec-review-interrupted-recovery.tests.sh": "7a4eb91262f8e6bf97da089565d691fa9745e6a658805b16c88571901b67a85c",
+    "tests/spec-review-loop.tests.sh": "4bbc3cc63f97e8f954dd2731a8a609656fe1fbf66a80bc900a8a9eb8862ff79b",
+    "tests/verification-catalog.json": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317"
+  },
+  "all731_named_outcomes_present_each_attempt": true,
+  "same731_case_names": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "counts": {
+        "PASS": 718,
+        "FAIL": 13
+      },
+      "receipt_result": {
+        "suite": "tests/spec-review-interrupted-recovery.tests.ps1",
+        "source_sha256": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+        "status": "failed",
+        "exit_code": 1,
+        "seconds": 211.169167
+      },
+      "runtime_image": "macos-26-arm64",
+      "runtime_image_version": "20261013.0424.1",
+      "exact_pwsh_version": "not emitted in captured logs",
+      "aborted_cases": [
+        "TEST-057-H07::uppercase",
+        "TEST-057-H07::nonhex",
+        "TEST-057-H07::short",
+        "TEST-057-H07::incorrect",
+        "TEST-057-H07::missing",
+        "TEST-083-P07::empty",
+        "TEST-083-P07::absolute",
+        "TEST-083-P07::drive",
+        "TEST-083-P07::traversal",
+        "TEST-083-P07::dot",
+        "TEST-083-P07::empty-segment",
+        "TEST-083-P07::backslash",
+        "TEST-083-P07::tab"
+      ]
+    },
+    {
+      "attempt": 2,
+      "counts": {
+        "PASS": 728,
+        "FAIL": 3
+      },
+      "receipt_result": {
+        "suite": "tests/spec-review-interrupted-recovery.tests.ps1",
+        "source_sha256": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+        "status": "failed",
+        "exit_code": 1,
+        "seconds": 252.598274
+      },
+      "runtime_image": "macos-26-arm64",
+      "runtime_image_version": "20261013.0424.1",
+      "exact_pwsh_version": "not emitted in captured logs",
+      "aborted_cases": [
+        "TEST-057-H13::nonhex",
+        "TEST-057-H13::short",
+        "TEST-057-H13::incorrect"
+      ]
+    }
+  ],
+  "changed_case_outcomes": {
+    "TEST-057-H07::uppercase": {
+      "attempt1": {
+        "status": "FAIL",
+        "exit_code": -6
+      },
+      "attempt2": {
+        "status": "PASS",
+        "exit_code": 1
+      }
+    },
+    "TEST-057-H07::nonhex": {
+      "attempt1": {
+        "status": "FAIL",
+        "exit_code": -6
+      },
+      "attempt2": {
+        "status": "PASS",
+        "exit_code": 1
+      }
+    },
+    "TEST-057-H07::short": {
+      "attempt1": {
+        "status": "FAIL",
+        "exit_code": -6
+      },
+      "attempt2": {
+        "status": "PASS",
+        "exit_code": 1
+      }
+    },
+    "TEST-057-H07::incorrect": {
+      "attempt1": {
+        "status": "FAIL",
+        "exit_code": -6
+      },
+      "attempt2": {
+        "status": "PASS",
+        "exit_code": 1
+      }
+    },
+    "TEST-057-H07::missing": {
+      "attempt1": {
+        "status": "FAIL",
+        "exit_code": -6
+      },
+      "attempt2": {
+        "status": "PASS",
+        "exit_code": 1
+      }
+    },
+    "TEST-083-P07::empty": {
+      "attempt1": {
+        "status": "FAIL",
+        "exit_code": -6
+      },
+      "attempt2": {
+        "status": "PASS",
+        "exit_code": 1
+      }
+    },
+    "TEST-083-P07::absolute": {
+      "attempt1": {
+        "status": "FAIL",
+        "exit_code": -6
+      },
+      "attempt2": {
+        "status": "PASS",
+        "exit_code": 1
+      }
+    },
+    "TEST-083-P07::drive": {
+      "attempt1": {
+        "status": "FAIL",
+        "exit_code": -6
+      },
+      "attempt2": {
+        "status": "PASS",
+        "exit_code": 1
+      }
+    },
+    "TEST-083-P07::traversal": {
+      "attempt1": {
+        "status": "FAIL",
+        "exit_code": -6
+      },
+      "attempt2": {
+        "status": "PASS",
+        "exit_code": 1
+      }
+    },
+    "TEST-083-P07::dot": {
+      "attempt1": {
+        "status": "FAIL",
+        "exit_code": -6
+      },
+      "attempt2": {
+        "status": "PASS",
+        "exit_code": 1
+      }
+    },
+    "TEST-083-P07::empty-segment": {
+      "attempt1": {
+        "status": "FAIL",
+        "exit_code": -6
+      },
+      "attempt2": {
+        "status": "PASS",
+        "exit_code": 1
+      }
+    },
+    "TEST-083-P07::backslash": {
+      "attempt1": {
+        "status": "FAIL",
+        "exit_code": -6
+      },
+      "attempt2": {
+        "status": "PASS",
+        "exit_code": 1
+      }
+    },
+    "TEST-083-P07::tab": {
+      "attempt1": {
+        "status": "FAIL",
+        "exit_code": -6
+      },
+      "attempt2": {
+        "status": "PASS",
+        "exit_code": 1
+      }
+    },
+    "TEST-057-H13::nonhex": {
+      "attempt1": {
+        "status": "PASS",
+        "exit_code": 1
+      },
+      "attempt2": {
+        "status": "FAIL",
+        "exit_code": -6
+      }
+    },
+    "TEST-057-H13::short": {
+      "attempt1": {
+        "status": "PASS",
+        "exit_code": 1
+      },
+      "attempt2": {
+        "status": "FAIL",
+        "exit_code": -6
+      }
+    },
+    "TEST-057-H13::incorrect": {
+      "attempt1": {
+        "status": "PASS",
+        "exit_code": 1
+      },
+      "attempt2": {
+        "status": "FAIL",
+        "exit_code": -6
+      }
+    }
+  },
+  "shared_signature": "Independent pwsh processes abort -6 with unhandled System.IO.FileLoadException in assembly-name parser; malformed assembly name/public-key data. Attempt1 assembly Collections.Specialized10.0.0.0; attempt2 Runtime.Numerics10.0.0.0.",
+  "conclusion": "Recurs on unchanged code in one authorized rerun; different cases fail. Do not classify as a resolved/transient one-off. No further retry. Native runtime/harness investigation required."
+}

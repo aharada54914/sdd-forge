@@ -1,0 +1,9 @@
+{
+  "count": 731,
+  "unique_count": 731,
+  "previous_731_names_same_order": true,
+  "pass": 731,
+  "fail": 0,
+  "metadata": "RUNTIME powershell {\"architecture\": \"X64\", \"executable\": \"/workspace/.tools/sdd-forge-dev/powershell/v7.6.7/pwsh\", \"os\": \"Debian GNU/Linux 13 (trixie)\", \"runtime\": \".NET 10.0.13\", \"version\": \"7.6.7\"}",
+  "result": "RESULT powershell passed=731 failures=0 designed=728"
+}

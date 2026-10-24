@@ -1,0 +1,9 @@
+{
+  "tests/spec-review-interrupted-recovery.tests.sh": "7a4eb91262f8e6bf97da089565d691fa9745e6a658805b16c88571901b67a85c",
+  "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+  "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "88062b265569f02573565aa904d26b4385eea5f4e45b82e4c819732f476752f2",
+  "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "fc41fea4e6c6c3eeb39bb2e9ca4f5f96d7a1a9c70ce78fe47d9934000966b60e",
+  "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh": "47e7d8de3281e3b20b52a2c03ecde820167a20149bbdaac6022d7ebe4f7e9735",
+  "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1": "e6325e03773792ad28081447a5884e040fa537f9261f81f13c87d6d597064cda",
+  "specs/a9-interrupted-review-recovery/tasks.md": "dc6c9161a9cda92990c39793e73a146131dd875efe015f4bf129badbf86daf32"
+}

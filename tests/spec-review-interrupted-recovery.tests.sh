@@ -130,15 +130,23 @@ if($Mode -ceq 'prior'){
 ''')
  return bash,ps
 
+def run_child(root,cmd):
+ if RUNTIME=='bash' or os.name=='nt':
+  return subprocess.run(cmd,capture_output=True,text=True)
+ # Parallel pwsh startup profiles share mutable cache files (PowerShell#26528).
+ with tempfile.TemporaryDirectory(prefix='pwsh-cache-',dir=root.parent) as cache:
+  env=os.environ.copy();env['XDG_CACHE_HOME']=cache
+  return subprocess.run(cmd,capture_output=True,text=True,env=env)
+
 def run_driver(root,mode,paths):
  if RUNTIME=='bash':cmd=['bash',str(paths[0]),str(root),FEATURE,mode]
  else:cmd=[PWSH,'-NoLogo','-NoProfile','-File',str(paths[1]),str(root),FEATURE,mode,str(ROOT/'plugins/sdd-review-loop/scripts/spec-review-precheck.ps1')]
- return subprocess.run(cmd,capture_output=True,text=True)
+ return run_child(root,cmd)
 
 def run_identity(root):
  base=ROOT/'plugins/sdd-quality-loop/scripts'
  cmd=['bash',str(base/'validate-review-context-set.sh'),str(root/INV),str(root)] if RUNTIME=='bash' else [PWSH,'-NoLogo','-NoProfile','-File',str(base/'validate-review-context-set.ps1'),'-Manifest',str(root/INV),'-RepositoryRoot',str(root)]
- return subprocess.run(cmd,capture_output=True,text=True)
+ return run_child(root,cmd)
 
 
 def at(value,path):
@@ -428,7 +436,7 @@ def mutations(record):
   manifest=root/'reports/review-context/synthetic-domain-a-invocation.json';dump(root,str(manifest.relative_to(root)),inv)
   scripts=ROOT/'plugins/sdd-quality-loop/scripts'
   command=['bash',str(scripts/'validate-review-context-set.sh'),str(manifest),str(root)] if RUNTIME=='bash' else [PWSH,'-NoLogo','-NoProfile','-File',str(scripts/'validate-review-context-set.ps1'),'-Manifest',str(manifest),'-RepositoryRoot',str(root)]
-  verified=subprocess.run(command,capture_output=True,text=True)
+  verified=run_child(root,command)
   assert verified.returncode==0,verified.stderr
  add('TEST-079::later-unrelated-domain-real-verifier',unrelated_domain,False,True)
 
@@ -447,7 +455,14 @@ def main():
  scratch_parent=ROOT/'specs/a9-interrupted-review-recovery/verification/T-001'
  scratch_parent.mkdir(parents=True,exist_ok=True)
  with tempfile.TemporaryDirectory(prefix='synthetic-',dir=scratch_parent) as tmp:
-  scratch=pathlib.Path(tmp);base=scratch/'fixture';record=fixture(base);paths=drivers(scratch)
+  scratch=pathlib.Path(tmp)
+  if RUNTIME!='bash':
+   probe=run_child(scratch/'runtime-probe',[PWSH,'-NoLogo','-NoProfile','-Command',
+    '[ordered]@{executable=(Get-Process -Id $PID).Path;version=$PSVersionTable.PSVersion.ToString();runtime=[System.Runtime.InteropServices.RuntimeInformation]::FrameworkDescription;os=[System.Runtime.InteropServices.RuntimeInformation]::OSDescription;architecture=[System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString()} | ConvertTo-Json -Compress'])
+   if probe.returncode!=0:
+    print('FAIL powershell runtime-probe exit='+str(probe.returncode)+' '+probe.stdout+probe.stderr,flush=True);return 1
+   print('RUNTIME powershell '+json.dumps(json.loads(probe.stdout),sort_keys=True),flush=True)
+  base=scratch/'fixture';record=fixture(base);paths=drivers(scratch)
   before=snapshot(base)
   for name,runner in [('CONTROL::prior-own-stage-NEEDS_WORK',lambda:run_driver(base,'prior',paths)),('CONTROL::persisted-A-real-verifier',lambda:run_identity(base)),('CONTROL::valid-interrupted-admission',lambda:run_driver(base,'recovery',paths))]:
    result=runner();unchanged=snapshot(base)==before

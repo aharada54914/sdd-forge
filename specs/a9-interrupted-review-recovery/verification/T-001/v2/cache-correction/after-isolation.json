@@ -1,0 +1,19 @@
+{
+  "mode": "after",
+  "harness_sha256": "9ad841a45612250dbff1284d92615e7ffd4fd1936872f12c3bdc959aa29835f9",
+  "child_exits": [
+    0,
+    0
+  ],
+  "cache_paths": [
+    "/workspace/a9-macos-cache-correction-20261024/regression-rspxor0d/pwsh-cache-9qet51qg/powershell",
+    "/workspace/a9-macos-cache-correction-20261024/regression-rspxor0d/pwsh-cache-da2i3we6/powershell"
+  ],
+  "cache_paths_distinct": true,
+  "outside_fixture": true,
+  "removed_after_exit": true,
+  "parent_environment_unchanged": true,
+  "HOME_config_data_preserved": true,
+  "nonzero_exit_preserved": true,
+  "isolation_contract_pass": true
+}

@@ -1,0 +1,8 @@
+{
+  "source_head": "f0e1da226fe41e49c852053192143e58b1016fb6",
+  "before_sha256": "68198040940bf591c595875a7964f47ab27ff3d4df006686f20a04dff0ea1c1d",
+  "after_sha256": "dc6c9161a9cda92990c39793e73a146131dd875efe015f4bf129badbf86daf32",
+  "changes": "Approved one-sentence v2 plus normalized Task-Review-Status Passed\u2192Pending for required new binding. Existing task approvals/statuses retained.",
+  "committed": false,
+  "native_ci": "Attempt2 remains bound to unchanged committed f0e; this working-tree amendment is not its tested source."
+}

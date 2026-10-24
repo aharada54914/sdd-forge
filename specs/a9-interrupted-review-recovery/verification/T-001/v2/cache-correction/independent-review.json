@@ -1,0 +1,27 @@
+{
+  "schema": "a9-macos-cache-correction-independent-review/v1",
+  "verdict": "ACCEPT",
+  "scope": "bounded harness source/local evidence, not macOS acceptance",
+  "manifest_sha256": "65be178764bfe153d3c66f8efb08cfb99cbd931ba294214ed4219d81fd08b3e6",
+  "source_path": "tests/spec-review-interrupted-recovery.tests.sh",
+  "source_sha256": "9ad841a45612250dbff1284d92615e7ffd4fd1936872f12c3bdc959aa29835f9",
+  "patch_sha256": "80c566d9ba8161fe4d415a9bc90bf712489c5f4efef57ad9c1850ede9c3560fa",
+  "evidence_files_verified": 16,
+  "source_pins_verified": 6,
+  "findings": [],
+  "checks": {
+    "exact_reverse_to_baseline": true,
+    "all731_names_order_preserved": true,
+    "all731_local_pass": true,
+    "input_immutability_and_absent_target": true,
+    "before_shared_cache_isolation_fail": true,
+    "after_isolation_cleanup_environment_exit7_pass": true,
+    "root_cause_proven": false,
+    "corrected_macos_proven": false
+  },
+  "test_reruns": 0,
+  "provider_calls": 0,
+  "formal_gate": false,
+  "report_path": "/workspace/a9-macos-cache-correction-independent-review-20261024.md",
+  "report_sha256": "d41fbd670f5485461f09ac5c2318ed6255b91f32c63fa3d14a48ca0a9194d937"
+}

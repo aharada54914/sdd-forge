@@ -1,0 +1,38 @@
+{
+  "head": "f0e1da226fe41e49c852053192143e58b1016fb6",
+  "base": "1c95ede8cee678159b4983f25e4a43298d8d1e8c",
+  "tested_revision": "3b3bf161ffa2865f205e3bbe78ea13398fc8feb2",
+  "run_id": 40079456437,
+  "attempt": 1,
+  "job_id": 120831257857,
+  "runner_name": "GitHub Actions 1000049112",
+  "runner_labels": [
+    "windows-latest"
+  ],
+  "job_conclusion": "success",
+  "step_conclusion": "success",
+  "obligation_id": "test-windows-heavy:4d4f9dc62570a079ad97c515a0027f212ee0b9a99b5db559429b4c60ad0bc9dc",
+  "artifact_id": 12555272318,
+  "artifact_sha256": "a11849711a191b1e650591b2ed84e806986c25489f3e5fc76b44808d9b612535",
+  "catalog_sha256": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317",
+  "suite": {
+    "suite": "tests/spec-review-interrupted-recovery.tests.ps1",
+    "source_sha256": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "status": "passed",
+    "exit_code": 0,
+    "seconds": 347.359
+  },
+  "native_log_result": "RESULT powershell passed=731 failures=0 designed=728",
+  "suite_completed_at": "2026-10-24T09:09:23.4638683Z",
+  "all_six_source_pins": {
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "fc41fea4e6c6c3eeb39bb2e9ca4f5f96d7a1a9c70ce78fe47d9934000966b60e",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "88062b265569f02573565aa904d26b4385eea5f4e45b82e4c819732f476752f2",
+    "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "tests/spec-review-interrupted-recovery.tests.sh": "7a4eb91262f8e6bf97da089565d691fa9745e6a658805b16c88571901b67a85c",
+    "tests/spec-review-loop.tests.sh": "4bbc3cc63f97e8f954dd2731a8a609656fe1fbf66a80bc900a8a9eb8862ff79b",
+    "tests/verification-catalog.json": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317"
+  },
+  "receipt_sha256": "bf94be4f8b03031a1ee4f608f56a43381b86fe84836fdf48916d2abc4959d297",
+  "log_sha256": "bf6deb695d4a53a154f94b1585af71d6fff62d7c51ec4abb3bd2b59f5b40e984",
+  "scope": "Actual final-head native Windows suite/step/job success; full CI and formal acceptance still pending."
+}

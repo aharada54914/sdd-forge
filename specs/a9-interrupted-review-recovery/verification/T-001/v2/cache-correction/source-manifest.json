@@ -1,0 +1,32 @@
+{
+  "base_head": "f0e1da226fe41e49c852053192143e58b1016fb6",
+  "source_path": "tests/spec-review-interrupted-recovery.tests.sh",
+  "source_sha256": "9ad841a45612250dbff1284d92615e7ffd4fd1936872f12c3bdc959aa29835f9",
+  "six_source_pins": {
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "fc41fea4e6c6c3eeb39bb2e9ca4f5f96d7a1a9c70ce78fe47d9934000966b60e",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "88062b265569f02573565aa904d26b4385eea5f4e45b82e4c819732f476752f2",
+    "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "tests/spec-review-interrupted-recovery.tests.sh": "9ad841a45612250dbff1284d92615e7ffd4fd1936872f12c3bdc959aa29835f9",
+    "tests/spec-review-loop.tests.sh": "4bbc3cc63f97e8f954dd2731a8a609656fe1fbf66a80bc900a8a9eb8862ff79b",
+    "tests/verification-catalog.json": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317"
+  },
+  "changed_pin_only": "tests/spec-review-interrupted-recovery.tests.sh",
+  "evidence": {
+    "H13-exit.json": "05049eb27e112e441689925e7637938c1b07aac3aca8100dd50ef9b5b055b7df",
+    "H13.log": "7ff8e9862b84b57febfb320901e16c35a9031805e0b696f49aa172db60204bc9",
+    "README.md": "9ad94faaa21e00f5041f7784785e3f6b2c6959669e4fbc78c2824e8b2bb12b40",
+    "after-isolation.json": "a6ce551f3e49caf9bcf07281d77f42814d59249e4807887ef64d94df3a1e4537",
+    "before-harness.sh": "7a4eb91262f8e6bf97da089565d691fa9745e6a658805b16c88571901b67a85c",
+    "before-hashes.json": "ffda6f022f2e31311bd993ec44e6302bad617b3a690831c0a70ca6f459c7f127",
+    "before-isolation.json": "4d9d62f0647da11de6161a6bf9ac7b5bcaa36463563e3b3fa7a84ce118923861",
+    "check-isolation.py": "05badb58d4144b5b5947a666d302188dd35f6fa881e10c51e8b5a01a6db42b0c",
+    "final-coverage.json": "a3b4e91d8c0ac39a3298fd98ed78df071d0f5b3ad88fe1c7fa5a1446f3c9a2e0",
+    "full-powershell-exit.json": "13ba97835804883c602d5f90e038a3d3c0a9410b15e402b48809f6e6c91445a5",
+    "full-powershell.log": "a318dc8728c068447c286c495482c6fd32efb7ea9cb8cae5a844028b2ea6fbc6",
+    "harness.patch": "80c566d9ba8161fe4d415a9bc90bf712489c5f4efef57ad9c1850ede9c3560fa",
+    "initial-probe.json": "50386e4a8702c71774157425d13e216fc546198dc6ef982a85880fb7eca52265",
+    "previous-731-names.json": "17089e323630f0d3b488908d7c9bb99e7160d153ac7ee4b2c026d2b019736924",
+    "source-scope-check.json": "8b9fc830138959df427d6c49488211c782cc795604d99dd7274de24584346d13",
+    "syntax-diff-check.json": "7661950148a764a1690b0b9bd831f20f76622e5b4e2af2590ccbf2d24387471b"
+  }
+}

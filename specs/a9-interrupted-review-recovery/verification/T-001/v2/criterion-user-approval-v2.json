@@ -1,0 +1,10 @@
+{
+  "source": "actual user-channel send_user_message_question_reply",
+  "questionItemId": "[\"request_user_input_async\",\"call_371f97b7ac5445128bebc311cee42020\",0]",
+  "question": "先の T-001 文言修正依頼を、この [訂正版（v2）](/workspace/a9-recovery-task-criterion-proposal-20261024/reviewable-v2.patch) に置き換えます。この1文の変更を承認しますか？ 実際に見つかった不具合は個別の Red→Green、新規検証項目は「機能未実装による共通の失敗＋実装後の個別検証」、既存の正常動作は変更前後の PASS として、各ケースの実績を区別します。未実行記録は保持し、個別に失敗を確認していないケースを失敗確認済みとは扱いません。テスト項目・両環境・承認証拠・独立レビューの要件は維持します。v2 は独立確認済みです。[AGENTS.md](/workspace/sdd-forge/AGENTS.md) の “content-frozen except for the normalized status/approval fields” により、凍結済みの完了条件本文を変更するには、この承認とレビュー再束縛が必要です。実装の再承認を求めるものではありません。",
+  "answer": "承認する",
+  "approved_patch_sha256": "3cabed2704e775c3f5e3ac1364ed4081ae5c3fe0b94d85729d8c941484041844",
+  "receipt_written_at": "2026-10-24T09:35:39.112186+00:00",
+  "timestamp_note": "Receipt-write time; no original user-message timestamp inferred.",
+  "scope": "T-001 single evidence-criterion sentence v2; existing implementation approval persists; review rebinding still required; no live recovery or model adoption approval."
+}
