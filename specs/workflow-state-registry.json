@@ -453,6 +453,10 @@
     {
       "feature": "ci-model-modernization",
       "profile": "full"
+    },
+    {
+      "feature": "research-evidence",
+      "profile": "full"
     }
   ]
 }
