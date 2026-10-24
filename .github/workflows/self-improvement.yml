@@ -135,8 +135,8 @@ jobs:
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           echo "CLAUDE_NATIVE_EXECUTABLE=$(readlink -f "$HOME/.local/bin/claude")" >> "$GITHUB_ENV"
 
-      # Manual opt-in captures one real configuration and immediately consumes it.
-      # Scheduled runs still require provisioned fresh inputs; no scheduled recovery is implied.
+      # Cron and manual opt-in capture one real configuration and immediately consume it.
+      # Wiring alone does not establish a successful scheduled audit.
       - name: Prepare managed self-improvement session
         id: managed_self_improvement
         shell: bash
@@ -145,7 +145,7 @@ jobs:
           SDD_SELF_IMPROVEMENT_PREPARE: ${{ github.workspace }}/.github/scripts/prepare-self-improvement.py
           SDD_SELF_IMPROVEMENT_REQUEST: ${{ vars.SDD_SELF_IMPROVEMENT_REQUEST }}
           SDD_SELF_IMPROVEMENT_REGISTRY: ${{ vars.SDD_SELF_IMPROVEMENT_REGISTRY || 'contracts/agent-model-capabilities.v2.json' }}
-          SDD_CAPTURE_CONFIGURATION: ${{ github.event_name == 'workflow_dispatch' && inputs.capture_configuration && 'true' || 'false' }}
+          SDD_CAPTURE_CONFIGURATION: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.capture_configuration)) && 'true' || 'false' }}
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         run: |
           python3 -I -B "$SDD_SELF_IMPROVEMENT_PREPARE"

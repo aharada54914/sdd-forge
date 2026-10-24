@@ -19,9 +19,9 @@ gh run list --repo aharada54914/sdd-forge --workflow=self-improvement.yml --limi
 
 併せて所有者が Codex アプリの定期設定と直近の実行履歴を照合する。設定が有効であることと完走は区別し、両経路が有効なら重複 Issue/PR を避ける運用を決めてから実行する。この訂正ではスケジュールや有効状態を変更していない。
 
-## Actions の手動設定確認（2026-10-24、#620）
+## Actions の起動前設定確認（2026-10-24、#620）
 
-手動 `workflow_dispatch` の `capture_configuration: true` は、採用済み
+既存 cron の `schedule` と手動 `workflow_dispatch` の `capture_configuration: true` は、採用済み
 self-improvement 用の明示的な Opus/medium 設定を一度だけ確認し、直後に既存の
 managed Action preparation へ渡す。リポジトリ変数の更新は不要で、request 変数が
 空なら `.github/self-improvement-request.template.json` を使う。CLI は
@@ -46,9 +46,11 @@ runner 破棄後の確認用に、成功・失敗とも許可項目だけの JSO
 設定、session ID、nonce、ツール名、パス、任意の例外文は出力しない。生の証拠は
 runner 内だけに残り破棄後には再生できず、要約は backend 認証を主張しない。
 
-既定値は false。定期実行には依然として有効な request/新鮮な observation の供給が
-必要であり、この手動経路の追加は定期運用の復旧を意味しない。実際の hosted audit
-と5項目の検査・completion/finalizer の結果を確認するまで #620 の復旧を宣言しない。
+手動入力の既定値は false のまま。既存 cron は同じ capture 経路で新鮮な observation を
+作成して直後に消費する。他のイベントでは capture を有効にしない。この配線だけで
+定期監査の成功とはせず、default branch への反映と実際の hosted audit の5項目の検査・
+completion/finalizer を確認する。手動実行の成功と実際の schedule 実行の成功も区別する。
+上記のローカル Codex とクラウド側の重複運用確認は引き続き必要である。
 
 ## ローカル運用の移行時設定（2026-09-05）
 
