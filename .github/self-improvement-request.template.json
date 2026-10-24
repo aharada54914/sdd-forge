@@ -1,0 +1,16 @@
+{
+  "schema": "model-policy-request/v1",
+  "role": "self-improvement",
+  "risk": "medium",
+  "host": "claude-code",
+  "policy_path": "contracts/model-policy.v1.json",
+  "observation_path": ".sdd-self-improvement/runtime/observation.json",
+  "project_config_path": null,
+  "cli": {
+    "model_id": "anthropic/opus",
+    "policy": "pinned"
+  },
+  "budget": null,
+  "requested_effort": "medium",
+  "resume_selection_path": null
+}

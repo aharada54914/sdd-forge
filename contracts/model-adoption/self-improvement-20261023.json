@@ -1,0 +1,275 @@
+{
+  "schema": "self-improvement-adoption-proposal/v1",
+  "source_date": "2026-10-23T15:55:58.312461+00:00",
+  "decision_status": "approved-for-self-improvement-only",
+  "human_review": {
+    "decision": "この役割に限る採用を承認する",
+    "reviewer": "User in the current conversation",
+    "reviewed_at": null,
+    "reviewed_at_note": "Original user-message timestamp was not supplied; receipt_written_at records capture time only.",
+    "source": {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/human-role-adoption-20261024.json",
+      "sha256": "4ff84435315676aff304a4958e9854200ef6e786ef252f73f55cfa5716ca8bfc"
+    },
+    "questionItemId": "[\"request_user_input_async\",\"call_4e419c1341ad44acb06bc65450d86f9b\",0]",
+    "receipt_written_at": "2026-10-24T09:40:25.585059+00:00",
+    "approved_patch_sha256": "aab185d1999d885db421ce97f7161ade1e452987de41951e7c013186ff62ef49"
+  },
+  "proposed_role": "self-improvement",
+  "proposed_catalog_id": "anthropic/opus",
+  "proposed_host": "claude-code",
+  "proposed_native_id": "opus",
+  "proposed_effort": "medium",
+  "proposed_policy": "pinned",
+  "lifecycle_remains": "candidate",
+  "native_cli_version_tested": "2.1.303",
+  "native_cli_sha256": "375988f457756524234695cf2d8f64ace99c5f68682e47ea24862a843c191450",
+  "reported_identity": "claude-opus-5-5; labels only, backend unverified",
+  "scope": "Human-approved self-improvement-role-only explicit Opus/medium pin for ordinary bounded maintenance; higher-risk floors remain; final actual hosted weekly audit pending",
+  "structural_comparison": {
+    "selected_trials": 12,
+    "passed": 12,
+    "all_recorded_attempts": 15,
+    "retained_infrastructure_failures": 3,
+    "cases": [
+      "safe_fix",
+      "protected_partial",
+      "clean_complete"
+    ],
+    "repetitions_per_model_case": 2,
+    "tool_limit": 24,
+    "timeout_seconds": 300
+  },
+  "semantic_assessment": {
+    "verdicts_pass": 12,
+    "timing": "post-candidate exploratory, frozen before judge call",
+    "single_judge": "Claude opus/medium, zero tools",
+    "human_review": false
+  },
+  "evidence": [
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/PUBLIC-REPORT.md",
+      "sha256": "128aaabbca2eecd6ac567e90159ec8ed06975846e70c44f812d4278c52f182e4"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r1/score.json",
+      "sha256": "513c6711e6f625eee4229c95b0c9dad8d8f9a52726ba6cacd37f8a21938ed2a8"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r2/score.json",
+      "sha256": "e4789e5c0e8fe0c373bef3a5ebeb96d0846c61e102f3559bc8ac4135aec1bc40"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r1/score.json",
+      "sha256": "c5dc869324411df8b8f2e92eb446eb760b6fb2f2f44bd31f842e48515ddbb03d"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r2/score.json",
+      "sha256": "1ad1470ff1e1fdde4f2d31d862ff3af21145d657ab1fa658350957614a06d0c0"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r1/score.json",
+      "sha256": "7f7342727302645f9b4322c305e6e291ba64afa1021515002d0f6964f58e7e78"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r2/score.json",
+      "sha256": "f339d18948344894bbfa18034fdf84a439d3fa27621039a1c403468a59cac313"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/codex-safe_fix-r1/score.json",
+      "sha256": "76447d19acdca384bdf48465f5f7c74bb79d7fe5e55afd3a0d2d7df42475f78d"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/README.md",
+      "sha256": "66a003861ad24cbf211c7259f0478a07d2fad6afe3be9e520c1905a3901f250e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/app/limits.py",
+      "sha256": "e213b6d780953ef062fddca54b7a25c2e4c0cc023cd1e07522281b8179a5d432"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/checks/compile_python.py",
+      "sha256": "c2c353e9beb3623725bbb9cacee843cddec001c2b1ccc3f9d16365fa75bd101c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/checks/guards.py",
+      "sha256": "52362c6e5c637d62d5a581d38a89ac0cb3122399d7a7a8feb8e99ce2e33227b6"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/checks/install.sh",
+      "sha256": "361963c45c2614b576ff4536211b4f1ffb3304c87449d23f52af632a3109353c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/checks/parse_json.py",
+      "sha256": "24ac4014a9cb48df833ac85fe2e5696ffa3461039d312402305bedee520d2f4f"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/config/limits.json",
+      "sha256": "5506f03204660eaeb745320187bf498d0e232b4f25d9b10f18ae33f5f38c136a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/plugins/demo/scripts/check-limits.py",
+      "sha256": "2a45738ac3dd35004a9c06fa3fc4fd4fdd9d61d7f703992b31895b4329895d17"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/clean_complete/web/limits-widget.js",
+      "sha256": "c25b65e945ed48c471c7d523b9bd8effa5648513f5ab8ee22fe82fb6bf278594"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/evaluator/boundary_eval.py",
+      "sha256": "0d4c142f48499e8b04528e17ccbc1ff9d562160b08138d59eade8447ba58d753"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/README.md",
+      "sha256": "66a003861ad24cbf211c7259f0478a07d2fad6afe3be9e520c1905a3901f250e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/app/limits.py",
+      "sha256": "e213b6d780953ef062fddca54b7a25c2e4c0cc023cd1e07522281b8179a5d432"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/checks/compile_python.py",
+      "sha256": "c2c353e9beb3623725bbb9cacee843cddec001c2b1ccc3f9d16365fa75bd101c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/checks/guards.py",
+      "sha256": "52362c6e5c637d62d5a581d38a89ac0cb3122399d7a7a8feb8e99ce2e33227b6"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/checks/install.sh",
+      "sha256": "361963c45c2614b576ff4536211b4f1ffb3304c87449d23f52af632a3109353c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/checks/parse_json.py",
+      "sha256": "24ac4014a9cb48df833ac85fe2e5696ffa3461039d312402305bedee520d2f4f"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/config/limits.json",
+      "sha256": "5506f03204660eaeb745320187bf498d0e232b4f25d9b10f18ae33f5f38c136a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/plugins/demo/scripts/check-limits.py",
+      "sha256": "9a506239f71b91c3e2d131c03f01b41787482fd2d4c3cffe8316a9b730a158a5"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/protected_partial/web/limits-widget.js",
+      "sha256": "c25b65e945ed48c471c7d523b9bd8effa5648513f5ab8ee22fe82fb6bf278594"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/request.txt",
+      "sha256": "6d6bdadefc05899f636a07ebac46360b7acb28acf39d6924b5272274c2f2e2c7"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/README.md",
+      "sha256": "6f253cfdfd65ad1b138d626634820ce69c3e151e64729a853b98382d18cfc855"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/app/limits.py",
+      "sha256": "104969b1736aba4778be22e031a71c048bde58f173c6cacbe0f54c97a91a825e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/checks/compile_python.py",
+      "sha256": "c2c353e9beb3623725bbb9cacee843cddec001c2b1ccc3f9d16365fa75bd101c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/checks/guards.py",
+      "sha256": "52362c6e5c637d62d5a581d38a89ac0cb3122399d7a7a8feb8e99ce2e33227b6"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/checks/install.sh",
+      "sha256": "361963c45c2614b576ff4536211b4f1ffb3304c87449d23f52af632a3109353c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/checks/parse_json.py",
+      "sha256": "24ac4014a9cb48df833ac85fe2e5696ffa3461039d312402305bedee520d2f4f"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/config/limits.json",
+      "sha256": "5506f03204660eaeb745320187bf498d0e232b4f25d9b10f18ae33f5f38c136a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/plugins/demo/scripts/check-limits.py",
+      "sha256": "2a45738ac3dd35004a9c06fa3fc4fd4fdd9d61d7f703992b31895b4329895d17"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/fixtures/safe_fix/web/limits-widget.js",
+      "sha256": "c25b65e945ed48c471c7d523b9bd8effa5648513f5ab8ee22fe82fb6bf278594"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/rubric.md",
+      "sha256": "d964ba3eae8d3eea615270f4c2f6397c24d96098941cefaa0332963ee21aa507"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r1/score.json",
+      "sha256": "718df5225c744b680ce3567358bf4649ee25de8ce436b8ad7fd0fb916e10c55a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r2/score.json",
+      "sha256": "7acd9a51458eaf61212f06e9f5f310586f9f18ab016653fc7e456a7f08314e99"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r1/score.json",
+      "sha256": "f0a9f9dad05b1e60a949064b71f5df092e22938758169435b2b76a43318d5bef"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r2/score.json",
+      "sha256": "394f5fa5b0437c01d0b12cfa12dc39842537fcf237ce6122d71c0d972c2aa5a9"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r1/score.json",
+      "sha256": "844bafa00573886c219bc11aa47b1c3ccc69c7a7168038a9ad4cab3888346a44"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r2/score.json",
+      "sha256": "e8b342fb0cce31415daa83a36eb109ba0b5d53ac12e679e6346c548b26dff62e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/claude-safe_fix-r1/score.json",
+      "sha256": "7b294af24b4e14843c95f305cefb05058783080a25fbe43745cb19a482b15e9e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/codex-safe_fix-r1/score.json",
+      "sha256": "8ea498de94cd821df0e18f9ff77350187015bd3969fe526dfd683be3d0a0bf01"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/private-retained-provenance.json",
+      "sha256": "0e85721bd7461f02f08ce9b6ce7b34b73081d85f2b76538d393c84a7e15b3e56"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/public-assessment-index.json",
+      "sha256": "07474dc0a287e6160a0105fc3a94c3a946e70e6f084c0ec85540a0d9ecf00225"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/public-semantic-summary.json",
+      "sha256": "d272dfe91d46678a09dde635e115766e5daf46cfbe8957c3a71165325cfd7746"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/public-trial-summaries.json",
+      "sha256": "568171b8f2f03b495fae2212dfec835e460e52db8451bcd7b6070e2c85904aa5"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/semantic-exploratory/assessment.json",
+      "sha256": "1cc569c61ad341cd7003ad67e8f22dd509c645fe07c43c1bddf0c6b27587dd13"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/self-improvement-20261023/semantic-exploratory/criteria.txt",
+      "sha256": "2390857cc073c505d3c87e0dbc3dc5bb2270f8a3c61710b4475e058098f066e1"
+    }
+  ],
+  "limits": [
+    "No spec/task/implementation reviewer adoption.",
+    "No claim of live weekly workflow recovery, production coverage, YAML coverage or backend attestation.",
+    "Candidate controls were 24 project tools/300s; current weekly host uses broader tools, 75 turns and 45-minute job cap.",
+    "Two samples per cell and separate execution windows cannot establish statistical reliability or superiority.",
+    "Global registry medium support addition can affect legacy explicit Opus selections; validate routing parity and preserved high-risk floors.",
+    "Historical evaluation used stripped settings; production must preserve applicable settings/hooks/native authority.",
+    "Curated public derivatives omit private native execution metadata; original identifiers/hashes are provenance, not public file dependencies or public raw reproducibility.",
+    "The actual current user approved only the self-improvement role; formal specification/design/task/quality reviewer adoption and final hosted weekly validation are not established by this decision."
+  ],
+  "publication": {
+    "status": "approved-not-published",
+    "public_evidence_files": 52,
+    "private_originals": "Original bytes remain local unchanged; provenance is specs/ci-model-modernization/verification/self-improvement-20261023/private-retained-provenance.json",
+    "original_proposal_sha256": "9fd95067e39b4638bacdaa56b0d18cbe17cd852cb8f020ca701cddf9c8c0423b"
+  }
+}

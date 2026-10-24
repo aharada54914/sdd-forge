@@ -914,10 +914,31 @@ class PolicySelection(unittest.TestCase):
         self.assertEqual(policy['default_policy'], 'latest-compatible')
         expected_path = 'contracts/model-adoption/ci-model-modernization-20261021.json'
         expected_hash = '0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32'
+        self_improvement_path = 'contracts/model-adoption/self-improvement-20261023.json'
+        self_improvement_hash = '782b7afab5e6ee1a4e452393de8721d46b72d44765cf8ac92117736ed539ba2b'
+        expected_adoptions = {
+            'gpt-6-astra': [{'role': 'implementer', 'path': expected_path, 'sha256': expected_hash}],
+            'anthropic/opus': [{'role': 'self-improvement', 'path': self_improvement_path,
+                                'sha256': self_improvement_hash}],
+        }
         for model in policy['models']:
-            expected = [{'role': 'implementer', 'path': expected_path, 'sha256': expected_hash}] if model['id'] == 'gpt-6-astra' else []
-            self.assertEqual(model['adoption'], expected, 'Only the reviewed implementer baseline has adoption evidence')
+            self.assertEqual(model['adoption'], expected_adoptions.get(model['id'], []),
+                             'Adoption remains restricted to the actually approved roles')
         self.assertEqual(hashlib.sha256((ROOT / expected_path).read_bytes()).hexdigest(), expected_hash)
+        adoption_bytes = (ROOT / self_improvement_path).read_bytes()
+        self.assertEqual(hashlib.sha256(adoption_bytes).hexdigest(), self_improvement_hash)
+        adoption = json.loads(adoption_bytes)
+        self.assertEqual(adoption['decision_status'], 'approved-for-self-improvement-only')
+        self.assertEqual(adoption['proposed_role'], 'self-improvement')
+        self.assertEqual(adoption['proposed_effort'], 'medium')
+        human_source = adoption['human_review']['source']
+        receipt_bytes = (ROOT / human_source['path']).read_bytes()
+        self.assertEqual(hashlib.sha256(receipt_bytes).hexdigest(), human_source['sha256'])
+        receipt = json.loads(receipt_bytes)
+        self.assertEqual(receipt['answer'], adoption['human_review']['decision'])
+        self.assertEqual(receipt['questionItemId'], adoption['human_review']['questionItemId'])
+        self.assertEqual(receipt['approved_patch_sha256'], adoption['human_review']['approved_patch_sha256'])
+        self.assertIsNone(adoption['human_review']['reviewed_at'])
         helper = load_helper()
         registry, registered = helper._policy_registry(ROOT / 'contracts/agent-model-capabilities.v2.json')
         token = helper._SNAPSHOT_ROOT.set(ROOT)
@@ -930,19 +951,24 @@ class PolicySelection(unittest.TestCase):
         helper = load_helper()
         registry, registered = helper._policy_registry(ROOT / 'contracts/agent-model-capabilities.v2.json')
         policy = json.loads((ROOT / 'contracts/model-policy.v1.json').read_text())
-        ref = next(x for x in policy['models'] if x['id'] == 'gpt-6-astra')['adoption'][0]
-        with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
-            target = root / ref['path']
-            target.parent.mkdir(parents=True)
-            target.write_bytes((ROOT / ref['path']).read_bytes() + b'\n')
-            token = helper._SNAPSHOT_ROOT.set(root)
-            try:
-                with self.assertRaises(helper.PolicyError) as caught:
+        refs = [ref for model in policy['models'] for ref in model['adoption']]
+        for ref in refs:
+            with self.subTest(role=ref['role']), tempfile.TemporaryDirectory() as folder:
+                root = Path(folder).resolve()
+                for original in refs:
+                    target = root / original['path']
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes((ROOT / original['path']).read_bytes())
+                token = helper._SNAPSHOT_ROOT.set(root)
+                try:
                     helper._validate_role_policy(policy, registered, registry['role_defaults'])
-                self.assertEqual(caught.exception.reason, 'config-invalid')
-            finally:
-                helper._SNAPSHOT_ROOT.reset(token)
+                    target = root / ref['path']
+                    target.write_bytes(target.read_bytes() + b'\n')
+                    with self.assertRaises(helper.PolicyError) as caught:
+                        helper._validate_role_policy(policy, registered, registry['role_defaults'])
+                    self.assertEqual(caught.exception.reason, 'config-invalid')
+                finally:
+                    helper._SNAPSHOT_ROOT.reset(token)
 
     def test_passing_unregistered_model_cannot_be_added_to_policy(self):
         helper = load_helper()

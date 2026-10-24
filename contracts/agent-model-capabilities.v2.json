@@ -29,6 +29,7 @@
       "name": "anthropic/opus",
       "canonical_tier": "strong",
       "supported_efforts": [
+        "medium",
         "high"
       ],
       "default_effort": "high",

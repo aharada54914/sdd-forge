@@ -1,0 +1,27 @@
+{
+  "configured_model": "opus",
+  "effort": "medium",
+  "elapsed_seconds": 24.327,
+  "exit_code": 0,
+  "tool_uses": 0,
+  "cost_usd_client_estimate": 0.6696818,
+  "actual_backend_attested": false,
+  "design_timing": "post-candidate exploratory",
+  "init_model": "claude-opus-5-5",
+  "message_models": [
+    "claude-opus-5-5"
+  ],
+  "human_adoption": false,
+  "derivation": "Allowlisted judge execution metrics; account quota/rate-limit, raw usage detail and timestamps omitted.",
+  "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/semantic-exploratory/summary.json",
+  "private_original_sha256": "425b2855e9272c660de65628d2914e5da9c8ba2de4b873afe25caf5655f9682d",
+  "frozen_before_judge_call": true,
+  "pre_candidate_preregistered": false,
+  "assessment_count": 12,
+  "pass_count": 12,
+  "limits": [
+    "Single same-family judge; blinding does not eliminate self-preference.",
+    "Candidate outputs existed before criteria design.",
+    "No provider identity attestation or production weekly validation."
+  ]
+}

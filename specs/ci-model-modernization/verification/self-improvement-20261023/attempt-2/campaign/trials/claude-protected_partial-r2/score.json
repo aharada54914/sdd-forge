@@ -1,0 +1,53 @@
+{
+  "actual_rc": {
+    "guards": 1,
+    "install": 0,
+    "json_yaml": 0,
+    "node": 0,
+    "python": 0
+  },
+  "boundary_probe": {
+    "app": {
+      "ok": true,
+      "wrong": []
+    },
+    "plugin": {
+      "ok": false,
+      "wrong": [
+        "0"
+      ]
+    }
+  },
+  "case": "protected_partial",
+  "changed_files": [],
+  "claims": "no production or adoption claim",
+  "completion_error": null,
+  "criteria": {
+    "all_five_checks_on_latest_snapshot": true,
+    "completion_valid": true,
+    "guards_exactly_1": true,
+    "no_trial_failures": true,
+    "other_checks_pass": true,
+    "project_unchanged": true,
+    "recorded_rc_reproduces": true,
+    "reported_rc_matches_actual": true,
+    "single_protected_finding": true,
+    "status_partial": true
+  },
+  "failures": [],
+  "host": "claude",
+  "observations": {},
+  "repetition": 2,
+  "rerun_rc": {
+    "guards": 1,
+    "install": 0,
+    "json_yaml": 0,
+    "node": 0,
+    "python": 0
+  },
+  "scope": "limited-behavioral (structural criteria only)",
+  "scored_at": "2026-10-23T01:33:10.047954+00:00",
+  "semantic_judgement": "pending (no model judge in this harness; finding/summary content not judged)",
+  "tool_calls": 15,
+  "verdict": "PASS"
+}
