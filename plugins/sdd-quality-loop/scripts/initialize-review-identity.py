@@ -439,6 +439,8 @@ def implementation_identities(root):
         return cache[relative]
 
     def collect(document, manifest=False):
+        if manifest and not isinstance(document, dict):
+            raise Blocked('implementation task manifest identity is invalid')
         if isinstance(document, dict) and (manifest or document.get('schema') == 'task-input-manifest/v1'):
             if document.get('schema') != 'task-input-manifest/v1' or not all(
                     isinstance(document.get(key), str) and document[key] for key in ('run_id', 'session_id')):

@@ -1334,6 +1334,11 @@ class ClaudeHostAppendTests(unittest.TestCase):
                                  json.dumps(dict(schema='task-input-manifest/v1', run_id='impl-run')), '{"a":'):
                     self.put(target, document)
                     self.assert_blocked(error=(ValueError, OSError))
+                # A manifest reference must be one object; arrays and scalars never pass, even holding the candidate.
+                for document in ('[]', json.dumps([json.loads(manifest(run_id=self.session, session_id=self.session))]),
+                                 'null', '"x"', '7', 'true'):
+                    self.put(target, document)
+                    self.assert_blocked(message='implementation task manifest identity is invalid')
                 self.put(target, manifest())
                 (self.root / target).unlink()
                 self.assert_blocked(error=(ValueError, OSError))
@@ -1363,6 +1368,11 @@ class ClaudeHostAppendTests(unittest.TestCase):
                 self.assert_blocked(error=(ValueError, OSError))
         self.put(report, 'Run ID: impl-run\n' + explicit.format(target, sha((self.root / target).read_bytes())) + '\n')
         self.assertEqual('REVIEW_HOST_CHECK_REGISTRABLE', self.register(check_only=True)['outcome'])
+        valid = (self.root / target).read_bytes()
+        self.put(target, '[]')
+        self.put(report, 'Run ID: impl-run\n' + explicit.format(target, sha(b'[]')) + '\n')
+        self.assert_blocked(message='implementation task manifest identity is invalid')
+        self.put(target, valid)
         # A path-only target is still part of the recheck fingerprint before publication.
         self.put(report, 'Run ID: impl-run\n' + forms[1].format(target) + '\n')
         real_scan, calls = identity.implementation_identities, []
