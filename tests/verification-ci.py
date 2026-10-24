@@ -14,6 +14,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import time
 from urllib.parse import urlsplit
 import zipfile
 import zlib
@@ -25,6 +26,14 @@ MAX_EXPANDED_BYTES = 64 * 1024 * 1024
 MAX_MEMBERS = 1024
 MAX_PAGES = 1000
 MAX_ATTEMPTS = 100
+REQUEST_TIMEOUT_SECONDS = 60
+# Re-reads of execution jobs the jobs list still reports as unfinished share one
+# monotonic budget covering every request and sleep, besides the round limit.
+REFRESH_ROUNDS = 5
+REFRESH_DELAY_SECONDS = 10
+REFRESH_BUDGET_SECONDS = 60
+NONTERMINAL = {'queued', 'in_progress', 'waiting', 'requested', 'pending'}
+CONTROL_JOB = 'required-checks'
 REASONS = {'input-invalid', 'binding-invalid', 'diff-unavailable', 'base-planner-unavailable',
            'force-full', 'event-full', 'unknown-path', 'shared-change', 'unproven-category',
            'evidence-missing', 'evidence-mismatch', 'execution-failed', 'verified',
@@ -155,7 +164,7 @@ def write_json(path, value):
     return {'path': path.name, 'sha256': P.sha(raw)}
 
 
-def api_response(endpoint):
+def api_response(endpoint, timeout=REQUEST_TIMEOUT_SECONDS):
     # gh owns existing authentication. Its Go HTTP client strips Authorization
     # on cross-origin storage redirects; no token is obtained or manually sent.
     if not endpoint.startswith('/repos/') or any(c in endpoint for c in '\r\n#'):
@@ -164,7 +173,7 @@ def api_response(endpoint):
                '--header', 'Accept: application/vnd.github+json',
                '--header', 'X-GitHub-Api-Version: ' + API_VERSION, endpoint]
     try:
-        result = subprocess.run(command, capture_output=True, timeout=60)
+        result = subprocess.run(command, capture_output=True, timeout=timeout)
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise ValueError('Actions read unavailable') from exc
     if result.returncode or len(result.stdout) > MAX_RESPONSE_BYTES:
@@ -189,8 +198,8 @@ def api_response(endpoint):
     return body, headers
 
 
-def api_get(endpoint):
-    raw, headers = api_response(endpoint)
+def api_get(endpoint, timeout=REQUEST_TIMEOUT_SECONDS):
+    raw, headers = api_response(endpoint, timeout)
     return P.strict_json(raw), headers
 
 
@@ -280,6 +289,37 @@ def artifact_identity(name, run_id):
     return int(match[2]), match[3]
 
 
+def refresh_jobs(prefix, jobs):
+    """Re-read observed unfinished execution jobs in place; acquisition is not verification.
+
+    The jobs list can lag behind job completion. Each re-read is an actual GET of
+    the same job instance and must keep its identity. The running verifier is
+    never awaited, terminal rows are never re-read, and an unfinished response
+    left when the rounds or the shared deadline run out is persisted as observed.
+    """
+    pending = [i for i, job in enumerate(jobs) if job.get('status') in NONTERMINAL and job.get('name') != CONTROL_JOB]
+    deadline = time.monotonic() + REFRESH_BUDGET_SECONDS
+    for round_number in range(REFRESH_ROUNDS):
+        if not pending:
+            return
+        if round_number:
+            if deadline - time.monotonic() <= REFRESH_DELAY_SECONDS:
+                return
+            time.sleep(REFRESH_DELAY_SECONDS)
+        for index in pending:
+            remaining = min(REQUEST_TIMEOUT_SECONDS, deadline - time.monotonic())
+            if remaining <= 0:
+                return
+            job = jobs[index]
+            fresh, _ = api_get(prefix + f"/jobs/{job['id']}", remaining)
+            if not isinstance(fresh, dict) or any(fresh.get(k) != job.get(k)
+                                                  for k in ('id', 'run_id', 'run_attempt', 'head_sha', 'name')):
+                raise ValueError('refreshed job identity mismatch')
+            job.clear()
+            job.update(fresh)
+        pending = [i for i in pending if jobs[i].get('status') in NONTERMINAL]
+
+
 def collect(repository, run_id, output_dir):
     if not repository_identity(repository) or not run_identity(run_id) or output_dir.exists():
         raise ValueError('invalid collection arguments or existing destination')
@@ -296,7 +336,7 @@ def collect(repository, run_id, output_dir):
     manifest = dict(schema='verification-ci-observations/v1', repository=repository, run_id=run_id,
                     api_head_sha=run['head_sha'], collected_at=dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
                     api_version=API_VERSION, run=write_json(output_dir / 'run.json', run), jobs=[], artifacts=[])
-    jobs = []
+    jobs, collected = [], []
     for attempt in range(1, attempts + 1):
         records = pages(prefix + f'/runs/{run_id}/attempts/{attempt}/jobs?per_page=100', 'jobs')
         for page, record in enumerate(records, 1):
@@ -305,8 +345,10 @@ def collect(repository, run_id, output_dir):
                         or job.get('head_sha') != run['head_sha']):
                     raise ValueError('job identity disagrees with requested attempt')
             jobs.extend(record['jobs'])
-            path = f'jobs/{attempt}-{page}.json'
-            manifest['jobs'].append({**write_json(output_dir / path, record), 'path': path})
+            collected.append((f'jobs/{attempt}-{page}.json', record))
+    refresh_jobs(prefix, jobs)
+    for path, record in collected:
+        manifest['jobs'].append({**write_json(output_dir / path, record), 'path': path})
     names = set()
     for record in pages(prefix + f'/runs/{run_id}/artifacts?per_page=100', 'artifacts'):
         for artifact in record['artifacts']:
@@ -423,6 +465,28 @@ def source_job(history):
     return latest, origin
 
 
+def parser_lock_closure(raw):
+    # The required dist/js-yaml.cjs.js has no require(); argparse is declared only for bin/js-yaml.mjs.
+    try:
+        packages = P.strict_json(raw)['packages']
+        if not isinstance(packages, dict):
+            raise ValueError('invalid parser lock packages')
+        entry, argparse_entry = packages['node_modules/js-yaml'], packages['node_modules/argparse']
+        if not isinstance(entry, dict) or not isinstance(argparse_entry, dict):
+            raise ValueError('invalid parser lock entries')
+        fields = ('dependencies', 'optionalDependencies', 'peerDependencies')
+        if any(not isinstance(package.get(field, {}), dict)
+               for package in (entry, argparse_entry) for field in fields):
+            raise ValueError('invalid parser dependency mapping')
+        nested = any(key.startswith(('node_modules/js-yaml/', 'node_modules/argparse/')) for key in packages)
+        declared = set().union(*(entry.get(field, {}) for field in fields))
+    except (KeyError, TypeError, AttributeError) as error:
+        raise ValueError('invalid parser lock') from error
+    if nested or declared != {'argparse'} or any(argparse_entry.get(field) for field in fields):
+        raise ValueError('unsupported parser dependency closure')
+    return entry, argparse_entry
+
+
 def rebuild_plan(root, run, plan):
     tested = P.git(root, 'rev-parse', 'HEAD').decode().strip()
     if P.git(root, 'status', '--porcelain', '--untracked-files=no'):
@@ -450,7 +514,11 @@ def rebuild_plan(root, run, plan):
             parser = ROOT / 'mcp/sdd-forge-mcp/node_modules/js-yaml'
             lock = 'mcp/sdd-forge-mcp/package-lock.json'
             if parser.exists() and (trusted / lock).is_file():
-                if (ROOT / lock).read_bytes() != (trusted / lock).read_bytes():
+                manifest = read_json(parser / 'package.json')
+                installed = parser_lock_closure((ROOT / lock).read_bytes())
+                if (installed != parser_lock_closure((trusted / lock).read_bytes())
+                        or [manifest.get(k) for k in ('name', 'version', 'main')]
+                        != ['js-yaml', installed[0]['version'], './dist/js-yaml.cjs.js']):
                     raise ValueError('trusted parser lock differs from installed parser')
                 shutil.copytree(parser, trusted / 'mcp/sdd-forge-mcp/node_modules/js-yaml')
             normal = P.make_plan(trusted_root=trusted, base=base, head=head, force_full='false', **arguments)

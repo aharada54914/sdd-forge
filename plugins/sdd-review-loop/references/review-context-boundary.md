@@ -375,3 +375,107 @@ implementation manifest's `allowed_inputs` prove
 what the implementation was allowed to read; they do not authorize evaluator
 reads. Evaluator input authority remains the invocation's exact
 `allowed_input_manifest` plus any existing post-fix declaration.
+
+## Registering a Claude host into an existing ledger
+
+`initialize-review-identity.py` has two exclusive modes. `--copilot-events` keeps
+the fresh-project Copilot bootstrap unchanged: it refuses any existing ledger,
+review/implementation history or review-context entry (including a registration
+receipt). Append mode adds the Claude Code host that will orchestrate later rounds
+to an **existing** valid ledger without changing any prior record:
+
+```text
+python3 plugins/sdd-quality-loop/scripts/initialize-review-identity.py --root <canonical-root> \
+  --register-existing --claude-result <original-captured-result> \
+  --claude-transcript "$HOME/.claude/projects/<encoded-root>/<session>.jsonl" --check-only
+# Same inputs without --check-only to write.
+```
+
+**Accepted evidence.** The captured result is either the single
+`--output-format json` object or the `stream-json` output whose first record is
+`system/init` (cwd = root, supported version) and whose only `result` is last; every
+record must carry the same `session_id`. Stream records are framed on LF only, so raw
+U+2028/U+2029/U+0085 inside JSON strings are accepted. The result must be `type=result`,
+`subtype=success`, `is_error=false` with a UUID session. The transcript must be
+exactly `$HOME/.claude/projects/<root with / replaced by ->/<session>.jsonl`; copies,
+other filenames, links, hard links, special files and oversize inputs are refused.
+Every transcript record must belong to the session, use a record type observed for
+the supported CLI version, record a cwd (when present) that resolves to the root, and
+the transcript must contain a native user and assistant message and end with a
+complete record. The encoded directory is lossy, so the recorded cwd decides.
+
+**Supported scope.** Claude Code `2.1.303` on POSIX, default config root only
+(`CLAUDE_CONFIG_DIR` set is refused), project roots consisting of `[A-Za-z0-9/-]`
+(the only encoding observed). Other versions, platforms and path characters are
+refused rather than guessed; Windows is unsupported for this adapter because its
+native encoding is unobserved, not because of directory fsync.
+
+**What is written.** Under the shared `identity-ledger.json.lock` (busy is a
+retryable refusal; another process's lock is never removed) the helper validates the
+whole ledger exactly as both validators do, including optional binding stages and
+hash suffixes, then appends one `host`/`orchestrator` record with
+`run_id = host_session_id = native session ID` (an adapter choice) and no binding
+fields. It first publishes `reports/review-context/host-registrations/<record_sha256>.json`
+(`review-host-registration/v1`: host, source kind, CLI version, canonical root,
+result hash/length, transcript relative path and bound byte length/hash, run/session,
+sequence, record hash, before/after ledger hashes, before count, and a
+`receipt_sha256` self-digest), then atomically replaces the ledger. The two files are
+not published as one atomic unit. Native inputs and the implementation-evidence
+fingerprint are re-checked under the lock before each publication step.
+
+**Identity exclusion.** The candidate must not appear in any ledger column, and must
+not appear in the bounded implementation evidence: Run/Session lines and
+`Input manifest:` citations in `reports/implementation/**/*.md`, JSON under
+`reports/implementation`, `handoffs` and `reports/quality-gate`, and the
+`implementation_manifest`/supplemental declarations that invocations reference.
+Explicit ``Input manifest: `<path>`, SHA-256 `<hex>` `` citations must match that hash
+exactly. Two historical path-only forms are also read, only for canonical
+`handoffs/**/*.json` targets: ``Input manifest: `<path>`.`` and
+``Input manifest: `<path>` (TASK_INPUT_OK).``. Their target must be a safe, single-link
+`task-input-manifest/v1` with nonempty `run_id`/`session_id`; its observed bytes join the
+identity scan and the pre-publication fingerprint. This is a conservative exclusion
+only: no historical digest exists for such a citation, and none is inferred or attested.
+Any other citation shape, or a malformed or wrong explicit hash, stops registration.
+Unreadable files or directories (at any depth, including an evidence root itself),
+malformed JSON, links, hash mismatches or limit overruns stop registration;
+this is not proof that no unreferenced manifest exists. Also exclude, by comparing the
+`run_id=` printed by `--check-only`, every actor recorded in the applicable exception
+audit (implementers, reviewers, probes) — the helper takes no exclusion list.
+
+**Retry and interruption.** Re-running with the same inputs reports
+`REVIEW_HOST_ALREADY_REGISTERED` only when the host row, its receipt and the original
+result agree exactly and the identity is still absent from the bounded implementation
+evidence (a registered host later reused as an implementer is refused, as is unreadable
+evidence); the transcript may have grown by a later same-ID resume, but the bound
+prefix must be unchanged. A receipt without its ledger record is
+`REVIEW_HOST_UNPUBLISHED`: it is completed only by the identical append against an
+unchanged ledger (`ledger_before_sha256` must equal the current ledger); otherwise it
+is preserved and reported, never rebased, overwritten or deleted.
+
+One crash window is recognized but not completed automatically: interruption after the
+receipt link and before its staging name is removed leaves `<record_sha256>.json` sharing
+one file (link count 2) with exactly one `.host-registration-*` name in the same
+directory. Every run, including `--check-only`, then reports `REVIEW_HOST_UNPUBLISHED`
+and changes nothing. Manual recovery, with no helper or validator running: confirm the
+two names are the same file (`stat -c '%d %i %h' <receipt> <staging>` shows identical
+device/inode and link count 2), remove **only** the staging name, then rerun
+`--check-only` and the identical append, which completes the receipt as above. Do not
+remove the receipt, edit the ledger, or remove a staging name that is a different file.
+Any other extra link (an outside name, two staging names, a different staging file) is
+refused as `REVIEW_HOST_BLOCKED` and needs investigation. Every published
+receipt is checked for self-consistency and its ledger link on each run. History is
+never retrofitted: a host row without a receipt is not given one.
+
+**Trust limits.** Hashes, canonical paths and the self-digest are local evidence,
+not signatures. After publication `ledger_before_sha256` is protected only by the
+self-digest, so a same-UID writer that rewrites result, transcript, receipt and
+ledger coherently is not detected. The registration does not prove human identity,
+backend model identity or model adoption; the registered host must still not be
+reused as a reviewer, and implementation identities remain bound by
+`task-input-manifest/v1`.
+
+**Domain rounds.** `finalize-domain-review.py` binds the latest host/orchestrator
+record before reviewer A. A round whose A reservation predates the append keeps its
+original host (re-finalizing reproduces identical contract bytes); a round reserved
+after it binds the new host. Do not register a host in the middle of a domain round
+to change its owner.

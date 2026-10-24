@@ -196,6 +196,13 @@ jobs:
       - name: Test shared launch FilesOnly distribution
         shell: bash
         run: python3 -B tests/shared-launch-build.tests.py
+      # Same pinned general YAML parser the weekly self-improvement run installs (issue #620).
+      - name: Install repository syntax parser
+        shell: bash
+        run: |
+          python3 -m venv "$RUNNER_TEMP/repository-syntax-python"
+          "$RUNNER_TEMP/repository-syntax-python/bin/pip" install -r tests/repository-syntax-requirements.txt
+          echo "SDD_SYNTAX_PYTHON=$RUNNER_TEMP/repository-syntax-python/bin/python" >> "$GITHUB_ENV"
       - name: Test traceability freeze normalization
         shell: bash
         run: python3 -B tests/traceability-freeze-contract.tests.py

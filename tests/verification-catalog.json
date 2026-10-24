@@ -618,6 +618,11 @@
       "delegated_to": "tests/cross-model.tests.ps1"
     },
     {
+      "path": "tests/cross-model-encoding.tests.ps1",
+      "runtime": "powershell",
+      "delegated_to": "tests/cross-model.tests.ps1"
+    },
+    {
       "path": "tests/cross-model-process-state.tests.py",
       "runtime": "python",
       "delegated_to": "tests/cross-model.tests.sh"
@@ -780,6 +785,11 @@
       "delegated_to": "tests/agent-model-routing.tests.sh"
     },
     {
+      "path": "tests/emit-run-record-encoding.tests.ps1",
+      "runtime": "powershell",
+      "delegated_to": "tests/emit-run-record-feature-scope.tests.ps1"
+    },
+    {
       "path": "tests/emit-run-record-feature-scope.tests.ps1",
       "runtime": "powershell",
       "ci_jobs": [
@@ -820,6 +830,11 @@
       "path": "tests/evaluator-scratch-metrics.tests.py",
       "runtime": "python",
       "delegated_to": "tests/wfi-034-scratch-metric.tests.sh"
+    },
+    {
+      "path": "tests/evidence-bundle-encoding.tests.ps1",
+      "runtime": "powershell",
+      "delegated_to": "tests/scripts.tests.ps1"
     },
     {
       "path": "tests/facet-manifest-parity.tests.ps1",
@@ -1365,6 +1380,11 @@
       "runtime": "bash"
     },
     {
+      "path": "tests/panelist-verdict-encoding.tests.ps1",
+      "runtime": "powershell",
+      "delegated_to": "tests/cross-model.tests.ps1"
+    },
+    {
       "path": "tests/path-lineending-regression.tests.ps1",
       "runtime": "powershell"
     },
@@ -1550,6 +1570,13 @@
       "runtime": "bash",
       "ci_jobs": [
         "test"
+      ]
+    },
+    {
+      "path": "tests/repository-syntax.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
       ]
     },
     {
@@ -2493,7 +2520,8 @@
       "tests/model-policy.tests.py",
       "tests/model-policy-launch.tests.py",
       "tests/model-policy-launch-platform.tests.py",
-      "tests/model-policy-installed.tests.py"
+      "tests/model-policy-installed.tests.py",
+      "tests/repository-syntax.tests.py"
     ],
     "local-powershell": [
       "tests/cloud-orchestration-contracts.tests.py",
@@ -2738,7 +2766,8 @@
       "tests/supplemental-delivery-declaration.tests.py",
       "tests/t001-evaluation-preparation.tests.py",
       "tests/model-policy-launch.tests.py",
-      "tests/model-policy-installed.tests.py"
+      "tests/model-policy-installed.tests.py",
+      "tests/repository-syntax.tests.py"
     ],
     "ci-a7-native": [
       "tests/golden-baseline-contract.tests.ps1",

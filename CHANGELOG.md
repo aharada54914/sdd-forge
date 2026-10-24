@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- `initialize-review-identity.py --register-existing` appends the stopped Claude Code host that will orchestrate review to an existing identity ledger from its original captured result and canonical native transcript (`--check-only` first). It validates the full ledger like both validators, refuses identity collisions with ledger rows and bounded implementation evidence, publishes a self-digested `review-host-registration/v1` receipt before an atomic ledger replace under the shared lock, and supports idempotent/prefix retry and preserved `UNPUBLISHED` receipts. Scope: Claude Code 2.1.303, POSIX, default config root, `[A-Za-z0-9/-]` roots. Local evidence only, not a signature or same-UID protection; the fresh Copilot mode is unchanged. Synthetic fixtures only; no real registration is claimed.
+
+### Fixed
+- Weekly self-improvement `json_yaml` check (#620): add `.github/scripts/check-repository-syntax.py`, a deterministic strict UTF-8 JSON / PyYAML syntax check of tracked working-tree bytes with exact path+SHA256 handling of six legacy BOM records and two intentional negative fixtures; any unvalidated untracked candidate fails the check by count only (stage it or pass `--path`), `--path` uses a host-independent portable grammar, and a leading BOM is accepted for YAML only. The prompt names the exact command and both workflows install pinned `PyYAML==6.0.3`. Syntax validation only; actual weekly recovery is not claimed.
+- `required-checks` collection re-reads execution jobs the jobs list still reports as `queued`/`in_progress`/`waiting`/`requested`/`pending`, by individual read-only GET (at most 5 rounds, 10 s apart, all reads and waits sharing one 60 s monotonic deadline that also caps each read's timeout), rejects any change of job ID/run/attempt/head/name, and persists the actual final response. The running `required-checks` job and terminal rows are never re-read; a row still unfinished after the budget stays in the evidence and the aggregate still fails closed (`evidence-missing` or receipt-origin `evidence-mismatch`).
+- #619 PowerShell JSON writers (`check-cross-model`, `generate-evidence-bundle`, legacy GPT/Gemini panelist verdicts, and `emit-run-record`) use explicit BOM-free UTF-8 for strict JSON consumers, preserving PowerShell-relative output paths and existing newline framing. The bundle generator uses Windows PowerShell 5.1-compatible `Join-Path` calls; panelist diagnostics parse under Desktop's source encoding and retain native process exit codes. Historical artifacts and prompt text are unchanged.
+
 ## v1.20.0 (2026-10-21)
 
 ### Added
