@@ -1,4 +1,4 @@
-name: Issue 642 native Desktop input encoding comparison
+name: Issue 642 native Windows input encoding comparison
 
 on:
   push:
@@ -15,21 +15,21 @@ env:
 jobs:
   encoding:
     runs-on: windows-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: b9977419be155d76a6c459b16b77ff27f5f34ef3
+          ref: cf1762f0eda2047f3662324ac6ec6206f9a6c6a7
           fetch-depth: 0
           persist-credentials: false
-      - name: Compare parser-corrected historical baseline and corrected Desktop producers
+      - name: Compare parser-corrected historical baseline and corrected Windows producers
         shell: python
         run: |
           import difflib, hashlib, json, pathlib, re, shutil, subprocess, sys, tempfile
           sys.stdout.reconfigure(encoding='utf-8', errors='backslashreplace')
           root = pathlib.Path.cwd()
           baseline = '3f1db88e85c1c41a082d2dae5cbcdd148e0b7353'
-          candidate = 'b9977419be155d76a6c459b16b77ff27f5f34ef3'
+          candidate = 'cf1762f0eda2047f3662324ac6ec6206f9a6c6a7'
           head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
           if head != candidate:
               raise SystemExit('Candidate checkout differs from pinned source')
@@ -65,13 +65,14 @@ jobs:
               pins[relative] = {'baseline_original': hashlib.sha256(original).hexdigest(),
                                 'baseline_parser_corrected': hashlib.sha256(derived).hexdigest(),
                                 'candidate': hashlib.sha256((root / relative).read_bytes()).hexdigest()}
-          producer = shutil.which('powershell.exe')
-          if not producer:
-              raise SystemExit('Required native Desktop runtime missing')
           records = []
-          for label, source in (('baseline-parser-corrected', old), ('candidate', root)):
+          for label, source, edition in (('baseline-parser-corrected', old, 'Desktop'),
+                                         ('candidate-desktop', root, 'Desktop'), ('candidate-core', root, 'Core')):
+              producer = shutil.which('powershell.exe' if edition == 'Desktop' else 'pwsh')
+              if not producer:
+                  raise SystemExit('Required native runtime missing: ' + edition)
               argv = [producer, '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(source / helper),
-                      '-Producer', producer, '-ExpectEdition', 'Desktop']
+                      '-Producer', producer, '-ExpectEdition', edition]
               try:
                   result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=240)
                   raw, code, timed_out = result.stdout, result.returncode, False
@@ -82,31 +83,32 @@ jobs:
               text = raw.decode('utf-8', errors='replace')
               print(text)
               summaries = re.findall(r'^Results: (\d+) passed, (\d+) failed\r?$', text, re.MULTILINE)
-              runtime = re.findall(r'^producer runtime: .+ => Desktop 5\.1\.\d+(?:\.\d+)? 2\r?$', text, re.MULTILINE)
-              calls = re.findall(r'^ok: CM-017 \[Desktop/(gpt|gemini)/(pass|needs-work|session|cli-failure|invalid-verdict)\] fake CLI \(not a provider\) was invoked\r?$', text, re.MULTILINE)
+              version = r'Desktop 5\.1\.\d+(?:\.\d+)?' if edition == 'Desktop' else r'Core 7\.\d+\.\d+(?:\.\d+)?'
+              runtime = re.findall(r'^producer runtime: .+ => ' + version + r' 2\r?$', text, re.MULTILINE)
+              calls = re.findall(r'^ok: CM-017 \[' + edition + r'/(gpt|gemini)/(pass|needs-work|session|cli-failure|invalid-verdict)\] fake CLI \(not a provider\) was invoked\r?$', text, re.MULTILINE)
               expected_calls = {(vendor, case) for vendor in ('gpt', 'gemini')
                                 for case in ('pass', 'needs-work', 'session', 'cli-failure', 'invalid-verdict')}
               complete = (len(summaries) == 1 and sum(map(int, summaries[0])) == 98
                           and len(runtime) == 1 and len(calls) == 10 and set(calls) == expected_calls)
               expected_outcome = complete and (int(summaries[0][1]) > 0 if label == 'baseline-parser-corrected'
                                                else summaries[0] == ('98', '0'))
-              records.append({'source': label, 'argv': argv, 'exit_code': code, 'timed_out': timed_out,
+              records.append({'source': label, 'edition': edition, 'argv': argv, 'exit_code': code, 'timed_out': timed_out,
                               'complete_98_native_cases': complete, 'expected_outcome': expected_outcome,
                               'log_sha256': hashlib.sha256(raw).hexdigest()})
               (output / 'comparison.json').write_text(json.dumps({
-                  'baseline_original_commit': baseline, 'baseline_kind': 'counterfactual-parser-only-correction', 'candidate': candidate, 'edition': 'Desktop', 'source_sha256': pins,
+                  'baseline_original_commit': baseline, 'baseline_kind': 'counterfactual-parser-only-correction', 'candidate': candidate, 'editions': ['Desktop', 'Core'], 'source_sha256': pins,
                   'runs': records,
-                  'scope': 'Same candidate helper; three historical producers, with four explicitly recorded preparer literal-only parser corrections. Counterfactual baseline, not exact historical bytes. Actual Desktop and fake CLIs; failures require classification.'
+                  'scope': 'Same candidate helper; three historical producers, with four explicitly recorded preparer literal-only parser corrections. Counterfactual baseline, not exact historical bytes. Actual Windows Desktop and Core with fake CLIs; failures require classification.'
               }, indent=2) + '\n', encoding='utf-8')
               if timed_out:
                   break
           if not any(r['timed_out'] for r in records):
               shutil.rmtree(old)
-          raise SystemExit(0 if len(records) == 2 and all(r['expected_outcome'] and not r['timed_out'] for r in records)
-                           and records[0]['exit_code'] != 0 and records[1]['exit_code'] == 0 else 1)
+          raise SystemExit(0 if len(records) == 3 and all(r['expected_outcome'] and not r['timed_out'] for r in records)
+                           and records[0]['exit_code'] != 0 and all(r['exit_code'] == 0 for r in records[1:]) else 1)
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
-          name: issue-642-native-Desktop-comparison
+          name: issue-642-native-Windows-comparison
           path: encoding-comparison/
           if-no-files-found: error
