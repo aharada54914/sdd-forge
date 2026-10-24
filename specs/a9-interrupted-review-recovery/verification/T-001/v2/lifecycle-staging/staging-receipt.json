@@ -1,0 +1,58 @@
+{
+  "schema": "a9-t001-approved-amendment-staging/v1",
+  "staged_at": "2026-10-24T10:38:28.723162+00:00",
+  "source_head": "d4d10f8a6666608f09eaa307d28073bcb41a123f",
+  "canonical_task_path": "specs/a9-interrupted-review-recovery/tasks.md",
+  "restoration_source": "f0e1da226fe41e49c852053192143e58b1016fb6:specs/a9-interrupted-review-recovery/tasks.md",
+  "before_task_sha256": "dc6c9161a9cda92990c39793e73a146131dd875efe015f4bf129badbf86daf32",
+  "restored_task_sha256": "68198040940bf591c595875a7964f47ab27ff3d4df006686f20a04dff0ea1c1d",
+  "byte_exact_restoration": true,
+  "state": {
+    "task_review_header": "Passed for exact previously reviewed body only",
+    "approvals": [
+      "Approved",
+      "Approved",
+      "Approved"
+    ],
+    "task_statuses": [
+      "In Progress",
+      "Planned",
+      "Planned"
+    ],
+    "amendment_approval": "Approved remains valid",
+    "amendment_formal_rebinding": "Pending genuine formal task provenance re-review",
+    "current_old_criterion_satisfied": false
+  },
+  "reason": "Pending + Approved/In Progress violates canonical lifecycle; restoring exact prior reviewed body avoids a false Passed claim for the unreviewed amended body.",
+  "history": {
+    "d4_applied_body_retained_in_git": true,
+    "approval_receipt": "specs/a9-interrupted-review-recovery/verification/T-001/v2/criterion-user-approval-v2.json",
+    "approved_sentence_patch": "specs/a9-interrupted-review-recovery/verification/T-001/v2/approved-criterion-v2.patch",
+    "initial_application_receipt": "specs/a9-interrupted-review-recovery/verification/T-001/v2/criterion-application-receipt.json",
+    "d4_current_binding_path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/d4-current-binding.json",
+    "d4_current_binding_sha256": "8a372a0d3c959025398d418fed26cc730b899be8a82ba880293d15677b85c43a"
+  },
+  "next_genuine_route": "Task attempt3 --provenance-rereview applies the exact already-approved sentence to the one canonical task artifact, retaining the historical Passed header as the route requires, freezing fresh reviewer inputs and obtaining genuine new provenance. No new human approval is needed for the unchanged approved sentence.",
+  "independent_staging_review_sha256": "4139709ca16dc65a5b42a0e4f5b47837174d7df53f8c8e45d26416807f8e8146",
+  "checks": {
+    "bash": "canonical-bash.json",
+    "powershell": "canonical-powershell.json",
+    "scope": "Actual --feature a9-interrupted-review-recovery checks; unrelated registry directories supplied by47 real tracked Git files, not all-feature validation",
+    "initial_sparse_errors": "Both initial invocations exit1 with47 unrelated registry-dangling-entry diagnostics, preserved in workflow-*.log",
+    "ledger_access": "none"
+  },
+  "unchanged": [
+    "all harness/product source pins",
+    "registry content",
+    "old119 manifest",
+    "human approvals and T001 In Progress",
+    "original v2 classification and original test history"
+  ],
+  "no_claims": [
+    "new Passed for amended body",
+    "v2 evidence satisfies restored old all-variants criterion",
+    "fullCI/ImplementationComplete/qualityPASS/Done",
+    "approval revocation",
+    "checker change or alternate task input"
+  ]
+}

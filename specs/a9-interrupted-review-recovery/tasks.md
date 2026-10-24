@@ -1,6 +1,6 @@
 # Tasks: a9-interrupted-review-recovery
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 ## Lifecycle
 
@@ -47,7 +47,7 @@ Before implementation, record in reports/implementation/a9-interrupted-review-re
 - [ ] Before production implementation, create the named failing-test checkpoint commit and record its exact commit ID plus failing command/output in the implementation report; this task plan does not authorize committing now.
 - [ ] Independent named reviewer distinct from implementer records verdict and identity; no self-review.
 - [ ] Tested rollback evidence shows code revert restores ordinary reset behavior, historical bytes unchanged and existing partial target still quarantined/unusable in a safe disposable fixture.
-- [ ] Record every assigned concrete TEST-ID case and listed parameter/variant individually: observed defects require actual named Red then Green evidence; newly introduced admission-contract cases may bind the genuine missing-admission control Red plus their individual post-implementation assertions, retaining original NOT_RUN entries and explicitly claiming no individual Red; reused already-correct behavior requires an actual passing baseline and regression tied to its source revision and execution time, with retrospective checks labeled as such. Classify each case from its tested behavior, not a blanket relabeling of Green-only results. All assigned cases and variants, both runtimes, unit, acceptance and related regression runs still require existing path-safe evidence in specs/a9-interrupted-review-recovery/verification/T-001.md; unexecuted cases remain unverified.
+- [ ] Assigned concrete TEST-ID cases and every listed parameter/variant have Red then Green evidence; unit, acceptance and related regression runs have existing path-safe evidence in both runtimes.
 - [ ] Implementation report includes Run ID, Task Attempt Count, spec_revision and environment; no planned evidence is presented as executed proof.
 - [ ] Independent review verdict and requirement-traceability/component-coverage evidence recorded; quality-gate passes before Done.
 - [ ] Frozen traceability/AC/design/layers are not edited; execution results and T-001 → REQ/AC/TEST evidence mapping are recorded in specs/a9-interrupted-review-recovery/verification/T-001.md and implementation/quality reports.

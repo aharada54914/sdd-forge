@@ -1,0 +1,15 @@
+{
+  "command": [
+    "bash",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "--feature",
+    "a9-interrupted-review-recovery"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-24T10:35:20.393999+00:00",
+  "finished_at": "2026-10-24T10:35:21.631504+00:00",
+  "stdout": "workflow-state: ok\n",
+  "stderr": "",
+  "task_sha256": "68198040940bf591c595875a7964f47ab27ff3d4df006686f20a04dff0ea1c1d",
+  "scope": "Actual canonical feature check using unchanged registry and real Git-backed sparse materialization; not all-feature validation"
+}

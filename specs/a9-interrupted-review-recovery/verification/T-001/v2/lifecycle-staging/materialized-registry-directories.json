@@ -1,0 +1,338 @@
+{
+  "source_head": "d4d10f8a6666608f09eaa307d28073bcb41a123f",
+  "registry_sha256": "61f0dd430daa8938a60a7b66460e81388a872ed91b8830795f1dbcb2c2db7a9b",
+  "feature_count": 47,
+  "scope": "One actual tracked file per missing registered directory supplies global registry directory presence; --feature still validates only a9-interrupted-review-recovery; no dummy directories or registry change",
+  "files": [
+    {
+      "feature": "agent-cost-context-isolation",
+      "path": "specs/agent-cost-context-isolation/requirements.md",
+      "git_blob": "f984ce42ca43afc76446e2902eb3772b20ede85f",
+      "sha256": "a386237a9e36d0e584374ef67a3bc56dc048e671213d49bff4c96c5e71e8696a",
+      "bytes": 9337
+    },
+    {
+      "feature": "bootstrap-interviewer-enhancement",
+      "path": "specs/bootstrap-interviewer-enhancement/requirements.md",
+      "git_blob": "2492cdd5f8232df2be672e82b0114e6a2ce4ecd5",
+      "sha256": "5866c11ffb1756768417cf3b84a6788f6164567743c22957fe9d6e4c2f66d902",
+      "bytes": 14148
+    },
+    {
+      "feature": "claude-workflow-compatibility",
+      "path": "specs/claude-workflow-compatibility/requirements.md",
+      "git_blob": "cc2762166b76a8606b1444d1dd3c302f35eafa17",
+      "sha256": "da2aa02b868bcf62162366973be5c19e5b7a2ceb2fe212c3d19e2d210e1ea576",
+      "bytes": 8122
+    },
+    {
+      "feature": "cross-model-verification",
+      "path": "specs/cross-model-verification/requirements.md",
+      "git_blob": "4e03e626419b08a45f9d83ee1f2d1347f93898b8",
+      "sha256": "cfe7d17eda4fb2e2b9cc3ca735513f84f68f089a235cc55d1c3b54fa442921c1",
+      "bytes": 8306
+    },
+    {
+      "feature": "p0-hardening",
+      "path": "specs/p0-hardening/requirements.md",
+      "git_blob": "03734b94d63473fdce8ac2efe46b36fb0a046f95",
+      "sha256": "2d79edbb7d7e7b9b2c26f877dc92bfa04d0d5796521fc952d9af2fde98a6410a",
+      "bytes": 2628
+    },
+    {
+      "feature": "risk-adaptive-layer",
+      "path": "specs/risk-adaptive-layer/requirements.md",
+      "git_blob": "3258394d610705616011784c090a5271ccdcace3",
+      "sha256": "6eeaa30e8c8348a8bb8e0f08c45ce3b7df0ee0725729a9adcf7438971542e7f0",
+      "bytes": 8740
+    },
+    {
+      "feature": "sdd-diagnose",
+      "path": "specs/sdd-diagnose/design.md",
+      "git_blob": "cda2eb554732288849f3275756e3ce0ead2a0027",
+      "sha256": "1af0d415a8f9749fb17e452d17907df8fe7581d48f192465e9d540ce8ccf1364",
+      "bytes": 6223
+    },
+    {
+      "feature": "sdd-forge-mcp",
+      "path": "specs/sdd-forge-mcp/requirements.md",
+      "git_blob": "a1c6761b05cadd40c8a8461a716139c96f54c700",
+      "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e",
+      "bytes": 11965
+    },
+    {
+      "feature": "sdd-forge-refactor",
+      "path": "specs/sdd-forge-refactor/requirements.md",
+      "git_blob": "8c5c34350e772cfaad6fe367a6b2533421bb8364",
+      "sha256": "568036f5a824c0afe65e6740b1416cb157d36effece1af96c16cab222ef59dad",
+      "bytes": 4719
+    },
+    {
+      "feature": "sdd-lite",
+      "path": "specs/sdd-lite/design.md",
+      "git_blob": "58aff0deee307b38ad2079b2053a6b7bd55ab716",
+      "sha256": "6a9bf2480b9ff434a92da03fdfd5e1ff5b501b8e59762680c623cef13114c4c3",
+      "bytes": 12010
+    },
+    {
+      "feature": "uninstall-workflow",
+      "path": "specs/uninstall-workflow/retrospective.md",
+      "git_blob": "ff9b7e29d6268e333aac339cb0030b6c18365240",
+      "sha256": "558b6f44279ae4d6c0d14143113dbd26ae79b255dda96088442ab836b325b42c",
+      "bytes": 641
+    },
+    {
+      "feature": "workflow-state-integrity",
+      "path": "specs/workflow-state-integrity/requirements.md",
+      "git_blob": "e83d6609acddd29c8abb6f0ff720b5c3633a674c",
+      "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+      "bytes": 4900
+    },
+    {
+      "feature": "local-env-mcp",
+      "path": "specs/local-env-mcp/requirements.md",
+      "git_blob": "bca507cdd3e4837598f0127040a92f7c7b9113e5",
+      "sha256": "d42a1d8e30bf0a67e3393e90040834459f41f1df53f6bd820e5789397cc0e84d",
+      "bytes": 12383
+    },
+    {
+      "feature": "ci-mcp",
+      "path": "specs/ci-mcp/requirements.md",
+      "git_blob": "1c6a54894f033f5b76b8fbcfe8f1bb202433e5d8",
+      "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044",
+      "bytes": 19312
+    },
+    {
+      "feature": "evidence-deep-verify",
+      "path": "specs/evidence-deep-verify/requirements.md",
+      "git_blob": "3051240b6679c60a55508b6d63fdc8c12786d123",
+      "sha256": "3c5f1f93ad2db7613b730193169dfbb8c2bce90b4e94b0e65f09c82a56b59791",
+      "bytes": 17381
+    },
+    {
+      "feature": "epic-136-phase1-rce",
+      "path": "specs/epic-136-phase1-rce/requirements.md",
+      "git_blob": "172125f80a8f2a55f7ef915ab4863522f3be797a",
+      "sha256": "2dfe9251c83b705ccdde14fb6bdfca15e1481d147ff31a15b5df02a057622e59",
+      "bytes": 7049
+    },
+    {
+      "feature": "sdd-domain",
+      "path": "specs/sdd-domain/requirements.md",
+      "git_blob": "f5b63cc068d312b4ce035d10af516d1aa81b5ae0",
+      "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20",
+      "bytes": 11219
+    },
+    {
+      "feature": "epic-136-phase1-guards",
+      "path": "specs/epic-136-phase1-guards/requirements.md",
+      "git_blob": "222fef15c71f45fd9749864d2f5d16a4fa6bcfea",
+      "sha256": "b108e6c958baba5f952c7a3af205ab27b213d1f41dce5ca0daf48861ad6a5c24",
+      "bytes": 20600
+    },
+    {
+      "feature": "epic-136-phase2-gates",
+      "path": "specs/epic-136-phase2-gates/requirements.md",
+      "git_blob": "8df1a976dec91a36525037afd46800c70f8df348",
+      "sha256": "bf84e34670a03f6df85f5e2a185430450da6f0fcf5fbd2c8e1c2799643b5f9dd",
+      "bytes": 17227
+    },
+    {
+      "feature": "second-approval-mask",
+      "path": "specs/second-approval-mask/requirements.md",
+      "git_blob": "f0dbcedc6aea352fcf13f87fb435e64405d85dac",
+      "sha256": "0b6f904281c6a95ce97ef16ecd8415418afaa7c0491fbb06e7771a40b3aeaa41",
+      "bytes": 10590
+    },
+    {
+      "feature": "epic-159-pillar-a",
+      "path": "specs/epic-159-pillar-a/requirements.md",
+      "git_blob": "fab2b9c1cc16c7b7df533d310f1f4b21b13bcc2c",
+      "sha256": "8ccde8e23951c34f2dd5ed6cb15ebf4f4f10920f5d8d26f81ed4d0c388fc2635",
+      "bytes": 28113
+    },
+    {
+      "feature": "epic-159-pillar-a2",
+      "path": "specs/epic-159-pillar-a2/requirements.md",
+      "git_blob": "e37531f902e40ac064f74526038a243cdf119994",
+      "sha256": "8ef643d32074ff274b24fcf0351fa9c8756026fbadb77ff90d8096d69cf8f9b5",
+      "bytes": 36527
+    },
+    {
+      "feature": "epic-159-pillar-b",
+      "path": "specs/epic-159-pillar-b/requirements.md",
+      "git_blob": "cdf1049738654ff6ea670832eee7d0714fffe811",
+      "sha256": "92f6177383ece3b4a76f540e37c886311ebf3082c3b557932386a7bf3817c2e2",
+      "bytes": 24216
+    },
+    {
+      "feature": "epic-159-pillar-c",
+      "path": "specs/epic-159-pillar-c/requirements.md",
+      "git_blob": "a8661617722313173af652b1f09937fcedb6f78f",
+      "sha256": "37f69e8a83aa34969d75d2c01d7253bfe196cba1ba9b7e238d8cc85a4fadff1c",
+      "bytes": 66047
+    },
+    {
+      "feature": "epic-159-pillar-d",
+      "path": "specs/epic-159-pillar-d/requirements.md",
+      "git_blob": "ae3686af8f59a06fcea673f469c5a4acd84269b0",
+      "sha256": "c475ba2bbfce03dd5279cdd1f1a1aca4affc8c7ff1a666817174b34a0058d5b4",
+      "bytes": 39211
+    },
+    {
+      "feature": "epic-192-a4-facet-manifest",
+      "path": "specs/epic-192-a4-facet-manifest/requirements.md",
+      "git_blob": "d93b080ae62111d86236d3fbd35f81096528a858",
+      "sha256": "41c938cbcc6b97f65255f4480a08a267402b018d4c6f9360714b196ad5fe33d0",
+      "bytes": 94788
+    },
+    {
+      "feature": "quality-loop-fixes",
+      "path": "specs/quality-loop-fixes/requirements.md",
+      "git_blob": "b9d4d5adf99c6c910eb285047d0dada77c811e0b",
+      "sha256": "508fd039e064674796e6cd9e17a4c2912792ac0318cd55d6133235535f433a0c",
+      "bytes": 38517
+    },
+    {
+      "feature": "epic-136-phase3",
+      "path": "specs/epic-136-phase3/requirements.md",
+      "git_blob": "d09c81ccf9086692a38c71761c36c5e2aa3f084e",
+      "sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322",
+      "bytes": 54870
+    },
+    {
+      "feature": "epic-136-phase4-mcp",
+      "path": "specs/epic-136-phase4-mcp/requirements.md",
+      "git_blob": "9464aa6156b5f906b19240390b4ffd7ac09de90c",
+      "sha256": "25b437824e6b9dc87f83d4dee6d7fd5ab484a7ce6cc340941fb678eaba9566f1",
+      "bytes": 43029
+    },
+    {
+      "feature": "epic-136-phase4-docs",
+      "path": "specs/epic-136-phase4-docs/requirements.md",
+      "git_blob": "fcbb5d339fb2680f54b607868fef930bc552ae49",
+      "sha256": "e1a20ef119bf2a0c0e51c7c6894fc8057ffaecc98bc5960c5198dfe79533332c",
+      "bytes": 24479
+    },
+    {
+      "feature": "mcp-readonly-preflight",
+      "path": "specs/mcp-readonly-preflight/requirements.md",
+      "git_blob": "9882999a06bb173bb31c7c1dd9fb23e033729a1f",
+      "sha256": "fa391f930ae5c75b2d3f2751a978b9da33e32d9b1ba19d3c04800fb337a2359f",
+      "bytes": 27887
+    },
+    {
+      "feature": "review-cross-critique",
+      "path": "specs/review-cross-critique/requirements.md",
+      "git_blob": "87bfaa73970e619882485a8cc5943951acde6624",
+      "sha256": "9ef0b0bd386873df864a2d0d1bc9b02b95993fe573c40088fa8d485ebd8031dd",
+      "bytes": 32918
+    },
+    {
+      "feature": "design-sync-consent",
+      "path": "specs/design-sync-consent/requirements.md",
+      "git_blob": "4afca0fb6063e5dfa6566c2de757a3bd986ff9b1",
+      "sha256": "3e14df3c14f640b3b119ded7677e9b455d4d885500a52c304468f90085b3fb5a",
+      "bytes": 48078
+    },
+    {
+      "feature": "epic-189-a1-project-context",
+      "path": "specs/epic-189-a1-project-context/requirements.md",
+      "git_blob": "760f6e7ace37b64322e2173fd1f20f1d2b2838c8",
+      "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37",
+      "bytes": 156214
+    },
+    {
+      "feature": "design-sync-scan",
+      "path": "specs/design-sync-scan/requirements.md",
+      "git_blob": "eba839e4f80cc5f773861bd86541339261d94c54",
+      "sha256": "354fb581c98441c02894f4a66c4e331b28165f426ab4ef822e93a2c9ccb51a01",
+      "bytes": 44025
+    },
+    {
+      "feature": "design-sync-standing-consent",
+      "path": "specs/design-sync-standing-consent/requirements.md",
+      "git_blob": "3b8bfdd78a35372fbfbb427a1fc41afef714887f",
+      "sha256": "6e481aa8655d70ae9fd5f2ebe055ed18cdc1bc52fa75ab5d5c4a040c0b552821",
+      "bytes": 59380
+    },
+    {
+      "feature": "epic-190-a2-capability-registry",
+      "path": "specs/epic-190-a2-capability-registry/requirements.md",
+      "git_blob": "fa62680c20573c457c1e17681853ea22324b2dc3",
+      "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97",
+      "bytes": 56003
+    },
+    {
+      "feature": "epic-193-a5-capability-resolver",
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "git_blob": "14055edc54b85b9d838b227aeedaa4e5b98a978a",
+      "sha256": "ed1d467d951e2195cd68f244d107bfd1b12049632cee218783732ec7316ab48d",
+      "bytes": 149277
+    },
+    {
+      "feature": "sdd-domain-concept-contract",
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "git_blob": "815ae4c11ca6f6031dea86bd865df952b5e3c0de",
+      "sha256": "b35b94e4f5750a88ae0f3b913ff0ecf7ea5cbdbf8babc47891a8a0d3a4ed9e5d",
+      "bytes": 17129
+    },
+    {
+      "feature": "sdd-domain-concept-test",
+      "path": "specs/sdd-domain-concept-test/requirements.md",
+      "git_blob": "e237bd44772ca71a92e3fc75823946464b9c542a",
+      "sha256": "e1eb632a418863a6c94d03bcd1d5fcebfae0f54c22a1cd58ab9ca6144f1a1035",
+      "bytes": 2862
+    },
+    {
+      "feature": "shared-review-launch-repair",
+      "path": "specs/shared-review-launch-repair/requirements.md",
+      "git_blob": "101a7e8fe2b150ee2201830e0e100204d8389d2d",
+      "sha256": "bcaa757ff3834b25d60f3b95900d8b3a645fd1c835d4292010ab737063464629",
+      "bytes": 5789
+    },
+    {
+      "feature": "epic-194-a6-lite-integration",
+      "path": "specs/epic-194-a6-lite-integration/requirements.md",
+      "git_blob": "43efd15f6da13af937ba6ce52fd35d6c5859c26b",
+      "sha256": "e0867913178a6129877623940331d04bf06e3dfa0608fb7b9ff2cc7c53e38200",
+      "bytes": 101715
+    },
+    {
+      "feature": "epic-196-a8-integration",
+      "path": "specs/epic-196-a8-integration/requirements.md",
+      "git_blob": "73d08b4052de11d1dc290c88c3d81b2325dabb93",
+      "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44",
+      "bytes": 58359
+    },
+    {
+      "feature": "epic-195-a7-compatibility",
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "git_blob": "da5aed2c14c6f72b59a2df14efcbd21d029c28ed",
+      "sha256": "7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79",
+      "bytes": 65229
+    },
+    {
+      "feature": "sdd-domain-multitarget",
+      "path": "specs/sdd-domain-multitarget/requirements.md",
+      "git_blob": "b4a924b756b619a5c16fe663ff06f8a545cc288f",
+      "sha256": "412332b61f896a7179aedb3e72cd4738cfc47b7b79355015aa331db8511ff298",
+      "bytes": 16528
+    },
+    {
+      "feature": "epic-197-a9-dogfood",
+      "path": "specs/epic-197-a9-dogfood/requirements.md",
+      "git_blob": "b2e7ac988ff5f99ed8a724751b558ad8ab41daf4",
+      "sha256": "ada036fada688824d4409027098dab1ea53d105677e37867ca91848f3265f724",
+      "bytes": 46003
+    },
+    {
+      "feature": "cloud-orchestration",
+      "path": "specs/cloud-orchestration/requirements.md",
+      "git_blob": "b138f1e41fac1c730aef9bbc5c6091db799493af",
+      "sha256": "31f5a76f5902e2d4361d89bb42c106fe2839dd0a9aa0dd9eb6f28822c7ec6922",
+      "bytes": 9813
+    }
+  ],
+  "total_bytes": 1554506
+}

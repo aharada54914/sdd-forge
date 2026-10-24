@@ -1,8 +1,8 @@
 {
   "schema": "a9-t001-additive-current-binding/v1",
-  "state": "integrated candidate; T001 In Progress; corrected macOS and CI disposition open",
-  "created_at": "2026-10-24T10:13:05.109267+00:00",
-  "base_head": "f0e1da226fe41e49c852053192143e58b1016fb6",
+  "state": "Exact old reviewed task restored; approvedv2 amendment pending genuine formal rebinding; T001 In Progress; corrected macOS/CI disposition open",
+  "created_at": "2026-10-24T10:38:28.745865+00:00",
+  "base_head": "d4d10f8a6666608f09eaa307d28073bcb41a123f",
   "source": [
     {
       "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
@@ -35,6 +35,14 @@
       "sha256": "9cc49eb4468d4b16ea49d385798297e8bcae9b401e30c7bfac65820185daf6c1"
     },
     {
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+      "sha256": "3871a8163305d5108c35983cb31b017bced02b4c90c2fa6ee8297fcb5dad630c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+      "sha256": "bd168e57efa163636d916d97baaa963d96a9b33566e61258d1cb3bea4fdda1a1"
+    },
+    {
       "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
       "sha256": "e6325e03773792ad28081447a5884e040fa537f9261f81f13c87d6d597064cda"
     },
@@ -52,7 +60,7 @@
     },
     {
       "path": "reports/implementation/a9-interrupted-review-recovery/T-001.md",
-      "sha256": "3807b3b6b3eaa184e092942587bc069713abf8bd4385824535228f1966c31199"
+      "sha256": "74ede059a50243dd53ac227736e727d6730c58b303f556617fa670a77f0a46bb"
     },
     {
       "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
@@ -80,7 +88,7 @@
     },
     {
       "path": "specs/a9-interrupted-review-recovery/tasks.md",
-      "sha256": "dc6c9161a9cda92990c39793e73a146131dd875efe015f4bf129badbf86daf32"
+      "sha256": "68198040940bf591c595875a7964f47ab27ff3d4df006686f20a04dff0ea1c1d"
     },
     {
       "path": "specs/a9-interrupted-review-recovery/traceability.md",
@@ -92,7 +100,7 @@
     },
     {
       "path": "specs/a9-interrupted-review-recovery/verification/T-001.md",
-      "sha256": "9975ca5ec14556b452ed3dc6670704dcd197813565ba12183afe33bb8b91b176"
+      "sha256": "7447f233580d69ca56084dc84b720b1fbd9f49c87411bc22cd5b57bc6b7a33e8"
     },
     {
       "path": "specs/a9-interrupted-review-recovery/verification/T-001/T001-base-acceptance-ownership.json",
@@ -611,6 +619,58 @@
       "sha256": "e10b013a5f4c0fa76167d833412a28ddc7deb882ed3f30763a957dabc2e9d390"
     },
     {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/canonical-bash.json",
+      "sha256": "79788c516319974e8dfb836e60d776a3efc8434b9d396b40350e68868270822e"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/canonical-bash.log",
+      "sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/canonical-powershell.json",
+      "sha256": "e0f6d2f782741d2a02f03f8da021e549823dd96b54415bcb62549ae18f465910"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/canonical-powershell.log",
+      "sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/d4-current-binding.json",
+      "sha256": "8a372a0d3c959025398d418fed26cc730b899be8a82ba880293d15677b85c43a"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/materialized-registry-directories.json",
+      "sha256": "4daff6ed64e53d88fc1dcea086c9b0576438950c7874e486fa2eed61861234ff"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/materialized-review-evidence.json",
+      "sha256": "9436ff04610467898a31f46031e1f6fe8f271d74766e6f1478c470bf8094481a"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/report-format-check.json",
+      "sha256": "9b797e33866b6b17ed6545a19e7277d70753f9fd110ba4f3c44c452a920f086b"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/staging-receipt.json",
+      "sha256": "958c629f2953486872d0e8ba3df0ac792370dd179edc5f632ff856149d99378c"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/workflow-bash.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/workflow-bash.log",
+      "sha256": "602bf6b7a23b9a236f7849c03ecd96e4af971344f423d054e74a6767e7807c71"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/workflow-powershell.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/workflow-powershell.log",
+      "sha256": "602bf6b7a23b9a236f7849c03ecd96e4af971344f423d054e74a6767e7807c71"
+    },
+    {
       "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/origin-negative-derived.json",
       "sha256": "2d14701cd3173749716171f1d136f604d2b8c0f709584fb2c745233211e6b01d"
     },
@@ -643,6 +703,10 @@
       "sha256": "f455079d3d5f2306ad01a560ac6a5ce67984a6a1936776851cf03832940277cb"
     },
     {
+      "path": "specs/workflow-state-registry.json",
+      "sha256": "61f0dd430daa8938a60a7b66460e81388a872ed91b8830795f1dbcb2c2db7a9b"
+    },
+    {
       "path": "tests/spec-review-interrupted-recovery.tests.ps1",
       "sha256": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d"
     },
@@ -672,6 +736,11 @@
     {
       "external_packet": "integrated-framing",
       "sha256": "d9b56218951df2a154234d0e593c485278961a255da31a417ead7c1c61cac781"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/d4-current-binding.json",
+      "sha256": "8a372a0d3c959025398d418fed26cc730b899be8a82ba880293d15677b85c43a",
+      "scope": "d4 applied-amendment candidate; unchanged historical binding"
     }
   ],
   "source_delta": {
@@ -704,6 +773,19 @@
     "No live AUTH001 application or recovery",
     "No blind unchanged-head retry; authorized diagnostics/corrected-revision CI allowed",
     "Public origin extract omits raw native events/IDs/cwd; authorized private raw replay required",
-    "New task criterion/status remains as authorized; review rebinding remains separate"
-  ]
+    "Exact old reviewed task body is canonical; approvedv2 held pending genuine formal rebind; v2 evidence does not satisfy restored old criterion"
+  ],
+  "lifecycle_staging": {
+    "receipt_path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/staging-receipt.json",
+    "task_body_source": "f0e1da226fe41e49c852053192143e58b1016fb6",
+    "task_sha256": "68198040940bf591c595875a7964f47ab27ff3d4df006686f20a04dff0ea1c1d",
+    "approved_amendment": "pending genuine formal rebinding",
+    "old_criterion_satisfied": false,
+    "canonical_feature_checks": {
+      "bash": "PASS",
+      "powershell": "PASS"
+    },
+    "all_feature_validation": false,
+    "ledger_access": false
+  }
 }

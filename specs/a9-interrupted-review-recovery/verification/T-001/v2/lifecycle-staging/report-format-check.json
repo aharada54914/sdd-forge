@@ -1,0 +1,12 @@
+{
+  "command": [
+    "bash",
+    "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+    "reports/implementation/a9-interrupted-review-recovery/T-001.md"
+  ],
+  "exit_code": 0,
+  "stdout": "IMPLEMENTATION_REPORT_OK\n",
+  "stderr": "",
+  "report_sha256": "74ede059a50243dd53ac227736e727d6730c58b303f556617fa670a77f0a46bb",
+  "scope": "Actual updated-report format validation; no completion verdict"
+}

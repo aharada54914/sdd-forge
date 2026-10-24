@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+    "-NoLogo",
+    "-NoProfile",
+    "-File",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+    "--feature",
+    "a9-interrupted-review-recovery"
+  ],
+  "exit_code": 0,
+  "started_at": "2026-10-24T10:35:28.231121+00:00",
+  "finished_at": "2026-10-24T10:35:29.779932+00:00",
+  "stdout": "workflow-state: ok\n",
+  "stderr": "",
+  "task_sha256": "68198040940bf591c595875a7964f47ab27ff3d4df006686f20a04dff0ea1c1d",
+  "scope": "Actual canonical feature check using unchanged registry and real Git-backed sparse materialization; not all-feature validation"
+}
