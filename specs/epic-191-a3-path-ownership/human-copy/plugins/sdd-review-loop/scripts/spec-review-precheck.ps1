@@ -622,6 +622,281 @@ function Test-ValidateContract(
   return $true
 }
 
+# The orchestrator establishes human origin; these predicates check content only.
+function Assert-Recovery([bool]$Condition, [string]$Reason) {
+  if (-not $Condition) { throw "interrupted recovery: $Reason" }
+}
+
+function Get-RecoveryText([string]$Path) {
+  return [Text.UTF8Encoding]::new($false, $true).GetString([IO.File]::ReadAllBytes($Path))
+}
+
+function Get-RecoveryLines([string]$Path) {
+  $reader = [IO.StringReader]::new((Get-RecoveryText $Path))
+  $lines = [Collections.Generic.List[string]]::new()
+  try { while ($null -ne ($line = $reader.ReadLine())) { $lines.Add($line) } }
+  finally { $reader.Dispose() }
+  return ,($lines.ToArray())
+}
+
+function ConvertFrom-RecoveryElement([System.Text.Json.JsonElement]$Element) {
+  switch ($Element.ValueKind) {
+    Object {
+      $value = [Collections.Generic.Dictionary[string,object]]::new([StringComparer]::Ordinal)
+      foreach ($property in $Element.EnumerateObject()) {
+        Assert-Recovery (-not $value.ContainsKey($property.Name)) 'duplicate JSON member'
+        $value.Add($property.Name, (ConvertFrom-RecoveryElement $property.Value))
+      }
+      return $value
+    }
+    Array {
+      $value = [Collections.Generic.List[object]]::new()
+      foreach ($item in $Element.EnumerateArray()) { $value.Add((ConvertFrom-RecoveryElement $item)) }
+      return ,($value.ToArray())
+    }
+    String { return $Element.GetString() }
+    Number {
+      $text = $Element.GetRawText()
+      if ($text -cmatch '[.eE]') {
+        $value = $Element.GetDouble()
+        Assert-Recovery (-not [double]::IsNaN($value) -and -not [double]::IsInfinity($value)) 'JSON number overflow'
+        return $value
+      }
+      [long]$integer = 0
+      if ($Element.TryGetInt64([ref]$integer)) { return $integer }
+      return [System.Numerics.BigInteger]::Parse($text, [Globalization.CultureInfo]::InvariantCulture)
+    }
+    True { return $true }
+    False { return $false }
+    Null { return $null }
+    default { throw 'unsupported JSON token' }
+  }
+}
+
+function Read-RecoveryJson([string]$Path) {
+  $text = Get-RecoveryText $Path
+  $document = [System.Text.Json.JsonDocument]::Parse($text)
+  try { return ConvertFrom-RecoveryElement $document.RootElement } finally { $document.Dispose() }
+}
+
+function Assert-RecoveryKeys($Object, [string[]]$Keys) {
+  Assert-Recovery ($Object -is [Collections.IDictionary]) 'closed record object type'
+  Assert-Recovery ($Object.Count -eq $Keys.Count) 'closed record field count'
+  foreach ($key in $Object.Keys) { Assert-Recovery ($Keys -ccontains $key) 'closed record member' }
+}
+
+function Test-RecoveryInteger($Value) {
+  return ($Value -is [long] -or $Value -is [int]) -and $Value -gt 0
+}
+
+function Get-RecoveryPath($Path, [switch]$Directory) {
+  Assert-Recovery ($Path -is [string] -and $Path.Length -gt 0 -and $Path -cnotmatch '[\\\x00-\x1f\x7f:]') 'invalid reference path'
+  $current = $root
+  foreach ($part in $Path.Split('/')) {
+    Assert-Recovery (@('', '.', '..') -cnotcontains $part) 'noncanonical reference path'
+    $parent = $current; $current = Join-Path $current $part
+    $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+    Assert-Recovery (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -eq 0) 'linked reference component'
+    $matched = @([IO.Directory]::EnumerateFileSystemEntries($parent) | Where-Object { [string]::Equals([IO.Path]::GetFileName($_), $part, [StringComparison]::Ordinal) })
+    Assert-Recovery ($matched.Count -eq 1) 'reference case differs from directory entry'
+  }
+  Assert-Recovery ((Test-Path -LiteralPath $current -PathType Container) -eq [bool]$Directory) 'reference type'
+  if (-not $Directory) { Assert-Recovery (Test-Path -LiteralPath $current -PathType Leaf) 'reference not a file' }
+  return $current
+}
+
+function Assert-RecoveryReference($Reference) {
+  Assert-RecoveryKeys $Reference @('path', 'sha256')
+  Assert-Recovery (Test-IsSha256 $Reference.sha256) 'reference SHA256 format'
+  $path = Get-RecoveryPath $Reference.path
+  Assert-Recovery ((Get-Sha256File $path) -ceq $Reference.sha256) 'reference SHA256 mismatch'
+}
+
+function Assert-RecoveryReferences($References, [int]$Count) {
+  Assert-Recovery ($References -is [array] -and $References.Count -eq $Count) 'reference inventory size'
+  $previous = $null
+  foreach ($reference in $References) {
+    Assert-RecoveryReference $reference
+    if ($null -ne $previous) { Assert-Recovery ([StringComparer]::Ordinal.Compare($previous, $reference.path) -lt 0) 'reference order or duplicate' }
+    $previous = $reference.path
+  }
+}
+
+function ConvertTo-RecoveryCanonical($Value) {
+  if ($null -eq $Value) { return 'null' }
+  if ($Value -is [string]) {
+    $builder = [Text.StringBuilder]::new(); [void]$builder.Append('"')
+    foreach ($character in $Value.ToCharArray()) {
+      $code = [int]$character
+      $escape = switch ($code) { 34 { '\"' } 92 { '\\' } 8 { '\b' } 9 { '\t' } 10 { '\n' } 12 { '\f' } 13 { '\r' } default { $null } }
+      if ($null -ne $escape) { [void]$builder.Append($escape) }
+      elseif ($code -lt 32 -or $code -ge 127) { [void]$builder.Append(('\u{0:x4}' -f $code)) }
+      else { [void]$builder.Append($character) }
+    }
+    [void]$builder.Append('"'); return $builder.ToString()
+  }
+  if ($Value -is [Collections.IDictionary]) {
+    [string[]]$keys = @($Value.Keys); [Array]::Sort($keys, [StringComparer]::Ordinal)
+    return '{' + ((@($keys | ForEach-Object { (ConvertTo-RecoveryCanonical $_) + ':' + (ConvertTo-RecoveryCanonical $Value[$_]) })) -join ',') + '}'
+  }
+  if ($Value -is [array]) { return '[' + ((@($Value | ForEach-Object { ConvertTo-RecoveryCanonical $_ })) -join ',') + ']' }
+  if ($Value -is [bool]) { if ($Value) { return 'true' } else { return 'false' } }
+  return $Value.ToString([Globalization.CultureInfo]::InvariantCulture)
+}
+
+function Get-RecoveryRelative($Path) {
+  Assert-Recovery ($Path -is [string]) 'invocation path type'
+  $value = $Path.Replace('\', '/')
+  $prefix = $root.Replace('\', '/').TrimEnd('/') + '/'
+  if ($value.StartsWith($prefix, [StringComparison]::Ordinal)) { $value = $value.Substring($prefix.Length) }
+  Assert-Recovery ($value -cmatch '^[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*\z' -and @($value.Split('/') | Where-Object { $_ -ceq '.' -or $_ -ceq '..' }).Count -eq 0) 'ambiguous invocation path'
+  $sourcePrecheck = "$source/precheck-result.json"
+  if ($value.Equals($sourcePrecheck, [StringComparison]::OrdinalIgnoreCase) -or $value.EndsWith('/' + $sourcePrecheck, [StringComparison]::OrdinalIgnoreCase)) {
+    Assert-Recovery ($value -ceq $sourcePrecheck) 'ambiguous source invocation path'
+  }
+  return $value
+}
+
+function Get-RecoveryInputBinding($Inputs) {
+  return Get-Sha256Text ((@($Inputs | ForEach-Object { $_.path + "`t" + $_.sha256 })) -join "`n")
+}
+
+function Test-InterruptedRecovery([string]$RecordPath) {
+  try {
+    $relativeRecord = $RecordPath
+    if ([IO.Path]::IsPathRooted($RecordPath)) { $relativeRecord = [IO.Path]::GetRelativePath($root, $RecordPath).Replace('\', '/') }
+    $data = Read-RecoveryJson (Get-RecoveryPath $relativeRecord)
+    Assert-RecoveryKeys $data @('schema','feature','source','target','authorization','previous_contract','interrupted_precheck','pinned_inputs','interrupted_artifacts','reviewer_a')
+    Assert-Recovery ($data.schema -is [string] -and $data.schema -ceq 'spec-review-interrupted-recovery/v1') 'recovery schema'
+    Assert-Recovery ($data.feature -is [string] -and $data.feature -cmatch '^[a-z0-9][a-z0-9-]*$' -and $data.feature -ceq $Feature) 'recovery feature'
+    foreach ($side in @('source','target')) {
+      Assert-RecoveryKeys $data[$side] @('attempt','round')
+      foreach ($value in $data[$side].Values) { Assert-Recovery (Test-RecoveryInteger $value) 'recovery integer type' }
+    }
+    $n = $data.source.attempt; $r = $data.source.round
+    Assert-Recovery ($r -in @(2,3) -and $data.target.attempt -eq $attemptInt -and $data.target.round -eq $roundInt -and $attemptInt -eq $n+1 -and $roundInt -eq 1) 'source/target transition'
+    $report = "reports/spec-review/$Feature"; $source = "$report/attempt-$n/round-$r"; $prior = "$report/attempt-$n/round-$($r-1)"
+    $attemptDirectory = Get-RecoveryPath "$report/attempt-$n" -Directory
+    $rounds = @([IO.Directory]::EnumerateFileSystemEntries($attemptDirectory) | ForEach-Object { $name=[IO.Path]::GetFileName($_); if ($name -cmatch '^round-([1-3])$') { [int]$Matches[1] } })
+    Assert-Recovery ($rounds.Count -gt 0 -and ($rounds | Measure-Object -Maximum).Maximum -eq $r) 'source is not latest round'
+    $statusLines = @((Get-RecoveryLines (Get-RecoveryPath "specs/$Feature/requirements.md")) | Where-Object { $_.StartsWith('Spec-Review-Status:',[StringComparison]::Ordinal) })
+    Assert-Recovery ($statusLines.Count -eq 1 -and $statusLines[0] -ceq 'Spec-Review-Status: Pending') 'source status is not exactly Pending'
+    foreach ($slot in @('authorization','previous_contract','interrupted_precheck')) { Assert-RecoveryReference $data[$slot] }
+    Assert-Recovery ($data.previous_contract.path -ceq "$prior/spec-review-contract.json") 'prior contract canonical path'
+    Assert-Recovery ($data.interrupted_precheck.path -ceq "$source/precheck-result.json") 'source precheck canonical path'
+    Assert-RecoveryReferences $data.pinned_inputs 4; Assert-RecoveryReferences $data.interrupted_artifacts 6
+    $calibrationRelative = 'plugins/sdd-review-loop/references/spec-review-calibration.md'
+    $expectedInputs = @("specs/$Feature/requirements.md","specs/$Feature/acceptance-tests.md","specs/$Feature/investigation.md",$calibrationRelative)
+    $pins = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+    foreach ($pin in $data.pinned_inputs) { Assert-Recovery ($expectedInputs -ccontains $pin.path) 'canonical input path'; $pins.Add($pin.path,$pin.sha256) }
+    $localNames = @('precheck-result.json','reviewer-a.json','reviewer-a-reservation.txt','reviewer-a-host-receipt.json','spec-review-report.md')
+    $invocationPath = "reports/review-context/$Feature-spec-a${n}r${r}-a-invocation.json"
+    $expectedInventory = @($localNames | ForEach-Object { "$source/$_" }) + @($invocationPath)
+    $inventory = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+    foreach ($pin in $data.interrupted_artifacts) { Assert-Recovery ($expectedInventory -ccontains $pin.path) 'canonical interrupted inventory'; $inventory.Add($pin.path,$pin.sha256) }
+    $sourceDirectory = Get-RecoveryPath $source -Directory
+    $entries = @([IO.Directory]::EnumerateFileSystemEntries($sourceDirectory))
+    Assert-Recovery ($entries.Count -eq 5) 'unexpected interrupted source entry'
+    foreach ($entry in $entries) { Assert-Recovery ($localNames -ccontains [IO.Path]::GetFileName($entry)) 'unexpected interrupted source filename' }
+    Assert-Recovery ($data.interrupted_precheck.sha256 -ceq $inventory["$source/precheck-result.json"]) 'repeated precheck pin'
+    $a = $data.reviewer_a
+    Assert-RecoveryKeys $a @('invocation','sequence','stage','role','run_id','host_session_id','record_sha256')
+    Assert-Recovery ((Test-RecoveryInteger $a.sequence) -and $a.stage -is [string] -and $a.stage -ceq 'spec' -and $a.role -is [string] -and $a.role -ceq 'spec-reviewer-a') 'reviewer identity shape'
+    Assert-Recovery ((Test-NonEmptyString $a.run_id) -and (Test-NonEmptyString $a.host_session_id) -and (Test-IsSha256 $a.record_sha256)) 'reviewer identity values'
+    Assert-RecoveryReference $a.invocation
+    Assert-Recovery ($a.invocation.path -ceq $invocationPath -and $a.invocation.sha256 -ceq $inventory[$invocationPath]) 'repeated invocation pin'
+    $body = [ordered]@{}; foreach ($key in $data.Keys) { if ($key -cne 'authorization') { $body[$key]=$data[$key] } }
+    $expected = [ordered]@{'Feature'=$Feature;'Source Attempt'=[string]$n;'Source Round'=[string]$r;'Target Attempt'=[string]$attemptInt;'Target Round'='1';'Maximum Rounds'='3';'Decision'='Authorize interrupted A-before-B recovery';'Recovery Binding SHA256'=(Get-Sha256Text (ConvertTo-RecoveryCanonical $body))}
+    $lines = Get-RecoveryLines (Get-RecoveryPath $data.authorization.path)
+    foreach ($key in $expected.Keys) {
+      $bound = @($lines | Where-Object { $_.StartsWith($key+':',[StringComparison]::Ordinal) })
+      Assert-Recovery ($bound.Count -eq 1 -and $bound[0] -ceq ($key+': '+$expected[$key])) "authorization binding $key"
+    }
+    $pre = Read-RecoveryJson (Get-RecoveryPath "$source/precheck-result.json")
+    foreach ($key in @('schema','stage','feature','spec_review_status_field','requirements_sha256','acceptance_sha256','investigation_sha256','calibration_sha256','input_sha256')) {
+      Assert-Recovery ($pre[$key] -is [string]) 'interrupted precheck string type'
+    }
+    Assert-Recovery ($pre.schema -ceq 'spec-review-precheck/v1' -and $pre.stage -ceq 'spec' -and $pre.feature -ceq $Feature -and (Test-RecoveryInteger $pre.attempt) -and $pre.attempt -eq $n -and (Test-RecoveryInteger $pre.round) -and $pre.round -eq $r -and $pre.spec_review_status_field -ceq 'Pending') 'interrupted precheck identity'
+    $hashes = @()
+    foreach ($pair in @(@('requirements.md','requirements_sha256'),@('acceptance-tests.md','acceptance_sha256'),@('investigation.md','investigation_sha256'))) {
+      $pin = $pins["specs/$Feature/$($pair[0])"]
+      Assert-Recovery ($pre[$pair[1]] -ceq $pin) 'interrupted precheck input pin'; $hashes += $pin
+    }
+    Assert-Recovery ($pre.calibration_sha256 -ceq $pins[$calibrationRelative] -and $pre.input_sha256 -ceq (Get-Sha256Text ($hashes -join ':'))) 'interrupted precheck composite/calibration pin'
+    $inv = Read-RecoveryJson (Get-RecoveryPath $invocationPath)
+    Assert-Recovery ($inv.feature -is [string] -and $inv.feature -ceq $Feature) 'invocation feature'
+    foreach ($key in @('sequence','stage','role','run_id','host_session_id')) {
+      Assert-Recovery ($inv[$key].GetType() -eq $a[$key].GetType() -and $inv[$key] -ceq $a[$key]) 'invocation identity mismatch'
+    }
+    Assert-Recovery ($inv.allowed_input_manifest -is [array] -and $inv.allowed_input_manifest.Count -eq 5) 'invocation input manifest'
+    $expectedManifest = [Collections.Generic.Dictionary[string,string]]::new($pins, [StringComparer]::Ordinal)
+    $expectedManifest.Add($data.interrupted_precheck.path,$data.interrupted_precheck.sha256)
+    $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($pin in $inv.allowed_input_manifest) {
+      $path = Get-RecoveryRelative $pin.path
+      Assert-Recovery ($seen.Add($path) -and $expectedManifest.ContainsKey($path) -and $expectedManifest[$path] -ceq $pin.sha256) 'invocation repeated input pins'
+    }
+    $raw = Read-RecoveryJson (Get-RecoveryPath "$source/reviewer-a.json")
+    $hostReceipt = Read-RecoveryJson (Get-RecoveryPath "$source/reviewer-a-host-receipt.json")
+    Assert-Recovery ($hostReceipt.review_execution_started -is [bool] -and -not $hostReceipt.review_execution_started -and $hostReceipt.sessionId -is [string] -and $hostReceipt.sessionId -ceq $a.host_session_id -and $hostReceipt.threadId -is [string] -and $hostReceipt.threadId -ceq $a.host_session_id) 'interruption host receipt'
+    foreach ($key in @('schema','stage','role','run_id','host_session_id','verdict')) { Assert-Recovery ($raw[$key] -is [string]) 'interruption raw string type' }
+    Assert-Recovery ($raw.schema -ceq 'spec-reviewer-a/v1' -and $raw.stage -ceq 'spec' -and $raw.role -ceq 'spec-reviewer-a' -and $raw.run_id -ceq $a.run_id -and $raw.host_session_id -ceq $a.host_session_id -and $raw.verdict -ceq 'BLOCKED') 'interruption raw identity/verdict'
+    Assert-Recovery ((ConvertTo-RecoveryCanonical $raw.allowed_input_manifest) -ceq (ConvertTo-RecoveryCanonical $inv.allowed_input_manifest)) 'raw repeated input pins'
+    Assert-Recovery ($raw.checks -is [array] -and $raw.checks.Count -gt 0) 'interruption diagnostic checks'
+    foreach ($check in $raw.checks) {
+      Assert-Recovery ($check.id -is [string] -and $check.result -is [string] -and $check.severity -is [string] -and $check.finding -is [string]) 'interruption diagnostic shape'
+      $skip = $check.id -ceq 'DOMAIN-CONFORMANCE' -and $check.result -ceq 'SKIP' -and $check.finding.StartsWith('Explicit skip condition supplied:',[StringComparison]::Ordinal)
+      $blocked = $check.result -ceq 'FAIL' -and $check.finding.StartsWith('Review blocked before substantive reading',[StringComparison]::Ordinal) -and ($check.finding.Contains('denied') -or $check.finding.Contains('unreadable'))
+      Assert-Recovery ($skip -or $blocked) 'completed substantive reviewer output'
+    }
+    $reportText = Get-RecoveryText (Get-RecoveryPath "$source/spec-review-report.md")
+    Assert-Recovery (($reportText -split '\r?\n') -ccontains 'Execution: BLOCKED before substantive review') 'source diagnostic execution'
+    Assert-Recovery ($reportText.Contains('Reviewer B was not launched') -and $reportText -cnotmatch '(?m)^(?:VERDICT|Verdict|Integrated Verdict):') 'source diagnostic report'
+    $ledger = Read-RecoveryJson (Get-RecoveryPath 'reports/review-context/identity-ledger.json')
+    Assert-Recovery ($ledger.records -is [array]) 'ledger records'
+    $matches = @($ledger.records | Where-Object { $_.run_id -ceq $a.run_id -and $_.host_session_id -ceq $a.host_session_id })
+    Assert-Recovery ($matches.Count -eq 1) 'persisted A identity missing or duplicated'
+    $persisted = $matches[0]
+    foreach ($key in @('sequence','stage','role','run_id','host_session_id','record_sha256')) { Assert-Recovery ($persisted[$key].GetType() -eq $a[$key].GetType() -and $persisted[$key] -ceq $a[$key]) 'persisted A identity mismatch' }
+    Assert-Recovery ($persisted.allowed_inputs_sha256 -ceq (Get-RecoveryInputBinding $inv.allowed_input_manifest)) 'persisted A input binding missing or changed'
+    $receipt = Get-RecoveryLines (Get-RecoveryPath "$source/reviewer-a-reservation.txt")
+    $expectedReceipt = "REVIEW_CONTEXT_OK $($a.record_sha256) sequence=$($a.sequence) previous_record_sha256=$($persisted.previous_record_sha256) pre_append_tip_sequence=$($a.sequence-1) identity_unique=yes"
+    Assert-Recovery ($receipt.Count -eq 1 -and $receipt[0] -ceq $expectedReceipt) 'A reservation receipt facts'
+    $invocations = @()
+    foreach ($path in [IO.Directory]::EnumerateFileSystemEntries((Get-RecoveryPath 'reports/review-context' -Directory))) {
+      $name = [IO.Path]::GetFileName($path)
+      if (-not $name.EndsWith('-invocation.json',[StringComparison]::Ordinal)) { continue }
+      if ($name.StartsWith("$Feature-spec-a${n}r${r}-",[StringComparison]::Ordinal)) {
+        Assert-Recovery ($name -ceq [IO.Path]::GetFileName($invocationPath)) 'another canonical source launch'
+      }
+      $candidate = Read-RecoveryJson (Get-RecoveryPath "reports/review-context/$name")
+      Assert-Recovery ($candidate.allowed_input_manifest -is [array]) 'invocation correlation inputs'
+      $sourcePins = @($candidate.allowed_input_manifest | Where-Object { (Get-RecoveryRelative $_.path) -ceq "$source/precheck-result.json" })
+      if ($sourcePins.Count -gt 0) {
+        Assert-Recovery ($name -ceq [IO.Path]::GetFileName($invocationPath) -and (ConvertTo-RecoveryCanonical $candidate) -ceq (ConvertTo-RecoveryCanonical $inv)) 'another source invocation'
+      }
+      $invocations += ,$candidate
+    }
+    foreach ($other in $ledger.records) {
+      if ($other.stage -cne 'spec' -or $other.run_id -ceq $a.run_id) { continue }
+      $related = @($invocations | Where-Object { $_.run_id -ceq $other.run_id -and $_.host_session_id -ceq $other.host_session_id })
+      Assert-Recovery ($related.Count -eq 1) 'ambiguous later spec reservation'
+      $candidate = $related[0]
+      Assert-Recovery ($other.allowed_inputs_sha256 -ceq (Get-RecoveryInputBinding $candidate.allowed_input_manifest)) 'uncorrelated later input binding'
+      Assert-Recovery ($candidate.feature -is [string]) 'later spec feature type'
+      $precheckPattern = '^reports/spec-review/' + [regex]::Escape($candidate.feature) + '/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result\.json\z'
+      $precheckPins = @($candidate.allowed_input_manifest | Where-Object { (Get-RecoveryRelative $_.path) -cmatch $precheckPattern })
+      Assert-Recovery ($precheckPins.Count -eq 1) 'ambiguous later spec precheck'
+      foreach ($pin in $candidate.allowed_input_manifest) { Assert-Recovery ((Get-RecoveryRelative $pin.path) -cne "$source/precheck-result.json") 'source reviewer already reserved' }
+    }
+    if (-not (Test-ValidateContract (Join-Path $root "$prior/spec-review-contract.json") $n ($r-1) NEEDS_WORK (Join-Path $root "$prior/precheck-result.json"))) { return $false }
+    $rawManifest = @($inv.allowed_input_manifest | ForEach-Object { [pscustomobject]@{path=(Get-ManifestLocalPath $_.path '');sha256=$_.sha256} } | Sort-Object path)
+    if (-not (Test-ValidateReviewerOutput (Join-Path $root "$source/reviewer-a.json") 'spec-reviewer-a' $rawManifest $a.run_id $a.host_session_id '')) { return $false }
+    & (Join-Path $root 'plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1') -Manifest (Join-Path $root $invocationPath) -RepositoryRoot $root | Out-Null
+    return $LASTEXITCODE -eq 0
+  } catch { [Console]::Error.WriteLine($_.Exception.Message); return $false }
+}
+
 if ($roundInt -gt 1) {
   $priorDir = Join-Path $reportRoot (Join-Path "attempt-$attemptInt" "round-$($roundInt - 1)")
   $priorContract = Join-Path $priorDir 'spec-review-contract.json'
