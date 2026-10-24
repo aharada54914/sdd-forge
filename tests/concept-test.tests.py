@@ -1390,6 +1390,24 @@ class ClaudeHostAppendTests(unittest.TestCase):
         self.assertEqual((len(calls), self.state()), (2, before))
         self.assertEqual('REVIEW_HOST_REGISTERED', self.register()['outcome'])
 
+    def test_exact_normal_mode_record_only(self):
+        lines = self.lines(self.session)
+        mode = dict(type='mode', mode='normal', sessionId=self.session)
+        self.write_lines(self.transcript, lines[:1] + [mode] + lines[1:])
+        self.assertEqual('REVIEW_HOST_CHECK_REGISTRABLE', self.register(check_only=True)['outcome'])
+        accepted = self.transcript.read_bytes()
+        for record in (dict(mode, mode='plan'), dict(mode, mode='Normal'), dict(mode, mode=None),
+                       dict(mode, extra=1), {'type': 'mode', 'sessionId': self.session},
+                       dict(mode, sessionId=str(uuid.uuid4())), dict(mode, type='mode-change'),
+                       dict(type='future-record', sessionId=self.session)):
+            with self.subTest(record=record):
+                self.write_lines(self.transcript, lines[:1] + [record] + lines[1:])
+                self.assert_blocked(error=identity.Blocked)
+        self.transcript.write_bytes(accepted)
+        self.assertEqual('REVIEW_HOST_REGISTERED', self.register()['outcome'])
+        self.transcript.write_bytes(accepted + (json.dumps(mode) + '\n').encode())  # later same-ID resume
+        self.assertEqual('REVIEW_HOST_ALREADY_REGISTERED', self.register()['outcome'])
+
     def test_staging_hardlink_interruption_is_unpublished(self):
         real_unlink = Path.unlink
 

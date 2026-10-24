@@ -274,7 +274,8 @@ def transcript_version(root, data, session, result_version):
         record = strict_json(line)
         if not isinstance(record, dict) or record.get('sessionId') != session:
             raise Blocked('Claude transcript record is not part of the result session')
-        if record.get('type') not in NATIVE_TYPES:
+        # Observed in a genuine stopped 2.1.303 prep: exactly this three-key record, nothing broader.
+        if record.get('type') not in NATIVE_TYPES and record != dict(type='mode', mode='normal', sessionId=session):
             raise Blocked('Claude transcript contains an unknown native record type')
         # The encoded directory is lossy; the recorded cwd decides the project.
         if 'cwd' in record and not same_root(root, record['cwd'], roots):
