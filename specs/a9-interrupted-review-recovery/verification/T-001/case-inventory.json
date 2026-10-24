@@ -1,8 +1,8 @@
 {
   "schema": "a9-t001-case-inventory/v1",
   "implementation_scope": "T-001 / REQ-002,REQ-003 / AC-002,AC-003",
-  "test_source_sha256": "d98fd63093275af7d328870dda9cced3da493d4fd5fce2939d638f32f1505bbb",
-  "concrete_variants_per_runtime": 713,
+  "test_source_sha256": "7a4eb91262f8e6bf97da089565d691fa9745e6a658805b16c88571901b67a85c",
+  "concrete_variants_per_runtime": 728,
   "control_count_per_runtime": 3,
   "controls": [
     "CONTROL::prior-own-stage-NEEDS_WORK",
@@ -184,6 +184,10 @@
     "TEST-041": [],
     "TEST-042": [],
     "TEST-043": [
+      "TEST-043::canonical-binding-unicode-escaped-equivalent",
+      "TEST-043::canonical-binding-extra-final-newline",
+      "TEST-043::canonical-binding-omit-target",
+      "TEST-043::canonical-binding-reorder-array",
       "TEST-043::binding"
     ],
     "TEST-044": [
@@ -553,7 +557,10 @@
       "TEST-057-H14::nonhex",
       "TEST-057-H14::short",
       "TEST-057-H14::incorrect",
-      "TEST-057-H14::missing"
+      "TEST-057-H14::missing",
+      "TEST-057::reviewer_a.record_sha256::uppercase",
+      "TEST-057::reviewer_a.record_sha256::nonhex",
+      "TEST-057::reviewer_a.record_sha256::short"
     ],
     "TEST-058": [
       "TEST-058::changed-live"
@@ -699,11 +706,19 @@
     "TEST-079": [
       "TEST-079::later-valid-record",
       "TEST-079::later-valid-other-round-reviewer",
-      "TEST-079::later-unrelated-B-shared-calibration-and-host"
+      "TEST-079::later-unrelated-B-shared-calibration-and-host",
+      "TEST-079::later-unrelated-domain-real-verifier"
     ],
     "TEST-080": [
       "TEST-080::canonical-B-omitted-source-pin",
       "TEST-080::canonical-B-misdeclared-feature",
+      "TEST-080::aliased-B-source-dot",
+      "TEST-080::aliased-B-source-historical-absolute",
+      "TEST-080::aliased-B-source-historical-relative",
+      "TEST-080::aliased-B-source-missing-precheck",
+      "TEST-080::aliased-B-source-miscased-precheck",
+      "TEST-080::aliased-B-source-newline-precheck",
+      "TEST-080::aliased-B-source-selfdeclared-domain",
       "TEST-080::orphan-unbound-B",
       "TEST-080::unbound-correlated-B"
     ],
@@ -5032,6 +5047,33 @@
       ]
     },
     {
+      "name": "TEST-057::reviewer_a.record_sha256::uppercase",
+      "expected": "reject",
+      "boundary": "native admission predicate",
+      "runtimes": [
+        "bash",
+        "powershell"
+      ]
+    },
+    {
+      "name": "TEST-057::reviewer_a.record_sha256::nonhex",
+      "expected": "reject",
+      "boundary": "native admission predicate",
+      "runtimes": [
+        "bash",
+        "powershell"
+      ]
+    },
+    {
+      "name": "TEST-057::reviewer_a.record_sha256::short",
+      "expected": "reject",
+      "boundary": "native admission predicate",
+      "runtimes": [
+        "bash",
+        "powershell"
+      ]
+    },
+    {
       "name": "TEST-052::root::unknown",
       "expected": "reject",
       "boundary": "native admission predicate",
@@ -6472,6 +6514,42 @@
       ]
     },
     {
+      "name": "TEST-043::canonical-binding-unicode-escaped-equivalent",
+      "expected": "accept",
+      "boundary": "native admission predicate",
+      "runtimes": [
+        "bash",
+        "powershell"
+      ]
+    },
+    {
+      "name": "TEST-043::canonical-binding-extra-final-newline",
+      "expected": "reject",
+      "boundary": "native admission predicate",
+      "runtimes": [
+        "bash",
+        "powershell"
+      ]
+    },
+    {
+      "name": "TEST-043::canonical-binding-omit-target",
+      "expected": "reject",
+      "boundary": "native admission predicate",
+      "runtimes": [
+        "bash",
+        "powershell"
+      ]
+    },
+    {
+      "name": "TEST-043::canonical-binding-reorder-array",
+      "expected": "reject",
+      "boundary": "native admission predicate",
+      "runtimes": [
+        "bash",
+        "powershell"
+      ]
+    },
+    {
       "name": "TEST-017::prior-contract::schema",
       "expected": "reject",
       "boundary": "native admission predicate",
@@ -7687,6 +7765,69 @@
       ]
     },
     {
+      "name": "TEST-080::aliased-B-source-dot",
+      "expected": "reject",
+      "boundary": "native admission predicate",
+      "runtimes": [
+        "bash",
+        "powershell"
+      ]
+    },
+    {
+      "name": "TEST-080::aliased-B-source-historical-absolute",
+      "expected": "reject",
+      "boundary": "native admission predicate",
+      "runtimes": [
+        "bash",
+        "powershell"
+      ]
+    },
+    {
+      "name": "TEST-080::aliased-B-source-historical-relative",
+      "expected": "reject",
+      "boundary": "native admission predicate",
+      "runtimes": [
+        "bash",
+        "powershell"
+      ]
+    },
+    {
+      "name": "TEST-080::aliased-B-source-missing-precheck",
+      "expected": "reject",
+      "boundary": "native admission predicate",
+      "runtimes": [
+        "bash",
+        "powershell"
+      ]
+    },
+    {
+      "name": "TEST-080::aliased-B-source-miscased-precheck",
+      "expected": "reject",
+      "boundary": "native admission predicate",
+      "runtimes": [
+        "bash",
+        "powershell"
+      ]
+    },
+    {
+      "name": "TEST-080::aliased-B-source-newline-precheck",
+      "expected": "reject",
+      "boundary": "native admission predicate",
+      "runtimes": [
+        "bash",
+        "powershell"
+      ]
+    },
+    {
+      "name": "TEST-080::aliased-B-source-selfdeclared-domain",
+      "expected": "reject",
+      "boundary": "native admission predicate",
+      "runtimes": [
+        "bash",
+        "powershell"
+      ]
+    },
+    {
       "name": "TEST-025::orphan-bound-B",
       "expected": "reject",
       "boundary": "native admission predicate",
@@ -7751,6 +7892,15 @@
     },
     {
       "name": "TEST-079::later-unrelated-B-shared-calibration-and-host",
+      "expected": "accept",
+      "boundary": "native admission predicate",
+      "runtimes": [
+        "bash",
+        "powershell"
+      ]
+    },
+    {
+      "name": "TEST-079::later-unrelated-domain-real-verifier",
       "expected": "accept",
       "boundary": "native admission predicate",
       "runtimes": [

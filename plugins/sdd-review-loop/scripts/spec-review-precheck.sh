@@ -472,6 +472,10 @@ def relative(path):
     value=path.replace('\\','/')
     prefix=str(root).replace('\\','/')+'/'
     if value.startswith(prefix):value=value[len(prefix):]
+    need(re.fullmatch(r'[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*',value) and all(part not in ('.','..') for part in value.split('/')),'ambiguous invocation path')
+    source_precheck=source_dir+'/precheck-result.json'
+    if value.lower()==source_precheck.lower() or value.lower().endswith('/'+source_precheck.lower()):
+        need(value==source_precheck,'ambiguous source invocation path')
     return value
 try:
     record_path=pathlib.Path(sys.argv[5])
@@ -566,6 +570,9 @@ try:
         need(len(related)==1,'ambiguous later spec reservation')
         candidate=related[0];other_binding=sha('\n'.join(x['path']+'\t'+x['sha256'] for x in candidate['allowed_input_manifest']).encode())
         need(persisted_other.get('allowed_inputs_sha256')==other_binding,'uncorrelated later input binding')
+        other_paths=[relative(x['path']) for x in candidate['allowed_input_manifest']]
+        precheck_pattern=r'reports/spec-review/'+re.escape(candidate['feature'])+r'/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result\.json'
+        need(sum(bool(re.fullmatch(precheck_pattern,path)) for path in other_paths)==1,'ambiguous later spec precheck')
         need(not any(relative(x['path'])==source_dir+'/precheck-result.json' for x in candidate['allowed_input_manifest']),'source reviewer already reserved')
     print(n);print(r);print(invocation_path);print(prior_dir+'/spec-review-contract.json')
 except (OSError,ValueError,KeyError,TypeError,AttributeError,UnicodeError) as error:

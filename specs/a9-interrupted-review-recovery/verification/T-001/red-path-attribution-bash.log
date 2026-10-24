@@ -1,0 +1,12 @@
+PASS bash CONTROL::prior-own-stage-NEEDS_WORK exit=0 immutable=True
+PASS bash CONTROL::persisted-A-real-verifier exit=0 immutable=True
+PASS bash CONTROL::valid-interrupted-admission exit=0 immutable=True
+PASS bash TEST-080::aliased-B-source-dot exit=1 immutable=True no_target=True
+PASS bash TEST-080::aliased-B-source-historical-absolute exit=1 immutable=True no_target=True
+PASS bash TEST-080::aliased-B-source-historical-relative exit=1 immutable=True no_target=True
+FAIL bash TEST-080::aliased-B-source-missing-precheck exit=0 immutable=True no_target=True
+
+FAIL bash TEST-080::aliased-B-source-miscased-precheck exit=0 immutable=True no_target=True
+
+PASS bash TEST-080::aliased-B-source-newline-precheck exit=1 immutable=True no_target=True
+RESULT bash passed=7 failures=2 designed=6

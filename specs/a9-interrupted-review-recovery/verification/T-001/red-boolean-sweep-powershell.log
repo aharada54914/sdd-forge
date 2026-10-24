@@ -1,0 +1,36 @@
+PASS powershell CONTROL::prior-own-stage-NEEDS_WORK exit=0 immutable=True
+PASS powershell CONTROL::persisted-A-real-verifier exit=0 immutable=True
+PASS powershell CONTROL::valid-interrupted-admission exit=0 immutable=True
+PASS powershell TEST-051-F01::schema::boolean-true exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F02::feature::boolean-true exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F04::source.attempt::boolean exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F05::source.round::boolean exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F07::target.attempt::boolean exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F08::target.round::boolean exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F16::reviewer_a.sequence::boolean exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F17::reviewer_a.stage::boolean-true exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F18::reviewer_a.role::boolean-true exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F19::reviewer_a.run_id::boolean-true exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F20::reviewer_a.host_session_id::boolean-true exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F21::reviewer_a.record_sha256::boolean-true exit=1 immutable=True no_target=True
+PASS powershell TEST-062::rebound-precheck-boolean::schema exit=1 immutable=True no_target=True
+PASS powershell TEST-062::rebound-precheck-boolean::stage exit=1 immutable=True no_target=True
+PASS powershell TEST-062::rebound-precheck-boolean::feature exit=1 immutable=True no_target=True
+PASS powershell TEST-062::rebound-precheck-boolean::spec_review_status_field exit=1 immutable=True no_target=True
+PASS powershell TEST-062::rebound-precheck-boolean::requirements_sha256 exit=1 immutable=True no_target=True
+PASS powershell TEST-062::rebound-precheck-boolean::acceptance_sha256 exit=1 immutable=True no_target=True
+PASS powershell TEST-062::rebound-precheck-boolean::investigation_sha256 exit=1 immutable=True no_target=True
+PASS powershell TEST-062::rebound-precheck-boolean::calibration_sha256 exit=1 immutable=True no_target=True
+PASS powershell TEST-062::rebound-precheck-boolean::input_sha256 exit=1 immutable=True no_target=True
+FAIL powershell TEST-064::host-boolean::sessionId exit=0 immutable=True no_target=True
+REVIEW_CONTEXT_OK 2cd0b2345e7ecc0bea3bfb8f85dba2c4147cdbbc35a2c19e586e05d3a0014b21 sequence=2 previous_record_sha256=fa287cba92cb5be703d80a6ece0eb4c2edce47cf1230d77593feb7afa58c370f pre_append_tip_sequence=- identity_unique=yes
+FAIL powershell TEST-064::host-boolean::threadId exit=0 immutable=True no_target=True
+REVIEW_CONTEXT_OK 2cd0b2345e7ecc0bea3bfb8f85dba2c4147cdbbc35a2c19e586e05d3a0014b21 sequence=2 previous_record_sha256=fa287cba92cb5be703d80a6ece0eb4c2edce47cf1230d77593feb7afa58c370f pre_append_tip_sequence=- identity_unique=yes
+PASS powershell TEST-063::raw-boolean::schema exit=1 immutable=True no_target=True
+PASS powershell TEST-063::raw-boolean::stage exit=1 immutable=True no_target=True
+PASS powershell TEST-063::raw-boolean::role exit=1 immutable=True no_target=True
+PASS powershell TEST-063::raw-boolean::run_id exit=1 immutable=True no_target=True
+PASS powershell TEST-063::raw-boolean::host_session_id exit=1 immutable=True no_target=True
+PASS powershell TEST-063::raw-boolean::verdict exit=1 immutable=True no_target=True
+PASS powershell TEST-066::invocation-boolean-feature exit=1 immutable=True no_target=True
+RESULT powershell passed=31 failures=2 designed=30

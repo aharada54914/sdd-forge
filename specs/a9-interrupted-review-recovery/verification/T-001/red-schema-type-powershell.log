@@ -1,0 +1,10 @@
+PASS powershell CONTROL::prior-own-stage-NEEDS_WORK exit=0 immutable=True
+PASS powershell CONTROL::persisted-A-real-verifier exit=0 immutable=True
+PASS powershell CONTROL::valid-interrupted-admission exit=0 immutable=True
+PASS powershell TEST-051-F01::schema::null exit=1 immutable=True no_target=True
+FAIL powershell TEST-051-F01::schema::boolean-true exit=0 immutable=True no_target=True
+REVIEW_CONTEXT_OK 2cd0b2345e7ecc0bea3bfb8f85dba2c4147cdbbc35a2c19e586e05d3a0014b21 sequence=2 previous_record_sha256=fa287cba92cb5be703d80a6ece0eb4c2edce47cf1230d77593feb7afa58c370f pre_append_tip_sequence=- identity_unique=yes
+PASS powershell TEST-051-F01::schema::array-value exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F01::schema::object-value exit=1 immutable=True no_target=True
+PASS powershell TEST-051-F01::schema::number exit=1 immutable=True no_target=True
+RESULT powershell passed=7 failures=1 designed=5

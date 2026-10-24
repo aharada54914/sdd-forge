@@ -1,0 +1,8 @@
+PASS bash CONTROL::prior-own-stage-NEEDS_WORK exit=0 immutable=True
+PASS bash CONTROL::persisted-A-real-verifier exit=0 immutable=True
+PASS bash CONTROL::valid-interrupted-admission exit=0 immutable=True
+FAIL bash TEST-080::canonical-B-omitted-source-pin exit=0 immutable=True no_target=True
+
+FAIL bash TEST-080::canonical-B-misdeclared-feature exit=0 immutable=True no_target=True
+
+RESULT bash passed=3 failures=2 designed=2

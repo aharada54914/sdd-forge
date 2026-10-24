@@ -177,6 +177,8 @@ def mutations(record):
   add(f'TEST-057-H{index:02}::missing',delete(path+('sha256',)),index!=1)
   for name,value in [('empty',''),('absolute','/tmp/synthetic'),('drive','C:/synthetic'),('traversal','../synthetic'),('dot','./synthetic'),('empty-segment','synthetic//file'),('backslash','synthetic\\file'),('tab','synthetic\tfile'),('newline','synthetic\nfile'),('nul','synthetic\0file'),('control','synthetic\x1ffile'),('del','synthetic\x7ffile')]:
    add(f'TEST-083-P{index:02}::{name}',setfield(path+('path',),value),index!=1)
+ for name,value in [('uppercase','A'*64),('nonhex','g'*64),('short','a'*63)]:
+  add('TEST-057::reviewer_a.record_sha256::'+name,setfield(('reviewer_a','record_sha256'),value))
  # Every closed object, including every distinct reference occurrence.
  objects=[(),('source',),('target',),('reviewer_a',)]+references
  for path in objects:
@@ -256,6 +258,19 @@ def mutations(record):
  add('TEST-079::later-valid-record',later,False,True)
  def reorder(root,rec):put(root,RECORD,json.dumps(dict(reversed(list(rec.items()))),ensure_ascii=False,separators=(', ',': '))+'\n');return 'raw'
  add('CONTROL::canonical-binding-key-order-and-whitespace',reorder,False,True)
+
+ def escaped_equivalent(root,rec):
+  put(root,RECORD,json.dumps(rec).replace('spec-review-interrupted-recovery/v1',r'\u0073pec-review-interrupted-recovery/v1'));return 'raw'
+ add('TEST-043::canonical-binding-unicode-escaped-equivalent',escaped_equivalent,False,True)
+ for kind in ('extra-final-newline','omit-target','reorder-array'):
+  def wrong_canonical(root,rec,kind=kind):
+   body=copy.deepcopy({k:v for k,v in rec.items() if k!='authorization'})
+   if kind=='omit-target':del body['target']
+   if kind=='reorder-array':body['interrupted_artifacts'].reverse()
+   raw=canonical(body)+(b'\n' if kind=='extra-final-newline' else b'')
+   text=re.sub(r'^Recovery Binding SHA256:.*$', 'Recovery Binding SHA256: '+sha(raw),(root/AUTH).read_text(),flags=re.M)
+   put(root,AUTH,text);rec['authorization']=ref(root,AUTH)
+  add('TEST-043::canonical-binding-'+kind,wrong_canonical,False)
 
  # Exact source/identity sibling mutations: update raw enclosing references and the
  # authorization digest, leaving only the intended semantic counterpart wrong.
@@ -370,6 +385,20 @@ def mutations(record):
    dump(root,path,inv)
   add('TEST-080::canonical-B-'+kind,ambiguous_invocation)
 
+ for label,prefix in [('dot','./'),('historical-absolute','/historical/checkout/'),('historical-relative','historical/checkout/'),('missing-precheck','__omit__'),('miscased-precheck','__case__'),('newline-precheck','__newline__'),('selfdeclared-domain','__domain__')]:
+  def aliased_b(root,rec,prefix=prefix):
+   ledger=load(root,LEDGER);inv=load(root,INV)
+   inv.update(sequence=3,role='spec-reviewer-b',run_id='synthetic-aliased-b',host_session_id='synthetic-aliased-b-session',previous_record_sha256=ledger['records'][-1]['record_sha256'])
+   for pin in inv['allowed_input_manifest']:
+    if pin['path']==SOURCE+'/precheck-result.json':
+     pin['path']=(pin['path'] if prefix=='__domain__' else pin['path'].replace('precheck-result','Precheck-result') if prefix=='__case__' else pin['path']+'\n' if prefix=='__newline__' else prefix+pin['path'])
+   if prefix=='__domain__':inv['stage']='domain'
+   if prefix=='__omit__':inv['allowed_input_manifest']=[p for p in inv['allowed_input_manifest'] if not p['path'].startswith('__omit__')]
+   binding=sha('\n'.join(pin['path']+'\t'+pin['sha256'] for pin in inv['allowed_input_manifest']).encode())
+   ledger['records'].append(chain_record(3,'spec','spec-reviewer-b',inv['run_id'],inv['host_session_id'],ledger['records'][-1]['record_sha256'],binding))
+   dump(root,LEDGER,ledger);dump(root,'reports/review-context/synthetic-other-round-b-invocation.json',inv)
+  add('TEST-080::aliased-B-source-'+label,aliased_b)
+
  add('TEST-025::orphan-bound-B',lambda root,rec:append_reviewer(root,rec,manifest=False))
  add('TEST-080::orphan-unbound-B',lambda root,rec:append_reviewer(root,rec,bound=False,manifest=False))
  add('TEST-080::unbound-correlated-B',lambda root,rec:append_reviewer(root,rec,bound=False))
@@ -390,6 +419,19 @@ def mutations(record):
   ledger['records'].append(chain_record(4,'host','orchestrator','synthetic-unrelated-host','synthetic-unrelated-host-session',ledger['records'][-1]['record_sha256']))
   dump(root,LEDGER,ledger)
  add('TEST-079::later-unrelated-B-shared-calibration-and-host',unrelated_b,False,True)
+ def unrelated_domain(root,rec):
+  path='reports/domain-review/attempt-1/round-1/precheck-result.json';dump(root,path,{'schema':'synthetic-domain-precheck','stage':'domain'})
+  ledger=load(root,LEDGER);inv=load(root,INV)
+  inv.update(stage='domain',role='domain-reviewer-a',sequence=3,run_id='synthetic-unrelated-domain',host_session_id='synthetic-unrelated-domain-session',previous_record_sha256=ledger['records'][-1]['record_sha256'],identity_ledger_sha256=digest(root/LEDGER),allowed_input_manifest=[ref(root,path)])
+  binding=sha('\n'.join(p['path']+'\t'+p['sha256'] for p in inv['allowed_input_manifest']).encode())
+  ledger['records'].append(chain_record(3,'domain','domain-reviewer-a',inv['run_id'],inv['host_session_id'],ledger['records'][-1]['record_sha256'],binding));dump(root,LEDGER,ledger)
+  manifest=root/'reports/review-context/synthetic-domain-a-invocation.json';dump(root,str(manifest.relative_to(root)),inv)
+  scripts=ROOT/'plugins/sdd-quality-loop/scripts'
+  command=['bash',str(scripts/'validate-review-context-set.sh'),str(manifest),str(root)] if RUNTIME=='bash' else [PWSH,'-NoLogo','-NoProfile','-File',str(scripts/'validate-review-context-set.ps1'),'-Manifest',str(manifest),'-RepositoryRoot',str(root)]
+  verified=subprocess.run(command,capture_output=True,text=True)
+  assert verified.returncode==0,verified.stderr
+ add('TEST-079::later-unrelated-domain-real-verifier',unrelated_domain,False,True)
+
 
  add('TEST-008::source-not-latest',setfield(('source','round'),2))
  add('TEST-036::authorization-raw-hash',setfield(('authorization','sha256'),'0'*64),False)

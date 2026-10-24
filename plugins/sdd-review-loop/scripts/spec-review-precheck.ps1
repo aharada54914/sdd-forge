@@ -748,7 +748,12 @@ function Get-RecoveryRelative($Path) {
   Assert-Recovery ($Path -is [string]) 'invocation path type'
   $value = $Path.Replace('\', '/')
   $prefix = $root.Replace('\', '/').TrimEnd('/') + '/'
-  if ($value.StartsWith($prefix, [StringComparison]::Ordinal)) { return $value.Substring($prefix.Length) }
+  if ($value.StartsWith($prefix, [StringComparison]::Ordinal)) { $value = $value.Substring($prefix.Length) }
+  Assert-Recovery ($value -cmatch '^[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*\z' -and @($value.Split('/') | Where-Object { $_ -ceq '.' -or $_ -ceq '..' }).Count -eq 0) 'ambiguous invocation path'
+  $sourcePrecheck = "$source/precheck-result.json"
+  if ($value.Equals($sourcePrecheck, [StringComparison]::OrdinalIgnoreCase) -or $value.EndsWith('/' + $sourcePrecheck, [StringComparison]::OrdinalIgnoreCase)) {
+    Assert-Recovery ($value -ceq $sourcePrecheck) 'ambiguous source invocation path'
+  }
   return $value
 }
 
@@ -878,6 +883,10 @@ function Test-InterruptedRecovery([string]$RecordPath) {
       Assert-Recovery ($related.Count -eq 1) 'ambiguous later spec reservation'
       $candidate = $related[0]
       Assert-Recovery ($other.allowed_inputs_sha256 -ceq (Get-RecoveryInputBinding $candidate.allowed_input_manifest)) 'uncorrelated later input binding'
+      Assert-Recovery ($candidate.feature -is [string]) 'later spec feature type'
+      $precheckPattern = '^reports/spec-review/' + [regex]::Escape($candidate.feature) + '/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result\.json\z'
+      $precheckPins = @($candidate.allowed_input_manifest | Where-Object { (Get-RecoveryRelative $_.path) -cmatch $precheckPattern })
+      Assert-Recovery ($precheckPins.Count -eq 1) 'ambiguous later spec precheck'
       foreach ($pin in $candidate.allowed_input_manifest) { Assert-Recovery ((Get-RecoveryRelative $pin.path) -cne "$source/precheck-result.json") 'source reviewer already reserved' }
     }
     if (-not (Test-ValidateContract (Join-Path $root "$prior/spec-review-contract.json") $n ($r-1) NEEDS_WORK (Join-Path $root "$prior/precheck-result.json"))) { return $false }

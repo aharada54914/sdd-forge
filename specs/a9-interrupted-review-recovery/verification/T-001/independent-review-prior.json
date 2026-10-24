@@ -1,0 +1,194 @@
+{
+  "schema": "bounded-independent-code-review/v1",
+  "reviewed_at": "2026-10-24T08:11:32.407157+00:00",
+  "verdict": "NEEDS_WORK",
+  "scope": "Prior T-001 closed admission candidate only; corrected candidate pending final freeze and recheck",
+  "reviewer": {
+    "work_context": "/root/review_mode_compat",
+    "relationship": "independent of /root/a9_t001_impl source author",
+    "native_identity": null,
+    "model_effort_cost": "not independently exposed or claimed",
+    "formal_gate": false
+  },
+  "candidate": {
+    "commit": "d56313b0e2cbf10fa1154a664780030f8ff2756c",
+    "prior_pin_file": "/workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/pre-review-716-source-pins.json",
+    "source_hashes": {
+      "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "3403caa958c01eae9dff21bbd3add09f650ee829b2090b759cedbd420fcb2878",
+      "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "475933d20fb314b8f714bd24df2220e3127a78815afa808432c21bc8754a92c4",
+      "tests/spec-review-interrupted-recovery.tests.sh": "d98fd63093275af7d328870dda9cced3da493d4fd5fce2939d638f32f1505bbb",
+      "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+      "tests/spec-review-loop.tests.sh": "4bbc3cc63f97e8f954dd2731a8a609656fe1fbf66a80bc900a8a9eb8862ff79b",
+      "tests/verification-catalog.json": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317"
+    },
+    "commit_blobs_match": true
+  },
+  "specification_hashes": {
+    "specs/a9-interrupted-review-recovery/requirements.md": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983",
+    "specs/a9-interrupted-review-recovery/design.md": "3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e",
+    "specs/a9-interrupted-review-recovery/tasks.md": "68198040940bf591c595875a7964f47ab27ff3d4df006686f20a04dff0ea1c1d",
+    "specs/a9-interrupted-review-recovery/acceptance-tests.md": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9",
+    "specs/a9-interrupted-review-recovery/traceability.md": "69bce6e35065a25ed6b14d2b07f4707416844f37ea6a7c2570ef5b95145fcb19",
+    "specs/a9-interrupted-review-recovery/ux-spec.md": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1",
+    "specs/a9-interrupted-review-recovery/frontend-spec.md": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52",
+    "specs/a9-interrupted-review-recovery/infra-spec.md": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e",
+    "specs/a9-interrupted-review-recovery/security-spec.md": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f",
+    "contracts/spec-review-interrupted-recovery.v1.data-contract.md": "9cc49eb4468d4b16ea49d385798297e8bcae9b401e30c7bfac65820185daf6c1"
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "Major",
+      "category": "implementation",
+      "status": "open-on-prior-candidate",
+      "title": "Ambiguous B input paths are admitted as unrelated",
+      "locations": [
+        "plugins/sdd-review-loop/scripts/spec-review-precheck.sh:470",
+        "plugins/sdd-review-loop/scripts/spec-review-precheck.sh:552",
+        "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1:747",
+        "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1:860"
+      ],
+      "requirement": "REQ-002 / AC-002 / TEST-024,025,080; data contract semantic6",
+      "evidence": "Both actual runtimes returned exit0 on valid-chain synthetic B records with a matching raw input binding whose source precheck path had ./ or /historical/checkout/ prefix and whose manifest filename did not use the canonical source-round prefix. Baseline valid control also returned0; all fixture bytes remained unchanged.",
+      "impact": "The validator treats unrecognized attribution as another round and therefore fails to establish B absence. This is proof of admitting malformed/ambiguous fixture evidence, not proof a genuine native B ran.",
+      "requested_change": "Normalize or reject ambiguous correlation inputs using established path semantics, preserve valid unrelated later-reviewer acceptance, and add both runtime regressions."
+    },
+    {
+      "id": "F2",
+      "severity": "Major",
+      "category": "acceptance-evidence",
+      "status": "open-frozen-criterion",
+      "title": "Literal every-variant Red-to-Green requirement is not met",
+      "locations": [
+        "specs/a9-interrupted-review-recovery/tasks.md:50"
+      ],
+      "evidence": "Initial Red logs each have2 passing unchanged controls,1 ADMISSION_NOT_IMPLEMENTED failure and530 NOT_RUN cases. Stable logs each have716 PASS for713 variants plus3 controls. Later Green does not establish individual historical Red. Origin TEST041/042 remains independently unexecuted.",
+      "requested_change": "Keep actual per-case evidence categories and missing baselines explicit. Root/human must reconcile the frozen criterion through its applicable authorization/provenance route; do not backfill Reds or mark this condition complete from aggregate Green.",
+      "proposal": "External one-sentence patch6e72240b5298c43925d80a463477b267fb122287ce21d290b23032a48e23c244 is adequate for consideration as evidence classification, but is not approved/applied and does not waive any test or origin requirement."
+    },
+    {
+      "id": "F3",
+      "severity": "Minor",
+      "category": "coverage",
+      "status": "open-on-prior-candidate",
+      "title": "Expanded-ID presence does not establish every planned hash/canonical variant",
+      "locations": [
+        "tests/spec-review-interrupted-recovery.tests.sh:173",
+        "specs/a9-interrupted-review-recovery/verification/T-001/T001-expanded-case-design.json"
+      ],
+      "evidence": "TEST057 covers14 reference slots\u00d76 variants. reviewer_a.record_sha256 missing/null are covered by F21 and incorrect by TEST074, but its explicitly planned uppercase/nonhex/short variants are absent. Saved TEST043 Unicode-equivalence/wrong-ensure_ascii/extra-newline/omitted-field/array-order cases are not established by the key-order/whitespace positive and zero-digest negative.",
+      "requested_change": "Add or identify exact missing own-record hash cases and map canonical planned variants individually; classify already-correct baseline behavior honestly. Do not present all78 expanded IDs or the saved752 designs as complete executed variant coverage."
+    }
+  ],
+  "counts": {
+    "Critical": 0,
+    "Major": 2,
+    "Minor": 1
+  },
+  "evidence": [
+    {
+      "path": "/workspace/a9-t001-independent-probes-20261024/probe.py",
+      "sha256": "6d2907fb3a0223bdb7ace4e4ea09ba2e55ffd963f9837ed9cdf7197495835ffc",
+      "bytes": 2026
+    },
+    {
+      "path": "/workspace/a9-t001-independent-probes-20261024/results.json",
+      "sha256": "59e7a792977c823426521d4eccc20fa6ac184070488788a03010b7e9747dad7f",
+      "bytes": 1556
+    },
+    {
+      "path": "/workspace/a9-t001-independent-probes-20261024/parser-probe.ps1",
+      "sha256": "f2b872b5fd052d9364731cd8b1650a69658327121c7c0f0d39eb8fe8c5420e4e",
+      "bytes": 1291
+    },
+    {
+      "path": "/workspace/a9-t001-independent-probes-20261024/parser-results.jsonl",
+      "sha256": "ef29336fb580af8ed5f2bdb00998fb92831362018c0b1aee0648f8000c3e73d0",
+      "bytes": 337
+    },
+    {
+      "path": "/workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/pre-review-716-source-pins.json",
+      "sha256": "badb858402718d7459c05debb202248b7ad1ac29b382b1ed2755cb4b18a5962b",
+      "bytes": 906
+    },
+    {
+      "path": "/workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/stable-bash.json",
+      "sha256": "4b30032b09ae34ce0814f0b5502fbf0d730b93f840405febc8bb132d14e87bc6",
+      "bytes": 1865
+    },
+    {
+      "path": "/workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/stable-powershell.json",
+      "sha256": "8035591a7616e4f8537322c9675344ce43a362274eb3470c909cf673d55650ef",
+      "bytes": 1960
+    },
+    {
+      "path": "/workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/stable-bash.log",
+      "sha256": "839d8ff2103c74d435831f1761bc76e8db9a79c6e170c0d4c24499764fa26c6a",
+      "bytes": 55095
+    },
+    {
+      "path": "/workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/stable-powershell.log",
+      "sha256": "47f941a2b6b4e4cfd5321bfa56441838b6d6423d4de4a58d5fe979249ce21234",
+      "bytes": 59397
+    },
+    {
+      "path": "/workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/red-bash.log",
+      "sha256": "73e67204ff62f08672ab77dd1ea9e800fa088bf6727004513a09441b7f38e484",
+      "bytes": 30743
+    },
+    {
+      "path": "/workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/red-powershell.log",
+      "sha256": "9b74f100093872d6d9d7c1c751d6f441e8991ade094e2993eaf9cc586deb6b34",
+      "bytes": 33947
+    },
+    {
+      "path": "/workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/case-inventory.json",
+      "sha256": "a382761756b4b9843d556c5d3027a085ede8b917bd4bfb15a5c319456adcbda4",
+      "bytes": 189005
+    },
+    {
+      "path": "/workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/T001-expanded-case-design.json",
+      "sha256": "7ddaa88c7d6a9217346451c89f399ce4bdb73b53ad4064b9e469b341ae50ac5b",
+      "bytes": 262972
+    },
+    {
+      "path": "/workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/origin-procedures.json",
+      "sha256": "d5aeaec6f7ce0d00ffecf2cda724e53c7c552d61262d09c88725798c83fb4e50",
+      "bytes": 1996
+    },
+    {
+      "path": "/workspace/a9-recovery-task-criterion-proposal-20261024/reviewable.patch",
+      "sha256": "6e72240b5298c43925d80a463477b267fb122287ce21d290b23032a48e23c244",
+      "bytes": 2041
+    }
+  ],
+  "validation": {
+    "author_stable_tests": {
+      "bash": 716,
+      "powershell": 716,
+      "variants_per_runtime": 713,
+      "controls_per_runtime": 3,
+      "exact_case_name_inventory_match": true,
+      "independently_rerun_full_suite": false
+    },
+    "independent_admission_probes": {
+      "valid_controls": 2,
+      "ambiguous_B_reproductions": 4,
+      "all_fixture_bytes_unchanged": true
+    },
+    "independent_PowerShell_parser_assertions": 6,
+    "runtime": "Linux / PowerShell7.6.7; no Windows execution"
+  },
+  "criterion_proposal": {
+    "status": "not-approved-not-applied",
+    "patch_sha256": "6e72240b5298c43925d80a463477b267fb122287ce21d290b23032a48e23c244",
+    "bounded_assessment": "Adequate for consideration; preserves IDs/variants/runtimes and truthful actual Red versus baseline evidence, not a waiver or passing decision."
+  },
+  "limits": [
+    "No live recovery/reservation, live/root/other-worktree ledger reads, provider calls or source/Git mutations by reviewer.",
+    "Only owned synthetic fixtures used for execution.",
+    "AUTH001 human original approval/application unavailable; synthetic artifacts do not supply it.",
+    "Formal adoption/identity/quality gate, T002/T003 publication/consumer integration and Windows CI remain outside this review.",
+    "Corrected candidate is not reviewed or approved by this prior-candidate verdict."
+  ]
+}

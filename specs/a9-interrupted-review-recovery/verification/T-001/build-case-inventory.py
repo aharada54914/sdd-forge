@@ -1,0 +1,18 @@
+from pathlib import Path
+import sys,json,tempfile,hashlib,re
+root=Path.cwd();evidence=root/'specs/a9-interrupted-review-recovery/verification/T-001'
+source=(root/'tests/spec-review-interrupted-recovery.tests.sh').read_text();code=source[source.index('import copy,'):source.rindex('\nPY')]
+old=sys.argv;sys.argv=['inventory',str(root),'bash'];scope={'__name__':'case_inventory'};exec(compile(code,'test-harness','exec'),scope);sys.argv=old
+with tempfile.TemporaryDirectory(prefix='inventory-',dir=evidence) as tmp:
+ record=scope['fixture'](Path(tmp));cases=scope['mutations'](record)
+ rows=[{'name':name,'expected':'accept' if accept else 'reject','boundary':'native admission predicate','runtimes':['bash','powershell']} for name,_,_,accept in cases]
+assert len(rows)==len({row['name'] for row in rows})
+expanded=[f'TEST-{parent}-F{number:02}' for parent in ('050','051') for number in range(1,22)]+[f'TEST-057-H{number:02}' for number in range(1,15)]+[f'TEST-083-P{number:02}' for number in range(1,15)]+[f'TEST-050-A{number:02}' for number in range(1,9)]
+expanded_map={id:[row['name'] for row in rows if row['name'].startswith(id+'::')] for id in expanded};assert len(expanded_map)==78 and all(expanded_map.values())
+base_map={f'TEST-{n:03}':[row['name'] for row in rows if row['name'].startswith(f'TEST-{n:03}')] for n in range(8,84)}
+missing=[id for id,names in base_map.items() if not names];assert missing==['TEST-041','TEST-042']
+result={'schema':'a9-t001-case-inventory/v1','implementation_scope':'T-001 / REQ-002,REQ-003 / AC-002,AC-003','test_source_sha256':hashlib.sha256(source.encode()).hexdigest(),'concrete_variants_per_runtime':len(rows),'control_count_per_runtime':3,'controls':['CONTROL::prior-own-stage-NEEDS_WORK','CONTROL::persisted-A-real-verifier','CONTROL::valid-interrupted-admission'],'required_base_count':76,'executable_base_count':74,'procedural_base_ids':missing,'required_expanded_count':78,'excluded_saved_consumption_ids':['TEST-057-H15','TEST-083-P15'],'base_mapping':base_map,'expanded_mapping':expanded_map,'cases':rows,'preparation_comparison':'Preparation listed 752 designed cases per runtime, including derived report/origin extras. This executable inventory is rebuilt from actual test code and independently proves all 78 frozen T-001 expanded IDs. No planned/preparation count is claimed as an executed count. Report fields and origin procedures remain separately unverified where stated.'}
+(evidence/'case-inventory.json').write_text(json.dumps(result,indent=2)+'\n')
+procedures={'schema':'a9-t001-origin-procedures/v1','state':'independent procedural verification pending','actual_live_recovery':'not performed; excluded by task approval','authentication_boundary':'Orchestrator matches original human approval and human application to exact artifact/content digest before calling recovery. The validator authenticates no human author.','cases':[{'id':'TEST-041','name':'unsigned-conversation-copy-claimed-as-signed','expected':'block before invocation; conversation prose is not a signature','result':'not independently executed' }]+[{'id':'TEST-042','name':name,'expected':'block before invocation','result':'not independently executed'} for name in ('agent-self-claim','agent-summary','artifact-alone','human-copy-log-alone','missing-original-user-approval','missing-human-application','application-content-or-binding-mismatch')],'limits':'Synthetic test authorizations are clearly fictional and establish only content/hash validation. Genuine task implementation approval is retained separately and does not satisfy AUTH-001.'}
+(evidence/'origin-procedures.json').write_text(json.dumps(procedures,indent=2)+'\n')
+print('variants',len(rows),'base',len(base_map),'expanded',len(expanded_map),'procedural',missing)

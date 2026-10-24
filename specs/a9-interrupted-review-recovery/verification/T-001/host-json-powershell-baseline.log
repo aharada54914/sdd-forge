@@ -1,0 +1,6 @@
+PASS powershell CONTROL::prior-own-stage-NEEDS_WORK exit=0 immutable=True
+PASS powershell CONTROL::persisted-A-real-verifier exit=0 immutable=True
+PASS powershell CONTROL::valid-interrupted-admission exit=0 immutable=True
+PASS powershell TEST-064::host-nonstandard-JSON-NaN exit=1 immutable=True no_target=True
+PASS powershell TEST-064::host-nonstandard-JSON-Infinity exit=1 immutable=True no_target=True
+RESULT powershell passed=5 failures=0 designed=2

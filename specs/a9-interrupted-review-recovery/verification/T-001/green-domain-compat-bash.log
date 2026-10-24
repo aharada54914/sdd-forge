@@ -1,0 +1,8 @@
+PASS bash CONTROL::prior-own-stage-NEEDS_WORK exit=0 immutable=True
+PASS bash CONTROL::persisted-A-real-verifier exit=0 immutable=True
+PASS bash CONTROL::valid-interrupted-admission exit=0 immutable=True
+PASS bash TEST-079::later-valid-record exit=0 immutable=True no_target=True
+PASS bash TEST-079::later-valid-other-round-reviewer exit=0 immutable=True no_target=True
+PASS bash TEST-079::later-unrelated-B-shared-calibration-and-host exit=0 immutable=True no_target=True
+PASS bash TEST-079::later-unrelated-domain-real-verifier exit=0 immutable=True no_target=True
+RESULT bash passed=7 failures=0 designed=4

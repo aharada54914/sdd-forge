@@ -1,0 +1,17 @@
+spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/regression-21uvs0_d/reports/spec-review/spec-review-fixture-3968-525602/attempt-1/round-1/
+spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/regression-21uvs0_d/reports/spec-review/spec-review-fixture-3968-525602/attempt-1/round-2/
+spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/regression-21uvs0_d/reports/spec-review/spec-review-fixture-3968-525602/attempt-1/round-3/
+spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/regression-21uvs0_d/reports/spec-review/spec-review-fixture-3968-525602/attempt-2/round-1/
+spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/regression-21uvs0_d/reports/spec-review/spec-review-fixture-3968-525602/attempt-2/round-1/
+workflow-state: ok
+impl-review-precheck: complete. Output written to reports/impl-review/spec-review-fixture-3968-525602/attempt-1/round-1/
+spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/regression-21uvs0_d/reports/spec-review/spec-review-fixture-3968-525602/attempt-2/round-1/
+spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/regression-21uvs0_d/reports/spec-review/spec-review-fixture-3968-525602/attempt-2/round-2/
+spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/regression-21uvs0_d/reports/spec-review/spec-review-fixture-3968-525602/attempt-2/round-1/
+spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/regression-21uvs0_d/reports/spec-review/spec-review-fixture-3968-525602/attempt-1/round-1/
+spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/regression-21uvs0_d/reports/spec-review/spec-review-fixture-3968-525602/attempt-2/round-1/
+spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/regression-21uvs0_d/reports/spec-review/spec-review-fixture-3968-525602/attempt-2/round-1/
+spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/regression-21uvs0_d/reports/spec-review/spec-review-fixture-3968-525602/attempt-2/round-1/
+spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-001/regression-21uvs0_d/reports/spec-review/spec-review-fixture-3968-525602/attempt-2/round-1/
+ok: spec review precheck enforces state, hashes, replay, reset, and safe paths
+synthetic-child-failure

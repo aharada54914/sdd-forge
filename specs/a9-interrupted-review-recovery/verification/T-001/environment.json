@@ -1,0 +1,7 @@
+{
+  "bash": "GNU bash, version 5.2.37(1)-release (x86_64-pc-linux-gnu)",
+  "python": "Python 3.12.14",
+  "jq": "jq-1.7",
+  "powershell": "7.6.7",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.41"
+}
