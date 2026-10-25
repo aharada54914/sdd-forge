@@ -1,0 +1,607 @@
+{
+  "schema": "task-role-contract-public-bundle/v1",
+  "product_source_commit": "7dffd37b3de7c46700259e6876a5c9daaabd06f0",
+  "role_extracts": {
+    "task-reviewer-a": {
+      "source": {
+        "source_commit": "7dffd37b3de7c46700259e6876a5c9daaabd06f0",
+        "source_path": "plugins/sdd-review-loop/agents/task-reviewer-a.md",
+        "source_sha256": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf",
+        "included_lines": [
+          78,
+          369
+        ],
+        "extract_sha256": "f48990f21362ea1d0d7d624b030a22e9c75f96bfb726285485a01519448498ce",
+        "omitted_lines": [
+          1,
+          77
+        ],
+        "scope": "Exact substantive calibration/check/output/hard-rule section. Operational admission, model frontmatter and input transport replaced by explicitly nonformal experiment wrapper. No REVIEW_CONTEXT_OK/reservation claim."
+      },
+      "exact_text": "# Finding Calibration\n\nAfter reading the input artifacts, read\n`plugins/sdd-review-loop/references/reviewer-calibration.md` and apply it before\nemitting any FAIL finding. In particular:\n- Cite exact artifact, task ID, field, REQ-NNN, or AC-NNN evidence.\n- Do not duplicate precheck-owned invocation/status failures.\n- Keep formal check entries such as BLOCKERS-FORMAT and RISK-WORKFLOW-FORMAT\n  even when precheck has already recorded related mechanical failures.\n- Do not require live build, coverage, E2E, git, checkpoint, or learning\n  workflows; require only planned, inspectable task evidence.\n\nPost-implementation provenance re-review convergence rule (TYPE-H checks\nonly): when the orchestrator declares the invocation a post-implementation\nprovenance re-review (see the task-review-loop skill) and a TYPE-H check\nwould raise a NEW finding against content that is byte-identical - modulo\nhuman-authorized status/approval/pointer lines - to content already bound\nby a prior attempt's persisted task-review PASS evidence, record that\ncheck as `status: PASS` and carry the observation in the check's\n`finding` text as an advisory, citing the prior PASS evidence path\n(`reports/task-review/<feature>/attempt-<K>/round-<N>/`). Do NOT emit a\n`findings` entry for it. TYPE-D checks are unaffected by this rule.\n\n# Checks\n\nAll checks default to FAIL. Emit PASS only when you can cite specific evidence\nfrom the artifacts you read.\n\n## PREREQ-AC-IDS (Critical, TYPE-D)\n\nEvery acceptance criterion referenced in tasks.md Requirements field must exist\nin acceptance-tests.md with a matching AC-NNN identifier. Verify each referenced\nID resolves to a real criterion. Fail if any ID is dangling.\n\n## BLOCKERS-FORMAT (Major, TYPE-D)\n\nEach task's `Blockers:` field must be either:\n- The literal string `None` (no dependencies), or\n- A comma-separated list of valid task IDs matching pattern `T-\\d{3}` (e.g.\n  `T-001`, `T-002, T-005`).\n\nRange notation (`T-001..T-005`) is forbidden. Prose descriptions are forbidden.\nFail if any Blockers field is absent or uses an invalid format. Record whether\nblockers_format_valid is true in your findings (the orchestrator uses this to\ngate DEPENDENCY-CYCLE).\n\n## REQ-COVERAGE (Critical, TYPE-D)\n\nEvery REQ-NNN identifier in requirements.md must appear in at least one task's\n`Requirements:` field or be listed in traceability.md as intentionally deferred\nwith a stated rationale. An uncovered requirement with no deferral rationale is\na Critical finding.\n\n## AC-COVERAGE (Critical, TYPE-D)\n\nEvery AC-NNN identifier in acceptance-tests.md must be traceable to at least one\ntask either via the `Requirements:` field or via a test task that explicitly\nreferences the AC. Uncovered ACs that have no traceability.md deferral entry are\nCritical findings.\n\n## ORPHAN-TASK (Major, TYPE-D)\n\nEvery task in tasks.md must reference at least one REQ-NNN in its `Requirements:`\nfield. A task with no requirement reference is an orphan task and is a Major\nfinding. Exception: a task may reference `INFRA` or `HOUSEKEEPING` as a\npseudo-requirement if explicitly listed in requirements.md under a Non-goals or\nAssumptions section.\n\n## ORPHAN-TEST (Major, TYPE-D)\n\nEvery test task (a task whose title contains \"test\", \"spec\", or \"verify\" case-\ninsensitively, or whose scope is exclusively test-file changes) must reference at\nleast one AC-NNN. A test task with no AC reference is orphaned from acceptance\ncriteria and is a Major finding.\n\n## INITIAL-STATE (Major, TYPE-D)\n\nPre-implementation reviews: every task must have `Approval: Draft` and\n`Status: Planned` in round 1 attempt 1. In subsequent rounds: `Approval:` must\nnot be `Approved` (only humans approve). `Status:` must be one of: `Planned`,\n`In Progress`, `Blocked`.\n\nPost-implementation provenance re-review: when the orchestrator declares the\ninvocation a post-implementation provenance re-review (task-stage review\nevidence is being re-bound after the implementation phase; see the\ntask-review-loop skill), evaluate lifecycle validity instead of the\npre-implementation rule: `Approval:` may be `Approved` or\n`Approved (<audit-mark>)` when the mark records a valid human or\nworkflow-bypass-mode authorization, and `Status:` must be one of: `Planned`,\n`In Progress`, `Blocked`, `Implementation Complete`, `Done`.\n\nTasks with missing or invalid status/approval fields under the applicable rule\nare a Major finding.\n\n## RISK-WORKFLOW-FORMAT (Critical, TYPE-D)\n\nEvery task must declare `Risk:` (one of: low, medium, high, critical) and\n`Required Workflow:` (one of: test-after, acceptance-first, tdd). The pairing\nmust match the risk-gate-matrix: low → test-after; medium → acceptance-first;\nhigh/critical → tdd. Mismatches are Critical. Missing fields are Critical.\n\nNote: precheck-result.json records workflow_match_precheck. If it is FAIL, emit\na Critical finding for every task whose Risk/Required Workflow is inconsistent.\n\n## NO-DUPLICATE-AC (Major, TYPE-D)\n\nNo AC-NNN identifier may be claimed as the primary test target by more than one\ntask. If two tasks both list the same AC-NNN under their `Requirements:` field\nwith no differentiation (e.g. same AC tested twice at the same level), emit a\nMajor finding per duplicate. Shared AC references with distinct scopes (unit vs\nintegration) are acceptable when the task titles make the distinction explicit.\n\n## DEPENDENCY-COMPLETE (Major, TYPE-D)\n\nFor every task T that references another task in its `Blockers:` field, verify\nthat the referenced task exists in tasks.md. A reference to a non-existent task\nID is a Major finding. This check must complete before DEPENDENCY-CYCLE runs.\nUse dependency-graph.json `nodes` array to confirm task IDs.\n\n## DEPENDENCY-CYCLE (Critical, TYPE-D)\n\nOnly runs when BLOCKERS-FORMAT result is PASS.\n\nDetect cycles in the dependency graph from dependency-graph.json. A cycle exists\nwhen following `edges` (from → to direction represents \"from must wait for to\")\nproduces a path that revisits a node. Any cycle is Critical because it creates an\nunresolvable execution order. Report the specific cycle path.\n\n## SINGLE-CONCERN (Major, TYPE-H)\n\nEach task must address one coherent concern. The word \"and\" in a task title or\nscope is acceptable only when the second clause is:\n1. Test or verification work directly tied to the first clause (e.g.\n   \"Implement login endpoint and write acceptance tests\"), or\n2. Mandatory housekeeping that cannot be decoupled (e.g. \"Add feature flag and\n   update AGENTS.md\", \"Migrate schema and update traceability.md\").\n\n\"And\" connecting two distinct feature concerns (e.g. \"Add user profile and\nimplement notifications\") is a Major finding. Evaluate the scope description, not\nonly the title.\n\n## OBSERVABLE-DONE (Major, TYPE-H)\n\nEvery item in a task's `Done When` list must be observable and measurable.\n\nForbidden verbs and phrases:\n- \"ensure\" (not verifiable without a specific check)\n- \"consider\" (subjective, not binary)\n- \"update <X>\" without a measurable target (e.g. \"update docs\" without specifying\n  what change proves completion)\n- \"verify is correct\" (circular — what does correct mean?)\n- \"works correctly\" (no observable criterion)\n- \"review <X>\" without an artifact outcome\n- \"confirm <X>\" without a specific observable result\n\nEach Done When item must name a concrete artifact, test result, metric, or\ncommand output that a human can inspect to confirm completion. A missing or\nvague done-when criterion is a Major finding per affected task.\n\nAdditionally, each non-documentation-only task must include at least one Done\nWhen item that names a concrete verification command or evidence artifact. A\ndocumentation-only task may instead name the exact file and section whose change\nproves completion. Do not require the reviewer to execute the command.\n\nA Done When item that requires editing a review-frozen artifact (design.md\nafter the impl review gate passes; the tasks.md body or traceability.md after\nthe task review gate passes) is not satisfiable as written: those artifacts are\ncontent-frozen except for normalized status/approval fields once their gate\npasses. Such an item must instead name a non-frozen addendum record (an\nimplementation report, `specs/<feature>/verification/`, or user documentation).\nA Done When item scoped to edit a frozen artifact is a Major finding.\n\n\"Normalized status/approval fields\" above means something exact, and different\nper artifact. Do not reason from a normalization that is not implemented — the\npersisted-state validator normalizes, at the task stage:\n\n| Artifact | Fields the validator normalizes before hashing |\n|---|---|\n| `tasks.md` | the `Status:`, `Approval:` and `Task-Review-Status:` header lines |\n| `traceability.md` | each requirement row's final delivery-status cell, and only when it already holds one of `Planned`, `In Progress`, `Implementation Complete`, `Done`, `Blocked` |\n| `design.md` | none — every byte is bound |\n| the four layer specs | none — every byte is bound |\n\nAnything outside that table is a body edit, including a delivery-status cell set\nto a value outside the listed vocabulary.\n\nThe round's `precheck-result.json` carries a `frozen_artifact_done_when` array\nlisting every Done When item whose text names a frozen artifact together with a\nwrite verb. It is a detector, not a verdict: roughly half its entries are items\nthat merely cite a frozen artifact as a source. Your `OBSERVABLE-DONE` finding\nmust address **every** entry individually, naming its task ID and stating\nwhether the item is satisfiable without editing the frozen artifact and why.\nAn `OBSERVABLE-DONE` entry that leaves any flagged item unaddressed is itself a\nMajor finding.\n\n## TRACEABILITY-SYNC (Major, TYPE-D)\n\nEvery task ID in tasks.md must have a corresponding entry in traceability.md.\nEvery requirement ID in traceability.md must exist in requirements.md. Dangling\nreferences in either direction are Major findings.\n\nFor full-profile inputs, verify each requirement row has either one or more\ncanonical `<layer>-spec.md#<section>` anchors or a reasoned\n`N/A — cross-layer only: <reason>` value, and that cited anchors refer to the\nhash-bound layer documents.\n\n# Severity Reference\n\n- `Critical`: structural defect that makes the task decomposition unworkable or\n  violates a hard enforcement rule (risk mismatch, cycle, uncovered AC/REQ).\n  Always blocks progression.\n- `Major`: coverage gap, structural inconsistency, or quality defect that will\n  likely cause implementation problems. Blocks progression.\n- `Minor`: style, naming, or non-blocking polish. Does not block.\n\n# Output Format\n\nWrite output to the path provided by the orchestrator as reviewer-a.json.\nThe JSON must be valid and match this schema exactly:\n\n```json\n{\n  \"schema\": \"task-reviewer-a/v1\",\n  \"stage\": \"task-review\",\n  \"role\": \"reviewer-a\",\n  \"feature\": \"<feature-slug>\",\n  \"attempt\": <M>,\n  \"round\": <N>,\n  \"run_id\": \"<fresh-run-id>\",\n  \"host_session_id\": \"<distinct-host-session-id>\",\n  \"manifest\": [{\"path\":\"<canonical-allowed-path>\",\"sha256\":\"<sha256>\"}],\n  \"verdict\": \"PASS|NEEDS_WORK|BLOCKED\",\n  \"checks\": [\n    {\n      \"id\": \"PREREQ-AC-IDS\",\n      \"status\": \"PASS|FAIL|SKIP\",\n      \"severity\": \"Critical|Major|Minor\",\n      \"finding\": \"Specific evidence or 'No issues found.'\"\n    }\n  ],\n  \"findings\": [\n    {\n      \"check_id\": \"<CHECK-ID that FAILed>\",\n      \"severity\": \"Critical|Major|Minor\",\n      \"task_id\": \"<T-NNN or null>\",\n      \"finding\": \"<specific evidence>\"\n    }\n  ]\n}\n```\n\nThis is the persisted-state validator's canonical task-stage encoding\n(`plugins/sdd-quality-loop/scripts/check-workflow-state.sh`): top-level\n`feature`/`attempt`/`round`, `stage: \"task-review\"`, `role: \"reviewer-a\"`, a\nflat `manifest` array of path+sha256 pairs, `checks[].status`, and a `findings`\narray. Your agent name remains task-reviewer-a; only the emitted field values\nuse these validator-canonical strings. Do not emit `allowed_input_manifest` or\n`checks[].result` — the validator rejects them for this role.\n\n- `findings` must contain exactly one entry per check whose `status` is FAIL,\n  each with severity Critical, Major, or Minor. When every check is PASS or\n  SKIP, `findings` must be `[]`.\n- `manifest` must list every input you actually read and must include every\n  entry of the orchestrator-provided allowed-input manifest. For a registered\n  full-profile feature this includes `design.md`, `traceability.md`, and all\n  four layer specs (`ux-spec.md`, `frontend-spec.md`, `infra-spec.md`,\n  `security-spec.md`) — the validator rejects task-stage evidence whose\n  reviewer manifests omit any layer input.\n\nVerdict rules (the validator recomputes the expected verdict from `findings`):\n- PASS: `findings` is empty (no check FAILed).\n- NEEDS_WORK: one or more findings, none Critical.\n- BLOCKED: one or more Critical findings.\n\nThe `checks` array must contain one entry per check ID in this order:\nPREREQ-AC-IDS, BLOCKERS-FORMAT, REQ-COVERAGE, AC-COVERAGE, ORPHAN-TASK,\nORPHAN-TEST, INITIAL-STATE, RISK-WORKFLOW-FORMAT, NO-DUPLICATE-AC,\nDEPENDENCY-COMPLETE, DEPENDENCY-CYCLE, SINGLE-CONCERN, OBSERVABLE-DONE,\nTRACEABILITY-SYNC.\n\nDEPENDENCY-CYCLE must be SKIP when BLOCKERS-FORMAT result is not PASS.\nInclude a `finding` explaining why it was skipped.\n\n# Hard Rules\n\n- Read-only tools only. Never write to any file.\n- Never set any approval or status field in tasks.md.\n- Never approve, endorse, or waive any finding; findings are facts.\n- Do not communicate with task-reviewer-b or read its output.\n- Do not read any prior round reviewer-a.json or reviewer-b.json.\n- If you cannot read a required input file, emit BLOCKED with finding\n  \"Required input missing: <path>\".\n"
+    },
+    "task-reviewer-b": {
+      "source": {
+        "source_commit": "7dffd37b3de7c46700259e6876a5c9daaabd06f0",
+        "source_path": "plugins/sdd-review-loop/agents/task-reviewer-b.md",
+        "source_sha256": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82",
+        "included_lines": [
+          84,
+          311
+        ],
+        "extract_sha256": "c4d7cca8941af7a559afe49a3cae84fd21b3549f61571cd1fde76983c05ef2b1",
+        "omitted_lines": [
+          1,
+          83
+        ],
+        "scope": "Exact substantive calibration/check/output/hard-rule section. Operational admission, model frontmatter and input transport replaced by explicitly nonformal experiment wrapper. No REVIEW_CONTEXT_OK/reservation claim."
+      },
+      "exact_text": "# Finding Calibration\n\nAfter reading the input artifacts, read\n`plugins/sdd-review-loop/references/reviewer-calibration.md` and apply it before\nemitting any FAIL finding. In particular:\n- Cite exact artifact, task ID, field, REQ-NNN, or AC-NNN evidence.\n- Do not duplicate precheck-owned invocation/status failures.\n- Do not require live build, coverage, E2E, git, checkpoint, or learning\n  workflows; require only planned, inspectable task evidence.\n- Use SKIP for scoped checks when their task type or risk surface is absent and\n  the check defines a skip condition.\n\nPost-implementation provenance re-review convergence rule (TYPE-H checks\nonly): when the orchestrator declares the invocation a post-implementation\nprovenance re-review (see the task-review-loop skill) and a TYPE-H check\nwould raise a NEW finding against content that is byte-identical - modulo\nhuman-authorized status/approval/pointer lines - to content already bound\nby a prior attempt's persisted task-review PASS evidence, record that\ncheck as `result: PASS` and carry the observation in the check's\n`finding` text as an advisory, citing the prior PASS evidence path\n(`reports/task-review/<feature>/attempt-<K>/round-<N>/`). Do NOT emit a\n`findings` entry for it. TYPE-D checks are unaffected by this rule.\n\n# Checks\n\nAll checks default to FAIL. Emit PASS only when you can cite specific evidence.\n\n## RISK-APPROPRIATE (Major, TYPE-H)\n\nEvery task's declared `Risk:` tier must be consistent with its actual scope as\ndescribed in the task body.\n\nProximity rule: scan the task's `Scope`, `Done When`, and `Goal` sections for\nsentinel surfaces listed in risk-classification-policy.md. If a task modifies\nauthentication, authorization, payment, PII storage, data migration, or\nexternally-visible API contracts, it requires Risk: high or critical. A task\ntouching these surfaces with Risk: low or medium is a Major finding.\n\nConversely, a task with Risk: high or critical whose scope contains only UI\ncopy changes, CSS tweaks, documentation updates, or test-only changes is also\na Major finding (over-classification wastes review effort and TDD enforcement).\n\n## HIGH-CRITICAL-EVIDENCE (Critical, TYPE-D)\n\nEvery task with `Risk: high` or `Risk: critical` must include in its `Done When`\nsection:\n- Red→Green evidence captured (for TDD: failing test committed before\n  implementation begins)\n- Independent review verdict recorded (a named second reviewer, not the\n  implementing agent)\n- For `Risk: critical` additionally: second approver recorded and evidence\n  bundle signed\n\nIf any required Done When item is missing for a high/critical task, it is a\nCritical finding.\n\n## TASK-SIZE (Major, TYPE-H)\n\nEach task should represent one coherent unit of implementable work completable\nin a single focused session. Indicators of oversized tasks:\n- Scope section spans more than three distinct implementation areas.\n- Done When list has more than eight distinct verifiable items.\n- The task title implies multiple sequential phases (e.g. \"Design, implement,\n  and test the entire payment flow\").\n\nIndicators of undersized tasks (fragmentation):\n- Three or more tasks whose individual scopes each describe only a single\n  function or file edit with no broader integration concern.\n- A task whose entire scope is \"rename variable X to Y\" with no other change.\n\nBoth over-sizing and fragmentation are Major findings. Note the task ID and\ndescribe the specific issue.\n\n## EDGE-CASE-COVERAGE (Major, TYPE-H)\n\nFor each functional task (non-test, non-infrastructure), check that the\ncorresponding acceptance criteria in acceptance-tests.md include at least one\nedge-case or error-path scenario. Functional tasks that only have happy-path\nacceptance criteria and no associated error-path test task are a Major finding.\n\nReference the specific AC-NNN IDs that lack edge-case coverage.\n\n## TEST-TYPE-MATCH (Major, TYPE-H)\n\nFor each test task, verify that the test type stated in the task (unit, integration,\nend-to-end, acceptance) matches the scope of what is being tested:\n- Unit tests must target a single module or function boundary.\n- Integration tests must involve at least two system components.\n- End-to-end tests must traverse a complete user workflow.\n- Acceptance tests must reference a specific AC-NNN.\n\nA test task whose declared type does not match its scope is a Major finding.\n\n## ROLLBACK-PLAN (Major, TYPE-H)\n\nTasks with `Risk: high` or `Risk: critical` must include a `Rollback:` field or\na Done When item that addresses how the change can be safely reverted if the\ndeployment reveals defects. Acceptable rollback evidence:\n- A feature flag that can disable the change.\n- A migration rollback script referenced in the task scope.\n- An explicit Done When item: \"Rollback procedure documented and tested\".\n\nAbsence of any rollback consideration for high/critical tasks is a Major finding.\n\n## SCOPE-DISJOINT (Major, TYPE-H)\n\nNo two tasks may have overlapping scopes that would cause them to modify the\nsame files for the same purpose simultaneously. Check for:\n- Multiple tasks listing the same primary implementation file in their scope.\n- Multiple tasks claiming to \"update\" the same configuration or schema file.\n\nLegitimate multi-task scope sharing: one task creates a file, a downstream task\nadds tests for it, provided the Blockers field enforces the ordering.\n\nUncoordinated parallel scope overlap (both tasks claim to modify the same file\nwith no blocking relationship) is a Major finding.\n\n## DEPENDENCY-OVERLAP (Major, TYPE-H)\n\nCross-check the dependency ordering implied by Blockers fields against the\nlogical implementation sequence:\n- If task T-B is blocked by T-A, verify that T-A's scope produces an artifact\n  that T-B genuinely depends on.\n- If T-B could logically proceed without T-A's output (i.e. their scopes are\n  independent), the blocker is spurious and inflates the critical path.\n\nSpurious blockers (blocking relationships with no logical dependency) are a\nMajor finding. Missing blockers (tasks whose scopes depend on another task's\noutput but declare no Blockers) are also Major findings when the omission would\ncause integration failures.\n\n## BUGFIX-DIAGNOSTIC-PATH (Major, TYPE-H)\n\nApply this check only to tasks explicitly scoped as bugfix, regression fix,\ndebugging, failure diagnosis, flaky-test resolution, or incident remediation\n(based on title, Goal, Scope, or Done When text). For those tasks, verify the\ntask includes:\n- Reproduction evidence or exact reproduction command/symptom.\n- A diagnostic or root-cause investigation step before implementation.\n- A regression test, verification command, or evidence artifact proving the\n  original failure is fixed.\n\nIf no bugfix/debugging task exists, emit SKIP with finding\n\"SKIP: no bugfix or debugging task in scope.\" A bugfix/debugging task that\nstarts directly with an implementation change and lacks diagnostic or regression\nevidence is a Major finding.\n\n# Severity Reference\n\n- `Critical`: a high/critical task missing mandatory evidence items; hard policy\n  violation. Always blocks progression.\n- `Major`: quality, risk, or sizing defect that will likely cause implementation\n  problems. Blocks progression.\n- `Minor`: advisory or polish finding. Does not block.\n\n# Output Format\n\nWrite output to the path provided by the orchestrator as reviewer-b.json.\nThe JSON must be valid and match this schema exactly:\n\n```json\n{\n  \"schema\": \"task-reviewer-b/v1\",\n  \"stage\": \"task\",\n  \"role\": \"task-reviewer-b\",\n  \"feature\": \"<feature-slug>\",\n  \"attempt\": <M>,\n  \"round\": <N>,\n  \"run_id\": \"<fresh-run-id>\",\n  \"host_session_id\": \"<distinct-host-session-id>\",\n  \"manifest\": {\"allowed_inputs\": [{\"path\":\"<canonical-allowed-path>\",\"sha256\":\"<sha256>\"}]},\n  \"verdict\": \"PASS|NEEDS_WORK|BLOCKED\",\n  \"checks\": [\n    {\n      \"id\": \"RISK-APPROPRIATE\",\n      \"result\": \"PASS|FAIL|SKIP\",\n      \"severity\": \"Critical|Major|Minor\",\n      \"finding\": \"Specific evidence or 'No issues found.'\"\n    }\n  ],\n  \"findings\": [\n    {\n      \"check_id\": \"<CHECK-ID that FAILed>\",\n      \"severity\": \"Critical|Major|Minor\",\n      \"task_id\": \"<T-NNN or null>\",\n      \"finding\": \"<specific evidence>\"\n    }\n  ]\n}\n```\n\nThis is the persisted-state validator's canonical task-stage encoding for this\nrole (`plugins/sdd-quality-loop/scripts/check-workflow-state.sh`): top-level\n`feature`/`attempt`/`round`, `stage: \"task\"`, `role: \"task-reviewer-b\"`, the\nallowed-input list wrapped as `manifest.allowed_inputs`, `checks[].result`, and\na `findings` array. Do not emit a top-level `allowed_input_manifest` field —\nthe validator rejects it for this role.\n\n- `findings` must contain exactly one entry per check whose `result` is FAIL,\n  each with severity Critical, Major, or Minor. When every check is PASS or\n  SKIP, `findings` must be `[]`.\n- `manifest.allowed_inputs` must list every input you actually read and must\n  include every entry of the orchestrator-provided allowed-input manifest. For\n  a registered full-profile feature this includes `design.md`,\n  `traceability.md`, and all four layer specs (`ux-spec.md`,\n  `frontend-spec.md`, `infra-spec.md`, `security-spec.md`) — the validator\n  rejects task-stage evidence whose reviewer manifests omit any layer input.\n\nVerdict rules (the validator recomputes the expected verdict from `findings`):\n- PASS: `findings` is empty (no check FAILed).\n- NEEDS_WORK: one or more findings, none Critical.\n- BLOCKED: one or more Critical findings.\n\nThe `checks` array must contain one entry per check ID in this order:\nRISK-APPROPRIATE, HIGH-CRITICAL-EVIDENCE, TASK-SIZE, EDGE-CASE-COVERAGE,\nTEST-TYPE-MATCH, ROLLBACK-PLAN, SCOPE-DISJOINT, DEPENDENCY-OVERLAP,\nBUGFIX-DIAGNOSTIC-PATH.\n\n# Hard Rules\n\n- Read-only tools only. Never write to any file.\n- Never read reviewer-a.json (enforced by disallowedPaths).\n- Never set any approval or status field in tasks.md.\n- Never approve, endorse, or waive any finding; findings are facts.\n- If you cannot read a required input file, emit BLOCKED with finding\n  \"Required input missing: <path>\".\n- When integrated-summary.json is absent (round 1), skip any check that\n  references prior-round findings and note \"round 1: no prior summary\".\n"
+    }
+  },
+  "candidate_wrapper": "You are reviewing the supplied Birch export task package as a bounded, isolated role-quality experiment. This is not a formal installed-plugin task-review invocation. No canonical ledger reservation, REVIEW_CONTEXT_OK, prior native task PASS or real human task approval is asserted. The exact substantive calibration, check definitions, output format and hard rules from the indicated task role follow this wrapper. Its operational admission/frontmatter/input-transport prefix is excluded explicitly for this experiment; do not request or manufacture its formal launch evidence.\n\nRead every file in the supplied allowed-input manifest yourself, using only ListFiles and ReadFile. These two read-only tools replace the role's native filesystem tools for this experiment. No other files, peers, prior raw reviewer reports or tools are available. Return the complete review JSON as your final message, with no fences or surrounding text; the controller persists it. Do not write reviewer JSON or any other file yourself.\n\nThe feature is birch-access-export, attempt 3, round 1. This fixture simulates post-implementation provenance re-review: Approved and In Progress/Planned lifecycle values are valid under INITIAL-STATE. They are synthetic values, not new authorization or actual completed gates. No prior PASS evidence is supplied: apply every substantive TYPE-H check normally, without a convergence waiver. Require planned inspectable evidence, not live implementation or test execution. The precheck metadata, graph and B's fixed structural summary are synthetic fixture inputs. Their hash/risk consistency has been checked offline with actual product tools; no full predecessor or native admission is claimed. B's summary is supplied in round 1 per the loop's explicit step 3 and does not represent another candidate's work.\n\nThe following WFI-004 canonical output distinction is part of the supplied task contract, not a hidden grading rule:\n- A: schema task-reviewer-a/v1; stage task-review; role reviewer-a; manifest is a flat array of path/sha256 objects; each check uses status.\n- B: schema task-reviewer-b/v1; stage task; role task-reviewer-b; manifest is an object with allowed_inputs array; each check uses result.\n- Both include feature, attempt, round, the supplied experimental run_id and host_session_id, verdict, every ordered check, and findings. Exactly one findings entry corresponds to each FAIL check. Critical findings imply BLOCKED; other findings imply NEEDS_WORK; no findings implies PASS. Do not emit top-level allowed_input_manifest, swap A/B shapes, or fabricate additional identity proof. The experimental identifiers are controller correlation labels, not claims of a native backend identity.\n- Output manifests copy the presented path/hash list exactly. These hashes pin the actual bytes presented by the read-only transport. The fixture precheck's normalized tasks digest separately exercises product lifecycle hashing; this experimental output is not submitted as formal persisted stage evidence.\n\nFor each check cite the exact artifact and task/REQ/AC/field evidence supporting the conclusion. A precise section or identifier is sufficient under the product calibration; path:line citations are welcome but not an additional hidden hard requirement. Do not invent findings simply to match a suspected experiment label. A grounded finding outside the evaluator's expected map remains subject to independent semantic judgment; it is not automatically a false positive.\n",
+  "expected_check_map": {
+    "status": "Pre-run hypotheses requiring independent review; no actual candidate findings",
+    "baseline_findings": [],
+    "unkeyed_grounded_findings": "Must be independently adjudicated; never automatically false positive",
+    "roles": {
+      "task-reviewer-a": {
+        "clean": {
+          "expected_verdict": "PASS",
+          "expected_findings": 0,
+          "checks": [
+            {
+              "id": "PREREQ-AC-IDS",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Critical",
+              "grounds": [
+                "tasks.md:Requirements",
+                "acceptance-tests.md:AC-001/002/003"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "BLOCKERS-FORMAT",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Blockers None / T-001"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "REQ-COVERAGE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Critical",
+              "grounds": [
+                "requirements.md:REQ-001/002",
+                "tasks.md:Requirements"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "AC-COVERAGE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Critical",
+              "grounds": [
+                "acceptance-tests.md:AC-001/002/003",
+                "tasks.md:Requirements",
+                "traceability.md:Acceptance"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "ORPHAN-TASK",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Requirements REQ-001 / REQ-002"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "ORPHAN-TEST",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Goal / Scope functional and documentation tasks; no exclusively test task"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "INITIAL-STATE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Lifecycle context",
+                "tasks.md:Approval / Status",
+                "wrapper:declared synthetic post-implementation re-review"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "RISK-WORKFLOW-FORMAT",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Critical",
+              "grounds": [
+                "tasks.md:high/tdd and low/test-after"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "NO-DUPLICATE-AC",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Requirements non-overlapping AC assignments"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "DEPENDENCY-COMPLETE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Blockers T-001",
+                "dependency-graph.json:nodes"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "DEPENDENCY-CYCLE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Critical",
+              "grounds": [
+                "dependency-graph.json:T-002 waits for T-001"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "SINGLE-CONCERN",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Goal / Scope endpoint vs runbook"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "OBSERVABLE-DONE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Done When inspectable commands/reports/sections; no frozen edits",
+                "precheck-result.json:frozen_artifact_done_when []"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "TRACEABILITY-SYNC",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "traceability.md:both REQ/task rows and canonical layer anchors",
+                "layer documents:referenced sections"
+              ],
+              "seeded_defect": false
+            }
+          ]
+        },
+        "a-gap": {
+          "expected_verdict": "BLOCKED",
+          "expected_findings": 1,
+          "checks": [
+            {
+              "id": "PREREQ-AC-IDS",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Critical",
+              "grounds": [
+                "tasks.md:Requirements",
+                "acceptance-tests.md:AC-001/002/003"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "BLOCKERS-FORMAT",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Blockers None / T-001"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "REQ-COVERAGE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Critical",
+              "grounds": [
+                "requirements.md:REQ-001/002",
+                "tasks.md:Requirements"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "AC-COVERAGE",
+              "expected_statuses": [
+                "FAIL"
+              ],
+              "severity": "Critical",
+              "grounds": [
+                "acceptance-tests.md:AC-001/002/003",
+                "tasks.md:Requirements",
+                "traceability.md:Acceptance"
+              ],
+              "seeded_defect": true
+            },
+            {
+              "id": "ORPHAN-TASK",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Requirements REQ-001 / REQ-002"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "ORPHAN-TEST",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Goal / Scope functional and documentation tasks; no exclusively test task"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "INITIAL-STATE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Lifecycle context",
+                "tasks.md:Approval / Status",
+                "wrapper:declared synthetic post-implementation re-review"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "RISK-WORKFLOW-FORMAT",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Critical",
+              "grounds": [
+                "tasks.md:high/tdd and low/test-after"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "NO-DUPLICATE-AC",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Requirements non-overlapping AC assignments"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "DEPENDENCY-COMPLETE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Blockers T-001",
+                "dependency-graph.json:nodes"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "DEPENDENCY-CYCLE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Critical",
+              "grounds": [
+                "dependency-graph.json:T-002 waits for T-001"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "SINGLE-CONCERN",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Goal / Scope endpoint vs runbook"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "OBSERVABLE-DONE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:Done When inspectable commands/reports/sections; no frozen edits",
+                "precheck-result.json:frozen_artifact_done_when []"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "TRACEABILITY-SYNC",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "traceability.md:both REQ/task rows and canonical layer anchors",
+                "layer documents:referenced sections"
+              ],
+              "seeded_defect": false
+            }
+          ]
+        }
+      },
+      "task-reviewer-b": {
+        "clean": {
+          "expected_verdict": "PASS",
+          "expected_findings": 0,
+          "checks": [
+            {
+              "id": "RISK-APPROPRIATE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:T-001 authorization/API high; T-002 documentation low"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "HIGH-CRITICAL-EVIDENCE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Critical",
+              "grounds": [
+                "tasks.md:T-001 Done When Red→Green and independent review"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "TASK-SIZE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:T-001 three implementation areas/four criteria; T-002 one document/one criterion"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "EDGE-CASE-COVERAGE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "acceptance-tests.md:AC-001 denied requests and AC-003 invalid limits"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "TEST-TYPE-MATCH",
+              "expected_statuses": [
+                "PASS",
+                "SKIP"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:T-001 integration test scope crosses route/policy/repository; neither task exclusively tests"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "ROLLBACK-PLAN",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:T-001 Rollback and Done When flag-disable evidence"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "SCOPE-DISJOINT",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:distinct source/test vs runbook paths"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "DEPENDENCY-OVERLAP",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:T-002 consumes T-001 recorded response outputs"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "BUGFIX-DIAGNOSTIC-PATH",
+              "expected_statuses": [
+                "SKIP"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:new endpoint and documentation; no bugfix/debugging scope"
+              ],
+              "seeded_defect": false
+            }
+          ]
+        },
+        "b-gap": {
+          "expected_verdict": "BLOCKED",
+          "expected_findings": 1,
+          "checks": [
+            {
+              "id": "RISK-APPROPRIATE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:T-001 authorization/API high; T-002 documentation low"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "HIGH-CRITICAL-EVIDENCE",
+              "expected_statuses": [
+                "FAIL"
+              ],
+              "severity": "Critical",
+              "grounds": [
+                "tasks.md:T-001 Done When Red→Green and independent review"
+              ],
+              "seeded_defect": true
+            },
+            {
+              "id": "TASK-SIZE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:T-001 three implementation areas/four criteria; T-002 one document/one criterion"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "EDGE-CASE-COVERAGE",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "acceptance-tests.md:AC-001 denied requests and AC-003 invalid limits"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "TEST-TYPE-MATCH",
+              "expected_statuses": [
+                "PASS",
+                "SKIP"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:T-001 integration test scope crosses route/policy/repository; neither task exclusively tests"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "ROLLBACK-PLAN",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:T-001 Rollback and Done When flag-disable evidence"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "SCOPE-DISJOINT",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:distinct source/test vs runbook paths"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "DEPENDENCY-OVERLAP",
+              "expected_statuses": [
+                "PASS"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:T-002 consumes T-001 recorded response outputs"
+              ],
+              "seeded_defect": false
+            },
+            {
+              "id": "BUGFIX-DIAGNOSTIC-PATH",
+              "expected_statuses": [
+                "SKIP"
+              ],
+              "severity": "Major",
+              "grounds": [
+                "tasks.md:new endpoint and documentation; no bugfix/debugging scope"
+              ],
+              "seeded_defect": false
+            }
+          ]
+        }
+      }
+    }
+  },
+  "judgment_criteria": "# Frozen judgment protocol for independent review before native execution\n\nJudge opaque candidate outputs against their exact visible input bytes and supplied role-source extraction. The same independent semantic judge and rubric apply to all eight outputs. Do not infer model identity or repetition from style; controller correlation mapping remains separate. The expected-check map is a pre-run hypothesis, not a substitute for artifact judgment. Accept grounded unexpected findings after independent adjudication; preserve the original map and record the reason. Do not repair candidate outputs, retrofit the map to hide misses, or turn schema validity into semantic correctness.\n\nRequired evidence: complete ordered check inventory; role-correct asymmetric WFI-004 canonical fields; findings/verdict consistency; exact visible manifest and supplied experimental correlation IDs; every required file actually read; no unauthorized writes/reads/tools; actual native terminal completion within the unchanged 24-call/300-second budget. Native failures, unknown event taxonomy, output truncation, identity/carrier mismatch or missing final JSON are infrastructure/contract failures, never semantic passes. Preserve every attempt; stop on an infrastructure/boundary failure and obtain a disposition rather than retrying. Zero automatic retries.\n\nA control: expected no substantive findings; all 14 checks PASS with actual citations. A mutation: AC-003 still exists but no task/traceability assignment remains, including the corresponding TEST-003 references. AC-COVERAGE alone is expected FAIL/Critical with AC-003 and T-001 evidence; other checks retain the control result, verdict BLOCKED. The endpoint still implements REQ-001; AC-001 retains authorization and error scenarios, so a second missing-REQ or edge-case finding is not automatic.\n\nB control: expected no substantive findings; TEST-TYPE-MATCH may be PASS with the actual integration-boundary evidence or SKIP because neither task is exclusively a test task, consistent with the role/calibration scope. BUGFIX-DIAGNOSTIC-PATH must SKIP (no bugfix task); all other checks PASS. B mutation: T-001 remains high/tdd with Red→Green and rollback planning, but its Done When list lacks any independent-review-verdict criterion. HIGH-CRITICAL-EVIDENCE alone is expected FAIL/Critical with that exact omission; all other checks retain their control outcomes, verdict BLOCKED. Do not demand completed implementation evidence in this task-plan review.\n\nLifecycle: the wrapper explicitly declares synthetic post-implementation re-review. Approved/In Progress/Planned are valid fixture values. No actual prior native PASS exists; no TYPE-H advisory-only exemption is applicable. Neither metadata nor role-quality results establish human approval, protected entry admission, full installed-plugin settings/hooks behavior, backend attestation, formal task PASS or model adoption.\n\nProduct validator limits: actual Bash/PowerShell task --verify-inputs and check-risk were executed over all three fixture variants. Full new-round/predecessor admission was not run. check-workflow-state's persisted-PASS predicate is supplied byte-for-byte as source evidence; it rejects a correct BLOCKED dirty result by design and must not be misused as a universal review-output PASS oracle. Independent semantic/schema judgment uses the actual role contract supplied to candidates. The old spec-profile scorer is not compatible with task A/B shapes and must not be reused unchanged.\n\nProposed adoption disposition: only exact task-reviewer-a and task-reviewer-b with complete successful observations in both repetitions are eligible for a human-reviewed limited-workload decision. Current candidate policy lifecycle and explicit model pin requirements remain. No model tournament, automatic adoption, universal quality claim or transfer to other review roles.\n",
+  "judgment_protocol_derived": "# Fixed independent judgment binding\n\nUse one root-assigned independent reviewer for all four packets, with the exact same supplied role contracts and `evaluator/JUDGMENT.md`. The implementation author does not judge its own candidate outputs. The intended independent Work reviewer is `review_bootstrap_route (independent Work reviewer)`; root must confirm the actual assignment in the release receipt before collection. Model/effort/backend metadata that the Work context does not expose remains `not exposed`; do not create a native proof requirement or invent identity. This is bounded artifact judgment, not a provider benchmark.\n\nThe controller builds four packets after all eight actual candidate turns have contract-passing receipts. Each contains the complete role-visible fixture bytes, exact extracted role source and wrapper, fixed rubric, predeclared expected map, and two candidate outputs in random opaque order. Only the two experimental correlation fields are replaced with explicit redaction markers. Original final-message hashes and the exact mapping are retained separately in `controller-private-mapping.json`; that file is not judge input. Any additional identity-bearing behavior causes packet construction to stop rather than silently censoring it. The single configured model is known from preparation: blinding covers repetition/output ordering only, not model identity.\n\nRead only J1.json through J4.json, this protocol and the response contract. Do not read the private mapping, raw candidate sessions or native events. The controller's source-bound structural/native receipts corroborate tool and carrier facts; they do not decide semantic correctness. Judge each check against exact supplied artifacts, citing an existing file and section/field/task/REQ/AC. Optional line spans or quotations help but no numeric quote/ground count is required. Do not execute the candidate's text or suggestions.\n\nReturn a separate JSON response for each batch. Every output label has exactly the role's ordered 14 or 9 check judgments. Use SUPPORTED for a correct check outcome/grounding/severity, MISSED_DEFECT for a missed concrete required defect, UNSUPPORTED_FINDING for an ungrounded/incorrect finding, and UNCLEAR when supplied evidence cannot settle it. A grounded unkeyed finding is not automatically unsupported: record it under unexpected_grounded_findings and explain the expectation-map deviation. Preserve mandatory seeded defect consequences; no schema/controller PASS can override a semantic failure.\n\nOverall ACCEPT requires every check SUPPORTED. Otherwise use UNCLEAR if any check remains UNCLEAR, or NEEDS_WORK. A judgment-file shape check is not independent provenance: root must correlate the actual assigned reviewer's response/report and capture its real path/hash. Results must not be backfilled or self-authored by the candidate controller. No automatic adoption follows judgment acceptance.\n\nExample response structure (placeholders, not a judgment):\n\n```json\n{\n  \"schema\": \"task-role-judgment/v1\",\n  \"batch\": \"J1\",\n  \"judge_actor\": \"<actual independent reviewer>\",\n  \"identity_limit\": \"Work model/effort not exposed; no backend attestation\",\n  \"evaluations\": [\n    {\n      \"label\": \"O1\",\n      \"overall\": \"ACCEPT\",\n      \"checks\": [\n        {\n          \"id\": \"<actual ordered check ID>\",\n          \"assessment\": \"SUPPORTED\",\n          \"evidence\": [{\"path\": \"<provided input path>\", \"location\": \"<existing section/field/task/criterion>\", \"explanation\": \"<concrete grounded reasoning>\"}],\n          \"note\": \"<reason for result/severity>\"\n        }\n      ],\n      \"unexpected_grounded_findings\": []\n    }\n  ]\n}\n```\n\nThe actual response contains O1 and O2, both complete inventories. Use prose in the unexpected-grounded-findings list; root and independent reviewer reconcile any material map disagreement explicitly without rewriting the frozen original map.\n",
+  "judgment_protocol_original_sha256": "a63316277f1ef77e536d3d13c0c452fff6429894625905524627c49c7a3cfa17"
+}

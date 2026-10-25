@@ -2364,6 +2364,9 @@ class SelectedPanelistLaunch(LaunchFixture):
 
     def fixture_policy(self):
         policy = copy.deepcopy(self.trusted_policy)
+        # Synthetic transport evidence must not inherit uncopied live adoptions.
+        for candidate in policy['models']:
+            candidate['adoption'] = []
         model = next(m for m in policy['models'] if m['id'] == 'gpt-6-astra')
         evidence = canonical({'fixture_only': True, 'claim': 'transport fixture, no model adoption or inference'})
         (self.root / 'gpt-fixture-adoption.json').write_bytes(evidence)

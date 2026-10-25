@@ -1,0 +1,133 @@
+{
+  "schema": "task-role-retained-provenance/v1",
+  "originals_unchanged": true,
+  "public_replay_limit": "Public bundles reconstruct task inputs and output/judgment content with explicit correlation redactions. Native event/state/metadata histories and original private mapping are retained externally and are not published or implied to be public paths.",
+  "controller_manifest_sha256": "5b281054b6abbbccccdcea3a8aa8993aa540d9b4932d97a6876cf28deda67a90",
+  "preparation_manifest_sha256": "8ef8547604b6f2432ece1fe03664a0dddabf310a72b6cb62223e2f30e2b5f21c",
+  "release_receipt_sha256": "45931b3246664e88fe5e0bfa4e82a08f39d9a059be72dc01ef119543fa39ce99",
+  "native_collection_original_sha256": "d6f71c2e7a2bd3bfb66b1a9b11721cb469368819269a8ae5174ebb4e32b33991",
+  "independent_judgment_manifest_sha256": "a94d843ba65430570c32c7d9df92ea5712c44d314bf4086481b78eed2e2574a3",
+  "independent_report_sha256": "23bd911ff170db3bdf41293478875e1b1bc9d733314b47a5b54e227927348780",
+  "independent_original_judgment_sha256": {
+    "J1-judgment.json": "8f3a42996ea0eb9d713e038aa7676315cfe85ada598758cd7622b59d84c84ebe",
+    "J2-judgment.json": "6e3c317d513914c8065991c1d51c34a661543d46b42f8d3edf6129db884c90ce",
+    "J3-judgment.json": "669ca532f65ce24115f956e6e1e94614822c712d8546e2782dd40f1e957986e8",
+    "J4-judgment.json": "d1d60a803640ef496821a211850aadf9b52ddffa650fc75aa6c2b28509a15df5"
+  },
+  "private_cells": [
+    {
+      "cell": "t01",
+      "original_private_capture_sha256": {
+        "trial.json": "1389cd5920c1e1bb20d8ff093aacf6b441d0f5dc20ea3d890369eddf7249db87",
+        "request.txt": "81aea46e8c575924006a2407ca9113dd666be39bbd7345cedcf089135e66df23",
+        "events.jsonl": "24e08f81955566644fc17903ccf7beb0929f124c8d8aabd560427e8999ec4b11",
+        "summary.json": "a5bdb249487952b6153bb5ee97700df03cadc7255f4d35fa23ee410efd91da02",
+        "state.json": "a6e26854ac25d7f6d533487d6b47fce5d013ec8da2274f174027761a5304ac08",
+        "mcp-receipts.jsonl": "5834c2813d12596f65261018936878e94198a7274c12686ee0a5cbfb18371c31"
+      },
+      "original_score_sha256": "08ce1c12bc07006c5af77eb42b94458641f34d6797b7179405bc241740c5176c",
+      "original_final_message_sha256": "fad04c578025d71ec9d879701ae1a2cc608e319041b15d79a240320ce9875ea4",
+      "availability": "Retained private external originals. Hashes are provenance, not public file dependencies or public raw-replay availability."
+    },
+    {
+      "cell": "t02",
+      "original_private_capture_sha256": {
+        "trial.json": "416827fa378746d2b829668673fa250275aa545b8c08380899a107aaf611d065",
+        "request.txt": "a90c497c2dee67a5e02d5cd9f97415fa188b78f7f02f83c2a932407a886f0803",
+        "events.jsonl": "95b33a198a9ea47963a030403422e0c334f6827b85cc5e737201015de001cc97",
+        "summary.json": "418494cdc77758cd838f7cb72282081230b576872c87daf200a3fec18f14f842",
+        "state.json": "79d2b8fe4660937662a16b0c495f23fa3b774614bda88f1dac3c975b650fa5fe",
+        "mcp-receipts.jsonl": "8daba9259cc0692bb85c3472510f98dc34e699b5196e78457c39abbccc34db85"
+      },
+      "original_score_sha256": "5fa67bdc52ac965cccab44208e57da9725640805d5410648225b302cc4f65d54",
+      "original_final_message_sha256": "3bda08e0d2c0484d165cae1d8d87693c5eabd854958d7709647b1f297514b9b1",
+      "availability": "Retained private external originals. Hashes are provenance, not public file dependencies or public raw-replay availability."
+    },
+    {
+      "cell": "t03",
+      "original_private_capture_sha256": {
+        "trial.json": "260ee83e7a733eeb24d2976b0dd4da86b108153c3379c77106eda8cac6fd2962",
+        "request.txt": "68800cf06c876fad97711e43114ef7e1baeaa11decee4d68ffcc0bae0185b3a3",
+        "events.jsonl": "ee482fcdf9ab9d1d8b6e7906f2a1d240ba52a97cf7e901d2250c35d1d5cd88db",
+        "summary.json": "60599d4ec2122e2451db4fd21903a08aca9350634652b2b47abb166b69c21cbf",
+        "state.json": "e05dfde6f35c5adc86a61ebf5c5986d4be2f734f6a6990ca473def6414458d7d",
+        "mcp-receipts.jsonl": "74f9ceba15b717b83866cbb42f2cdf6ea505cb7fd4296a17c602eb0629901eee"
+      },
+      "original_score_sha256": "5c40281b297a5cba7a604541c50ddfd01f21012bc9486e00fc6863311ae847bb",
+      "original_final_message_sha256": "51ed4010adb9acd15a72455e1327c31b1293523928f047a5aeb0b279571c8f8e",
+      "availability": "Retained private external originals. Hashes are provenance, not public file dependencies or public raw-replay availability."
+    },
+    {
+      "cell": "t04",
+      "original_private_capture_sha256": {
+        "trial.json": "f0a6ed9441d9c3cc24d3863705ac94a9aefe1d55640a158e284b9e31ffb7fd03",
+        "request.txt": "617740bcf93c2a569fa6227244d12bdaf87681b7b82c55ccf62d99bffa7047ef",
+        "events.jsonl": "c0e1aabeae56bf83c59781269d6971d4563e0a5cfa742e31857f295c34005f82",
+        "summary.json": "e51d5158fcde83ce757e51e56d078a8d561b77db34d1fce8cadbfb5ed52b5a73",
+        "state.json": "10ea3774dd9ba388eb5b70d4c79def5d100612cbb4f3f2c65ba250fa8d000a48",
+        "mcp-receipts.jsonl": "611eb39428e1fa49f1a5e43cd2c4b7401a06c128f85e47d7ef870c2c9587d775"
+      },
+      "original_score_sha256": "aa1e81f334826ef29ccae53674f6091d0cf28872dd3eba1dd34e7afd2e57fa7f",
+      "original_final_message_sha256": "2344754284cae00c2ea552bfed198172c4b238159912389bf18f13a1ee925d13",
+      "availability": "Retained private external originals. Hashes are provenance, not public file dependencies or public raw-replay availability."
+    },
+    {
+      "cell": "t05",
+      "original_private_capture_sha256": {
+        "trial.json": "b7bdf47744bebad42cf257e2ba8aeb0fcff89a8c0ff6085ccc029402903e881f",
+        "request.txt": "7f0925963dd649a7321dd0d6b7921c80dc3c5358214c606ba4f959a34ad4872e",
+        "events.jsonl": "3ff18c88cadea934619a9037f34e807fef467c7651e24c05bc0e4128d3e68931",
+        "summary.json": "88ab93e032e7468245ab7ad804d6e49510fdb5038b20bce5421d05d65ca4be3c",
+        "state.json": "03182806465d2ae8d4f034e57dfeae74dc3c4364e2f4a903f0718b386d9e0e7d",
+        "mcp-receipts.jsonl": "f792fd528a6f647b1f0239943833acdc87e1b30c685c757907acf9a67936329b"
+      },
+      "original_score_sha256": "9787eab5734e9322381223d3938e9a2a1b333fb6aad5a3a784adcea11f574bc5",
+      "original_final_message_sha256": "f5b5d0826c114ba2d18ac464a80e860d8b1f2902ce1fb063bd15e24ba7f8a73c",
+      "availability": "Retained private external originals. Hashes are provenance, not public file dependencies or public raw-replay availability."
+    },
+    {
+      "cell": "t06",
+      "original_private_capture_sha256": {
+        "trial.json": "ca93587ab7099e6d9513753c36d2143391536fbfc9677603143d9a161a745f30",
+        "request.txt": "9baffc4df3fcf955e1f7893a899cacbffb7f3edf1957bfd85f40ca4971206733",
+        "events.jsonl": "a6ca1ecd7df5e568faca1a76b738420c7bfb4c9db5642365f28f5e52b1a30ee2",
+        "summary.json": "720f20cb31a4edd9cefcc534bff9ce1748405c27b629ac476adda0588054c703",
+        "state.json": "e22621840faafbabc60e464ea64ed0fa364dc228571d9e0280b8760deeba025d",
+        "mcp-receipts.jsonl": "ab28abb0085dd413820cba038c14858d4c1e47896c4a2d4dcfe926964b5236e1"
+      },
+      "original_score_sha256": "fcc78a939df82ff3efc39115091d518d5a1ade623ba1be32430425a42e4d517a",
+      "original_final_message_sha256": "521d78a52b1dcf2bb5f5159ff018bc3d54bc713d36e7abfe4cd93b4c3c24c4e6",
+      "availability": "Retained private external originals. Hashes are provenance, not public file dependencies or public raw-replay availability."
+    },
+    {
+      "cell": "t07",
+      "original_private_capture_sha256": {
+        "trial.json": "dddc5a4ad46f1a4b92f1b997aaaab7e9a52234bc081bcce07aa5deb2aaa9cc17",
+        "request.txt": "a0b567e5aa775ed30ff23a74c5f351f5106ff0727f30698049e301c97acbd614",
+        "events.jsonl": "c9120de134cf22e4ee0df61865387f8679b82d85214ce60b06aad4103d0f051b",
+        "summary.json": "63565253e78d17ade601a50442ec24f9627754caa68a9aa334651897ca10be98",
+        "state.json": "f46ca0a8f04104ad3e3fbeef495bb4a706a180de22c78aa5e81968bc355f34ad",
+        "mcp-receipts.jsonl": "a1f188818818cf122511481dc27516c121d488afa9f9389981bcd8fcf142350c"
+      },
+      "original_score_sha256": "6b22f9411de7b33a941931a243f6d820743a487c65d69f4505e800ad526e9a89",
+      "original_final_message_sha256": "c2f07885253e1975c39e898a2b33792f85433eade2e3cb0822430384750ea188",
+      "availability": "Retained private external originals. Hashes are provenance, not public file dependencies or public raw-replay availability."
+    },
+    {
+      "cell": "t08",
+      "original_private_capture_sha256": {
+        "trial.json": "f7553a5b4683b132e08be2389a95b4b23ee9eed54748e61e23029a2cc2e03b99",
+        "request.txt": "f05a9716485b106e7508fa1eb4cd723b966d57aa6b8b57d21299f379286e77da",
+        "events.jsonl": "8f12dd017caeebb3c715c8798ac76ea589bc57efff3549ae0ed37cfa239a4045",
+        "summary.json": "5de66734d05a48e4ee446809f579b3e7d12cc4da64ff99a9ecec018fa60d0de2",
+        "state.json": "41f03c23dadc151d826100afb884599b382c1a6633529c366cbf0637527c3c13",
+        "mcp-receipts.jsonl": "d85452f85c9b2e70d5b28d6ca8a88748b018ab617acdb160e6ce418b764db018"
+      },
+      "original_score_sha256": "5acd989f0fd32387d23d16d77109911440b82528c4f5b2edf09ab4e45a537cca",
+      "original_final_message_sha256": "08efb7d2dba9646f7618071dcdf188382f45ac043cba0add8d22ab52b50822a0",
+      "availability": "Retained private external originals. Hashes are provenance, not public file dependencies or public raw-replay availability."
+    }
+  ],
+  "search_scope_incident_original_sha256": "3016dc6560dabdaf7997e979afd39e9b74fced51704367fa97a801ff50960ddd",
+  "search_scope_limit": "An accidental unscoped read-only search occurred during preparation; no ledger/native-history content was visible, but briefly opened files cannot be certified. No writes or rerun resulted. This is not concealed by a blanket no-private-read claim."
+}

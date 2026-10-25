@@ -1,0 +1,1584 @@
+{
+  "schema": "task-role-judgment-public-projection/v1",
+  "judge_configuration": "Actual independent Work reviewer; model/effort not exposed, no backend attestation",
+  "judgments": {
+    "J1": {
+      "derived_from_original_sha256": "8f3a42996ea0eb9d713e038aa7676315cfe85ada598758cd7622b59d84c84ebe",
+      "transformation": "Only internal Work context path is replaced by its public reviewer name; judgment content unchanged.",
+      "judgment": {
+        "schema": "task-role-judgment/v1",
+        "batch": "J1",
+        "judge_actor": "review_bootstrap_route (independent Work reviewer)",
+        "identity_limit": "Independent Work artifact judgment; model and effort not exposed. No native/backend or formal quality-gate provenance claimed. Single configured model known; only output/repetition ordering blinded.",
+        "evaluations": [
+          {
+            "label": "O1",
+            "overall": "ACCEPT",
+            "checks": [
+              {
+                "id": "PREREQ-AC-IDS",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Requirements",
+                    "explanation": "Every AC identifier actually referenced by a task resolves to an acceptance heading; an unassigned AC is a separate coverage defect."
+                  },
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "AC-001, AC-002, AC-003",
+                    "explanation": "All three identifiers exist; neither task cites a nonexistent one."
+                  }
+                ],
+                "note": "PASS correctly checks validity of referenced IDs, independently of complete coverage."
+              },
+              {
+                "id": "BLOCKERS-FORMAT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Blockers",
+                    "explanation": "The exact values are None and T-001, with no range or prose."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+                    "location": "blockers_format_valid",
+                    "explanation": "The supplied synthetic mechanical result agrees with the visible fields."
+                  }
+                ],
+                "note": "PASS is grounded in exact valid blocker field values."
+              },
+              {
+                "id": "REQ-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/requirements.md",
+                    "location": "REQ-001 and REQ-002",
+                    "explanation": "These are the two defined requirements."
+                  },
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Requirements",
+                    "explanation": "REQ-001 remains assigned to T-001 and REQ-002 to T-002, including the acceptance-gap variant."
+                  }
+                ],
+                "note": "PASS correctly recognizes both requirements remain assigned."
+              },
+              {
+                "id": "AC-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "AC-001, AC-002, AC-003",
+                    "explanation": "These exhaust the acceptance inventory."
+                  },
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Requirements, Test IDs and Done When",
+                    "explanation": "T-001 owns AC-001/AC-003 and TEST-001/TEST-003; T-002 owns AC-002/TEST-002. Each criterion has a planned inspectable owner."
+                  }
+                ],
+                "note": "PASS correctly identifies ownership of all three acceptance criteria."
+              },
+              {
+                "id": "ORPHAN-TASK",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Requirements",
+                    "explanation": "Both tasks name an existing REQ identifier, so neither is orphaned."
+                  }
+                ],
+                "note": "PASS is supported by each task’s explicit requirement ownership."
+              },
+              {
+                "id": "ORPHAN-TEST",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Task titles, Goal / Scope and Requirements",
+                    "explanation": "Neither task is exclusively a test task; both nevertheless carry acceptance references. Coupled endpoint integration tests do not create an unreferenced separate task."
+                  }
+                ],
+                "note": "PASS is supported; no acceptance-unlinked test-only task exists."
+              },
+              {
+                "id": "INITIAL-STATE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Lifecycle context and Approval/Status fields",
+                    "explanation": "The declared synthetic provenance-review scenario explicitly permits Approved with In Progress/Planned. Accepting these fixture values does not attest real approval or a previous gate."
+                  }
+                ],
+                "note": "PASS applies the declared synthetic provenance lifecycle without inventing real authorization."
+              },
+              {
+                "id": "RISK-WORKFLOW-FORMAT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Risk and Required Workflow",
+                    "explanation": "T-001 is high/tdd and T-002 low/test-after, the explicit role-defined pairings."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+                    "location": "workflow_match_precheck",
+                    "explanation": "PASS corroborates rather than replaces checking the visible pairings."
+                  }
+                ],
+                "note": "PASS uses the correct risk/workflow pairings."
+              },
+              {
+                "id": "NO-DUPLICATE-AC",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Requirements fields",
+                    "explanation": "Assigned acceptance identifiers are disjoint between tasks; the missing AC-003 in J2 does not create a duplicate."
+                  }
+                ],
+                "note": "PASS is correct for the nonoverlapping assigned acceptance sets."
+              },
+              {
+                "id": "DEPENDENCY-COMPLETE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-002 Blockers and T-001 heading",
+                    "explanation": "The only referenced predecessor exists."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/dependency-graph.json",
+                    "location": "nodes",
+                    "explanation": "Both T-001 and T-002 are present."
+                  }
+                ],
+                "note": "PASS correctly resolves the sole predecessor to an existing task."
+              },
+              {
+                "id": "DEPENDENCY-CYCLE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/dependency-graph.json",
+                    "location": "nodes and edges",
+                    "explanation": "The single edge T-002→T-001 cannot form a cycle; the visible blocker formatting is valid."
+                  }
+                ],
+                "note": "PASS follows directly from the single acyclic edge."
+              },
+              {
+                "id": "SINGLE-CONCERN",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Goal / Scope sections",
+                    "explanation": "Route, policy, repository and their integration test implement one export feature; the downstream runbook is a separate coherent documentation task."
+                  }
+                ],
+                "note": "PASS correctly allows directly tied tests within one feature concern."
+              },
+              {
+                "id": "OBSERVABLE-DONE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Done When sections",
+                    "explanation": "Concrete pytest/report, checkpoint, named independent verdict and rollback artifacts are planned; T-002 names four runbook sections and a report. No item requires editing a frozen specification."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+                    "location": "frozen_artifact_done_when",
+                    "explanation": "The list is empty and the actual criteria introduce no unaddressed frozen-write requirement."
+                  }
+                ],
+                "note": "PASS evaluates planned inspectable evidence and respects the frozen-artifact boundary."
+              },
+              {
+                "id": "TRACEABILITY-SYNC",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/traceability.md",
+                    "location": "REQ-001/REQ-002 rows and Layer Spec cells",
+                    "explanation": "Both task IDs and requirement IDs resolve; the declared canonical layer anchors have corresponding sections. AC-003 absence in J2 belongs to AC-COVERAGE rather than a duplicate task/REQ mismatch."
+                  },
+                  {
+                    "path": "specs/birch-access-export/design.md",
+                    "location": "Architecture and Delivery",
+                    "explanation": "Both design anchors exist."
+                  },
+                  {
+                    "path": "specs/birch-access-export/security-spec.md",
+                    "location": "authorization",
+                    "explanation": "The security anchor exists."
+                  },
+                  {
+                    "path": "specs/birch-access-export/infra-spec.md",
+                    "location": "feature-flag",
+                    "explanation": "The deployment anchor exists."
+                  },
+                  {
+                    "path": "specs/birch-access-export/ux-spec.md",
+                    "location": "request-flow",
+                    "explanation": "The UX anchor exists."
+                  },
+                  {
+                    "path": "specs/birch-access-export/frontend-spec.md",
+                    "location": "api-client",
+                    "explanation": "The client anchor exists."
+                  }
+                ],
+                "note": "PASS is grounded in task/REQ resolution and real layer/design anchors."
+              }
+            ],
+            "unexpected_grounded_findings": []
+          },
+          {
+            "label": "O2",
+            "overall": "ACCEPT",
+            "checks": [
+              {
+                "id": "PREREQ-AC-IDS",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Requirements",
+                    "explanation": "Every AC identifier actually referenced by a task resolves to an acceptance heading; an unassigned AC is a separate coverage defect."
+                  },
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "AC-001, AC-002, AC-003",
+                    "explanation": "All three identifiers exist; neither task cites a nonexistent one."
+                  }
+                ],
+                "note": "PASS correctly checks validity of referenced IDs, independently of complete coverage."
+              },
+              {
+                "id": "BLOCKERS-FORMAT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Blockers",
+                    "explanation": "The exact values are None and T-001, with no range or prose."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+                    "location": "blockers_format_valid",
+                    "explanation": "The supplied synthetic mechanical result agrees with the visible fields."
+                  }
+                ],
+                "note": "PASS is grounded in exact valid blocker field values."
+              },
+              {
+                "id": "REQ-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/requirements.md",
+                    "location": "REQ-001 and REQ-002",
+                    "explanation": "These are the two defined requirements."
+                  },
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Requirements",
+                    "explanation": "REQ-001 remains assigned to T-001 and REQ-002 to T-002, including the acceptance-gap variant."
+                  }
+                ],
+                "note": "PASS correctly recognizes both requirements remain assigned."
+              },
+              {
+                "id": "AC-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "AC-001, AC-002, AC-003",
+                    "explanation": "These exhaust the acceptance inventory."
+                  },
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Requirements, Test IDs and Done When",
+                    "explanation": "T-001 owns AC-001/AC-003 and TEST-001/TEST-003; T-002 owns AC-002/TEST-002. Each criterion has a planned inspectable owner."
+                  }
+                ],
+                "note": "PASS correctly identifies ownership of all three acceptance criteria."
+              },
+              {
+                "id": "ORPHAN-TASK",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Requirements",
+                    "explanation": "Both tasks name an existing REQ identifier, so neither is orphaned."
+                  }
+                ],
+                "note": "PASS is supported by each task’s explicit requirement ownership."
+              },
+              {
+                "id": "ORPHAN-TEST",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Task titles, Goal / Scope and Requirements",
+                    "explanation": "Neither task is exclusively a test task; both nevertheless carry acceptance references. Coupled endpoint integration tests do not create an unreferenced separate task."
+                  }
+                ],
+                "note": "PASS is supported; no acceptance-unlinked test-only task exists."
+              },
+              {
+                "id": "INITIAL-STATE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Lifecycle context and Approval/Status fields",
+                    "explanation": "The declared synthetic provenance-review scenario explicitly permits Approved with In Progress/Planned. Accepting these fixture values does not attest real approval or a previous gate."
+                  }
+                ],
+                "note": "PASS applies the declared synthetic provenance lifecycle without inventing real authorization."
+              },
+              {
+                "id": "RISK-WORKFLOW-FORMAT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Risk and Required Workflow",
+                    "explanation": "T-001 is high/tdd and T-002 low/test-after, the explicit role-defined pairings."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+                    "location": "workflow_match_precheck",
+                    "explanation": "PASS corroborates rather than replaces checking the visible pairings."
+                  }
+                ],
+                "note": "PASS uses the correct risk/workflow pairings."
+              },
+              {
+                "id": "NO-DUPLICATE-AC",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Requirements fields",
+                    "explanation": "Assigned acceptance identifiers are disjoint between tasks; the missing AC-003 in J2 does not create a duplicate."
+                  }
+                ],
+                "note": "PASS is correct for the nonoverlapping assigned acceptance sets."
+              },
+              {
+                "id": "DEPENDENCY-COMPLETE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-002 Blockers and T-001 heading",
+                    "explanation": "The only referenced predecessor exists."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/dependency-graph.json",
+                    "location": "nodes",
+                    "explanation": "Both T-001 and T-002 are present."
+                  }
+                ],
+                "note": "PASS correctly resolves the sole predecessor to an existing task."
+              },
+              {
+                "id": "DEPENDENCY-CYCLE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/dependency-graph.json",
+                    "location": "nodes and edges",
+                    "explanation": "The single edge T-002→T-001 cannot form a cycle; the visible blocker formatting is valid."
+                  }
+                ],
+                "note": "PASS follows directly from the single acyclic edge."
+              },
+              {
+                "id": "SINGLE-CONCERN",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Goal / Scope sections",
+                    "explanation": "Route, policy, repository and their integration test implement one export feature; the downstream runbook is a separate coherent documentation task."
+                  }
+                ],
+                "note": "PASS correctly allows directly tied tests within one feature concern."
+              },
+              {
+                "id": "OBSERVABLE-DONE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Done When sections",
+                    "explanation": "Concrete pytest/report, checkpoint, named independent verdict and rollback artifacts are planned; T-002 names four runbook sections and a report. No item requires editing a frozen specification."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+                    "location": "frozen_artifact_done_when",
+                    "explanation": "The list is empty and the actual criteria introduce no unaddressed frozen-write requirement."
+                  }
+                ],
+                "note": "PASS evaluates planned inspectable evidence and respects the frozen-artifact boundary. Its small wording advisory does not assert a missing requirement or formal finding; the named TEST-002 report remains inspectable."
+              },
+              {
+                "id": "TRACEABILITY-SYNC",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/traceability.md",
+                    "location": "REQ-001/REQ-002 rows and Layer Spec cells",
+                    "explanation": "Both task IDs and requirement IDs resolve; the declared canonical layer anchors have corresponding sections. AC-003 absence in J2 belongs to AC-COVERAGE rather than a duplicate task/REQ mismatch."
+                  },
+                  {
+                    "path": "specs/birch-access-export/design.md",
+                    "location": "Architecture and Delivery",
+                    "explanation": "Both design anchors exist."
+                  },
+                  {
+                    "path": "specs/birch-access-export/security-spec.md",
+                    "location": "authorization",
+                    "explanation": "The security anchor exists."
+                  },
+                  {
+                    "path": "specs/birch-access-export/infra-spec.md",
+                    "location": "feature-flag",
+                    "explanation": "The deployment anchor exists."
+                  },
+                  {
+                    "path": "specs/birch-access-export/ux-spec.md",
+                    "location": "request-flow",
+                    "explanation": "The UX anchor exists."
+                  },
+                  {
+                    "path": "specs/birch-access-export/frontend-spec.md",
+                    "location": "api-client",
+                    "explanation": "The client anchor exists."
+                  }
+                ],
+                "note": "PASS is grounded in task/REQ resolution and real layer/design anchors."
+              }
+            ],
+            "unexpected_grounded_findings": []
+          }
+        ]
+      }
+    },
+    "J2": {
+      "derived_from_original_sha256": "6e3c317d513914c8065991c1d51c34a661543d46b42f8d3edf6129db884c90ce",
+      "transformation": "Only internal Work context path is replaced by its public reviewer name; judgment content unchanged.",
+      "judgment": {
+        "schema": "task-role-judgment/v1",
+        "batch": "J2",
+        "judge_actor": "review_bootstrap_route (independent Work reviewer)",
+        "identity_limit": "Independent Work artifact judgment; model and effort not exposed. No native/backend or formal quality-gate provenance claimed. Single configured model known; only output/repetition ordering blinded.",
+        "evaluations": [
+          {
+            "label": "O1",
+            "overall": "ACCEPT",
+            "checks": [
+              {
+                "id": "PREREQ-AC-IDS",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Requirements",
+                    "explanation": "Every AC identifier actually referenced by a task resolves to an acceptance heading; an unassigned AC is a separate coverage defect."
+                  },
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "AC-001, AC-002, AC-003",
+                    "explanation": "All three identifiers exist; neither task cites a nonexistent one."
+                  }
+                ],
+                "note": "PASS correctly checks validity of referenced IDs, independently of complete coverage."
+              },
+              {
+                "id": "BLOCKERS-FORMAT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Blockers",
+                    "explanation": "The exact values are None and T-001, with no range or prose."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+                    "location": "blockers_format_valid",
+                    "explanation": "The supplied synthetic mechanical result agrees with the visible fields."
+                  }
+                ],
+                "note": "PASS is grounded in exact valid blocker field values."
+              },
+              {
+                "id": "REQ-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/requirements.md",
+                    "location": "REQ-001 and REQ-002",
+                    "explanation": "These are the two defined requirements."
+                  },
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Requirements",
+                    "explanation": "REQ-001 remains assigned to T-001 and REQ-002 to T-002, including the acceptance-gap variant."
+                  }
+                ],
+                "note": "PASS correctly recognizes both requirements remain assigned."
+              },
+              {
+                "id": "AC-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "AC-003 / TEST-003",
+                    "explanation": "The limit-boundary criterion still explicitly requires valid endpoints and invalid-value 400/no-read cases."
+                  },
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Requirements/Test IDs; T-001 Done When item 1",
+                    "explanation": "Only AC-001/TEST-001 and AC-002/TEST-002 remain assigned; the inspectable test criterion no longer includes TEST-003."
+                  },
+                  {
+                    "path": "specs/birch-access-export/traceability.md",
+                    "location": "REQ-001/REQ-002 rows",
+                    "explanation": "Neither row includes AC-003 and there is no stated deferral. This is the Critical missing-coverage condition, while REQ coverage itself remains intact."
+                  }
+                ],
+                "note": "Critical FAIL correctly identifies AC-003/TEST-003 as unassigned without deferral; BLOCKED is required."
+              },
+              {
+                "id": "ORPHAN-TASK",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Requirements",
+                    "explanation": "Both tasks name an existing REQ identifier, so neither is orphaned."
+                  }
+                ],
+                "note": "PASS is supported by each task’s explicit requirement ownership."
+              },
+              {
+                "id": "ORPHAN-TEST",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Task titles, Goal / Scope and Requirements",
+                    "explanation": "Neither task is exclusively a test task; both nevertheless carry acceptance references. Coupled endpoint integration tests do not create an unreferenced separate task."
+                  }
+                ],
+                "note": "PASS is supported; no acceptance-unlinked test-only task exists."
+              },
+              {
+                "id": "INITIAL-STATE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Lifecycle context and Approval/Status fields",
+                    "explanation": "The declared synthetic provenance-review scenario explicitly permits Approved with In Progress/Planned. Accepting these fixture values does not attest real approval or a previous gate."
+                  }
+                ],
+                "note": "PASS applies the declared synthetic provenance lifecycle without inventing real authorization."
+              },
+              {
+                "id": "RISK-WORKFLOW-FORMAT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Risk and Required Workflow",
+                    "explanation": "T-001 is high/tdd and T-002 low/test-after, the explicit role-defined pairings."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+                    "location": "workflow_match_precheck",
+                    "explanation": "PASS corroborates rather than replaces checking the visible pairings."
+                  }
+                ],
+                "note": "PASS uses the correct risk/workflow pairings."
+              },
+              {
+                "id": "NO-DUPLICATE-AC",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Requirements fields",
+                    "explanation": "Assigned acceptance identifiers are disjoint between tasks; the missing AC-003 in J2 does not create a duplicate."
+                  }
+                ],
+                "note": "PASS is correct for the nonoverlapping assigned acceptance sets."
+              },
+              {
+                "id": "DEPENDENCY-COMPLETE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-002 Blockers and T-001 heading",
+                    "explanation": "The only referenced predecessor exists."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/dependency-graph.json",
+                    "location": "nodes",
+                    "explanation": "Both T-001 and T-002 are present."
+                  }
+                ],
+                "note": "PASS correctly resolves the sole predecessor to an existing task."
+              },
+              {
+                "id": "DEPENDENCY-CYCLE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/dependency-graph.json",
+                    "location": "nodes and edges",
+                    "explanation": "The single edge T-002→T-001 cannot form a cycle; the visible blocker formatting is valid."
+                  }
+                ],
+                "note": "PASS follows directly from the single acyclic edge."
+              },
+              {
+                "id": "SINGLE-CONCERN",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Goal / Scope sections",
+                    "explanation": "Route, policy, repository and their integration test implement one export feature; the downstream runbook is a separate coherent documentation task."
+                  }
+                ],
+                "note": "PASS correctly allows directly tied tests within one feature concern."
+              },
+              {
+                "id": "OBSERVABLE-DONE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Done When sections",
+                    "explanation": "Concrete pytest/report, checkpoint, named independent verdict and rollback artifacts are planned; T-002 names four runbook sections and a report. No item requires editing a frozen specification."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+                    "location": "frozen_artifact_done_when",
+                    "explanation": "The list is empty and the actual criteria introduce no unaddressed frozen-write requirement."
+                  }
+                ],
+                "note": "PASS evaluates planned inspectable evidence and respects the frozen-artifact boundary."
+              },
+              {
+                "id": "TRACEABILITY-SYNC",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/traceability.md",
+                    "location": "REQ-001/REQ-002 rows and Layer Spec cells",
+                    "explanation": "Both task IDs and requirement IDs resolve; the declared canonical layer anchors have corresponding sections. AC-003 absence in J2 belongs to AC-COVERAGE rather than a duplicate task/REQ mismatch."
+                  },
+                  {
+                    "path": "specs/birch-access-export/design.md",
+                    "location": "Architecture and Delivery",
+                    "explanation": "Both design anchors exist."
+                  },
+                  {
+                    "path": "specs/birch-access-export/security-spec.md",
+                    "location": "authorization",
+                    "explanation": "The security anchor exists."
+                  },
+                  {
+                    "path": "specs/birch-access-export/infra-spec.md",
+                    "location": "feature-flag",
+                    "explanation": "The deployment anchor exists."
+                  },
+                  {
+                    "path": "specs/birch-access-export/ux-spec.md",
+                    "location": "request-flow",
+                    "explanation": "The UX anchor exists."
+                  },
+                  {
+                    "path": "specs/birch-access-export/frontend-spec.md",
+                    "location": "api-client",
+                    "explanation": "The client anchor exists."
+                  }
+                ],
+                "note": "PASS is grounded in task/REQ resolution and real layer/design anchors."
+              }
+            ],
+            "unexpected_grounded_findings": []
+          },
+          {
+            "label": "O2",
+            "overall": "ACCEPT",
+            "checks": [
+              {
+                "id": "PREREQ-AC-IDS",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Requirements",
+                    "explanation": "Every AC identifier actually referenced by a task resolves to an acceptance heading; an unassigned AC is a separate coverage defect."
+                  },
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "AC-001, AC-002, AC-003",
+                    "explanation": "All three identifiers exist; neither task cites a nonexistent one."
+                  }
+                ],
+                "note": "PASS correctly checks validity of referenced IDs, independently of complete coverage."
+              },
+              {
+                "id": "BLOCKERS-FORMAT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Blockers",
+                    "explanation": "The exact values are None and T-001, with no range or prose."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+                    "location": "blockers_format_valid",
+                    "explanation": "The supplied synthetic mechanical result agrees with the visible fields."
+                  }
+                ],
+                "note": "PASS is grounded in exact valid blocker field values."
+              },
+              {
+                "id": "REQ-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/requirements.md",
+                    "location": "REQ-001 and REQ-002",
+                    "explanation": "These are the two defined requirements."
+                  },
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Requirements",
+                    "explanation": "REQ-001 remains assigned to T-001 and REQ-002 to T-002, including the acceptance-gap variant."
+                  }
+                ],
+                "note": "PASS correctly recognizes both requirements remain assigned."
+              },
+              {
+                "id": "AC-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "AC-003 / TEST-003",
+                    "explanation": "The limit-boundary criterion still explicitly requires valid endpoints and invalid-value 400/no-read cases."
+                  },
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Requirements/Test IDs; T-001 Done When item 1",
+                    "explanation": "Only AC-001/TEST-001 and AC-002/TEST-002 remain assigned; the inspectable test criterion no longer includes TEST-003."
+                  },
+                  {
+                    "path": "specs/birch-access-export/traceability.md",
+                    "location": "REQ-001/REQ-002 rows",
+                    "explanation": "Neither row includes AC-003 and there is no stated deferral. This is the Critical missing-coverage condition, while REQ coverage itself remains intact."
+                  }
+                ],
+                "note": "Critical FAIL correctly identifies AC-003/TEST-003 as unassigned without deferral; BLOCKED is required."
+              },
+              {
+                "id": "ORPHAN-TASK",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001/T-002 Requirements",
+                    "explanation": "Both tasks name an existing REQ identifier, so neither is orphaned."
+                  }
+                ],
+                "note": "PASS is supported by each task’s explicit requirement ownership."
+              },
+              {
+                "id": "ORPHAN-TEST",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Task titles, Goal / Scope and Requirements",
+                    "explanation": "Neither task is exclusively a test task; both nevertheless carry acceptance references. Coupled endpoint integration tests do not create an unreferenced separate task."
+                  }
+                ],
+                "note": "PASS is supported; no acceptance-unlinked test-only task exists."
+              },
+              {
+                "id": "INITIAL-STATE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Lifecycle context and Approval/Status fields",
+                    "explanation": "The declared synthetic provenance-review scenario explicitly permits Approved with In Progress/Planned. Accepting these fixture values does not attest real approval or a previous gate."
+                  }
+                ],
+                "note": "PASS applies the declared synthetic provenance lifecycle without inventing real authorization."
+              },
+              {
+                "id": "RISK-WORKFLOW-FORMAT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Risk and Required Workflow",
+                    "explanation": "T-001 is high/tdd and T-002 low/test-after, the explicit role-defined pairings."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+                    "location": "workflow_match_precheck",
+                    "explanation": "PASS corroborates rather than replaces checking the visible pairings."
+                  }
+                ],
+                "note": "PASS uses the correct risk/workflow pairings."
+              },
+              {
+                "id": "NO-DUPLICATE-AC",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Requirements fields",
+                    "explanation": "Assigned acceptance identifiers are disjoint between tasks; the missing AC-003 in J2 does not create a duplicate."
+                  }
+                ],
+                "note": "PASS is correct for the nonoverlapping assigned acceptance sets."
+              },
+              {
+                "id": "DEPENDENCY-COMPLETE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-002 Blockers and T-001 heading",
+                    "explanation": "The only referenced predecessor exists."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/dependency-graph.json",
+                    "location": "nodes",
+                    "explanation": "Both T-001 and T-002 are present."
+                  }
+                ],
+                "note": "PASS correctly resolves the sole predecessor to an existing task."
+              },
+              {
+                "id": "DEPENDENCY-CYCLE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/dependency-graph.json",
+                    "location": "nodes and edges",
+                    "explanation": "The single edge T-002→T-001 cannot form a cycle; the visible blocker formatting is valid."
+                  }
+                ],
+                "note": "PASS follows directly from the single acyclic edge."
+              },
+              {
+                "id": "SINGLE-CONCERN",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Goal / Scope sections",
+                    "explanation": "Route, policy, repository and their integration test implement one export feature; the downstream runbook is a separate coherent documentation task."
+                  }
+                ],
+                "note": "PASS correctly allows directly tied tests within one feature concern."
+              },
+              {
+                "id": "OBSERVABLE-DONE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Done When sections",
+                    "explanation": "Concrete pytest/report, checkpoint, named independent verdict and rollback artifacts are planned; T-002 names four runbook sections and a report. No item requires editing a frozen specification."
+                  },
+                  {
+                    "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+                    "location": "frozen_artifact_done_when",
+                    "explanation": "The list is empty and the actual criteria introduce no unaddressed frozen-write requirement."
+                  }
+                ],
+                "note": "PASS evaluates planned inspectable evidence and respects the frozen-artifact boundary."
+              },
+              {
+                "id": "TRACEABILITY-SYNC",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/traceability.md",
+                    "location": "REQ-001/REQ-002 rows and Layer Spec cells",
+                    "explanation": "Both task IDs and requirement IDs resolve; the declared canonical layer anchors have corresponding sections. AC-003 absence in J2 belongs to AC-COVERAGE rather than a duplicate task/REQ mismatch."
+                  },
+                  {
+                    "path": "specs/birch-access-export/design.md",
+                    "location": "Architecture and Delivery",
+                    "explanation": "Both design anchors exist."
+                  },
+                  {
+                    "path": "specs/birch-access-export/security-spec.md",
+                    "location": "authorization",
+                    "explanation": "The security anchor exists."
+                  },
+                  {
+                    "path": "specs/birch-access-export/infra-spec.md",
+                    "location": "feature-flag",
+                    "explanation": "The deployment anchor exists."
+                  },
+                  {
+                    "path": "specs/birch-access-export/ux-spec.md",
+                    "location": "request-flow",
+                    "explanation": "The UX anchor exists."
+                  },
+                  {
+                    "path": "specs/birch-access-export/frontend-spec.md",
+                    "location": "api-client",
+                    "explanation": "The client anchor exists."
+                  }
+                ],
+                "note": "PASS is grounded in task/REQ resolution and real layer/design anchors."
+              }
+            ],
+            "unexpected_grounded_findings": []
+          }
+        ]
+      }
+    },
+    "J3": {
+      "derived_from_original_sha256": "669ca532f65ce24115f956e6e1e94614822c712d8546e2782dd40f1e957986e8",
+      "transformation": "Only internal Work context path is replaced by its public reviewer name; judgment content unchanged.",
+      "judgment": {
+        "schema": "task-role-judgment/v1",
+        "batch": "J3",
+        "judge_actor": "review_bootstrap_route (independent Work reviewer)",
+        "identity_limit": "Independent Work artifact judgment; model and effort not exposed. No native/backend or formal quality-gate provenance claimed. Single configured model known; only output/repetition ordering blinded.",
+        "evaluations": [
+          {
+            "label": "O1",
+            "overall": "ACCEPT",
+            "checks": [
+              {
+                "id": "RISK-APPROPRIATE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Risk Rationale and Goal / Scope sections",
+                    "explanation": "T-001 changes authorization/public API behavior; T-002 changes only documentation. Their high/low classifications reflect those actual surfaces."
+                  },
+                  {
+                    "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+                    "location": "Risk tiers table",
+                    "explanation": "Authorization and public API are high sentinels; nonbehavioral documentation is low."
+                  }
+                ],
+                "note": "PASS correctly separates the sensitive endpoint from low-risk documentation."
+              },
+              {
+                "id": "HIGH-CRITICAL-EVIDENCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001 Done When items 2 and 3",
+                    "explanation": "The plan explicitly requires failing-test checkpoint before implementation plus later passing output, and an independent verdict by a named second reviewer distinct from the implementer."
+                  },
+                  {
+                    "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+                    "location": "Minimum control table",
+                    "explanation": "These are the required high-risk items; no critical-risk task invokes the additional second-approver/signed-bundle requirement."
+                  }
+                ],
+                "note": "PASS correctly recognizes the planned TDD and named independent-review criteria; completed native evidence is not required in this task review."
+              },
+              {
+                "id": "TASK-SIZE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Goal / Scope and Done When sections",
+                    "explanation": "One endpoint crosses three closely coupled implementation components plus its integration test, with four criteria in J3/three in J4. The separate single-file runbook is a legitimate deliverable. Neither broad multi-feature scope nor three-task microfragmentation is present."
+                  }
+                ],
+                "note": "PASS is reasonable for this bounded endpoint slice and dependent runbook; coupled integration tests do not make an unrelated fourth feature."
+              },
+              {
+                "id": "EDGE-CASE-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "AC-001 and AC-003",
+                    "explanation": "The functional endpoint has denial and cross-tenant cases, 1/500 boundaries and 0/501/fractional/nonnumeric rejection with no reads. Documentation also requires failure examples under AC-002."
+                  }
+                ],
+                "note": "PASS is supported by explicit denied and invalid-limit cases. Documentation is not treated as an additional functional implementation obligation."
+              },
+              {
+                "id": "TEST-TYPE-MATCH",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "TEST-001/TEST-003 integration; TEST-002 documentation acceptance",
+                    "explanation": "Declared integration cases cross components and the documentation check names AC-002."
+                  },
+                  {
+                    "path": "specs/birch-access-export/design.md",
+                    "location": "Validation",
+                    "explanation": "The planned route/policy/disposable-repository fixture supplies the stated integration boundary. This establishes task-plan suitability, not executed tests."
+                  }
+                ],
+                "note": "PASS is supported by declared component-spanning integration and AC-linked documentation acceptance; no actual execution is inferred."
+              },
+              {
+                "id": "ROLLBACK-PLAN",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001 Rollback field and final Done When item",
+                    "explanation": "Disable EXPORT_ROUTE_ENABLED and verify new-route absence plus unchanged existing endpoints; record command/output."
+                  },
+                  {
+                    "path": "specs/birch-access-export/infra-spec.md",
+                    "location": "feature-flag",
+                    "explanation": "The flag defaults false and disables only the new route. Low-risk runbook work does not require a separate high-risk rollback plan."
+                  }
+                ],
+                "note": "PASS is supported by the explicit feature-flag and existing-endpoint rollback assertions."
+              },
+              {
+                "id": "SCOPE-DISJOINT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Goal / Scope and evidence destinations",
+                    "explanation": "Endpoint source/integration files and runbook files are disjoint; their report destinations are T-001.md and T-002.md. No competing same-purpose file ownership exists."
+                  }
+                ],
+                "note": "PASS is supported by distinct source/doc/report ownership."
+              },
+              {
+                "id": "DEPENDENCY-OVERLAP",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-002 Blockers and Goal / Scope",
+                    "explanation": "The runbook consumes the exact recorded endpoint responses, so the T-001 predecessor is substantive rather than an arbitrary serialization."
+                  },
+                  {
+                    "path": "specs/birch-access-export/requirements.md",
+                    "location": "REQ-002",
+                    "explanation": "Documentation must use endpoint verification outputs."
+                  },
+                  {
+                    "path": "specs/birch-access-export/design.md",
+                    "location": "Delivery",
+                    "explanation": "The specified producer/consumer order matches the task dependency."
+                  }
+                ],
+                "note": "PASS is supported by the runbook’s required response-evidence input."
+              },
+              {
+                "id": "BUGFIX-DIAGNOSTIC-PATH",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both task titles and Goal / Scope",
+                    "explanation": "A new endpoint and its runbook are feature work, with no bugfix, regression diagnosis or incident-remediation scope. The role explicitly requires SKIP in this situation."
+                  }
+                ],
+                "note": "SKIP is the exact role-defined treatment for absent bugfix/debugging scope."
+              }
+            ],
+            "unexpected_grounded_findings": []
+          },
+          {
+            "label": "O2",
+            "overall": "ACCEPT",
+            "checks": [
+              {
+                "id": "RISK-APPROPRIATE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Risk Rationale and Goal / Scope sections",
+                    "explanation": "T-001 changes authorization/public API behavior; T-002 changes only documentation. Their high/low classifications reflect those actual surfaces."
+                  },
+                  {
+                    "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+                    "location": "Risk tiers table",
+                    "explanation": "Authorization and public API are high sentinels; nonbehavioral documentation is low."
+                  }
+                ],
+                "note": "PASS correctly separates the sensitive endpoint from low-risk documentation."
+              },
+              {
+                "id": "HIGH-CRITICAL-EVIDENCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001 Done When items 2 and 3",
+                    "explanation": "The plan explicitly requires failing-test checkpoint before implementation plus later passing output, and an independent verdict by a named second reviewer distinct from the implementer."
+                  },
+                  {
+                    "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+                    "location": "Minimum control table",
+                    "explanation": "These are the required high-risk items; no critical-risk task invokes the additional second-approver/signed-bundle requirement."
+                  }
+                ],
+                "note": "PASS correctly recognizes the planned TDD and named independent-review criteria; completed native evidence is not required in this task review."
+              },
+              {
+                "id": "TASK-SIZE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Goal / Scope and Done When sections",
+                    "explanation": "One endpoint crosses three closely coupled implementation components plus its integration test, with four criteria in J3/three in J4. The separate single-file runbook is a legitimate deliverable. Neither broad multi-feature scope nor three-task microfragmentation is present."
+                  }
+                ],
+                "note": "PASS is reasonable for this bounded endpoint slice and dependent runbook; coupled integration tests do not make an unrelated fourth feature."
+              },
+              {
+                "id": "EDGE-CASE-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "AC-001 and AC-003",
+                    "explanation": "The functional endpoint has denial and cross-tenant cases, 1/500 boundaries and 0/501/fractional/nonnumeric rejection with no reads. Documentation also requires failure examples under AC-002."
+                  }
+                ],
+                "note": "PASS is supported by explicit denied and invalid-limit cases. Documentation is not treated as an additional functional implementation obligation."
+              },
+              {
+                "id": "TEST-TYPE-MATCH",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "TEST-001/TEST-003 integration; TEST-002 documentation acceptance",
+                    "explanation": "Declared integration cases cross components and the documentation check names AC-002."
+                  },
+                  {
+                    "path": "specs/birch-access-export/design.md",
+                    "location": "Validation",
+                    "explanation": "The planned route/policy/disposable-repository fixture supplies the stated integration boundary. This establishes task-plan suitability, not executed tests."
+                  }
+                ],
+                "note": "PASS is supported by declared component-spanning integration and AC-linked documentation acceptance; no actual execution is inferred."
+              },
+              {
+                "id": "ROLLBACK-PLAN",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001 Rollback field and final Done When item",
+                    "explanation": "Disable EXPORT_ROUTE_ENABLED and verify new-route absence plus unchanged existing endpoints; record command/output."
+                  },
+                  {
+                    "path": "specs/birch-access-export/infra-spec.md",
+                    "location": "feature-flag",
+                    "explanation": "The flag defaults false and disables only the new route. Low-risk runbook work does not require a separate high-risk rollback plan."
+                  }
+                ],
+                "note": "PASS is supported by the explicit feature-flag and existing-endpoint rollback assertions."
+              },
+              {
+                "id": "SCOPE-DISJOINT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Goal / Scope and evidence destinations",
+                    "explanation": "Endpoint source/integration files and runbook files are disjoint; their report destinations are T-001.md and T-002.md. No competing same-purpose file ownership exists."
+                  }
+                ],
+                "note": "PASS is supported by distinct source/doc/report ownership."
+              },
+              {
+                "id": "DEPENDENCY-OVERLAP",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-002 Blockers and Goal / Scope",
+                    "explanation": "The runbook consumes the exact recorded endpoint responses, so the T-001 predecessor is substantive rather than an arbitrary serialization."
+                  },
+                  {
+                    "path": "specs/birch-access-export/requirements.md",
+                    "location": "REQ-002",
+                    "explanation": "Documentation must use endpoint verification outputs."
+                  },
+                  {
+                    "path": "specs/birch-access-export/design.md",
+                    "location": "Delivery",
+                    "explanation": "The specified producer/consumer order matches the task dependency."
+                  }
+                ],
+                "note": "PASS is supported by the runbook’s required response-evidence input."
+              },
+              {
+                "id": "BUGFIX-DIAGNOSTIC-PATH",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both task titles and Goal / Scope",
+                    "explanation": "A new endpoint and its runbook are feature work, with no bugfix, regression diagnosis or incident-remediation scope. The role explicitly requires SKIP in this situation."
+                  }
+                ],
+                "note": "SKIP is the exact role-defined treatment for absent bugfix/debugging scope."
+              }
+            ],
+            "unexpected_grounded_findings": []
+          }
+        ]
+      }
+    },
+    "J4": {
+      "derived_from_original_sha256": "d1d60a803640ef496821a211850aadf9b52ddffa650fc75aa6c2b28509a15df5",
+      "transformation": "Only internal Work context path is replaced by its public reviewer name; judgment content unchanged.",
+      "judgment": {
+        "schema": "task-role-judgment/v1",
+        "batch": "J4",
+        "judge_actor": "review_bootstrap_route (independent Work reviewer)",
+        "identity_limit": "Independent Work artifact judgment; model and effort not exposed. No native/backend or formal quality-gate provenance claimed. Single configured model known; only output/repetition ordering blinded.",
+        "evaluations": [
+          {
+            "label": "O1",
+            "overall": "ACCEPT",
+            "checks": [
+              {
+                "id": "RISK-APPROPRIATE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Risk Rationale and Goal / Scope sections",
+                    "explanation": "T-001 changes authorization/public API behavior; T-002 changes only documentation. Their high/low classifications reflect those actual surfaces."
+                  },
+                  {
+                    "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+                    "location": "Risk tiers table",
+                    "explanation": "Authorization and public API are high sentinels; nonbehavioral documentation is low."
+                  }
+                ],
+                "note": "PASS correctly separates the sensitive endpoint from low-risk documentation."
+              },
+              {
+                "id": "HIGH-CRITICAL-EVIDENCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001 Risk and all three Done When items",
+                    "explanation": "High risk remains, but the only criteria are test output, Red→Green checkpoint and rollback. None requires a named independent-review verdict."
+                  },
+                  {
+                    "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+                    "location": "Minimum control table: independent-review verdict",
+                    "explanation": "High-risk work requires independent review; TDD and rollback do not replace it. The supplied role makes its omission Critical."
+                  }
+                ],
+                "note": "Critical FAIL correctly identifies the absent independent-review-verdict criterion while preserving the other high-risk evidence obligations; BLOCKED is required."
+              },
+              {
+                "id": "TASK-SIZE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Goal / Scope and Done When sections",
+                    "explanation": "One endpoint crosses three closely coupled implementation components plus its integration test, with four criteria in J3/three in J4. The separate single-file runbook is a legitimate deliverable. Neither broad multi-feature scope nor three-task microfragmentation is present."
+                  }
+                ],
+                "note": "PASS is reasonable for this bounded endpoint slice and dependent runbook; coupled integration tests do not make an unrelated fourth feature."
+              },
+              {
+                "id": "EDGE-CASE-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "AC-001 and AC-003",
+                    "explanation": "The functional endpoint has denial and cross-tenant cases, 1/500 boundaries and 0/501/fractional/nonnumeric rejection with no reads. Documentation also requires failure examples under AC-002."
+                  }
+                ],
+                "note": "PASS is supported by explicit denied and invalid-limit cases. Documentation is not treated as an additional functional implementation obligation."
+              },
+              {
+                "id": "TEST-TYPE-MATCH",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "TEST-001/TEST-003 integration; TEST-002 documentation acceptance",
+                    "explanation": "Declared integration cases cross components and the documentation check names AC-002."
+                  },
+                  {
+                    "path": "specs/birch-access-export/design.md",
+                    "location": "Validation",
+                    "explanation": "The planned route/policy/disposable-repository fixture supplies the stated integration boundary. This establishes task-plan suitability, not executed tests."
+                  }
+                ],
+                "note": "PASS is supported by declared component-spanning integration and AC-linked documentation acceptance; no actual execution is inferred."
+              },
+              {
+                "id": "ROLLBACK-PLAN",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001 Rollback field and final Done When item",
+                    "explanation": "Disable EXPORT_ROUTE_ENABLED and verify new-route absence plus unchanged existing endpoints; record command/output."
+                  },
+                  {
+                    "path": "specs/birch-access-export/infra-spec.md",
+                    "location": "feature-flag",
+                    "explanation": "The flag defaults false and disables only the new route. Low-risk runbook work does not require a separate high-risk rollback plan."
+                  }
+                ],
+                "note": "PASS is supported by the explicit feature-flag and existing-endpoint rollback assertions."
+              },
+              {
+                "id": "SCOPE-DISJOINT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Goal / Scope and evidence destinations",
+                    "explanation": "Endpoint source/integration files and runbook files are disjoint; their report destinations are T-001.md and T-002.md. No competing same-purpose file ownership exists."
+                  }
+                ],
+                "note": "PASS is supported by distinct source/doc/report ownership."
+              },
+              {
+                "id": "DEPENDENCY-OVERLAP",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-002 Blockers and Goal / Scope",
+                    "explanation": "The runbook consumes the exact recorded endpoint responses, so the T-001 predecessor is substantive rather than an arbitrary serialization."
+                  },
+                  {
+                    "path": "specs/birch-access-export/requirements.md",
+                    "location": "REQ-002",
+                    "explanation": "Documentation must use endpoint verification outputs."
+                  },
+                  {
+                    "path": "specs/birch-access-export/design.md",
+                    "location": "Delivery",
+                    "explanation": "The specified producer/consumer order matches the task dependency."
+                  }
+                ],
+                "note": "PASS is supported by the runbook’s required response-evidence input."
+              },
+              {
+                "id": "BUGFIX-DIAGNOSTIC-PATH",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both task titles and Goal / Scope",
+                    "explanation": "A new endpoint and its runbook are feature work, with no bugfix, regression diagnosis or incident-remediation scope. The role explicitly requires SKIP in this situation."
+                  }
+                ],
+                "note": "SKIP is the exact role-defined treatment for absent bugfix/debugging scope."
+              }
+            ],
+            "unexpected_grounded_findings": []
+          },
+          {
+            "label": "O2",
+            "overall": "ACCEPT",
+            "checks": [
+              {
+                "id": "RISK-APPROPRIATE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Risk Rationale and Goal / Scope sections",
+                    "explanation": "T-001 changes authorization/public API behavior; T-002 changes only documentation. Their high/low classifications reflect those actual surfaces."
+                  },
+                  {
+                    "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+                    "location": "Risk tiers table",
+                    "explanation": "Authorization and public API are high sentinels; nonbehavioral documentation is low."
+                  }
+                ],
+                "note": "PASS correctly separates the sensitive endpoint from low-risk documentation."
+              },
+              {
+                "id": "HIGH-CRITICAL-EVIDENCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001 Risk and all three Done When items",
+                    "explanation": "High risk remains, but the only criteria are test output, Red→Green checkpoint and rollback. None requires a named independent-review verdict."
+                  },
+                  {
+                    "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+                    "location": "Minimum control table: independent-review verdict",
+                    "explanation": "High-risk work requires independent review; TDD and rollback do not replace it. The supplied role makes its omission Critical."
+                  }
+                ],
+                "note": "Critical FAIL correctly identifies the absent independent-review-verdict criterion while preserving the other high-risk evidence obligations; BLOCKED is required."
+              },
+              {
+                "id": "TASK-SIZE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Goal / Scope and Done When sections",
+                    "explanation": "One endpoint crosses three closely coupled implementation components plus its integration test, with four criteria in J3/three in J4. The separate single-file runbook is a legitimate deliverable. Neither broad multi-feature scope nor three-task microfragmentation is present."
+                  }
+                ],
+                "note": "PASS is reasonable for this bounded endpoint slice and dependent runbook; coupled integration tests do not make an unrelated fourth feature."
+              },
+              {
+                "id": "EDGE-CASE-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "AC-001 and AC-003",
+                    "explanation": "The functional endpoint has denial and cross-tenant cases, 1/500 boundaries and 0/501/fractional/nonnumeric rejection with no reads. Documentation also requires failure examples under AC-002."
+                  }
+                ],
+                "note": "PASS is supported by explicit denied and invalid-limit cases. Documentation is not treated as an additional functional implementation obligation."
+              },
+              {
+                "id": "TEST-TYPE-MATCH",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/acceptance-tests.md",
+                    "location": "TEST-001/TEST-003 integration; TEST-002 documentation acceptance",
+                    "explanation": "Declared integration cases cross components and the documentation check names AC-002."
+                  },
+                  {
+                    "path": "specs/birch-access-export/design.md",
+                    "location": "Validation",
+                    "explanation": "The planned route/policy/disposable-repository fixture supplies the stated integration boundary. This establishes task-plan suitability, not executed tests."
+                  }
+                ],
+                "note": "PASS is supported by declared component-spanning integration and AC-linked documentation acceptance; no actual execution is inferred."
+              },
+              {
+                "id": "ROLLBACK-PLAN",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-001 Rollback field and final Done When item",
+                    "explanation": "Disable EXPORT_ROUTE_ENABLED and verify new-route absence plus unchanged existing endpoints; record command/output."
+                  },
+                  {
+                    "path": "specs/birch-access-export/infra-spec.md",
+                    "location": "feature-flag",
+                    "explanation": "The flag defaults false and disables only the new route. Low-risk runbook work does not require a separate high-risk rollback plan."
+                  }
+                ],
+                "note": "PASS is supported by the explicit feature-flag and existing-endpoint rollback assertions."
+              },
+              {
+                "id": "SCOPE-DISJOINT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both Goal / Scope and evidence destinations",
+                    "explanation": "Endpoint source/integration files and runbook files are disjoint; their report destinations are T-001.md and T-002.md. No competing same-purpose file ownership exists."
+                  }
+                ],
+                "note": "PASS is supported by distinct source/doc/report ownership."
+              },
+              {
+                "id": "DEPENDENCY-OVERLAP",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "T-002 Blockers and Goal / Scope",
+                    "explanation": "The runbook consumes the exact recorded endpoint responses, so the T-001 predecessor is substantive rather than an arbitrary serialization."
+                  },
+                  {
+                    "path": "specs/birch-access-export/requirements.md",
+                    "location": "REQ-002",
+                    "explanation": "Documentation must use endpoint verification outputs."
+                  },
+                  {
+                    "path": "specs/birch-access-export/design.md",
+                    "location": "Delivery",
+                    "explanation": "The specified producer/consumer order matches the task dependency."
+                  }
+                ],
+                "note": "PASS is supported by the runbook’s required response-evidence input."
+              },
+              {
+                "id": "BUGFIX-DIAGNOSTIC-PATH",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/birch-access-export/tasks.md",
+                    "location": "Both task titles and Goal / Scope",
+                    "explanation": "A new endpoint and its runbook are feature work, with no bugfix, regression diagnosis or incident-remediation scope. The role explicitly requires SKIP in this situation."
+                  }
+                ],
+                "note": "SKIP is the exact role-defined treatment for absent bugfix/debugging scope."
+              }
+            ],
+            "unexpected_grounded_findings": []
+          }
+        ]
+      }
+    }
+  }
+}

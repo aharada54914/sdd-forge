@@ -228,7 +228,9 @@ Rules:
     $bundleContent = Get-Content -Raw -Encoding Utf8 $InputPath
     $combined = $promptText + "`n`n## Sanitized Input Bundle`n`n" + $bundleContent
     $combinedFile = Join-Path $scratch "combined.txt"
-    Set-Content -Encoding Utf8 -Path $combinedFile -Value $combined
+    # Issue #619: Set-Content -Encoding Utf8 writes a BOM on Windows PowerShell 5.1.
+    [System.IO.File]::WriteAllText($combinedFile, ($combined + [Environment]::NewLine),
+        (New-Object System.Text.UTF8Encoding($false)))
 
     # Codex ArgumentList: `exec --model <m> [-c model_reasoning_effort=<e>]
     # --sandbox read-only --skip-git-repo-check -C <scratch> -`. `exec` is

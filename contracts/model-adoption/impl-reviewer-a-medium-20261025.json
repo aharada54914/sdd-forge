@@ -1,0 +1,96 @@
+{
+  "schema": "impl-reviewer-role-adoption-proposal/v1",
+  "source_date": "2026-10-25T02:38:27.167504+00:00",
+  "decision_status": "approved-for-impl-reviewer-a-only",
+  "human_review": {
+    "decision": "Sonnet／medium・明示固定を採用する 具体案（差分）を承認",
+    "reviewer": "User in the current conversation",
+    "reviewed_at": null,
+    "reviewed_at_note": "Original user-message timestamp was not supplied. receipt_written_at is capture time, not the user decision timestamp.",
+    "receipt_written_at": "2026-10-25T02:42:04.683007+00:00",
+    "questionItemId": "[\"request_user_input_async\",\"call_2bd9ac4940c2423abb3ddbff0ffa8a4f\",0]",
+    "source": {
+      "path": "specs/ci-model-modernization/verification/impl-reviewer-a-medium-20261025/human-role-adoption-20261025.json",
+      "sha256": "e488581456b5b48cd77b709a626c6330662e5ecddcdc0549449a3f7813407c3d"
+    },
+    "approved_patch_sha256": "b05fff6c381ce9c6d8afd56e86ad26b12761761e34486ed45577bfec8182c6b6",
+    "approved_proposal_manifest_sha256": "65b3b24b61be4e1564dc393706e71952e45b3a3184bbfbcdf9258b3da5f3bcf4"
+  },
+  "proposed_role": "impl-reviewer-a",
+  "proposed_catalog_id": "anthropic/sonnet",
+  "proposed_host": "claude-code",
+  "proposed_native_id": "sonnet",
+  "proposed_effort": "medium",
+  "proposed_policy": "pinned",
+  "lifecycle_remains": "candidate",
+  "observed_benchmark_scope": "One non-legacy CLI-labeled full-profile synthetic feature; no domain model or design-system contract.",
+  "scope": "Human-approved supervised later-lifecycle substantive implementation-policy re-review of non-legacy local CLI/tooling non-fullstack designs with full-profile inputs and no domain/design-system contract, explicitly including the A9 bugfix-labeled local Bash/PowerShell surface. Excluded target classes: first-time/fullstack/legacy/domain/design-system review. The benchmark does not establish amendment binding, convergence handling, protected entry or full A9 runtime-chain capability; all applicable actual requirements remain mandatory, not waived or prohibited.",
+  "native_results": {
+    "role_outputs": 4,
+    "role_contract_pass": 4,
+    "role_semantic_accept": 4,
+    "role_supported_checks": 44,
+    "campaign_outputs": 8,
+    "campaign_joint_decision": "HOLD unchanged",
+    "retries": 0
+  },
+  "withheld_roles": {
+    "impl-reviewer-b": "3/4 accepted; t04 unsupported no-test-coverage assertion, otherwise legitimate extra scope finding retained.",
+    "evaluator": "No adoption evidence supplied by this experiment."
+  },
+  "risk_route": {
+    "actual_existing_selector_controls": 10,
+    "all_passed": true,
+    "actual_entry_constraints_still_required": true
+  },
+  "evidence": [
+    {
+      "path": "specs/ci-model-modernization/verification/impl-reviewer-a-medium-20261025/PUBLIC-REPORT.md",
+      "sha256": "2edd417295cce7cdbd2767d62cddb9b3e2156cde9718bce46fa12ad20747afe8"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/impl-reviewer-a-medium-20261025/applicability.json",
+      "sha256": "0d1cb8e7cf382a43347be4c25d62facdc80c1e207c0b47fc800bf7bddd445709"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/impl-reviewer-a-medium-20261025/candidate-outputs.json",
+      "sha256": "b3296623cc5390b43ed16022c7105f871b7f2241b4ae74737b251e4343d17c19"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/impl-reviewer-a-medium-20261025/collection.json",
+      "sha256": "f1005709f4d0ef2a83935072c0cb82a8fdf8ece01213be5aca6c5a43f31fc512"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/impl-reviewer-a-medium-20261025/fixture-inputs.json",
+      "sha256": "d2ba87cbede095b80857277d37827baff9e77cf3966ed85b9f09e85841c75a6e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/impl-reviewer-a-medium-20261025/independent-judgments.json",
+      "sha256": "dafe649cb778168c7813b04b727edaffcc7274748478fa87da7d4e7981808858"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/impl-reviewer-a-medium-20261025/per-role-decision.json",
+      "sha256": "36a89a8c22169ef146ccedac3aa354effa2545f85e25eaeb69c80ee853512602"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/impl-reviewer-a-medium-20261025/retained-provenance.json",
+      "sha256": "64ece72408857b36c6d61b90d023fa9e19780054c82d7bbe5ec46bfd601a3e8c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/impl-reviewer-a-medium-20261025/risk-routing.json",
+      "sha256": "bf0206431b946e5d3d1695eb2bdfec65dd50f09ed6c2851d4bd7d338a6fabf28"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/impl-reviewer-a-medium-20261025/role-contracts.json",
+      "sha256": "811cafeb6204c7becedf94ef7072b71ebe0369aa3f6261a955ad748b6b2de1b3"
+    }
+  ],
+  "limits": [
+    "Actual A9 declares bugfix whereas the benchmark declares cli. Proposed application explicitly includes only its source-mapped local CLI/tooling non-fullstack surface; bugfix-label behavior was not directly benchmarked. Actual scope and entry must be rechecked; no frozen feature-type change or implicit generalization.",
+    "No adopted baseline comparison or comparative superiority claim.",
+    "Adoption metadata does not establish formal executor registration, protected launch, actual A9 chain or gate PASS. Existing required amendment/convergence and entry operations still apply; these are unproved capabilities, not prohibited application targets.",
+    "No semantic scope enforcement added by metadata; operator must respect exact bounded scope.",
+    "Original whole campaign HOLD and B failure remain unchanged; A-only consideration is a separate per-role supplement.",
+    "Human approval applies only to the stated bounded impl-reviewer-a scope. Historical public proposal/evaluation artifacts retain their original pre-approval statements; this receipt and approved contract record the subsequent adoption. Actual operational requirements remain mandatory."
+  ]
+}

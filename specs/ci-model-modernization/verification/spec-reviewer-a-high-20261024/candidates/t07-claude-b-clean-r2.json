@@ -1,0 +1,50 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "仕様には、2人の実装者が別々の振る舞いを作るほどの曖昧さは見当たりません。役割は member と admin の2つで、admin は member の全権限を持ちます（specs/workshop-enrollment/requirements.md:12 CON-002）。日時の形式、UTC保存、パラメータ欠落時のエラーも決まっています（requirements.md:11 CON-001）。一覧は期間の両端を含み、開始日時の昇順、同時刻なら id 昇順です。返す項目と型、空配列の扱い、INVALID_RANGE の条件も定義済みです（requirements.md:16 REQ-001）。申込の結果コードと判定順は開始日時→重複→定員です（requirements.md:17 REQ-002）。承認と公開については、結果コード（204/202/403/409）と、認証・役割の拒否を先に判定する順序が決まっています（requirements.md:18 REQ-003）。監査ログの必須項目も示されています（requirements.md:19 REQ-004）。AC-003 には「開始後は `409 CLOSED`」と書かれ、REQ-002 の「開始日時以降」と書き方が違います。ただし TEST-003 が開始日時ちょうどの申込を REQ-002 と照合すると明記しているので、境界の解釈は一つに決まります（specs/workshop-enrollment/acceptance-tests.md:8, :15）。"
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "直接ぶつかる記述はありません。CON-003 は「承認記録は開催開始日時以降に限り可能」とし、申込も開始日時以降は閉じます（requirements.md:13, :17）。また NG-01 で申込の取消と承認の取消は対象外です（requirements.md:7）。そのため、承認対象の申込集合が変わらないという CON-003 の前提はほかの記述と食い違いません。NG-02 は公開先を `roster-outbox` スタブに限定しており（requirements.md:8）、REQ-003、AC-004、MV-001 も同じ宛先だけを使っています（requirements.md:18、acceptance-tests.md:9, :20）。CON-002 では admin が member の全権限を持ち、REQ-003 では承認と公開を admin だけに許可しています。この2つも矛盾しません。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "根拠：CON-003 は「名簿の外部公開は取り消せないため」と定めています（specs/workshop-enrollment/requirements.md:13）。REQ-003 は公開要求について「`roster-outbox` に1回送信し `202` を返す」と定めています（requirements.md:18）。一方、申込の REQ-002 は「1回の判定と登録を不可分に行う」と同時実行時の不変条件を明示し（requirements.md:17）、AC-003 と TEST-003 で同時申込を検証しています（specs/workshop-enrollment/acceptance-tests.md:8, :15）。ところが公開については、AC-004 が順番に送った再要求の「再要求は `409 ALREADY_PUBLISHED`」しか扱わず、TEST-004 も逐次の手順だけです（acceptance-tests.md:9, :16）。承認済みの対象に公開要求が同時に2件届いた場合、取り消せない送信が2回起きないことを確かめる受け入れ条件がありません。下流で決められない点：申込にだけ不可分性が明記されているため、実装者は公開を不可分にしなくてよいと読めます。検証者には同時公開で1件だけ送信されたと判定する基準がなく、競合に負けた要求が `409 ALREADY_PUBLISHED` を返すべきかも確かめられません。仕様レビューに属する理由：問われているのは排他の実装方法ではなく、どの振る舞いを観測できれば受け入れとするかという条件です。これは Phase 1 の acceptance-tests.md でしか決められません。severity の根拠：取り消せない外部公開について、リスクの高い主張を検証する観測可能な受け入れ条件が欠けているため Major としました。承認境界そのものは検証できるので、Critical にはしていません。対象の仕様ID：CON-003、REQ-003、AC-004、TEST-004。"
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "前提はすべて決定済みとして記録されています。DEC-001（役割の種類）、DEC-002（UTC で保存し、タイムゾーン変換は対象外）、DEC-003（名簿は表示名のみ）、DEC-004（`audit.log` とスタブ `roster-outbox` を用意できる）です（specs/workshop-enrollment/investigation.md:3-6）。investigation.md:9 には「未解決のプロダクト判断はない」とあります。要件と受け入れ条件には、この記録で解消されていない前提は見当たりません。investigation.md:2 によれば、これらは架空の fixture の前提です。"
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "取り消せない公開の境界は検証できる形で書かれています。CON-003（requirements.md:13）と REQ-003（requirements.md:18）は、admin が承認を明示的に記録するまで送信しないこと、開始前の承認は `409 NOT_STARTED` で状態を変えないこと、member からの要求は 403 であること、認証・役割の拒否を先に判定することを定めています。AC-004 と TEST-004 は、未承認のまま公開要求したときに `roster-outbox` が空のままであること、承認後に1件送信されること、member が拒否されること、開始前の承認が拒否されることを検証します（acceptance-tests.md:9, :16）。工程順序の確認：investigation.md に `## Amendment Re-Review Context` 見出しはないため、既定の Phase 1 基準で判断しました。仕様一式は design、tasks、実装などの後工程成果物を参照しておらず（requirements.md:2 は Spec-Review-Status: Pending）、工程順序に関する違反はありません。同時公開で2回送信されうる問題は EDGE-CASE-COVERAGE で指摘しました。承認の要否そのものは検証できます。"
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "実装方針レビューの担当者がプロダクトの振る舞いを補って考える必要はありません。エンドポイント、役割、状態遷移、結果コード、判定順は REQ-001〜REQ-004 で決まっています（requirements.md:16-19）。公開回数は REQ-003 の「1回送信」と、AC-004 の再要求時 `409 ALREADY_PUBLISHED` で決まっています（requirements.md:18、acceptance-tests.md:9）。残りの項目の追加は設計に委ねると明記されています（requirements.md:16）。ただし EDGE-CASE-COVERAGE の Major 指摘で同時公開の受け入れ条件が欠けているため、全体の判定は NEEDS_WORK です。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "この check は実行していません。許可された manifest に `domain/context-map.md` も `domain/domain-contract.json` も含まれていないため、Approved のドメインモデルがあることを確認できません。そのため、規定の SKIP 条件（domain/ がない、または未承認）に当たると判断しました。"
+    }
+  ]
+}

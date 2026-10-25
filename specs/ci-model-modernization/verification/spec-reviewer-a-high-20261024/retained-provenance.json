@@ -1,0 +1,97 @@
+{
+  "kind": "hash-only provenance; no raw native/account/config metadata shipped",
+  "original_medium_campaign": "Preserved unchanged locally; not rescored or directly paired with this high followup.",
+  "original_high_manifest_sha256": "6ff9fdcb37497c0a8dd2e535bd5bedb5d576fcf4dff21f043f036e8ba3030fcb",
+  "original_high_freeze_sha256": "0e29108601f9bd1109a22ed42a6123e98b731aac0b61cc14241105a9332a9142",
+  "original_stopped_evidence_index_sha256": "34cba0094c702e79b43d97aa0921adef021b98d35b027154baab5b7da2ab4b36",
+  "amended_offline_manifest_sha256": "5674c01e90da2ade7368bbbf9d71e72e25675ae0a7c61e7b07cbff007e51f8d5",
+  "continuation_evidence_index_sha256": "40df35e79d6e360098d40a43ca830ad976c80e3b2f4b17924923d783f5579fe5",
+  "independent_code_review_sha256": "4e5771a5e3a4126665a70d767cd3357d6cb71b18c2df41af5ae9e105cd9e2228",
+  "source_outputs": [
+    {
+      "logical_source": "candidate/t01-claude-a-dirty-r1",
+      "original_sha256": "f7335029c590c96d3330fea528bc8d908debfd559ef5fe403a23e27855a58a99",
+      "public_derivative": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t01-claude-a-dirty-r1.json",
+      "public_sha256": "1595b4f7ef9575e059d53872e61b59d0c6d57bc8d6a56df7e40a02044def8c2c",
+      "transformation": "Only schema/stage/role/verdict/checks retained; execution identifiers and input manifest omitted. Original bytes retained privately, unchanged."
+    },
+    {
+      "logical_source": "candidate/t02-claude-b-clean-r1",
+      "original_sha256": "3bed99a4b56a853edfaef39c2300ff2df96659bc7870784587d200a4e030ee0a",
+      "public_derivative": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t02-claude-b-clean-r1.json",
+      "public_sha256": "c4da57c8c3012f8b2c30b4d76c5b8d59b256ab977ef8cb1ae6a27b1d19c4f5f8",
+      "transformation": "Only schema/stage/role/verdict/checks retained; execution identifiers and input manifest omitted. Original bytes retained privately, unchanged."
+    },
+    {
+      "logical_source": "candidate/t03-claude-a-clean-r1",
+      "original_sha256": "4b60e00d92fde1f6e2c68b9c9e64b3b5179a45981b1a50e4cbc6d11c8b8c598b",
+      "public_derivative": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t03-claude-a-clean-r1.json",
+      "public_sha256": "917141b4a727592a404ffe5b8cafb879327d6b8db424e4678722f685b77e8b56",
+      "transformation": "Only schema/stage/role/verdict/checks retained; execution identifiers and input manifest omitted. Original bytes retained privately, unchanged."
+    },
+    {
+      "logical_source": "candidate/t04-claude-b-dirty-r1",
+      "original_sha256": "420dc21a7d7385c78b3bcee78872d33285bc1f0749883e2031a8cc79600fbf73",
+      "public_derivative": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t04-claude-b-dirty-r1.json",
+      "public_sha256": "adf69396a6a3d25187aba5d7b76aa1e24c13011e4f44cfc7edfe81a4c3b125e8",
+      "transformation": "Only schema/stage/role/verdict/checks retained; execution identifiers and input manifest omitted. Original bytes retained privately, unchanged."
+    },
+    {
+      "logical_source": "candidate/t05-claude-b-dirty-r2",
+      "original_sha256": "43f794e980ef0fdd71ffc9651247bc34cb6873087918d9fb24648b388d340f51",
+      "public_derivative": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t05-claude-b-dirty-r2.json",
+      "public_sha256": "1c34c429cb2a1e0440e747cd4335d3ad83b89b8b0b373759d21c7eef449e9e91",
+      "transformation": "Only schema/stage/role/verdict/checks retained; execution identifiers and input manifest omitted. Original bytes retained privately, unchanged."
+    },
+    {
+      "logical_source": "candidate/t06-claude-a-clean-r2",
+      "original_sha256": "b93752756c15a051342e9775611e76968097c41381b14fc0318343b82139171c",
+      "public_derivative": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t06-claude-a-clean-r2.json",
+      "public_sha256": "415128f1a173dcfb9698fb08187cd1996291217195d91d715fe185730a5b171b",
+      "transformation": "Only schema/stage/role/verdict/checks retained; execution identifiers and input manifest omitted. Original bytes retained privately, unchanged."
+    },
+    {
+      "logical_source": "candidate/t07-claude-b-clean-r2",
+      "original_sha256": "54f4ad9cc50dac409357281e3496f05a6e7ed9ba466eb22c83dfb5e5e97fcef3",
+      "public_derivative": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t07-claude-b-clean-r2.json",
+      "public_sha256": "3143ffe063bc17a6c1a433cb63505052d5e776f87e8aab2df044c9cdd22f818b",
+      "transformation": "Only schema/stage/role/verdict/checks retained; execution identifiers and input manifest omitted. Original bytes retained privately, unchanged."
+    },
+    {
+      "logical_source": "candidate/t08-claude-a-dirty-r2",
+      "original_sha256": "9414265c8fbb3f03c346a720ee3993f8e3fe58a29abe93fbb43c10f2d742bf5b",
+      "public_derivative": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t08-claude-a-dirty-r2.json",
+      "public_sha256": "b1287b86985fc8fb54ba8456dc4a52f59fab1ac5192efda5b71eca5d2b837b12",
+      "transformation": "Only schema/stage/role/verdict/checks retained; execution identifiers and input manifest omitted. Original bytes retained privately, unchanged."
+    },
+    {
+      "logical_source": "judge/a-dirty",
+      "original_sha256": "90ca3a46bc78187f46cd63246bc61ebf82f247d0e233323fc108c31445fe5590",
+      "public_derivative": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/judges/a-dirty.json",
+      "public_sha256": "90ca3a46bc78187f46cd63246bc61ebf82f247d0e233323fc108c31445fe5590",
+      "transformation": "Exact blinded final response only; no native event/account/session metadata."
+    },
+    {
+      "logical_source": "judge/a-clean",
+      "original_sha256": "878d7287ac445acba5004d0c0e9d667f0305652e50937913eab7f09138675962",
+      "public_derivative": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/judges/a-clean.json",
+      "public_sha256": "878d7287ac445acba5004d0c0e9d667f0305652e50937913eab7f09138675962",
+      "transformation": "Exact blinded final response only; no native event/account/session metadata."
+    },
+    {
+      "logical_source": "judge/b-dirty",
+      "original_sha256": "f35cd41d1b39e1f31238e8a547713ee3037ebb5dbca2da62f8580db7d73dcf46",
+      "public_derivative": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/judges/b-dirty.json",
+      "public_sha256": "f35cd41d1b39e1f31238e8a547713ee3037ebb5dbca2da62f8580db7d73dcf46",
+      "transformation": "Exact blinded final response only; no native event/account/session metadata."
+    },
+    {
+      "logical_source": "judge/b-clean",
+      "original_sha256": "43464c06d942c2438db20bbf16096ec185cccba1df7c58314c91a1fee6a7a928",
+      "public_derivative": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/judges/b-clean.json",
+      "public_sha256": "43464c06d942c2438db20bbf16096ec185cccba1df7c58314c91a1fee6a7a928",
+      "transformation": "Exact blinded final response only; no native event/account/session metadata."
+    }
+  ],
+  "public_replay_limit": "Curated derivatives support content review; raw native event replay and full original execution context remain private. Hashes do not themselves prove behavior."
+}

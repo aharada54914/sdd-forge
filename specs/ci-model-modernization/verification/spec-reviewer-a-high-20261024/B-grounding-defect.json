@@ -1,0 +1,19 @@
+{
+  "candidate_sha256": "420dc21a7d7385c78b3bcee78872d33285bc1f0749883e2031a8cc79600fbf73",
+  "json_pointer": "/checks/2/finding",
+  "byte_span": [
+    4805,
+    4963
+  ],
+  "exact_claim": "AC-003 の specs/workshop-enrollment/acceptance-tests.md:8 は「空席があれば `201` で `remaining_seats` が1減る」という正常系だけです。",
+  "source_sha256": "6cbbad45d0ecb60c2ee12ea212be6fdb66f1df5e9474daac5b42ab62a7e47ca8",
+  "source_line": 8,
+  "source_text": "- AC-003 (REQ-002, G-01): 空席があれば `201` で `remaining_seats` が1減る。重複は `409 DUPLICATE`、開始後は `409 CLOSED` で状態不変。 同時に定員より多く申込しても確定申込数は定員を超えず、判定は開始日時→重複→定員の順である。",
+  "judge_sha256": "f35cd41d1b39e1f31238e8a547713ee3037ebb5dbca2da62f8580db7d73dcf46",
+  "assessment": "GROUNDING_DEFECT",
+  "distinction": "Real inaccurate characterization, not an optional quote format or previously corrected tokenizer issue.",
+  "logical_candidate": "t04-claude-b-dirty-r1",
+  "public_candidate": "candidates/t04-claude-b-dirty-r1.json",
+  "public_source": "fixtures/dirty/acceptance-tests.md",
+  "byte_span_scope": "original retained private candidate bytes, not sanitized derivative offsets"
+}

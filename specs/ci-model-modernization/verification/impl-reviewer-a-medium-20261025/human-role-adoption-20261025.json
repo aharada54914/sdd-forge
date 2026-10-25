@@ -1,0 +1,15 @@
+{
+  "schema": "human-role-adoption-receipt/v1",
+  "questionItemId": "[\"request_user_input_async\",\"call_2bd9ac4940c2423abb3ddbff0ffa8a4f\",0]",
+  "answer": "Sonnet／medium・明示固定を採用する 具体案（差分）を承認",
+  "reviewed_at": null,
+  "reviewed_at_note": "Original user-message timestamp was not supplied. receipt_written_at is capture time, not the user decision timestamp.",
+  "receipt_written_at": "2026-10-25T02:42:04.683007+00:00",
+  "source": "Actual user response to the linked v2 A-only adoption proposal in the current conversation.",
+  "approved_patch_sha256": "b05fff6c381ce9c6d8afd56e86ad26b12761761e34486ed45577bfec8182c6b6",
+  "approved_proposal_manifest_sha256": "65b3b24b61be4e1564dc393706e71952e45b3a3184bbfbcdf9258b3da5f3bcf4",
+  "approved_decision_sha256": "2edd417295cce7cdbd2767d62cddb9b3e2156cde9718bce46fa12ad20747afe8",
+  "approved_role": "impl-reviewer-a",
+  "approved_scope": "Proposed supervised later-lifecycle substantive implementation-policy re-review of non-legacy local CLI/tooling non-fullstack designs with full-profile inputs and no domain/design-system contract, explicitly including the A9 bugfix-labeled local Bash/PowerShell surface. Excluded target classes: first-time/fullstack/legacy/domain/design-system review. The benchmark does not establish amendment binding, convergence handling, protected entry or full A9 runtime-chain capability; all applicable actual requirements remain mandatory, not waived or prohibited.",
+  "limitations": "Only the exact v2 bounded A-only proposal is approved. No B/evaluator adoption, formal gate PASS, automatic actual A9 readiness, risk-floor waiver or frozen feature-type change."
+}

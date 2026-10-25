@@ -1,110 +1,148 @@
 # Open issue dependency and execution plan
 
-## Current status — 2026-10-24 08:07 UTC
+## Current status — 2026-10-25 (JST)
 
-This section supersedes the historical status statements below, including old
-authentication, task-exception and author-limit notices. The dependency graph
-is unchanged. The last verified open set contains **33 Issues**; only #619 has
-closed in this work sequence. No additional closure or formal feature-gate
-result is claimed here.
+This section supersedes older authentication, task-exception, author-limit and
+execution-status statements below. The historical dependency graph is unchanged.
+A fresh unauthenticated [GitHub query](https://api.github.com/repos/aharada54914/sdd-forge/issues?state=open&per_page=100)
+found **33 open Issues, excluding pull requests**. #619 remains closed, and
+[#642](https://github.com/aharada54914/sdd-forge/issues/642) is now closed as completed
+within its `work`-branch scope. Default `main` remains at `fcb8275a`; these changes
+have not been released or integrated into `main`.
 
-- **#619 is resolved on `work`.** PR #636 merged at `45c2e927`, with the same
-  tree as tested merge `eb5210f8`. Native
-  [run 39886069005](https://github.com/aharada54914/sdd-forge/actions/runs/39886069005)
-  passed 449 obligations plus one expected inactive-A9 skip, all execution
-  origins from attempt 1. [Neighbor-writer evidence](issue-619-neighbor-writers.md)
-  preserves Desktop/Core comparisons and failures. Historical records remain
-  unchanged; their original runtime is unknown. Default-main integration,
-  whole-script Desktop support and #620 recovery are separate claims.
-- **Host registration infrastructure: [PR #639](https://github.com/aharada54914/sdd-forge/pull/639)
-  merged into `work` at `d5848a90`.** Final source `fa5edd74` includes the
-  reviewed helper, exact observed Claude 2.1.303 normal-mode compatibility,
-  minimal MCP production dependency repairs and the trusted-parser lock fix.
-  The aggregate now permits unrelated lock updates while retaining original
-  parser bytes, base lock and canonical-plan binding. Independent correction
-  reviews accepted these deltas; 50 helper and 90 CI protocol tests passed.
-  The distribution binding covers 15 changed paths, nine already-installed
-  paths and **zero added installed paths**. Tests and MCP lockfiles remain
-  excluded; installers/payload manifest are unchanged. Remote installation
-  still temporarily downloads the full repository archive before filtering.
-- **Final CI passed.** [Run 40072630390](https://github.com/aharada54914/sdd-forge/actions/runs/40072630390)
-  verified **449 PASS plus one expected skip**, all 449 execution origins from
-  attempt 1, including all 36 installer obligations across six cells. With source
-  `fa5edd74` and base `f8746874`, tested merge `de35a524` and actual merge
-  `d5848a90` share the verified final tree `60345cb6`. Workflow status is
-  completed/success and the native aggregate reports PASS. Its control-job API
-  row remained stale as in_progress; this discrepancy was preserved, not
-  rewritten as terminal metadata. GitHub accepted the normal exact-head merge
-  without bypass. The earlier `7c2337b3` aggregate failure from whole-lock
-  comparison, cancelled runs and production audit failures remain recorded.
-- **T-HOST-APPEND and its limited prior-review-order exception are already
-  authorized.** This does not approve other Draft implementation or waive
-  provenance, role separation, protected mechanisms or model adoption.
-  Dedicated native Claude host preparation completed successfully. PR #631
-  now includes the validated public baseline in `e5a20b7b`; all five bounded
-  integration checks passed. The supported helper registered the stopped
-  native host and verified the resulting history/receipt. The exact same
-  session resumed, read the integrated baseline, and retained its original
-  transcript prefix, but ended with a genuine provider session-limit error.
-  Post-resume registration verification still passed. No successful completion
-  of the host continuation or formal feature review is claimed.
-- **Codex authentication is working; reviewer adoption is unresolved.** The
-  completed spec-reviewer comparison used 16 candidate calls and four blinded
-  judge calls: final results were **4 PASS and 12 FAIL**, with no new role
-  adoption recommended. An independent answer-key review identified two
-  problems for prospective correction; original scores remain unchanged.
-  A separate high-effort follow-up is frozen for eight candidate calls and up
-  to four judge calls. Root review approved the experiment preparation and
-  freeze only; **no follow-up provider calls or human adoption decision have
-  occurred**. The registered-host continuation actually reported a session limit at
-  08:01 UTC, with reset at **2026-10-24 10:20 UTC**. Further Claude calls are
-  paused until that reset; offline corrections and reviews continue.
-- **#620 remains open for production recovery and human-reviewed adoption.**
-  The parser, metadata-refresh and aggregate corrections are integrated.
-  The completed weekly comparison has six Claude and six Codex structural
-  successes, with three earlier infrastructure failures retained; a separate
-  exploratory blinded semantic layer returned 12 PASS. These experiments do
-  not establish production recovery or authorize reviewer roles. Remaining
-  acceptance includes human-reviewed self-improvement-role adoption, a genuine
-  fresh request/observation under the actual production settings, and a
-  complete guarded weekly audit. The existing verified-configuration contract
-  permits a valid one-off native capture, sealing and immediate consumption;
-  it does not require inventing a maintained-producer approval prerequisite.
-- **#614/#594/#605/#601 remain Draft**, in PRs
+- **#619 and host-registration infrastructure are integrated into `work`.**
+  [PR #636](https://github.com/aharada54914/sdd-forge/pull/636) and
+  [PR #639](https://github.com/aharada54914/sdd-forge/pull/639) each completed
+  449-obligation CI plus one expected skip. The supported helper registered the
+  target native host; its continuation succeeded after the 10:20 UTC reset and
+  registration recheck passed. Earlier session-limit failures remain recorded.
+  Host registration does not itself establish reviewer adoption or feature gates.
+- **#620 production recovery remains incomplete.** Human-approved
+  self-improvement-only Opus/medium adoption and the maintained capture corrections
+  are integrated by [PR #641](https://github.com/aharada54914/sdd-forge/pull/641)
+  at `5dfd7cc2`, with the exact tested tree and
+  [449 PASS plus one expected skip](https://github.com/aharada54914/sdd-forge/actions/runs/40092423174).
+  The actual [weekly run 40088779741](https://github.com/aharada54914/sdd-forge/actions/runs/40088779741)
+  captured fresh configuration, completed its native audit and reported all five checks successful, but
+  remained **partial**: PR creation returned 403 under the configured token and
+  finalization was skipped. The user authorized token-permission remediation on 2026-10-25 (JST).
+  The current API connection returns HTTP 403 for both repository Secret
+  metadata and Actions workflow permissions. TinyFish is now connected for the
+  requested browser operation, but its Default profile has no recorded GitHub
+  sign-in; the login-state/setup response is pending. PR-write remediation remains
+  authorized, preserving Contents write and repository selection. No token value
+  was requested, and no permission change or retry is claimed.
+  A complete guarded production run is still required for #620.
+- **#642's encoding correction is integrated and verified.**
+  [PR #643](https://github.com/aharada54914/sdd-forge/pull/643) merged at
+  [`a46ad52b`](https://github.com/aharada54914/sdd-forge/commit/a46ad52b4c181691fa16e0d7edc14f071f46f3b6),
+  with verified tree `feda49b0`, matching tested merge `f485250c`.
+  [CI 40095251343](https://github.com/aharada54914/sdd-forge/actions/runs/40095251343)
+  completed **449 PASS plus one expected skip**, including all 36 installer
+  obligations. Actual Windows Desktop 5.1 and Windows Core each passed all 98
+  encoding checks; Linux Core also passed 98. The three existing PowerShell
+  writers preserve BOM-free input, Unicode/newlines, consent and relative-location
+  behavior. Earlier parser/fixture failures remain preserved.
+- **Distribution scope remains bounded.** #643 changes three existing admitted
+  runtime scripts and one excluded test helper. It adds no installed path,
+  package or temporary comparison workflow; installer and payload-selector bytes
+  are unchanged. Static selection remains 613 paths, including the required
+  existing weekly-adoption record. Earlier actual installer parity covered 612
+  paths and is retained as historical evidence, distinct from current static
+  membership and the current 36 CI installer obligations. Installation still
+  copies all admitted plugin directories and may download the full source archive
+  before filtering; selected-plugin-only copying is not claimed.
+- **Spec-reviewer-A and task A/B adoption are integrated.**
+  [PR #649](https://github.com/aharada54914/sdd-forge/pull/649) merged into `work`
+  at `fa196c92`, with tree `d23651a0` matching the tested merge.
+  [CI 40150536853](https://github.com/aharada54914/sdd-forge/actions/runs/40150536853)
+  completed 45 successful jobs and one expected skip, including all six installer
+  jobs; final required-checks succeeded. Local policy validation passed 59 tests.
+  Artifact/log access was unavailable, so this run is not independently reported
+  as a 449-obligation aggregate. The user accepted the
+  prepared proposal on 2026-10-25 (JST); the integration adds its actual receipt
+  and hash-bound policy reference for explicitly pinned Opus/high, limited to
+  ordinary Phase-1/no-domain A reviews. Candidate lifecycle remains unchanged.
+  It preserves clean native PASS/PASS, dirty native UNCLEAR/UNCLEAR and separate
+  source adjudication of D5. Spec-reviewer-B remains unadopted. Its completed
+  clarified-fixture Sonnet/medium experiment has **zero PASS, two FAIL and two
+  ADJUDICATION_PENDING outcomes**: clean citation defects, missed dirty D4 and unresolved
+  source-grounded concerns remain recorded. A separately versioned Opus/high
+  qualification completed four native calls with no retries: independent semantic
+  judgment accepted three outputs and rejected one for unsupported mandatory
+  design demands. Both dirty repetitions detected all five seeded defects; that
+  recall does not erase the false positive. **B adoption remains on hold** under
+  the existing all-criteria/two-repetition promotion rule. Its control was clarified
+  before these calls, so it is not a paired comparison against the earlier Sonnet
+  inputs. The same Work judge knew the profile/history; only output/repetition
+  mapping was hidden. These small adaptive experiments do not establish
+  domain/amendment coverage or normal settings/hooks equivalence.
+- **Task-reviewer-A/B adoption is human-approved.** The user accepted the
+  prepared proposal on 2026-10-25 (JST); the integration records explicitly pinned
+  Sonnet/medium only for supervised post-implementation provenance re-review.
+  Candidate lifecycle and caller effort/risk constraints remain unchanged. Eight native
+  Sonnet/medium outputs passed their contracts; independent semantic judgment
+  accepted all eight outputs and supported 92 checks. Candidate decisions remain
+  **four clean PASS and four seeded-defect BLOCKED**. Scope is one compact synthetic
+  two-task workload with two repetitions per role/control pair. The approved integration adds the two role references and real approval
+  receipt; it does not establish formal task-review PASS, first-time Draft review
+  coverage, backend identity or protected-role admission.
+- **Interrupted-review recovery remains In Progress.**
+  [PR #640](https://github.com/aharada54914/sdd-forge/pull/640) at `563006cc` completed
+  [449 PASS plus one expected skip](https://github.com/aharada54914/sdd-forge/actions/runs/40090187421),
+  including native platform suites. That CI used the older `1c95ede8` base and
+  does not validate integration with current `work`. A separate local integration preserves the original #614 draft branch and
+  its registered native host. One actual Claude continuation applied the approved
+  v2 criterion without changing task statuses, then the real task precheck stopped:
+  the old implementation-policy review pins a reviewer-calibration hash changed
+  by `bc7be7f7`, before this adoption integration. All seven frozen specification
+  hashes still match. Repair requires implementation-policy provenance re-review
+  before task rebinding; the old contract was not rewritten. No child reviewer
+  launched, and T-001 is not Done. T-002 recovery and T-003 compatibility
+  remain ordered dependents. Implementation approval excludes live historical
+  recovery and A9 activation; actual recovery requires its original human
+  approval/application provenance.
+- **Implementation-policy reviewer A adoption is human-approved; B remains
+  withheld.** Eight fixed Sonnet/medium calls completed with no retries; all eight
+  output/execution contracts passed. A fresh separate-context source judgment
+  accepted seven outputs: A passed four of four outputs and all 44 checks; B passed
+  three of four and 43 of 44 checks. The B failure is an unsupported no-test-coverage
+  assertion against planned TEST-003; its additional Major scope finding is valid
+  and retained. The original joint HOLD report is preserved; the frozen promotion
+  rule permits a separate passing-role-only human decision. The user approved the A-only proposal on 2026-10-25 (JST); the integration
+  adds the genuine receipt and a pinned Sonnet/medium reference for A only, while
+  preserving the five existing role references and candidate lifecycle. Evidence covers a small
+  nonlegacy CLI/full-profile workload without domain/design-system contracts in a
+  later-lifecycle context. A9 is labelled `bugfix` and uses local Bash/PowerShell
+  tooling without a frontend; the approved application scope explicitly includes that local non-fullstack
+  tooling surface, without claiming a bugfix-labelled benchmark was executed.
+  First-time/fullstack/legacy/domain/design-system targets remain excluded. Amendment binding, convergence, protected entry,
+  actual A9 execution and first-time review remain separately unproved.
+- **Evaluator adoption is also on hold.** A separately versioned first-role
+  Opus/high qualification completed four native calls and a fresh Work judgment
+  with candidate identity withheld: **one ACCEPT, one NEEDS_WORK and two UNCLEAR**.
+  Both defect outputs identified the Critical missing validation call and omitted
+  build, but two outputs misquoted checker-hash suffixes while claiming a match.
+  The actual artifact hashes match; the false statements are in the responses.
+  The clean-case catalog-to-commit ownership concern remains unresolved and is
+  not classified as a false positive. These results do not satisfy the frozen
+  all-criteria/two-repetition adoption rule. The previous one-call experiment and
+  its three unrun cells remain preserved, alongside independently confirmed
+  parser overconstraints and two real test-coverage gaps corrected before the
+  four-call qualification. There is no evaluator adoption or T-001 quality PASS.
+- **Other feature work remains open.** #614/#594/#605/#601 retain draft work in
   [#631](https://github.com/aharada54914/sdd-forge/pull/631),
   [#633](https://github.com/aharada54914/sdd-forge/pull/633),
   [#637](https://github.com/aharada54914/sdd-forge/pull/637) and
-  [#638](https://github.com/aharada54914/sdd-forge/pull/638), respectively.
-  Formal reviews, applicable human task approval and implementation remain.
-  #601 has three task proposals and 61 planned tests; #605 has 200 planned
-  acceptance cases. Their cancelled Draft CI runs are not successes, and
-  final review-ready head/base CI remains required.
-- **#197 and #187 still need operational acceptance.** The existing cloud
-  addendum already explains the eleven-component unactivated candidate;
-  repeating that implementation is unnecessary. A prospective review amendment
-  preserves the dated nine-component decision and binds both provider additions
-  plus installer-manifest ownership. A9's previous review lacks a terminal
-  contract, so normal reset cannot repair it. The separate interrupted-review
-  recovery feature has matching saved spec/design/task PASS input hashes, and
-  the user has now explicitly approved all three implementation tasks. T-001
-  evidence/authorization validation is being implemented and independently
-  reviewed first. The review found a cross-runtime source-attribution defect
-  and gaps between the required per-case evidence and the recorded tests;
-  correction and exact coverage reconciliation are in progress. No formal
-  quality PASS or Done is claimed.
-  T-002 explicit recovery and T-003 downstream compatibility remain ordered
-  dependents. This approval excludes actual past-record recovery and A9 activation.
-  Actual recovery additionally requires the original human approval/application
-  provenance; task selection cannot replace it. No Approved A9 task plan was
-  found to restore. A real advisory release cycle, human required-promotion
-  decision, post-promotion feature E2E and WFI disposition remain necessary;
-  #187 depends on #197.
+  [#638](https://github.com/aharada54914/sdd-forge/pull/638), respectively. Formal
+  reviews, applicable approvals and implementation remain. #616 still requires
+  authenticated human-origin host proof. #197 retains its eleven-component
+  unactivated candidate and needs the actual advisory cycle, human promotion
+  decision, post-promotion E2E and WFI disposition; #187 depends on that acceptance.
 
-Default `main` was last recorded at `fcb8275a42061b8132ea88a36e69b02f4487be71`.
-Whole-branch integration, release and human adoption remain separate actions.
-The historical graph below retains #619 for provenance; skip its completed
-work when selecting the next open task. Recheck live Issue acceptance before
-using any dependency or closing a remaining Issue.
+Keep the historical graph below for provenance, skip completed #619/#642 work,
+and check current acceptance before closing any remaining Issue. Completed CI,
+Issue closure, human adoption and formal feature gates retain their separate scopes.
 
 ## Historical snapshot — 2026-10-22
 

@@ -914,10 +914,101 @@ class PolicySelection(unittest.TestCase):
         self.assertEqual(policy['default_policy'], 'latest-compatible')
         expected_path = 'contracts/model-adoption/ci-model-modernization-20261021.json'
         expected_hash = '0423fb14c0297db8446cb9a55767d2a0bb6ebade5d25ae1c42c0b3e09cc4ee32'
+        self_improvement_path = 'contracts/model-adoption/self-improvement-20261023.json'
+        self_improvement_hash = '782b7afab5e6ee1a4e452393de8721d46b72d44765cf8ac92117736ed539ba2b'
+        task_review_path = 'contracts/model-adoption/task-reviewer-medium-20261024.json'
+        task_review_hash = '00dc6c8698d5fe5453e058671bbe6a03ed609a945b6b45428fec0bdf7299640a'
+        expected_adoptions = {
+            'gpt-6-astra': [{'role': 'implementer', 'path': expected_path, 'sha256': expected_hash}],
+            'anthropic/opus': [{'role': 'self-improvement', 'path': self_improvement_path,
+                                'sha256': self_improvement_hash}],
+        }
+        spec_review_path = 'contracts/model-adoption/spec-reviewer-a-high-20261024.json'
+        spec_review_hash = '21c87be2e9b2620958e4d7c74a7aabe7f85c197045ed1a08aaa1b6bf6b850959'
+        expected_adoptions['anthropic/opus'].append(
+            {'role': 'spec-reviewer-a', 'path': spec_review_path, 'sha256': spec_review_hash})
+        expected_adoptions['anthropic/sonnet'] = [
+            {'role': role, 'path': task_review_path, 'sha256': task_review_hash}
+            for role in ('task-reviewer-a', 'task-reviewer-b')
+        ]
+        impl_review_path = 'contracts/model-adoption/impl-reviewer-a-medium-20261025.json'
+        impl_review_hash = 'af931cb994dd3063c8f9d4439199132145e7f54fd429f787aad9c854b457b39b'
+        expected_adoptions['anthropic/sonnet'].append(
+            {'role': 'impl-reviewer-a', 'path': impl_review_path, 'sha256': impl_review_hash})
         for model in policy['models']:
-            expected = [{'role': 'implementer', 'path': expected_path, 'sha256': expected_hash}] if model['id'] == 'gpt-6-astra' else []
-            self.assertEqual(model['adoption'], expected, 'Only the reviewed implementer baseline has adoption evidence')
+            self.assertEqual(model['adoption'], expected_adoptions.get(model['id'], []),
+                             'Adoption remains restricted to the actually approved roles')
         self.assertEqual(hashlib.sha256((ROOT / expected_path).read_bytes()).hexdigest(), expected_hash)
+        adoption_bytes = (ROOT / self_improvement_path).read_bytes()
+        self.assertEqual(hashlib.sha256(adoption_bytes).hexdigest(), self_improvement_hash)
+        adoption = json.loads(adoption_bytes)
+        self.assertEqual(adoption['decision_status'], 'approved-for-self-improvement-only')
+        self.assertEqual(adoption['proposed_role'], 'self-improvement')
+        self.assertEqual(adoption['proposed_effort'], 'medium')
+        human_source = adoption['human_review']['source']
+        receipt_bytes = (ROOT / human_source['path']).read_bytes()
+        self.assertEqual(hashlib.sha256(receipt_bytes).hexdigest(), human_source['sha256'])
+        receipt = json.loads(receipt_bytes)
+        self.assertEqual(receipt['answer'], adoption['human_review']['decision'])
+        self.assertEqual(receipt['questionItemId'], adoption['human_review']['questionItemId'])
+        self.assertEqual(receipt['approved_patch_sha256'], adoption['human_review']['approved_patch_sha256'])
+        self.assertIsNone(adoption['human_review']['reviewed_at'])
+        spec_bytes = (ROOT / spec_review_path).read_bytes()
+        self.assertEqual(hashlib.sha256(spec_bytes).hexdigest(), spec_review_hash)
+        spec_adoption = json.loads(spec_bytes)
+        self.assertEqual(spec_adoption['decision_status'], 'approved-for-spec-reviewer-a-only')
+        self.assertEqual(spec_adoption['proposed_role'], 'spec-reviewer-a')
+        self.assertEqual(spec_adoption['proposed_catalog_id'], 'anthropic/opus')
+        self.assertEqual(spec_adoption['proposed_effort'], 'high')
+        for bounded_adoption in (spec_adoption, json.loads((ROOT / task_review_path).read_bytes())):
+            self.assertEqual(bounded_adoption['proposed_policy'], 'pinned')
+            self.assertEqual(bounded_adoption['lifecycle_remains'], 'candidate')
+            human = bounded_adoption['human_review']
+            self.assertIsNone(human['questionItemId'])
+            self.assertIsNone(human['reviewed_at'])
+            receipt_bytes = (ROOT / human['source']['path']).read_bytes()
+            self.assertEqual(hashlib.sha256(receipt_bytes).hexdigest(), human['source']['sha256'])
+            receipt = json.loads(receipt_bytes)
+            self.assertEqual(receipt['answer'], human['decision'])
+            self.assertEqual(receipt['approved_patch_sha256'], human['approved_patch_sha256'])
+            for evidence in bounded_adoption['evidence']:
+                self.assertEqual(hashlib.sha256((ROOT / evidence['path']).read_bytes()).hexdigest(),
+                                 evidence['sha256'])
+        impl_bytes = (ROOT / impl_review_path).read_bytes()
+        self.assertEqual(hashlib.sha256(impl_bytes).hexdigest(), impl_review_hash)
+        impl_adoption = json.loads(impl_bytes)
+        self.assertEqual(impl_adoption['decision_status'], 'approved-for-impl-reviewer-a-only')
+        self.assertEqual(impl_adoption['proposed_role'], 'impl-reviewer-a')
+        self.assertEqual(impl_adoption['proposed_catalog_id'], 'anthropic/sonnet')
+        self.assertEqual(impl_adoption['proposed_effort'], 'medium')
+        self.assertEqual(impl_adoption['proposed_policy'], 'pinned')
+        self.assertEqual(impl_adoption['lifecycle_remains'], 'candidate')
+        human = impl_adoption['human_review']
+        self.assertIsInstance(human['decision'], str)
+        self.assertTrue(human['decision'].strip())
+        receipt_bytes = (ROOT / human['source']['path']).read_bytes()
+        self.assertEqual(hashlib.sha256(receipt_bytes).hexdigest(), human['source']['sha256'])
+        receipt = json.loads(receipt_bytes)
+        self.assertEqual(receipt['answer'], human['decision'])
+        self.assertEqual(receipt['approved_patch_sha256'], human['approved_patch_sha256'])
+        for ref in impl_adoption['evidence']:
+            self.assertEqual(hashlib.sha256((ROOT / ref['path']).read_bytes()).hexdigest(), ref['sha256'])
+        task_bytes = (ROOT / task_review_path).read_bytes()
+        self.assertEqual(hashlib.sha256(task_bytes).hexdigest(), task_review_hash)
+        task_adoption = json.loads(task_bytes)
+        self.assertEqual(task_adoption['decision_status'], 'approved-for-task-reviewers-only')
+        self.assertEqual(task_adoption['proposed_roles'], ['task-reviewer-a', 'task-reviewer-b'])
+        self.assertEqual(task_adoption['proposed_catalog_id'], 'anthropic/sonnet')
+        self.assertEqual(task_adoption['proposed_effort'], 'medium')
+        task_human = task_adoption['human_review']
+        self.assertIsInstance(task_human['decision'], str)
+        self.assertTrue(task_human['decision'].strip())
+        task_receipt_bytes = (ROOT / task_human['source']['path']).read_bytes()
+        self.assertEqual(hashlib.sha256(task_receipt_bytes).hexdigest(), task_human['source']['sha256'])
+        task_receipt = json.loads(task_receipt_bytes)
+        self.assertEqual(task_receipt['answer'], task_human['decision'])
+        self.assertEqual(task_receipt['questionItemId'], task_human['questionItemId'])
+        self.assertEqual(task_receipt['approved_patch_sha256'], task_human['approved_patch_sha256'])
         helper = load_helper()
         registry, registered = helper._policy_registry(ROOT / 'contracts/agent-model-capabilities.v2.json')
         token = helper._SNAPSHOT_ROOT.set(ROOT)
@@ -930,19 +1021,24 @@ class PolicySelection(unittest.TestCase):
         helper = load_helper()
         registry, registered = helper._policy_registry(ROOT / 'contracts/agent-model-capabilities.v2.json')
         policy = json.loads((ROOT / 'contracts/model-policy.v1.json').read_text())
-        ref = next(x for x in policy['models'] if x['id'] == 'gpt-6-astra')['adoption'][0]
-        with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
-            target = root / ref['path']
-            target.parent.mkdir(parents=True)
-            target.write_bytes((ROOT / ref['path']).read_bytes() + b'\n')
-            token = helper._SNAPSHOT_ROOT.set(root)
-            try:
-                with self.assertRaises(helper.PolicyError) as caught:
+        refs = [ref for model in policy['models'] for ref in model['adoption']]
+        for ref in refs:
+            with self.subTest(role=ref['role']), tempfile.TemporaryDirectory() as folder:
+                root = Path(folder).resolve()
+                for original in refs:
+                    target = root / original['path']
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes((ROOT / original['path']).read_bytes())
+                token = helper._SNAPSHOT_ROOT.set(root)
+                try:
                     helper._validate_role_policy(policy, registered, registry['role_defaults'])
-                self.assertEqual(caught.exception.reason, 'config-invalid')
-            finally:
-                helper._SNAPSHOT_ROOT.reset(token)
+                    target = root / ref['path']
+                    target.write_bytes(target.read_bytes() + b'\n')
+                    with self.assertRaises(helper.PolicyError) as caught:
+                        helper._validate_role_policy(policy, registered, registry['role_defaults'])
+                    self.assertEqual(caught.exception.reason, 'config-invalid')
+                finally:
+                    helper._SNAPSHOT_ROOT.reset(token)
 
     def test_passing_unregistered_model_cannot_be_added_to_policy(self):
         helper = load_helper()

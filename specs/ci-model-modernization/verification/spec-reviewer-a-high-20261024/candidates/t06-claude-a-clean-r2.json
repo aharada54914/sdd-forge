@@ -1,0 +1,50 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "対象のREQ-001〜REQ-004はすべて観測または測定できます（specs/workshop-enrollment/requirements.md:16-19）。REQ-001は、両端を含む範囲、開始日時の昇順（同時刻はid昇順）、空の配列、必須項目と型、remaining_seatsの定義、400 INVALID_RANGE、そして最大200件でp95 500ms以下を決めています。REQ-002は、201のときの残席の減り方、409 FULL/DUPLICATE/CLOSED、判定の順番、定員を超えないことを決めています。REQ-003は202/204/409 APPROVAL_REQUIRED/409 ALREADY_PUBLISHED/403 FORBIDDENと、roster-outboxへ1回だけ送ることを決めています。REQ-004は、audit.logに操作種別・対象id・結果コードの1行を追記することを決めています。日時の形式、必須パラメータ、承認の時刻境界はCON-001とCON-003で具体的な値になっています（specs/workshop-enrollment/requirements.md:11,13）。互いに矛盾する目標や、満たせない条件は見つかりませんでした。CON-003の『申込集合は以後変化しない』は、NG-01が申込の取消を対象外にしていること（specs/workshop-enrollment/requirements.md:7）と矛盾しません。Spec-Review-Status: Pending（specs/workshop-enrollment/requirements.md:2）の状態で後工程の成果物を参照している箇所はありません。『他の項目の追加は設計に委ねる』は設計判断を先送りしているだけで、後工程の成果物を引用しているわけではありません。そのためphase-sequencingの指摘もありません。investigation.mdに## Amendment Re-Review Contextはありませんが、既定のPhase 1較正で判断しても問題は出ませんでした。"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "目標はG-01の1つだけです（specs/workshop-enrollment/requirements.md:4）。その3つの要素にはすべて受け入れ条件があります。一覧はAC-001（specs/workshop-enrollment/acceptance-tests.md:6）、定員内での申込はAC-003（specs/workshop-enrollment/acceptance-tests.md:8）、管理者が明示的に承認した後にだけ名簿を公開する部分はAC-004（specs/workshop-enrollment/acceptance-tests.md:9）です。どのACもG-01を明記しています。補助の要件もACに対応しています。CON-001はAC-002（specs/workshop-enrollment/acceptance-tests.md:7）、CON-003はAC-004、REQ-004はAC-005（specs/workshop-enrollment/acceptance-tests.md:10）です。どの受け入れ条件にもつながらない目標はありません。"
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001〜AC-005（specs/workshop-enrollment/acceptance-tests.md:6-10）は、HTTPの結果コード、返却要素とその順序、remaining_seatsの変化、状態が変わらないこと、roster-outboxの件数と内容、audit.logに追加される行など、外から観測できる結果を書いています。TEST-001〜TEST-005とMV-001（specs/workshop-enrollment/acceptance-tests.md:13-17,20）には具体的な入力と手順があり、検証する人が判断できます。不合格にはしない明確化の提案（Minor相当）が3点あります。1点目は、AC-004が公開成功時の202を書いていないことです（REQ-003には書かれています。specs/workshop-enrollment/requirements.md:18）。2点目は、TEST-003（specs/workshop-enrollment/acceptance-tests.md:15）の手順u1→u1→u2→u3では、『重複→定員』という判定順を、両方が同時に当てはまる状況で試していないことです。3点目は、TEST-004（specs/workshop-enrollment/acceptance-tests.md:16）が開始前のmemberによる承認記録を含まないため、『役割の判定を時刻の判定より先に行う』という規則を直接確かめていないことです。ただしAC-003とAC-004には期待される結果が無条件で書かれており、検証する人はそれをもとに判断できます。下流で決められない状態にはならないので、FAILにはしません。"
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "NG-01（specs/workshop-enrollment/requirements.md:7）が対象外を明記しています。対象外は、支払い、キャンセル待ち、申込の取消、承認の取消、リマインダー、繰り返し開催、ワークショップのCRUD、存在しないidです。NG-02（specs/workshop-enrollment/requirements.md:8）は、実データと実在する外部サービスを使わず、外部公開先をスタブのroster-outboxに限っています。タイムゾーンの表示変換はクライアントの責務で、本機能の対象外です（specs/workshop-enrollment/investigation.md:4）。名簿に含める項目は表示名だけと決まっています（specs/workshop-enrollment/investigation.md:5）。この機能が広がりそうな方向は、それぞれ境界が引かれています。"
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "重要な制約は明記されています。データと互換性の面では、オフセット付きISO 8601で受け取りUTCで保存すること、日時が不正な場合と欠落した場合の扱いが決まっています（CON-001、specs/workshop-enrollment/requirements.md:11）。既存のUTC列との関係も示されています（specs/workshop-enrollment/investigation.md:4）。セキュリティと役割の面では、member/adminという既存の2役割、adminがmemberの権限を含むこと、未認証は401で既存基盤が拒否することが決まっています（CON-002、specs/workshop-enrollment/requirements.md:12）。認証と役割の判定を先に行う順番も決まっています（specs/workshop-enrollment/requirements.md:18）。承認の境界としては、取り消せない外部公開の前にadminの明示承認が必要なこと、承認は開始日時以降に限られることが書かれています（CON-003、specs/workshop-enrollment/requirements.md:13）。プライバシーの面では、名簿を表示名だけに限っています（specs/workshop-enrollment/requirements.md:18、specs/workshop-enrollment/investigation.md:5）。並行処理の面では、判定と登録を不可分に行うことが決まっています（specs/workshop-enrollment/requirements.md:17）。データの移行が必要になる要件はありません。明確化の提案（Minor相当）が1点あります。既存基盤が401で拒否した要求をREQ-004（specs/workshop-enrollment/requirements.md:19）のaudit.log追記の対象に含めるかが書かれていません。これは監査範囲の確認にとどまり、承認や安全の境界が欠けているわけではありません。"
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "リスクの高い主張は3つありますが、いずれにも検証の手段が計画されています。1つ目は、取り消せない外部公開と承認の境界です（specs/workshop-enrollment/requirements.md:13,18）。これはAC-004、TEST-004、MV-001が受け持ちます（specs/workshop-enrollment/acceptance-tests.md:9,16,20）。MV-001は外部ネットワークに接続しないローカルのスタブを使います。2つ目は、同時申込でも定員を超えないことです（specs/workshop-enrollment/requirements.md:17）。これはAC-003と、TEST-003で定員2の対象に3人が同時に申込む手順が受け持ちます（specs/workshop-enrollment/acceptance-tests.md:8,15）。3つ目は、p95 500msという性能の主張です（specs/workshop-enrollment/requirements.md:16）。これはAC-001と、TEST-001で200件のデータに100回呼び出す計測が受け持ちます（specs/workshop-enrollment/acceptance-tests.md:6,13）。名簿の個人情報を表示名に限る点は、AC-004で内容を照合して確かめます。リスクの面があるのでSKIPには当たりません。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "スキップしました。許可されたmanifestの中にdomain/ディレクトリ、domain/context-map.md、domain/domain-contract.jsonがありません（ListFilesで確認した5ファイルだけです）。domain/がない場合はSKIPという条件に当たるので、このチェックはスキップとして記録します。"
+    }
+  ]
+}

@@ -1,0 +1,409 @@
+{
+  "batch": "a-dirty",
+  "evaluations": [
+    {
+      "output_label": "O1",
+      "overall": "UNCLEAR",
+      "checks": [
+        {
+          "id": "REQ-TESTABILITY",
+          "assessment": "VALID_FAIL",
+          "evidence_match": "OK",
+          "grounded_defects": ["D1", "D3", "D4"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 16,
+              "end": 16,
+              "quote": "一覧は十分に高速に応答する。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 17,
+              "end": 17,
+              "quote": "判定順は開始日時、重複、定員の順とし、1回の判定と登録を不可分に行う。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "承認記録の有無にかかわらず名簿を `roster-outbox` に1回送信し `202` を返す。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 13,
+              "end": 13,
+              "quote": "`admin` が明示的に承認を記録するまで、`roster-outbox` には何も送信しない。"
+            }
+          ],
+          "note": "D1 and D4 independently support the keyed FAIL: performance lacks a pass threshold and full-capacity rejection lacks an expected response. Both are Phase-1 product decisions. Critical is permitted by the REQ-TESTABILITY exception and is concretely justified here by the separately identified D3 approval contradiction; the candidate correctly treats the ordinary ambiguities as Major."
+        },
+        {
+          "id": "GOAL-AC-TRACE",
+          "assessment": "VALID_FAIL",
+          "evidence_match": "OK",
+          "grounded_defects": ["D2"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 4,
+              "end": 4,
+              "quote": "申込確認票を取得でき"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 8,
+              "end": 8,
+              "quote": "空席があれば `201` で `remaining_seats` が1減る。"
+            }
+          ],
+          "note": "The confirmation-document goal has no matching requirement or acceptance criterion in the supplied sections. The finding identifies the resulting inability to implement or verify that deliverable. This is a Major Phase-1 traceability gap."
+        },
+        {
+          "id": "AC-OBSERVABLE",
+          "assessment": "VALID_FAIL",
+          "evidence_match": "OK",
+          "grounded_defects": ["D1", "D4"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 6,
+              "end": 6,
+              "quote": "一覧が快適な速度で表示される。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 13,
+              "end": 13,
+              "quote": "合成データ200件で一覧を100回呼び、件数・順序・必須項目・応答の速さを確認する。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 15,
+              "end": 15,
+              "quote": "u1、u1、u2、u3 の順に申込む。"
+            }
+          ],
+          "note": "D1 supplies the relevant keyed blocker: neither AC-001 nor TEST-001 establishes a performance pass threshold. The finding also concretely identifies D4's undefined rejection response. Major fits these observable-contract gaps. The logging suggestion is explicitly nonblocking."
+        },
+        {
+          "id": "SCOPE-BOUNDARY",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 7,
+              "end": 7,
+              "quote": "支払い、キャンセル待ち、申込の取消、承認の取消、リマインダー通知、繰り返し開催は扱わない。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 8,
+              "end": 8,
+              "quote": "実データと実在の外部サービスは使わない。外部公開先は合成のスタブ宛先 `roster-outbox` のみとする。"
+            }
+          ],
+          "note": "Explicit exclusions and the synthetic publication destination give downstream authors concrete scope boundaries. PASS matches the key; the confirmation-document defect is appropriately assessed under goal traceability."
+        },
+        {
+          "id": "CONSTRAINTS-EXPLICIT",
+          "assessment": "ADJUDICATION_PENDING",
+          "evidence_match": "UNCLEAR",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 5,
+              "end": 5,
+              "quote": "名簿に含める項目（表示名のみか、メールアドレスや所属も含めるか）は講師側と調整中で未決定。"
+            },
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 9,
+              "end": 9,
+              "quote": "未解決のプロダクト判断はない。実装方針レビューに進める。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 16,
+              "end": 16,
+              "quote": "`roster-outbox` の件数・内容を AC-004 に照合する。"
+            }
+          ],
+          "note": "The actual Major ground is undecided minimum roster content, with a concrete inability to choose or verify disclosed fields. This is rooted in DEC-003 and TEST-004 and is a Phase-1 concern, not a demand for a complete implementation schema. It corresponds to D5, which is not assigned to role A or this check. The check's keyed Critical rule concerns D3, which the candidate reports elsewhere and only cross-references here. Adjudication is required for this alternative ground; it is not an automatic false positive, and Major fits the stated missing-data-constraint failure mode."
+        },
+        {
+          "id": "RISK-VALIDATION-SURFACE",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 20,
+              "end": 20,
+              "quote": "隔離されたローカル環境でスタブ `roster-outbox`（ローカルファイルへの書き込みのみ）を使い、TEST-004 を手動で再現できる。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 17,
+              "end": 17,
+              "quote": "TEST-003 と TEST-004 の実行後に `audit.log` の追加行を確認する。"
+            }
+          ],
+          "note": "The publication, concurrency, and logging risks have planned validation surfaces. The candidate treats these as plans and separately acknowledges defective expected outcomes; it does not claim runtime verification. PASS matches the key."
+        },
+        {
+          "id": "DOMAIN-CONFORMANCE",
+          "assessment": "VALID_SKIP",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+              "start": 20,
+              "end": 25,
+              "quote": "The specification review gate reviews only Phase 1 artifacts:"
+            }
+          ],
+          "note": "The packet explicitly establishes the domain-absent fixture and expects SKIP. The candidate emits SKIP without imposing a Bounded-Context requirement. Manifest omission alone would not establish filesystem absence generally, but the packet supplies the applicability decision here."
+        }
+      ]
+    },
+    {
+      "output_label": "O2",
+      "overall": "UNCLEAR",
+      "checks": [
+        {
+          "id": "REQ-TESTABILITY",
+          "assessment": "VALID_FAIL",
+          "evidence_match": "OK",
+          "grounded_defects": ["D1", "D3"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 16,
+              "end": 16,
+              "quote": "一覧は十分に高速に応答する。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "承認記録の有無にかかわらず名簿を `roster-outbox` に1回送信し `202` を返す。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 13,
+              "end": 13,
+              "quote": "`admin` が明示的に承認を記録するまで、`roster-outbox` には何も送信しない。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 9,
+              "end": 9,
+              "quote": "承認記録前の公開要求は `409 APPROVAL_REQUIRED` で `roster-outbox` は空のまま。"
+            }
+          ],
+          "note": "D1 independently satisfies the keyed FAIL through the missing performance threshold. The candidate also accurately identifies D3's incompatible publication outcomes. Critical is allowed by the REQ-TESTABILITY exception and justified by that concrete approval contradiction; the performance ambiguity is correctly described as Major. Missing D4 from this particular finding does not invalidate the check."
+        },
+        {
+          "id": "GOAL-AC-TRACE",
+          "assessment": "VALID_FAIL",
+          "evidence_match": "OK",
+          "grounded_defects": ["D2"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 4,
+              "end": 4,
+              "quote": "申込確認票を取得でき"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 8,
+              "end": 8,
+              "quote": "空席があれば `201` で `remaining_seats` が1減る。"
+            }
+          ],
+          "note": "The promised confirmation document has no corresponding acceptance criterion or defined output. The candidate explains the downstream implementation and verification decisions left open. Major is appropriate for this Phase-1 traceability omission."
+        },
+        {
+          "id": "AC-OBSERVABLE",
+          "assessment": "VALID_FAIL",
+          "evidence_match": "OK",
+          "grounded_defects": ["D1", "D4"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 6,
+              "end": 6,
+              "quote": "一覧が快適な速度で表示される。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 13,
+              "end": 13,
+              "quote": "応答の速さを確認する。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 15,
+              "end": 15,
+              "quote": "u1、u1、u2、u3 の順に申込む"
+            }
+          ],
+          "note": "The subjective speed criterion establishes D1 and is enough for this check's FAIL. The additional capacity-rejection finding concretely identifies D4's missing response expectation. These are Major specification gaps rather than requests for extra test rows or executed evidence."
+        },
+        {
+          "id": "SCOPE-BOUNDARY",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 7,
+              "end": 7,
+              "quote": "ワークショップの作成・削除・更新と存在しない id の要求は対象外で、対象 id はすべて事前に用意されたものとする。"
+            },
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 4,
+              "end": 4,
+              "quote": "表示用のタイムゾーン変換はクライアントの責務とし、本機能では扱わない。"
+            }
+          ],
+          "note": "The specified exclusions, synthetic destination, and client-owned timezone conversion provide concrete boundaries. Minimum list content is fixed while optional additions are delegated. PASS matches the key."
+        },
+        {
+          "id": "CONSTRAINTS-EXPLICIT",
+          "assessment": "ADJUDICATION_PENDING",
+          "evidence_match": "UNCLEAR",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 5,
+              "end": 5,
+              "quote": "名簿に含める項目（表示名のみか、メールアドレスや所属も含めるか）は講師側と調整中で未決定。"
+            },
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 9,
+              "end": 9,
+              "quote": "未解決のプロダクト判断はない。実装方針レビューに進める。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 16,
+              "end": 16,
+              "quote": "`roster-outbox` の件数・内容を AC-004 に照合する。"
+            }
+          ],
+          "note": "The finding supplies an exact, genuine alternative blocker: roster fields remain undecided, preventing implementation and content verification. This corresponds to D5, which the key does not assign to role A or this check. Major follows the actual missing-data-constraint ground; the keyed Critical rule addresses D3, reported elsewhere and merely cross-referenced here. The alternative check assignment and severity therefore require adjudication rather than automatic rejection."
+        },
+        {
+          "id": "RISK-VALIDATION-SURFACE",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 20,
+              "end": 20,
+              "quote": "隔離されたローカル環境でスタブ `roster-outbox`（ローカルファイルへの書き込みのみ）を使い、TEST-004 を手動で再現できる。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 15,
+              "end": 15,
+              "quote": "3人が同時に申込んでも成功は2件だけで確定申込数が2であることを確認する。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 17,
+              "end": 17,
+              "quote": "TEST-003 と TEST-004 の実行後に `audit.log` の追加行を確認する。"
+            }
+          ],
+          "note": "Planned publication, concurrency, manual, and logging validation surfaces exist. The candidate accurately distinguishes their existence from unresolved expected outcomes and does not represent plans as executed evidence. PASS matches the key."
+        },
+        {
+          "id": "DOMAIN-CONFORMANCE",
+          "assessment": "VALID_SKIP",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+              "start": 20,
+              "end": 25,
+              "quote": "The specification review gate reviews only Phase 1 artifacts:"
+            }
+          ],
+          "note": "The supplied fixture has no domain model, and the key explicitly requires SKIP. The candidate follows that contract and does not fail the absent Bounded-Context field. The applicability decision comes from the packet, not an inferred filesystem inspection."
+        }
+      ]
+    }
+  ]
+}

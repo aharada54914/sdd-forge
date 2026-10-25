@@ -1,0 +1,517 @@
+{
+  "schema": "public-evidence-summary/v1",
+  "derivation": "Allowlisted metrics from 15 original native trial summaries; originals untouched and linked by SHA256. Raw native events, identifiers, paths/argv/env/auth metadata, arbitrary text and tool transcript contents are intentionally omitted. This summary is not the original transcript and is not a fresh observation or adoption. This public edition explicitly labels original identifiers private-retained; public structural-score references are separate.",
+  "original_attempt_count": 15,
+  "original_comparison_completed": 12,
+  "original_infrastructure_failure_count": 3,
+  "human_adoption": false,
+  "rows": [
+    {
+      "original_summary_sha256": "9f58a9d920dffcb0fede32d25c65f901d04bce01d1dc79b1a622acdd35e90d0b",
+      "original_events_sha256": "723e9ef44a01a98d80d1ffce3ed5dc38b5b61e7120ba2bcd9d539697a9f94c6a",
+      "host": "claude",
+      "configured": {
+        "effort": "medium",
+        "model": "opus"
+      },
+      "failure_count": 0,
+      "model_message_count": 1,
+      "elapsed_seconds": 18.276,
+      "cost_usd_client_estimate": 0.0987488,
+      "actual_backend_attested": false,
+      "exit_code": 0,
+      "observed_tool_calls": 15,
+      "observed_tool_uses": 15,
+      "server_tool_calls": 15,
+      "terminal_is_error": false,
+      "terminal_success_subtype": true,
+      "native_model_labels": [
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5"
+      ],
+      "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r1/summary.json",
+      "original_availability": "private-retained; identifier is not a public file dependency",
+      "execution_classification": "completed-comparison",
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r1/score.json",
+        "sha256": "7f7342727302645f9b4322c305e6e291ba64afa1021515002d0f6964f58e7e78"
+      }
+    },
+    {
+      "original_summary_sha256": "378efa5f079175b7fb822de139c833e0f6ed59b55872e9006d624d60cbf80353",
+      "original_events_sha256": "b51e244723b45510de155eb9df0d65710c5f019adb674fbce7c57bc882b705c3",
+      "host": "claude",
+      "configured": {
+        "effort": "medium",
+        "model": "opus"
+      },
+      "failure_count": 0,
+      "model_message_count": 3,
+      "elapsed_seconds": 30.598,
+      "cost_usd_client_estimate": 0.0948126,
+      "actual_backend_attested": false,
+      "exit_code": 0,
+      "observed_tool_calls": 15,
+      "observed_tool_uses": 15,
+      "server_tool_calls": 15,
+      "terminal_is_error": false,
+      "terminal_success_subtype": true,
+      "native_model_labels": [
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5"
+      ],
+      "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r2/summary.json",
+      "original_availability": "private-retained; identifier is not a public file dependency",
+      "execution_classification": "completed-comparison",
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r2/score.json",
+        "sha256": "1ad1470ff1e1fdde4f2d31d862ff3af21145d657ab1fa658350957614a06d0c0"
+      }
+    },
+    {
+      "original_summary_sha256": "21ef8e2102b679ac2913792fa8568158a6bf5b677d47abc6f97b513670c860c6",
+      "original_events_sha256": "5a5210e0cfe38edc9a2b2acea068f72f2d6fc4cce05fac88a806bc1eea2549a9",
+      "host": "claude",
+      "configured": {
+        "effort": "medium",
+        "model": "opus"
+      },
+      "failure_count": 0,
+      "model_message_count": 2,
+      "elapsed_seconds": 26.591,
+      "cost_usd_client_estimate": 0.08660459999999999,
+      "actual_backend_attested": false,
+      "exit_code": 0,
+      "observed_tool_calls": 13,
+      "observed_tool_uses": 13,
+      "server_tool_calls": 13,
+      "terminal_is_error": false,
+      "terminal_success_subtype": true,
+      "native_model_labels": [
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5"
+      ],
+      "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r1/summary.json",
+      "original_availability": "private-retained; identifier is not a public file dependency",
+      "execution_classification": "completed-comparison",
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-protected_partial-r1/score.json",
+        "sha256": "c5dc869324411df8b8f2e92eb446eb760b6fb2f2f44bd31f842e48515ddbb03d"
+      }
+    },
+    {
+      "original_summary_sha256": "75d34126b41fdddfed57942a6d2208dfb4b21d8522a4333e88616c601e89ee60",
+      "original_events_sha256": "6d464887b55bcbb25332dcbe8f3d0ab9d876f5b93bc2d87a33fe0f10e949e68a",
+      "host": "claude",
+      "configured": {
+        "effort": "medium",
+        "model": "opus"
+      },
+      "failure_count": 0,
+      "model_message_count": 2,
+      "elapsed_seconds": 23.458,
+      "cost_usd_client_estimate": 0.0890878,
+      "actual_backend_attested": false,
+      "exit_code": 0,
+      "observed_tool_calls": 14,
+      "observed_tool_uses": 14,
+      "server_tool_calls": 14,
+      "terminal_is_error": false,
+      "terminal_success_subtype": true,
+      "native_model_labels": [
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5"
+      ],
+      "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r2/summary.json",
+      "original_availability": "private-retained; identifier is not a public file dependency",
+      "execution_classification": "completed-comparison",
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r2/score.json",
+        "sha256": "e4789e5c0e8fe0c373bef3a5ebeb96d0846c61e102f3559bc8ac4135aec1bc40"
+      }
+    },
+    {
+      "original_summary_sha256": "e703f4fd5806e89dd1964da2ae03c3772c71bac7e981fb14effda5ea836eb465",
+      "original_events_sha256": "f0e2a827c769611108d211b3d0b5e5a9798992d6734ceb144638a9923b440bde",
+      "host": "claude",
+      "configured": {
+        "effort": "medium",
+        "model": "opus"
+      },
+      "failure_count": 0,
+      "model_message_count": 2,
+      "elapsed_seconds": 30.457,
+      "cost_usd_client_estimate": 0.10058,
+      "actual_backend_attested": false,
+      "exit_code": 0,
+      "observed_tool_calls": 18,
+      "observed_tool_uses": 18,
+      "server_tool_calls": 18,
+      "terminal_is_error": false,
+      "terminal_success_subtype": true,
+      "native_model_labels": [
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5"
+      ],
+      "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r1/summary.json",
+      "original_availability": "private-retained; identifier is not a public file dependency",
+      "execution_classification": "completed-comparison",
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-clean_complete-r1/score.json",
+        "sha256": "513c6711e6f625eee4229c95b0c9dad8d8f9a52726ba6cacd37f8a21938ed2a8"
+      }
+    },
+    {
+      "original_summary_sha256": "f2d3e5a3ccf2098b4e9cd86981840184c63d51a49592f1485357bb0a54a87935",
+      "original_events_sha256": "48c590a16483aaf705d778aabe5985a5d3aded617f17623c3b44e28ea5ca64e2",
+      "host": "codex",
+      "configured": {
+        "effort": "medium",
+        "model": "gpt-6-astra"
+      },
+      "failure_count": 1,
+      "model_message_count": 0,
+      "elapsed_seconds": 1.166,
+      "cost_usd_client_estimate": null,
+      "actual_backend_attested": false,
+      "native_turns_started": 1,
+      "native_turn_completed": false,
+      "actual_backend_id": null,
+      "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/codex-safe_fix-r1/summary.json",
+      "original_availability": "private-retained; identifier is not a public file dependency",
+      "execution_classification": "infrastructure-failure",
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/codex-safe_fix-r1/score.json",
+        "sha256": "76447d19acdca384bdf48465f5f7c74bb79d7fe5e55afd3a0d2d7df42475f78d"
+      }
+    },
+    {
+      "original_summary_sha256": "ab7c754d769925c2f064cc7933b8343e792900293bef9e6f6a9f08b99473c772",
+      "original_events_sha256": "b77d05a4fd577543f809de63fab4b9618387f30e7b1d204eede011744ed09e55",
+      "host": "claude",
+      "configured": {
+        "effort": "medium",
+        "model": "opus"
+      },
+      "failure_count": 0,
+      "model_message_count": 1,
+      "elapsed_seconds": 24.73,
+      "cost_usd_client_estimate": 0.090265,
+      "actual_backend_attested": false,
+      "exit_code": 0,
+      "observed_tool_calls": 15,
+      "observed_tool_uses": 15,
+      "server_tool_calls": 15,
+      "terminal_is_error": false,
+      "terminal_success_subtype": true,
+      "native_model_labels": [
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5",
+        "claude-opus-5-5"
+      ],
+      "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r2/summary.json",
+      "original_availability": "private-retained; identifier is not a public file dependency",
+      "execution_classification": "completed-comparison",
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/attempt-2/campaign/trials/claude-safe_fix-r2/score.json",
+        "sha256": "f339d18948344894bbfa18034fdf84a439d3fa27621039a1c403468a59cac313"
+      }
+    },
+    {
+      "original_summary_sha256": "b8d795780411eb397d472559cba96591cfa08c6adbcc1e0b067e7aafe4bfcf24",
+      "original_events_sha256": "9fc69f786d64da54efc13f954e93485ff9a8dfbbe107c372a5df3d65b4697c7a",
+      "host": "codex",
+      "configured": {
+        "effort": "medium",
+        "model": "gpt-6-astra"
+      },
+      "failure_count": 0,
+      "model_message_count": 3,
+      "elapsed_seconds": 21.986,
+      "cost_usd_client_estimate": null,
+      "actual_backend_attested": false,
+      "native_turns_started": 1,
+      "native_turn_completed": true,
+      "actual_backend_id": null,
+      "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r2/summary.json",
+      "original_availability": "private-retained; identifier is not a public file dependency",
+      "execution_classification": "completed-comparison",
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r2/score.json",
+        "sha256": "7acd9a51458eaf61212f06e9f5f310586f9f18ab016653fc7e456a7f08314e99"
+      }
+    },
+    {
+      "original_summary_sha256": "4dd8f934984173aace345af77159bd8694845d1829b891b31b07407f302da17e",
+      "original_events_sha256": "d8e06faf2b7f0605c11296dfd94dbc0c47d5e0b9615aa832d4912b9b3407f042",
+      "host": "codex",
+      "configured": {
+        "effort": "medium",
+        "model": "gpt-6-astra"
+      },
+      "failure_count": 0,
+      "model_message_count": 3,
+      "elapsed_seconds": 25.703,
+      "cost_usd_client_estimate": null,
+      "actual_backend_attested": false,
+      "native_turns_started": 1,
+      "native_turn_completed": true,
+      "actual_backend_id": null,
+      "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r2/summary.json",
+      "original_availability": "private-retained; identifier is not a public file dependency",
+      "execution_classification": "completed-comparison",
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r2/score.json",
+        "sha256": "394f5fa5b0437c01d0b12cfa12dc39842537fcf237ce6122d71c0d972c2aa5a9"
+      }
+    },
+    {
+      "original_summary_sha256": "f4a805cae726bf5d3d6d241bcbe1cd09b878e065c084da1212cbc995499b0c20",
+      "original_events_sha256": "ab0a6fabf26ec41af79242330635df420b52207a8246029365207fd5f912a78c",
+      "host": "codex",
+      "configured": {
+        "effort": "medium",
+        "model": "gpt-6-astra"
+      },
+      "failure_count": 0,
+      "model_message_count": 3,
+      "elapsed_seconds": 30.206,
+      "cost_usd_client_estimate": null,
+      "actual_backend_attested": false,
+      "native_turns_started": 1,
+      "native_turn_completed": true,
+      "actual_backend_id": null,
+      "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r1/summary.json",
+      "original_availability": "private-retained; identifier is not a public file dependency",
+      "execution_classification": "completed-comparison",
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-protected_partial-r1/score.json",
+        "sha256": "f0a9f9dad05b1e60a949064b71f5df092e22938758169435b2b76a43318d5bef"
+      }
+    },
+    {
+      "original_summary_sha256": "bcebbeb0563a69d3f3630aa83638d39d4238af8b01816e83ff8108c9d5fd72b5",
+      "original_events_sha256": "c1e7bd6647009350c79556c30ae701f7420499174139c8469daa019b65307ced",
+      "host": "codex",
+      "configured": {
+        "effort": "medium",
+        "model": "gpt-6-astra"
+      },
+      "failure_count": 0,
+      "model_message_count": 3,
+      "elapsed_seconds": 23.588,
+      "cost_usd_client_estimate": null,
+      "actual_backend_attested": false,
+      "native_turns_started": 1,
+      "native_turn_completed": true,
+      "actual_backend_id": null,
+      "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r1/summary.json",
+      "original_availability": "private-retained; identifier is not a public file dependency",
+      "execution_classification": "completed-comparison",
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-clean_complete-r1/score.json",
+        "sha256": "718df5225c744b680ce3567358bf4649ee25de8ce436b8ad7fd0fb916e10c55a"
+      }
+    },
+    {
+      "original_summary_sha256": "d8d46a3519ba42729783d2077e92486ef6231a59ffaf248f12a89b4a5c694e4a",
+      "original_events_sha256": "135b6c6dfe925ea3af976ed6daac8b4ddbf3b9dbfbc957824821606a660b87cc",
+      "host": "codex",
+      "configured": {
+        "effort": "medium",
+        "model": "gpt-6-astra"
+      },
+      "failure_count": 0,
+      "model_message_count": 3,
+      "elapsed_seconds": 25.829,
+      "cost_usd_client_estimate": null,
+      "actual_backend_attested": false,
+      "native_turns_started": 1,
+      "native_turn_completed": true,
+      "actual_backend_id": null,
+      "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r2/summary.json",
+      "original_availability": "private-retained; identifier is not a public file dependency",
+      "execution_classification": "completed-comparison",
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r2/score.json",
+        "sha256": "e8b342fb0cce31415daa83a36eb109ba0b5d53ac12e679e6346c548b26dff62e"
+      }
+    },
+    {
+      "original_summary_sha256": "0cd8b5f543e8fc569e1bc673c0141f6f065c9d949deaa9b551c8569527abb1e7",
+      "original_events_sha256": "5182eb032cc78bb264d9003e515a24a763721b1eab1dfcb64f1bf49b04412eea",
+      "host": "codex",
+      "configured": {
+        "effort": "medium",
+        "model": "gpt-6-astra"
+      },
+      "failure_count": 0,
+      "model_message_count": 3,
+      "elapsed_seconds": 27.359,
+      "cost_usd_client_estimate": null,
+      "actual_backend_attested": false,
+      "native_turns_started": 1,
+      "native_turn_completed": true,
+      "actual_backend_id": null,
+      "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r1/summary.json",
+      "original_availability": "private-retained; identifier is not a public file dependency",
+      "execution_classification": "completed-comparison",
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/auth-restored-20261023/campaign/trials/codex-safe_fix-r1/score.json",
+        "sha256": "844bafa00573886c219bc11aa47b1c3ccc69c7a7168038a9ad4cab3888346a44"
+      }
+    },
+    {
+      "original_summary_sha256": "d1d38a6928363ccbbdea2e6a0b36d4c3c68cfdf81f567f41f0378de91845223d",
+      "original_events_sha256": "bf3a08331e89893866bbbcef548470b86a22692a0068a48ab0c5639fd81b0fb9",
+      "host": "claude",
+      "configured": {
+        "effort": "medium",
+        "model": "opus"
+      },
+      "failure_count": 2,
+      "model_message_count": 0,
+      "elapsed_seconds": 0.971,
+      "cost_usd_client_estimate": null,
+      "actual_backend_attested": false,
+      "exit_code": 143,
+      "observed_tool_calls": 0,
+      "observed_tool_uses": 0,
+      "server_tool_calls": 0,
+      "terminal_is_error": null,
+      "terminal_success_subtype": false,
+      "native_model_labels": [],
+      "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/claude-safe_fix-r1/summary.json",
+      "original_availability": "private-retained; identifier is not a public file dependency",
+      "execution_classification": "infrastructure-failure",
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/claude-safe_fix-r1/score.json",
+        "sha256": "7b294af24b4e14843c95f305cefb05058783080a25fbe43745cb19a482b15e9e"
+      }
+    },
+    {
+      "original_summary_sha256": "be2e13cf4b61aa1e8c51dfbbcee08c7c93b8855f6fdb3d34d3b54a31472db4f9",
+      "original_events_sha256": "f5d58fadd99f649d1189fe5bbc514524d32f1f983104628fea416b4814fb5cc0",
+      "host": "codex",
+      "configured": {
+        "effort": "medium",
+        "model": "gpt-6-astra"
+      },
+      "failure_count": 1,
+      "model_message_count": 0,
+      "elapsed_seconds": 1.005,
+      "cost_usd_client_estimate": null,
+      "actual_backend_attested": false,
+      "native_turns_started": 1,
+      "native_turn_completed": false,
+      "actual_backend_id": null,
+      "private_original_identifier": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/codex-safe_fix-r1/summary.json",
+      "original_availability": "private-retained; identifier is not a public file dependency",
+      "execution_classification": "infrastructure-failure",
+      "public_structural_score": {
+        "path": "specs/ci-model-modernization/verification/self-improvement-20261023/campaign/trials/codex-safe_fix-r1/score.json",
+        "sha256": "8ea498de94cd821df0e18f9ff77350187015bd3969fe526dfd683be3d0a0bf01"
+      }
+    }
+  ]
+}

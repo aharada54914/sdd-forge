@@ -1,0 +1,92 @@
+{
+  "schema": "task-reviewer-role-adoption-proposal/v1",
+  "source_date": "2026-10-24T12:24:59.513617+00:00",
+  "decision_status": "approved-for-task-reviewers-only",
+  "human_review": {
+    "decision": "仕様担当A・タスク担当A/Bの採用する",
+    "reviewer": "User in the current conversation",
+    "reviewed_at": null,
+    "reviewed_at_note": "Original user-message timestamp was not supplied; receipt_written_at records capture time only.",
+    "source": {
+      "path": "specs/ci-model-modernization/verification/task-reviewer-medium-20261024/human-role-adoption-20261025.json",
+      "sha256": "9ec7f8ed3bcf3d91b1dde4589439b99ed8f9685281e7e30b33c8d4876136a01b"
+    },
+    "questionItemId": null,
+    "receipt_written_at": "2026-10-25T01:22:09.564861+00:00",
+    "approved_patch_sha256": "1790c8c4e806023615e5c48409918b5769a8f23b9a8b5ae0cfbea9defe312619"
+  },
+  "proposed_roles": [
+    "task-reviewer-a",
+    "task-reviewer-b"
+  ],
+  "proposed_catalog_id": "anthropic/sonnet",
+  "proposed_host": "claude-code",
+  "proposed_native_id": "sonnet",
+  "proposed_effort": "medium",
+  "proposed_policy": "pinned",
+  "lifecycle_remains": "candidate",
+  "reported_identity": "claude-sonnet-5-5; client-reported labels only, alias is not pinned backend version",
+  "scope": "Supervised post-implementation provenance task review under actual compatible entry constraints; two-role synthetic full-profile fixture only",
+  "native_results": {
+    "executed": 8,
+    "contract_pass": 8,
+    "retries": 0,
+    "clean_pass": 4,
+    "seeded_critical_blocked": 4
+  },
+  "independent_semantic_assessment": {
+    "accepted": 8,
+    "supported_checks": 92,
+    "reviewer": "review_bootstrap_route (independent Work reviewer)",
+    "model": "not exposed",
+    "effort": "not exposed",
+    "human_adoption": false
+  },
+  "risk_route": {
+    "high_risk_selection_fixture_checks": 20,
+    "all_passed": true,
+    "strong_minimum_or_repeated_standard_failure": "rejects; no exemption",
+    "fresh_actual_entry_required": true
+  },
+  "evidence": [
+    {
+      "path": "specs/ci-model-modernization/verification/task-reviewer-medium-20261024/PUBLIC-REPORT.md",
+      "sha256": "8854ac47732ff2c34ba67c080669ef6c32a5b3265d82083ef325b1956b81300d"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/task-reviewer-medium-20261024/candidate-outputs.json",
+      "sha256": "0f6816498c068f4e002929325b003cbd4000f9d6d5d727de68bcb0f771410c44"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/task-reviewer-medium-20261024/collection.json",
+      "sha256": "f6b8ca4dcd4fa21497e77723c5a4d5399b3a0815f7890012b0d8580e07b86746"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/task-reviewer-medium-20261024/fixture-inputs.json",
+      "sha256": "45e767a096d3d7af74c9434690f8f621819e676165f8052cc4a3bee528d93d09"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/task-reviewer-medium-20261024/independent-judgments.json",
+      "sha256": "63e14eaddccf4d6e2bf943772a8329a9fc4647a7c2c6b3ab03d4ded7682f544c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/task-reviewer-medium-20261024/retained-provenance.json",
+      "sha256": "8bcd269a8b3e8f818b8803e8dbe6b12318f67efce0a3df5763f7feec107422ad"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/task-reviewer-medium-20261024/role-contracts.json",
+      "sha256": "02c041a2e19deacf081cd210b5651e3ed0bc672433bcaae6a46ebcda581dad84"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/task-reviewer-medium-20261024/routing-and-history.json",
+      "sha256": "d64542ff62db5ad69096944ffffc8db42d346415b4d97a0a1cbff9317db2f430"
+    }
+  ],
+  "limits": [
+    "No native protected-entry, normal-settings/hooks, ledger or formal task PASS proof.",
+    "No transfer to spec, implementation, quality or other roles.",
+    "No guarantee for first-time review, broader tasks, stronger caller floors or actual repeated-failure escalation.",
+    "Original raw captures remain private; public projections and their transformations are explicit.",
+    "Human approval activates only the stated bounded adoption metadata. It does not register a formal executor, prove a protected launch, or mark any formal review Passed. Historical evidence retains its original pre-approval statements."
+  ]
+}

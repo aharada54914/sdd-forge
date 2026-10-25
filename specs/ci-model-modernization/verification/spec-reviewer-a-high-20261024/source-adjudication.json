@@ -1,0 +1,31 @@
+{
+  "kind": "root and independent Work source adjudication, not user role-adoption approval",
+  "root_source_sha256": "f83fb900b58215f04b879a1c2f7ee576d85cf75bba49d97a288f820e2c4977dd",
+  "independent_source_sha256": "7cd5b3e2d6c14aebca668f20aca66e1804e9a007a0e30183205fb8e883950ed1",
+  "root_dispositions": {
+    "C1": "Tokenizer defect: adjacent Japanese prose is not part of the ASCII fixture path; preserve unknown/prefix/traversal/range rejection.",
+    "Q1": "Exact TEST-004 attributed quotation; no written per-quote numeric-span requirement.",
+    "Q2": "Full finding first quotes exact source readiness statement, then uses a supported status paraphrase. Precision diagnostic, not fabricated source quotation.",
+    "Q3": "Correct absence assertion for a calibration-named heading; requiring that heading in absent source is invalid.",
+    "Q4": "Explicit omission between ordered verbatim TEST-003 fragments preserves meaning. Accurate excerpt under written rule; never unrestricted ellipsis wildcards.",
+    "Q5": "Attributed supplied calibration text with whitespace normalization; numeric localization diagnostic, not invented quotation.",
+    "Q6": "Verbatim REQ-001 phrase attributed by ID; same-finding numerical quote boundary is an extra scorer requirement.",
+    "D5": "Missing roster data is a material Phase-1 data constraint within reviewer A; Major matches role/calibration. Independently adjudicated alternative to D3, not a general severity reduction.",
+    "grounds_any": "Require at least one keyed blocker; extra actually grounded known IDs are not automatic invalidity. Preserve unsupported-ID/severity/Critical/actual-citation rejection."
+  },
+  "independent_adjudications": {
+    "C1": "tokenizer false positive",
+    "Q1": "supported exact quote; location diagnostic",
+    "Q2": "supported contextual paraphrase",
+    "Q3": "correct absence assertion",
+    "Q4": "accurate ordered marked excerpt",
+    "Q5": "supported attributed calibration quote",
+    "Q6": "supported exact REQ-001 quote",
+    "D5": "valid role-A CONSTRAINTS-EXPLICIT Major alternative; prospective key correction"
+  },
+  "native_A_dirty_overalls_unchanged": [
+    "UNCLEAR",
+    "UNCLEAR"
+  ],
+  "human_role_adoption": null
+}

@@ -1,0 +1,145 @@
+{
+  "schema": "impl-role-retained-provenance/v1",
+  "original_campaign_unchanged": true,
+  "private_campaign_original_hashes": {
+    "controller-manifest.json": "7e4c0a8228523d681ac61bab141ba4bffcf632ff0e4aad9f48afa70a38e179a7",
+    "fixture-manifest.json": "50919f7a7d971197523626de7b177354cdcbf2940f179db2319f40ed6975cf62",
+    "native-completion.json": "3038d91302606ce90357896a7a204b40c1cb2a9a9532a8dc1bf29d0ceacdf357",
+    "final-semantic-correlation.json": "888a190e8144f6a8730b90d1d24fac545cbd116f0fcbda00b292c1c666bda1a6",
+    "FINAL-REPORT.md": "ce620a8bb6d82ed8b1ffe624b239e45f09e42a8fcb75cddf90989329a8d95bbe",
+    "completed-evidence-manifest.json": "351e3b29898f567a58cede0aa47b4482e46a8b3de1e5c48a48d195d45c5a3b9d",
+    "judge-private-map.json": "d4a8d2918655e426ef53aaefd31a43644f9724a45feebbf9112d291d778039f4"
+  },
+  "actual_root_release_sha256": "448e41bb9d7112b769f05742184911b4aed2247e9d72b739a204f93d396fa811",
+  "root_spawn_observation_sha256": "a37cb22c3701e6f7422bc2d01684cb0bad9e155d87f8efbd35a8d125d692dc55",
+  "root_spawn_observation": {
+    "actor": "impl_blind_judge (independent Work reviewer)",
+    "fork_turns": "none",
+    "model_effort_override": null,
+    "provided_inputs": "Only neutral assignment and four opaque packets, plus output destination.",
+    "limits": "Root actual tool observation and judge self-report are separate; judge cannot independently attest no-history due generic parent/workspace context. No perfect isolation/backend claim."
+  },
+  "private_cells": [
+    {
+      "cell": "t01",
+      "private_original_pins": {
+        "claude-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "events.jsonl": "c11f73292b5fda1668e25d30eaef522e2361a070e936d26b4c6d327d4f6b603f",
+        "final-message.txt": "c67527f60950c929bd89ed9820e06296ff251d7bb9635302d493952d35876cf4",
+        "mcp-receipts.jsonl": "9d790b185d2ae4445cfb02210ab0ff4d3b590f4b78eaace786758492718cc3f1",
+        "request.txt": "0bfc30480ac2c051dc4a26ffb0f736f5d6aa7b98b865ad181f87f2b649f441b4",
+        "score.json": "9972292d63d84895b57c30dc934cffeed4b90f8375f4b779927edd7858dded52",
+        "state.json": "2a2453e007806c881623489e3d29e593b17103070ba722a37827c86d9a8eb9ef",
+        "summary.json": "33bf2c3b8cea30a3c853639540796b569acba036b744e5c6e6ca35f731cecbf3",
+        "trial.json": "26d78a8f213beac480cbe914e6c08181e35939c5e15bd419acb43a1c817999f7"
+      },
+      "availability": "External private originals retained; these hashes are not public file dependencies or raw replay claims."
+    },
+    {
+      "cell": "t02",
+      "private_original_pins": {
+        "claude-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "events.jsonl": "6e7a30b065bfe6a85e7c01e30672e0c8dc45632ccfc335ad976316c978049932",
+        "final-message.txt": "34e7c63cbaa8c29cf39b08402de28ab7042275f5235e59da68ffac61531dcd89",
+        "mcp-receipts.jsonl": "f6000e513d49e542d7ee56a7faa4b37b4933aae4df9202b588884fe559c257dc",
+        "request.txt": "0856c3f2481ec5bb2c234856132ff25dc043c84de990fa29cd6eef2a38163c75",
+        "score.json": "cd3f8fc031ab4e7edf3f889e832d8e51054825bd677c6eae9a888eb85b531fb6",
+        "state.json": "21dde43b98347f20374452331e77f472d797396945c42317bd1f14314a35f4ce",
+        "summary.json": "dea906af9ba29f05fa8479c8a6da39b4a9910a7120549af47f4794a8543fd03a",
+        "trial.json": "a6d738d2dc7117bd2ccb10dc545319e9a1871ed588c48c4819a5c824b187200f"
+      },
+      "availability": "External private originals retained; these hashes are not public file dependencies or raw replay claims."
+    },
+    {
+      "cell": "t03",
+      "private_original_pins": {
+        "claude-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "events.jsonl": "bab5c9060b6190c741b048363aa5e9e339d82a1aefee708c1512913564ccb23f",
+        "final-message.txt": "edd1f2b719faf2fff0f3fbdb399a7f7bbbd445bc7de913ee6a291800a8e92192",
+        "mcp-receipts.jsonl": "060b9301c7c944b0ab6d48eb109e2e8c6902e6142a6eb39db6cc8d2b50f3dc89",
+        "request.txt": "03d29c264714957efd85b7c954f3ee0f653b6563f50fe065a7b0ad5a99f9d78d",
+        "score.json": "a974d4e15c599d446b6fc93aab613b9b0099bda598cdab107a301b36cb3e4900",
+        "state.json": "02cf3835dde07cc891da29a9e636e6dc7d7c7fd9c11f129e440fbee03f475c49",
+        "summary.json": "3f2719d116b0e33d18befbe6cf77bb830d4304907240c613578d874e1dcc2299",
+        "trial.json": "77ab2cfff5c5ca03bdc2436e8e43e468c8ed866cc9e0e40b1f6da8671a0c08a0"
+      },
+      "availability": "External private originals retained; these hashes are not public file dependencies or raw replay claims."
+    },
+    {
+      "cell": "t04",
+      "private_original_pins": {
+        "claude-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "events.jsonl": "80cf3913456776720b082f9f2099b070b161de7a071d2e77f82c45468539bc70",
+        "final-message.txt": "4f4f4d9359663dc102c8e4c8c33e1ebee80cf48f4447e87d5d1eda7f99e3cbe4",
+        "mcp-receipts.jsonl": "cbaf70a0832ca8eecd27dca3df6adc145c5659ce8b76277157a0f9e93aaeab13",
+        "request.txt": "3a8a79757de0fbb29fca74d782a8ab1b3dfb1c1ab37c218d5962dac9b47cc40c",
+        "score.json": "dbfe2e1e8e3c82af80b5d7e63f5e8f33948367bf4e427f0aa3e0874d1b312ab5",
+        "state.json": "ae23de7eb558ec7329bac17df60dad1b774f310c181251c9a9499381091dff15",
+        "summary.json": "ac675a729117ca633a4024f59ac40ecc6e8138cf02ab533c1c436836c54fbdfd",
+        "trial.json": "effdf28c48cdf5cd9283ad6b913672fc6fc864ca8ab382d2785f0705ae691cef"
+      },
+      "availability": "External private originals retained; these hashes are not public file dependencies or raw replay claims."
+    },
+    {
+      "cell": "t05",
+      "private_original_pins": {
+        "claude-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "events.jsonl": "2f429542d875e30184e509fc5d6e7ea6e3862afc14ac30ecd88b3bf51754869a",
+        "final-message.txt": "a46f0e81ca89c3f48108afe33345fb43cd8daec4a04297b49e6012bcac58d552",
+        "mcp-receipts.jsonl": "4b100413a8fc4e66f7df426f2ff859ba18613e537bb62101c2739c7f69fe0966",
+        "request.txt": "ed89c4f9f4223c9af5c05e4783d734dd85a08cfda016aaa0591ca3a67016cc7a",
+        "score.json": "26431afd91d633adabb89dca63f28063a5f85c44af6baf5392a94e94aa47731a",
+        "state.json": "f67e85d3277c4ff009298e2e2e0508b5f41e2fc5149c61210211f6f7743b19a7",
+        "summary.json": "40cf5b436c0431c7de4953a7c6ff6f21ebf8fe029e19ab505d62176a14a2c87d",
+        "trial.json": "2fe389e50d26bbb9b5b383ee059d99bf6e85aa0e06f7ba9e831f23e421553ed0"
+      },
+      "availability": "External private originals retained; these hashes are not public file dependencies or raw replay claims."
+    },
+    {
+      "cell": "t06",
+      "private_original_pins": {
+        "claude-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "events.jsonl": "98a9b2c02a2f170d02806411620c5aa9d300bd01fed245e026a27235ad54b3a2",
+        "final-message.txt": "ea5f5e4c0a5c16aaef899a8596016133246ef13ac96c6a80ad800606259193c1",
+        "mcp-receipts.jsonl": "57146769ef07e46af95460e71ea77cc1c3d350ae6bf949859c18c7ea17b231cc",
+        "request.txt": "9eee1c0a498025695b88866683b39c90c1481515cef915ec20e24b239407c48f",
+        "score.json": "2cbd5e2c720301c7d8bf2ea84097c169c1319d52f804a4702a0dbcfd0ad1e107",
+        "state.json": "5dc859ae6613474921937084f9bf01a259baf5333a0d36c3c0095c913520a21a",
+        "summary.json": "a0ae40d00bf3abdbc8c86442b6221cdc360ecfbbf9efa0c71216a120ba93b148",
+        "trial.json": "c5339e411481d8cb4cdc86ec1ef9d6f82e8c33d31e4455ea353a0a62fd4e06fc"
+      },
+      "availability": "External private originals retained; these hashes are not public file dependencies or raw replay claims."
+    },
+    {
+      "cell": "t07",
+      "private_original_pins": {
+        "claude-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "events.jsonl": "c19bad25c695549226c6852852d0a41cc7870cde4d67e37f5505d621eaa86cbd",
+        "final-message.txt": "9940c7bea6c1857a399dd262bd5d609efe3e11aed8c55c67115323bb1c61764c",
+        "mcp-receipts.jsonl": "9042199ccf5336ae8a7af6868bb4505c0ffb9d1faecdf0a10b02c30f6808ec35",
+        "request.txt": "6d78bc3dcd329b5a5749f8e602089d53b2109c66c607a11d8a2b8d037c4d0387",
+        "score.json": "ee4900592cf7f8eab892f3dca9e34aa0d6989dc01bd664c6b62b4d1f1f0b1536",
+        "state.json": "cc61d63405959bd70b115dff455c553acec0f968ccaa237be4a362756ac400fa",
+        "summary.json": "f61263fe614a9ae24fd83464aa7de00355b55b5c62f9422c76edbc20cae5003e",
+        "trial.json": "076d450a752f754c34688a6a02a88bc9e35462eac23b45799f8ae8c8213e5d36"
+      },
+      "availability": "External private originals retained; these hashes are not public file dependencies or raw replay claims."
+    },
+    {
+      "cell": "t08",
+      "private_original_pins": {
+        "claude-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "events.jsonl": "4860f2a11dd9486f5d7ba0846b15b7c1348673d4280de0895d32bd36f8bcd8da",
+        "final-message.txt": "c7679c41659c8bf23ac2143fecbb740053f81dd7ce623516523a7fb76b585e07",
+        "mcp-receipts.jsonl": "7c269466829695a2c973262039986f22adc2dcdf124e8271cf08979fa5c2197e",
+        "request.txt": "a2d0d3fb24f6874d3d38b0c8fdf1e6965af20572fb99b33fc56f9cf42862c06a",
+        "score.json": "0e0558310e304a54edef25c75fb6595ef6d8da13ef0defff94540e4bd6e15f02",
+        "state.json": "56610ad83e815513d6940da12d76bf5bacbd08b1792b7486d529eb271f6ede3b",
+        "summary.json": "8a3e1ee8923ffb1cead419634be073ff407b14be14c87aa9811e0097cc6ca9de",
+        "trial.json": "7bff98474829b743a86037c0a0f6475428543d7c332f60f952619a61babeb8d5"
+      },
+      "availability": "External private originals retained; these hashes are not public file dependencies or raw replay claims."
+    }
+  ],
+  "replay_limit": "Exact fixture/check content and first candidate/judgment content reconstruct with explicit redactions. Raw native events, account/session/cwd and private mapping are omitted; hashes are retained provenance, not public dependencies."
+}

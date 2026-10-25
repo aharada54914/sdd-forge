@@ -1,0 +1,1219 @@
+{
+  "schema": "impl-role-judgment-public-projection/v1",
+  "judgments": {
+    "J1": {
+      "original_sha256": "b56624e47426e921a2f2f9c8ffe9c123a16dae3ff06e2ae705539f89fc8fe534",
+      "transformation": "Only internal Work actor path replaced by public actor label; every first check/finding unchanged.",
+      "judgment": {
+        "schema": "impl-role-judgment/v1",
+        "batch": "J1",
+        "judge_actor": "impl_blind_judge (independent Work reviewer)",
+        "identity_limit": "Assigned Work agent impl_blind_judge (independent Work reviewer). Developer context identifies Codex based on GPT-6; exact serving model, effort and provider are not exposed. This context contains the parent task and workspace policy plus these five allowed files, not an attested empty-history runtime. Candidate identity/mapping and native execution are withheld.",
+        "evaluations": [
+          {
+            "label": "O1",
+            "overall": "ACCEPT",
+            "checks": [
+              {
+                "id": "ARCH-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture; Components",
+                    "explanation": "Boundaries, existing EntryPoint integration and all four technology layers are described. All three required coverage elements are present."
+                  }
+                ],
+                "note": "Boundaries, existing EntryPoint integration and all four technology layers are described. All three required coverage elements are present."
+              },
+              {
+                "id": "NO-CIRCULAR-DEPS",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture: Top-level dependencies",
+                    "explanation": "The three declared EntryPoint edges terminate at leaves; no return dependency or callback is declared. No cycle is evidenced."
+                  }
+                ],
+                "note": "The three declared EntryPoint edges terminate at leaves; no return dependency or callback is declared. No cycle is evidenced."
+              },
+              {
+                "id": "DATA-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Data Plan",
+                    "explanation": "All three required subfields explicitly say No data changes and explain the ephemeral-only data scope."
+                  }
+                ],
+                "note": "All three required subfields explicitly say No data changes and explain the ephemeral-only data scope."
+              },
+              {
+                "id": "API-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "API / Contract Plan",
+                    "explanation": "Command, stdin schema, response schema, error/exit contract and existing-command compatibility are specified, consistent with requirements C-001/C-004/C-005."
+                  }
+                ],
+                "note": "Command, stdin schema, response schema, error/exit contract and existing-command compatibility are specified, consistent with requirements C-001/C-004/C-005."
+              },
+              {
+                "id": "SECURITY-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Security Boundaries",
+                    "explanation": "Both boundaries, caller OS rights/no privileged effect, confidential accidental secrets, injection and resource bounds are addressed. security-spec.md agrees."
+                  }
+                ],
+                "note": "Both boundaries, caller OS rights/no privileged effect, confidential accidental secrets, injection and resource bounds are addressed. security-spec.md agrees. The phrase No PII is handled is read as the declared intended feature scope; arbitrary malformed input is explicitly treated as possibly confidential, not certified PII-free."
+              },
+              {
+                "id": "FRONTEND-BACKEND-CONSISTENCY",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Feature Type header",
+                    "explanation": "Feature Type is cli, requiring SKIP under the exact role A rule."
+                  }
+                ],
+                "note": "Feature Type is cli, requiring SKIP under the exact role A rule."
+              },
+              {
+                "id": "TEST-STRATEGY-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Test Strategy",
+                    "explanation": "Unit/fake-stream/spies, integration boundaries, acceptance AC mapping and concrete planned commands/artifacts cover the required test levels; execution is not required."
+                  }
+                ],
+                "note": "Unit/fake-stream/spies, integration boundaries, acceptance AC mapping and concrete planned commands/artifacts cover the required test levels; execution is not required."
+              },
+              {
+                "id": "NO-UNDEFINED-COMPONENT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture; Components; Frontend Plan; Backend Plan; API / Contract Plan",
+                    "explanation": "All four referenced application components are defined. Platform primitives are explicitly distinguished from application components."
+                  }
+                ],
+                "note": "All four referenced application components are defined. Platform primitives are explicitly distinguished from application components."
+              },
+              {
+                "id": "ADR-PRESENT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture Decision Records",
+                    "explanation": "No ADR is referenced and INV-001/002 establish the retained technology, integration and distribution pattern; no new architectural departure requires an ADR."
+                  }
+                ],
+                "note": "No ADR is referenced and INV-001/002 establish the retained technology, integration and distribution pattern; no new architectural departure requires an ADR."
+              },
+              {
+                "id": "DESIGN-SYSTEM-CONFORMANCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Design System Compliance; Capability scope",
+                    "explanation": "The exact N/A — ds_profile: none declaration and absent directory require PASS with skip notes for role A."
+                  }
+                ],
+                "note": "The exact N/A — ds_profile: none declaration and absent directory require PASS with skip notes for role A."
+              },
+              {
+                "id": "DOMAIN-CONFORMANCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Capability scope",
+                    "explanation": "The absent domain directory is an explicit scenario fact; role A requires PASS with skip notes."
+                  }
+                ],
+                "note": "The absent domain directory is an explicit scenario fact; role A requires PASS with skip notes."
+              }
+            ],
+            "unexpected_grounded_findings": []
+          },
+          {
+            "label": "O2",
+            "overall": "ACCEPT",
+            "checks": [
+              {
+                "id": "ARCH-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture; Components",
+                    "explanation": "Boundaries, existing EntryPoint integration and all four technology layers are described. All three required coverage elements are present."
+                  }
+                ],
+                "note": "Boundaries, existing EntryPoint integration and all four technology layers are described. All three required coverage elements are present."
+              },
+              {
+                "id": "NO-CIRCULAR-DEPS",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture: Top-level dependencies",
+                    "explanation": "The three declared EntryPoint edges terminate at leaves; no return dependency or callback is declared. No cycle is evidenced."
+                  }
+                ],
+                "note": "The three declared EntryPoint edges terminate at leaves; no return dependency or callback is declared. No cycle is evidenced."
+              },
+              {
+                "id": "DATA-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Data Plan",
+                    "explanation": "All three required subfields explicitly say No data changes and explain the ephemeral-only data scope."
+                  }
+                ],
+                "note": "All three required subfields explicitly say No data changes and explain the ephemeral-only data scope."
+              },
+              {
+                "id": "API-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "API / Contract Plan",
+                    "explanation": "Command, stdin schema, response schema, error/exit contract and existing-command compatibility are specified, consistent with requirements C-001/C-004/C-005."
+                  }
+                ],
+                "note": "Command, stdin schema, response schema, error/exit contract and existing-command compatibility are specified, consistent with requirements C-001/C-004/C-005."
+              },
+              {
+                "id": "SECURITY-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Security Boundaries",
+                    "explanation": "Both boundaries, caller OS rights/no privileged effect, confidential accidental secrets, injection and resource bounds are addressed. security-spec.md agrees."
+                  }
+                ],
+                "note": "Both boundaries, caller OS rights/no privileged effect, confidential accidental secrets, injection and resource bounds are addressed. security-spec.md agrees."
+              },
+              {
+                "id": "FRONTEND-BACKEND-CONSISTENCY",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Feature Type header",
+                    "explanation": "Feature Type is cli, requiring SKIP under the exact role A rule."
+                  }
+                ],
+                "note": "Feature Type is cli, requiring SKIP under the exact role A rule."
+              },
+              {
+                "id": "TEST-STRATEGY-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Test Strategy",
+                    "explanation": "Unit/fake-stream/spies, integration boundaries, acceptance AC mapping and concrete planned commands/artifacts cover the required test levels; execution is not required."
+                  }
+                ],
+                "note": "Unit/fake-stream/spies, integration boundaries, acceptance AC mapping and concrete planned commands/artifacts cover the required test levels; execution is not required."
+              },
+              {
+                "id": "NO-UNDEFINED-COMPONENT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture; Components; Frontend Plan; Backend Plan; API / Contract Plan",
+                    "explanation": "All four referenced application components are defined. Platform primitives are explicitly distinguished from application components."
+                  }
+                ],
+                "note": "All four referenced application components are defined. Platform primitives are explicitly distinguished from application components."
+              },
+              {
+                "id": "ADR-PRESENT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture Decision Records",
+                    "explanation": "No ADR is referenced and INV-001/002 establish the retained technology, integration and distribution pattern; no new architectural departure requires an ADR."
+                  }
+                ],
+                "note": "No ADR is referenced and INV-001/002 establish the retained technology, integration and distribution pattern; no new architectural departure requires an ADR."
+              },
+              {
+                "id": "DESIGN-SYSTEM-CONFORMANCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Design System Compliance; Capability scope",
+                    "explanation": "The exact N/A — ds_profile: none declaration and absent directory require PASS with skip notes for role A."
+                  }
+                ],
+                "note": "The exact N/A — ds_profile: none declaration and absent directory require PASS with skip notes for role A."
+              },
+              {
+                "id": "DOMAIN-CONFORMANCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Capability scope",
+                    "explanation": "The absent domain directory is an explicit scenario fact; role A requires PASS with skip notes."
+                  }
+                ],
+                "note": "The absent domain directory is an explicit scenario fact; role A requires PASS with skip notes."
+              }
+            ],
+            "unexpected_grounded_findings": []
+          }
+        ]
+      }
+    },
+    "J2": {
+      "original_sha256": "c8bbb9b88cd125730db06eaacdcc614ac1311f8ef7fb23cb45f94bff942228da",
+      "transformation": "Only internal Work actor path replaced by public actor label; every first check/finding unchanged.",
+      "judgment": {
+        "schema": "impl-role-judgment/v1",
+        "batch": "J2",
+        "judge_actor": "impl_blind_judge (independent Work reviewer)",
+        "identity_limit": "Assigned Work agent impl_blind_judge (independent Work reviewer). Developer context identifies Codex based on GPT-6; exact serving model, effort and provider are not exposed. This context contains the parent task and workspace policy plus these five allowed files, not an attested empty-history runtime. Candidate identity/mapping and native execution are withheld.",
+        "evaluations": [
+          {
+            "label": "O1",
+            "overall": "ACCEPT",
+            "checks": [
+              {
+                "id": "ARCH-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture; Components",
+                    "explanation": "Boundaries, existing EntryPoint integration and all four technology layers are described. All three required coverage elements are present."
+                  }
+                ],
+                "note": "Boundaries, existing EntryPoint integration and all four technology layers are described. All three required coverage elements are present. ReceiptFence creates an undefined-component defect, already distinctly recorded under NO-UNDEFINED-COMPONENT; it does not erase these three coverage elements."
+              },
+              {
+                "id": "NO-CIRCULAR-DEPS",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture: Top-level dependencies",
+                    "explanation": "The three declared EntryPoint edges terminate at leaves; no return dependency or callback is declared. No cycle is evidenced."
+                  }
+                ],
+                "note": "The three declared EntryPoint edges terminate at leaves; no return dependency or callback is declared. No cycle is evidenced."
+              },
+              {
+                "id": "DATA-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Data Plan",
+                    "explanation": "All three required subfields explicitly say No data changes and explain the ephemeral-only data scope."
+                  }
+                ],
+                "note": "All three required subfields explicitly say No data changes and explain the ephemeral-only data scope."
+              },
+              {
+                "id": "API-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "API / Contract Plan",
+                    "explanation": "Command, stdin schema, response schema, error/exit contract and existing-command compatibility are specified, consistent with requirements C-001/C-004/C-005."
+                  }
+                ],
+                "note": "Command, stdin schema, response schema, error/exit contract and existing-command compatibility are specified, consistent with requirements C-001/C-004/C-005."
+              },
+              {
+                "id": "SECURITY-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Security Boundaries",
+                    "explanation": "Both boundaries, caller OS rights/no privileged effect, confidential accidental secrets, injection and resource bounds are addressed. security-spec.md agrees."
+                  }
+                ],
+                "note": "Both boundaries, caller OS rights/no privileged effect, confidential accidental secrets, injection and resource bounds are addressed. security-spec.md agrees."
+              },
+              {
+                "id": "FRONTEND-BACKEND-CONSISTENCY",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Feature Type header",
+                    "explanation": "Feature Type is cli, requiring SKIP under the exact role A rule."
+                  }
+                ],
+                "note": "Feature Type is cli, requiring SKIP under the exact role A rule."
+              },
+              {
+                "id": "TEST-STRATEGY-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Test Strategy",
+                    "explanation": "Unit/fake-stream/spies, integration boundaries, acceptance AC mapping and concrete planned commands/artifacts cover the required test levels; execution is not required."
+                  }
+                ],
+                "note": "Unit/fake-stream/spies, integration boundaries, acceptance AC mapping and concrete planned commands/artifacts cover the required test levels; execution is not required."
+              },
+              {
+                "id": "NO-UNDEFINED-COMPONENT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture first paragraph; Components; Backend Plan",
+                    "explanation": "Critical FAIL and BLOCKED are supported: Architecture routes stdout through ReceiptFence, which has no definition anywhere in the supplied design or established context. ResultRenderer is instead defined and used by subsequent sections. Output ownership is ambiguous."
+                  },
+                  {
+                    "path": "specs/reed-manifest-check/investigation.md",
+                    "location": "INV-001–003",
+                    "explanation": "No established ReceiptFence component exists in this supplied context."
+                  }
+                ],
+                "note": "Critical FAIL and BLOCKED are supported: Architecture routes stdout through ReceiptFence, which has no definition anywhere in the supplied design or established context. ResultRenderer is instead defined and used by subsequent sections. Output ownership is ambiguous."
+              },
+              {
+                "id": "ADR-PRESENT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture Decision Records",
+                    "explanation": "No ADR is referenced and INV-001/002 establish the retained technology, integration and distribution pattern; no new architectural departure requires an ADR."
+                  }
+                ],
+                "note": "No ADR is referenced and INV-001/002 establish the retained technology, integration and distribution pattern; no new architectural departure requires an ADR."
+              },
+              {
+                "id": "DESIGN-SYSTEM-CONFORMANCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Design System Compliance; Capability scope",
+                    "explanation": "The exact N/A — ds_profile: none declaration and absent directory require PASS with skip notes for role A."
+                  }
+                ],
+                "note": "The exact N/A — ds_profile: none declaration and absent directory require PASS with skip notes for role A."
+              },
+              {
+                "id": "DOMAIN-CONFORMANCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Capability scope",
+                    "explanation": "The absent domain directory is an explicit scenario fact; role A requires PASS with skip notes."
+                  }
+                ],
+                "note": "The absent domain directory is an explicit scenario fact; role A requires PASS with skip notes."
+              }
+            ],
+            "unexpected_grounded_findings": []
+          },
+          {
+            "label": "O2",
+            "overall": "ACCEPT",
+            "checks": [
+              {
+                "id": "ARCH-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture; Components",
+                    "explanation": "Boundaries, existing EntryPoint integration and all four technology layers are described. All three required coverage elements are present."
+                  }
+                ],
+                "note": "Boundaries, existing EntryPoint integration and all four technology layers are described. All three required coverage elements are present. ReceiptFence creates an undefined-component defect, already distinctly recorded under NO-UNDEFINED-COMPONENT; it does not erase these three coverage elements."
+              },
+              {
+                "id": "NO-CIRCULAR-DEPS",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture: Top-level dependencies",
+                    "explanation": "The three declared EntryPoint edges terminate at leaves; no return dependency or callback is declared. No cycle is evidenced."
+                  }
+                ],
+                "note": "The three declared EntryPoint edges terminate at leaves; no return dependency or callback is declared. No cycle is evidenced."
+              },
+              {
+                "id": "DATA-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Data Plan",
+                    "explanation": "All three required subfields explicitly say No data changes and explain the ephemeral-only data scope."
+                  }
+                ],
+                "note": "All three required subfields explicitly say No data changes and explain the ephemeral-only data scope."
+              },
+              {
+                "id": "API-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "API / Contract Plan",
+                    "explanation": "Command, stdin schema, response schema, error/exit contract and existing-command compatibility are specified, consistent with requirements C-001/C-004/C-005."
+                  }
+                ],
+                "note": "Command, stdin schema, response schema, error/exit contract and existing-command compatibility are specified, consistent with requirements C-001/C-004/C-005."
+              },
+              {
+                "id": "SECURITY-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Security Boundaries",
+                    "explanation": "Both boundaries, caller OS rights/no privileged effect, confidential accidental secrets, injection and resource bounds are addressed. security-spec.md agrees."
+                  }
+                ],
+                "note": "Both boundaries, caller OS rights/no privileged effect, confidential accidental secrets, injection and resource bounds are addressed. security-spec.md agrees."
+              },
+              {
+                "id": "FRONTEND-BACKEND-CONSISTENCY",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Feature Type header",
+                    "explanation": "Feature Type is cli, requiring SKIP under the exact role A rule."
+                  }
+                ],
+                "note": "Feature Type is cli, requiring SKIP under the exact role A rule."
+              },
+              {
+                "id": "TEST-STRATEGY-COVERAGE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Test Strategy",
+                    "explanation": "Unit/fake-stream/spies, integration boundaries, acceptance AC mapping and concrete planned commands/artifacts cover the required test levels; execution is not required."
+                  }
+                ],
+                "note": "Unit/fake-stream/spies, integration boundaries, acceptance AC mapping and concrete planned commands/artifacts cover the required test levels; execution is not required."
+              },
+              {
+                "id": "NO-UNDEFINED-COMPONENT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture first paragraph; Components; Backend Plan",
+                    "explanation": "Critical FAIL and BLOCKED are supported: Architecture routes stdout through ReceiptFence, which has no definition anywhere in the supplied design or established context. ResultRenderer is instead defined and used by subsequent sections. Output ownership is ambiguous."
+                  },
+                  {
+                    "path": "specs/reed-manifest-check/investigation.md",
+                    "location": "INV-001–003",
+                    "explanation": "No established ReceiptFence component exists in this supplied context."
+                  }
+                ],
+                "note": "Critical FAIL and BLOCKED are supported: Architecture routes stdout through ReceiptFence, which has no definition anywhere in the supplied design or established context. ResultRenderer is instead defined and used by subsequent sections. Output ownership is ambiguous."
+              },
+              {
+                "id": "ADR-PRESENT",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Architecture Decision Records",
+                    "explanation": "No ADR is referenced and INV-001/002 establish the retained technology, integration and distribution pattern; no new architectural departure requires an ADR."
+                  }
+                ],
+                "note": "No ADR is referenced and INV-001/002 establish the retained technology, integration and distribution pattern; no new architectural departure requires an ADR."
+              },
+              {
+                "id": "DESIGN-SYSTEM-CONFORMANCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Design System Compliance; Capability scope",
+                    "explanation": "The exact N/A — ds_profile: none declaration and absent directory require PASS with skip notes for role A."
+                  }
+                ],
+                "note": "The exact N/A — ds_profile: none declaration and absent directory require PASS with skip notes for role A."
+              },
+              {
+                "id": "DOMAIN-CONFORMANCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Capability scope",
+                    "explanation": "The absent domain directory is an explicit scenario fact; role A requires PASS with skip notes."
+                  }
+                ],
+                "note": "The absent domain directory is an explicit scenario fact; role A requires PASS with skip notes."
+              }
+            ],
+            "unexpected_grounded_findings": []
+          }
+        ]
+      }
+    },
+    "J3": {
+      "original_sha256": "928a96b05ec6f406a3b11d859169fb4d53247cfc701e500a94b4b4b9a73d04a4",
+      "transformation": "Only internal Work actor path replaced by public actor label; every first check/finding unchanged.",
+      "judgment": {
+        "schema": "impl-role-judgment/v1",
+        "batch": "J3",
+        "judge_actor": "impl_blind_judge (independent Work reviewer)",
+        "identity_limit": "Assigned Work agent impl_blind_judge (independent Work reviewer). Developer context identifies Codex based on GPT-6; exact serving model, effort and provider are not exposed. This context contains the parent task and workspace policy plus these five allowed files, not an attested empty-history runtime. Candidate identity/mapping and native execution are withheld.",
+        "evaluations": [
+          {
+            "label": "O1",
+            "overall": "ACCEPT",
+            "checks": [
+              {
+                "id": "DECISION-JUSTIFIED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Decisions and rationale; Architecture",
+                    "explanation": "Technology, stdin-only operation, adapter separation, reject-not-repair, errors and no cache all have stated rationale."
+                  }
+                ],
+                "note": "Technology, stdin-only operation, adapter separation, reject-not-repair, errors and no cache all have stated rationale."
+              },
+              {
+                "id": "OPEN-QUESTIONS-RESOLVABLE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Open Questions",
+                    "explanation": "The section states None and defers no unresolved item. No owner or resolution-path defect is evidenced."
+                  }
+                ],
+                "note": "The section states None and defers no unresolved item. No owner or resolution-path defect is evidenced."
+              },
+              {
+                "id": "ASSUMPTIONS-VALID",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Assumptions A-001–A-003",
+                    "explanation": "A-001/A-002 are grounded in the supplied synthetic INV facts and scope; A-003 is a reasonable Python standard-library default with explicit verification of strictness."
+                  }
+                ],
+                "note": "A-001/A-002 are grounded in the supplied synthetic INV facts and scope; A-003 is a reasonable Python standard-library default with explicit verification of strictness."
+              },
+              {
+                "id": "NO-REQ-CONTRADICTION",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Constraint Compliance C-001–C-006",
+                    "explanation": "Each constraint has a consistent compliance statement and planned evidence; the four normative layer specifications introduce no override."
+                  }
+                ],
+                "note": "Each constraint has a consistent compliance statement and planned evidence; the four normative layer specifications introduce no override. Its output-failure ownership wording note remains a nonblocking advisory under PASS; it is not a Minor FAIL and does not violate verdict mapping."
+              },
+              {
+                "id": "PERF-ADDRESSED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Constraint Compliance C-006; Test Strategy",
+                    "explanation": "Bounded validation and TEST-005 address the numeric targets; tools/measure_manifest.py and the representative runner provide a concrete planned measurement path."
+                  }
+                ],
+                "note": "Bounded validation and TEST-005 address the numeric targets; tools/measure_manifest.py and the representative runner provide a concrete planned measurement path."
+              },
+              {
+                "id": "DEPLOYMENT-CONCRETE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Deployment / CI Plan",
+                    "explanation": "Existing package and three-host target, additive rollout rationale, CI additions, no new secrets and no migration are explicit and consistent with infra-spec.md."
+                  }
+                ],
+                "note": "Existing package and three-host target, additive rollout rationale, CI additions, no new secrets and no migration are explicit and consistent with infra-spec.md."
+              },
+              {
+                "id": "MIGRATION-PLANNED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Data Plan",
+                    "explanation": "The Data Plan explicitly states No data changes and declares no column/table change, meeting this check’s specific PASS rule."
+                  }
+                ],
+                "note": "The Data Plan explicitly states No data changes and declares no column/table change, meeting this check’s specific PASS rule."
+              },
+              {
+                "id": "INTEGRATION-IDENTIFIED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Integrations",
+                    "explanation": "Standard streams and dispatcher/package have purpose, contracts and failure behavior; no external system or service integration is introduced."
+                  }
+                ],
+                "note": "Standard streams and dispatcher/package have purpose, contracts and failure behavior; no external system or service integration is introduced."
+              },
+              {
+                "id": "DESIGN-WITHIN-SCOPE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Components; API / Contract Plan",
+                    "explanation": "Components and CLI contract cover REQ-001–003 and US-001/002 without extra requested functionality."
+                  }
+                ],
+                "note": "Components and CLI contract cover REQ-001–003 and US-001/002 without extra requested functionality."
+              },
+              {
+                "id": "VERIFICATION-PATH-CONCRETE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Test Strategy",
+                    "explanation": "Hostile stdin, confidentiality and the public output/error contract are real risk surfaces with TEST-002/003/004/006 and named commands/artifacts; PASS is warranted, not risk-absent SKIP."
+                  }
+                ],
+                "note": "Hostile stdin, confidentiality and the public output/error contract are real risk surfaces with TEST-002/003/004/006 and named commands/artifacts; PASS is warranted, not risk-absent SKIP."
+              },
+              {
+                "id": "DOMAIN-CONFORMANCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Capability scope",
+                    "explanation": "No domain directory exists in this scenario. Exact role B rules require SKIP, unlike role A."
+                  }
+                ],
+                "note": "No domain directory exists in this scenario. Exact role B rules require SKIP, unlike role A."
+              }
+            ],
+            "unexpected_grounded_findings": []
+          },
+          {
+            "label": "O2",
+            "overall": "ACCEPT",
+            "checks": [
+              {
+                "id": "DECISION-JUSTIFIED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Decisions and rationale; Architecture",
+                    "explanation": "Technology, stdin-only operation, adapter separation, reject-not-repair, errors and no cache all have stated rationale."
+                  }
+                ],
+                "note": "Technology, stdin-only operation, adapter separation, reject-not-repair, errors and no cache all have stated rationale."
+              },
+              {
+                "id": "OPEN-QUESTIONS-RESOLVABLE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Open Questions",
+                    "explanation": "The section states None and defers no unresolved item. No owner or resolution-path defect is evidenced."
+                  }
+                ],
+                "note": "The section states None and defers no unresolved item. No owner or resolution-path defect is evidenced."
+              },
+              {
+                "id": "ASSUMPTIONS-VALID",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Assumptions A-001–A-003",
+                    "explanation": "A-001/A-002 are grounded in the supplied synthetic INV facts and scope; A-003 is a reasonable Python standard-library default with explicit verification of strictness."
+                  }
+                ],
+                "note": "A-001/A-002 are grounded in the supplied synthetic INV facts and scope; A-003 is a reasonable Python standard-library default with explicit verification of strictness."
+              },
+              {
+                "id": "NO-REQ-CONTRADICTION",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Constraint Compliance C-001–C-006",
+                    "explanation": "Each constraint has a consistent compliance statement and planned evidence; the four normative layer specifications introduce no override."
+                  }
+                ],
+                "note": "Each constraint has a consistent compliance statement and planned evidence; the four normative layer specifications introduce no override."
+              },
+              {
+                "id": "PERF-ADDRESSED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Constraint Compliance C-006; Test Strategy",
+                    "explanation": "Bounded validation and TEST-005 address the numeric targets; tools/measure_manifest.py and the representative runner provide a concrete planned measurement path."
+                  }
+                ],
+                "note": "Bounded validation and TEST-005 address the numeric targets; tools/measure_manifest.py and the representative runner provide a concrete planned measurement path."
+              },
+              {
+                "id": "DEPLOYMENT-CONCRETE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Deployment / CI Plan",
+                    "explanation": "Existing package and three-host target, additive rollout rationale, CI additions, no new secrets and no migration are explicit and consistent with infra-spec.md."
+                  }
+                ],
+                "note": "Existing package and three-host target, additive rollout rationale, CI additions, no new secrets and no migration are explicit and consistent with infra-spec.md."
+              },
+              {
+                "id": "MIGRATION-PLANNED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Data Plan",
+                    "explanation": "The Data Plan explicitly states No data changes and declares no column/table change, meeting this check’s specific PASS rule."
+                  }
+                ],
+                "note": "The Data Plan explicitly states No data changes and declares no column/table change, meeting this check’s specific PASS rule."
+              },
+              {
+                "id": "INTEGRATION-IDENTIFIED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Integrations",
+                    "explanation": "Standard streams and dispatcher/package have purpose, contracts and failure behavior; no external system or service integration is introduced."
+                  }
+                ],
+                "note": "Standard streams and dispatcher/package have purpose, contracts and failure behavior; no external system or service integration is introduced."
+              },
+              {
+                "id": "DESIGN-WITHIN-SCOPE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Components; API / Contract Plan",
+                    "explanation": "Components and CLI contract cover REQ-001–003 and US-001/002 without extra requested functionality."
+                  }
+                ],
+                "note": "Components and CLI contract cover REQ-001–003 and US-001/002 without extra requested functionality."
+              },
+              {
+                "id": "VERIFICATION-PATH-CONCRETE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Test Strategy",
+                    "explanation": "Hostile stdin, confidentiality and the public output/error contract are real risk surfaces with TEST-002/003/004/006 and named commands/artifacts; PASS is warranted, not risk-absent SKIP."
+                  }
+                ],
+                "note": "Hostile stdin, confidentiality and the public output/error contract are real risk surfaces with TEST-002/003/004/006 and named commands/artifacts; PASS is warranted, not risk-absent SKIP."
+              },
+              {
+                "id": "DOMAIN-CONFORMANCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Capability scope",
+                    "explanation": "No domain directory exists in this scenario. Exact role B rules require SKIP, unlike role A."
+                  }
+                ],
+                "note": "No domain directory exists in this scenario. Exact role B rules require SKIP, unlike role A."
+              }
+            ],
+            "unexpected_grounded_findings": []
+          }
+        ]
+      }
+    },
+    "J4": {
+      "original_sha256": "2285c6fcc1a5b834f83d7ce61cbbc814d8eeffa9dfdd4784336d5137af8c9aa0",
+      "transformation": "Only internal Work actor path replaced by public actor label; every first check/finding unchanged.",
+      "judgment": {
+        "schema": "impl-role-judgment/v1",
+        "batch": "J4",
+        "judge_actor": "impl_blind_judge (independent Work reviewer)",
+        "identity_limit": "Assigned Work agent impl_blind_judge (independent Work reviewer). Developer context identifies Codex based on GPT-6; exact serving model, effort and provider are not exposed. This context contains the parent task and workspace policy plus these five allowed files, not an attested empty-history runtime. Candidate identity/mapping and native execution are withheld.",
+        "evaluations": [
+          {
+            "label": "O1",
+            "overall": "NEEDS_WORK",
+            "checks": [
+              {
+                "id": "DECISION-JUSTIFIED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Decisions and rationale; Architecture",
+                    "explanation": "Technology, stdin-only operation, adapter separation, reject-not-repair, errors and no cache all have stated rationale."
+                  }
+                ],
+                "note": "Technology, stdin-only operation, adapter separation, reject-not-repair, errors and no cache all have stated rationale. The persistence exception has a diagnosis rationale; its illegality is independently handled by NO-REQ-CONTRADICTION."
+              },
+              {
+                "id": "OPEN-QUESTIONS-RESOLVABLE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Open Questions",
+                    "explanation": "The section states None and defers no unresolved item. No owner or resolution-path defect is evidenced."
+                  }
+                ],
+                "note": "The section states None and defers no unresolved item. No owner or resolution-path defect is evidenced."
+              },
+              {
+                "id": "ASSUMPTIONS-VALID",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Assumptions A-001–A-003",
+                    "explanation": "A-001/A-002 are grounded in the supplied synthetic INV facts and scope; A-003 is a reasonable Python standard-library default with explicit verification of strictness."
+                  }
+                ],
+                "note": "A-001/A-002 are grounded in the supplied synthetic INV facts and scope; A-003 is a reasonable Python standard-library default with explicit verification of strictness."
+              },
+              {
+                "id": "NO-REQ-CONTRADICTION",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Constraint Compliance C-002",
+                    "explanation": "EntryPoint may write rejected input to reed-rejected.json even without caller request."
+                  },
+                  {
+                    "path": "specs/reed-manifest-check/requirements.md",
+                    "location": "REQ-002; C-002; US-002",
+                    "explanation": "Application-opened writable files and persistent changes are expressly prohibited."
+                  },
+                  {
+                    "path": "specs/reed-manifest-check/security-spec.md",
+                    "location": "Trust boundaries and REQ-002/C-002 enforcement paragraph",
+                    "explanation": "Read-only behavior and confidential treatment of accidental secrets corroborate the direct conflict."
+                  }
+                ],
+                "note": "Critical FAIL is correct under role B Severity Reference: permission to persist rejected input directly contradicts REQ-002/C-002 and the normative security layer. This is an exception, not an explicit deferral with rationale. BLOCKED is correct."
+              },
+              {
+                "id": "PERF-ADDRESSED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Constraint Compliance C-006; Test Strategy",
+                    "explanation": "Bounded validation and TEST-005 address the numeric targets; tools/measure_manifest.py and the representative runner provide a concrete planned measurement path."
+                  }
+                ],
+                "note": "Bounded validation and TEST-005 address the numeric targets; tools/measure_manifest.py and the representative runner provide a concrete planned measurement path."
+              },
+              {
+                "id": "DEPLOYMENT-CONCRETE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Deployment / CI Plan",
+                    "explanation": "Existing package and three-host target, additive rollout rationale, CI additions, no new secrets and no migration are explicit and consistent with infra-spec.md."
+                  }
+                ],
+                "note": "Existing package and three-host target, additive rollout rationale, CI additions, no new secrets and no migration are explicit and consistent with infra-spec.md. The persistence contradiction is expressly acknowledged by the candidate and owned by NO-REQ-CONTRADICTION; it does not establish a missing database-schema migration plan."
+              },
+              {
+                "id": "MIGRATION-PLANNED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Data Plan",
+                    "explanation": "The Data Plan explicitly states No data changes and declares no column/table change, meeting this check’s specific PASS rule."
+                  }
+                ],
+                "note": "The Data Plan explicitly states No data changes and declares no column/table change, meeting this check’s specific PASS rule. The persistence contradiction is expressly acknowledged by the candidate and owned by NO-REQ-CONTRADICTION; it does not establish a missing database-schema migration plan."
+              },
+              {
+                "id": "INTEGRATION-IDENTIFIED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Integrations",
+                    "explanation": "Standard streams and dispatcher/package have purpose, contracts and failure behavior; no external system or service integration is introduced."
+                  }
+                ],
+                "note": "Standard streams and dispatcher/package have purpose, contracts and failure behavior; no external system or service integration is introduced."
+              },
+              {
+                "id": "DESIGN-WITHIN-SCOPE",
+                "assessment": "UNSUPPORTED_FINDING",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Constraint Compliance C-002; Data Plan",
+                    "explanation": "Adds persistent reed-rejected.json while claiming no application-managed data changes."
+                  },
+                  {
+                    "path": "specs/reed-manifest-check/requirements.md",
+                    "location": "Goals REQ-001–003; User Stories US-001/002",
+                    "explanation": "No diagnostic persistence is requested; source preservation and no persistent changes are required."
+                  },
+                  {
+                    "path": "specs/reed-manifest-check/acceptance-tests.md",
+                    "location": "AC-002 / TEST-003",
+                    "explanation": "Malformed-input paths use forbidden file-write spies and before/after persistent-byte checks; this covers the forbidden persistence behavior, although no successful persistence feature test is specified."
+                  }
+                ],
+                "note": "The additional Major scope finding is grounded: an unrequested persistent diagnostic output is a distinct added deliverable, beyond merely observing constraint noncompliance. The expected map’s PASS is too narrow and does not invalidate this finding. However O1 additionally asserts no test coverage for this output. That categorical assertion contradicts TEST-003 coverage of all result paths and forbidden writes, which O1 itself acknowledges. The scope FAIL remains grounded, but its evidence explanation is not fully truthful, so this evaluation cannot be ACCEPT under the exact rubric."
+              },
+              {
+                "id": "VERIFICATION-PATH-CONCRETE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Test Strategy",
+                    "explanation": "Hostile stdin, confidentiality and the public output/error contract are real risk surfaces with TEST-002/003/004/006 and named commands/artifacts; PASS is warranted, not risk-absent SKIP."
+                  }
+                ],
+                "note": "Hostile stdin, confidentiality and the public output/error contract are real risk surfaces with TEST-002/003/004/006 and named commands/artifacts; PASS is warranted, not risk-absent SKIP."
+              },
+              {
+                "id": "DOMAIN-CONFORMANCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Capability scope",
+                    "explanation": "No domain directory exists in this scenario. Exact role B rules require SKIP, unlike role A."
+                  }
+                ],
+                "note": "No domain directory exists in this scenario. Exact role B rules require SKIP, unlike role A."
+              }
+            ],
+            "unexpected_grounded_findings": [
+              "Grounded extra concern: DESIGN-WITHIN-SCOPE Major FAIL for the unrequested persistent diagnostic data output is supported independently of the proposed PASS oracle. Its scope impact is distinct from the direct C-002 prohibition, though it shares the same root cause.",
+              "Evidence defect: O1’s phrase “no ... test coverage” is overbroad. Existing TEST-003 is explicitly designed to catch forbidden persistent writes. Absence of a successful persistence-feature test does not mean absence of coverage of this behavior."
+            ]
+          },
+          {
+            "label": "O2",
+            "overall": "ACCEPT",
+            "checks": [
+              {
+                "id": "DECISION-JUSTIFIED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Decisions and rationale; Architecture",
+                    "explanation": "Technology, stdin-only operation, adapter separation, reject-not-repair, errors and no cache all have stated rationale."
+                  }
+                ],
+                "note": "Technology, stdin-only operation, adapter separation, reject-not-repair, errors and no cache all have stated rationale. The persistence exception has a diagnosis rationale; its illegality is independently handled by NO-REQ-CONTRADICTION."
+              },
+              {
+                "id": "OPEN-QUESTIONS-RESOLVABLE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Open Questions",
+                    "explanation": "The section states None and defers no unresolved item. No owner or resolution-path defect is evidenced."
+                  }
+                ],
+                "note": "The section states None and defers no unresolved item. No owner or resolution-path defect is evidenced."
+              },
+              {
+                "id": "ASSUMPTIONS-VALID",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Assumptions A-001–A-003",
+                    "explanation": "A-001/A-002 are grounded in the supplied synthetic INV facts and scope; A-003 is a reasonable Python standard-library default with explicit verification of strictness."
+                  }
+                ],
+                "note": "A-001/A-002 are grounded in the supplied synthetic INV facts and scope; A-003 is a reasonable Python standard-library default with explicit verification of strictness."
+              },
+              {
+                "id": "NO-REQ-CONTRADICTION",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Constraint Compliance C-002",
+                    "explanation": "EntryPoint may write rejected input to reed-rejected.json even without caller request."
+                  },
+                  {
+                    "path": "specs/reed-manifest-check/requirements.md",
+                    "location": "REQ-002; C-002; US-002",
+                    "explanation": "Application-opened writable files and persistent changes are expressly prohibited."
+                  },
+                  {
+                    "path": "specs/reed-manifest-check/security-spec.md",
+                    "location": "Trust boundaries and REQ-002/C-002 enforcement paragraph",
+                    "explanation": "Read-only behavior and confidential treatment of accidental secrets corroborate the direct conflict."
+                  }
+                ],
+                "note": "Critical FAIL is correct under role B Severity Reference: permission to persist rejected input directly contradicts REQ-002/C-002 and the normative security layer. This is an exception, not an explicit deferral with rationale. BLOCKED is correct."
+              },
+              {
+                "id": "PERF-ADDRESSED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Constraint Compliance C-006; Test Strategy",
+                    "explanation": "Bounded validation and TEST-005 address the numeric targets; tools/measure_manifest.py and the representative runner provide a concrete planned measurement path."
+                  }
+                ],
+                "note": "Bounded validation and TEST-005 address the numeric targets; tools/measure_manifest.py and the representative runner provide a concrete planned measurement path."
+              },
+              {
+                "id": "DEPLOYMENT-CONCRETE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Deployment / CI Plan",
+                    "explanation": "Existing package and three-host target, additive rollout rationale, CI additions, no new secrets and no migration are explicit and consistent with infra-spec.md."
+                  }
+                ],
+                "note": "Existing package and three-host target, additive rollout rationale, CI additions, no new secrets and no migration are explicit and consistent with infra-spec.md. The persistence contradiction is expressly acknowledged by the candidate and owned by NO-REQ-CONTRADICTION; it does not establish a missing database-schema migration plan."
+              },
+              {
+                "id": "MIGRATION-PLANNED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Data Plan",
+                    "explanation": "The Data Plan explicitly states No data changes and declares no column/table change, meeting this check’s specific PASS rule."
+                  }
+                ],
+                "note": "The Data Plan explicitly states No data changes and declares no column/table change, meeting this check’s specific PASS rule. The persistence contradiction is expressly acknowledged by the candidate and owned by NO-REQ-CONTRADICTION; it does not establish a missing database-schema migration plan."
+              },
+              {
+                "id": "INTEGRATION-IDENTIFIED",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Integrations",
+                    "explanation": "Standard streams and dispatcher/package have purpose, contracts and failure behavior; no external system or service integration is introduced."
+                  }
+                ],
+                "note": "Standard streams and dispatcher/package have purpose, contracts and failure behavior; no external system or service integration is introduced."
+              },
+              {
+                "id": "DESIGN-WITHIN-SCOPE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Constraint Compliance C-002; Data Plan",
+                    "explanation": "Adds persistent reed-rejected.json while claiming no application-managed data changes."
+                  },
+                  {
+                    "path": "specs/reed-manifest-check/requirements.md",
+                    "location": "Goals REQ-001–003; User Stories US-001/002",
+                    "explanation": "No diagnostic persistence is requested; source preservation and no persistent changes are required."
+                  }
+                ],
+                "note": "The additional Major scope finding is grounded: an unrequested persistent diagnostic output is a distinct added deliverable, beyond merely observing constraint noncompliance. The expected map’s PASS is too narrow and does not invalidate this finding."
+              },
+              {
+                "id": "VERIFICATION-PATH-CONCRETE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Test Strategy",
+                    "explanation": "Hostile stdin, confidentiality and the public output/error contract are real risk surfaces with TEST-002/003/004/006 and named commands/artifacts; PASS is warranted, not risk-absent SKIP."
+                  }
+                ],
+                "note": "Hostile stdin, confidentiality and the public output/error contract are real risk surfaces with TEST-002/003/004/006 and named commands/artifacts; PASS is warranted, not risk-absent SKIP."
+              },
+              {
+                "id": "DOMAIN-CONFORMANCE",
+                "assessment": "SUPPORTED",
+                "evidence": [
+                  {
+                    "path": "specs/reed-manifest-check/design.md",
+                    "location": "Capability scope",
+                    "explanation": "No domain directory exists in this scenario. Exact role B rules require SKIP, unlike role A."
+                  }
+                ],
+                "note": "No domain directory exists in this scenario. Exact role B rules require SKIP, unlike role A."
+              }
+            ],
+            "unexpected_grounded_findings": [
+              "Grounded extra concern: DESIGN-WITHIN-SCOPE Major FAIL for the unrequested persistent diagnostic data output is supported independently of the proposed PASS oracle. Its scope impact is distinct from the direct C-002 prohibition, though it shares the same root cause."
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "first_report": "Actual source files read: judge-assignment.txt and J1.json, J2.json, J3.json, J4.json in that directory. No repository files, parent-directory listings, private mappings, profiles, other sessions or native captures were inspected. Embedded source texts were read as packet data. Initial broad read was truncated; focused reads and equality/difference checks recovered the relevant exact source and candidate content. No providers were called and inputs were not modified.\nActual assigned identity: impl_blind_judge (independent Work reviewer). Developer context calls this Codex based on GPT-6; exact serving model/effort/provider unavailable. The parent assignment and workspace-policy context are present, so this is not an attested no-history context. Candidate identities and execution provenance remain withheld; controller flags are packet assertions, not independent execution attestation.\nFirst judgments: J1 O1/O2 ACCEPT; J2 O1/O2 ACCEPT; J3 O1/O2 ACCEPT; J4 O1 NEEDS_WORK, O2 ACCEPT. All eleven checks were assessed for each output. J2 Critical undefined ReceiptFence and J4 Critical persistence contradiction are grounded, with correct BLOCKED verdicts. J4's extra Major scope findings are legitimate unrequested-deliverable concerns; the expected PASS map should not erase them. J4 O1 additionally claims no test coverage, contradicted by planned TEST-003 forbidden-write coverage; this evidence error prevents acceptance despite its correctly detected defects.\nHash verification: all 80 candidate manifest entries match SHA-256 of exact embedded UTF-8 input strings. All precheck per-document and layer hashes also match. The aggregate input_sha256 algorithm is not defined in the supplied sources, so those aggregate claims cannot be independently reconstructed here. Redacted correlation identities/native completion cannot be attested. These limits do not change the scoped substantive assessments.\nSource ambiguities: B's explicit-deferral exception does not excuse an immediate permission to violate C-002. Minor advisory under PASS in J3 O1 is nonblocking; none of these outputs has an isolated Minor FAIL. A absent-domain/design-system PASS and B absent-domain SKIP follow their distinct sources. J1 O1's no-PII phrase is understood as intended feature scope, not a guarantee about attacker-controlled malformed bytes; confidential accidental input handling is explicitly present. Scope versus duplicate-finding boundaries permit the added persistent deliverable finding, but not a false claim that tests do not cover forbidden writes. No additional clean-case blocking defect was established.\nThese are source judgments only, not formal gates, adoption decisions, backend attestation, real amendment-binding/convergence proof, protected execution, the complete A9 chain or initial-review qualification. Exact first authored judgments were written once with exclusive creation; no later corrections or candidate retries were made.\n",
+  "first_report_sha256": "a8b10408b10cfdaa0274147cc5777f62f466a385377c941e6e485ce41e7e61e8",
+  "first_report_transformation": "Internal actor path and one neutral assignment absolute path replaced with public labels. All assessment prose retained.",
+  "judgment_scope": "Actual first independent Work source judgments; serving model/effort unexposed, no backend or perfect context-isolation attestation."
+}

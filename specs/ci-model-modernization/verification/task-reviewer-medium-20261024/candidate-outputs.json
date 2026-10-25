@@ -1,0 +1,1250 @@
+{
+  "schema": "task-role-candidate-public-projection/v1",
+  "derived": true,
+  "cells": [
+    {
+      "cell": "t01",
+      "role": "task-reviewer-a",
+      "variant": "a-gap",
+      "repetition": 1,
+      "original_final_message_sha256": "fad04c578025d71ec9d879701ae1a2cc608e319041b15d79a240320ce9875ea4",
+      "transformation": "Only two top-level experimental correlation fields replaced by explicit redaction markers; all review content unchanged.",
+      "output": {
+        "schema": "task-reviewer-a/v1",
+        "stage": "task-review",
+        "role": "reviewer-a",
+        "feature": "birch-access-export",
+        "attempt": 3,
+        "round": 1,
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "manifest": [
+          {
+            "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+            "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+          },
+          {
+            "path": "reports/task-review/birch-access-export/attempt-3/round-1/dependency-graph.json",
+            "sha256": "a82bfff18bc20b3ffd85a17849a26571b1f6382dcd0382ff0eda55d1135c7ef4"
+          },
+          {
+            "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+            "sha256": "047e620f60de5f54d6ba17c7835e3cc5c0a26a04559e45177e4f68c36547aca2"
+          },
+          {
+            "path": "specs/birch-access-export/acceptance-tests.md",
+            "sha256": "ce35543d94237bddd76f476f10b01a32c27d0dd1948a774f09cb54a46ce9a66c"
+          },
+          {
+            "path": "specs/birch-access-export/design.md",
+            "sha256": "27a91b2c7e6b843f66b6374d99d11f73afc73108edd124678ec4f420b9c591f7"
+          },
+          {
+            "path": "specs/birch-access-export/frontend-spec.md",
+            "sha256": "c6b0f2f5666a0e318d909d2e907dfb3a7be3a6f90de0712ebccdb613c343faf7"
+          },
+          {
+            "path": "specs/birch-access-export/infra-spec.md",
+            "sha256": "d47251bbf5da3d6a66d2231180bb2381b2dd0ab0543ed5e7fb92582a1747e43d"
+          },
+          {
+            "path": "specs/birch-access-export/requirements.md",
+            "sha256": "981f336fd85ff96e101ce0cf90cd5545f10f6abf00ab8bbdfd652edf6d53eda6"
+          },
+          {
+            "path": "specs/birch-access-export/security-spec.md",
+            "sha256": "133fe97cc1de196e68aa0e89ce824354cec46069caf308f48b76aa624334662c"
+          },
+          {
+            "path": "specs/birch-access-export/tasks.md",
+            "sha256": "81a69d76477ec05c47c42031e73825538bb3544a08e1aedbf7204a7b5df10efe"
+          },
+          {
+            "path": "specs/birch-access-export/traceability.md",
+            "sha256": "884c84955ec28d39dac9bafb1e6fe6c0d1c2b9b3fdff75ed6cc77dfcfaf70598"
+          },
+          {
+            "path": "specs/birch-access-export/ux-spec.md",
+            "sha256": "4cf8307f75ebaf47bf135bb8cf57f0b787dcb28bdb4bb03b87315cc68c63b10d"
+          }
+        ],
+        "verdict": "BLOCKED",
+        "checks": [
+          {
+            "id": "PREREQ-AC-IDS",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "tasks.md references AC-001 (T-001) and AC-002 (T-002). Both exist in acceptance-tests.md. No dangling IDs."
+          },
+          {
+            "id": "BLOCKERS-FORMAT",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001 has 'Blockers: None' and T-002 has 'Blockers: T-001'. Both are valid. blockers_format_valid is true, matching precheck-result.json."
+          },
+          {
+            "id": "REQ-COVERAGE",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "REQ-001 is in T-001 Requirements. REQ-002 is in T-002 Requirements."
+          },
+          {
+            "id": "AC-COVERAGE",
+            "status": "FAIL",
+            "severity": "Critical",
+            "finding": "AC-003 (Limit boundary, TEST-003) in acceptance-tests.md appears in no task's Requirements or Test IDs. T-001 lists only REQ-001, AC-001 and TEST-001. T-002 lists only REQ-002, AC-002 and TEST-002. traceability.md has no row for AC-003 and no deferral entry for it. AC-001 and AC-002 are covered."
+          },
+          {
+            "id": "ORPHAN-TASK",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "Both tasks reference a REQ-NNN: T-001 references REQ-001 and T-002 references REQ-002."
+          },
+          {
+            "id": "ORPHAN-TEST",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "No task title contains test, spec or verify, and neither task is exclusively test-file changes. T-001 and T-002 each reference an AC anyway."
+          },
+          {
+            "id": "INITIAL-STATE",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "Under the post-implementation re-review rule, T-001 has Approval: Approved and Status: In Progress. T-002 has Approval: Approved and Status: Planned. Both are valid lifecycle values."
+          },
+          {
+            "id": "RISK-WORKFLOW-FORMAT",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "T-001 is Risk high with Required Workflow tdd. T-002 is Risk low with Required Workflow test-after. Both pairings match the matrix. precheck workflow_match_precheck is PASS."
+          },
+          {
+            "id": "NO-DUPLICATE-AC",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "AC-001 is claimed only by T-001. AC-002 is claimed only by T-002."
+          },
+          {
+            "id": "DEPENDENCY-COMPLETE",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "The only blocker reference is T-002 to T-001. T-001 exists in tasks.md and in the dependency-graph.json nodes."
+          },
+          {
+            "id": "DEPENDENCY-CYCLE",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "BLOCKERS-FORMAT passed. The only edge is T-002 to T-001, so there is no cycle."
+          },
+          {
+            "id": "SINGLE-CONCERN",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001 covers the route, policy and repository for one export endpoint, plus its integration test, which is directly tied verification work. T-002 covers the runbook only."
+          },
+          {
+            "id": "OBSERVABLE-DONE",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "Every Done When item names a concrete artifact or command. T-001 names the pytest command on tests/integration/test_export_route.py and the report reports/implementation/birch-access-export/T-001.md. It also names the Red-then-Green checkpoint record, the named second-reviewer verdict and the rollback command and output. T-002 names the four runbook sections in docs/export-runbook.md and the TEST-002 result in reports/implementation/birch-access-export/T-002.md. precheck frozen_artifact_done_when is empty, so no flagged items need addressing. All write targets are implementation reports or new docs, not frozen artifacts."
+          },
+          {
+            "id": "TRACEABILITY-SYNC",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001 and T-002 each appear in traceability.md, and REQ-001 and REQ-002 exist in requirements.md. All cited anchors resolve to sections in the hash-bound documents: design.md#architecture, design.md#delivery, security-spec.md#authorization, infra-spec.md#feature-flag, ux-spec.md#request-flow and frontend-spec.md#api-client. Delivery statuses 'In Progress' and 'Planned' are in the allowed vocabulary. The missing AC-003 row is reported under AC-COVERAGE."
+          }
+        ],
+        "findings": [
+          {
+            "check_id": "AC-COVERAGE",
+            "severity": "Critical",
+            "task_id": null,
+            "finding": "AC-003 (limit boundaries 1 and 500 succeed; 0, 501, a fractional number and a nonnumeric string return 400 with no repository reads) has no owning task. It is absent from every tasks.md Requirements and Test IDs field and from traceability.md, and no deferral rationale exists. REQ-001 requires limit validation, but T-001 Done When only runs TEST-001. TEST-003 has no planned implementation or evidence. The boundary and invalid-limit behavior would be built and verified with no inspectable evidence, so the decomposition is incomplete."
+          }
+        ]
+      },
+      "independent_judgment": {
+        "batch": "J2",
+        "opaque_label": "O2",
+        "overall": "ACCEPT",
+        "original_judgment_sha256": "6e3c317d513914c8065991c1d51c34a661543d46b42f8d3edf6129db884c90ce"
+      }
+    },
+    {
+      "cell": "t02",
+      "role": "task-reviewer-b",
+      "variant": "clean",
+      "repetition": 1,
+      "original_final_message_sha256": "3bda08e0d2c0484d165cae1d8d87693c5eabd854958d7709647b1f297514b9b1",
+      "transformation": "Only two top-level experimental correlation fields replaced by explicit redaction markers; all review content unchanged.",
+      "output": {
+        "schema": "task-reviewer-b/v1",
+        "stage": "task",
+        "role": "task-reviewer-b",
+        "feature": "birch-access-export",
+        "attempt": 3,
+        "round": 1,
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "manifest": {
+          "allowed_inputs": [
+            {
+              "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+              "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+            },
+            {
+              "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+              "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+            },
+            {
+              "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+              "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+            },
+            {
+              "path": "reports/task-review/birch-access-export/attempt-3/round-1/integrated-summary.json",
+              "sha256": "f4d6ac1984094e587e8ebdc15b42481af0b7a5833bc43fbd0c302324b415232d"
+            },
+            {
+              "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+              "sha256": "6e777cff90a79dbfec71ffe97b124b7f197b179acde9c32399b5a4c77ac4b370"
+            },
+            {
+              "path": "specs/birch-access-export/acceptance-tests.md",
+              "sha256": "ce35543d94237bddd76f476f10b01a32c27d0dd1948a774f09cb54a46ce9a66c"
+            },
+            {
+              "path": "specs/birch-access-export/design.md",
+              "sha256": "27a91b2c7e6b843f66b6374d99d11f73afc73108edd124678ec4f420b9c591f7"
+            },
+            {
+              "path": "specs/birch-access-export/frontend-spec.md",
+              "sha256": "c6b0f2f5666a0e318d909d2e907dfb3a7be3a6f90de0712ebccdb613c343faf7"
+            },
+            {
+              "path": "specs/birch-access-export/infra-spec.md",
+              "sha256": "d47251bbf5da3d6a66d2231180bb2381b2dd0ab0543ed5e7fb92582a1747e43d"
+            },
+            {
+              "path": "specs/birch-access-export/requirements.md",
+              "sha256": "981f336fd85ff96e101ce0cf90cd5545f10f6abf00ab8bbdfd652edf6d53eda6"
+            },
+            {
+              "path": "specs/birch-access-export/security-spec.md",
+              "sha256": "133fe97cc1de196e68aa0e89ce824354cec46069caf308f48b76aa624334662c"
+            },
+            {
+              "path": "specs/birch-access-export/tasks.md",
+              "sha256": "8bfc27238e6f5c97daebc833fe524eab4efde1ccac465beda9e00a9921a26c89"
+            },
+            {
+              "path": "specs/birch-access-export/traceability.md",
+              "sha256": "1c522fa2b402d7c56ee276b9c89bf7c3982be049df03fb13d58f7e30981d6a93"
+            },
+            {
+              "path": "specs/birch-access-export/ux-spec.md",
+              "sha256": "4cf8307f75ebaf47bf135bb8cf57f0b787dcb28bdb4bb03b87315cc68c63b10d"
+            }
+          ]
+        },
+        "verdict": "PASS",
+        "checks": [
+          {
+            "id": "RISK-APPROPRIATE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "tasks.md T-001 is Risk: high. Its rationale and scope cover an authorization decision and a new externally visible GET /exports contract, both sentinel surfaces in risk-classification-policy.md. T-002 is Risk: low. It is documentation only (docs/export-runbook.md) and changes no source or specs, which matches the low tier. No tier mismatch."
+          },
+          {
+            "id": "HIGH-CRITICAL-EVIDENCE",
+            "result": "PASS",
+            "severity": "Critical",
+            "finding": "T-001 is the only high-risk task, and Required Workflow is tdd. Its Done When has all required items. Item 2 records the failing-test checkpoint commit before implementation and the later passing output (Red then Green). Item 3 records an independent review verdict by a named second reviewer distinct from the implementer. Item 1 requires pytest output. There is no Risk: critical task, so second approver and signed bundle are not required. T-002 is low, so no such evidence is required."
+          },
+          {
+            "id": "TASK-SIZE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-001 is one coherent unit: the export route, policy and repository, plus one integration test file for the same boundary. Its Done When has 4 items, under the limit of 8. T-002 is a single runbook file with one Done When item. Neither is oversized, and the two tasks are not fragmentary."
+          },
+          {
+            "id": "EDGE-CASE-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "Both functional tasks have error-path acceptance criteria. AC-001 covers 401 with no credentials, 403 without permission, zero repository reads on denial, and no tenant B rows. AC-003 covers limits 0, 501, fractional and nonnumeric (all 400), and the boundaries 1 and 500. AC-002 (T-002, documentation) requires the 401/403/400 examples. No AC is happy-path only."
+          },
+          {
+            "id": "TEST-TYPE-MATCH",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "TEST-001 and TEST-003 are declared integration tests. They are implemented in tests/integration/test_export_route.py across route, policy and a disposable tenant repository (design.md#validation), so at least two components are involved. TEST-002 is a documentation acceptance test that references AC-002. Types match scope."
+          },
+          {
+            "id": "ROLLBACK-PLAN",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-001 (high) has an explicit Rollback: field. It disables EXPORT_ROUTE_ENABLED and runs a local fixture assertion that the new route is unavailable while existing endpoints are unchanged. Output goes to reports/implementation/birch-access-export/T-001.md, and Done When item 4 repeats it. infra-spec.md#feature-flag is consistent. T-002 is low, so no rollback is required."
+          },
+          {
+            "id": "SCOPE-DISJOINT",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-001 owns src/export_route.py, src/export_policy.py, src/export_repository.py and tests/integration/test_export_route.py. T-002 owns docs/export-runbook.md and reports/.../T-002.md. The files do not overlap, and neither task edits frozen specs."
+          },
+          {
+            "id": "DEPENDENCY-OVERLAP",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-001 has Blockers: None and depends on nothing upstream. T-002 is blocked by T-001, and the blocker is genuine: T-002's scope says it consumes T-001's recorded response evidence, and requirements.md REQ-002 says to use output examples from the endpoint verification evidence. No spurious or missing blockers."
+          },
+          {
+            "id": "BUGFIX-DIAGNOSTIC-PATH",
+            "result": "SKIP",
+            "severity": "Major",
+            "finding": "SKIP: no bugfix or debugging task in scope. T-001 is a new feature and T-002 is documentation."
+          }
+        ],
+        "findings": []
+      },
+      "independent_judgment": {
+        "batch": "J3",
+        "opaque_label": "O2",
+        "overall": "ACCEPT",
+        "original_judgment_sha256": "669ca532f65ce24115f956e6e1e94614822c712d8546e2782dd40f1e957986e8"
+      }
+    },
+    {
+      "cell": "t03",
+      "role": "task-reviewer-a",
+      "variant": "clean",
+      "repetition": 1,
+      "original_final_message_sha256": "51ed4010adb9acd15a72455e1327c31b1293523928f047a5aeb0b279571c8f8e",
+      "transformation": "Only two top-level experimental correlation fields replaced by explicit redaction markers; all review content unchanged.",
+      "output": {
+        "schema": "task-reviewer-a/v1",
+        "stage": "task-review",
+        "role": "reviewer-a",
+        "feature": "birch-access-export",
+        "attempt": 3,
+        "round": 1,
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "manifest": [
+          {
+            "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+            "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+          },
+          {
+            "path": "reports/task-review/birch-access-export/attempt-3/round-1/dependency-graph.json",
+            "sha256": "a82bfff18bc20b3ffd85a17849a26571b1f6382dcd0382ff0eda55d1135c7ef4"
+          },
+          {
+            "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+            "sha256": "6e777cff90a79dbfec71ffe97b124b7f197b179acde9c32399b5a4c77ac4b370"
+          },
+          {
+            "path": "specs/birch-access-export/acceptance-tests.md",
+            "sha256": "ce35543d94237bddd76f476f10b01a32c27d0dd1948a774f09cb54a46ce9a66c"
+          },
+          {
+            "path": "specs/birch-access-export/design.md",
+            "sha256": "27a91b2c7e6b843f66b6374d99d11f73afc73108edd124678ec4f420b9c591f7"
+          },
+          {
+            "path": "specs/birch-access-export/frontend-spec.md",
+            "sha256": "c6b0f2f5666a0e318d909d2e907dfb3a7be3a6f90de0712ebccdb613c343faf7"
+          },
+          {
+            "path": "specs/birch-access-export/infra-spec.md",
+            "sha256": "d47251bbf5da3d6a66d2231180bb2381b2dd0ab0543ed5e7fb92582a1747e43d"
+          },
+          {
+            "path": "specs/birch-access-export/requirements.md",
+            "sha256": "981f336fd85ff96e101ce0cf90cd5545f10f6abf00ab8bbdfd652edf6d53eda6"
+          },
+          {
+            "path": "specs/birch-access-export/security-spec.md",
+            "sha256": "133fe97cc1de196e68aa0e89ce824354cec46069caf308f48b76aa624334662c"
+          },
+          {
+            "path": "specs/birch-access-export/tasks.md",
+            "sha256": "8bfc27238e6f5c97daebc833fe524eab4efde1ccac465beda9e00a9921a26c89"
+          },
+          {
+            "path": "specs/birch-access-export/traceability.md",
+            "sha256": "1c522fa2b402d7c56ee276b9c89bf7c3982be049df03fb13d58f7e30981d6a93"
+          },
+          {
+            "path": "specs/birch-access-export/ux-spec.md",
+            "sha256": "4cf8307f75ebaf47bf135bb8cf57f0b787dcb28bdb4bb03b87315cc68c63b10d"
+          }
+        ],
+        "verdict": "PASS",
+        "checks": [
+          {
+            "id": "PREREQ-AC-IDS",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "tasks.md Requirements reference AC-001, AC-003 (T-001) and AC-002 (T-002). All three exist as headings in acceptance-tests.md. No dangling IDs."
+          },
+          {
+            "id": "BLOCKERS-FORMAT",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001 has 'Blockers: None' and T-002 has 'Blockers: T-001'. Both are valid formats, with no ranges or prose. blockers_format_valid is true, which matches precheck-result.json."
+          },
+          {
+            "id": "REQ-COVERAGE",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "REQ-001 is in T-001's Requirements and REQ-002 is in T-002's. Both requirements in requirements.md are covered."
+          },
+          {
+            "id": "AC-COVERAGE",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "AC-001 and AC-003 are in T-001's Requirements and Test IDs (TEST-001, TEST-003). AC-002 is in T-002's Requirements and Test IDs (TEST-002). Every AC is covered."
+          },
+          {
+            "id": "ORPHAN-TASK",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001 references REQ-001 and T-002 references REQ-002."
+          },
+          {
+            "id": "ORPHAN-TEST",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "Neither task's title contains test, spec or verify, and neither is exclusively test-file changes. Both reference ACs anyway (T-001: AC-001 and AC-003; T-002: AC-002)."
+          },
+          {
+            "id": "INITIAL-STATE",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "The lifecycle context declares a post-implementation provenance re-review. T-001 is 'Approval: Approved, Status: In Progress' and T-002 is 'Approval: Approved, Status: Planned'. Both are valid under the re-review rule. They are synthetic fixture values, not asserted as real approvals."
+          },
+          {
+            "id": "RISK-WORKFLOW-FORMAT",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "T-001 is Risk high with Required Workflow tdd. T-002 is Risk low with Required Workflow test-after. Both pairings match the risk-gate matrix, and precheck workflow_match_precheck is PASS."
+          },
+          {
+            "id": "NO-DUPLICATE-AC",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "Each AC is claimed by exactly one task: AC-001 and AC-003 by T-001, AC-002 by T-002. There are no duplicates."
+          },
+          {
+            "id": "DEPENDENCY-COMPLETE",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "The only blocker reference is T-002 -> T-001. T-001 exists in tasks.md and in the dependency-graph.json nodes (T-001, T-002)."
+          },
+          {
+            "id": "DEPENDENCY-CYCLE",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "BLOCKERS-FORMAT passed. The graph has a single edge, T-002 -> T-001, and no cycle."
+          },
+          {
+            "id": "SINGLE-CONCERN",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001 covers the route, the policy and the repository call for one export endpoint, plus its integration test. The test work is directly tied to the endpoint. T-002 is a runbook only."
+          },
+          {
+            "id": "OBSERVABLE-DONE",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001's Done When items name concrete artifacts. They are the pytest run of tests/integration/test_export_route.py with output recorded in reports/implementation/birch-access-export/T-001.md, the Red-then-Green checkpoint record, the named second-reviewer verdict, and the rollback command and output. T-002 is documentation-only. It names docs/export-runbook.md with four named sections, 200/401/403/400 examples and the flag-disable command, and it records the TEST-002 result in reports/implementation/birch-access-export/T-002.md. precheck frozen_artifact_done_when is an empty array, so there are no flagged items to address. No Done When item edits a frozen artifact; every write target is under src/, tests/, docs/ or reports/."
+          },
+          {
+            "id": "TRACEABILITY-SYNC",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "traceability.md rows REQ-001 and REQ-002 exist in requirements.md and map to T-001 and T-002, both of which exist in tasks.md. All cited anchors resolve to real sections: design.md#architecture, design.md#delivery, security-spec.md#authorization, infra-spec.md#feature-flag, ux-spec.md#request-flow, frontend-spec.md#api-client. Delivery Status cells hold In Progress and Planned, both in the permitted vocabulary."
+          }
+        ],
+        "findings": []
+      },
+      "independent_judgment": {
+        "batch": "J1",
+        "opaque_label": "O1",
+        "overall": "ACCEPT",
+        "original_judgment_sha256": "8f3a42996ea0eb9d713e038aa7676315cfe85ada598758cd7622b59d84c84ebe"
+      }
+    },
+    {
+      "cell": "t04",
+      "role": "task-reviewer-b",
+      "variant": "b-gap",
+      "repetition": 1,
+      "original_final_message_sha256": "2344754284cae00c2ea552bfed198172c4b238159912389bf18f13a1ee925d13",
+      "transformation": "Only two top-level experimental correlation fields replaced by explicit redaction markers; all review content unchanged.",
+      "output": {
+        "schema": "task-reviewer-b/v1",
+        "stage": "task",
+        "role": "task-reviewer-b",
+        "feature": "birch-access-export",
+        "attempt": 3,
+        "round": 1,
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "manifest": {
+          "allowed_inputs": [
+            {
+              "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+              "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+            },
+            {
+              "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+              "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+            },
+            {
+              "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+              "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+            },
+            {
+              "path": "reports/task-review/birch-access-export/attempt-3/round-1/integrated-summary.json",
+              "sha256": "f4d6ac1984094e587e8ebdc15b42481af0b7a5833bc43fbd0c302324b415232d"
+            },
+            {
+              "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+              "sha256": "78c4bf7f59be85f7dac3f844758e1b64f66a0719427868bd95bf7b6aed3ea2a1"
+            },
+            {
+              "path": "specs/birch-access-export/acceptance-tests.md",
+              "sha256": "ce35543d94237bddd76f476f10b01a32c27d0dd1948a774f09cb54a46ce9a66c"
+            },
+            {
+              "path": "specs/birch-access-export/design.md",
+              "sha256": "27a91b2c7e6b843f66b6374d99d11f73afc73108edd124678ec4f420b9c591f7"
+            },
+            {
+              "path": "specs/birch-access-export/frontend-spec.md",
+              "sha256": "c6b0f2f5666a0e318d909d2e907dfb3a7be3a6f90de0712ebccdb613c343faf7"
+            },
+            {
+              "path": "specs/birch-access-export/infra-spec.md",
+              "sha256": "d47251bbf5da3d6a66d2231180bb2381b2dd0ab0543ed5e7fb92582a1747e43d"
+            },
+            {
+              "path": "specs/birch-access-export/requirements.md",
+              "sha256": "981f336fd85ff96e101ce0cf90cd5545f10f6abf00ab8bbdfd652edf6d53eda6"
+            },
+            {
+              "path": "specs/birch-access-export/security-spec.md",
+              "sha256": "133fe97cc1de196e68aa0e89ce824354cec46069caf308f48b76aa624334662c"
+            },
+            {
+              "path": "specs/birch-access-export/tasks.md",
+              "sha256": "db8429e0bc13aacbbb8dcf1f72481705c2518a0026a0c0ddb70bb8fabe765c9e"
+            },
+            {
+              "path": "specs/birch-access-export/traceability.md",
+              "sha256": "1c522fa2b402d7c56ee276b9c89bf7c3982be049df03fb13d58f7e30981d6a93"
+            },
+            {
+              "path": "specs/birch-access-export/ux-spec.md",
+              "sha256": "4cf8307f75ebaf47bf135bb8cf57f0b787dcb28bdb4bb03b87315cc68c63b10d"
+            }
+          ]
+        },
+        "verdict": "BLOCKED",
+        "checks": [
+          {
+            "id": "RISK-APPROPRIATE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-001 (Risk: high) adds an authorization decision and a new externally visible GET /exports API (REQ-001, AC-001), which are sentinel surfaces, so high is correct. T-002 (Risk: low) is documentation-only (docs/export-runbook.md, no endpoint source change), so low is correct. Both have non-empty Risk Rationale."
+          },
+          {
+            "id": "HIGH-CRITICAL-EVIDENCE",
+            "result": "FAIL",
+            "severity": "Critical",
+            "finding": "T-001 is Risk: high. Its Done When has three items: tests pass, Red→Green checkpoint, and rollback recording. Red→Green is covered by the second item. No item records an independent review verdict from a named second reviewer who is not the implementing agent. The Rollback field and Required Workflow: tdd do not cover this. The mandatory evidence item is missing."
+          },
+          {
+            "id": "TASK-SIZE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-001 is one coherent endpoint slice (route, policy, repository and its integration test) with three Done When items. T-002 is one runbook file with one Done When item. No oversizing or fragmentation."
+          },
+          {
+            "id": "EDGE-CASE-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "AC-001 includes 401 and 403 cases with zero repository reads and cross-tenant exclusion. AC-003 includes 0, 501, fractional and nonnumeric limits returning 400. AC-002 requires the 401/403/400 examples. T-001 and T-002 each have error-path coverage."
+          },
+          {
+            "id": "TEST-TYPE-MATCH",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "TEST-001 and TEST-003 are declared integration and exercise route, policy and repository together (design.md Validation; T-001 Scope). TEST-002 is a documentation acceptance test that references AC-002 and names the file and sections to check. Types match scope."
+          },
+          {
+            "id": "ROLLBACK-PLAN",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-001 has a Rollback field: disable EXPORT_ROUTE_ENABLED and run a local assertion that the route is unavailable and existing endpoints are unchanged. A Done When item records the command and output. infra-spec.md#feature-flag is consistent."
+          },
+          {
+            "id": "SCOPE-DISJOINT",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-001 owns src/export_*.py and tests/integration/test_export_route.py. T-002 owns docs/export-runbook.md. Report files are distinct (T-001.md and T-002.md). No overlap."
+          },
+          {
+            "id": "DEPENDENCY-OVERLAP",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-002 is blocked by T-001, and T-002 Scope states it consumes T-001's recorded response evidence (REQ-002, design.md Delivery). The blocker is genuine. T-001 has no blockers and needs none."
+          },
+          {
+            "id": "BUGFIX-DIAGNOSTIC-PATH",
+            "result": "SKIP",
+            "severity": "Major",
+            "finding": "SKIP: no bugfix or debugging task in scope."
+          }
+        ],
+        "findings": [
+          {
+            "check_id": "HIGH-CRITICAL-EVIDENCE",
+            "severity": "Critical",
+            "task_id": "T-001",
+            "finding": "T-001 declares Risk: high but its Done When has no item recording an independent review verdict from a named second reviewer other than the implementing agent. This is required by the risk-gate-matrix 'independent-review verdict' row for high and by this check. Without it the downstream evidence-bundle gate has no planned review artifact to verify. This is a hard policy omission, so the severity is Critical. Add a Done When item naming the reviewer and the evidence location, for example in reports/implementation/birch-access-export/T-001.md."
+          }
+        ]
+      },
+      "independent_judgment": {
+        "batch": "J4",
+        "opaque_label": "O2",
+        "overall": "ACCEPT",
+        "original_judgment_sha256": "d1d60a803640ef496821a211850aadf9b52ddffa650fc75aa6c2b28509a15df5"
+      }
+    },
+    {
+      "cell": "t05",
+      "role": "task-reviewer-b",
+      "variant": "b-gap",
+      "repetition": 2,
+      "original_final_message_sha256": "f5b5d0826c114ba2d18ac464a80e860d8b1f2902ce1fb063bd15e24ba7f8a73c",
+      "transformation": "Only two top-level experimental correlation fields replaced by explicit redaction markers; all review content unchanged.",
+      "output": {
+        "schema": "task-reviewer-b/v1",
+        "stage": "task",
+        "role": "task-reviewer-b",
+        "feature": "birch-access-export",
+        "attempt": 3,
+        "round": 1,
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "manifest": {
+          "allowed_inputs": [
+            {
+              "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+              "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+            },
+            {
+              "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+              "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+            },
+            {
+              "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+              "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+            },
+            {
+              "path": "reports/task-review/birch-access-export/attempt-3/round-1/integrated-summary.json",
+              "sha256": "f4d6ac1984094e587e8ebdc15b42481af0b7a5833bc43fbd0c302324b415232d"
+            },
+            {
+              "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+              "sha256": "78c4bf7f59be85f7dac3f844758e1b64f66a0719427868bd95bf7b6aed3ea2a1"
+            },
+            {
+              "path": "specs/birch-access-export/acceptance-tests.md",
+              "sha256": "ce35543d94237bddd76f476f10b01a32c27d0dd1948a774f09cb54a46ce9a66c"
+            },
+            {
+              "path": "specs/birch-access-export/design.md",
+              "sha256": "27a91b2c7e6b843f66b6374d99d11f73afc73108edd124678ec4f420b9c591f7"
+            },
+            {
+              "path": "specs/birch-access-export/frontend-spec.md",
+              "sha256": "c6b0f2f5666a0e318d909d2e907dfb3a7be3a6f90de0712ebccdb613c343faf7"
+            },
+            {
+              "path": "specs/birch-access-export/infra-spec.md",
+              "sha256": "d47251bbf5da3d6a66d2231180bb2381b2dd0ab0543ed5e7fb92582a1747e43d"
+            },
+            {
+              "path": "specs/birch-access-export/requirements.md",
+              "sha256": "981f336fd85ff96e101ce0cf90cd5545f10f6abf00ab8bbdfd652edf6d53eda6"
+            },
+            {
+              "path": "specs/birch-access-export/security-spec.md",
+              "sha256": "133fe97cc1de196e68aa0e89ce824354cec46069caf308f48b76aa624334662c"
+            },
+            {
+              "path": "specs/birch-access-export/tasks.md",
+              "sha256": "db8429e0bc13aacbbb8dcf1f72481705c2518a0026a0c0ddb70bb8fabe765c9e"
+            },
+            {
+              "path": "specs/birch-access-export/traceability.md",
+              "sha256": "1c522fa2b402d7c56ee276b9c89bf7c3982be049df03fb13d58f7e30981d6a93"
+            },
+            {
+              "path": "specs/birch-access-export/ux-spec.md",
+              "sha256": "4cf8307f75ebaf47bf135bb8cf57f0b787dcb28bdb4bb03b87315cc68c63b10d"
+            }
+          ]
+        },
+        "verdict": "BLOCKED",
+        "checks": [
+          {
+            "id": "RISK-APPROPRIATE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-001 (Risk: high) adds an authorization decision and a new externally visible GET /exports API (Goal/Scope, Risk Rationale; REQ-001), matching the high sentinel surfaces in risk-classification-policy.md. T-002 (Risk: low) is documentation-only (docs/export-runbook.md), appropriately low. No issues found."
+          },
+          {
+            "id": "HIGH-CRITICAL-EVIDENCE",
+            "result": "FAIL",
+            "severity": "Critical",
+            "finding": "T-001 is Risk: high. Its Done When has Red→Green evidence (item 2) but no item records an independent review verdict from a named second reviewer who is not the implementing agent. The three items cover pytest output, Red/Green checkpoints and the rollback command only. The rollback field and Required Workflow: tdd do not substitute for this item. See the finding below."
+          },
+          {
+            "id": "TASK-SIZE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-001 is one coherent unit: the route, policy and repository, and the integration test, all for the single endpoint. It has 3 Done When items. T-002 is a single runbook file with 1 Done When item. Neither is oversized, and there is no fragmentation. No issues found."
+          },
+          {
+            "id": "EDGE-CASE-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "AC-001 includes 401 and 403 with zero repository reads. AC-003 includes the invalid limits 0, 501, fractional and nonnumeric, all returning 400. AC-002 requires 401/403/400 examples. Every functional AC has error-path coverage. No issues found."
+          },
+          {
+            "id": "TEST-TYPE-MATCH",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "TEST-001 and TEST-003 are declared integration tests spanning route, policy and repository (tests/integration/test_export_route.py), so at least two components are involved. TEST-002 is a documentation acceptance test that references AC-002. No issues found."
+          },
+          {
+            "id": "ROLLBACK-PLAN",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-001 has a Rollback: field (disable EXPORT_ROUTE_ENABLED, local assertion that existing endpoints are unchanged). Done When item 3 records the rollback command and output. This matches infra-spec.md#feature-flag. No issues found."
+          },
+          {
+            "id": "SCOPE-DISJOINT",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-001 owns src/export_*.py and tests/integration/test_export_route.py. T-002 owns docs/export-runbook.md only. The files are disjoint, so there is no overlap."
+          },
+          {
+            "id": "DEPENDENCY-OVERLAP",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-002 is blocked by T-001, and the dependency is genuine. The runbook consumes T-001's recorded response evidence (T-002 Scope; design.md#delivery; REQ-002). T-001 has no blockers and none are missing. No issues found."
+          },
+          {
+            "id": "BUGFIX-DIAGNOSTIC-PATH",
+            "result": "SKIP",
+            "severity": "Major",
+            "finding": "SKIP: no bugfix or debugging task in scope."
+          }
+        ],
+        "findings": [
+          {
+            "check_id": "HIGH-CRITICAL-EVIDENCE",
+            "severity": "Critical",
+            "task_id": "T-001",
+            "finding": "tasks.md T-001 (Risk: high, Required Workflow: tdd) has three Done When items: pytest output, Red→Green checkpoint, and rollback command. No item requires an independent review verdict recorded by a named second reviewer other than the implementing agent. This is mandatory for high-risk tasks per the check definition and the risk-gate-matrix.md 'independent-review verdict' row. The task covers an authorization decision and a cross-tenant exposure surface (REQ-001, AC-001). Without the item, the quality gate cannot confirm independent review, which is a hard policy violation. Add a Done When item recording an independent review verdict by a named reviewer."
+          }
+        ]
+      },
+      "independent_judgment": {
+        "batch": "J4",
+        "opaque_label": "O1",
+        "overall": "ACCEPT",
+        "original_judgment_sha256": "d1d60a803640ef496821a211850aadf9b52ddffa650fc75aa6c2b28509a15df5"
+      }
+    },
+    {
+      "cell": "t06",
+      "role": "task-reviewer-a",
+      "variant": "clean",
+      "repetition": 2,
+      "original_final_message_sha256": "521d78a52b1dcf2bb5f5159ff018bc3d54bc713d36e7abfe4cd93b4c3c24c4e6",
+      "transformation": "Only two top-level experimental correlation fields replaced by explicit redaction markers; all review content unchanged.",
+      "output": {
+        "schema": "task-reviewer-a/v1",
+        "stage": "task-review",
+        "role": "reviewer-a",
+        "feature": "birch-access-export",
+        "attempt": 3,
+        "round": 1,
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "manifest": [
+          {
+            "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+            "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+          },
+          {
+            "path": "reports/task-review/birch-access-export/attempt-3/round-1/dependency-graph.json",
+            "sha256": "a82bfff18bc20b3ffd85a17849a26571b1f6382dcd0382ff0eda55d1135c7ef4"
+          },
+          {
+            "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+            "sha256": "6e777cff90a79dbfec71ffe97b124b7f197b179acde9c32399b5a4c77ac4b370"
+          },
+          {
+            "path": "specs/birch-access-export/acceptance-tests.md",
+            "sha256": "ce35543d94237bddd76f476f10b01a32c27d0dd1948a774f09cb54a46ce9a66c"
+          },
+          {
+            "path": "specs/birch-access-export/design.md",
+            "sha256": "27a91b2c7e6b843f66b6374d99d11f73afc73108edd124678ec4f420b9c591f7"
+          },
+          {
+            "path": "specs/birch-access-export/frontend-spec.md",
+            "sha256": "c6b0f2f5666a0e318d909d2e907dfb3a7be3a6f90de0712ebccdb613c343faf7"
+          },
+          {
+            "path": "specs/birch-access-export/infra-spec.md",
+            "sha256": "d47251bbf5da3d6a66d2231180bb2381b2dd0ab0543ed5e7fb92582a1747e43d"
+          },
+          {
+            "path": "specs/birch-access-export/requirements.md",
+            "sha256": "981f336fd85ff96e101ce0cf90cd5545f10f6abf00ab8bbdfd652edf6d53eda6"
+          },
+          {
+            "path": "specs/birch-access-export/security-spec.md",
+            "sha256": "133fe97cc1de196e68aa0e89ce824354cec46069caf308f48b76aa624334662c"
+          },
+          {
+            "path": "specs/birch-access-export/tasks.md",
+            "sha256": "8bfc27238e6f5c97daebc833fe524eab4efde1ccac465beda9e00a9921a26c89"
+          },
+          {
+            "path": "specs/birch-access-export/traceability.md",
+            "sha256": "1c522fa2b402d7c56ee276b9c89bf7c3982be049df03fb13d58f7e30981d6a93"
+          },
+          {
+            "path": "specs/birch-access-export/ux-spec.md",
+            "sha256": "4cf8307f75ebaf47bf135bb8cf57f0b787dcb28bdb4bb03b87315cc68c63b10d"
+          }
+        ],
+        "verdict": "PASS",
+        "checks": [
+          {
+            "id": "PREREQ-AC-IDS",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "tasks.md references AC-001, AC-003 (T-001) and AC-002 (T-002). All three exist in acceptance-tests.md. No dangling IDs."
+          },
+          {
+            "id": "BLOCKERS-FORMAT",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001 has 'Blockers: None' and T-002 has 'Blockers: T-001'. Both are valid formats. This matches precheck blockers_format_valid=true. blockers_format_valid is true."
+          },
+          {
+            "id": "REQ-COVERAGE",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "REQ-001 is covered by T-001 and REQ-002 by T-002 in their Requirements fields. requirements.md defines only these two."
+          },
+          {
+            "id": "AC-COVERAGE",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "AC-001 and AC-003 are in T-001 Requirements, with TEST-001 and TEST-003. AC-002 is in T-002 Requirements, with TEST-002. All three ACs are covered."
+          },
+          {
+            "id": "ORPHAN-TASK",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001 references REQ-001 and T-002 references REQ-002. No orphan tasks."
+          },
+          {
+            "id": "ORPHAN-TEST",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001 includes integration tests and cites AC-001 and AC-003. T-002 is a documentation task that cites AC-002. No test task lacks an AC reference."
+          },
+          {
+            "id": "INITIAL-STATE",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "The package is declared a post-implementation provenance re-review. T-001 is 'Approved' / 'In Progress' and T-002 is 'Approved' / 'Planned'. All of these values are valid under the re-review rule. The Approved values are accepted as synthetic fixture values per the wrapper."
+          },
+          {
+            "id": "RISK-WORKFLOW-FORMAT",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "T-001 is Risk high with Required Workflow tdd. T-002 is Risk low with Required Workflow test-after. Both pairings match the risk-gate matrix. Precheck workflow_match_precheck=PASS."
+          },
+          {
+            "id": "NO-DUPLICATE-AC",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "AC-001 and AC-003 are claimed only by T-001, and AC-002 only by T-002. No AC is claimed by more than one task."
+          },
+          {
+            "id": "DEPENDENCY-COMPLETE",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-002 blocks on T-001, which exists. dependency-graph.json nodes are T-001 and T-002."
+          },
+          {
+            "id": "DEPENDENCY-CYCLE",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "BLOCKERS-FORMAT passed. The only edge in dependency-graph.json is T-002 -> T-001, so there is no cycle."
+          },
+          {
+            "id": "SINGLE-CONCERN",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001 covers the route, policy and repository for one endpoint, plus its integration tests. T-002 covers only the runbook. Neither task combines distinct feature concerns."
+          },
+          {
+            "id": "OBSERVABLE-DONE",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "Every Done When item names an inspectable artifact. T-001 names the pytest command and output in reports/implementation/birch-access-export/T-001.md. It also names the Red-then-Green checkpoint record, the named second-reviewer verdict, and the rollback command and output. T-002 names the four runbook sections, the 200/401/403/400 examples, and the TEST-002 result in T-002.md. precheck frozen_artifact_done_when is empty, so no flagged items need individual treatment. No Done When item edits a frozen artifact, since all evidence goes to reports/implementation. Advisory: T-002's wording 'each checked against T-001's recorded evidence' is slightly loose, but the TEST-002 result artifact makes it inspectable."
+          },
+          {
+            "id": "TRACEABILITY-SYNC",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "traceability.md maps REQ-001 to T-001 and REQ-002 to T-002. Both REQs exist in requirements.md, and both task IDs are covered. Every layer anchor resolves: security-spec.md#authorization, infra-spec.md#feature-flag, ux-spec.md#request-flow, frontend-spec.md#api-client, design.md#architecture and design.md#delivery. The delivery-status cells hold the valid values 'In Progress' and 'Planned'."
+          }
+        ],
+        "findings": []
+      },
+      "independent_judgment": {
+        "batch": "J1",
+        "opaque_label": "O2",
+        "overall": "ACCEPT",
+        "original_judgment_sha256": "8f3a42996ea0eb9d713e038aa7676315cfe85ada598758cd7622b59d84c84ebe"
+      }
+    },
+    {
+      "cell": "t07",
+      "role": "task-reviewer-b",
+      "variant": "clean",
+      "repetition": 2,
+      "original_final_message_sha256": "c2f07885253e1975c39e898a2b33792f85433eade2e3cb0822430384750ea188",
+      "transformation": "Only two top-level experimental correlation fields replaced by explicit redaction markers; all review content unchanged.",
+      "output": {
+        "schema": "task-reviewer-b/v1",
+        "stage": "task",
+        "role": "task-reviewer-b",
+        "feature": "birch-access-export",
+        "attempt": 3,
+        "round": 1,
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "manifest": {
+          "allowed_inputs": [
+            {
+              "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+              "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+            },
+            {
+              "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+              "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+            },
+            {
+              "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+              "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+            },
+            {
+              "path": "reports/task-review/birch-access-export/attempt-3/round-1/integrated-summary.json",
+              "sha256": "f4d6ac1984094e587e8ebdc15b42481af0b7a5833bc43fbd0c302324b415232d"
+            },
+            {
+              "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+              "sha256": "6e777cff90a79dbfec71ffe97b124b7f197b179acde9c32399b5a4c77ac4b370"
+            },
+            {
+              "path": "specs/birch-access-export/acceptance-tests.md",
+              "sha256": "ce35543d94237bddd76f476f10b01a32c27d0dd1948a774f09cb54a46ce9a66c"
+            },
+            {
+              "path": "specs/birch-access-export/design.md",
+              "sha256": "27a91b2c7e6b843f66b6374d99d11f73afc73108edd124678ec4f420b9c591f7"
+            },
+            {
+              "path": "specs/birch-access-export/frontend-spec.md",
+              "sha256": "c6b0f2f5666a0e318d909d2e907dfb3a7be3a6f90de0712ebccdb613c343faf7"
+            },
+            {
+              "path": "specs/birch-access-export/infra-spec.md",
+              "sha256": "d47251bbf5da3d6a66d2231180bb2381b2dd0ab0543ed5e7fb92582a1747e43d"
+            },
+            {
+              "path": "specs/birch-access-export/requirements.md",
+              "sha256": "981f336fd85ff96e101ce0cf90cd5545f10f6abf00ab8bbdfd652edf6d53eda6"
+            },
+            {
+              "path": "specs/birch-access-export/security-spec.md",
+              "sha256": "133fe97cc1de196e68aa0e89ce824354cec46069caf308f48b76aa624334662c"
+            },
+            {
+              "path": "specs/birch-access-export/tasks.md",
+              "sha256": "8bfc27238e6f5c97daebc833fe524eab4efde1ccac465beda9e00a9921a26c89"
+            },
+            {
+              "path": "specs/birch-access-export/traceability.md",
+              "sha256": "1c522fa2b402d7c56ee276b9c89bf7c3982be049df03fb13d58f7e30981d6a93"
+            },
+            {
+              "path": "specs/birch-access-export/ux-spec.md",
+              "sha256": "4cf8307f75ebaf47bf135bb8cf57f0b787dcb28bdb4bb03b87315cc68c63b10d"
+            }
+          ]
+        },
+        "verdict": "PASS",
+        "checks": [
+          {
+            "id": "RISK-APPROPRIATE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "tasks.md T-001 touches authorization and an externally visible API (Risk Rationale: cross-tenant exposure) and is declared Risk: high with Required Workflow: tdd. That matches the sentinel surfaces in risk-classification-policy.md. T-002 is documentation-only (docs/export-runbook.md, no source or spec changes) and is declared Risk: low with test-after, which is correctly sized and not over-classified. Round 1: no prior summary beyond the reviewer-A check list."
+          },
+          {
+            "id": "HIGH-CRITICAL-EVIDENCE",
+            "result": "PASS",
+            "severity": "Critical",
+            "finding": "T-001 is the only high-risk task. Its Done When has Red→Green evidence (item 2: the failing-test checkpoint commit recorded before implementation, then the passing output). It also has an independent review verdict by a named second reviewer distinct from the implementer (item 3). No task is critical, so the second-approver and signed-bundle items do not apply. T-002 is low risk and needs none of this."
+          },
+          {
+            "id": "TASK-SIZE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-001 is one coherent unit: the route, the policy and the repository call, plus one integration test file, all on a single endpoint boundary. Its Done When has 4 items, under the limit of 8. T-002 is a single runbook file with one Done When item. There is no fragmentation: neither task is a single-function edit or a rename."
+          },
+          {
+            "id": "EDGE-CASE-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "The functional task T-001 maps to AC-001 and AC-003. AC-001 covers 401 for no credentials, 403 for missing permission, zero repository reads on denial, and cross-tenant exclusion. AC-003 covers the limit boundaries 1 and 500 and the error inputs 0, 501, fractional and nonnumeric (all 400 with no reads). Error-path coverage is present. T-002 (AC-002) is documentation and includes 401/403/400 examples."
+          },
+          {
+            "id": "TEST-TYPE-MATCH",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "TEST-001 and TEST-003 are declared integration tests. They run in tests/integration/test_export_route.py across the route, policy and a disposable tenant repository, which is at least two components (design.md Validation). TEST-002 is declared a documentation acceptance test and references AC-002 explicitly. All declared types match their scope."
+          },
+          {
+            "id": "ROLLBACK-PLAN",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-001 (high) has an explicit Rollback: field. It disables EXPORT_ROUTE_ENABLED and runs a local fixture assertion that the new route is unavailable while existing endpoints are unchanged. Done When item 4 records the command and output. infra-spec.md#feature-flag is consistent with this (the flag defaults to false). T-002 is low risk and needs no rollback."
+          },
+          {
+            "id": "SCOPE-DISJOINT",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-001 owns src/export_route.py, src/export_policy.py, src/export_repository.py, tests/integration/test_export_route.py and reports/.../T-001.md. T-002 owns docs/export-runbook.md and reports/.../T-002.md. No file is shared, and T-002 explicitly changes no endpoint source or frozen specification."
+          },
+          {
+            "id": "DEPENDENCY-OVERLAP",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "T-002 is blocked by T-001. This is a genuine dependency: T-002's scope consumes the exact response evidence that T-001 produces (REQ-002 'Use output examples from the endpoint verification evidence'; design.md Delivery). T-001 has Blockers: None and needs no upstream output. No spurious or missing blockers were found."
+          },
+          {
+            "id": "BUGFIX-DIAGNOSTIC-PATH",
+            "result": "SKIP",
+            "severity": "Major",
+            "finding": "SKIP: no bugfix or debugging task in scope."
+          }
+        ],
+        "findings": []
+      },
+      "independent_judgment": {
+        "batch": "J3",
+        "opaque_label": "O1",
+        "overall": "ACCEPT",
+        "original_judgment_sha256": "669ca532f65ce24115f956e6e1e94614822c712d8546e2782dd40f1e957986e8"
+      }
+    },
+    {
+      "cell": "t08",
+      "role": "task-reviewer-a",
+      "variant": "a-gap",
+      "repetition": 2,
+      "original_final_message_sha256": "08efb7d2dba9646f7618071dcdf188382f45ac043cba0add8d22ab52b50822a0",
+      "transformation": "Only two top-level experimental correlation fields replaced by explicit redaction markers; all review content unchanged.",
+      "output": {
+        "schema": "task-reviewer-a/v1",
+        "stage": "task-review",
+        "role": "reviewer-a",
+        "feature": "birch-access-export",
+        "attempt": 3,
+        "round": 1,
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "manifest": [
+          {
+            "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+            "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+          },
+          {
+            "path": "reports/task-review/birch-access-export/attempt-3/round-1/dependency-graph.json",
+            "sha256": "a82bfff18bc20b3ffd85a17849a26571b1f6382dcd0382ff0eda55d1135c7ef4"
+          },
+          {
+            "path": "reports/task-review/birch-access-export/attempt-3/round-1/precheck-result.json",
+            "sha256": "047e620f60de5f54d6ba17c7835e3cc5c0a26a04559e45177e4f68c36547aca2"
+          },
+          {
+            "path": "specs/birch-access-export/acceptance-tests.md",
+            "sha256": "ce35543d94237bddd76f476f10b01a32c27d0dd1948a774f09cb54a46ce9a66c"
+          },
+          {
+            "path": "specs/birch-access-export/design.md",
+            "sha256": "27a91b2c7e6b843f66b6374d99d11f73afc73108edd124678ec4f420b9c591f7"
+          },
+          {
+            "path": "specs/birch-access-export/frontend-spec.md",
+            "sha256": "c6b0f2f5666a0e318d909d2e907dfb3a7be3a6f90de0712ebccdb613c343faf7"
+          },
+          {
+            "path": "specs/birch-access-export/infra-spec.md",
+            "sha256": "d47251bbf5da3d6a66d2231180bb2381b2dd0ab0543ed5e7fb92582a1747e43d"
+          },
+          {
+            "path": "specs/birch-access-export/requirements.md",
+            "sha256": "981f336fd85ff96e101ce0cf90cd5545f10f6abf00ab8bbdfd652edf6d53eda6"
+          },
+          {
+            "path": "specs/birch-access-export/security-spec.md",
+            "sha256": "133fe97cc1de196e68aa0e89ce824354cec46069caf308f48b76aa624334662c"
+          },
+          {
+            "path": "specs/birch-access-export/tasks.md",
+            "sha256": "81a69d76477ec05c47c42031e73825538bb3544a08e1aedbf7204a7b5df10efe"
+          },
+          {
+            "path": "specs/birch-access-export/traceability.md",
+            "sha256": "884c84955ec28d39dac9bafb1e6fe6c0d1c2b9b3fdff75ed6cc77dfcfaf70598"
+          },
+          {
+            "path": "specs/birch-access-export/ux-spec.md",
+            "sha256": "4cf8307f75ebaf47bf135bb8cf57f0b787dcb28bdb4bb03b87315cc68c63b10d"
+          }
+        ],
+        "verdict": "BLOCKED",
+        "checks": [
+          {
+            "id": "PREREQ-AC-IDS",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "tasks.md references AC-001 (T-001) and AC-002 (T-002); both exist in acceptance-tests.md. No dangling IDs."
+          },
+          {
+            "id": "BLOCKERS-FORMAT",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001 Blockers: None; T-002 Blockers: T-001. Both valid. blockers_format_valid is true (precheck-result.json)."
+          },
+          {
+            "id": "REQ-COVERAGE",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "REQ-001 is in T-001 Requirements; REQ-002 is in T-002 Requirements. Both requirements in requirements.md are covered."
+          },
+          {
+            "id": "AC-COVERAGE",
+            "status": "FAIL",
+            "severity": "Critical",
+            "finding": "AC-003 (Limit boundary, TEST-003) in acceptance-tests.md is not referenced by any task. T-001 lists only AC-001/TEST-001 and T-002 only AC-002/TEST-002. traceability.md has no AC-003 row or deferral entry. The limit-boundary cases (1 and 500 succeed; 0, 501, fractional and nonnumeric return 400 with no repository reads) have no planned test task or Done When evidence."
+          },
+          {
+            "id": "ORPHAN-TASK",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001 references REQ-001 and T-002 references REQ-002."
+          },
+          {
+            "id": "ORPHAN-TEST",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "Neither task title contains test/spec/verify, and neither is exclusively test-file changes. T-001 also implements source files. T-002 is a runbook. Each still cites an AC (AC-001, AC-002)."
+          },
+          {
+            "id": "INITIAL-STATE",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "Post-implementation provenance re-review. T-001 is Approved / In Progress and T-002 is Approved / Planned. Both are valid lifecycle values under the re-review rule."
+          },
+          {
+            "id": "RISK-WORKFLOW-FORMAT",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "T-001 is high/tdd and T-002 is low/test-after. Both match the risk-gate-matrix. workflow_match_precheck is PASS."
+          },
+          {
+            "id": "NO-DUPLICATE-AC",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "AC-001 is claimed only by T-001 and AC-002 only by T-002. No duplicates."
+          },
+          {
+            "id": "DEPENDENCY-COMPLETE",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "The only blocker reference is T-002 -> T-001, and T-001 exists. dependency-graph.json nodes are T-001 and T-002."
+          },
+          {
+            "id": "DEPENDENCY-CYCLE",
+            "status": "PASS",
+            "severity": "Critical",
+            "finding": "The only edge is T-002 -> T-001. There is no cycle."
+          },
+          {
+            "id": "SINGLE-CONCERN",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001 covers the endpoint, its policy and repository call, and the integration test for that route. That is one concern with directly tied test work. T-002 covers the runbook only."
+          },
+          {
+            "id": "OBSERVABLE-DONE",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001 Done When items name the pytest command with output recorded in reports/implementation/birch-access-export/T-001.md, the Red-then-Green checkpoint record, the second-reviewer verdict record and the rollback command/output record. All are inspectable. T-002 is documentation-only and names docs/export-runbook.md, its four sections and the T-002.md report. precheck frozen_artifact_done_when is empty, so no flagged items need individual treatment. No Done When item edits a frozen artifact."
+          },
+          {
+            "id": "TRACEABILITY-SYNC",
+            "status": "PASS",
+            "severity": "Major",
+            "finding": "T-001 and T-002 both have traceability rows, and REQ-001 and REQ-002 exist in requirements.md. Cited anchors resolve: design.md#architecture and #delivery, security-spec.md#authorization, infra-spec.md#feature-flag, ux-spec.md#request-flow, frontend-spec.md#api-client. The missing AC-003 mapping is reported under AC-COVERAGE and not duplicated here."
+          }
+        ],
+        "findings": [
+          {
+            "check_id": "AC-COVERAGE",
+            "severity": "Critical",
+            "task_id": null,
+            "finding": "AC-003 (Limit boundary, TEST-003) in acceptance-tests.md is not traceable to any task. tasks.md T-001 has Requirements: REQ-001, AC-001 and Test IDs: TEST-001. T-002 has REQ-002, AC-002 and TEST-002. traceability.md maps only AC-001 and AC-002 and has no deferral for AC-003. The limit-boundary behavior (limits 1 and 500 succeed; 0, 501, a fractional number and a nonnumeric string return 400 with zero repository reads) has no planned test or evidence, even though REQ-001 requires it. An implementer could finish both tasks without a failing-then-passing limit-boundary test. Critical under the AC-COVERAGE severity."
+          }
+        ]
+      },
+      "independent_judgment": {
+        "batch": "J2",
+        "opaque_label": "O1",
+        "overall": "ACCEPT",
+        "original_judgment_sha256": "6e3c317d513914c8065991c1d51c34a661543d46b42f8d3edf6129db884c90ce"
+      }
+    }
+  ]
+}
