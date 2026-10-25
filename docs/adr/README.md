@@ -268,6 +268,7 @@ must never rely on a bare legacy number.
 | 0038 | [Role policy with live model availability and immutable run selection](0038-current-model-role-policy.md) | Proposed |
 | 0039 | [Verification measurement is passive observation joined by reference](0039-run-measurement-observation-ownership.md) | Proposed |
 | 0040 | [Project skills supply execution methods; obligations and verdicts stay put](0040-project-skill-observation-ownership.md) | Proposed |
+| 0041 | [External Source/Claim research evidence contract](0041-research-evidence-contract.md) | Proposed |
 
 ## Cloud orchestration implementation reference
 

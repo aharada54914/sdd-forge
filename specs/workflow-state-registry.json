@@ -461,6 +461,10 @@
     {
       "feature": "project-skill-observation",
       "profile": "full"
+    },
+    {
+      "feature": "research-evidence",
+      "profile": "full"
     }
   ]
 }

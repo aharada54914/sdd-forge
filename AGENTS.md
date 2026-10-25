@@ -157,6 +157,8 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - `specs/verification-measurement/`
 - `specs/project-skill-observation/`
 
+- `specs/research-evidence/`
+
 ## Source Artifact Locations
 
 - `specs/<feature>/requirements.md`
