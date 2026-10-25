@@ -1,0 +1,14 @@
+{
+  "current_binding_files_checked": 192,
+  "all_match": true,
+  "archived_documents_preserved_prefix": true,
+  "ci_copy_pins_match": true,
+  "reviewed_paths": {
+    "specs/a9-interrupted-review-recovery/verification/T-001/current-binding.json": "986c0ab227c92828d48e1b377e49be1dc7e595f251015c6b91a0230e3533e22a",
+    "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/reconciliation-receipt.json": "b837619526eab58fcf205599af2e1f0eef9ce4390db58b2e975563e3d0124da6",
+    "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/validation.json": "51974c2d62556161bcb03833bb2549e82dbba1df63204908f330c1b5d2543f74",
+    "reports/implementation/a9-interrupted-review-recovery/T-001.md": "42f5edf92aa1574300bc44cb5ee70579e7b9d8e9ed3341418fb5bbc9b02213a8",
+    "specs/a9-interrupted-review-recovery/verification/T-001.md": "af97dea9cb7ea323135a28f27f178e6ea5cf341c0b6368e2a12f355f08b62c9e",
+    "specs/a9-interrupted-review-recovery/tasks.md": "adf5c5c5d5cc9451a742aa348cf6d9c931940fc5e83e012383c3971986c706d8"
+  }
+}

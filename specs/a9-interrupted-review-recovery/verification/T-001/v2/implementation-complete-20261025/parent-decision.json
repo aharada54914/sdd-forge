@@ -1,0 +1,40 @@
+{
+  "recorded_at": "2026-10-25T04:28:04.022820+00:00",
+  "actor": "/root/a9_impl_live_prepare ordinary Work/Codex",
+  "decision_owner": "/root parent",
+  "decision": "Accept independent bounded IC-readiness review and record T001 Implementation Complete; authorize T002 start on that dependency",
+  "parent_instruction_quote": "Parent accepts independent IC-readiness REVIEW SHA bbebdaf3c1d20477f0206cb67bf8c998c1401c075b60e680e702dda8987f3266 under user's explicit priorreview-order exception. Record T001 Implementation Complete (ONLY normalized T001Status, neverDone/Passed).",
+  "origin": "Actual parent task message delivered in this collaboration session, executing existing user authorization; not a newly invented human approval or native receipt",
+  "review": {
+    "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/REVIEW.md",
+    "sha256": "bbebdaf3c1d20477f0206cb67bf8c998c1401c075b60e680e702dda8987f3266"
+  },
+  "exception_provenance": {
+    "source": "Existing user prior-review-order exception as explicitly reaffirmed by parent instruction; earlier readiness note corroborates at lines52\u201355",
+    "retained_note": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/prior-exception-readiness.md",
+    "sha256": "3394229772772d99e070b41eb3724ff65bf6d9431ae23a675d65b06934eed3f7",
+    "limitation": "Original user-turn UTC/message identifier was not supplied in this task; none invented. This receipt records parent acceptance, not a new user event."
+  },
+  "original_task_approval": {
+    "path": "specs/a9-interrupted-review-recovery/verification/T-001/task-implementation-approval-receipt.json",
+    "sha256": "3b5a4966deaddf6c6ba267c52c09531a668c5bb51f3428b971eec7b4f84452c0"
+  },
+  "task_path": "specs/a9-interrupted-review-recovery/tasks.md",
+  "before_sha256": "adf5c5c5d5cc9451a742aa348cf6d9c931940fc5e83e012383c3971986c706d8",
+  "after_sha256": "620e06b4494a7731a29a38fbb8e95be2d0f7b657eccbfc77bcad486bb7a3a84d",
+  "mutation": "Only T001 Status: In Progress -> Implementation Complete",
+  "unchanged": [
+    "all approval fields",
+    "historical Task-Review-Status",
+    "T002/T003 statuses",
+    "approved v2 body",
+    "frozen specs",
+    "private ledger"
+  ],
+  "limits": [
+    "No Done or new formal PASS",
+    "Formal implementation/task provenance and quality remain pending",
+    "Historical CI does not validate combined current HEAD",
+    "No live AUTH001/recovery/A9 activation"
+  ]
+}

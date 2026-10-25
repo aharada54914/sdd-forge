@@ -1,0 +1,51 @@
+{
+  "actor": "ordinary Work/Codex /root/a9_impl_live_prepare",
+  "run_label": "work-a9-t001-evidence-reconciliation-20261025",
+  "observed_at": "2026-10-25T04:25:27.350966+00:00",
+  "registered_root_head": "b00d7e242f07b042daabd9a4ff8017110c6aab9b",
+  "ci_head": "563006ccd9d6a265c7a00f0ad629e421c0c98958",
+  "ci_tested_revision": "8739d4b70a3e7e32b85c1c865180155724fd0d89",
+  "ci_run_id": 40090187421,
+  "ci_conclusion": "success",
+  "ci_obligations": {
+    "PASS": 449,
+    "EXPECTED_SKIP": 1
+  },
+  "source_six_pins_match": true,
+  "frozen_spec_pins_match": true,
+  "task_v2_exact_reverse_patch_check_exit": 0,
+  "task_sha256": "adf5c5c5d5cc9451a742aa348cf6d9c931940fc5e83e012383c3971986c706d8",
+  "preexisting_binding_drift": [
+    {
+      "path": "specs/a9-interrupted-review-recovery/tasks.md",
+      "previous_sha256": "68198040940bf591c595875a7964f47ab27ff3d4df006686f20a04dff0ea1c1d",
+      "current_sha256": "adf5c5c5d5cc9451a742aa348cf6d9c931940fc5e83e012383c3971986c706d8"
+    },
+    {
+      "path": "specs/workflow-state-registry.json",
+      "previous_sha256": "61f0dd430daa8938a60a7b66460e81388a872ed91b8830795f1dbcb2c2db7a9b",
+      "current_sha256": "d54a012c5164ae8859aa5e235002564930d2908a6c1f532f0538b53a6872e9d9"
+    }
+  ],
+  "preserved_prior_documents": {
+    "prior-implementation-report.md": "74ede059a50243dd53ac227736e727d6730c58b303f556617fa670a77f0a46bb",
+    "prior-verification-addendum.md": "7447f233580d69ca56084dc84b720b1fbd9f49c87411bc22cd5b57bc6b7a33e8",
+    "prior-current-binding.json": "8b8a319c4c0daaedaef5c6ff4b1c0153e56901b2eb7bc44b339b01d7a536772f"
+  },
+  "copied_ci_evidence": {
+    "final-success-summary.json": "f7c57e279294bda116c373d43828bcde9f6c49cb862ad60550e2257f5425d855",
+    "evidence-manifest.json": "512607eed94c884f63ce5fd0f3b8bde3c967a3fde2315131d8c9bf86d60c213b",
+    "source-six-pins.json": "dd5935171c5197abb1399af913d5d2a2c431b5c1201dde28a53969b3e60920d1",
+    "verified-execution-origins.json": "495b8b0d49bbdd1b981a2024b2e3af354b188a9da6378b041e2becd4b562e5de",
+    "aggregate-success.json": "6a41dc74df4b3aebb3ea7f2443217d37710e843b0c04c80c5ededdaa8b18078a",
+    "run-final.json": "4aebe700df4e0e34833882c8cfe67db8bd268660e2d871b93752e6600ba93a67",
+    "macos-native-suite-proof.json": "ad3dcbe6a957e1cf5eb44d459b95d81f92af5f6b7fd0836219afbd7d882fb6dc",
+    "ubuntu-native-suite-proof.json": "bf2532a70f01a1a36f6f7104875383353711a8ee6a323c8a9e953c1fa97cc8b9",
+    "windows-native-suite-proof.json": "15cfcb0d1678b9653046805bb53b5a3c849ab4d3905da97bd29063de17d15927"
+  },
+  "limits": [
+    "CI applies to563006cc/tested8739d4b7, not combined current HEAD",
+    "No new broad suite execution",
+    "No formal review PASS, status promotion, private ledger content access or live recovery"
+  ]
+}

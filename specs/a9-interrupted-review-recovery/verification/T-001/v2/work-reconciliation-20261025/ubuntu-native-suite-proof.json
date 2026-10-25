@@ -1,0 +1,61 @@
+{
+  "head": "563006ccd9d6a265c7a00f0ad629e421c0c98958",
+  "base": "1c95ede8cee678159b4983f25e4a43298d8d1e8c",
+  "tested_revision": "8739d4b70a3e7e32b85c1c865180155724fd0d89",
+  "tested_tree": "06377d3adfb584a3a523b1dbc7b83b3b539acb10",
+  "run_id": 40090187421,
+  "attempt": 1,
+  "plan_sha256": "a8af1ef6035e79996e4d959660eb22ec181abee1b1fc51f316d4aaad4343d0a2",
+  "catalog_sha256": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317",
+  "job_id": 120861207382,
+  "job_name": "test (ubuntu-latest)",
+  "job_conclusion": "success",
+  "runtime": {
+    "architecture": "X64",
+    "executable": "/opt/microsoft/powershell/7/pwsh",
+    "os": "Ubuntu 24.04.5 LTS",
+    "runtime": ".NET 10.0.12",
+    "version": "7.6.6"
+  },
+  "native_named_cases": 731,
+  "native_pass": 731,
+  "native_fail": 0,
+  "suite": {
+    "suite": "tests/spec-review-interrupted-recovery.tests.ps1",
+    "source_sha256": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "status": "passed",
+    "exit_code": 0,
+    "seconds": 460.951759
+  },
+  "artifact_id": 12559272307,
+  "artifact_digest": "sha256:eabb92746d82ea0421c0c31ed105141a697898ff8297c2633b0fc4ff6404a6ab",
+  "receipt_clean_before": true,
+  "receipt_clean_after": true,
+  "all_six_source_pins": {
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "fc41fea4e6c6c3eeb39bb2e9ca4f5f96d7a1a9c70ce78fe47d9934000966b60e",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "88062b265569f02573565aa904d26b4385eea5f4e45b82e4c819732f476752f2",
+    "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "tests/spec-review-interrupted-recovery.tests.sh": "d2f726f7b242563b41a4622320592f610c42d88348ee5e2df8c662b83370de2e",
+    "tests/spec-review-loop.tests.sh": "4bbc3cc63f97e8f954dd2731a8a609656fe1fbf66a80bc900a8a9eb8862ff79b",
+    "tests/verification-catalog.json": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317"
+  },
+  "log_sha256": "37c475e05294746fce80bcd3017f66f95005de068300dacd20b4ad5deb80fc19",
+  "receipt_sha256": "efb584ce038767bc543316dc5032f55f9242ab42eb45a9d288ec5679627e792b",
+  "scope": "Actual exact-head native suite/job success only; full CI/formal acceptance pending.",
+  "native_bash_cases": {
+    "pass": 731,
+    "fail": 0,
+    "same_named_cases_as_pwsh": true,
+    "source": "same exact job native log; separate from powershell receipt"
+  },
+  "portable_steps": [
+    {
+      "name": "[deterministic] Test portable review-loop prechecks (pwsh)",
+      "conclusion": "success"
+    },
+    {
+      "name": "[deterministic] Test portable review-loop prechecks (bash)",
+      "conclusion": "success"
+    }
+  ]
+}

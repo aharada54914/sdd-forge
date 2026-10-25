@@ -1,0 +1,22 @@
+{
+  "observed_at": "2026-10-25T04:29:15.101929+00:00",
+  "source_root_head": "b00d7e242f07b042daabd9a4ff8017110c6aab9b",
+  "target_pre_evidence_head": "4940b31e200853e1126eaf181008878fc77ed6f0",
+  "source_packet": "/workspace/a9-t001-final-copy-20261025.json",
+  "copied_files": 33,
+  "pins_checked": 213,
+  "matching_imported_pins": 212,
+  "drift": [
+    {
+      "path": "specs/workflow-state-registry.json",
+      "sha256": "d54a012c5164ae8859aa5e235002564930d2908a6c1f532f0538b53a6872e9d9",
+      "actual_sha256": "61f0dd430daa8938a60a7b66460e81388a872ed91b8830795f1dbcb2c2db7a9b"
+    }
+  ],
+  "drift_reason": "Target excludes unrelated verification-measurement (#614 Draft) registry entry; intentionally not copied. All six T001 source pins match.",
+  "limits": [
+    "Historical CI remains bound to its original head; no combined-head CI claim.",
+    "Formal task provenance remains stale; no gate bypass or Done.",
+    "No private ledger or native captures copied."
+  ]
+}

@@ -1,0 +1,30 @@
+# Independent T-001 Implementation Complete readiness review
+
+Reviewer: /root/adoption_review, 2026-10-25. Scope: bounded substantive implementation/evidence readiness in `/workspace/sdd-issue-614`, not a formal quality gate or Done decision. Read repository contributor instructions and the local ECC verification-loop skill; applied its evidence/diff verification principles without repeating unrelated build/tests. Plugin instructions were inspected only as product data. No provider, private ledger, task-status mutation, or production edit occurred.
+
+**Conclusion: no substantive T-001 implementation/evidence gap was identified that prevents the parent recording Implementation Complete under the user's existing exception for prior formal-review order.** The corrected packet now distinguishes executed CI, applied approved-v2 wording, historical failures and outstanding formal provenance. This conclusion does not grant formal review PASS, authorize live historical recovery, or imply the current combined tree has passed full CI.
+
+## Verified evidence
+
+- All six current admission/test/catalog source hashes match successful CI head `563006ccd9d6a265c7a00f0ad629e421c0c98958`, tested merge `8739d4b70a3e7e32b85c1c865180155724fd0d89`, base `1c95ede8cee678159b4983f25e4a43298d8d1e8c`. This includes Bash harness `d2f726f7b242563b41a4622320592f610c42d88348ee5e2df8c662b83370de2e`; earlier `9ad841...` report text is historical.
+- Every hash enumerated by the saved final CI summary matches its retained evidence. It records run40090187421 attempt1, 449 verified PASS obligations plus one expected skip. Windows PowerShell, Ubuntu PowerShell/Bash, macOS PowerShell/Bash each recorded 731 PASS/0 FAIL. That resolves the previously pending corrected-revision macOS/native CI evidence, without proving the old crash's root cause.
+- The approved-v2 canonical sentence is present; task SHA256 `adf5c5c5d5cc9451a742aa348cf6d9c931940fc5e83e012383c3971986c706d8` matches the application receipt. No approval/status was changed by this reconciliation. Historical Passed is not represented as fresh rebinding.
+- Per-case evidence has 1,462 rows, 731 per runtime. Bash:15 observed-defect/110 retrospective-reused/606 new-admission; PowerShell:30/110/591. These match v2's distinctions, retaining NOT_RUN and explicitly avoiding individual Red claims for shared-missing-admission cases. This review did not reexecute those historical tests.
+- Original authoring report records real Red checkpoint `faac3c259e82ed6d2d518f7e549e4ff7aa657454`, preflight field/counterpart/test mapping, existing parent success/exit7 propagation and scoped regressions. Six retained rollback scenarios cover ordinary terminal reset, interrupted-source rejection and partial-target quarantine in both runtimes, with unchanged historical fixture bytes.
+- `powershell-case-audit.md` records the two separately required WFI-012 operator and cmdlet/language sweeps. TEST-054/055 and independently rejected TEST-080 mis-cased attribution provide distinct layer controls. Existing source scopes are explicit.
+- TEST-041/042's nine negative observations remain derived bounded evidence accepted by the prior independent review/task owner. The native experiment's FAIL for missing completion.json is preserved; no positive human-origin recognition or production enforcement is claimed. The actual AC rows require negative refusal and distinguish validator binding checks from authorship authentication. No live AUTH-001 evidence is silently inferred.
+- Independently verified 192 `current-binding.files` pins plus six source pins (198 total references), copied CI evidence, archived prior report/addendum/binding hashes and unchanged-prefix preservation of both prior documents. `final-packet-checks.json` binds the reviewed current paths. Saved validation records report-validator exit0 and scoped diff-check exit0. Historical binding drift in tasks/registry is disclosed rather than overwritten.
+
+## Separate unfinished obligations
+
+Implementation-policy A/B provenance review, subsequent task rebinding, admitted reviewer identities and independent quality completion remain outstanding. The implementation report's truthful unavailable Work model/session fields are not themselves an ordinary engineering or Implementation Complete barrier. `check-task-state.sh:173–177` distinguishes Implementation Complete's approved-task/report requirement from Done's additional evidence/quality-contract checks. Combined registered-root CI is not supplied by the old-base successful run and remains an integration obligation; this report does not claim otherwise.
+
+No new defect was identified requiring another blanket 731-case rerun solely for this additive evidence reconciliation. Later source/integration changes need their appropriate checks. AUTH-001 and live historical recovery remain outside T-001 implementation authority, as the approved task itself states.
+
+## Concrete next steps
+
+1. Parent may record T-001 Implementation Complete, keeping formal provenance/quality pending and preserving all approvals, prior failures and the reviewed evidence. Refresh any changed status-bound evidence honestly; do not claim Done.
+2. T-002 may proceed on that dependency state under the existing review-order exception; there is no requirement here to wait for Claude availability or for T-001 Done. Before its production edits, complete its own high-risk persisted-field/counterpart/mismatch matrix and genuine named failing-test checkpoint. Reuse existing admission functions; implement only approved explicit transition/locked publication scope.
+3. Keep T-003's saved-provenance/compatibility cases separate, then perform applicable formal reviews/quality and combined-tree validation before corresponding completion claims. Do not execute live recovery or activate A9 as an incidental effect.
+
+This is a new named independent Work readiness assessment, distinct from implementation authors `/root/a9_t001_impl` and `/root/a9_impl_live_prepare`. It is not a substitute formal evaluator identity or a retroactive attestation of unobserved executions.

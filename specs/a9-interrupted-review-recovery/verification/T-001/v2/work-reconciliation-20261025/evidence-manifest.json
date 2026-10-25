@@ -1,0 +1,269 @@
+{
+  "head": "563006ccd9d6a265c7a00f0ad629e421c0c98958",
+  "base": "1c95ede8cee678159b4983f25e4a43298d8d1e8c",
+  "run_id": 40090187421,
+  "attempt": 1,
+  "scope": "Exact normal native CI and platform evidence; no formal task/quality approval. Final authorized PR body refresh records CI PASS while retaining Draft and criterion-rebinding limits.",
+  "files": [
+    {
+      "path": "aggregate-success.json",
+      "bytes": 101632,
+      "sha256": "6a41dc74df4b3aebb3ea7f2443217d37710e843b0c04c80c5ededdaa8b18078a"
+    },
+    {
+      "path": "artifacts-initial.json",
+      "bytes": 746,
+      "sha256": "bf3a31c91617a40c815c8f7e679bc18b7dce047748007e9d4b2c559d71820f94"
+    },
+    {
+      "path": "artifacts-latest.json",
+      "bytes": 11702,
+      "sha256": "30982ff7c6ff1dd8d65961503fc13e3453534075be0805cf817db9be611cfec8"
+    },
+    {
+      "path": "binding-initial.json",
+      "bytes": 835,
+      "sha256": "3fc6f63c5d5272918b6891d41a9c9470dbe6e890195a96d27c6ac0fdfe2a4ece"
+    },
+    {
+      "path": "collect-platform-proof.py",
+      "bytes": 3046,
+      "sha256": "028b46cf37c9e0a7a9685aee188d9255a4b0e2f44adddf8b9f687dd21f4f821e"
+    },
+    {
+      "path": "comments-final.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "connector-jobs-fallback.json",
+      "bytes": 72331,
+      "sha256": "435b55367d431263f63ae64acb6b088eb75a8ec61002cfbc78ea433db75385ed"
+    },
+    {
+      "path": "connector-runs-fallback.json",
+      "bytes": 347,
+      "sha256": "37142ad2703a33e0f1bfc28409c2e2fc19fc56a57db665375756da840a039926"
+    },
+    {
+      "path": "final-success-summary.json",
+      "bytes": 4319,
+      "sha256": "f7c57e279294bda116c373d43828bcde9f6c49cb862ad60550e2257f5425d855"
+    },
+    {
+      "path": "installer-origins.json",
+      "bytes": 16785,
+      "sha256": "6df63574df6f90851e3356f594a070b1dec0068d78068e6bbd44ca5f776b1065"
+    },
+    {
+      "path": "issue-comments-final.json",
+      "bytes": 6994,
+      "sha256": "4f9a241bfd54936d6ab924c10fd1ff55b73dcecc21bea2a778804e6b2652ce21"
+    },
+    {
+      "path": "jobs-final-candidate.json",
+      "bytes": 193847,
+      "sha256": "a822c36cf959ef5b9001dce02f1428bd7a36026d53fab637acf17e4ea876e753"
+    },
+    {
+      "path": "jobs-final.json",
+      "bytes": 193847,
+      "sha256": "a822c36cf959ef5b9001dce02f1428bd7a36026d53fab637acf17e4ea876e753"
+    },
+    {
+      "path": "jobs-initial.json",
+      "bytes": 81520,
+      "sha256": "35fd73adbbdcc0f8bb3ef1c4f527f1993c00a2fb8ae8202c47a51821b9b31358"
+    },
+    {
+      "path": "macos-native-suite-proof.json",
+      "bytes": 2701,
+      "sha256": "ad3dcbe6a957e1cf5eb44d459b95d81f92af5f6b7fd0836219afbd7d882fb6dc"
+    },
+    {
+      "path": "macos-receipts.zip",
+      "bytes": 1051,
+      "sha256": "1d417aee65abfb691394206372eb78b538fa1e106dfea6f15f98b40606a6eb09"
+    },
+    {
+      "path": "macos-test-success.log",
+      "bytes": 448031,
+      "sha256": "3c67e2872af13d27d9ef05209923b2dc1c2579e341b108fd45eb69b23088cd4f"
+    },
+    {
+      "path": "macos-verification-20.json",
+      "bytes": 2933,
+      "sha256": "e22ea7b2cc7df87e563c2312033d46dea3d74f382b240539b67dee4d1c33cbd3"
+    },
+    {
+      "path": "monitor-error-25.stderr",
+      "bytes": 31,
+      "sha256": "33b0294298d5029730486a8c9671a03841dcf76b0b8afc686b0279a10cb55722"
+    },
+    {
+      "path": "monitor.py",
+      "bytes": 1462,
+      "sha256": "8b609d5ee1a34d83613411bb44eb4651d16602ca43ee19b31f6452818078f77c"
+    },
+    {
+      "path": "plan.json",
+      "bytes": 220862,
+      "sha256": "791e4b2c4afe127082b676b247341c4db6b9805da578e3137a528e2f521fa588"
+    },
+    {
+      "path": "plan.zip",
+      "bytes": 40181,
+      "sha256": "608bc43e3b8f4843cb42cd6e0c1d640d7b318f72d7f4d531da11d3ab20f877d5"
+    },
+    {
+      "path": "pr-body-final-request.json",
+      "bytes": 4116,
+      "sha256": "2f10d2592d43b32901eafe2ae2f01dceec62bca7074be34823c3a92acf87063e"
+    },
+    {
+      "path": "pr-body-final-response.json",
+      "bytes": 5082,
+      "sha256": "943a096e62f736cc434533f2d6f628c181644015450c933e782bb71824c575b0"
+    },
+    {
+      "path": "pr-body-update-request.json",
+      "bytes": 3428,
+      "sha256": "df6644d0f91f7421cf94344390bdeaf896dfc532a0f27b49d2f42506a850e617"
+    },
+    {
+      "path": "pr-body-update-response.json",
+      "bytes": 19649,
+      "sha256": "6d294edd61030c1f56a8e0dbc3438b2ea58ccd12b19544976f4d7feed04caad1"
+    },
+    {
+      "path": "pr-final.json",
+      "bytes": 19646,
+      "sha256": "031bb200dcafd2d345adb3b6725585b40228a8830804b6bcd2d30c7cffdb8151"
+    },
+    {
+      "path": "pr-initial.json",
+      "bytes": 18780,
+      "sha256": "c4b47259ab898b3074eeda336db57a21ff91e6587649e0ce6c2630f497aee83b"
+    },
+    {
+      "path": "public-api-jobs-fallback.json",
+      "bytes": 184439,
+      "sha256": "6483bd545aba1a2930b964f913fcefa004e9286bff472cccd541ae1f156b6ee2"
+    },
+    {
+      "path": "public-monitor.py",
+      "bytes": 1529,
+      "sha256": "f1d473edd50a74ac6f386628bf289abd8d85c880c64c690ddfe7db40b491186d"
+    },
+    {
+      "path": "public-run-state-0.json",
+      "bytes": 13039,
+      "sha256": "26a146d76a19e3ad5c5d5e49a083d0fbb6d73bd3aa9286c5dbf7ad497d4fd6b5"
+    },
+    {
+      "path": "public-run-state-22.json",
+      "bytes": 13034,
+      "sha256": "2d2815cd316c47965d312110695e1fd3c439558f37db6fe1a88c651ec58bc4e2"
+    },
+    {
+      "path": "public-run-state-26.json",
+      "bytes": 13042,
+      "sha256": "4aebe700df4e0e34833882c8cfe67db8bd268660e2d871b93752e6600ba93a67"
+    },
+    {
+      "path": "required-checks-success.log",
+      "bytes": 110149,
+      "sha256": "a4d38461871118c6238dacc76ee8e5a76e3156566e2114f64803e652bf91d093"
+    },
+    {
+      "path": "reviews-final.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "run-final-candidate.json",
+      "bytes": 13042,
+      "sha256": "4aebe700df4e0e34833882c8cfe67db8bd268660e2d871b93752e6600ba93a67"
+    },
+    {
+      "path": "run-final.json",
+      "bytes": 13042,
+      "sha256": "4aebe700df4e0e34833882c8cfe67db8bd268660e2d871b93752e6600ba93a67"
+    },
+    {
+      "path": "run-initial.json",
+      "bytes": 13034,
+      "sha256": "029b07177c9788dbc2925d821778dd9d302398d00b50dd30800079e9160f00e6"
+    },
+    {
+      "path": "run-state-0.json",
+      "bytes": 13034,
+      "sha256": "029b07177c9788dbc2925d821778dd9d302398d00b50dd30800079e9160f00e6"
+    },
+    {
+      "path": "run-state-17.json",
+      "bytes": 13039,
+      "sha256": "26a146d76a19e3ad5c5d5e49a083d0fbb6d73bd3aa9286c5dbf7ad497d4fd6b5"
+    },
+    {
+      "path": "runs-initial.json",
+      "bytes": 13075,
+      "sha256": "d849440571bd1e49deb2b525dc3c636e8e0de08d69191453c45e00063598983e"
+    },
+    {
+      "path": "source-six-pins.json",
+      "bytes": 799,
+      "sha256": "dd5935171c5197abb1399af913d5d2a2c431b5c1201dde28a53969b3e60920d1"
+    },
+    {
+      "path": "tested-merge-commit.json",
+      "bytes": 2693,
+      "sha256": "6c3c4cdcaec7436d7c9f2acdc10d9e94bcfd4723256dab86de711d8cda206ffa"
+    },
+    {
+      "path": "ubuntu-native-suite-proof.json",
+      "bytes": 2700,
+      "sha256": "bf2532a70f01a1a36f6f7104875383353711a8ee6a323c8a9e953c1fa97cc8b9"
+    },
+    {
+      "path": "ubuntu-receipts.zip",
+      "bytes": 1053,
+      "sha256": "eabb92746d82ea0421c0c31ed105141a697898ff8297c2633b0fc4ff6404a6ab"
+    },
+    {
+      "path": "ubuntu-test-success.log",
+      "bytes": 447120,
+      "sha256": "37c475e05294746fce80bcd3017f66f95005de068300dacd20b4ad5deb80fc19"
+    },
+    {
+      "path": "ubuntu-verification-20.json",
+      "bytes": 2933,
+      "sha256": "efb584ce038767bc543316dc5032f55f9242ab42eb45a9d288ec5679627e792b"
+    },
+    {
+      "path": "verified-execution-origins.json",
+      "bytes": 179388,
+      "sha256": "495b8b0d49bbdd1b981a2024b2e3af354b188a9da6378b041e2becd4b562e5de"
+    },
+    {
+      "path": "windows-gates-success.log",
+      "bytes": 252694,
+      "sha256": "8b5ac4ee4a78e0a2e6b8cca7c0c9085fc7540d2e0dfddce144b621e49ed83db5"
+    },
+    {
+      "path": "windows-native-suite-proof.json",
+      "bytes": 2291,
+      "sha256": "15cfcb0d1678b9653046805bb53b5a3c849ab4d3905da97bd29063de17d15927"
+    },
+    {
+      "path": "windows-receipts.zip",
+      "bytes": 1037,
+      "sha256": "fb8d33aa1138caf90403a626652fe992194a8372968066cede364c04aff0a7c0"
+    },
+    {
+      "path": "windows-verification-4.json",
+      "bytes": 2990,
+      "sha256": "59a15a9cda37a0e8ec93de34e933d21e14e8c9166b28f4665ae5fa2f88bb286a"
+    }
+  ]
+}

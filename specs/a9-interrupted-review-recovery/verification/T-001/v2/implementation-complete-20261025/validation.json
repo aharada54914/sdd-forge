@@ -1,0 +1,62 @@
+{
+  "observed_at": "2026-10-25T04:28:16.199943+00:00",
+  "commands": [
+    {
+      "name": "report",
+      "command": [
+        "bash",
+        "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+        "reports/implementation/a9-interrupted-review-recovery/T-001.md"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "task-state",
+      "command": [
+        "bash",
+        "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+        "specs/a9-interrupted-review-recovery/tasks.md",
+        "reports/quality-gate",
+        "reports/implementation",
+        "/workspace/sdd-issue-614"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "workflow",
+      "command": [
+        "bash",
+        "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+        "--feature",
+        "a9-interrupted-review-recovery"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "specs/a9-interrupted-review-recovery/tasks.md",
+        "reports/implementation/a9-interrupted-review-recovery/T-001.md",
+        "specs/a9-interrupted-review-recovery/verification"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "protected_hashes_unchanged": {
+    "specs/verification-measurement/acceptance-tests.md": true,
+    "specs/verification-measurement/design.md": true,
+    "specs/verification-measurement/frontend-spec.md": true,
+    "specs/verification-measurement/infra-spec.md": true,
+    "specs/verification-measurement/requirements.md": true,
+    "specs/verification-measurement/security-spec.md": true,
+    "specs/verification-measurement/tasks-proposal.md": true,
+    "specs/verification-measurement/ux-spec.md": true,
+    "docs/adr/0039-run-measurement-observation-ownership.md": true,
+    "reports/review-context/identity-ledger.json": true
+  },
+  "formal_failure_not_waived": true
+}

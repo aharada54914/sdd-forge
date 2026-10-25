@@ -1,0 +1,33 @@
+{
+  "actor": "ordinary Work/Codex",
+  "observed_at": "2026-10-25T04:25:46.867987+00:00",
+  "checks": [
+    {
+      "command": [
+        "bash",
+        "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+        "reports/implementation/a9-interrupted-review-recovery/T-001.md"
+      ],
+      "exit_code": 0,
+      "stdout": "IMPLEMENTATION_REPORT_OK\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "reports/implementation/a9-interrupted-review-recovery/T-001.md",
+        "specs/a9-interrupted-review-recovery/verification/T-001.md",
+        "specs/a9-interrupted-review-recovery/verification/T-001/current-binding.json"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "current_binding_pin_check_before_this_addition": 197,
+  "protected_hashes_unchanged": true,
+  "broad_suites_rerun": false
+}

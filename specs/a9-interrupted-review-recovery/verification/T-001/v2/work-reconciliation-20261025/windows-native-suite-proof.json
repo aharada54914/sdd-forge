@@ -1,0 +1,45 @@
+{
+  "head": "563006ccd9d6a265c7a00f0ad629e421c0c98958",
+  "base": "1c95ede8cee678159b4983f25e4a43298d8d1e8c",
+  "tested_revision": "8739d4b70a3e7e32b85c1c865180155724fd0d89",
+  "tested_tree": "06377d3adfb584a3a523b1dbc7b83b3b539acb10",
+  "run_id": 40090187421,
+  "attempt": 1,
+  "plan_sha256": "a8af1ef6035e79996e4d959660eb22ec181abee1b1fc51f316d4aaad4343d0a2",
+  "catalog_sha256": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317",
+  "job_id": 120861207465,
+  "job_name": "test-windows-heavy (gates)",
+  "job_conclusion": "success",
+  "runtime": {
+    "architecture": "X64",
+    "executable": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE",
+    "os": "Microsoft Windows 10.0.26100",
+    "runtime": ".NET 10.0.13",
+    "version": "7.6.7"
+  },
+  "native_named_cases": 731,
+  "native_pass": 731,
+  "native_fail": 0,
+  "suite": {
+    "suite": "tests/spec-review-interrupted-recovery.tests.ps1",
+    "source_sha256": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "status": "passed",
+    "exit_code": 0,
+    "seconds": 201.047
+  },
+  "artifact_id": 12558634148,
+  "artifact_digest": "sha256:fb8d33aa1138caf90403a626652fe992194a8372968066cede364c04aff0a7c0",
+  "receipt_clean_before": true,
+  "receipt_clean_after": true,
+  "all_six_source_pins": {
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "fc41fea4e6c6c3eeb39bb2e9ca4f5f96d7a1a9c70ce78fe47d9934000966b60e",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "88062b265569f02573565aa904d26b4385eea5f4e45b82e4c819732f476752f2",
+    "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "tests/spec-review-interrupted-recovery.tests.sh": "d2f726f7b242563b41a4622320592f610c42d88348ee5e2df8c662b83370de2e",
+    "tests/spec-review-loop.tests.sh": "4bbc3cc63f97e8f954dd2731a8a609656fe1fbf66a80bc900a8a9eb8862ff79b",
+    "tests/verification-catalog.json": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317"
+  },
+  "log_sha256": "8b5ac4ee4a78e0a2e6b8cca7c0c9085fc7540d2e0dfddce144b621e49ed83db5",
+  "receipt_sha256": "59a15a9cda37a0e8ec93de34e933d21e14e8c9166b28f4665ae5fa2f88bb286a",
+  "scope": "Actual exact-head native Windows suite/job success only; full CI/formal acceptance pending."
+}

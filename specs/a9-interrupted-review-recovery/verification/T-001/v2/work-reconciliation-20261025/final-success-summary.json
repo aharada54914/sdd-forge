@@ -1,0 +1,102 @@
+{
+  "head": "563006ccd9d6a265c7a00f0ad629e421c0c98958",
+  "base": "1c95ede8cee678159b4983f25e4a43298d8d1e8c",
+  "tested_revision": "8739d4b70a3e7e32b85c1c865180155724fd0d89",
+  "tested_tree": "06377d3adfb584a3a523b1dbc7b83b3b539acb10",
+  "run_id": 40090187421,
+  "attempt": 1,
+  "plan_sha256": "a8af1ef6035e79996e4d959660eb22ec181abee1b1fc51f316d4aaad4343d0a2",
+  "conclusion": "success",
+  "canonical_status": "PASS",
+  "canonical_reason": "verified",
+  "obligation_counts": {
+    "PASS": 449,
+    "EXPECTED_SKIP": 1
+  },
+  "verified_real_execution_origins": 449,
+  "source_attempt_counts": {
+    "1": 449
+  },
+  "job_counts": {
+    "success": 45,
+    "skipped": 1
+  },
+  "control_job": 120869028638,
+  "all_jobs_terminal": true,
+  "native_platform_results": {
+    "windows": {
+      "powershell_pass": 731,
+      "powershell_fail": 0,
+      "runtime": {
+        "architecture": "X64",
+        "executable": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE",
+        "os": "Microsoft Windows 10.0.26100",
+        "runtime": ".NET 10.0.13",
+        "version": "7.6.7"
+      },
+      "bash_pass": null,
+      "bash_fail": null
+    },
+    "ubuntu": {
+      "powershell_pass": 731,
+      "powershell_fail": 0,
+      "runtime": {
+        "architecture": "X64",
+        "executable": "/opt/microsoft/powershell/7/pwsh",
+        "os": "Ubuntu 24.04.5 LTS",
+        "runtime": ".NET 10.0.12",
+        "version": "7.6.6"
+      },
+      "bash_pass": 731,
+      "bash_fail": 0
+    },
+    "macos": {
+      "powershell_pass": 731,
+      "powershell_fail": 0,
+      "runtime": {
+        "architecture": "Arm64",
+        "executable": "/usr/local/microsoft/powershell/7/pwsh",
+        "os": "macOS 26.6.2",
+        "runtime": ".NET 10.0.13",
+        "version": "7.6.7"
+      },
+      "bash_pass": 731,
+      "bash_fail": 0
+    }
+  },
+  "installer_obligations": 36,
+  "installer_cells": 6,
+  "all_installer_origins_pass": true,
+  "pr_draft": true,
+  "pr_mergeable": true,
+  "pr_mergeable_state": "clean",
+  "pr_review_count": 0,
+  "pr_review_comment_count": 0,
+  "issue_comments": [
+    {
+      "id": 6382001944,
+      "author": "coderabbitai[bot]",
+      "disposition": "CodeRabbit draft PR not reviewed; not approval"
+    }
+  ],
+  "metadata_access": "CLI monitor401 preserved; complete final native REST metadata obtained through ordinary working HTTPS route without Authorization header; connector used for native logs/artifact downloads.",
+  "actions": "No rerun/cancel/merge; exact normal push-triggered attempt1. Authorized PR description refreshed separately.",
+  "formal_acceptance": "Not conferred by CI; approved v2 criterion pending genuine rebind, task In Progress, no Issue closure or actual recovery.",
+  "historical_failures": "Prior 6cb mirror defect; f0e two native SIGABRT failures; d4 lifecycle mismatch;7d Bash launch failure all preserved. Mac runtime changed7.6.6/.NET10.0.12 to7.6.7/.NET10.0.13; no root-cause claim.",
+  "evidence_sha256": {
+    "plan.json": "791e4b2c4afe127082b676b247341c4db6b9805da578e3137a528e2f521fa588",
+    "aggregate-success.json": "6a41dc74df4b3aebb3ea7f2443217d37710e843b0c04c80c5ededdaa8b18078a",
+    "required-checks-success.log": "a4d38461871118c6238dacc76ee8e5a76e3156566e2114f64803e652bf91d093",
+    "run-final.json": "4aebe700df4e0e34833882c8cfe67db8bd268660e2d871b93752e6600ba93a67",
+    "jobs-final.json": "a822c36cf959ef5b9001dce02f1428bd7a36026d53fab637acf17e4ea876e753",
+    "pr-final.json": "031bb200dcafd2d345adb3b6725585b40228a8830804b6bcd2d30c7cffdb8151",
+    "verified-execution-origins.json": "495b8b0d49bbdd1b981a2024b2e3af354b188a9da6378b041e2becd4b562e5de",
+    "installer-origins.json": "6df63574df6f90851e3356f594a070b1dec0068d78068e6bbd44ca5f776b1065",
+    "macos-native-suite-proof.json": "ad3dcbe6a957e1cf5eb44d459b95d81f92af5f6b7fd0836219afbd7d882fb6dc",
+    "windows-native-suite-proof.json": "15cfcb0d1678b9653046805bb53b5a3c849ab4d3905da97bd29063de17d15927",
+    "ubuntu-native-suite-proof.json": "bf2532a70f01a1a36f6f7104875383353711a8ee6a323c8a9e953c1fa97cc8b9",
+    "reviews-final.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "comments-final.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "issue-comments-final.json": "4f9a241bfd54936d6ab924c10fd1ff55b73dcecc21bea2a778804e6b2652ce21"
+  }
+}

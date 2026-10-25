@@ -1,8 +1,8 @@
 {
   "schema": "a9-t001-additive-current-binding/v1",
-  "state": "Old reviewed task retained; approvedv2 pending formal rebinding; T001 In Progress; native macOS PowerShell731 PASS and separate Bash launch corrected, final-head CI pending",
-  "created_at": "2026-10-24T11:26:27.994376+00:00",
-  "base_head": "7dffd37b3de7c46700259e6876a5c9daaabd06f0",
+  "state": "T001 Implementation Complete by parent acceptance of independent Work readiness; approved v2 applied; formal provenance/quality pending; not Done",
+  "created_at": "2026-10-25T04:29:15.101929+00:00",
+  "base_head": "4940b31e200853e1126eaf181008878fc77ed6f0",
   "source": [
     {
       "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
@@ -60,7 +60,7 @@
     },
     {
       "path": "reports/implementation/a9-interrupted-review-recovery/T-001.md",
-      "sha256": "74ede059a50243dd53ac227736e727d6730c58b303f556617fa670a77f0a46bb"
+      "sha256": "4a3a05c9ad58baad8b35625dc004fad2d492bda31aa9cf11470af9853e6d393a"
     },
     {
       "path": "specs/a9-interrupted-review-recovery/acceptance-tests.md",
@@ -88,7 +88,7 @@
     },
     {
       "path": "specs/a9-interrupted-review-recovery/tasks.md",
-      "sha256": "68198040940bf591c595875a7964f47ab27ff3d4df006686f20a04dff0ea1c1d"
+      "sha256": "620e06b4494a7731a29a38fbb8e95be2d0f7b657eccbfc77bcad486bb7a3a84d"
     },
     {
       "path": "specs/a9-interrupted-review-recovery/traceability.md",
@@ -100,7 +100,7 @@
     },
     {
       "path": "specs/a9-interrupted-review-recovery/verification/T-001.md",
-      "sha256": "7447f233580d69ca56084dc84b720b1fbd9f49c87411bc22cd5b57bc6b7a33e8"
+      "sha256": "0cd16f1a6d79c9a7dbcfa0bf047db5c2f5a1ef8d53795c195a4cb1cc7775bc3c"
     },
     {
       "path": "specs/a9-interrupted-review-recovery/verification/T-001/T001-base-acceptance-ownership.json",
@@ -741,6 +741,122 @@
     {
       "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/bash-launch-correction/prior-native-macos-proof.json",
       "sha256": "8c723df553599427f1c2402b4c99e655da36710b8c899bc31447cdc2a0150a7e"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/aggregate-success.json",
+      "sha256": "6a41dc74df4b3aebb3ea7f2443217d37710e843b0c04c80c5ededdaa8b18078a"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/evidence-manifest.json",
+      "sha256": "512607eed94c884f63ce5fd0f3b8bde3c967a3fde2315131d8c9bf86d60c213b"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/final-success-summary.json",
+      "sha256": "f7c57e279294bda116c373d43828bcde9f6c49cb862ad60550e2257f5425d855"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/macos-native-suite-proof.json",
+      "sha256": "ad3dcbe6a957e1cf5eb44d459b95d81f92af5f6b7fd0836219afbd7d882fb6dc"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/prior-current-binding.json",
+      "sha256": "8b8a319c4c0daaedaef5c6ff4b1c0153e56901b2eb7bc44b339b01d7a536772f"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/prior-implementation-report.md",
+      "sha256": "74ede059a50243dd53ac227736e727d6730c58b303f556617fa670a77f0a46bb"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/prior-verification-addendum.md",
+      "sha256": "7447f233580d69ca56084dc84b720b1fbd9f49c87411bc22cd5b57bc6b7a33e8"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/reconciliation-receipt.json",
+      "sha256": "b837619526eab58fcf205599af2e1f0eef9ce4390db58b2e975563e3d0124da6"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/run-final.json",
+      "sha256": "4aebe700df4e0e34833882c8cfe67db8bd268660e2d871b93752e6600ba93a67"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/source-six-pins.json",
+      "sha256": "dd5935171c5197abb1399af913d5d2a2c431b5c1201dde28a53969b3e60920d1"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/ubuntu-native-suite-proof.json",
+      "sha256": "bf2532a70f01a1a36f6f7104875383353711a8ee6a323c8a9e953c1fa97cc8b9"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/verified-execution-origins.json",
+      "sha256": "495b8b0d49bbdd1b981a2024b2e3af354b188a9da6378b041e2becd4b562e5de"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/windows-native-suite-proof.json",
+      "sha256": "15cfcb0d1678b9653046805bb53b5a3c849ab4d3905da97bd29063de17d15927"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/validation.json",
+      "sha256": "51974c2d62556161bcb03833bb2549e82dbba1df63204908f330c1b5d2543f74"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/REVIEW.md",
+      "sha256": "bbebdaf3c1d20477f0206cb67bf8c998c1401c075b60e680e702dda8987f3266"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/final-packet-checks.json",
+      "sha256": "1d9910f42fdd1db08ea704a9a79f6dc5b83beb2d3ea37bb28ccfb544f21e26fe"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/initial-evidence-checks.json",
+      "sha256": "dd84c3148ce772e76c632d8c80926e48c7510121039fe86026f557b1c90eb067"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/parent-decision.json",
+      "sha256": "b5673f4818fe71992123a5f7c3f1b5477f5edc87381864be46543386cbb1308c"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/prior-current-binding.json",
+      "sha256": "986c0ab227c92828d48e1b377e49be1dc7e595f251015c6b91a0230e3533e22a"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/prior-exception-readiness.md",
+      "sha256": "3394229772772d99e070b41eb3724ff65bf6d9431ae23a675d65b06934eed3f7"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/diff.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/diff.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/report.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/report.stdout",
+      "sha256": "a0eb36646f9654b7ef1b674fed63ad247a1febe005869fbf36ce295f5437a10c"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/task-state.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/task-state.stdout",
+      "sha256": "a076544b54c0d7c6c7be95b2284afd0034d913ef073b32c7813719b1b2eb7228"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/validation.json",
+      "sha256": "6350facc75a20b5c38ea7ab72665014c7d7e1364709d53494ce947f243f1c936"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/workflow.stderr",
+      "sha256": "b1f61fd97c0316ab5d6a7bfc6575082f6e327fee73a6515bca26503c784be61b"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/workflow.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
   ],
   "historical_bindings": [
@@ -761,6 +877,21 @@
       "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/d4-current-binding.json",
       "sha256": "8a372a0d3c959025398d418fed26cc730b899be8a82ba880293d15677b85c43a",
       "scope": "d4 applied-amendment candidate; unchanged historical binding"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/prior-current-binding.json",
+      "sha256": "8b8a319c4c0daaedaef5c6ff4b1c0153e56901b2eb7bc44b339b01d7a536772f",
+      "scope": "unchanged pre-reconciliation binding; prior report/addendum also archived beside it"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/prior-current-binding.json",
+      "sha256": "986c0ab227c92828d48e1b377e49be1dc7e595f251015c6b91a0230e3533e22a",
+      "scope": "unchanged independent-review accepted pre-IC binding"
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/clean-lane-integration-20261025/imported-current-binding.json",
+      "sha256": "4756ce90e1d678c3b78442186b973f3f229dcc01680991a496ddb3cee8f3fcf6",
+      "scope": "Exact imported registered-root IC binding; not a claim of matching target shared registry."
     }
   ],
   "source_delta": {
@@ -788,16 +919,17 @@
       "728PASS/3SIGABRT"
     ],
     "corrected_local_powershell": "731PASS at cache-isolation harness9ad841a4,161.58s,LinuxPowerShell7.6.7/.NET10.0.13; unchanged embeddedPython in currentd2f726f7; no new local PowerShell run",
-    "corrected_macos": "At7d/9ad harness, actual PowerShell731PASS on7.6.6/.NET10.0.12/Arm64/macOS26.6.2; later Bash launch failed before cases. Currentd2 harness native Bash/final-head CI pending.",
+    "corrected_macos": "563006cc/tested8739d4b7: PowerShell731PASS/Bash731PASS; all six source pins match current; not combined-head CI",
     "origin": "nine bounded negative observations accepted; frozen experiment FAIL and proof unverified",
-    "bash_launch_local": "Current Linux Bash: exact zero/empty/spaced/literal argument forwarding and childexit7; no localBash3 reproduction or fullsuite rerun"
+    "bash_launch_local": "Current Linux Bash: exact zero/empty/spaced/literal argument forwarding and childexit7; no localBash3 reproduction or fullsuite rerun",
+    "corrected_native_ci": "CI40090187421 attempt1:449PASS+1EXPECTED_SKIP; Windows/Ubuntu/macOS native coverage preserved"
   },
   "limits": [
-    "No fullCI/ImplementationComplete/qualityPASS/Done",
     "No live AUTH001 application or recovery",
     "No blind unchanged-head retry; authorized diagnostics/corrected-revision CI allowed",
     "Public origin extract omits raw native events/IDs/cwd; authorized private raw replay required",
-    "Exact old reviewed task body is canonical; approvedv2 held pending genuine formal rebind; v2 evidence does not satisfy restored old criterion"
+    "Approvedv2 is applied; formal provenance rebind remains incomplete",
+    "T001 ImplementationComplete accepted; no qualityPASS/Done; combined-head CI not inferred"
   ],
   "lifecycle_staging": {
     "receipt_path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/lifecycle-staging/staging-receipt.json",
@@ -810,7 +942,8 @@
       "powershell": "PASS"
     },
     "all_feature_validation": false,
-    "ledger_access": false
+    "ledger_access": false,
+    "scope": "Historical restoration record; current task state superseded by reconciliation receipt"
   },
   "prior_binding": {
     "commit": "7dffd37b3de7c46700259e6876a5c9daaabd06f0",
@@ -826,5 +959,17 @@
       "original_assertions_names_order_and_four_workers_preserved": true,
       "scope": "Prior cache-isolation correction; native macOS PowerShell731 passed at this source pin"
     }
-  ]
+  ],
+  "current_reconciliation": {
+    "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/work-reconciliation-20261025/reconciliation-receipt.json",
+    "sha256": "b837619526eab58fcf205599af2e1f0eef9ce4390db58b2e975563e3d0124da6"
+  },
+  "parent_ic_decision": {
+    "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/implementation-complete-20261025/parent-decision.json",
+    "sha256": "b5673f4818fe71992123a5f7c3f1b5477f5edc87381864be46543386cbb1308c"
+  },
+  "clean_lane_integration": {
+    "path": "specs/a9-interrupted-review-recovery/verification/T-001/v2/clean-lane-integration-20261025/receipt.json",
+    "sha256": "c39a64b31797e11084b006410364a04dc1cab83332367f76e219e1ff58d482c5"
+  }
 }

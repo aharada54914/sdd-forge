@@ -1,0 +1,71 @@
+{
+  "ci_summary_sha256": "f7c57e279294bda116c373d43828bcde9f6c49cb862ad60550e2257f5425d855",
+  "ci_evidence_hashes_match": true,
+  "source_six_pins": {
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "fc41fea4e6c6c3eeb39bb2e9ca4f5f96d7a1a9c70ce78fe47d9934000966b60e",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "88062b265569f02573565aa904d26b4385eea5f4e45b82e4c819732f476752f2",
+    "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "tests/spec-review-interrupted-recovery.tests.sh": "d2f726f7b242563b41a4622320592f610c42d88348ee5e2df8c662b83370de2e",
+    "tests/spec-review-loop.tests.sh": "4bbc3cc63f97e8f954dd2731a8a609656fe1fbf66a80bc900a8a9eb8862ff79b",
+    "tests/verification-catalog.json": "128837b2664db266b0a8234c5f75e32a767c28ad91d20e2f11bd4b9065c25317"
+  },
+  "source_six_current_match": true,
+  "ci_head": "563006ccd9d6a265c7a00f0ad629e421c0c98958",
+  "tested_revision": "8739d4b70a3e7e32b85c1c865180155724fd0d89",
+  "base": "1c95ede8cee678159b4983f25e4a43298d8d1e8c",
+  "native_platform_results": {
+    "windows": {
+      "powershell_pass": 731,
+      "powershell_fail": 0,
+      "runtime": {
+        "architecture": "X64",
+        "executable": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE",
+        "os": "Microsoft Windows 10.0.26100",
+        "runtime": ".NET 10.0.13",
+        "version": "7.6.7"
+      },
+      "bash_pass": null,
+      "bash_fail": null
+    },
+    "ubuntu": {
+      "powershell_pass": 731,
+      "powershell_fail": 0,
+      "runtime": {
+        "architecture": "X64",
+        "executable": "/opt/microsoft/powershell/7/pwsh",
+        "os": "Ubuntu 24.04.5 LTS",
+        "runtime": ".NET 10.0.12",
+        "version": "7.6.6"
+      },
+      "bash_pass": 731,
+      "bash_fail": 0
+    },
+    "macos": {
+      "powershell_pass": 731,
+      "powershell_fail": 0,
+      "runtime": {
+        "architecture": "Arm64",
+        "executable": "/usr/local/microsoft/powershell/7/pwsh",
+        "os": "macOS 26.6.2",
+        "runtime": ".NET 10.0.13",
+        "version": "7.6.7"
+      },
+      "bash_pass": 731,
+      "bash_fail": 0
+    }
+  },
+  "per_case_counts": {
+    "bash": {
+      "reused-already-correct": 110,
+      "observed-defect": 15,
+      "new-admission-contract": 606
+    },
+    "powershell": {
+      "reused-already-correct": 110,
+      "observed-defect": 30,
+      "new-admission-contract": 591
+    }
+  },
+  "no_test_rerun": true,
+  "no_private_ledger_or_provider": true
+}

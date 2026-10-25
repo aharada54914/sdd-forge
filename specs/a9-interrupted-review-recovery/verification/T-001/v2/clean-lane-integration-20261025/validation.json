@@ -1,0 +1,34 @@
+{
+  "commands": [
+    {
+      "command": [
+        "bash",
+        "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+        "reports/implementation/a9-interrupted-review-recovery/T-001.md"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "bash",
+        "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+        "specs/a9-interrupted-review-recovery/tasks.md",
+        "reports/quality-gate",
+        "reports/implementation",
+        "/workspace/sdd-a9-recovery"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "initial_report_check": "exit127: tracked validator excluded by existing sparse checkout; expanded scripts directory and reran; first output retained",
+  "current_binding_sha256": "4baa2ccc250466b26da5c31a2de5a874ef52ab04a970800b6513f90fb4ac0250",
+  "current_pins_verified": true
+}
