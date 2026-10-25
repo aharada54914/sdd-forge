@@ -527,3 +527,15 @@ value was accessed and no settings changed. A user reauthentication question is
 pending; the existing authorization to repair PR permissions has not been withdrawn.
 #197 has no published GitHub release-cycle evidence; release/promotion acceptance
 is not fabricated. #624 real-app evaluation remains pending by explicit instruction.
+
+## Hosted integration follow-up — 2026-10-26 (JST)
+
+Run [40211941204](https://github.com/aharada54914/sdd-forge/actions/runs/40211941204)
+at `819aa9fc` completed with a failure in the shared Python profile: the shared-store
+fixture used the hosted runner home, whose ancestor ACL is correctly refused by
+the product. The workflow now provisions an isolated runner-owned directory under
+`/var/lib` for that fixture and removes it in an always-run cleanup step. Runner-home permissions
+and product admission rules are unchanged. The local acquisition suite passes
+30 tests with one root-only skip, including a new actual ancestor-ACL rejection.
+Final-source hosted CI is still required; this fixes test placement, not an ACL
+exception in shared storage.

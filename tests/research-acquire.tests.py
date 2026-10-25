@@ -43,7 +43,7 @@ class Acquire(unittest.TestCase):
     def test_shared_store_permissions_receipt_expiry_and_existing_snapshot(self):
         from research_evidence import shared_snapshot
         # The real store is outside the repository and system temp export roots.
-        with tempfile.TemporaryDirectory(prefix='research-shared-', dir=Path.home()) as directory:
+        with tempfile.TemporaryDirectory(prefix='research-shared-', dir=os.environ.get('SDD_TEST_SHARED_STORE_PARENT', Path.home())) as directory:
             root = Path(directory)
             cache = root / 'store'
             cache.mkdir(mode=0o750)
@@ -91,6 +91,11 @@ class Acquire(unittest.TestCase):
             with self.assertRaisesRegex(a.Invalid, 'shared-acl-unsupported'):
                 shared_snapshot(cache, item, source)
             os.removexattr(original, 'system.posix_acl_access')
+            os.setxattr(root, 'system.posix_acl_access', acl)
+            with self.assertRaisesRegex(a.Invalid, 'shared-acl-unsupported'):
+                shared_snapshot(cache, item, source)
+            os.removexattr(root, 'system.posix_acl_access')
+            root.chmod(0o700)
             receipt = entry / 'receipt.json'
             raw = receipt.read_bytes()
             changed = json.loads(raw)

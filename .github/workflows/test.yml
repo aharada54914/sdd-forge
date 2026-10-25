@@ -211,10 +211,24 @@ jobs:
         run: python3 -B tests/traceability-freeze-contract.tests.py
       - name: Install contract validator
         run: npm ci --prefix mcp/ci-mcp --ignore-scripts
+      - name: Provision isolated shared-store fixture parent
+        shell: bash
+        run: |
+          # Runner home has named ACLs, which the shared-store adapter rejects.
+          shared_store_parent=$(sudo mktemp -d /var/lib/sdd-research-test.XXXXXXXX)
+          sudo chown "$(id -u):$(id -g)" "$shared_store_parent"
+          echo "SDD_TEST_SHARED_STORE_PARENT=$shared_store_parent" >> "$GITHUB_ENV"
       - name: Test shared review launch and conditional input contracts
         shell: bash
         run: |
           python3 tests/verification.py --profile ci-shared-python --run --receipt "$RUNNER_TEMP/verification-shared-python.json"
+      - name: Remove isolated shared-store fixture parent
+        if: always()
+        shell: bash
+        run: |
+          if [[ "${SDD_TEST_SHARED_STORE_PARENT:-}" == /var/lib/sdd-research-test.* ]]; then
+            sudo rm -rf -- "$SDD_TEST_SHARED_STORE_PARENT"
+          fi
       - name: Bind Pester cache to actual PowerShell runtime
         id: pester-runtime
         shell: pwsh
