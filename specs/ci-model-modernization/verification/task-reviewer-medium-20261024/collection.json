@@ -1,0 +1,195 @@
+{
+  "schema": "task-role-evaluation-public-summary/v1",
+  "scope": "Limited synthetic post-implementation provenance task-review quality: two roles, two control/mutation cases each, two fresh repetitions. Not full installed workflow or first-time lifecycle review.",
+  "configured": {
+    "catalog_id": "anthropic/sonnet",
+    "native_alias": "sonnet",
+    "effort": "medium"
+  },
+  "observed_model_label": "claude-sonnet-5-5",
+  "observed_identity_limit": "Client-reported labels only; alias not a pinned backend version, hidden effort/backend unverified.",
+  "planned": 8,
+  "executed": 8,
+  "retries": 0,
+  "extra_provider_probes": 0,
+  "native_contract_pass": 8,
+  "semantic_accept": 8,
+  "supported_checks": 92,
+  "clean_output_pass": 4,
+  "seeded_output_blocked": 4,
+  "human_adoption": "PENDING; no policy activation",
+  "sum_native_adapter_elapsed_seconds": 277.736,
+  "sum_client_reported_cost_usd": "0.98692989999999996",
+  "cost_scope": "Client-reported estimates; not an independently verified bill.",
+  "usage_projection": "Raw per-call telemetry omitted; exact private capture hashes retained. Public cells retain client cost, elapsed time, tool/read counts and reported model labels only.",
+  "cells": [
+    {
+      "index": 1,
+      "role": "task-reviewer-a",
+      "case": "a-gap",
+      "repetition": 1,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "elapsed_seconds": 36.073,
+      "tool_calls": 13,
+      "required_inputs_actually_read": 12,
+      "configured": {
+        "effort": "medium",
+        "model": "sonnet"
+      },
+      "init_model": "claude-sonnet-5-5",
+      "reported_message_model": "claude-sonnet-5-5",
+      "started_at_utc": "2026-10-24T11:52:48.500431+00:00",
+      "finished_at_utc": "2026-10-24T11:53:24.570360+00:00",
+      "client_reported_cost_usd": 0.1235149,
+      "score_sha256": "08ce1c12bc07006c5af77eb42b94458641f34d6797b7179405bc241740c5176c",
+      "final_message_sha256": "fad04c578025d71ec9d879701ae1a2cc608e319041b15d79a240320ce9875ea4"
+    },
+    {
+      "index": 2,
+      "role": "task-reviewer-b",
+      "case": "clean",
+      "repetition": 1,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "elapsed_seconds": 35.415,
+      "tool_calls": 14,
+      "required_inputs_actually_read": 14,
+      "configured": {
+        "effort": "medium",
+        "model": "sonnet"
+      },
+      "init_model": "claude-sonnet-5-5",
+      "reported_message_model": "claude-sonnet-5-5",
+      "started_at_utc": "2026-10-24T11:53:57.733854+00:00",
+      "finished_at_utc": "2026-10-24T11:54:33.145437+00:00",
+      "client_reported_cost_usd": 0.12987569999999998,
+      "score_sha256": "5fa67bdc52ac965cccab44208e57da9725640805d5410648225b302cc4f65d54",
+      "final_message_sha256": "3bda08e0d2c0484d165cae1d8d87693c5eabd854958d7709647b1f297514b9b1"
+    },
+    {
+      "index": 3,
+      "role": "task-reviewer-a",
+      "case": "clean",
+      "repetition": 1,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "elapsed_seconds": 33.608,
+      "tool_calls": 12,
+      "required_inputs_actually_read": 12,
+      "configured": {
+        "effort": "medium",
+        "model": "sonnet"
+      },
+      "init_model": "claude-sonnet-5-5",
+      "reported_message_model": "claude-sonnet-5-5",
+      "started_at_utc": "2026-10-24T11:54:42.913214+00:00",
+      "finished_at_utc": "2026-10-24T11:55:16.516522+00:00",
+      "client_reported_cost_usd": 0.1147065,
+      "score_sha256": "5c40281b297a5cba7a604541c50ddfd01f21012bc9486e00fc6863311ae847bb",
+      "final_message_sha256": "51ed4010adb9acd15a72455e1327c31b1293523928f047a5aeb0b279571c8f8e"
+    },
+    {
+      "index": 4,
+      "role": "task-reviewer-b",
+      "case": "b-gap",
+      "repetition": 1,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "elapsed_seconds": 35.67,
+      "tool_calls": 15,
+      "required_inputs_actually_read": 14,
+      "configured": {
+        "effort": "medium",
+        "model": "sonnet"
+      },
+      "init_model": "claude-sonnet-5-5",
+      "reported_message_model": "claude-sonnet-5-5",
+      "started_at_utc": "2026-10-24T11:55:23.033650+00:00",
+      "finished_at_utc": "2026-10-24T11:55:58.700120+00:00",
+      "client_reported_cost_usd": 0.13128,
+      "score_sha256": "aa1e81f334826ef29ccae53674f6091d0cf28872dd3eba1dd34e7afd2e57fa7f",
+      "final_message_sha256": "2344754284cae00c2ea552bfed198172c4b238159912389bf18f13a1ee925d13"
+    },
+    {
+      "index": 5,
+      "role": "task-reviewer-b",
+      "case": "b-gap",
+      "repetition": 2,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "elapsed_seconds": 33.859,
+      "tool_calls": 14,
+      "required_inputs_actually_read": 14,
+      "configured": {
+        "effort": "medium",
+        "model": "sonnet"
+      },
+      "init_model": "claude-sonnet-5-5",
+      "reported_message_model": "claude-sonnet-5-5",
+      "started_at_utc": "2026-10-24T11:56:04.746628+00:00",
+      "finished_at_utc": "2026-10-24T11:56:38.601715+00:00",
+      "client_reported_cost_usd": 0.129083,
+      "score_sha256": "9787eab5734e9322381223d3938e9a2a1b333fb6aad5a3a784adcea11f574bc5",
+      "final_message_sha256": "f5b5d0826c114ba2d18ac464a80e860d8b1f2902ce1fb063bd15e24ba7f8a73c"
+    },
+    {
+      "index": 6,
+      "role": "task-reviewer-a",
+      "case": "clean",
+      "repetition": 2,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "elapsed_seconds": 33.372,
+      "tool_calls": 12,
+      "required_inputs_actually_read": 12,
+      "configured": {
+        "effort": "medium",
+        "model": "sonnet"
+      },
+      "init_model": "claude-sonnet-5-5",
+      "reported_message_model": "claude-sonnet-5-5",
+      "started_at_utc": "2026-10-24T11:57:14.850895+00:00",
+      "finished_at_utc": "2026-10-24T11:57:48.219751+00:00",
+      "client_reported_cost_usd": 0.1131245,
+      "score_sha256": "fcc78a939df82ff3efc39115091d518d5a1ade623ba1be32430425a42e4d517a",
+      "final_message_sha256": "521d78a52b1dcf2bb5f5159ff018bc3d54bc713d36e7abfe4cd93b4c3c24c4e6"
+    },
+    {
+      "index": 7,
+      "role": "task-reviewer-b",
+      "case": "clean",
+      "repetition": 2,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "elapsed_seconds": 34.295,
+      "tool_calls": 14,
+      "required_inputs_actually_read": 14,
+      "configured": {
+        "effort": "medium",
+        "model": "sonnet"
+      },
+      "init_model": "claude-sonnet-5-5",
+      "reported_message_model": "claude-sonnet-5-5",
+      "started_at_utc": "2026-10-24T11:57:55.188286+00:00",
+      "finished_at_utc": "2026-10-24T11:58:29.480077+00:00",
+      "client_reported_cost_usd": 0.12902619999999998,
+      "score_sha256": "6b22f9411de7b33a941931a243f6d820743a487c65d69f4505e800ad526e9a89",
+      "final_message_sha256": "c2f07885253e1975c39e898a2b33792f85433eade2e3cb0822430384750ea188"
+    },
+    {
+      "index": 8,
+      "role": "task-reviewer-a",
+      "case": "a-gap",
+      "repetition": 2,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "elapsed_seconds": 35.444,
+      "tool_calls": 12,
+      "required_inputs_actually_read": 12,
+      "configured": {
+        "effort": "medium",
+        "model": "sonnet"
+      },
+      "init_model": "claude-sonnet-5-5",
+      "reported_message_model": "claude-sonnet-5-5",
+      "started_at_utc": "2026-10-24T11:58:51.609705+00:00",
+      "finished_at_utc": "2026-10-24T11:59:27.049731+00:00",
+      "client_reported_cost_usd": 0.1163191,
+      "score_sha256": "5acd989f0fd32387d23d16d77109911440b82528c4f5b2edf09ab4e45a537cca",
+      "final_message_sha256": "08efb7d2dba9646f7618071dcdf188382f45ac043cba0add8d22ab52b50822a0"
+    }
+  ]
+}

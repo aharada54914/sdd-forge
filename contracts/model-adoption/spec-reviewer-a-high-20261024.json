@@ -1,0 +1,193 @@
+{
+  "schema": "spec-reviewer-role-adoption-proposal/v1",
+  "source_date": "2026-10-24T11:40:26.230943Z",
+  "decision_status": "approved-for-spec-reviewer-a-only",
+  "human_review": {
+    "decision": "仕様担当A・タスク担当A/Bの採用する",
+    "reviewer": "User in the current conversation",
+    "reviewed_at": null,
+    "reviewed_at_note": "Original user-message timestamp was not supplied; receipt_written_at records capture time only.",
+    "source": {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/human-role-adoption-20261025.json",
+      "sha256": "31b1d6abd1d969ea05c62be4fdb411ca4a7d58179a14487848dce89f5421570f"
+    },
+    "questionItemId": null,
+    "receipt_written_at": "2026-10-25T01:22:09.564861+00:00",
+    "approved_patch_sha256": "49e34d6af77db3ed3a4084ca47d7008a913547978ca07f8023d1f4aa283c141f"
+  },
+  "proposed_role": "spec-reviewer-a",
+  "proposed_catalog_id": "anthropic/opus",
+  "proposed_host": "claude-code",
+  "proposed_native_id": "opus",
+  "proposed_effort": "high",
+  "proposed_policy": "pinned",
+  "lifecycle_remains": "candidate",
+  "reported_identity": "claude-opus-5-5; native label only, backend unverified; provider alias is not a pinned backend version",
+  "scope": "Supervised ordinary Phase-1 specification review without a domain model or amendment rereview. One small held-out feature; no automatic generalization to other roles or review regimes.",
+  "native_A_results": {
+    "dirty": [
+      "UNCLEAR",
+      "UNCLEAR"
+    ],
+    "clean": [
+      "PASS",
+      "PASS"
+    ]
+  },
+  "separate_A_adjudication": {
+    "dirty_D5": "Root and independent Work source adjudication: material data constraint Major is valid; native labels unchanged.",
+    "contract_diagnostic": "Four A outputs meet corrected contract diagnostic; original two dirty structural FAILs remain recorded.",
+    "seeded_recall": "Both dirty A outputs name original D1-D4; independently adjudicated D5 gives 5/5 in amended key, separately from check correctness."
+  },
+  "withheld_roles": {
+    "spec-reviewer-b": "Not recommended: one actual GROUNDING_DEFECT and unresolved dirty/clean unkeyed concerns. No B adoption reference."
+  },
+  "evidence": [
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/B-grounding-defect.json",
+      "sha256": "293666a5e9bd1779a1452d8f915603d0158d45566ffc556724738dc43c7f02c8"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/PUBLIC-REPORT.md",
+      "sha256": "c52fa389b1789b1ee9f685ffc3604d6c30a60609e26f26781334dff0ce134009"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t01-claude-a-dirty-r1.json",
+      "sha256": "1595b4f7ef9575e059d53872e61b59d0c6d57bc8d6a56df7e40a02044def8c2c"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t02-claude-b-clean-r1.json",
+      "sha256": "c4da57c8c3012f8b2c30b4d76c5b8d59b256ab977ef8cb1ae6a27b1d19c4f5f8"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t03-claude-a-clean-r1.json",
+      "sha256": "917141b4a727592a404ffe5b8cafb879327d6b8db424e4678722f685b77e8b56"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t04-claude-b-dirty-r1.json",
+      "sha256": "adf69396a6a3d25187aba5d7b76aa1e24c13011e4f44cfc7edfe81a4c3b125e8"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t05-claude-b-dirty-r2.json",
+      "sha256": "1c34c429cb2a1e0440e747cd4335d3ad83b89b8b0b373759d21c7eef449e9e91"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t06-claude-a-clean-r2.json",
+      "sha256": "415128f1a173dcfb9698fb08187cd1996291217195d91d715fe185730a5b171b"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t07-claude-b-clean-r2.json",
+      "sha256": "3143ffe063bc17a6c1a433cb63505052d5e776f87e8aab2df044c9cdd22f818b"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/candidates/t08-claude-a-dirty-r2.json",
+      "sha256": "b1287b86985fc8fb54ba8456dc4a52f59fab1ac5192efda5b71eca5d2b837b12"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/controls-result.json",
+      "sha256": "9b2ebddd1a3b698a03619662ce86aaa5e4a0a42b55136e6ad18b5a200230a975"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/final-aggregate.json",
+      "sha256": "3deef2a867062256023b87b023b2352b02a0e2aa276f29ce4f64977ffdd895aa"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/fixtures/clean/acceptance-tests.md",
+      "sha256": "3fb411961d62268e5f28c4b5881a3b6beafd6d2b739a40fbb1287285a0499c95"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/fixtures/clean/investigation.md",
+      "sha256": "caeadc4e5122e19bb896db1031e070b7727db0a2ac5999299f59f4ebd2b3b73a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/fixtures/clean/requirements.md",
+      "sha256": "30b7f0553af051afbf0969dce47346dd7537eafb4de9f149983284bede698f49"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/fixtures/dirty/acceptance-tests.md",
+      "sha256": "6cbbad45d0ecb60c2ee12ea212be6fdb66f1df5e9474daac5b42ab62a7e47ca8"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/fixtures/dirty/investigation.md",
+      "sha256": "21e8a8db3fdfecc329f6994bea8143600d8c1331a13e78f9b19e4271323eaf6e"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/fixtures/dirty/requirements.md",
+      "sha256": "40eb8ab54c1e2fc7efd323ed0e14a1e3e7dbfe92f6e2b279f6c8df17df80b759"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/judges/a-clean-labels.json",
+      "sha256": "3793b7ab2734584beabfa0aa7f747aa87859ede4d7e04a345c79779abae3fe18"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/judges/a-clean.json",
+      "sha256": "878d7287ac445acba5004d0c0e9d667f0305652e50937913eab7f09138675962"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/judges/a-dirty-labels.json",
+      "sha256": "f560c7fccfd5df5f77b94b83fcf27df311a7e54c345c85820546fee5e187b091"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/judges/a-dirty.json",
+      "sha256": "90ca3a46bc78187f46cd63246bc61ebf82f247d0e233323fc108c31445fe5590"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/judges/b-clean-labels.json",
+      "sha256": "405fb7fc9e2a755b2429e7f84f51c34f7f8beaad0ed6f89283dcc08d7569bf7a"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/judges/b-clean.json",
+      "sha256": "43464c06d942c2438db20bbf16096ec185cccba1df7c58314c91a1fee6a7a928"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/judges/b-dirty-labels.json",
+      "sha256": "cb1727179297004163994432c6484308c4ad7fbe6b3194e5e833fc4809b1a5a1"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/judges/b-dirty.json",
+      "sha256": "f35cd41d1b39e1f31238e8a547713ee3037ebb5dbca2da62f8580db7d73dcf46"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/retained-provenance.json",
+      "sha256": "86c60ca3f5d1aff9e215b6ccc6ab8e36b0c0feaf2617f187d9fcf2ad839ba5ad"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/roles/spec-reviewer-a.md",
+      "sha256": "1e4bec0592136e1c2a610d66ecd0b15b79190cd985a966a46925e7d58d8f0731"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/roles/spec-reviewer-b.md",
+      "sha256": "d9d7e8e3abb0d822daaeb19b30183f7e283602c741d440d35d78accac166cbb1"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/source-adjudication.json",
+      "sha256": "03ff68fb60f2b5938e5f6c6f0c2d679dec90b2844cfeebbf0f91638eb86515f2"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "specs/ci-model-modernization/verification/spec-reviewer-a-high-20261024/wrapper-controls-result.json",
+      "sha256": "d4993c6fcf8aa0e906be0307acfa89cddad6808071244ef8221f3106bd718983"
+    }
+  ],
+  "limits": [
+    "n=2 per role/variant on one tiny held-out feature, targeted after medium-campaign failures; not a population success estimate.",
+    "Offline source adjudication and three amended judge packets are post-result adaptive. Original medium and original high scores remain immutable; medium/high is not a directly paired comparison.",
+    "A-dirty native UNCLEAR remains native UNCLEAR. D5 source validity is an independent root/reviewer decision in a separate layer.",
+    "B pending extra concerns are not automatically false positives. One concrete B grounding defect remains regardless of pending concerns.",
+    "Role adoption metadata and fresh formal executor/identity registration are separate gates; this proposal does not register a formal reviewer or mark any formal quality gate Passed.",
+    "Frozen candidate harness used --setting-sources empty and strict MCP/supplied-file read-only tooling. Normal managed-launcher/settings/hooks behavior is not validated by this experiment; preserve applicable production settings/hooks/native authority.",
+    "No global capability, effort support, risk floor, preference, native mapping or lifecycle change. The current registry already supports Opus/high.",
+    "Candidate lifecycle requires explicit policy=pinned, model_id=anthropic/opus, requested_effort=high selection. The native mapping remains the opus alias; fresh runtime observation/delivery checks remain required.",
+    "No runtime semantic-scope enforcement is added by metadata: the operator must restrict this proposed evidence-backed use to ordinary Phase-1/no-domain reviews.",
+    "A future merge must union this A-only reference with separately approved self-improvement metadata, preserving PR #641 and its tests/medium support; do not replace its policy with this stable-base snapshot.",
+    "Human approval activates only the stated bounded adoption metadata. It does not register a formal executor, prove a protected launch, or mark any formal review Passed. Historical evidence retains its original pre-approval statements."
+  ],
+  "publication": {
+    "status": "integrated",
+    "public_evidence_files": 32,
+    "private_native_metadata_included": false
+  }
+}

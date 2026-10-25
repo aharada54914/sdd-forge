@@ -1,0 +1,50 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "PASS。主体、入力、状態、出力が具体的に定められており、二人の実装者が異なるプロダクト挙動を作る余地は見当たらない。役割は member/admin の2つのみで、admin は member の全権限を持つ（specs/workshop-enrollment/requirements.md:12、specs/workshop-enrollment/investigation.md:3）。日時形式・欠落時の扱い・エラーコードは CON-001 で決まっている（specs/workshop-enrollment/requirements.md:11）。一覧は範囲の両端を含み、同時刻は id 昇順、該当なしは空配列、必須項目とその型も REQ-001 で決まっている（specs/workshop-enrollment/requirements.md:16）。申込は REQ-002 で、判定順が開始日時→重複→定員と明示され、判定と登録を不可分に行うことも定められている（specs/workshop-enrollment/requirements.md:17）。名簿公開は REQ-003 で、成功時 202、承認は 204、再承認も 204 で状態不変、認証・役割の拒否を先に判定することが決まっている（specs/workshop-enrollment/requirements.md:18）。名簿は表示名のみ（specs/workshop-enrollment/investigation.md:5）。境界時刻もそろっている。申込は「開始日時以降」に CLOSED、承認は「開始日時以降」に可能で、同じ瞬間について両者は矛盾しない（specs/workshop-enrollment/requirements.md:13,17）。ブロックしない補足（Minor 相当のため FAIL にはしない）：REQ-004 は申込・承認・公開の各操作で結果コード付きの1行を追記すると定めている（specs/workshop-enrollment/requirements.md:19）。一方 CON-002 では未認証要求を既存基盤が 401 で拒否する（specs/workshop-enrollment/requirements.md:12）。このため、401 の要求も audit.log に記録するかは読み手によって解釈が分かれうる。ただし 403 や各 409 の記録は REQ-004 の文言から決まり、設計を止める曖昧さではない。"
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "PASS。要件・受け入れ条件・制約・非目標の間に直接の矛盾は見つからなかった。CON-001 では必須パラメータ欠落を 400 INVALID_DATETIME とし（specs/workshop-enrollment/requirements.md:11）、AC-002 も同じ扱いである（specs/workshop-enrollment/acceptance-tests.md:7）。申込の判定順は REQ-002（specs/workshop-enrollment/requirements.md:17）と AC-003（specs/workshop-enrollment/acceptance-tests.md:8）で一致している。承認は開始前なら 409 NOT_STARTED、開始以降は 204、再承認も 204 であり、CON-003・REQ-003・AC-004 の記述が一致している（specs/workshop-enrollment/requirements.md:13,18、specs/workshop-enrollment/acceptance-tests.md:9）。NG-01 は存在しない id、取消、ワークショップの作成・更新・削除を対象外としており（specs/workshop-enrollment/requirements.md:7）、これと衝突する受け入れ条件はない。admin が member の権限を持つこと（specs/workshop-enrollment/requirements.md:12）も、member が自分を申込むという REQ-002 と衝突しない。フェーズ順序について：investigation.md に `## Amendment Re-Review Context` は無いため、既定の Phase-1 基準で判断した。仕様パッケージは後工程の成果物（design、tasks、実装、evidence など）を参照・引用していない。「他の項目の追加は設計に委ねる」（specs/workshop-enrollment/requirements.md:16）は判断を後工程に委ねるだけで、後工程の成果物の存在を示すものではない。したがってフェーズ順序違反にはあたらない。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "PASS。要件から導かれる主要な否定経路・空の状態・境界は、受け入れ条件と検証計画で押さえられている。一覧（specs/workshop-enrollment/acceptance-tests.md:13）は範囲の両端、範囲外、空の結果、同時刻の id 順、200件での p95 を確認する。入力エラー（specs/workshop-enrollment/acceptance-tests.md:14）は、オフセットなし、実在しない日時 2026-02-30、範囲の逆転、パラメータ欠落、未認証を確認する。申込（specs/workshop-enrollment/acceptance-tests.md:15）は、成功・重複・満席、開始日時ちょうど、定員2に3人が同時に申込む場合を確認する。承認・公開（specs/workshop-enrollment/acceptance-tests.md:16）は、開始前の承認拒否、member の 403、未承認での公開、再公開、再承認、outbox の件数・内容を確認する。監査ログは specs/workshop-enrollment/acceptance-tests.md:17 で確認する。ブロックしない補足（Minor 相当）：(1) TEST-003 の申込順 u1,u1,u2,u3 では、重複と満席が同時に成り立つ場面（満席後に u1 が再申込する場合）を実際には試さない。ただし判定順そのものは AC-003 に明記されており（specs/workshop-enrollment/acceptance-tests.md:8）、検証者は判断できる。(2) 名簿公開には、申込にある同時実行の条件（specs/workshop-enrollment/requirements.md:17）に相当する記述がない。それでも REQ-003 の「1回送信」と、再要求を ALREADY_PUBLISHED とする規定（specs/workshop-enrollment/requirements.md:18）で、送信は最大1回という挙動自体は決まっているため、下流でプロダクト挙動を発明する必要はない。"
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "PASS。前提はすべて investigation.md で決定済みとして記録されている。認証基盤の2役割は specs/workshop-enrollment/investigation.md:3、UTC 保存とタイムゾーン表示をクライアントの責務とすることは specs/workshop-enrollment/investigation.md:4、名簿の公開内容は specs/workshop-enrollment/investigation.md:5、audit.log と roster-outbox スタブの用意は specs/workshop-enrollment/investigation.md:6 にある。さらに「未解決のプロダクト判断はない」と明記されている（specs/workshop-enrollment/investigation.md:9）。要件側も、対象 id がすべて事前に用意されていることを NG-01 で前提として固定している（specs/workshop-enrollment/requirements.md:7）。設計やタスク分解の前に決めるべき未解決の前提は残っていない。"
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "PASS。範囲内に取り消せない外部公開の境界があり、それがテスト可能に定義されている。CON-003 は、admin が明示的に承認を記録するまで roster-outbox には何も送信しないと定め、承認は開始日時以降に限り可能、開始前は 409 NOT_STARTED で状態不変とする（specs/workshop-enrollment/requirements.md:13）。REQ-003 は、未承認時の 409 APPROVAL_REQUIRED、公開済みでの 409 ALREADY_PUBLISHED、member への 403、役割の拒否を先に判定することを定めている（specs/workshop-enrollment/requirements.md:18）。AC-004 は、承認前に outbox が空のままであること、承認後に表示名のみの名簿が1件送信されることを観測可能な形で示している（specs/workshop-enrollment/acceptance-tests.md:9）。TEST-004 と MV-001 は、外部ネットワークに接続しないローカルのスタブでこれを検証する計画になっている（specs/workshop-enrollment/acceptance-tests.md:16,20）。公開先は合成のスタブに限られる（specs/workshop-enrollment/requirements.md:8）。"
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "PASS。実装方針レビューの担当者が、欠けているプロダクト挙動を補う必要はない。エンドポイント、ステータスとエラーコード、判定順、原子性、境界時刻、公開内容、ログ項目、性能目標は、REQ-001〜REQ-004 と CON-001〜CON-003 で決まっている（specs/workshop-enrollment/requirements.md:11-19）。設計に委ねる範囲は「他の項目の追加」に限定されている（specs/workshop-enrollment/requirements.md:16）。investigation.md も、未解決の判断はなく実装方針レビューに進めるとしている（specs/workshop-enrollment/investigation.md:9）。AMBIGUITY と EDGE-CASE-COVERAGE に記した補足は、いずれも設計やタスク分解を止めない Minor の明確化にとどまる。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP（このチェックは実施していない）。許可された入力の manifest に domain/context-map.md も domain/domain-contract.json も含まれていない。そのため `Domain-Model-Status: Approved` も、スキーマに適合した contract も確認できない。requirements.md にも `Bounded-Context:` の欄は無い（specs/workshop-enrollment/requirements.md:1-19）。スキップ条件（domain/ が無い、Approved でない、または contract が無いか不正）にあたるため SKIP とした。"
+    }
+  ]
+}

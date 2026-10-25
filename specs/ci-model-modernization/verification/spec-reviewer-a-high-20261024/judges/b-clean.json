@@ -1,0 +1,379 @@
+{
+  "batch": "b-clean",
+  "evaluations": [
+    {
+      "output_label": "O1",
+      "overall": "UNCLEAR",
+      "checks": [
+        {
+          "id": "AMBIGUITY",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 17,
+              "end": 17,
+              "quote": "判定順は開始日時、重複、定員の順とし、1回の判定と登録を不可分に行う。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 15,
+              "end": 15,
+              "quote": "開始日時ちょうどの申込も行い、各応答・状態不変・残席を REQ-002 と AC-003 に照合する。"
+            }
+          ],
+          "note": "Correct PASS. The requirements decide enrollment precedence and the exact start-time boundary; TEST-003 resolves the candidate's noted wording difference. The cited output, role, and state rules support Phase-1 clarity."
+        },
+        {
+          "id": "CONTRADICTION",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 13,
+              "end": 13,
+              "quote": "承認記録は開催開始日時以降に限り可能で、開始前は `409 NOT_STARTED` で状態不変とする。申込は開始日時以降閉じるため、承認対象の申込集合は以後変化しない。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 8,
+              "end": 8,
+              "quote": "外部公開先は合成のスタブ宛先 `roster-outbox` のみとする。"
+            }
+          ],
+          "note": "Correct PASS. Approval timing, enrollment closure, excluded cancellations, and the stub destination are consistent. Critical is the assigned check severity, not an unsupported claim of a defect."
+        },
+        {
+          "id": "EDGE-CASE-COVERAGE",
+          "assessment": "ADJUDICATION_PENDING",
+          "evidence_match": "UNCLEAR",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "`roster-outbox` に1回送信し `202` を返す。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 16,
+              "end": 16,
+              "quote": "その後、未承認で公開要求、`admin` が承認記録、公開要求、再公開要求の順に行い、各応答、状態不変、`roster-outbox` の件数・内容を AC-004 に照合する。"
+            }
+          ],
+          "note": "The unkeyed concern is specifically rooted in REQ-003 and TEST-004: concurrent publication is not an explicit planned scenario. The candidate identifies a Phase-1 verification gap and gives a Major rationale without inventing an approval contradiction. However, the existing one-send and ALREADY_PUBLISHED rules may already determine the required behavior, weakening the claimed downstream inability. Root adjudication must decide whether this is material missing coverage or optional clarification; it is not automatically a false positive."
+        },
+        {
+          "id": "ASSUMPTIONS-RESOLVABLE",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 5,
+              "end": 6,
+              "quote": "- DEC-003: 名簿の公開内容は受講者の表示名のみと決定済みで、メールアドレスや所属は含めない。\n- DEC-004: 監査ログ `audit.log` と手動検証用スタブ `roster-outbox` は既存の開発用構成で用意できる。"
+            },
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 2,
+              "end": 2,
+              "quote": "これは架空の固定 fixture の前提であり、実リポジトリや実サービスを調査した事実ではない。"
+            }
+          ],
+          "note": "Correct PASS. The investigation fixes the relevant assumptions, including disclosed roster content and available validation facilities. The candidate correctly treats these as fixture premises rather than executed investigation."
+        },
+        {
+          "id": "APPROVAL-BOUNDARY",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 13,
+              "end": 13,
+              "quote": "対象ワークショップについて `admin` が明示的に承認を記録するまで、`roster-outbox` には何も送信しない。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 9,
+              "end": 9,
+              "quote": "承認記録前の公開要求は `409 APPROVAL_REQUIRED` で `roster-outbox` は空のまま。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 3,
+              "end": 3,
+              "quote": "この文書の TEST は将来の検証計画であり、実行済みのテストではない。"
+            }
+          ],
+          "note": "Correct PASS. Explicit admin approval, observable preapproval non-delivery, role rejection, and timing restrictions establish the boundary. The package contains planned verification, not later-phase execution evidence, so default Phase-1 calibration produces no sequencing violation."
+        },
+        {
+          "id": "DOWNSTREAM-READINESS",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "公開済みの再要求は `409 ALREADY_PUBLISHED` を返し、いずれも何も送信しない。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 16,
+              "end": 16,
+              "quote": "他の項目の追加は設計に委ねる。"
+            }
+          ],
+          "note": "Correct PASS against the key. Product behavior and minimum output content are decided, with additional fields delegated to design. The separate pending coverage concern does not itself invalidate this readiness PASS; no keyed product decision is missing."
+        },
+        {
+          "id": "DOMAIN-CONFORMANCE",
+          "assessment": "VALID_SKIP",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 1,
+              "end": 19,
+              "quote": "# workshop-enrollment 要件"
+            }
+          ],
+          "note": "Correct SKIP under the packet's explicit no-domain fixture condition. The supplied requirements also contain no Bounded-Context field. Manifest omission alone would not establish repository absence, but the packet independently fixes applicability; no integrated-summary finding is used as evidence."
+        }
+      ]
+    },
+    {
+      "output_label": "O2",
+      "overall": "PASS",
+      "checks": [
+        {
+          "id": "AMBIGUITY",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 17,
+              "end": 17,
+              "quote": "判定順は開始日時、重複、定員の順とし、1回の判定と登録を不可分に行う。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 19,
+              "end": 19,
+              "quote": "申込・承認記録・公開要求の各操作は、操作種別・対象 id・結果コードを含む1行を `audit.log` に追記する。"
+            }
+          ],
+          "note": "Correct PASS. Actors, inputs, outputs, precedence, and boundaries are specified. The observation about logging infrastructure-level 401 responses is explicitly nonblocking and does not assert an unkeyed FAIL or justify changing the keyed PASS."
+        },
+        {
+          "id": "CONTRADICTION",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 13,
+              "end": 13,
+              "quote": "承認記録は開催開始日時以降に限り可能で、開始前は `409 NOT_STARTED` で状態不変とする。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 9,
+              "end": 9,
+              "quote": "開始前の承認記録は `409 NOT_STARTED` で不変、開始以降の承認記録は `204`、再承認も `204` で不変。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 16,
+              "end": 16,
+              "quote": "他の項目の追加は設計に委ねる。"
+            }
+          ],
+          "note": "Correct PASS. Requirements and acceptance criteria agree on approval timing and outcomes. Delegating additional fields to future design does not cite an existing later-phase artifact, so no amendment exception is needed."
+        },
+        {
+          "id": "EDGE-CASE-COVERAGE",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 13,
+              "end": 13,
+              "quote": "期間の両端・期間外・空結果・同時刻の id 順も含め、各応答の完了時間をローカルの呼出側で計測する。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 15,
+              "end": 15,
+              "quote": "別の未申込の定員2対象では3人が同時に申込んでも成功は2件だけで確定申込数が2であることを確認する。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "公開済みの再要求は `409 ALREADY_PUBLISHED` を返し、いずれも何も送信しない。"
+            }
+          ],
+          "note": "Correct PASS. Planned scenarios cover material empty, boundary, invalid-input, enrollment, and approval paths. The candidate reasonably treats additional combined-condition and concurrent-publication scenarios as nonblocking because the relevant precedence and single-publication behavior are already specified."
+        },
+        {
+          "id": "ASSUMPTIONS-RESOLVABLE",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 3,
+              "end": 5,
+              "quote": "- DEC-001: 既存の認証基盤は `member` と `admin` の2役割を返す。追加調査は不要。\n- DEC-002: 既存 DB は UTC タイムスタンプ列を持つ。表示用のタイムゾーン変換はクライアントの責務とし、本機能では扱わない。\n- DEC-003: 名簿の公開内容は受講者の表示名のみと決定済みで、メールアドレスや所属は含めない。"
+            },
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 9,
+              "end": 9,
+              "quote": "- 未解決のプロダクト判断はない。実装方針レビューに進める。"
+            }
+          ],
+          "note": "Correct PASS. Concrete investigation decisions resolve roles, time handling, and roster disclosure. The candidate supports readiness with those decisions rather than relying solely on the investigation's readiness assertion."
+        },
+        {
+          "id": "APPROVAL-BOUNDARY",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "承認記録と公開要求はいずれも `admin` のみが行え、`member` からの要求は `403 FORBIDDEN`。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 9,
+              "end": 9,
+              "quote": "承認記録前の公開要求は `409 APPROVAL_REQUIRED` で `roster-outbox` は空のまま。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 20,
+              "end": 20,
+              "quote": "隔離されたローカル環境でスタブ `roster-outbox`（ローカルファイルへの書き込みのみ）を使い、TEST-004 を手動で再現できる。外部ネットワークには接続しない。"
+            }
+          ],
+          "note": "Correct PASS. Admin-only approval and publication, preapproval non-delivery, and observable rejection behavior establish a testable boundary. MV-001 supplies planned manual validation, which the candidate does not misrepresent as executed evidence."
+        },
+        {
+          "id": "DOWNSTREAM-READINESS",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 16,
+              "end": 16,
+              "quote": "各要素は最低限 `id`、`title`、`start_at`（UTC）、`capacity`、`remaining_seats` を含み、id と title は文字列、capacity と remaining_seats は非負整数とし、remaining_seats は capacity から確定申込数を引いた数である。他の項目の追加は設計に委ねる。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "認証・役割の拒否を時刻や公開状態の判定より先に行う。"
+            }
+          ],
+          "note": "Correct PASS. Minimum client-visible content and operational decision rules are settled. The candidate does not demand a complete implementation schema or later-phase artifacts, and its optional clarifications do not establish a missing product decision."
+        },
+        {
+          "id": "DOMAIN-CONFORMANCE",
+          "assessment": "VALID_SKIP",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 1,
+              "end": 19,
+              "quote": "# workshop-enrollment 要件"
+            }
+          ],
+          "note": "Correct SKIP under the packet's explicit no-domain fixture condition. The cited requirements contain no Bounded-Context field. Although manifest omission alone would not prove repository absence, the packet independently establishes the skip condition, and the candidate follows the required SKIP contract."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "kind": "inert dry-run with explicitly synthetic release/input fixture; never provider authority",
+  "passed": 11,
+  "total": 11,
+  "provider_calls": 0,
+  "controls": [
+    {
+      "id": "dry_run_no_controller_call_or_runtime_creation",
+      "pass": true
+    },
+    {
+      "id": "dry_run_reuses_real_pinned_profile_300s_zero_tools",
+      "pass": true
+    },
+    {
+      "id": "missing_release_fails_before_controller",
+      "pass": true
+    },
+    {
+      "id": "input_drift_fails_before_controller",
+      "pass": true
+    },
+    {
+      "id": "wrong_release_hash_rejected",
+      "pass": true
+    },
+    {
+      "id": "first_judge_retry_rejected",
+      "pass": true
+    },
+    {
+      "id": "out_of_order_slot_rejected",
+      "pass": true
+    },
+    {
+      "id": "redirected_runtime_paths",
+      "pass": true
+    },
+    {
+      "id": "native_judge_run_body_unchanged",
+      "pass": true
+    },
+    {
+      "id": "configure_creates_no_runtime_files",
+      "pass": true
+    },
+    {
+      "id": "original_files_and_bytecode_unchanged",
+      "pass": true
+    }
+  ],
+  "wrapper_sha256": "19b809b3d11f964456cde4a233e1fdb101e62bfaa6c58899818ea9a275da59ea",
+  "test_sha256": "2fa9ea950ef56d6f8dd5b70265059cc8d03bea4dd0d02ad7305614768209eaed",
+  "original_frozen_evidence_verified": true
+}

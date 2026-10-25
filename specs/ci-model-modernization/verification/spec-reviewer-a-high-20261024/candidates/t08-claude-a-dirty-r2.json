@@ -1,0 +1,50 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "(1) [Critical] REQ-003 と CON-003/AC-004 が矛盾している。specs/workshop-enrollment/requirements.md:18 の REQ-003 は「承認記録の有無にかかわらず名簿を `roster-outbox` に1回送信し `202` を返す」と定めている。一方、specs/workshop-enrollment/requirements.md:13 の CON-003 は「`admin` が明示的に承認を記録するまで、`roster-outbox` には何も送信しない」と定め、specs/workshop-enrollment/acceptance-tests.md:9 の AC-004 は「承認記録前の公開要求は `409 APPROVAL_REQUIRED` で `roster-outbox` は空のまま」と定めている。下流で決められない点: 実装者は未承認の公開要求を送信して 202 で返すべきか、409 で拒否すべきか判断できない。検証者も REQ-003 と AC-004 の両方を満たす結果を定義できないので、TEST-004（specs/workshop-enrollment/acceptance-tests.md:16）の判定基準が成り立たない。仕様レビューに属する理由: どちらが正しい要件かはプロダクト判断であり、設計・タスク分解・品質ゲートでは決められない。Phase 1 成果物の内部矛盾にあたる。severity の根拠: 取り消せない外部公開（CON-003）の承認境界をめぐる矛盾なので、calibration の Critical（contradictory goals／missing approval boundary）に該当する。(2) [Major] specs/workshop-enrollment/requirements.md:16 の REQ-001 にある「一覧は十分に高速に応答する」には、閾値・パーセンタイル・負荷条件がない。下流で決められない点: 設計者は性能目標を決められず、検証者は合否を判定できない。仕様レビューに属する理由: 受け入れ基準となる数値は要件側で決めるべき内容で、品質ゲートで後から作るものではない。severity の根拠: 曖昧な要件なので Major とした。チェック全体の severity は (1) により Critical。phase-sequencing について: investigation.md に `## Amendment Re-Review Context` 節はないため default Phase-1 calibration で判断した。後段 phase の成果物への参照は見当たらず、phase-sequencing を理由とする指摘はない。"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "specs/workshop-enrollment/requirements.md:4 の G-01 には「申込確認票を取得でき」という目標が含まれている。しかし、これに対応する REQ（specs/workshop-enrollment/requirements.md:16-19）も AC（specs/workshop-enrollment/acceptance-tests.md:6-10）もない。specs/workshop-enrollment/requirements.md:7-8 の NG-01/NG-02 にも除外の記載はない。下流で決められない点: 確認票の取得手段（エンドポイント／応答形式）、含める項目、取得できる主体（本人のみか admin も可か）、未申込者が要求した場合の結果を、実装者もタスク作成者も決められない。検証者には照合先の AC がない。仕様レビューに属する理由: 目標に対応する受け入れ条件があるかどうかは Phase 1 の traceability そのもので、設計判断では補えない。severity の根拠: 目標の一部が受け入れ条件にまったく結び付いておらず、下流で実装の欠落や独自解釈が生じるため Major（missing observable acceptance criterion）とした。目標と他条件の矛盾ではないので Critical にはしない。"
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "(1) specs/workshop-enrollment/acceptance-tests.md:6 の AC-001 にある「一覧が快適な速度で表示される」は主観的な意図の記述で、観測可能な基準になっていない。specs/workshop-enrollment/acceptance-tests.md:13 の TEST-001 も「応答の速さを確認する」とあるだけで、合否の閾値がない。下流で決められない点: 検証者は100回の呼び出し結果を見ても合否を判定できない。(2) 満席時の申込結果が観測可能な形で定義されていない。specs/workshop-enrollment/acceptance-tests.md:8 の AC-003 と specs/workshop-enrollment/requirements.md:17 の REQ-002 が定めるのは 201・`409 DUPLICATE`・`409 CLOSED` と「確定申込数は定員を超えず」だけで、定員超過で拒否する際のステータス／エラーコードと状態不変の有無が書かれていない。ところが specs/workshop-enrollment/acceptance-tests.md:15 の TEST-003 は定員2で「u1、u1、u2、u3 の順に申込む」としており、u3 の応答を AC-003 と照合する前提になっている。下流で決められない点: 実装者はエラーコードを自分で決めるしかなく、検証者は u3 や同時申込で失敗した側の応答の期待値を決められない。仕様レビューに属する理由: 外部に見える応答の契約は受け入れ条件として仕様が決めるもので、テスト作成時に補うと仕様と実装がずれる。severity の根拠: どちらも観測可能な受け入れ条件が欠けており、下流での不一致を招くため Major（矛盾や安全境界の問題ではない）。"
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/workshop-enrollment/requirements.md:7 の NG-01 は、支払い・キャンセル待ち・申込取消・承認取消・リマインダー・繰り返し開催・ワークショップの CRUD・存在しない id を明示的に除外している。specs/workshop-enrollment/requirements.md:8 の NG-02 は、外部公開先を合成スタブ `roster-outbox` に限定している。specs/workshop-enrollment/investigation.md:4 の DEC-002 は、表示用のタイムゾーン変換を範囲外としている。REQ-001 で一覧項目の追加を「設計に委ねる」としている点も、必須項目が固定されているので範囲の拡大を招かない。拡張しやすい領域には境界が書かれており、設計者・タスク作成者が範囲を判断できる。G-01 の確認票が除外も定義もされていない件は GOAL-AC-TRACE で扱う。"
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "取り消せない外部公開（specs/workshop-enrollment/requirements.md:13 の CON-003）で送る名簿について、データ項目の制約が決まっていない。specs/workshop-enrollment/investigation.md:5 の DEC-003 には、名簿の項目（表示名のみか、メールアドレスや所属も含めるか）は「講師側と調整中で未決定」とある。にもかかわらず specs/workshop-enrollment/investigation.md:9 の Readiness は「未解決のプロダクト判断はない。実装方針レビューに進める。」と書いており、調査記録の中で食い違っている。specs/workshop-enrollment/acceptance-tests.md:16 の TEST-004 は「`roster-outbox` の件数・内容を AC-004 に照合する」とするが、specs/workshop-enrollment/acceptance-tests.md:9 の AC-004 にも REQ-003 にも名簿の内容は定義されていない。下流で決められない点: 実装者は外部へ送る個人データの範囲（データ最小化）を決められず、検証者は送信内容の正否を判定できない。仕様レビューに属する理由: どのデータ項目を外部の講師に開示するかはプロダクト判断・データ取り扱いの制約で、設計・実装の段階で決めてはならない。severity の根拠: data constraint の欠落にあたり、下流の不一致を確実に招くため Major（calibration の missing constraint）。承認境界そのものは CON-003 に明記されている。それと REQ-003 の矛盾は REQ-TESTABILITY で Critical として報告済みなので、ここでは重複して severity を上げない。"
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "高リスクの主張には、それぞれ検証面が計画されている。取り消せない外部公開の承認ゲート（specs/workshop-enrollment/requirements.md:13）は、specs/workshop-enrollment/acceptance-tests.md:9 の AC-004、:16 の TEST-004、隔離環境のスタブで手動再現する :20 の MV-001 が対象にしている。同時申込で定員を超えない主張（specs/workshop-enrollment/requirements.md:17）は、specs/workshop-enrollment/acceptance-tests.md:8 の AC-003 と :15 の TEST-003（3人同時申込で成功2件）が対象にしている。監査ログ（specs/workshop-enrollment/requirements.md:19）は specs/workshop-enrollment/acceptance-tests.md:10 の AC-005 と :17 の TEST-005 が対象にしている。検証面は存在する。ただし、検証の期待値が REQ-003 と食い違う点は REQ-TESTABILITY、名簿内容の基準がない点は CONSTRAINTS-EXPLICIT で報告済みである。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "skipped: 許可された入力 manifest に `domain/context-map.md` も `domain/domain-contract.json` も含まれていない。Approved なドメインモデルがあることを確認できないため、適用条件（domain/ があり、Domain-Model-Status: Approved で、schema-valid な contract がある）を満たさない。specs/workshop-enrollment/requirements.md:1-19 にも `Bounded-Context:` フィールドはないが、適用条件を満たさないので指摘としない。"
+    }
+  ]
+}

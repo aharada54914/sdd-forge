@@ -196,7 +196,18 @@
       "hosts": {
         "claude-code": "sonnet"
       },
-      "adoption": []
+      "adoption": [
+        {
+          "role": "task-reviewer-a",
+          "path": "contracts/model-adoption/task-reviewer-medium-20261024.json",
+          "sha256": "00dc6c8698d5fe5453e058671bbe6a03ed609a945b6b45428fec0bdf7299640a"
+        },
+        {
+          "role": "task-reviewer-b",
+          "path": "contracts/model-adoption/task-reviewer-medium-20261024.json",
+          "sha256": "00dc6c8698d5fe5453e058671bbe6a03ed609a945b6b45428fec0bdf7299640a"
+        }
+      ]
     },
     {
       "id": "anthropic/opus",
@@ -212,6 +223,11 @@
           "role": "self-improvement",
           "path": "contracts/model-adoption/self-improvement-20261023.json",
           "sha256": "782b7afab5e6ee1a4e452393de8721d46b72d44765cf8ac92117736ed539ba2b"
+        },
+        {
+          "role": "spec-reviewer-a",
+          "path": "contracts/model-adoption/spec-reviewer-a-high-20261024.json",
+          "sha256": "21c87be2e9b2620958e4d7c74a7aabe7f85c197045ed1a08aaa1b6bf6b850959"
         }
       ]
     },

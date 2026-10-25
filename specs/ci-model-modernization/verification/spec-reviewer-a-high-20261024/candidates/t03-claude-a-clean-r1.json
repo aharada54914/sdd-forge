@@ -1,0 +1,50 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "対象範囲の要件はすべて観測または計測できる。REQ-001（specs/workshop-enrollment/requirements.md:16）は次を定めている：両端を含む範囲、開始日時の昇順（同時刻は id 昇順）、空配列、必須の5項目とその型、`400 INVALID_RANGE`、200件で p95 500ms 以下。CON-001（specs/workshop-enrollment/requirements.md:11）は、オフセットのない日時・実在しない日時・パラメータ欠落をいずれも `400 INVALID_DATETIME` で拒否すると定めている。REQ-002（specs/workshop-enrollment/requirements.md:17）は `201`／`409 FULL`／`409 DUPLICATE`／`409 CLOSED`、状態不変、判定の順序（開始日時→重複→定員）、判定と登録を不可分に行うことを定めている。REQ-003（specs/workshop-enrollment/requirements.md:18）は `202`／`409 APPROVAL_REQUIRED`／`409 ALREADY_PUBLISHED`／`403 FORBIDDEN`／`204`、再承認を `204` で状態不変とすること、認証・役割の判定を先に行うことを定めている。REQ-004（specs/workshop-enrollment/requirements.md:19）は監査行に含める内容を定めている。これらはいずれも TEST-001〜TEST-005（specs/workshop-enrollment/acceptance-tests.md:13-17）で検証できる形になっている。補足（Minor、FAILにはしない）：`start_at`（UTC）を `Z` と `+00:00` のどちらで返すかは決まっていない。ただし UTC であることは確定しており、形式は設計段階で決められるため、検証は妨げない。"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "G-01（specs/workshop-enrollment/requirements.md:4）は3つの要素からなり、それぞれに受け入れ条件がある。一覧は AC-001（specs/workshop-enrollment/acceptance-tests.md:6）、定員内の申込は AC-003（specs/workshop-enrollment/acceptance-tests.md:8）、管理者の明示承認後に限る名簿公開は AC-004（specs/workshop-enrollment/acceptance-tests.md:9）に対応する。3件とも G-01 を明記しているため、対応する受け入れ条件のない目標はない。"
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001〜AC-005（specs/workshop-enrollment/acceptance-tests.md:6-10）は、外から観測できる結果で書かれている：HTTP ステータスとエラーコード、応答の項目、`remaining_seats` の増減、状態不変、`roster-outbox` の件数と内容（表示名のみ）、`audit.log` への1行の追記。意図だけを述べた曖昧な条件はない。補足（Minor）：AC-004（specs/workshop-enrollment/acceptance-tests.md:9）は、公開に成功したときの `202` を明記していない。その一方で、TEST-004（specs/workshop-enrollment/acceptance-tests.md:16）は「各応答、状態不変、`roster-outbox` の件数・内容を AC-004 に照合する」としている。同様に AC-001 も `200`、空配列、同時刻の id 順を明記していない。いずれも REQ-001・REQ-003（specs/workshop-enrollment/requirements.md:16,18）には明記されているので、検証担当者は判断できる。ACに書き足すのが望ましい程度の非ブロッキングな明確化である。"
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "範囲が広がりやすい点は明示的に除外されている。NG-01（specs/workshop-enrollment/requirements.md:7）は、支払い、キャンセル待ち、申込と承認の取消、通知、繰り返し開催、ワークショップの作成・削除・更新、存在しない id の要求を対象外としている。NG-02（specs/workshop-enrollment/requirements.md:8）は、実データと実在の外部サービスを使わず、公開先を合成のスタブ `roster-outbox` に限っている。DEC-002（specs/workshop-enrollment/investigation.md:4）は、表示用のタイムゾーン変換をクライアントの責務として本機能から外している。REQ-001 の「他の項目の追加は設計に委ねる」（specs/workshop-enrollment/requirements.md:16）は、必須項目を確定させたうえで、それ以外を設計に任せる範囲を区切ったものである。"
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "重要な制約は明記されている。データと日時：CON-001（specs/workshop-enrollment/requirements.md:11）、DEC-002（specs/workshop-enrollment/investigation.md:4）。役割と認証の互換性：CON-002（specs/workshop-enrollment/requirements.md:12）、DEC-001（specs/workshop-enrollment/investigation.md:3）。取り消せない外部公開の承認境界と、承認できる時期：CON-003（specs/workshop-enrollment/requirements.md:13）。個人情報の範囲：DEC-003（specs/workshop-enrollment/investigation.md:5）。実データと外部接続の禁止：NG-02（specs/workshop-enrollment/requirements.md:8）。フェーズ順序について：specs/workshop-enrollment/investigation.md には `## Amendment Re-Review Context` の見出しがないため、既定の Phase 1 キャリブレーションで判断した。この仕様パッケージは設計・タスク・実装・品質ゲートの成果物を参照も引用もしていない。「実装方針レビューに進める」（specs/workshop-enrollment/investigation.md:9）は準備完了の表明であり、後続フェーズの成果物ではない。`Spec-Review-Status: Pending`（specs/workshop-enrollment/requirements.md:2）は precheck の値と一致しており、フェーズ順序に関する指摘はない。補足（Minor）：既存基盤が `401` で拒否した未認証の申込・承認・公開要求を REQ-004（specs/workshop-enrollment/requirements.md:19）の監査対象に含めるかは明記されていない。ただし CON-002 によれば、この拒否は本機能の外で行われるため、非ブロッキングである。"
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "高リスクの主張には、いずれも検証の手段が用意されている。(1) 取り消せない外部公開と、承認前は何も送信しないこと（CON-003 specs/workshop-enrollment/requirements.md:13、REQ-003 specs/workshop-enrollment/requirements.md:18）：AC-004（specs/workshop-enrollment/acceptance-tests.md:9）、TEST-004（specs/workshop-enrollment/acceptance-tests.md:16）、ローカル書き込みのみの隔離スタブを使う MV-001（specs/workshop-enrollment/acceptance-tests.md:20）。(2) 名簿を表示名のみに限ること（DEC-003 specs/workshop-enrollment/investigation.md:5）：AC-004 と TEST-004 の内容照合。(3) 同時申込で定員を超えないこと（REQ-002 specs/workshop-enrollment/requirements.md:17）：AC-003（specs/workshop-enrollment/acceptance-tests.md:8）と TEST-003（specs/workshop-enrollment/acceptance-tests.md:15）の同時申込シナリオ。(4) 役割による拒否：AC-002 と AC-004 の `401`／`403`。(5) 監査ログ：AC-005 と TEST-005（specs/workshop-enrollment/acceptance-tests.md:10,17）。補足（Minor）：REQ-003 は、認証・役割の拒否を時刻の判定より先に行うと定めている。しかし TEST-004 は member による承認を開始以降にしか行わないため、開始前に member が承認したとき `409 NOT_STARTED` ではなく `403` になることは確認されない。AC-004 は `403` を無条件に定めているので、検証計画を後で細かくすれば足りる。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "スキップした。許可された manifest に `domain/context-map.md` も `domain/domain-contract.json` も含まれていないため、`Domain-Model-Status: Approved` を持つ有効なドメインモデルがあることを確認できない。manifest の外は探していない。specs/workshop-enrollment/requirements.md にも `Bounded-Context:` の欄はない。役定義のスキップ条件（`domain/` が存在しない）に該当するため、SKIP とした。"
+    }
+  ]
+}
