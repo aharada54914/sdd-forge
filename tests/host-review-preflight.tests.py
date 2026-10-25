@@ -263,6 +263,8 @@ ADDITIONAL_PROTECTIONS = (
     'contracts/project-skill-manifest.schema.json',
     'contracts/project-verification-observation.schema.json',
     'plugins/sdd-quality-loop/scripts/collect-project-evidence.py',
+    'plugins/sdd-bootstrap/scripts/research-sources.py',
+    QUALITY_SCRIPTS + 'workflow-state-session.py',
     'plugins/sdd-bootstrap/scripts/project-skill.py',
     'plugins/sdd-bootstrap/scripts/project-skill-process.py',
     QUALITY_SCRIPTS + 'validate-feature-scratch-history.py',
