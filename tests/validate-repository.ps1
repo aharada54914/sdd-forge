@@ -26,7 +26,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship", "sdd-domain", "sdd-azure-cloud", "sdd-aws-cloud")
-$expectedSkills = @("create-project-skill", "maintain-project-skill", "sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "diagnose", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "bootstrap", "ship", "design-sync-loop", "visual-verify-loop", "domain-model", "domain-interviewer", "domain-reverse", "domain-review-loop", "domain-sync", "concept-test", "orchestrate", "orchestrate")
+$expectedSkills = @("research-sources", "create-project-skill", "maintain-project-skill", "sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "diagnose", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "bootstrap", "ship", "design-sync-loop", "visual-verify-loop", "domain-model", "domain-interviewer", "domain-reverse", "domain-review-loop", "domain-sync", "concept-test", "orchestrate", "orchestrate")
 $expectedVersions = @{
     "sdd-bootstrap"      = "1.20.0"
     "sdd-implementation" = "1.20.0"

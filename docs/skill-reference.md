@@ -1,6 +1,6 @@
 # SDD スキルリファレンス
 
-9つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite、sdd-domain、sdd-azure-cloud、sdd-aws-cloud）に含まれる31のスキル（＋ `plugins/` 外の単独スキル1件: [`skills/adversarial-review`](#skillsadversarial-reviewplugins-外の単独スキル)）の詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+9つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite、sdd-domain、sdd-azure-cloud、sdd-aws-cloud）に含まれる32のスキル（＋ `plugins/` 外の単独スキル1件: [`skills/adversarial-review`](#skillsadversarial-reviewplugins-外の単独スキル)）の詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
 
 > **2コマンドワークフロー**: 標準の feature workflow は `/sdd-bootstrap:bootstrap` と `/sdd-ship:ship` の2つで開始します。人間専用の補助コマンドを含む可視性契約は、この後の一覧を参照してください。
 
@@ -17,6 +17,7 @@
 | domain-sync | sdd-domain | Approved な `domain/` を検出し、正準の Bounded Context と用語を sdd-bootstrap Phase 1 の requirements.md / design.md へ注入。`domain/` 不在または未 Approved なら skip 行を1行だけ記録して継続し、仕様生成をブロックしない | sdd-bootstrap-interviewer [Phase 1 冒頭] | sdd-bootstrap-interviewer [Phase 1 生成] |
 | sdd-adopt | sdd-bootstrap | 既存プロジェクトにSDD構造を導入 | — | investigate-codebase, sdd-bootstrap-interviewer |
 | investigate-codebase | sdd-bootstrap | コードベース・問題領域の読み取り調査 | sdd-adopt | sdd-bootstrap-interviewer |
+| research-sources | sdd-bootstrap | 3〜6主張を2経路・最大4周で調査し、原文照合・未解決事項・SRC/CLM関係を既存interviewerへ渡す内部補助 | bootstrap investigate/feature | sdd-bootstrap-interviewer |
 | create-project-skill | sdd-bootstrap | 実コードと利用経路から固有手順を作り、明示的な試行で観測を保存する内部補助 | bootstrap | maintain-project-skill |
 | maintain-project-skill | sdd-bootstrap | 固有手順の変更追従、再実行、利用者編集を保持したホスト投影を行う内部補助 | create-project-skill | 既存の品質ゲート |
 | sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様生成 [Phase 1] と タスク生成 [Phase 2] | investigate-codebase (任意) | spec-review-loop → impl-review-loop (Phase 1後), task-review-loop (Phase 2後) |

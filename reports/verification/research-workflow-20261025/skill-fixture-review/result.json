@@ -1,0 +1,103 @@
+{
+  "schema": "research-skill-fixture-evaluation/v1",
+  "live_search": false,
+  "model_adoption": false,
+  "fixture_follow": {
+    "start": "https://example.org/doc",
+    "followed": "https://example.org/reference",
+    "response": 403,
+    "result": "access-restricted",
+    "successful_discovery": false
+  },
+  "stop": {
+    "reason": "acquisition-wall",
+    "live_provider_calls": 0,
+    "fixture_route_batches": 2,
+    "fixture_follow_calls": 1,
+    "tool_cost": "unknown",
+    "result_budget": 2,
+    "examined": 2,
+    "new": 1,
+    "seen": 1,
+    "saturation": 0.5,
+    "empty_route_saturation": null,
+    "required_follow_attempted": true,
+    "claims_satisfied": false,
+    "unresolved": [
+      "CLM-001",
+      "CLM-003"
+    ]
+  },
+  "results": [
+    {
+      "case": "three-claim-plan",
+      "exit_code": 0,
+      "stdout": "{\n  \"authority\": \"none\",\n  \"claims\": {\n    \"assessable_claim_ids\": [\n      \"CLM-002\",\n      \"CLM-003\"\n    ],\n    \"claim_ids\": [\n      \"CLM-001\",\n      \"CLM-002\",\n      \"CLM-003\"\n    ],\n    \"claim_records\": [\n      {\n        \"claim_id\": \"CLM-001\",\n        \"record_revision\": 1,\n        \"record_sha256\": \"2bd022faeb84eb4765cbfe6f9cb2f7f8def26616545a6178d368e815d9020ba9\"\n      },\n      {\n        \"claim_id\": \"CLM-002\",\n        \"record_revision\": 1,\n        \"record_sha256\": \"da2b87ac2565de6362a7ffe792bb9fe263ec0f59a398ef1591071d1f141582cd\"\n      },\n      {\n        \"claim_id\": \"CLM-003\",\n        \"record_revision\": 1,\n        \"record_sha256\": \"9d27a615cf4e7016dcfd3bc160d8520715256a1d41fac478b419d549e72c5c89\"\n      }\n    ],\n    \"feature\": \"sample\",\n    \"semantic_assessment\": \"caller-declared-not-verified\",\n    \"verbatim_constraint\": \"Keep originals private\"\n  },\n  \"max_parallel_readers\": 2,\n  \"max_results\": 2,\n  \"max_rounds\": 4,\n  \"minimum_citation_follow_attempts\": 1,\n  \"question\": \"bounded retries\",\n  \"routes\": [\n    {\n      \"query\": \"bounded retries official documentation specification\",\n      \"route\": \"official\"\n    },\n    {\n      \"query\": \"bounded retries primary source references implementation\",\n      \"route\": \"citation-trail\"\n    }\n  ],\n  \"saturation_threshold\": 0.7,\n  \"schema\": \"research-search-plan/v1\",\n  \"stop_when\": [\n    \"evidence-sufficient\",\n    \"saturation\",\n    \"round-limit\",\n    \"acquisition-wall\",\n    \"budget-exhausted\"\n  ]\n}\n",
+      "stderr": "",
+      "expected": 0
+    },
+    {
+      "case": "minority-rejected",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "research-sources: search-assessable-majority-missing\n",
+      "expected": 1
+    },
+    {
+      "case": "legacy-question-only",
+      "exit_code": 0,
+      "stdout": "{\n  \"authority\": \"none\",\n  \"claims\": null,\n  \"max_parallel_readers\": 2,\n  \"max_results\": 10,\n  \"max_rounds\": 4,\n  \"minimum_citation_follow_attempts\": 1,\n  \"question\": \"bounded retries\",\n  \"routes\": [\n    {\n      \"query\": \"bounded retries official documentation specification\",\n      \"route\": \"official\"\n    },\n    {\n      \"query\": \"bounded retries primary source references implementation\",\n      \"route\": \"citation-trail\"\n    }\n  ],\n  \"saturation_threshold\": 0.7,\n  \"schema\": \"research-search-plan/v1\",\n  \"stop_when\": [\n    \"evidence-sufficient\",\n    \"saturation\",\n    \"round-limit\",\n    \"acquisition-wall\",\n    \"budget-exhausted\"\n  ]\n}\n",
+      "stderr": "",
+      "expected": 0
+    },
+    {
+      "case": "duplicate-plus-empty-route",
+      "exit_code": 0,
+      "stdout": "{\n  \"claims_assessed\": false,\n  \"records\": {\n    \"claims\": [\n      {\n        \"citations\": [],\n        \"claim_id\": \"CLM-001\",\n        \"evidence_status\": \"not-searched\",\n        \"record_revision\": 1,\n        \"search_record\": null,\n        \"semantic_assessed_by\": null,\n        \"semantic_note\": null,\n        \"semantic_status\": \"unassessed\",\n        \"statement\": \"Keep originals private\",\n        \"uncertainty\": null\n      },\n      {\n        \"citations\": [],\n        \"claim_id\": \"CLM-002\",\n        \"evidence_status\": \"not-searched\",\n        \"record_revision\": 1,\n        \"search_record\": null,\n        \"semantic_assessed_by\": null,\n        \"semantic_note\": null,\n        \"semantic_status\": \"unassessed\",\n        \"statement\": \"A two-attempt retry cap sends at most two requests under permanent failure.\",\n        \"uncertainty\": null\n      },\n      {\n        \"citations\": [],\n        \"claim_id\": \"CLM-003\",\n        \"evidence_status\": \"not-searched\",\n        \"record_revision\": 1,\n        \"search_record\": null,\n        \"semantic_assessed_by\": null,\n        \"semantic_note\": null,\n        \"semantic_status\": \"unassessed\",\n        \"statement\": \"A retry cap cannot guarantee successful delivery after a permanent authorization failure.\",\n        \"uncertainty\": null\n      }\n    ],\n    \"feature\": \"sample\",\n    \"schema\": \"research-evidence/v1\",\n    \"sources\": [\n      {\n        \"access_scope\": \"none\",\n        \"access_scope_label\": null,\n        \"attempted_at\": \"2026-10-01T00:00:00Z\",\n        \"authors\": [],\n        \"content_sha256\": \"0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5\",\n        \"currency_note\": null,\n        \"currency_status\": \"current\",\n        \"extraction\": {\n          \"extracted_sha256\": \"0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5\",\n          \"method\": \"plain/v1\"\n        },\n        \"final_url\": \"https://example.org/doc\",\n        \"inherited_from\": null,\n        \"license_or_permission_basis\": {\n          \"asserted_by\": null,\n          \"basis\": null,\n          \"status\": \"unknown\"\n        },\n        \"media_type\": \"text/plain\",\n        \"record_revision\": 1,\n        \"retention_or_expiry\": null,\n        \"retrieval_status\": \"retrieved\",\n        \"retrieved_at\": \"2026-10-01T00:00:01Z\",\n        \"source_id\": \"SRC-001\",\n        \"source_revision\": \"v1\",\n        \"source_type\": \"official-doc\",\n        \"storage_location_class\": \"none\",\n        \"storage_mode\": \"reference_only\",\n        \"title\": \"Example\",\n        \"uncertainty\": null,\n        \"url\": \"https://example.org/doc\",\n        \"verification_at\": null,\n        \"verification_status\": \"unverified\"\n      }\n    ]\n  },\n  \"routes\": [\n    {\n      \"query\": \"fixture bounded retries official\",\n      \"route\": \"official\",\n      \"source_ids\": [\n        \"SRC-001\"\n      ]\n    },\n    {\n      \"query\": \"fixture implementation references\",\n      \"route\": \"citation-trail\",\n      \"source_ids\": []\n    }\n  ],\n  \"schema\": \"research-search-result/v1\"\n}\n",
+      "stderr": "",
+      "expected": 0
+    },
+    {
+      "case": "examined-result-budget-rejected",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "research-sources: search-budget-exceeded\n",
+      "expected": 1
+    },
+    {
+      "case": "synthetic-original-verification",
+      "exit_code": 0,
+      "stdout": "{\n  \"complete\": true,\n  \"feature\": \"sample\",\n  \"meaning_assessed\": false,\n  \"results\": [\n    {\n      \"citation\": 0,\n      \"claim_id\": \"CLM-002\",\n      \"claim_revision\": 1,\n      \"content_sha256\": \"0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5\",\n      \"extracted\": \"text\",\n      \"extracted_sha256\": \"0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5\",\n      \"matching\": \"exact\",\n      \"original\": \"original\",\n      \"quote_sha256\": \"0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5\",\n      \"result\": \"reverified\",\n      \"source_id\": \"SRC-001\",\n      \"source_revision\": 1\n    }\n  ],\n  \"schema\": \"source-evidence-result/v1\",\n  \"verified_at\": \"2026-10-25T13:06:22Z\"\n}\n",
+      "stderr": "",
+      "expected": 0
+    },
+    {
+      "case": "typed-relation-handoff",
+      "exit_code": 0,
+      "stdout": "{\n  \"edges\": [\n    [\n      [\n        \"CLM\",\n        \"sample\",\n        \"CLM-002\",\n        1\n      ],\n      [\n        \"REQ\",\n        \"sample\",\n        \"REQ-001\",\n        0\n      ],\n      \"justifies\"\n    ],\n    [\n      [\n        \"SRC\",\n        \"sample\",\n        \"SRC-001\",\n        1\n      ],\n      [\n        \"CLM\",\n        \"sample\",\n        \"CLM-002\",\n        1\n      ],\n      \"supports\"\n    ]\n  ],\n  \"feature\": \"sample\",\n  \"meaning_assessed\": false,\n  \"pins\": {\n    \"specs/sample/requirements.md\": \"9a83c89aa5cedec035afef6526ccc7353103377f53ab96762d4bc1c1e1929d0b\"\n  },\n  \"schema\": \"research-graph-result/v1\"\n}\n",
+      "stderr": "",
+      "expected": 0
+    },
+    {
+      "case": "review-packet-no-approval",
+      "exit_code": 0,
+      "stdout": "{\n  \"allowed_inputs\": [\n    {\n      \"path\": \"specs/sample/research/records/research-evidence.json\",\n      \"sha256\": \"0999175e55a1651a9453c9de9056e771866446f32329b1abd0cad22622e5a91f\"\n    },\n    {\n      \"path\": \"specs/sample/research/relations.json\",\n      \"sha256\": \"4296b6ca3c8040e46922221fd7bb3049363cb8bdc324a7692b8b7fd5016a199d\"\n    },\n    {\n      \"path\": \"specs/sample/requirements.md\",\n      \"sha256\": \"9a83c89aa5cedec035afef6526ccc7353103377f53ab96762d4bc1c1e1929d0b\"\n    }\n  ],\n  \"changes_approval\": false,\n  \"feature\": \"sample\",\n  \"schema\": \"research-review-input/v1\",\n  \"source_verification\": {\n    \"complete\": true,\n    \"feature\": \"sample\",\n    \"meaning_assessed\": false,\n    \"results\": [\n      {\n        \"citation\": 0,\n        \"claim_id\": \"CLM-002\",\n        \"claim_revision\": 1,\n        \"content_sha256\": \"0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5\",\n        \"extracted\": \"text\",\n        \"extracted_sha256\": \"0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5\",\n        \"matching\": \"exact\",\n        \"original\": \"original\",\n        \"quote_sha256\": \"0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5\",\n        \"result\": \"reverified\",\n        \"source_id\": \"SRC-001\",\n        \"source_revision\": 1\n      }\n    ],\n    \"schema\": \"source-evidence-result/v1\",\n    \"verified_at\": \"2026-10-25T13:06:22Z\"\n  },\n  \"status\": \"ready-for-independent-review\"\n}\n",
+      "stderr": "",
+      "expected": 0
+    },
+    {
+      "case": "cross-feature-rejected",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "research-evidence: INVALID: endpoint-invalid /\n",
+      "expected": 1
+    },
+    {
+      "case": "canonical-history-replan",
+      "exit_code": 0,
+      "stdout": "{\n  \"authority\": \"none\",\n  \"claims\": {\n    \"assessable_claim_ids\": [\n      \"CLM-002\",\n      \"CLM-003\"\n    ],\n    \"claim_ids\": [\n      \"CLM-001\",\n      \"CLM-002\",\n      \"CLM-003\"\n    ],\n    \"claim_records\": [\n      {\n        \"claim_id\": \"CLM-001\",\n        \"record_revision\": 2,\n        \"record_sha256\": \"472ed8a4caed2a0f04cf76ee11da2172795242ff5f9ec8e77fe78e23cca4a37d\"\n      },\n      {\n        \"claim_id\": \"CLM-002\",\n        \"record_revision\": 1,\n        \"record_sha256\": \"2e1f4a082e0ed99ee39b2e0dca0cebee10bf2332d017115592fd8d0f4d160e07\"\n      },\n      {\n        \"claim_id\": \"CLM-003\",\n        \"record_revision\": 1,\n        \"record_sha256\": \"9d27a615cf4e7016dcfd3bc160d8520715256a1d41fac478b419d549e72c5c89\"\n      }\n    ],\n    \"feature\": \"sample\",\n    \"semantic_assessment\": \"caller-declared-not-verified\",\n    \"verbatim_constraint\": \"Keep originals private\"\n  },\n  \"max_parallel_readers\": 2,\n  \"max_results\": 2,\n  \"max_rounds\": 4,\n  \"minimum_citation_follow_attempts\": 1,\n  \"question\": \"bounded retries\",\n  \"routes\": [\n    {\n      \"query\": \"bounded retries official documentation specification\",\n      \"route\": \"official\"\n    },\n    {\n      \"query\": \"bounded retries primary source references implementation\",\n      \"route\": \"citation-trail\"\n    }\n  ],\n  \"saturation_threshold\": 0.7,\n  \"schema\": \"research-search-plan/v1\",\n  \"stop_when\": [\n    \"evidence-sufficient\",\n    \"saturation\",\n    \"round-limit\",\n    \"acquisition-wall\",\n    \"budget-exhausted\"\n  ]\n}\n",
+      "stderr": "",
+      "expected": 0
+    }
+  ]
+}

@@ -315,7 +315,7 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 | [PLUGIN-CONTRACTS.md](PLUGIN-CONTRACTS.md) | プラグイン間の契約 |
 | [docs/workflow-guide.md](docs/workflow-guide.md) | 開発業務フロー：正常系・異常系・仕様変更・レビュー運用 |
 | [docs/architecture/overview.md](docs/architecture/overview.md) | リポジトリ全体のアーキテクチャ |
-| [docs/skill-reference.md](docs/skill-reference.md) | 31スキル（＋ `plugins/` 外の単独スキル1件）・エージェント・フック・スクリプトの詳細 |
+| [docs/skill-reference.md](docs/skill-reference.md) | 32スキル（＋ `plugins/` 外の単独スキル1件）・エージェント・フック・スクリプトの詳細 |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | 問題解決と対応策 |
 | [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) | 脅威モデル：信頼境界・攻撃面・リスク低減策 |
 | [docs/agent-capability-matrix.md](docs/agent-capability-matrix.md) | エージェント能力マトリクス：各エージェントが実行できる操作の一覧 |

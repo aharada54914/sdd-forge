@@ -1,0 +1,30 @@
+{
+  "files": [
+    {
+      "path": "research-discovery-followup.log",
+      "sha256": "2f9c356a16bf58065a1caf973dcabf221d19287617e61585334391402e932531"
+    },
+    {
+      "path": "research-skill-install-bash.log",
+      "sha256": "8b95e171a98cec699395ec74ee9df97e8b701273378baad7cd92bcc04d997187"
+    },
+    {
+      "path": "research-skill-install-ps.log",
+      "sha256": "7400ac1dfd002c9675a3b307edb7d2c76a366baed690422751049ea28287ff3f"
+    },
+    {
+      "path": "research-skill-repository-sh.log",
+      "sha256": "8448d5435551f7384e27f00fa97b711e5abc45d49b7f89765fb4cabf285e8d25"
+    },
+    {
+      "path": "shared-python-aecd3136.json",
+      "sha256": "88d0dd8b422b7240433305db50f22efb428a648c868bbc1a98d6c4cca2d04cf5"
+    }
+  ],
+  "product_sha256": {
+    "plugins/sdd-bootstrap/scripts/research-watch.py": "2c6dcc6e87ab84b23c2bf6c6cd7ea7f33cef07f1522dbb135bc874c9bb9f5cad",
+    "plugins/sdd-bootstrap/scripts/research-sources.py": "3e43f4ffe2d0321be41f7738b3f1818e315d16c3a56416b4f98b6df705608e40",
+    "plugins/sdd-bootstrap/skills/research-sources/SKILL.md": "0596c523f7095cc4acbfa5ea28ad23382496919bebff3a9eab711f9f142b68f1",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md": "449332309fbae3c74e4098c4807e6c41536306cf53a708e3def6c58c70283353"
+  }
+}

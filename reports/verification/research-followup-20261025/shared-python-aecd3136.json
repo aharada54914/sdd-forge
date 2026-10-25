@@ -1,0 +1,302 @@
+{
+  "schema": "verification-receipt/v1",
+  "profile": "ci-shared-python",
+  "revision": "aecd3136278cdc18c377fac269e60b037d34dc25",
+  "clean_before": true,
+  "reusable": false,
+  "catalog_sha256": "ca7f54f4bbe2040def2bec16bf1073c99ed706522ab4663598404e50a8ddf052",
+  "selected": [
+    "tests/current-byte-capture.tests.py",
+    "tests/concept-test.tests.py",
+    "tests/concept-review-continuity.tests.py",
+    "tests/fixed-review-inputs.tests.py",
+    "tests/fixed-review-state.tests.py",
+    "tests/fixed-review-launch.tests.py",
+    "tests/fixed-review-precheck-ps.tests.py",
+    "tests/fixed-review-precheck-bash.tests.py",
+    "tests/review-conditional-inputs.tests.py",
+    "tests/workflow-conditional-inputs.tests.py",
+    "tests/spec-review-verify-inputs.tests.py",
+    "tests/host-review-preflight.tests.py",
+    "tests/human-copy-mirrors-classification.tests.py",
+    "tests/unified-launch-order.tests.py",
+    "tests/unified-task-launch.tests.py",
+    "tests/task-structured-output.tests.py",
+    "tests/supplemental-delivery-declaration.tests.py",
+    "tests/t001-evaluation-preparation.tests.py",
+    "tests/model-policy-launch.tests.py",
+    "tests/model-policy-installed.tests.py",
+    "tests/repository-syntax.tests.py",
+    "tests/project-skill-observation.tests.py",
+    "tests/run-measurement.tests.py",
+    "tests/research-evidence.tests.py",
+    "tests/self-improvement-pr-access.tests.py",
+    "tests/golden-eval.tests.py",
+    "tests/run-measurement-integration.tests.py",
+    "tests/factory-workflow.tests.py",
+    "tests/project-skill-lifecycle.tests.py",
+    "tests/research-acquire.tests.py",
+    "tests/research-consumers.tests.py",
+    "tests/project-evidence-collector.tests.py",
+    "tests/project-skill-formal.tests.py",
+    "tests/research-discovery.tests.py",
+    "tests/benchmark-gates.tests.py",
+    "tests/research-owner-integration.tests.py"
+  ],
+  "results": [
+    {
+      "suite": "tests/current-byte-capture.tests.py",
+      "source_sha256": "6327f4d77b9d790a584393e4a7480b911b1753ccd722187fc0dd76b976f9579a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 25.428513
+    },
+    {
+      "suite": "tests/concept-test.tests.py",
+      "source_sha256": "eb1f39c4a3838967c645fb45ee7434ad2a11b746e03e41dc974bb7ca6dd8a5b0",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 30.130353
+    },
+    {
+      "suite": "tests/concept-review-continuity.tests.py",
+      "source_sha256": "ce42518a4cea3cb5d71adb3bf57de606708b3d3d839ee185760cbd9044570819",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 70.587711
+    },
+    {
+      "suite": "tests/fixed-review-inputs.tests.py",
+      "source_sha256": "9a9961818c9bec66e0d57d128441efe2762a1ac4bdd0cb606ca602d6a50a860f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 1.640731
+    },
+    {
+      "suite": "tests/fixed-review-state.tests.py",
+      "source_sha256": "7d0877197faf2356c43a7d4f755253b881916f9635909fd58b7e5bf2d4497702",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.721432
+    },
+    {
+      "suite": "tests/fixed-review-launch.tests.py",
+      "source_sha256": "314a068ab50c25754ffbd5b70c4b51e1c52070351f9015321b275fce80826e73",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.667407
+    },
+    {
+      "suite": "tests/fixed-review-precheck-ps.tests.py",
+      "source_sha256": "90abc02403e2d90b42c6d85786e00aa2ff32d52fbf8e0493a82a907cd7f7895a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 18.770607
+    },
+    {
+      "suite": "tests/fixed-review-precheck-bash.tests.py",
+      "source_sha256": "7a1fd297aa78dc592f79f419f34fd727b1028aae3483275a4928b10b7d658c83",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 4.714172
+    },
+    {
+      "suite": "tests/review-conditional-inputs.tests.py",
+      "source_sha256": "7aae44f65473bd2b0ee5df0c9b02a5cbe0fab6416a7f7282fe23056958d36740",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 16.260646
+    },
+    {
+      "suite": "tests/workflow-conditional-inputs.tests.py",
+      "source_sha256": "029e5ddd03c981d84fbcb90469b82d0f5b99304b49dfbb24447770140e5b5de1",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 39.036361
+    },
+    {
+      "suite": "tests/spec-review-verify-inputs.tests.py",
+      "source_sha256": "ab2796fc7336d0142cd392105a342c3046d8f8db21c57c76b4f8785147e1bbfc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 11.836465
+    },
+    {
+      "suite": "tests/host-review-preflight.tests.py",
+      "source_sha256": "ab1b9dd61f349f80371c741bf1f9e9e46e96580785cd0d150a33a625021fd822",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 10.865608
+    },
+    {
+      "suite": "tests/human-copy-mirrors-classification.tests.py",
+      "source_sha256": "a7daa74da3a1cd04b8d687b9fa62af938b57f9d218d96bff84f5b7b43679fc85",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.152213
+    },
+    {
+      "suite": "tests/unified-launch-order.tests.py",
+      "source_sha256": "ed7815e25d294eb19332eb708a3c0c718c2f328e54147096fb7353cea59c13ff",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 16.283958
+    },
+    {
+      "suite": "tests/unified-task-launch.tests.py",
+      "source_sha256": "635e4a4233ed220cfb964b3bd9c49b902bf7972dfa7393510456f454f2179a9e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.656402
+    },
+    {
+      "suite": "tests/task-structured-output.tests.py",
+      "source_sha256": "51a17f49fac6570e39c7b7079b539de3b179725dda418184410399cc20299a83",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.478096
+    },
+    {
+      "suite": "tests/supplemental-delivery-declaration.tests.py",
+      "source_sha256": "4df0a193452a7bce95267b5dd415388732a2de808f498dbddefef0dabf32d361",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 46.153397
+    },
+    {
+      "suite": "tests/t001-evaluation-preparation.tests.py",
+      "source_sha256": "b7028f7bd7c4d392baa053929a07c53dad98b9f6caed74c858e9ed7105c33ffa",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.684597
+    },
+    {
+      "suite": "tests/model-policy-launch.tests.py",
+      "source_sha256": "e8258e45ddaf3b236611373a91f1016612fe52e10818a4fa4805c44eee81aaaa",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 166.026513
+    },
+    {
+      "suite": "tests/model-policy-installed.tests.py",
+      "source_sha256": "e238b76f0591d66ee6d58c6186099c83ab99619d95567118a4966d88267a26d7",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 745.469493
+    },
+    {
+      "suite": "tests/repository-syntax.tests.py",
+      "source_sha256": "a78c2727218b54be77ac7518d31ea2e8483f0bf0d64bfe2ed94b5023383b9567",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.581716
+    },
+    {
+      "suite": "tests/project-skill-observation.tests.py",
+      "source_sha256": "ec4664f3ae0c9fe22fdc37ef5ce6e8e17947b8fbdc31684c10c25abc02498386",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.238565
+    },
+    {
+      "suite": "tests/run-measurement.tests.py",
+      "source_sha256": "00bd35e8a2a8f905715e6b304aa4a2f67c5e759b79abbe73780e329ea3b2c16a",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.154328
+    },
+    {
+      "suite": "tests/research-evidence.tests.py",
+      "source_sha256": "a66bc1bf3952e25b180057458a9f2f70d1658cdb45b5d8f0116c87374a101498",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.289374
+    },
+    {
+      "suite": "tests/self-improvement-pr-access.tests.py",
+      "source_sha256": "9dba1540ad4f57478b3bcceb0aceb7835fb547738098a3d626375fb388d76f27",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.106345
+    },
+    {
+      "suite": "tests/golden-eval.tests.py",
+      "source_sha256": "b33466d3faf7619a07902e93a74ceffde0aea9d99da0d24b15ad5ead745d97e5",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.139738
+    },
+    {
+      "suite": "tests/run-measurement-integration.tests.py",
+      "source_sha256": "9e8ea33aa328c2249d95b29c90f59d88dbda2e19da92b5e107383b047e886bdc",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.867466
+    },
+    {
+      "suite": "tests/factory-workflow.tests.py",
+      "source_sha256": "27f3e3debde99e789c235a8238da3644dbc553c882143a2bf32d22af43b3b08e",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 7.632384
+    },
+    {
+      "suite": "tests/project-skill-lifecycle.tests.py",
+      "source_sha256": "db22302a871037194cdad066eec1af6fd15a1039fcfe0ad45a4cf01e88e837de",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 3.454935
+    },
+    {
+      "suite": "tests/research-acquire.tests.py",
+      "source_sha256": "dbff9709be4941bd757a4d492e5e409ae86a9e9e06d1f6cb8e496fde25b07341",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.649624
+    },
+    {
+      "suite": "tests/research-consumers.tests.py",
+      "source_sha256": "6595c0fd862f3fdeb106954ab20eb51083e338fb57e640ee52758b6cf96b0219",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.26455
+    },
+    {
+      "suite": "tests/project-evidence-collector.tests.py",
+      "source_sha256": "25e9d70ef5726955619b8ce91272197d49dc17379d4ad4bffe59fe45a6366b91",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 5.06846
+    },
+    {
+      "suite": "tests/project-skill-formal.tests.py",
+      "source_sha256": "80f67ee531077ecc2249347b8a88949a4dcfead59fb07754911a62aa7aff0752",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.449111
+    },
+    {
+      "suite": "tests/research-discovery.tests.py",
+      "source_sha256": "bfe77da0a3b1a49aec3401624a51e1b1a769ebc54f21a4d8c148d25f2e813541",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.098383
+    },
+    {
+      "suite": "tests/benchmark-gates.tests.py",
+      "source_sha256": "c58b589e3de271075862b3cd4777d623f72649edd53f1568fdd0c54eb5b15a8f",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 0.875017
+    },
+    {
+      "suite": "tests/research-owner-integration.tests.py",
+      "source_sha256": "4316b2b955e330b49ab25463717befcad8ebb0c6bbe12427ee291eb9bd2b0c51",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 12.158058
+    }
+  ],
+  "revision_after": "5190059ef4763a5ed6d7fd6365bc690a9c04dc60",
+  "clean_after": true
+}

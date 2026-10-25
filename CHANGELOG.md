@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Added
+- Opt-in research watch v2 records actual check time and detects local original/extracted or metadata changes independently of RSS updates, retaining the legacy v1 default and read-only state handling.
+- Internal `research-sources` connects bounded two-route investigation, canonical claim planning and citation-follow records to bootstrap; the interviewer validates adopted SRC/CLM revisions and preserves unresolved evidence.
 - Project evidence collection supports prospective Red/Green in one live collection process with fixed tests/environment and explicit source changes; `--prepare` retains critical evidence for the existing independent review, clean commit and signing route.
 - Optional project-skill manifests, source-bound observations, explicit creation/maintenance helpers and host projections. Trial execution is separate from task evidence; unsupported process/host backends remain unverified.
 - Passive monotonic run measurements, owner-side opt-in recording, research Source/Claim validation and original/citation tooling, plus purpose-specific exploration and pinned decision packets. Signed decision choices reuse the existing human-operated approval sidecar authority.

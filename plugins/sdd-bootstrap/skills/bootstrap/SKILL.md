@@ -352,7 +352,7 @@ After sdd-bootstrap completes, report:
 
 ## Optional evidence and project skills
 
-When external evidence is needed, read
+When external evidence is needed, invoke internal `research-sources` and read
 [research-workflow](../../references/research-workflow.md) on demand. Use both
 available search routes with bounded budgets, then the safe acquisition and
 metadata adapters. Missing tools or originals remain open questions. Optional

@@ -4,6 +4,10 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import tempfile
+import json
+import subprocess
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -30,6 +34,54 @@ class Discovery(unittest.TestCase):
             ["official", "citation-trail"], [r["route"] for r in plan["routes"]]
         )
         self.assertEqual("none", plan["authority"])
+
+    def study(self):
+        doc = f.document()
+        doc["claims"] = [dict(f.claim(), claim_id=f"CLM-{i:03}",
+                              statement="Keep private data local" if i == 1 else f"Alternative {i} reduces retries")
+                         for i in range(1, 4)]
+        return doc
+
+    def test_claim_plan_preserves_constraint_and_bounded_search_without_meaning_claim(self):
+        plan = sources.search_plan("retry strategy", document=self.study(),
+                                   constraint="Keep private data local", assessable=["CLM-002", "CLM-003"])
+        self.assertEqual(plan["claims"]["verbatim_constraint"], "Keep private data local")
+        self.assertEqual(plan["claims"]["semantic_assessment"], "caller-declared-not-verified")
+        self.assertEqual(plan["max_rounds"], 4)
+        self.assertEqual(plan["minimum_citation_follow_attempts"], 1)
+        self.assertNotIn("both-routes-inspected", plan["stop_when"])
+        self.assertEqual(len(plan["routes"]), 2)
+
+    def test_planning_preserves_history_and_pins_latest_distinct_claim_revisions(self):
+        doc = self.study()
+        revised = dict(doc["claims"][0], record_revision=2)
+        doc["claims"].insert(1, revised)
+        plan = sources.search_plan("retry strategy", document=doc,
+                                   constraint="Keep private data local", assessable=["CLM-002", "CLM-003"])
+        self.assertEqual(len(doc["claims"]), 4)
+        self.assertEqual(len(plan["claims"]["claim_ids"]), 3)
+        selected = plan["claims"]["claim_records"][0]
+        self.assertEqual(selected["record_revision"], 2)
+        self.assertEqual(selected["record_sha256"], sources.record_digest(revised))
+
+    def test_claim_count_verbatim_identity_and_majority_reject_before_query(self):
+        cases = [
+            dict(document=dict(self.study(), claims=self.study()["claims"][:2])),
+            dict(constraint="A paraphrase is not the request"),
+            dict(assessable=["CLM-001"]),
+            dict(assessable=["CLM-001", "CLM-001"]),
+            dict(assessable=["CLM-001", "CLM-999"]),
+            dict(saturation=float("nan")),
+            dict(saturation=0),
+        ]
+        for changes in cases:
+            args = dict(document=self.study(), constraint="Keep private data local",
+                        assessable=["CLM-002", "CLM-003"])
+            args.update(changes)
+            with self.subTest(changes=changes), self.assertRaises(sources.Invalid):
+                sources.search_plan("retry strategy", **args)
+        with self.assertRaises(sources.Invalid):
+            sources.search_plan("retry strategy", constraint="Missing canonical records")
 
     def test_secrets_no_send_and_bad_budget_stop_before_query(self):
         for question, kwargs in [
@@ -118,6 +170,120 @@ class Discovery(unittest.TestCase):
             previous = dict(first["state"], feed_sha256=value)
             with self.subTest(value=value), self.assertRaises(watch.Invalid):
                 watch.observe_feed(RSS, previous, "SRC-001")
+
+    def cache_fixture(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        root = Path(temporary.name).resolve()
+        (root / "original.txt").write_bytes(b"original")
+        (root / "extracted.txt").write_bytes(b"original")
+        doc = f.document()
+        manifest = dict(schema="research-snapshots/v1", feature="sample", snapshots=[
+            dict(source_id="SRC-001", record_revision=1, original="original.txt", extracted="extracted.txt")])
+        return root, doc, manifest
+
+    def test_watch_v2_migrates_timestamp_without_changing_legacy_default(self):
+        legacy = watch.observe_feed(RSS, None, "SRC-001")
+        self.assertEqual(legacy["state"]["schema"], "research-watch-state/v1")
+        checked = "2026-10-25T02:00:00Z"
+        migrated = watch.observe_feed(RSS, legacy["state"], "SRC-001", state_version=2, checked_at=checked)
+        self.assertEqual(migrated["state"]["last_checked_at"], checked)
+        self.assertEqual(migrated["source_status"], "not-observed")
+        self.assertIsNone(migrated["cache_changed"])
+        self.assertEqual(migrated["status"], "no-new-items")
+        with self.assertRaises(watch.Invalid):
+            watch.observe_feed(RSS, migrated["state"], "SRC-001")
+        with self.assertRaisesRegex(watch.Invalid, "watch-clock-regression"):
+            watch.observe_feed(RSS, migrated["state"], "SRC-001", state_version=2,
+                               checked_at="2026-10-25T01:00:00Z")
+
+    def test_original_cache_drift_is_detected_without_any_feed_update(self):
+        root, doc, manifest = self.cache_fixture()
+        now = "2026-10-25T02:00:00Z"
+        snapshot = watch.source_snapshot(doc, manifest, root, "SRC-001", now)
+        first = watch.observe_feed(RSS, None, "SRC-001", state_version=2, checked_at=now, snapshot=snapshot)
+        (root / "original.txt").write_bytes(b"changed original")
+        changed = watch.source_snapshot(doc, manifest, root, "SRC-001", now)
+        result = watch.observe_feed(RSS, first["state"], "SRC-001", state_version=2, checked_at=now, snapshot=changed)
+        self.assertEqual(result["status"], "no-new-items")
+        self.assertFalse(result["feed_changed"])
+        self.assertFalse(result["metadata_changed"])
+        self.assertTrue(result["cache_changed"])
+        self.assertEqual(result["source_status"], "mismatch")
+        self.assertTrue(result["reverification_required"])
+        self.assertEqual((root / "original.txt").read_bytes(), b"changed original")
+
+    def test_metadata_change_and_missing_cache_are_distinct(self):
+        root, doc, manifest = self.cache_fixture()
+        now = "2026-10-25T02:00:00Z"
+        snapshot = watch.source_snapshot(doc, manifest, root, "SRC-001", now)
+        first = watch.observe_feed(RSS, None, "SRC-001", state_version=2, checked_at=now, snapshot=snapshot)
+        doc["sources"][0]["title"] = "Changed metadata"
+        changed = watch.source_snapshot(doc, manifest, root, "SRC-001", now)
+        result = watch.observe_feed(RSS, first["state"], "SRC-001", state_version=2, checked_at=now, snapshot=changed)
+        self.assertTrue(result["metadata_changed"])
+        self.assertFalse(result["cache_changed"])
+        self.assertEqual(result["source_status"], "matching")
+        (root / "original.txt").unlink()
+        unavailable = watch.source_snapshot(doc, manifest, root, "SRC-001", now)
+        result = watch.observe_feed(RSS, first["state"], "SRC-001", state_version=2, checked_at=now, snapshot=unavailable)
+        self.assertEqual(result["source_status"], "unavailable")
+        self.assertIsNone(result["cache_changed"])
+        self.assertTrue(result["reverification_required"])
+        self.assertFalse((root / "original.txt").exists())
+
+    def test_watch_state_cannot_cross_feature_even_after_feed_only_observation(self):
+        root, doc, manifest = self.cache_fixture()
+        now = "2026-10-25T02:00:00Z"
+        snapshot = watch.source_snapshot(doc, manifest, root, "SRC-001", now)
+        first = watch.observe_feed(RSS, None, "SRC-001", state_version=2, checked_at=now, snapshot=snapshot)
+        doc["feature"] = manifest["feature"] = "unrelated"
+        unrelated = watch.source_snapshot(doc, manifest, root, "SRC-001", now)
+        feed_only = watch.observe_feed(RSS, first["state"], "SRC-001", state_version=2, checked_at=now)
+        self.assertEqual(feed_only["state"]["feature"], "sample")
+        for previous in (first["state"], feed_only["state"]):
+            with self.assertRaisesRegex(watch.Invalid, "watch-feature-mismatch"):
+                watch.observe_feed(RSS, previous, "SRC-001", state_version=2,
+                                   checked_at=now, snapshot=unrelated)
+
+    def test_watch_v2_cli_reports_drift_without_writing_inputs(self):
+        root, doc, manifest = self.cache_fixture()
+        (root / "feed.xml").write_bytes(RSS)
+        (root / "records.json").write_text(json.dumps(doc))
+        (root / "snapshots.json").write_text(json.dumps(manifest))
+        command = [sys.executable, str(ROOT / "plugins/sdd-bootstrap/scripts/research-watch.py"),
+                   "--source-id", "SRC-001", "--feed-file", str(root / "feed.xml"),
+                   "--state-version", "2", "--file", str(root / "records.json"),
+                   "--snapshots", str(root / "snapshots.json"), "--snapshot-root", str(root)]
+        first = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+        state = json.loads(first.stdout)["state"]
+        previous = json.dumps(state).encode()
+        (root / "previous.json").write_bytes(previous)
+        (root / "extracted.txt").write_bytes(b"changed extracted")
+        second = subprocess.run(command + ["--previous", str(root / "previous.json")], capture_output=True, text=True)
+        self.assertEqual(second.returncode, 0, second.stdout + second.stderr)
+        result = json.loads(second.stdout)
+        self.assertEqual(result["schema"], "research-watch-result/v2")
+        self.assertTrue(result["cache_changed"])
+        self.assertFalse(result["feed_changed"])
+        self.assertFalse(result["changes_approval"])
+        self.assertEqual((root / "previous.json").read_bytes(), previous)
+        self.assertNotIn(str(root), second.stdout)
+
+    def test_watch_private_escape_and_rights_are_not_read_or_persisted(self):
+        root, doc, manifest = self.cache_fixture()
+        now = "2026-10-25T02:00:00Z"
+        manifest["snapshots"][0]["original"] = "../outside"
+        result = watch.source_snapshot(doc, manifest, root, "SRC-001", now)
+        self.assertEqual(result["status"], "unavailable")
+        self.assertEqual(result["reason"], "path-invalid")
+        self.assertNotIn("../outside", str(result))
+        doc["sources"][0]["currency_status"] = "stale"
+        doc["sources"][0]["currency_note"] = "New version expected"
+        result = watch.source_snapshot(doc, manifest, root, "SRC-001", now)
+        self.assertEqual(result["reason"], "source-stale")
+        self.assertIsNone(result["original_sha256"])
 
     def test_entity_utf16_dates_and_urls_fail(self):
         cases = [

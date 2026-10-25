@@ -17,6 +17,26 @@ The consolidation-only head `c5a02f06` passed hosted CI run `40164678505`.
 Subsequent implementation changes need their own checks. Real app evaluation for
 #624 remains pending by the user's explicit selection; its fixture work proceeds.
 
+## Acceptance audit and research follow-up — 2026-10-25
+
+The latest independent audit separates real development gaps from unnecessary
+production/model/live-evaluation prerequisites. #608/#609 now have the internal
+research skill, canonical claim planning and interviewer adoption boundary;
+#611 adds opt-in watch v2 with actual check time and metadata/cache drift even
+without new feed items. Independent review verified preserved-history planning
+and rejection of cross-feature watch-state replay. The discovery/watch suite
+passed 19 tests; repository and installed Bash/PowerShell checks passed.
+[Evidence](../../reports/verification/research-followup-20261025/README.md).
+
+The 36-suite shared Python profile completed with all exit codes zero, but its
+receipt is explicitly non-reusable because development commits changed during
+the run. Hosted final-source CI remains separate. #615 stage-two same-session
+full-result reuse and #618 heavy-result reuse are **implementation gaps**, not
+approval waits. Licensed shared storage/access and PDF/subtitle support remain
+research implementation gaps; optional live networking is not substituted for
+fixture acceptance. Historical status sections below are superseded, not gates
+for this development session.
+
 ## CI and prospective evidence follow-up — 2026-10-25
 
 `d6200026` fixed native temporary-directory aliases and explicit historical/live
@@ -84,19 +104,21 @@ progress, not a claim that all 33 Issues meet every acceptance condition.
 |---|---|---|
 | #594 | Closed skill/observation contracts, passive validators and projection | Final integration CI |
 | #595–#598 | Internal create/maintain skills; seal/run/maintain; isolated inputs and observed process cleanup; drift and invalidation fixtures | Linux execution backend only; unsupported platforms return not-run; unexercised document procedures remain draft |
-| #599 | Five bounded playbooks attached to existing bootstrap/ship entry points | Native host walkthrough |
+| #599 | Five bounded playbooks attached to existing bootstrap/ship entry points; routing/authority fixtures | Final integration CI; native discovery requirements belong to #602 |
 | #600 | Five real-failure-derived golden cases, blinded prepare/grade/compare and provenance checks | Native comparison cannot run: supported auth check reports reauthentication_required; no adoption result invented |
 | #601 | Source-backed regression cases and structural classification checks | Final integration CI; no claim that prose alone prevents every recurrence |
 | #602 | Canonical host wrapper generation, conflict checks and restrictive-control preservation | Actual native Claude/Codex/Copilot discovery/invocation |
 | #603 | Real TLC counterexample plus real Bash reservation-tail concurrency mutation/recovery | Bounded two-contender proof only; not whole-app verification |
 | #605 | Closed research evidence contract and packaged identical schema | Final integration CI |
 | #606 | Bounded HTML/text acquisition, original preservation, SSRF/redirect/type/encoding controls and total worker deadline | PDF/subtitle conversion, shared stores and unsupported proxy adapters |
-| #607 | Fresh original-byte/extractor/citation verification, mutation rejection | Final integration CI |
-| #608 | Two-route discovery/citation-following contracts and bounded collection; actual GitHub search queries retained, including empty second-route results | End-to-end live acquisition blocked by unsupported proxy adapter; existing fixtures remain separate |
-| #609 | Existing spec/implementation review manifest and contract-owner integration | Final integration CI |
-| #610 | Escaped HTML and original quotations; independent Chromium evaluation passed 15 interaction/injection checks and 6 failed-regeneration preservation cases | Final integration CI; managed-browser direct file opening and unsupported PDF/video/native platforms remain unverified |
-| #611–#612 | Feed/content change separation, stale analysis and small evidence-graph impact lookup | Final integration CI |
-| #614–#615 | Owner measurement and feature-scoped correction feedback, preserving final whole-repository checks; 80 paired baseline/candidate trials retained | Final integration CI; uncontrolled host load prevents causal speedup claims |
+| #607 | Fresh original-byte/extractor/citation verification, mutation rejection | Final integration CI; licensed shared-store permitted/denied reader support remains incomplete |
+| #608 | Internal research skill, 3–6 canonical claims with pinned current revisions, bounded two-route procedure, citation-follow/stop/typed-handoff fixtures | Final integration CI; procedure execution is coordinator-owned. Optional live fetch is unsupported in this proxy environment |
+| #609 | Existing review/contract-owner integration plus interviewer SRC/CLM revision validation and unresolved-question handoff | Final integration CI |
+| #610 | Escaped HTML and original quotations; independent Chromium evaluation passed 15 interaction/injection checks and 6 failed-regeneration preservation cases | Final integration CI; licensed shared-reader access and PDF/video support remain incomplete; managed direct file opening/native platforms unverified |
+| #611 | Opt-in watch v2 records actual check time and independently detects metadata/cache/feed changes, with feature/source-bound state | Final integration CI; no background scheduler implied |
+| #612 | Validated graph/impact lookup, cycles and traceability integration | Final integration CI |
+| #614 | Owner measurement; 80 paired baseline/candidate trials retained | Final integration CI; uncontrolled host load prevents causal speedup claims |
+| #615 | Feature-scoped correction feedback while retaining final whole-repository checks | Same-session identical-input full-result reuse and invalidation remain unimplemented |
 | #616 | Conflicting sudo guidance corrected, negative cases retained, actual host trust boundary documented | Authentic host-side issuer unavailable; no fabricated enablement |
 | #617 | Actual runner-to-contract/bundle collector, prospective Red/Green, high/critical preparation; independent review and 21 tests; 6 matched comparison pairs preserve contracts/reports/verdicts | Final integration CI; human-time and error-rate benefit unmeasured. No production-key or production-review prerequisite is imposed on development. |
 | #618 | Existing fixed-input manifest's reviewer navigation index | Safe heavy-result cache not shipped: dependency/issuer closure not established; benchmark pending |
@@ -161,10 +183,12 @@ evaluation had run; the development-session correction above supersedes the
 earlier delegation and implementation-blocking interpretation.
 The remaining Issue dependencies and original acceptance conditions below apply.
 
-## Current status — 2026-10-25 (JST)
+## Historical pre-implementation status — superseded
 
-This section supersedes older authentication, task-exception, author-limit and
-execution-status statements below. The historical dependency graph is unchanged.
+This retained historical section is superseded by the implementation checkpoints
+and development-session correction above. Its old approval/adoption/implementation
+blocks are not prerequisites for this development session. The dependency graph
+is provenance only; use the current acceptance table.
 A fresh unauthenticated [GitHub query](https://api.github.com/repos/aharada54914/sdd-forge/issues?state=open&per_page=100)
 found **33 open Issues, excluding pull requests**. #619 remains closed, and
 [#642](https://github.com/aharada54914/sdd-forge/issues/642) is now closed as completed

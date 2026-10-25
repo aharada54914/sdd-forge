@@ -55,6 +55,7 @@ CLOSURE = [
     "plugins/sdd-bootstrap/scripts/project-skill.py",
     "plugins/sdd-bootstrap/scripts/project-skill-process.py",
     "plugins/sdd-bootstrap/skills/create-project-skill/SKILL.md",
+    "plugins/sdd-bootstrap/skills/research-sources/SKILL.md",
     "plugins/sdd-bootstrap/skills/maintain-project-skill/SKILL.md",
     "plugins/sdd-quality-loop/scripts/validate-project-skill.py",
     "plugins/sdd-quality-loop/scripts/validate-project-skill.sh",

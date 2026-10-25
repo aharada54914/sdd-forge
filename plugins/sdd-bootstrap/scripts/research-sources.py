@@ -19,12 +19,14 @@ from research_evidence import (  # noqa: E402 - sibling runtime path is explicit
     read_json,
     values,
     validate_document,
+    record_digest,
     validate_file,
 )
 from research_consumers import closed  # noqa: E402 - sibling runtime path is explicit.
 
 
-def search_plan(question, *, no_send=False, budget=10):
+def search_plan(question, *, no_send=False, budget=10, document=None,
+                constraint=None, assessable=(), saturation=0.7):
     require(not no_send, "external-send-forbidden")
     values(question)
     require(
@@ -34,6 +36,36 @@ def search_plan(question, *, no_send=False, budget=10):
         and 2 <= budget <= 50,
         "search-budget-invalid",
     )
+    require(type(saturation) in (int, float) and 0 < saturation <= 1,
+            "search-saturation-invalid")
+    outline = None
+    if document is not None:
+        validate_document(document)
+        latest = {}
+        for claim in document["claims"]:
+            key = claim["claim_id"]
+            if key not in latest or claim["record_revision"] > latest[key]["record_revision"]:
+                latest[key] = claim
+        claims = [latest[key] for key in sorted(latest)]
+        ids = [claim["claim_id"] for claim in claims]
+        require(3 <= len(claims) <= 6 and len(set(ids)) == len(ids), "search-claims-invalid")
+        values(constraint)
+        require(isinstance(constraint, str) and constraint.strip()
+                and any(constraint in claim["statement"] for claim in claims),
+                "search-verbatim-constraint-missing")
+        require(isinstance(assessable, (list, tuple))
+                and all(isinstance(value, str) for value in assessable)
+                and len(set(assessable)) == len(assessable)
+                and set(assessable) <= set(ids) and len(assessable) > len(ids) // 2,
+                "search-assessable-majority-missing")
+        outline = dict(feature=document["feature"], claim_ids=ids,
+                       claim_records=[dict(claim_id=claim["claim_id"],
+                                           record_revision=claim["record_revision"],
+                                           record_sha256=record_digest(claim)) for claim in claims],
+                       verbatim_constraint=constraint, assessable_claim_ids=list(assessable),
+                       semantic_assessment="caller-declared-not-verified")
+    else:
+        require(constraint is None and not assessable, "search-claims-required")
     return dict(
         schema="research-search-plan/v1",
         question=question,
@@ -48,7 +80,13 @@ def search_plan(question, *, no_send=False, budget=10):
                 query=question + " primary source references implementation",
             ),
         ],
-        stop_when=["budget-exhausted", "both-routes-inspected", "permission-denied"],
+        claims=outline,
+        max_rounds=4,
+        max_parallel_readers=2,
+        minimum_citation_follow_attempts=1,
+        saturation_threshold=saturation,
+        stop_when=["evidence-sufficient", "saturation", "round-limit",
+                   "acquisition-wall", "budget-exhausted"],
         authority="none",
     )
 
@@ -143,10 +181,16 @@ def main(argv=None):
     p.add_argument("--budget", type=int, default=10)
     p.add_argument("--file")
     p.add_argument("--batches")
+    p.add_argument("--constraint")
+    p.add_argument("--assessable-claim", action="append", default=[])
+    p.add_argument("--saturation", type=float, default=0.7)
     a = p.parse_args(argv)
     try:
         if a.command == "plan":
-            result = search_plan(a.question, no_send=a.no_send, budget=a.budget)
+            result = search_plan(a.question, no_send=a.no_send, budget=a.budget,
+                                 document=validate_file(a.file) if a.file else None,
+                                 constraint=a.constraint, assessable=a.assessable_claim,
+                                 saturation=a.saturation)
         else:
             require(a.file and a.batches, "usage-invalid")
             result = merge_routes(

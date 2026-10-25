@@ -364,3 +364,7 @@ claude mcp add ci-mcp --scope user -- node <install-root>/mcp/ci-mcp/dist/index.
 | 10. Blockedになる条件 | [docs/workflow-guide.md](docs/workflow-guide.md) (異常系) |
 | 11. バージョン移行ガイド | [CHANGELOG.md](CHANGELOG.md) |
 | 12. トラブルシューティング | [docs/troubleshooting.md](docs/troubleshooting.md) |
+
+### 外部根拠の調査
+
+bootstrapのinvestigate/featureで外部根拠が必要な場合は、内部の`research-sources`が3〜6主張を整理し、異なる2経路で最大4周の調査を行います。通常の技術検索語は送信できますが、秘密や明示された送信禁止条件を守ります。原文を確認できない主張、反証、未到達事項は未解決のまま保持します。SRC/CLMのID・版と原文照合をinterviewerで確認し、既存レビューへ渡します。検索結果や引用の文字列一致は、人間の承認や意味の正しさを代替しません。公開コマンドの追加はありません。
