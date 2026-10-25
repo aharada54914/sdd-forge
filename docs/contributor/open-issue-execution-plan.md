@@ -1,5 +1,53 @@
 # Open issue dependency and execution plan
 
+## Consolidation and branch cleanup — 2026-10-25 (JST)
+
+The current request authorizes work on all 33 open Issues and reuse/removal of
+existing branches. Work proceeds on
+`work-20261025-140557-resolve-open-issues`, based on `work` at `cf155d02`.
+The requested `work/<timestamp>-<task>` spelling cannot coexist with the existing
+local and remote `work` ref, so this task uses `work-<timestamp>-<task>`.
+
+- Reused the original #614, #594, #605 and #601 draft branches by merging their
+  history into the task branch. All 33 feature specification files retain the
+  original branch bytes. Conflicts were confined to additive active-spec, ADR
+  index and workflow-registry entries; all four entries are retained. Original
+  draft PRs #631, #633, #637 and #638 remain open for their provenance and reviews.
+- Included current `main` at `0535c3c1` (the yearly Dependabot schedule). This is
+  a task-branch integration, not a merge into `main` or `work`.
+- Audited 80 remote branches and deleted 33 already integrated branches in one
+  atomic push. Every deleted tip is still an ancestor of `cf155d02`; none was an
+  open PR head/base. Retained unique history, active PR branches and verification/
+  release refs. The [branch ledger](branch-cleanup-20261025.json) records every
+  original ref/SHA and disposition. After cleanup and the new task branch, the
+  remote has 48 branches. No force push was used.
+- Local verification passed: whole-repository workflow state; each of the four
+  draft feature states; registry suites in Bash and Linux PowerShell; placeholder
+  scanning; original-spec byte comparison; and the existing registered
+  `tests/eval.tests.sh` fixture suite (16 assertions). The latter exercises real
+  gates with normal, forged, missing-evidence and risk/traceability cases. It is
+  regression groundwork, not implementation or acceptance of the proposed factory
+  contracts, and not a model/UX comparison. Native Windows/macOS and hosted CI
+  for this consolidation have not been executed at this point.
+- The user explicitly selected fixture-only progress for #624. Real-app evaluation
+  remains pending; no app, human UX judgment, adoption decision or parallel 2/4/8
+  experiment is fabricated. #599/#600/#614/#622 implementation and the relevant
+  #617/#618 contracts still precede an end-to-end factory fixture evaluation.
+- The current policy has no adoption references for spec-reviewer-B,
+  implementation-policy-reviewer-B or evaluator. Existing failed/unclear
+  qualification results remain unchanged. Formal review and implementation
+  statuses are still Pending/Draft; consolidation is not formal review.
+- A fresh read of `actions/permissions/workflow` returned HTTP 403. The latest
+  weekly run remains `40088779741`, completed with failure. #620 therefore still
+  needs the actual PR-token/permission remediation and a complete guarded run;
+  neither is implied by successful ordinary branch pushes. #616 still needs the
+  separately authenticated human-input/issuer boundary described in its host
+  readiness report.
+
+No Issue has been closed by this consolidation. The independent-review/delegation
+question in the current chat is pending; no additional model evaluation was run.
+The remaining Issue dependencies and original acceptance conditions below apply.
+
 ## Current status — 2026-10-25 (JST)
 
 This section supersedes older authentication, task-exception, author-limit and
@@ -7,7 +55,7 @@ execution-status statements below. The historical dependency graph is unchanged.
 A fresh unauthenticated [GitHub query](https://api.github.com/repos/aharada54914/sdd-forge/issues?state=open&per_page=100)
 found **33 open Issues, excluding pull requests**. #619 remains closed, and
 [#642](https://github.com/aharada54914/sdd-forge/issues/642) is now closed as completed
-within its `work`-branch scope. Default `main` remains at `fcb8275a`; these changes
+within its `work`-branch scope. Default `main` is now at `0535c3c1`; these changes
 have not been released or integrated into `main`.
 
 - **#619 and host-registration infrastructure are integrated into `work`.**

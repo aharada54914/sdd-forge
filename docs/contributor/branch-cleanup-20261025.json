@@ -1,0 +1,567 @@
+{
+  "observed_at": "2026-10-25T05:07:26.618434+00:00",
+  "integration_base": "cf155d02199d0ac81e23f4b0ec43a8abe5072478",
+  "branches": [
+    {
+      "branch": "a9-recovery-t001",
+      "sha": "021cf42c43981e4e8d4ffa4dde687d8ceffdf8a8",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "auto/improve-20261005",
+      "sha": "053db9728df692540ffb85e3f186b301d20e7889",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "auto/improve-20261024",
+      "sha": "afff765c208b1d98e0fa3a5107f88ed9a3b2a320",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "chore/dependabot-yearly",
+      "sha": "ee976dee2dd1f9a8aed394af6df4e963b3d42027",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "codex/a2-lite-registry-contract",
+      "sha": "05173cc7c924dc0c7d3d5a5c34a990c85c37a33c",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/a7-issue195-closeout",
+      "sha": "37b1c2d7d583f718d3cb233f41b3f4a63a5a91b4",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/a8-copilot-tool-names",
+      "sha": "03c3008eeaca9eddd4dfa687f4c427d6b11e675f",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/a8-integration-residual-20261017",
+      "sha": "b9d8c5d5789d7fac464323f901f72a141c60657c",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/a8-native-proof",
+      "sha": "da35dc5e27664dbca128060e561261b1384354f0",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/a8-native-verification",
+      "sha": "7f19b69de510ed4549a6da7f5e029f4baa6af58e",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/a9-interrupted-review-recovery-checkpoint",
+      "sha": "77ac9969242eae5af249961669a3c6d0d526b515",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "codex/a9-verified-admission",
+      "sha": "4b5b52865f14c7eff2833a36c70c81adc0b73f07",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/ci-claude-postinstall",
+      "sha": "00206fddef3e42872f6e07b39f2f97d3220083bf",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/concept-test-implementation",
+      "sha": "3644a40239ab9e4373dd7e3605a7bc386d8a9d33",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/copilot-initial-wait-guard",
+      "sha": "c6da1938c51e9132966e6454f894d1f8c3dabd6e",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/domain-review-finalize",
+      "sha": "cf7b57991399331a4733ef7b1b381cecd14db746",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/fixed-approval-issuer",
+      "sha": "3a76f3f7ad15990c15e20248a0daa08d7af424bc",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "codex/fixed-native-probe-retry",
+      "sha": "218deec77b9209c776a7031abcd9da330bc3f83e",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "codex/fixed-review-inputs",
+      "sha": "66100f6a13e0abfb54408c6de5ebe0fc24f2f4c0",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/golden-mixed-failure",
+      "sha": "25dbd52fda120222fda2648d60d86148df812776",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/guard-role-read-main",
+      "sha": "0bf2aad5dcc00e93bb256939602ada169580b218",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/issue137-continuity",
+      "sha": "ed52efb42852f38058b10ef159386e2cd4eedfc9",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "codex/issue290-concept-reverse",
+      "sha": "94ea370fb3ab9747588db343a4178f964fd07cba",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "codex/issue290-concept-review-phase3",
+      "sha": "8226eef12833ebbd36dcd7f263ec1502ad73abf0",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "codex/issue290-concept-test-phase1",
+      "sha": "badbb7aa5d16114be542c33018967c58770d1a41",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "codex/issue423-boundary-checkpoint",
+      "sha": "021c1cdede139cf9f7ae1bf5966dc04e25a72c29",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "codex/issue423-filesonly-exit-message",
+      "sha": "221dc6f72ea7caa3f72b46c105a3511836cfa0ae",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "codex/issue545-weekly-docs",
+      "sha": "710fc2680613b4100d1a6b9b059a2c309b6ee8f4",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/issue559-bounded-audit",
+      "sha": "6b1e62242267bf0ea1c17a3f78a4adcdf19e5188",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "codex/issue559-completion-diagnostics",
+      "sha": "9840601365d537abe66928e43ae2e3ed76f3c6e7",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "codex/mcp-production-dependency-repair",
+      "sha": "762c28a728531131a3319ab434da01650303ca40",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "codex/native-proof-exit-tail",
+      "sha": "fd3da681dfc6438da7ffaadb9cb36b46eb6c284b",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/read-only-guard-fix",
+      "sha": "aa631b1528d48e9827fe8fe1658b37c0fcb0646c",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/rt002-host-denial-repair",
+      "sha": "8020fe88316b7659ec8b97b6327a618356e3dd23",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/shared-launch-public-integration",
+      "sha": "be9c13829581cf5e80ed8abcece74a718eadf14c",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "codex/t002-failure-diagnostics",
+      "sha": "2e9f59ae804472a51e75be2657ed71f95423bbb0",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "codex/verified-issue-integration",
+      "sha": "0031a7a298f402ee98918adb20b213a98c924bdc",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "dependabot/github_actions/anthropics/claude-code-action-1.0.257",
+      "sha": "e6b9096f56cd438c9ff42f74cde64984ee7811fa",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "dependabot/github_actions/anthropics/claude-code-action-1.0.259",
+      "sha": "c234e0d0a8cede87dd17e70125a864459f1768ec",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "dependabot/npm_and_yarn/mcp/sdd-forge-mcp/js-yaml-5.5.0",
+      "sha": "37024a9368997f4f7a617a89774246be2c228b8b",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "docs/issue-execution-results",
+      "sha": "36425e379171b5a4b7fe8873cbbe1175333e3724",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "feat/issue-594-contracts",
+      "sha": "d0a49f73e0ac97a84b75a5404dd93f06149df3db",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "feat/issue-601-structural-prevention",
+      "sha": "21bef3dc623d9c0f8cdb5b4108ebc934b8e8c126",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "feat/issue-605-research",
+      "sha": "a2459d59841fad8409c3433d1b2ecc46218764c3",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "feat/issue-614-measurement",
+      "sha": "e5a20b7bc07ea8ad4bea44de71c746e220b56cba",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "feature/epic-196-a8-integration",
+      "sha": "f525825e7a1ffb5021b80e3a0fbae20e36955d38",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "feature/epic-197-a9-dogfood",
+      "sha": "898152b3697480d7155e8f158f50e78b8f128bdb",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "fix/approved-impl-reviewer-a-20261025",
+      "sha": "3e0fcb2e6e54bec7f8f30c7042700dd03969ab6c",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "fix/approved-reviewer-adoption-20261025",
+      "sha": "39c659a0e37a9a0bfe212b650eed738430fe534b",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "fix/ci-job-metadata",
+      "sha": "232e940f03b50b5611dd9b36f9bb5bb25e3bc1d1",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "fix/host-registration-append",
+      "sha": "fa5edd745b3931e3719180974f1f6e677d284e1a",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "fix/issue-619-neighbor-encoding",
+      "sha": "3d536bd080e8d8f3ba9402ed56bdb1a9d3bc5966",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "fix/issue-619-utf8",
+      "sha": "6dab8f7035336d2ddcc92d8b487a1cbfc231a3ea",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "fix/issue-620-audit-syntax",
+      "sha": "f9b4b1cabbe6737ffe3e197675d428f93331ed81",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "fix/issue-620-frozen-base",
+      "sha": "f9b4b1cabbe6737ffe3e197675d428f93331ed81",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "fix/issue-642-input-encoding",
+      "sha": "3f45095b5054850810a8a230df80f0acf45945b3",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "integrate/issue-619-620",
+      "sha": "86437dda02af3d2c356c1c999570617198257741",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "integrate/self-improvement-opus-adoption",
+      "sha": "75d88b753de8d88fff54ef40eb233fa6ed2ebd62",
+      "merged_into_work": true,
+      "action": "deleted-integrated",
+      "reason": "reachable from integration base; no open PR uses this ref"
+    },
+    {
+      "branch": "main",
+      "sha": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "release/cloud-orchestration-v1.19.0-20261018",
+      "sha": "d6b4cfa2048b6a0d5a27d4caf06df117b79fdfe0",
+      "merged_into_work": true,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/activation-96afb59fccea",
+      "sha": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+      "merged_into_work": true,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/baseline-096235a20c17",
+      "sha": "096235a20c17ef4908244af1b8cca07a0ceab370",
+      "merged_into_work": true,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/baseline-4b6ecf77f1be",
+      "sha": "4b6ecf77f1bef6686c0c41dff033c976c2a05b23",
+      "merged_into_work": true,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/baseline-6c2b4e713915",
+      "sha": "6c2b4e7139158674dfaa1148c009db7da261706f",
+      "merged_into_work": true,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/baseline-7d3b6ef287c2",
+      "sha": "7d3b6ef287c2aa729b3f6f276374d872986dabf9",
+      "merged_into_work": true,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/baseline-c747b59e2864",
+      "sha": "c747b59e28649c94e1309bab67885182e3e8cfea",
+      "merged_into_work": true,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/baseline-f80ac878fb81",
+      "sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd",
+      "merged_into_work": true,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/final-windows-payload-96afb59f-v120",
+      "sha": "2806170b47c26db5f282a59350e990107aaa1816",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/mutation-6c2b4e713915",
+      "sha": "67f66723ab98ffab6aeef220fee4a942c8f2a821",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/mutation-c747b59e2864",
+      "sha": "df47ab705377e29e5094892e4f1040b9ab9e139e",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/mutation-f80ac878fb81",
+      "sha": "78170dded31b9f9db346192ebc6acecbd0264a58",
+      "merged_into_work": true,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/probe-cloud-96afb59fccea",
+      "sha": "5b03917593a2fca6d439ca2eeb7d886d756bd4a2",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/probe-mcp-96afb59fccea",
+      "sha": "0fd45bffd20f8aa0163918e6fb2e0ef0db2a7fb2",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/probe-readme-96afb59fccea",
+      "sha": "035711d21847a69c62c50f23e0f868af4604a3eb",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/probe-shared-96afb59fccea",
+      "sha": "d8a2155adeb49ea4109874c50e089f2e029cab26",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/restore-c747b59e2864",
+      "sha": "8f086ec539dc8e43ad8ee0726b7e5ad3d8ac59e6",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/restore-f80ac878fb81",
+      "sha": "f43e84ca2453fa9c9c8c328568d6c16515fcb8a0",
+      "merged_into_work": true,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "t011/windows-archive-diagnostic-096235a2-20261021",
+      "sha": "d22911f749f93c279e8802d149cd63f173f64c2e",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "verify/issue-642-native-desktop",
+      "sha": "d65a71555f2640db33d861f6018ca806dfb97fff",
+      "merged_into_work": false,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    },
+    {
+      "branch": "work",
+      "sha": "cf155d02199d0ac81e23f4b0ec43a8abe5072478",
+      "merged_into_work": true,
+      "action": "retain",
+      "reason": "active PR, integration/release/verification ref, or unique history"
+    }
+  ],
+  "deleted_at": "2026-10-25T05:09:05.308407+00:00"
+}
