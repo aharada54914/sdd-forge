@@ -1,0 +1,97 @@
+{
+  "schema": "impl-role-application-scope-rationale/v1",
+  "source_commit": "fa196c92b0c421d466d05a99c8e629a174e676e7",
+  "observed_benchmark_feature_type": "cli",
+  "actual_A9_feature_type": "bugfix",
+  "proposed_application": "Explicit human consideration for non-legacy later-lifecycle local CLI/tooling non-fullstack surface, including A9 bugfix label under the same no-domain/no-design-system conditions.",
+  "direct_bugfix_label_trial": false,
+  "source_anchors": [
+    {
+      "path": "specs/a9-interrupted-review-recovery/design.md",
+      "sha256": "3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e",
+      "anchors": [
+        {
+          "line": 4,
+          "text": "Feature Type: bugfix"
+        },
+        {
+          "line": 8,
+          "text": "Extend only the spec-review transition contract with an explicit recovery branch. Existing normal reset selects terminal contracts (`plugins/sdd-review-loop/scripts/spec-review-precheck.sh:388-397`); the separate branch validates interruption, not a verdict. Existing lock/publication mechanism is `:400-449`. Context: human -> local orchestrator -> Bash/PowerShell precheck -> repository evidence. Container: existing local script runtime. Component: pure recovery validation, existing own-stage contract validation, existing persisted identity verifier, existing locked destination writer. No deployment unit or architecture reorganization; no new ADR or C4 files required for this bounded bugfix."
+        },
+        {
+          "line": 23,
+          "text": "| spec-review-precheck twins | Exclusive recovery option and destination writer | Bash / PowerShell | existing, narrow extension proposed |"
+        },
+        {
+          "line": 32,
+          "text": "| UX | ux-spec.md#scope-and-user-journeys | specification author | N/A — no change: no UI |"
+        },
+        {
+          "line": 33,
+          "text": "| Frontend | frontend-spec.md#technology-stack | specification author | N/A — no change: no frontend |"
+        },
+        {
+          "line": 34,
+          "text": "| Infrastructure | infra-spec.md#deployment-topology | workflow maintainer | proposed local CLI controls |"
+        },
+        {
+          "line": 39,
+          "text": "N/A — ds_profile: none"
+        }
+      ]
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/frontend-spec.md",
+      "sha256": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52",
+      "anchors": [
+        {
+          "line": 5,
+          "text": "N/A — no change: local Bash/PowerShell workflow, no frontend runtime or framework (REQ-005 / AC-005)."
+        },
+        {
+          "line": 9,
+          "text": "N/A — no change: no client state, routes or components. Repository workflow state is infra/security-owned."
+        },
+        {
+          "line": 13,
+          "text": "N/A — no change: no HTTP API or frontend client; local data contract is specified in design.md."
+        }
+      ]
+    },
+    {
+      "path": "specs/a9-interrupted-review-recovery/ux-spec.md",
+      "sha256": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1",
+      "anchors": [
+        {
+          "line": 5,
+          "text": "N/A — no change: no view, dialog, menu or context action. Existing local CLI invocation is owned by infra-spec.md (REQ-001 / AC-001), with deterministic nonzero error or new Pending precheck feedback; no graphical shell reachability requirement."
+        },
+        {
+          "line": 9,
+          "text": "N/A — no change: no UI or navigation state introduced. Recovery does not represent review success (REQ-004 / AC-004)."
+        },
+        {
+          "line": 23,
+          "text": "N/A — no change: no design-system integration."
+        }
+      ]
+    },
+    {
+      "path": "plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+      "sha256": "6d302654a8662e233e038e254548bad68d593cd1181433174f9c950bc6a2b7aa",
+      "anchors": [
+        {
+          "line": 201,
+          "text": "Skip when Feature Type is `api-only`, `frontend-only`, `cli`, or `library`."
+        },
+        {
+          "line": 347,
+          "text": "FRONTEND-BACKEND-CONSISTENCY must be SKIP for non-fullstack feature types;"
+        }
+      ]
+    }
+  ],
+  "interpretation": "Generic exact-output non-fullstack SKIP rule and actual no-frontend/tooling surface support this bounded application proposal despite differing literal labels. Earlier named-list wording is narrower; it is not erased or treated as a label rewrite.",
+  "recheck_at_use": "Re-read actual target type/surface, layers, domain/design-system presence, legacy mode and applicable precheck/authority/history requirements before consuming this mapping. Do not apply to first-time/fullstack/legacy/domain/design-system review.",
+  "limitations": "Not model behavior evidence on a bugfix-labeled fixture, actual protected launch, amendment/convergence proof, full A9 chain or human approval."
+}

@@ -1,0 +1,46 @@
+{
+  "schema": "impl-role-supplemental-decision/v1",
+  "recorded_at_utc": "2026-10-25T02:38:27.158896+00:00",
+  "supplements_completed_report_sha256": "ce620a8bb6d82ed8b1ffe624b239e45f09e42a8fcb75cddf90989329a8d95bbe",
+  "joint_campaign_decision": "HOLD remains immutable; joint A/B promotion is not recommended.",
+  "per_role_rule": [
+    {
+      "path": "specs/ci-model-modernization/tasks.md",
+      "line": 503,
+      "exact_text": "Execute the pre-output candidate/baseline evaluation rubric and promote only the passing role-specific candidates through adoption evidence references. Own evaluation fixtures, actual experiment outputs and adoption metadata; no selector, capability, launcher or maintenance algorithm changes."
+    },
+    {
+      "path": "specs/ci-model-modernization/tasks.md",
+      "line": 525,
+      "exact_text": "- Promote only roles satisfying every frozen rubric criterion in both repetitions with no material baseline regression. Failed candidates remain update candidates with retained results; any new experiment versions inputs instead of erasing failures. Existing verified current candidates may remain eligible."
+    }
+  ],
+  "source_commit": "fa196c92b0c421d466d05a99c8e629a174e676e7",
+  "task_source_sha256": "f4df7a8965400858c6c38217e6b25e3ff4a2937da48041fa645b8e9a17296f67",
+  "roles": {
+    "impl-reviewer-a": {
+      "outputs": 4,
+      "accepted": 4,
+      "supported_checks": 44,
+      "total_checks": 44,
+      "both_repetitions_all_criteria": true,
+      "recommendation": "Eligible for bounded human consideration only; not adopted."
+    },
+    "impl-reviewer-b": {
+      "outputs": 4,
+      "accepted": 3,
+      "supported_checks": 43,
+      "total_checks": 44,
+      "both_repetitions_all_criteria": false,
+      "recommendation": "Withhold. First failed t04 evidence claim and legitimate extra Major findings retained."
+    }
+  },
+  "material_baseline_regression": "No adopted incumbent or comparison arm; not measured. First-role qualification is bounded and does not claim superiority.",
+  "blocked_dependencies": [
+    "human decision on explicit source-mapped A9 application scope",
+    "impl-reviewer-b adoption",
+    "evaluator adoption",
+    "actual protected precheck/registration/runtime chain"
+  ],
+  "human_adoption": false
+}

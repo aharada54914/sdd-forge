@@ -1,0 +1,1069 @@
+{
+  "schema": "impl-role-candidate-public-projection/v1",
+  "cells": [
+    {
+      "cell": "t01",
+      "role": "impl-reviewer-a",
+      "variant": "a-gap",
+      "repetition": 1,
+      "original_final_message_sha256": "c67527f60950c929bd89ed9820e06296ff251d7bb9635302d493952d35876cf4",
+      "transformation": "Parse one complete JSON value, optionally removing one outer source-style fence; replace only two top-level experimental correlation fields. Review content unchanged.",
+      "output": {
+        "schema": "impl-reviewer-a/v1",
+        "stage": "impl",
+        "role": "impl-reviewer-a",
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "allowed_input_manifest": [
+          {
+            "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+            "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+          },
+          {
+            "path": "reports/impl-review/reed-manifest-check/attempt-2/round-1/precheck-result.json",
+            "sha256": "4024fbd3e7ddd6024afef8a1a1aabad7f17ad6a41316a93a7e635e7f69fce440"
+          },
+          {
+            "path": "specs/reed-manifest-check/acceptance-tests.md",
+            "sha256": "bf4824977c3076e275d7a3116612100d7d5ca0641a133804fac99ebd46627637"
+          },
+          {
+            "path": "specs/reed-manifest-check/design.md",
+            "sha256": "fb369632d167112b8ea455736a381bf7594284e1175d3643cf9d2dfb3047106d"
+          },
+          {
+            "path": "specs/reed-manifest-check/frontend-spec.md",
+            "sha256": "421ad74a7bdf0b902e75464925054a70b90adc7de96fb034b124670215ae6190"
+          },
+          {
+            "path": "specs/reed-manifest-check/infra-spec.md",
+            "sha256": "d0c0513091a687d09ede1be12bd2ac1cbbc69cfce35798bad3a8f48b719b2905"
+          },
+          {
+            "path": "specs/reed-manifest-check/investigation.md",
+            "sha256": "2d8729944d64293d4f1c80804a4c80f9fda9ca6dfc7ad556cecb6c4c0683d1f3"
+          },
+          {
+            "path": "specs/reed-manifest-check/requirements.md",
+            "sha256": "125daa6214bcc6adedda4217f65a6ccac8a3d2ad959dfb2b318b5c59d66925a9"
+          },
+          {
+            "path": "specs/reed-manifest-check/security-spec.md",
+            "sha256": "4c496363971d21b1455b6c0341ad281d421093985494dbe6f30048ffb611b447"
+          },
+          {
+            "path": "specs/reed-manifest-check/ux-spec.md",
+            "sha256": "6abdc9f6058d24a7e0c96cc2349de347b2752196fcc906dcf64070422bc671bb"
+          }
+        ],
+        "verdict": "BLOCKED",
+        "legacy_design": false,
+        "feature_type": "cli",
+        "checks": [
+          {
+            "id": "ARCH-COVERAGE",
+            "result": "PASS",
+            "severity": "Critical",
+            "finding": "design.md ## Architecture covers all three elements. (1) Boundaries: EntryPoint, BoundedReader, ManifestValidator and the output stage, with their interactions (EntryPoint calls the reader, passes decoded data to the validator, passes the verdict to the output stage). (2) Integration: an additive manifest-check dispatch branch on the existing EntryPoint, matching INV-001. (3) Technology by layer: the existing Python CLI, standard-library validation, no storage layer, and the existing package/three-host CI. The output component is named inconsistently (ReceiptFence); that naming defect is recorded under NO-UNDEFINED-COMPONENT and not duplicated here."
+          },
+          {
+            "id": "NO-CIRCULAR-DEPS",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "The ## Architecture 'Top-level dependencies' list is EntryPoint → BoundedReader, EntryPoint → ManifestValidator and EntryPoint → ResultRenderer. It states that the other three components have no dependency on each other or on EntryPoint, and that there are no callbacks. The graph is a star with no cycle."
+          },
+          {
+            "id": "DATA-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Data Plan states 'No data changes' with rationale for each of Data Entities, Existing Data Affected and Migration Strategy. This is consistent with INV-003 and the requirements scope exclusions."
+          },
+          {
+            "id": "API-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## API / Contract Plan gives the CLI equivalent `reed manifest-check --format json`. It specifies the stdin request schema (C-001) and the stdout response schema (valid/count/error with exit codes, matching C-005). It also states the error priority, the output-failure and CLI-argument-error behavior, that there are no new HTTP endpoints, RPCs or events, and that there is no deprecation or breaking change to existing commands."
+          },
+          {
+            "id": "SECURITY-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Security Boundaries names Boundary1 (untrusted stdin → BoundedReader/ManifestValidator) and Boundary2 (verdict → stdout/stderr). For auth, it justifies why none is needed (local, pure validation, caller's OS rights). It covers data classification: labels and digests are public, and accidental secrets are confidential and never echoed. It covers injection and resource exhaustion (1MiB/100-entry bounds, strict parsing, labels never used as paths or commands), no XSS surface, and no new supply-chain dependency. security-spec.md agrees with it. Note that Boundary2 names ResultRenderer, while ## Architecture's narrative names ReceiptFence."
+          },
+          {
+            "id": "FRONTEND-BACKEND-CONSISTENCY",
+            "result": "SKIP",
+            "severity": "Major",
+            "finding": "SKIP: Feature Type is cli."
+          },
+          {
+            "id": "TEST-STRATEGY-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Test Strategy covers unit scope (test_manifest_contract, test_manifest_limits, test_manifest_readonly, fake streams for ResultRenderer), integration scope (test_manifest_cli through EntryPoint→BoundedReader→ManifestValidator→ResultRenderer) and acceptance. Acceptance maps AC-001–004 to TEST-001–006 with named commands and report artifacts (reports/manifest/contract.txt, readonly.txt, limits.txt, performance.json, cli.txt). acceptance-tests.md matches. The evidence is planned and not claimed as executed."
+          },
+          {
+            "id": "NO-UNDEFINED-COMPONENT",
+            "result": "FAIL",
+            "severity": "Critical",
+            "finding": "design.md ## Architecture says EntryPoint 'passes the resulting immutable verdict to `ReceiptFence` for stdout delivery'. ReceiptFence is not defined in ## Components (EntryPoint, BoundedReader, ManifestValidator and ResultRenderer only) or anywhere else in design.md. It is also not an established component in investigation.md (INV-001/002/003) or requirements.md. The same section's dependency list, ## Components, ## Backend Plan, ## API / Contract Plan and Security Boundary2 all name ResultRenderer for this role. The architecture narrative therefore references an undefined component. This leaves ambiguity over whether an extra stdout-delivery component exists and who owns output-failure and exit-2 behavior (C-005). The check contract marks this Critical."
+          },
+          {
+            "id": "ADR-PRESENT",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Architecture Decision Records lists no ADRs, and precheck adr_inputs is empty. The section justifies that no new technology or integration pattern is introduced, consistent with INV-001/002 and the requirements scope exclusions. No ADR is required."
+          },
+          {
+            "id": "DESIGN-SYSTEM-CONFORMANCE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "Skipped: there is no design-system/ directory, and design.md ## Design System Compliance records exactly 'N/A — ds_profile: none'."
+          },
+          {
+            "id": "DOMAIN-CONFORMANCE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "Skipped: there is no domain/ directory, per the scenario facts, INV-001 and the design.md Capability scope section."
+          }
+        ]
+      },
+      "first_independent_judgment": {
+        "batch": "J2",
+        "opaque_label": "O1",
+        "overall": "ACCEPT",
+        "original_sha256": "c8bbb9b88cd125730db06eaacdcc614ac1311f8ef7fb23cb45f94bff942228da"
+      }
+    },
+    {
+      "cell": "t02",
+      "role": "impl-reviewer-b",
+      "variant": "clean",
+      "repetition": 1,
+      "original_final_message_sha256": "34e7c63cbaa8c29cf39b08402de28ab7042275f5235e59da68ffac61531dcd89",
+      "transformation": "Parse one complete JSON value, optionally removing one outer source-style fence; replace only two top-level experimental correlation fields. Review content unchanged.",
+      "output": {
+        "schema": "impl-reviewer-b/v1",
+        "stage": "impl",
+        "role": "impl-reviewer-b",
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "allowed_input_manifest": [
+          {
+            "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+            "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+          },
+          {
+            "path": "reports/impl-review/reed-manifest-check/attempt-2/round-1/precheck-result.json",
+            "sha256": "840d075fe23426e6051ccb4eda5885cb71d152221c5fd44c29731c38813a0742"
+          },
+          {
+            "path": "specs/reed-manifest-check/acceptance-tests.md",
+            "sha256": "bf4824977c3076e275d7a3116612100d7d5ca0641a133804fac99ebd46627637"
+          },
+          {
+            "path": "specs/reed-manifest-check/design.md",
+            "sha256": "8b0df9351b7eeb21f5fb16539debe9d53812ef1457f3027489bbff191746ac98"
+          },
+          {
+            "path": "specs/reed-manifest-check/frontend-spec.md",
+            "sha256": "421ad74a7bdf0b902e75464925054a70b90adc7de96fb034b124670215ae6190"
+          },
+          {
+            "path": "specs/reed-manifest-check/infra-spec.md",
+            "sha256": "d0c0513091a687d09ede1be12bd2ac1cbbc69cfce35798bad3a8f48b719b2905"
+          },
+          {
+            "path": "specs/reed-manifest-check/investigation.md",
+            "sha256": "2d8729944d64293d4f1c80804a4c80f9fda9ca6dfc7ad556cecb6c4c0683d1f3"
+          },
+          {
+            "path": "specs/reed-manifest-check/requirements.md",
+            "sha256": "125daa6214bcc6adedda4217f65a6ccac8a3d2ad959dfb2b318b5c59d66925a9"
+          },
+          {
+            "path": "specs/reed-manifest-check/security-spec.md",
+            "sha256": "4c496363971d21b1455b6c0341ad281d421093985494dbe6f30048ffb611b447"
+          },
+          {
+            "path": "specs/reed-manifest-check/ux-spec.md",
+            "sha256": "6abdc9f6058d24a7e0c96cc2349de347b2752196fcc906dcf64070422bc671bb"
+          }
+        ],
+        "verdict": "PASS",
+        "checks": [
+          {
+            "id": "DECISION-JUSTIFIED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Decisions and rationale' gives a 'because' for each decision: standard library/unittest (INV-001/002, no extra dependency), stdin-only (REQ-002), pure validation separated from stream adapters (testability), reject-not-repair (C-002), fixed error codes (C-005), no cache. '## Architecture' justifies the technology-by-layer choices ('Retaining them avoids a new runtime, package or deployment mechanism'). '## Deployment / CI Plan' justifies having no feature flag. No unjustified inline decision found."
+          },
+          {
+            "id": "OPEN-QUESTIONS-RESOLVABLE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Open Questions' states 'None' and says nothing is deferred. No entries need an owner, a Blocks Implementation field or a Resolution Path. No requirement or layer spec carries an unresolved question that contradicts this."
+          },
+          {
+            "id": "ASSUMPTIONS-VALID",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "investigation.md is present. A-001 is grounded in INV-001/002 and says to recheck at implementation start. A-002 is grounded in INV-003 and the requirements.md '## Scope exclusions', with a release-time dependency check. A-003 is a standard-library default for Python 3.11, and the tests cover the strictness it relies on (TEST-001/002). The investigation.md facts are marked synthetic context. No invalid assumption found."
+          },
+          {
+            "id": "NO-REQ-CONTRADICTION",
+            "result": "PASS",
+            "severity": "Critical",
+            "finding": "design.md has '## Constraint Compliance' addressing C-001 through C-006, each with an owning component and test. The design matches the constraint text. Examples: limit+1 read and SIZE before decoding (C-003); entry count checked before iteration (C-003); SIZE>ENCODING>FORMAT priority, IO, exit0/exit2 and the output-failure fixed stderr (C-005); no writes, network or subprocess (C-002). The four layer specs (ux, frontend, infra, security) repeat these constraints and do not override requirements.md or design.md. No cross-layer contradiction found. Every requirement and constraint is claimed by design.md or the layer spec responsible for it."
+          },
+          {
+            "id": "PERF-ADDRESSED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "C-006 (1s, 16MiB additional memory on a 2-core/4GiB runner) is addressed in design.md. The Constraint Compliance C-006 entry cites bounded linear-time validation and bounded input and entries. TEST-005 and `python tools/measure_manifest.py` produce reports/manifest/performance.json (AC-003). infra-spec.md names the representative runner. The evidence is planned, not claimed as measured."
+          },
+          {
+            "id": "DEPLOYMENT-CONCRETE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Deployment / CI Plan' states the target (the existing Reed Python package on Linux/macOS/Windows). It gives the flag strategy (none, with a reason). It gives the CI changes (add TEST-001–006 to the existing three-host jobs, the performance run on the dedicated runner, and no new secrets or environment variables). It gives the rollback (previous package version). It states that no migration runs because there is no persistent schema. infra-spec.md is consistent."
+          },
+          {
+            "id": "MIGRATION-PLANNED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Data Plan' states 'No data changes' for Data Entities, Existing Data Affected and Migration Strategy. This is consistent with INV-003 and the requirements.md scope exclusions. No migration plan is needed."
+          },
+          {
+            "id": "INTEGRATION-IDENTIFIED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Integrations' has a table with two entries: caller standard streams, and the existing Reed dispatcher/package. Each has a purpose and contract and a failure behaviour (IO/exit2, fixed stderr, fixed usage/exit2). It states that no external systems, services, webhooks or SDKs are introduced, consistent with the requirements.md scope exclusions and INV-003."
+          },
+          {
+            "id": "DESIGN-WITHIN-SCOPE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "The four components (EntryPoint, BoundedReader, ManifestValidator, ResultRenderer) map to REQ-001/002/003 and C-001 through C-006. They add no endpoints, data models or UI. They add no digest verification or publication, which the scope exclusions forbid. REQ-001, REQ-002, REQ-003, US-001 and US-002 are all covered. The Design System Compliance section is N/A, and no UI library is introduced."
+          },
+          {
+            "id": "VERIFICATION-PATH-CONCRETE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "The high-risk surface (hostile stdin, no raw-input echo, output/IO failure behaviour, the public contract) has concrete planned paths. design.md '## Test Strategy' and acceptance-tests.md AC-001–004 name the commands and artifacts: `python -m unittest tests.test_manifest_contract`, `tests.test_manifest_readonly`, `tests.test_manifest_limits`, `tests.test_manifest_cli`, and `python tools/measure_manifest.py`. The artifacts are reports/manifest/contract.txt, readonly.txt, limits.txt, performance.json and cli.txt. TEST-002/003/004/006 cover rejection, forbidden calls and non-disclosure. security-spec.md cites the same tests. The tests are labelled planned, not executed, which is acceptable."
+          },
+          {
+            "id": "DOMAIN-CONFORMANCE",
+            "result": "SKIP",
+            "severity": "Major",
+            "finding": "SKIP: the project has no domain/ directory, no context-map.md and no domain-contract.json. design.md '## Capability scope' and the investigation.md INV-001 scope facts say so. requirements.md has no Bounded-Context field, and none is required without an Approved model. Round 1: no prior summary."
+          }
+        ]
+      },
+      "first_independent_judgment": {
+        "batch": "J3",
+        "opaque_label": "O2",
+        "overall": "ACCEPT",
+        "original_sha256": "928a96b05ec6f406a3b11d859169fb4d53247cfc701e500a94b4b4b9a73d04a4"
+      }
+    },
+    {
+      "cell": "t03",
+      "role": "impl-reviewer-a",
+      "variant": "clean",
+      "repetition": 1,
+      "original_final_message_sha256": "edd1f2b719faf2fff0f3fbdb399a7f7bbbd445bc7de913ee6a291800a8e92192",
+      "transformation": "Parse one complete JSON value, optionally removing one outer source-style fence; replace only two top-level experimental correlation fields. Review content unchanged.",
+      "output": {
+        "schema": "impl-reviewer-a/v1",
+        "stage": "impl",
+        "role": "impl-reviewer-a",
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "allowed_input_manifest": [
+          {
+            "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+            "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+          },
+          {
+            "path": "reports/impl-review/reed-manifest-check/attempt-2/round-1/precheck-result.json",
+            "sha256": "840d075fe23426e6051ccb4eda5885cb71d152221c5fd44c29731c38813a0742"
+          },
+          {
+            "path": "specs/reed-manifest-check/acceptance-tests.md",
+            "sha256": "bf4824977c3076e275d7a3116612100d7d5ca0641a133804fac99ebd46627637"
+          },
+          {
+            "path": "specs/reed-manifest-check/design.md",
+            "sha256": "8b0df9351b7eeb21f5fb16539debe9d53812ef1457f3027489bbff191746ac98"
+          },
+          {
+            "path": "specs/reed-manifest-check/frontend-spec.md",
+            "sha256": "421ad74a7bdf0b902e75464925054a70b90adc7de96fb034b124670215ae6190"
+          },
+          {
+            "path": "specs/reed-manifest-check/infra-spec.md",
+            "sha256": "d0c0513091a687d09ede1be12bd2ac1cbbc69cfce35798bad3a8f48b719b2905"
+          },
+          {
+            "path": "specs/reed-manifest-check/investigation.md",
+            "sha256": "2d8729944d64293d4f1c80804a4c80f9fda9ca6dfc7ad556cecb6c4c0683d1f3"
+          },
+          {
+            "path": "specs/reed-manifest-check/requirements.md",
+            "sha256": "125daa6214bcc6adedda4217f65a6ccac8a3d2ad959dfb2b318b5c59d66925a9"
+          },
+          {
+            "path": "specs/reed-manifest-check/security-spec.md",
+            "sha256": "4c496363971d21b1455b6c0341ad281d421093985494dbe6f30048ffb611b447"
+          },
+          {
+            "path": "specs/reed-manifest-check/ux-spec.md",
+            "sha256": "6abdc9f6058d24a7e0c96cc2349de347b2752196fcc906dcf64070422bc671bb"
+          }
+        ],
+        "verdict": "PASS",
+        "legacy_design": false,
+        "feature_type": "cli",
+        "checks": [
+          {
+            "id": "ARCH-COVERAGE",
+            "result": "PASS",
+            "severity": "Critical",
+            "finding": "design.md ## Architecture covers all three elements. (1) Boundaries: EntryPoint, BoundedReader, ManifestValidator and ResultRenderer, with stated interactions (EntryPoint calls BoundedReader, then ManifestValidator, then ResultRenderer; it never invokes publication). (2) Integration: an additive manifest-check dispatch branch on the existing EntryPoint (INV-001). (3) Technology by layer: existing Python CLI as frontend, standard-library validation as processing, ephemeral bytes with no storage as data, existing Python package and three-host CI as infra. The layer specs agree: frontend-spec, infra-spec and security-spec restate the same components and choices without contradiction."
+          },
+          {
+            "id": "NO-CIRCULAR-DEPS",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Architecture declares the dependency edges explicitly: EntryPoint→BoundedReader, EntryPoint→ManifestValidator, EntryPoint→ResultRenderer. It states the other three components have no dependency on each other or on EntryPoint, and that there are no callbacks. The graph is acyclic. ## Components is consistent with it."
+          },
+          {
+            "id": "DATA-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Data Plan states 'No data changes' with rationale in all three required sub-fields: Data Entities, Existing Data Affected and Migration Strategy. This is consistent with INV-003 and the requirements.md scope exclusions (no database)."
+          },
+          {
+            "id": "API-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## API / Contract Plan gives the CLI equivalent `reed manifest-check --format json`. The request schema is stdin JSON per C-001. The response schema is {valid,count,error} plus LF, with exit codes and the SIZE>ENCODING>FORMAT priority, IO, output-failure and argument-error behavior, matching C-005. It states there are no new HTTP endpoints, RPCs or events, and that existing commands have no deprecation or breaking change (C-004)."
+          },
+          {
+            "id": "SECURITY-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Security Boundaries names Boundary1 (untrusted stdin → BoundedReader/ManifestValidator) and Boundary2 (verdict → stdout/stderr via ResultRenderer). It justifies why no authentication or authorization applies (local pure validation, caller's OS rights). It classifies data (public labels and digests; accidental secrets treated as confidential and never echoed). It addresses injection (labels never paths, shell fragments or commands), resource exhaustion (1MiB and 100-entry bounds), and supply chain (no new dependency). No PII is handled, and there is no XSS or credential surface. security-spec.md is consistent with this."
+          },
+          {
+            "id": "FRONTEND-BACKEND-CONSISTENCY",
+            "result": "SKIP",
+            "severity": "Major",
+            "finding": "SKIP: Feature Type is cli (design.md header and precheck-result.json feature_type)."
+          },
+          {
+            "id": "TEST-STRATEGY-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Test Strategy covers all three levels. Unit: tests.test_manifest_contract, test_manifest_limits and test_manifest_readonly, using fake streams and forbidden-call spies. Integration: tests.test_manifest_cli exercises the EntryPoint→BoundedReader→ManifestValidator→ResultRenderer chain on each host. Acceptance: AC-001–004 map to TEST-001–006. It names concrete commands (`python -m unittest ...`, `python tools/measure_manifest.py`, `python -m unittest discover`) and artifacts (reports/manifest/contract.txt, readonly.txt, limits.txt, performance.json, cli.txt). acceptance-tests.md traces each AC to its REQ and constraint (C-001 to C-006) and says explicitly that the evidence is planned, not executed. The pipe→verdict journey is covered by TEST-006. No execution is required of the reviewer."
+          },
+          {
+            "id": "NO-UNDEFINED-COMPONENT",
+            "result": "PASS",
+            "severity": "Critical",
+            "finding": "Every component referenced in Architecture, Frontend Plan, Backend Plan and API / Contract Plan (EntryPoint, BoundedReader, ManifestValidator, ResultRenderer) is defined in design.md ## Components with a file path. EntryPoint is also an established component per INV-001 (reed/cli.py). Standard streams and the standard library are expressly platform primitives, not components."
+          },
+          {
+            "id": "ADR-PRESENT",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Architecture Decision Records lists no ADRs (precheck adr_inputs is empty) and states that no new technology, integration pattern or architectural departure is introduced. This is consistent with INV-001/002 and the requirements.md scope exclusions. Nothing is referenced that could be missing, and no new decision is introduced, so no ADR is required."
+          },
+          {
+            "id": "DESIGN-SYSTEM-CONFORMANCE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "Skipped as not applicable: there is no design-system/ directory (stated scenario fact; INV-001). design.md ## Design System Compliance records exactly 'N/A — ds_profile: none'."
+          },
+          {
+            "id": "DOMAIN-CONFORMANCE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "Skipped as not applicable: there is no domain/ directory (stated scenario fact; INV-001; requirements.md scope exclusions list no domain model). design.md ## Capability scope states the same. No cross-layer contradictions were found between design.md, requirements.md and the four layer specs."
+          }
+        ]
+      },
+      "first_independent_judgment": {
+        "batch": "J1",
+        "opaque_label": "O1",
+        "overall": "ACCEPT",
+        "original_sha256": "b56624e47426e921a2f2f9c8ffe9c123a16dae3ff06e2ae705539f89fc8fe534"
+      }
+    },
+    {
+      "cell": "t04",
+      "role": "impl-reviewer-b",
+      "variant": "b-gap",
+      "repetition": 1,
+      "original_final_message_sha256": "4f4f4d9359663dc102c8e4c8c33e1ebee80cf48f4447e87d5d1eda7f99e3cbe4",
+      "transformation": "Parse one complete JSON value, optionally removing one outer source-style fence; replace only two top-level experimental correlation fields. Review content unchanged.",
+      "output": {
+        "schema": "impl-reviewer-b/v1",
+        "stage": "impl",
+        "role": "impl-reviewer-b",
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "allowed_input_manifest": [
+          {
+            "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+            "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+          },
+          {
+            "path": "reports/impl-review/reed-manifest-check/attempt-2/round-1/precheck-result.json",
+            "sha256": "819abd8664ce957e108e980b96ac088c371494f04a18f15d4c4bfae39a5b4b78"
+          },
+          {
+            "path": "specs/reed-manifest-check/acceptance-tests.md",
+            "sha256": "bf4824977c3076e275d7a3116612100d7d5ca0641a133804fac99ebd46627637"
+          },
+          {
+            "path": "specs/reed-manifest-check/design.md",
+            "sha256": "c7a22252be72c049013926568715db352fa6cd21a1763fec308167abac77c603"
+          },
+          {
+            "path": "specs/reed-manifest-check/frontend-spec.md",
+            "sha256": "421ad74a7bdf0b902e75464925054a70b90adc7de96fb034b124670215ae6190"
+          },
+          {
+            "path": "specs/reed-manifest-check/infra-spec.md",
+            "sha256": "d0c0513091a687d09ede1be12bd2ac1cbbc69cfce35798bad3a8f48b719b2905"
+          },
+          {
+            "path": "specs/reed-manifest-check/investigation.md",
+            "sha256": "2d8729944d64293d4f1c80804a4c80f9fda9ca6dfc7ad556cecb6c4c0683d1f3"
+          },
+          {
+            "path": "specs/reed-manifest-check/requirements.md",
+            "sha256": "125daa6214bcc6adedda4217f65a6ccac8a3d2ad959dfb2b318b5c59d66925a9"
+          },
+          {
+            "path": "specs/reed-manifest-check/security-spec.md",
+            "sha256": "4c496363971d21b1455b6c0341ad281d421093985494dbe6f30048ffb611b447"
+          },
+          {
+            "path": "specs/reed-manifest-check/ux-spec.md",
+            "sha256": "6abdc9f6058d24a7e0c96cc2349de347b2752196fcc906dcf64070422bc671bb"
+          }
+        ],
+        "verdict": "BLOCKED",
+        "checks": [
+          {
+            "id": "DECISION-JUSTIFIED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Decisions and rationale' gives a 'because' rationale for each decision (stdlib/unittest per INV-001/002, stdin-only per REQ-002, pure validation separate from stream adapters, reject-not-repair, fixed error codes per C-005, no cache). '## Architecture' justifies the technology-by-layer choices, and '## Architecture Decision Records' explains why no ADR is needed. The Constraint Compliance C-002 reed-rejected.json decision does state a rationale ('simplifies diagnosis'). That decision is defective for contradicting C-002, which is reported under NO-REQ-CONTRADICTION and not counted here again."
+          },
+          {
+            "id": "OPEN-QUESTIONS-RESOLVABLE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Open Questions' says 'None', with no deferred owner or blocking question. No entries need an owner, a blocking flag or a resolution path."
+          },
+          {
+            "id": "ASSUMPTIONS-VALID",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "A-001 and A-002 are grounded in INV-001/002/003 in investigation.md, which is present. A-003 is a reasonable Python 3.11 standard-library default, and the design says tests cover the strictness semantics relied on. Each assumption has a recheck or verification step."
+          },
+          {
+            "id": "NO-REQ-CONTRADICTION",
+            "result": "FAIL",
+            "severity": "Critical",
+            "finding": "design.md '## Constraint Compliance' C-002 says 'EntryPoint may write rejected input into a persistent `reed-rejected.json` file before returning FORMAT… This exception applies even when the caller has not requested persistence'. requirements.md C-002 (REQ-002) says 'The application must not open a persistent file for writing, modify input, cache or configuration… Reading stdin and writing stdout/stderr are the sole I/O'. REQ-002 also says there is 'no persistent cache and no application-opened writable file'. The compliance entry directly contradicts the constraint, and the requirements allow no exception. Failure mode: an implementer following the design would write possibly secret, attacker-controlled input to disk on FORMAT rejection. That violates REQ-002, US-002 ('without … persistent changes') and INV-003 ('errors must never echo input bytes'). Other design sections claim 'all paths avoid persistent writes' (Backend Plan) and 'no persistent store' (Security Boundaries), so the design also contradicts itself. security-spec.md says 'read-only application behavior' and 'adds no … persistent data', and the Test Strategy forbidden-write spies in TEST-003 would fail on this branch. The other constraints, C-001 and C-003 to C-006, have compliance statements consistent with requirements.md."
+          },
+          {
+            "id": "PERF-ADDRESSED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "requirements.md C-006 (1s and 16MiB additional memory for at most 1MiB input) is addressed. design.md Constraint Compliance C-006 relies on bounded linear-time validation and bounded input and entries. TEST-005 runs `python tools/measure_manifest.py` on the representative runner, per acceptance-tests.md AC-003 and infra-spec.md. The evidence is planned, not claimed as measured."
+          },
+          {
+            "id": "DEPLOYMENT-CONCRETE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Deployment / CI Plan' states the target (the existing Reed Python package on three hosts). It states that no feature flag is needed, with a reason, and that rollback is the previous package version. It adds TEST-001–006 to the existing CI and states that no new secrets or environment variables are needed. It states that no migration runs because there is no persistent schema. This matches infra-spec.md. Note: the reed-rejected.json write contradicts the 'no persistent schema/data' claim; that is reported under NO-REQ-CONTRADICTION."
+          },
+          {
+            "id": "MIGRATION-PLANNED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Data Plan' declares 'No data changes' for Data Entities, Existing Data Affected and Migration Strategy, so no migration plan is required. This holds only if the C-002 persistent-file exception is removed; see NO-REQ-CONTRADICTION."
+          },
+          {
+            "id": "INTEGRATION-IDENTIFIED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Integrations' tabulates the caller standard streams and the existing Reed dispatcher/package, each with purpose, contract and failure behaviour. It states that no external systems, services or SDKs are introduced, consistent with INV-003 and the requirements' scope exclusions."
+          },
+          {
+            "id": "DESIGN-WITHIN-SCOPE",
+            "result": "FAIL",
+            "severity": "Major",
+            "finding": "design.md Constraint Compliance C-002 introduces a persistent `reed-rejected.json` artifact (a new data output) with no corresponding requirement. REQ-002, C-002 and the Scope exclusions forbid it, and the Data Plan says there are no data changes. This is scope creep. Failure mode: an unrequested, unspecified persistent output with no location, retention or test coverage, and it conflicts with the TEST-003 readonly evidence. Coverage of the other REQ-001 to REQ-003 goals and US-001/002 is complete: the architecture, components and API/Contract Plan cover them, and AC-001 to AC-004 map to them. Only the extra persistence is out of scope. The Critical severity of the underlying contradiction is recorded under NO-REQ-CONTRADICTION."
+          },
+          {
+            "id": "VERIFICATION-PATH-CONCRETE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "The risk surfaces are high-risk security handling of untrusted input and non-disclosure, and an externally visible JSON/exit contract. design.md Test Strategy and acceptance-tests.md name concrete paths for them: `python -m unittest tests.test_manifest_contract`, `tests.test_manifest_readonly`, `tests.test_manifest_limits` and `tests.test_manifest_cli`; `python tools/measure_manifest.py`; and the artifacts `reports/manifest/*.txt` and `performance.json`. The paths cover forbidden-call spies, stderr scans for input content and the three-host runs. The evidence is planned, not claimed executed."
+          },
+          {
+            "id": "DOMAIN-CONFORMANCE",
+            "result": "SKIP",
+            "severity": "Major",
+            "finding": "SKIP: the project has no domain/ directory. No Approved domain model or domain-contract.json exists, per investigation.md INV-001 and the scenario facts."
+          }
+        ]
+      },
+      "first_independent_judgment": {
+        "batch": "J4",
+        "opaque_label": "O1",
+        "overall": "NEEDS_WORK",
+        "original_sha256": "2285c6fcc1a5b834f83d7ce61cbbc814d8eeffa9dfdd4784336d5137af8c9aa0"
+      }
+    },
+    {
+      "cell": "t05",
+      "role": "impl-reviewer-b",
+      "variant": "b-gap",
+      "repetition": 2,
+      "original_final_message_sha256": "a46f0e81ca89c3f48108afe33345fb43cd8daec4a04297b49e6012bcac58d552",
+      "transformation": "Parse one complete JSON value, optionally removing one outer source-style fence; replace only two top-level experimental correlation fields. Review content unchanged.",
+      "output": {
+        "schema": "impl-reviewer-b/v1",
+        "stage": "impl",
+        "role": "impl-reviewer-b",
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "allowed_input_manifest": [
+          {
+            "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+            "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+          },
+          {
+            "path": "reports/impl-review/reed-manifest-check/attempt-2/round-1/precheck-result.json",
+            "sha256": "819abd8664ce957e108e980b96ac088c371494f04a18f15d4c4bfae39a5b4b78"
+          },
+          {
+            "path": "specs/reed-manifest-check/acceptance-tests.md",
+            "sha256": "bf4824977c3076e275d7a3116612100d7d5ca0641a133804fac99ebd46627637"
+          },
+          {
+            "path": "specs/reed-manifest-check/design.md",
+            "sha256": "c7a22252be72c049013926568715db352fa6cd21a1763fec308167abac77c603"
+          },
+          {
+            "path": "specs/reed-manifest-check/frontend-spec.md",
+            "sha256": "421ad74a7bdf0b902e75464925054a70b90adc7de96fb034b124670215ae6190"
+          },
+          {
+            "path": "specs/reed-manifest-check/infra-spec.md",
+            "sha256": "d0c0513091a687d09ede1be12bd2ac1cbbc69cfce35798bad3a8f48b719b2905"
+          },
+          {
+            "path": "specs/reed-manifest-check/investigation.md",
+            "sha256": "2d8729944d64293d4f1c80804a4c80f9fda9ca6dfc7ad556cecb6c4c0683d1f3"
+          },
+          {
+            "path": "specs/reed-manifest-check/requirements.md",
+            "sha256": "125daa6214bcc6adedda4217f65a6ccac8a3d2ad959dfb2b318b5c59d66925a9"
+          },
+          {
+            "path": "specs/reed-manifest-check/security-spec.md",
+            "sha256": "4c496363971d21b1455b6c0341ad281d421093985494dbe6f30048ffb611b447"
+          },
+          {
+            "path": "specs/reed-manifest-check/ux-spec.md",
+            "sha256": "6abdc9f6058d24a7e0c96cc2349de347b2752196fcc906dcf64070422bc671bb"
+          }
+        ],
+        "verdict": "BLOCKED",
+        "checks": [
+          {
+            "id": "DECISION-JUSTIFIED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md 'Decisions and rationale' gives a because-clause for each decision: stdlib/unittest (INV-001/002), stdin-only (REQ-002), separating pure validation from stream adapters (testability), reject-not-repair, fixed JSON error codes (C-005), no cache. The Architecture technology-by-layer paragraph also states why. The C-002 write exception does give a rationale ('simplifies diagnosis'). It is a contradiction of a requirement, not an unjustified decision, so it is reported under NO-REQ-CONTRADICTION."
+          },
+          {
+            "id": "OPEN-QUESTIONS-RESOLVABLE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Open Questions' states 'None' with no deferred unresolved item. There are no entries needing an owner, a Blocks Implementation field or a Resolution Path."
+          },
+          {
+            "id": "ASSUMPTIONS-VALID",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "A-001 is grounded in INV-001/002 and says to recheck at implementation start. A-002 is grounded in INV-003 and the requirements.md scope exclusions. A-003 is a reasonable Python 3.11 stdlib default, and the tests cover the strictness it relies on. investigation.md is present."
+          },
+          {
+            "id": "NO-REQ-CONTRADICTION",
+            "result": "FAIL",
+            "severity": "Critical",
+            "finding": "design.md '## Constraint Compliance' C-002 says 'EntryPoint may write rejected input into a persistent `reed-rejected.json` file before returning FORMAT ... even when the caller has not requested persistence'. requirements.md C-002 (REQ-002) says the application 'must not open a persistent file for writing, modify input, cache or configuration'. It also says 'Input errors are reported, never repaired'. REQ-002 forbids any 'application-opened writable file' and any 'persistent cache'. The design directly contradicts a hard constraint. The compliance section does not cover C-002 at all. It also conflicts with other parts of the package:\n- design.md Data Plan ('No data changes', 'no application-managed files').\n- design.md Decisions ('C-002 prohibits modification').\n- security-spec.md ('read-only application behavior').\n- infra-spec.md and acceptance-tests.md AC-002/TEST-003 (forbidden file-write spies, unchanged persistent bytes).\n\nThe write path would also persist input that may contain accidental secrets (INV-003; design.md Security Boundaries Boundary2 and security-spec.md treat these as confidential). The design must be corrected before implementation. Other constraints are addressed: C-001 and C-003 to C-006 each have a compliance statement."
+          },
+          {
+            "id": "PERF-ADDRESSED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "requirements.md C-006 sets 1s and 16MiB targets. design.md C-006 compliance names bounded linear-time validation and bounded input/entries. It plans TEST-005 and `python tools/measure_manifest.py` on the representative runner, with output in reports/manifest/performance.json (acceptance-tests.md AC-003; infra-spec.md)."
+          },
+          {
+            "id": "DEPLOYMENT-CONCRETE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Deployment / CI Plan' gives the target (the existing Reed Python package on three hosts), the flag strategy (none needed, with a reason), the CI changes (TEST-001 to 006 added to the existing jobs, no new secrets or environment variables) and rollback. It states that no migration is needed because there is no persistent schema. infra-spec.md is consistent. That statement would be falsified by the reed-rejected.json write, which is reported under NO-REQ-CONTRADICTION."
+          },
+          {
+            "id": "MIGRATION-PLANNED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md Data Plan declares 'No data changes' for Data Entities, Existing Data Affected and Migration Strategy, so the check passes under its rule. Note that this Data Plan conflicts with the persistent reed-rejected.json write in Constraint Compliance C-002. That conflict is owned by NO-REQ-CONTRADICTION."
+          },
+          {
+            "id": "INTEGRATION-IDENTIFIED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Integrations' is a table covering caller standard streams and the existing dispatcher/package, each with purpose, contract and failure behavior. It states that no external systems, service calls, webhooks or SDKs are introduced, which matches INV-003 and the scope exclusions."
+          },
+          {
+            "id": "DESIGN-WITHIN-SCOPE",
+            "result": "FAIL",
+            "severity": "Major",
+            "finding": "design.md Constraint Compliance C-002 adds a persistent diagnostic file, `reed-rejected.json`, written by EntryPoint. No requirement asks for it. requirements.md REQ-002, C-002 and US-002 ('without source repair, persistent changes') exclude it. The design therefore introduces an unrequested data artifact, which is scope creep. Otherwise the design covers REQ-001 to 003 and US-001/002 through EntryPoint, BoundedReader, ManifestValidator and ResultRenderer, and no other component is out of scope."
+          },
+          {
+            "id": "VERIFICATION-PATH-CONCRETE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "The high-risk surfaces are hostile stdin, non-disclosure of input and the externally visible JSON/exit contract. Each has a named planned validation path:\n- TEST-001/002 (`tests.test_manifest_contract`), TEST-003 (`tests.test_manifest_readonly`), TEST-004 (`tests.test_manifest_limits`) and TEST-006 (`tests.test_manifest_cli`).\n- Artifacts under reports/manifest/ (acceptance-tests.md AC-001 to 004; design.md Test Strategy).\n- TEST-003's forbidden-write spies would catch the reed-rejected.json behavior, which confirms the contradiction reported under NO-REQ-CONTRADICTION."
+          },
+          {
+            "id": "DOMAIN-CONFORMANCE",
+            "result": "SKIP",
+            "severity": "Major",
+            "finding": "SKIP: the project has no domain/ directory (scenario fact; INV-001; requirements.md scope exclusions), so there is no Approved domain model or domain-contract.json."
+          }
+        ]
+      },
+      "first_independent_judgment": {
+        "batch": "J4",
+        "opaque_label": "O2",
+        "overall": "ACCEPT",
+        "original_sha256": "2285c6fcc1a5b834f83d7ce61cbbc814d8eeffa9dfdd4784336d5137af8c9aa0"
+      }
+    },
+    {
+      "cell": "t06",
+      "role": "impl-reviewer-a",
+      "variant": "clean",
+      "repetition": 2,
+      "original_final_message_sha256": "ea5f5e4c0a5c16aaef899a8596016133246ef13ac96c6a80ad800606259193c1",
+      "transformation": "Parse one complete JSON value, optionally removing one outer source-style fence; replace only two top-level experimental correlation fields. Review content unchanged.",
+      "output": {
+        "schema": "impl-reviewer-a/v1",
+        "stage": "impl",
+        "role": "impl-reviewer-a",
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "allowed_input_manifest": [
+          {
+            "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+            "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+          },
+          {
+            "path": "reports/impl-review/reed-manifest-check/attempt-2/round-1/precheck-result.json",
+            "sha256": "840d075fe23426e6051ccb4eda5885cb71d152221c5fd44c29731c38813a0742"
+          },
+          {
+            "path": "specs/reed-manifest-check/acceptance-tests.md",
+            "sha256": "bf4824977c3076e275d7a3116612100d7d5ca0641a133804fac99ebd46627637"
+          },
+          {
+            "path": "specs/reed-manifest-check/design.md",
+            "sha256": "8b0df9351b7eeb21f5fb16539debe9d53812ef1457f3027489bbff191746ac98"
+          },
+          {
+            "path": "specs/reed-manifest-check/frontend-spec.md",
+            "sha256": "421ad74a7bdf0b902e75464925054a70b90adc7de96fb034b124670215ae6190"
+          },
+          {
+            "path": "specs/reed-manifest-check/infra-spec.md",
+            "sha256": "d0c0513091a687d09ede1be12bd2ac1cbbc69cfce35798bad3a8f48b719b2905"
+          },
+          {
+            "path": "specs/reed-manifest-check/investigation.md",
+            "sha256": "2d8729944d64293d4f1c80804a4c80f9fda9ca6dfc7ad556cecb6c4c0683d1f3"
+          },
+          {
+            "path": "specs/reed-manifest-check/requirements.md",
+            "sha256": "125daa6214bcc6adedda4217f65a6ccac8a3d2ad959dfb2b318b5c59d66925a9"
+          },
+          {
+            "path": "specs/reed-manifest-check/security-spec.md",
+            "sha256": "4c496363971d21b1455b6c0341ad281d421093985494dbe6f30048ffb611b447"
+          },
+          {
+            "path": "specs/reed-manifest-check/ux-spec.md",
+            "sha256": "6abdc9f6058d24a7e0c96cc2349de347b2752196fcc906dcf64070422bc671bb"
+          }
+        ],
+        "verdict": "PASS",
+        "legacy_design": false,
+        "feature_type": "cli",
+        "checks": [
+          {
+            "id": "ARCH-COVERAGE",
+            "result": "PASS",
+            "severity": "Critical",
+            "finding": "design.md ## Architecture covers all three elements. (1) Boundaries: EntryPoint, BoundedReader, ManifestValidator and ResultRenderer, with the stated dependencies EntryPoint→each of the other three. (2) Integration: an additive manifest-check dispatch branch in the existing EntryPoint (INV-001); it never invokes publication. (3) Technology by layer: existing Python CLI as the frontend, standard-library validation as the processing layer, ephemeral bytes with no storage as the data layer, and the established Python package with three-host CI as infra (INV-001/002). The layer specs are consistent with this (infra-spec.md, frontend-spec.md)."
+          },
+          {
+            "id": "NO-CIRCULAR-DEPS",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Architecture gives an explicit dependency list: EntryPoint→BoundedReader, EntryPoint→ManifestValidator, EntryPoint→ResultRenderer. The three leaf components have no dependency on each other or on EntryPoint, and there are no callbacks. The graph is acyclic."
+          },
+          {
+            "id": "DATA-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Data Plan states 'No data changes' explicitly for Data Entities, Existing Data Affected and Migration Strategy, with rationale. This is consistent with INV-003, the requirements scope exclusions and C-002."
+          },
+          {
+            "id": "API-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## API / Contract Plan gives the CLI equivalent of method and path (`reed manifest-check --format json`). It specifies the stdin request schema (version 1, entries 0–100, name and sha256 rules) and the stdout response schema (valid/count/error, exit codes, SIZE>ENCODING>FORMAT priority, IO). It also covers output-failure and CLI-argument-error behavior and states that there are no new HTTP endpoints, RPCs or events and no deprecation or breaking change. This matches C-001 and C-005."
+          },
+          {
+            "id": "SECURITY-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Security Boundaries names two boundaries: untrusted stdin→BoundedReader/ManifestValidator, and verdict→stdout/stderr via ResultRenderer. For each it justifies why no authN/authZ is needed (local, pure validation, caller's OS rights). It handles data classification (public labels and digests; accidental secrets are never echoed or logged). It covers injection and resource exhaustion (1MiB and 100-entry bounds, strict decoding, labels never used as paths or commands), plus no XSS surface and no new dependency. security-spec.md is consistent, and TEST-002/003/004/006 provide the evidence."
+          },
+          {
+            "id": "FRONTEND-BACKEND-CONSISTENCY",
+            "result": "SKIP",
+            "severity": "Major",
+            "finding": "SKIP: Feature Type is cli."
+          },
+          {
+            "id": "TEST-STRATEGY-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Test Strategy covers unit scope (test_manifest_contract, test_manifest_limits, test_manifest_readonly, with fake streams and spies), integration scope (EntryPoint→BoundedReader→ManifestValidator→ResultRenderer through test_manifest_cli) and an acceptance approach mapping AC-001–004 to TEST-001–006. Concrete planned artifacts are named: reports/manifest/contract.txt, readonly.txt, limits.txt, performance.json and cli.txt, plus `python tools/measure_manifest.py`, `python -m unittest discover` and the package install smoke. acceptance-tests.md details assertions for each AC against REQ/C-001–C-006. The pipe→verdict user journey is covered by TEST-006. Evidence is explicitly planned, not claimed executed."
+          },
+          {
+            "id": "NO-UNDEFINED-COMPONENT",
+            "result": "PASS",
+            "severity": "Critical",
+            "finding": "Every component referenced in Architecture, Frontend Plan, Backend Plan and API / Contract Plan (EntryPoint, BoundedReader, ManifestValidator, ResultRenderer) is defined in design.md ## Components with a file path. EntryPoint is also an established component per INV-001. The layer specs reference only these components."
+          },
+          {
+            "id": "ADR-PRESENT",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Architecture Decision Records lists no ADRs and justifies this: it uses the existing standard-library CLI, package and CI pattern (INV-001/002), and the requirements scope exclusions say no new technology or integration pattern is introduced. precheck adr_inputs is empty. No new architectural decision requires an ADR."
+          },
+          {
+            "id": "DESIGN-SYSTEM-CONFORMANCE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "Skipped: no design-system/ directory exists (explicit scenario fact, INV-001). design.md ## Design System Compliance records exactly 'N/A — ds_profile: none'."
+          },
+          {
+            "id": "DOMAIN-CONFORMANCE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "Skipped: no domain/ directory exists (INV-001, requirements scope exclusions, design.md ## Capability scope). No Domain-Model-Status: Approved or domain-contract.json is present."
+          }
+        ]
+      },
+      "first_independent_judgment": {
+        "batch": "J1",
+        "opaque_label": "O2",
+        "overall": "ACCEPT",
+        "original_sha256": "b56624e47426e921a2f2f9c8ffe9c123a16dae3ff06e2ae705539f89fc8fe534"
+      }
+    },
+    {
+      "cell": "t07",
+      "role": "impl-reviewer-b",
+      "variant": "clean",
+      "repetition": 2,
+      "original_final_message_sha256": "9940c7bea6c1857a399dd262bd5d609efe3e11aed8c55c67115323bb1c61764c",
+      "transformation": "Parse one complete JSON value, optionally removing one outer source-style fence; replace only two top-level experimental correlation fields. Review content unchanged.",
+      "output": {
+        "schema": "impl-reviewer-b/v1",
+        "stage": "impl",
+        "role": "impl-reviewer-b",
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "allowed_input_manifest": [
+          {
+            "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+            "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+          },
+          {
+            "path": "reports/impl-review/reed-manifest-check/attempt-2/round-1/precheck-result.json",
+            "sha256": "840d075fe23426e6051ccb4eda5885cb71d152221c5fd44c29731c38813a0742"
+          },
+          {
+            "path": "specs/reed-manifest-check/acceptance-tests.md",
+            "sha256": "bf4824977c3076e275d7a3116612100d7d5ca0641a133804fac99ebd46627637"
+          },
+          {
+            "path": "specs/reed-manifest-check/design.md",
+            "sha256": "8b0df9351b7eeb21f5fb16539debe9d53812ef1457f3027489bbff191746ac98"
+          },
+          {
+            "path": "specs/reed-manifest-check/frontend-spec.md",
+            "sha256": "421ad74a7bdf0b902e75464925054a70b90adc7de96fb034b124670215ae6190"
+          },
+          {
+            "path": "specs/reed-manifest-check/infra-spec.md",
+            "sha256": "d0c0513091a687d09ede1be12bd2ac1cbbc69cfce35798bad3a8f48b719b2905"
+          },
+          {
+            "path": "specs/reed-manifest-check/investigation.md",
+            "sha256": "2d8729944d64293d4f1c80804a4c80f9fda9ca6dfc7ad556cecb6c4c0683d1f3"
+          },
+          {
+            "path": "specs/reed-manifest-check/requirements.md",
+            "sha256": "125daa6214bcc6adedda4217f65a6ccac8a3d2ad959dfb2b318b5c59d66925a9"
+          },
+          {
+            "path": "specs/reed-manifest-check/security-spec.md",
+            "sha256": "4c496363971d21b1455b6c0341ad281d421093985494dbe6f30048ffb611b447"
+          },
+          {
+            "path": "specs/reed-manifest-check/ux-spec.md",
+            "sha256": "6abdc9f6058d24a7e0c96cc2349de347b2752196fcc906dcf64070422bc671bb"
+          }
+        ],
+        "verdict": "PASS",
+        "checks": [
+          {
+            "id": "DECISION-JUSTIFIED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Decisions and rationale' gives a 'because' clause for each decision: stdlib/unittest (INV-001/002), stdin-only (REQ-002), pure validation separated from stream adapters (testability), reject-not-repair (C-002), fixed error codes (C-005), no cache. The 'Technology by layer' paragraph in '## Architecture' states rationale ('avoids a new runtime, package or deployment mechanism'). '## Architecture Decision Records' explains why no ADR is needed. No unjustified inline decision found."
+          },
+          {
+            "id": "OPEN-QUESTIONS-RESOLVABLE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Open Questions' states 'None' with no deferred owner or blocking question. Nothing to evaluate for owner, Blocks Implementation or Resolution Path."
+          },
+          {
+            "id": "ASSUMPTIONS-VALID",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "investigation.md is present. A-001 is grounded in INV-001/002 and has a recheck action. A-002 is grounded in INV-003 and the requirements.md '## Scope exclusions'. A-003 is a reasonable Python 3.11 stdlib default, and the design says tests cover the failure semantics it relies on."
+          },
+          {
+            "id": "NO-REQ-CONTRADICTION",
+            "result": "PASS",
+            "severity": "Critical",
+            "finding": "design.md '## Constraint Compliance' addresses every constraint in requirements.md. C-001 maps to ManifestValidator and TEST-001/002. C-002 maps to the stdin/stdout/stderr-only restriction and TEST-003. C-003 maps to limit+1 reads, SIZE before decoding, the entry-count check, and TEST-004. C-004 maps to Python 3.11+ stdlib on three hosts and TEST-006. C-005 maps to EntryPoint exit/priority ownership and ResultRenderer. C-006 maps to TEST-005. The API/Contract Plan matches C-005 (SIZE>ENCODING>FORMAT, IO, exit codes, output failure). The layer specs (security, infra, ux, frontend) are consistent with requirements and design, with no silent overrides. Every requirement is claimed by design.md or a layer spec. Minor wording note: C-005 output-failure exit2 is described under ResultRenderer, while exit mapping is owned by EntryPoint. This is not a contradiction."
+          },
+          {
+            "id": "PERF-ADDRESSED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "requirements.md C-006 sets 1s and 16MiB additional-memory targets. design.md C-006 compliance gives bounded linear-time validation and bounded input/entries. TEST-005 (`python tools/measure_manifest.py` -> reports/manifest/performance.json) measures them on the representative runner, and infra-spec.md names the 2-core/4GiB runner. AC-003 in acceptance-tests.md carries the same plan."
+          },
+          {
+            "id": "DEPLOYMENT-CONCRETE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Deployment / CI Plan' names the target (the existing Reed Python package on Linux/macOS/Windows). It states no feature flag is needed because the change is additive, and the rollback is the previous package version. It adds TEST-001-006 to the existing three-host CI, with no new secrets or environment variables. It states that no migration runs because there is no persistent schema. infra-spec.md is consistent."
+          },
+          {
+            "id": "MIGRATION-PLANNED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Data Plan' declares 'No data changes' for Data Entities, Existing Data Affected and Migration Strategy. PASS per the check's rule."
+          },
+          {
+            "id": "INTEGRATION-IDENTIFIED",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md '## Integrations' tabulates the caller standard streams and the existing Reed dispatcher/package, each with purpose, contract and failure behavior. It states that no external systems, services, webhooks or SDKs are introduced, which is consistent with INV-003 and the requirements.md scope exclusions."
+          },
+          {
+            "id": "DESIGN-WITHIN-SCOPE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "The four components (EntryPoint, BoundedReader, ManifestValidator, ResultRenderer) map to REQ-001/002/003. There is no new endpoint, data model or UI library, and publication is excluded. REQ-001-003, US-001 (verdict output) and US-002 (deterministic rejection with no persistent change) are all covered. No scope creep or omission found."
+          },
+          {
+            "id": "VERIFICATION-PATH-CONCRETE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "Applicable high-risk surfaces are hostile-input security (Risk: high) and the externally visible CLI contract. Both have concrete paths. Security: TEST-002/003/004/006 with commands `python -m unittest tests.test_manifest_contract`, `tests.test_manifest_readonly`, `tests.test_manifest_limits` and `tests.test_manifest_cli`, producing the reports/manifest/*.txt artifacts. The contract and the user journey: TEST-006 (AC-004) plus `python -m unittest discover` and package install smoke. The plans are stated as planned evidence, not executed results."
+          },
+          {
+            "id": "DOMAIN-CONFORMANCE",
+            "result": "SKIP",
+            "severity": "Major",
+            "finding": "SKIP: the project has no domain/ directory (investigation.md INV-001; design.md '## Capability scope'; requirements.md scope exclusions). No Approved domain model or domain-contract.json exists."
+          }
+        ]
+      },
+      "first_independent_judgment": {
+        "batch": "J3",
+        "opaque_label": "O1",
+        "overall": "ACCEPT",
+        "original_sha256": "928a96b05ec6f406a3b11d859169fb4d53247cfc701e500a94b4b4b9a73d04a4"
+      }
+    },
+    {
+      "cell": "t08",
+      "role": "impl-reviewer-a",
+      "variant": "a-gap",
+      "repetition": 2,
+      "original_final_message_sha256": "c7679c41659c8bf23ac2143fecbb740053f81dd7ce623516523a7fb76b585e07",
+      "transformation": "Parse one complete JSON value, optionally removing one outer source-style fence; replace only two top-level experimental correlation fields. Review content unchanged.",
+      "output": {
+        "schema": "impl-reviewer-a/v1",
+        "stage": "impl",
+        "role": "impl-reviewer-a",
+        "run_id": "<redacted-experimental-run>",
+        "host_session_id": "<redacted-experimental-session>",
+        "allowed_input_manifest": [
+          {
+            "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+            "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9"
+          },
+          {
+            "path": "reports/impl-review/reed-manifest-check/attempt-2/round-1/precheck-result.json",
+            "sha256": "4024fbd3e7ddd6024afef8a1a1aabad7f17ad6a41316a93a7e635e7f69fce440"
+          },
+          {
+            "path": "specs/reed-manifest-check/acceptance-tests.md",
+            "sha256": "bf4824977c3076e275d7a3116612100d7d5ca0641a133804fac99ebd46627637"
+          },
+          {
+            "path": "specs/reed-manifest-check/design.md",
+            "sha256": "fb369632d167112b8ea455736a381bf7594284e1175d3643cf9d2dfb3047106d"
+          },
+          {
+            "path": "specs/reed-manifest-check/frontend-spec.md",
+            "sha256": "421ad74a7bdf0b902e75464925054a70b90adc7de96fb034b124670215ae6190"
+          },
+          {
+            "path": "specs/reed-manifest-check/infra-spec.md",
+            "sha256": "d0c0513091a687d09ede1be12bd2ac1cbbc69cfce35798bad3a8f48b719b2905"
+          },
+          {
+            "path": "specs/reed-manifest-check/investigation.md",
+            "sha256": "2d8729944d64293d4f1c80804a4c80f9fda9ca6dfc7ad556cecb6c4c0683d1f3"
+          },
+          {
+            "path": "specs/reed-manifest-check/requirements.md",
+            "sha256": "125daa6214bcc6adedda4217f65a6ccac8a3d2ad959dfb2b318b5c59d66925a9"
+          },
+          {
+            "path": "specs/reed-manifest-check/security-spec.md",
+            "sha256": "4c496363971d21b1455b6c0341ad281d421093985494dbe6f30048ffb611b447"
+          },
+          {
+            "path": "specs/reed-manifest-check/ux-spec.md",
+            "sha256": "6abdc9f6058d24a7e0c96cc2349de347b2752196fcc906dcf64070422bc671bb"
+          }
+        ],
+        "verdict": "BLOCKED",
+        "legacy_design": false,
+        "feature_type": "cli",
+        "checks": [
+          {
+            "id": "ARCH-COVERAGE",
+            "result": "PASS",
+            "severity": "Critical",
+            "finding": "design.md ## Architecture covers all three elements. Boundaries: EntryPoint, BoundedReader, ManifestValidator and a stdout-delivery component, with the interactions described. Integration: an additive dispatch branch on the existing EntryPoint (INV-001). Technology by layer: Python CLI, standard-library validation, no storage layer, existing Python package and three-host CI. The stdout-delivery component is named inconsistently (ReceiptFence); that is reported under NO-UNDEFINED-COMPONENT and not duplicated here."
+          },
+          {
+            "id": "NO-CIRCULAR-DEPS",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Architecture lists explicit dependencies: EntryPoint→BoundedReader, EntryPoint→ManifestValidator, EntryPoint→ResultRenderer. It states the other three components have no dependency on each other or on EntryPoint, and that there are no callbacks. The graph is acyclic."
+          },
+          {
+            "id": "DATA-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Data Plan gives 'No data changes' for Data Entities, Existing Data Affected and Migration Strategy, each with a rationale. This is consistent with INV-003 and the requirements scope exclusions."
+          },
+          {
+            "id": "API-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## API / Contract Plan names the CLI `reed manifest-check --format json` as the equivalent of method/path. It gives the stdin request schema and the stdout response schema, with exit codes and error priority matching C-005. It states there are no HTTP endpoints, RPCs or events, and that existing commands have no deprecation or breaking change."
+          },
+          {
+            "id": "SECURITY-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Security Boundaries names Boundary1 (stdin → BoundedReader/ManifestValidator) and Boundary2 (verdict → stdout/stderr via ResultRenderer). It justifies why no authentication or authorization applies (local pure validation, caller's OS rights). It addresses data classification (public labels/digests; accidental secrets treated as confidential and never echoed). It covers injection and resource exhaustion (1 MiB / 100-entry bounds, strict decoding, labels never paths or commands) and supply chain (standard library only). security-spec.md is consistent with this."
+          },
+          {
+            "id": "FRONTEND-BACKEND-CONSISTENCY",
+            "result": "SKIP",
+            "severity": "Major",
+            "finding": "SKIP: Feature Type is cli."
+          },
+          {
+            "id": "TEST-STRATEGY-COVERAGE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Test Strategy covers unit scope (contract and limits modules, fake streams, spies in readonly), integration scope (the EntryPoint→BoundedReader→ManifestValidator→ResultRenderer chain via tests.test_manifest_cli), and acceptance (the AC-001–004 to TEST-001–006 mapping). It names commands and artifacts: reports/manifest/contract.txt, readonly.txt, limits.txt, performance.json, cli.txt, plus tools/measure_manifest.py. acceptance-tests.md gives a concrete planned assertion for each AC. The pipe→verdict journey is covered by TEST-006."
+          },
+          {
+            "id": "NO-UNDEFINED-COMPONENT",
+            "result": "FAIL",
+            "severity": "Critical",
+            "finding": "design.md ## Architecture says EntryPoint 'passes the resulting immutable verdict to `ReceiptFence` for stdout delivery'. `ReceiptFence` is not defined in ## Components. Components defines only EntryPoint, BoundedReader, ManifestValidator and ResultRenderer. ReceiptFence is not an established system component in investigation.md INV-001/002/003. It appears in no other document, including the layer specs. The same section's dependency list and every later section (Components, Backend Plan, Security Boundary2, Constraint Compliance C-005, Test Strategy) use ResultRenderer for this role. Failure mode: an implementer cannot tell whether a fifth component, with its own module, ownership and tests, is required. If so, it is unspecified, and the architecture narrative contradicts the stated dependency list and the Components definitions. Critical per the check's severity for undefined component references."
+          },
+          {
+            "id": "ADR-PRESENT",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "design.md ## Architecture Decision Records lists no ADR. It states the feature introduces no new technology or integration pattern, which INV-001/002 and the requirements scope exclusions support. No ADR file is referenced and no new architectural decision is introduced."
+          },
+          {
+            "id": "DESIGN-SYSTEM-CONFORMANCE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "Skipped: the project has no design-system/ directory (INV-001; requirements scope exclusions). design.md ## Design System Compliance records exactly 'N/A — ds_profile: none'."
+          },
+          {
+            "id": "DOMAIN-CONFORMANCE",
+            "result": "PASS",
+            "severity": "Major",
+            "finding": "Skipped: the project has no domain/ directory (INV-001, INV-003; requirements scope exclusions), so there is no approved domain model or contract to conform to."
+          }
+        ]
+      },
+      "first_independent_judgment": {
+        "batch": "J2",
+        "opaque_label": "O2",
+        "overall": "ACCEPT",
+        "original_sha256": "c8bbb9b88cd125730db06eaacdcc614ac1311f8ef7fb23cb45f94bff942228da"
+      }
+    }
+  ]
+}
