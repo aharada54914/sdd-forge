@@ -1,0 +1,26 @@
+UTC 2026-10-25T15:10:25.342463+00:00
+COMMAND ["/workspace/.tools/sdd-forge-dev/bin/pwsh", "-NoProfile", "-File", "tests/downstream-review-precheck.tests.ps1"]
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+Risk check passed for 2 task(s).
+workflow-state: ok
+workflow-state: ok
+Risk check passed for 2 task(s).
+Risk check passed for 2 task(s).
+Risk check passed for 2 task(s).
+ok: sealed predecessor contracts take their investigation.md pin from the contract, and refuse an ambiguous one
+ok: PowerShell downstream prechecks fail closed and preserve graph semantics
+
+EXIT 0

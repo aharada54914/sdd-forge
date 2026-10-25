@@ -1,0 +1,22 @@
+UTC 2026-10-25T15:00:13.871299+00:00
+COMMAND ["bash", "tests/compatibility-byte-identical.tests.sh"]
+current byte capture: Command '['git', '-C', '/tmp/a9-t003-final', 'ls-files', '-z']' returned non-zero exit status 128.
+FAIL: F1 capture failed
+current byte capture: Command '['git', '-C', '/tmp/a9-t003-final', 'ls-files', '-z']' returned non-zero exit status 128.
+FAIL: F2 capture failed
+missing live product contract: /tmp/a9-t003-final/PLUGIN-CONTRACTS.md
+FAIL: CLI cell none|present is missing or inconsistent across live product contracts
+missing live product contract: /tmp/a9-t003-final/PLUGIN-CONTRACTS.md
+FAIL: CLI cell none|absent is missing or inconsistent across live product contracts
+missing live product contract: /tmp/a9-t003-final/PLUGIN-CONTRACTS.md
+FAIL: CLI cell --full|present is missing or inconsistent across live product contracts
+missing live product contract: /tmp/a9-t003-final/PLUGIN-CONTRACTS.md
+FAIL: CLI cell --full|absent is missing or inconsistent across live product contracts
+missing live product contract: /tmp/a9-t003-final/PLUGIN-CONTRACTS.md
+FAIL: CLI cell --lite|present is missing or inconsistent across live product contracts
+missing live product contract: /tmp/a9-t003-final/PLUGIN-CONTRACTS.md
+FAIL: CLI cell --lite|absent is missing or inconsistent across live product contracts
+ok: negative self-check: canonical target bytes match the manifest sha256
+1 passed, 8 failed
+
+EXIT 1

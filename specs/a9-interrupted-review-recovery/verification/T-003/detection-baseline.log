@@ -1,0 +1,4 @@
+Placeholder scan FAILED (2 finding(s)):
+ - tests/spec-review-interrupted-recovery.tests.sh:106:  declare -F validate_interrupted_recovery >/dev/null || { echo 'ADMISSION_NOT_IMPLEMENTED' >&2; exit 90; }
+ - tests/spec-review-interrupted-recovery.tests.sh:127: if(-not(Get-Command Test-InterruptedRecovery -ErrorAction SilentlyContinue)){[Console]::Error.WriteLine('ADMISSION_NOT_IMPLEMENTED');exit 90}
+Each finding must be implemented properly, or explicitly accepted by a human in the quality-gate report.

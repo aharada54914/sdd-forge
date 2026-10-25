@@ -24,6 +24,58 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+# Validate saved provenance only; publication eligibility is deliberately not replayed.
+function Assert-SavedRecoveryReference([string]$Repository, [string]$PrecheckPath) {
+  function Assert-UniqueJsonMembers([System.Text.Json.JsonElement]$Element) {
+    if ($Element.ValueKind -eq [System.Text.Json.JsonValueKind]::Object) {
+      $names = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+      foreach ($property in $Element.EnumerateObject()) {
+        if (-not $names.Add($property.Name)) { throw 'duplicate JSON member' }
+        Assert-UniqueJsonMembers $property.Value
+      }
+    } elseif ($Element.ValueKind -eq [System.Text.Json.JsonValueKind]::Array) {
+      foreach ($item in $Element.EnumerateArray()) { Assert-UniqueJsonMembers $item }
+    }
+  }
+  $text = [Text.UTF8Encoding]::new($false, $true).GetString([IO.File]::ReadAllBytes($PrecheckPath))
+  $document = [System.Text.Json.JsonDocument]::Parse($text)
+  try {
+    $precheck = $document.RootElement
+    Assert-UniqueJsonMembers $precheck
+    if ($precheck.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) { throw 'precheck object required' }
+    $found = $false
+    foreach ($property in $precheck.EnumerateObject()) {
+      if ([string]::Equals($property.Name, 'recovery', [StringComparison]::OrdinalIgnoreCase)) {
+        if ($property.Name -cne 'recovery') { throw 'mis-cased recovery member' }
+        $found = $true; $recovery = $property.Value
+      }
+    }
+    if (-not $found) { return }
+    $schema = $precheck.GetProperty('schema')
+    if ($schema.ValueKind -ne [System.Text.Json.JsonValueKind]::String -or $schema.GetString() -cne 'spec-review-precheck/v1') { throw 'invalid recovery precheck schema' }
+    if ($recovery.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) { throw 'recovery object required' }
+    $keys = @($recovery.EnumerateObject() | ForEach-Object { $_.Name })
+    if ($keys.Count -ne 2 -or $keys -cnotcontains 'record_path' -or $keys -cnotcontains 'record_sha256') { throw 'closed recovery reference required' }
+    $pathElement = $recovery.GetProperty('record_path'); $hashElement = $recovery.GetProperty('record_sha256')
+    if ($pathElement.ValueKind -ne [System.Text.Json.JsonValueKind]::String -or $hashElement.ValueKind -ne [System.Text.Json.JsonValueKind]::String) { throw 'recovery reference strings required' }
+    $relative = $pathElement.GetString(); $hash = $hashElement.GetString()
+    if ($hash -cnotmatch '^[0-9a-f]{64}$') { throw 'invalid recovery digest' }
+    if (-not $relative -or $relative -cmatch '[\\\x00-\x1f\x7f:]') { throw 'invalid recovery path' }
+    $current = $Repository
+    foreach ($part in $relative.Split('/')) {
+      if (@('', '.', '..') -ccontains $part) { throw 'noncanonical recovery path' }
+      $matches = @([IO.Directory]::EnumerateFileSystemEntries($current) | Where-Object { [string]::Equals([IO.Path]::GetFileName($_), $part, [StringComparison]::Ordinal) })
+      if ($matches.Count -ne 1) { throw 'missing or mis-cased recovery path' }
+      $current = $matches[0]
+      $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+      if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'linked recovery path' }
+    }
+    if ($item -isnot [IO.FileInfo] -or ($item.Attributes -band [IO.FileAttributes]::Device) -ne 0) { throw 'recovery record is not a regular file' }
+    if (-not $IsWindows -and [string]$item.UnixStat.ItemType -cne 'File') { throw 'recovery record is not a regular file' }
+    if ((Get-FileHash -LiteralPath $current -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant() -cne $hash) { throw 'saved recovery record changed' }
+  } finally { $document.Dispose() }
+}
+
 
 function Fail([string]$Message) {
   [Console]::Error.WriteLine("ERROR: spec-review-precheck: $Message")
@@ -289,8 +341,10 @@ if ($VerifyInputs) {
   if (-not (Test-RealDirectory $attemptDir) -or -not (Test-OrdinalEqual (Get-CanonicalDir $attemptDir) $attemptDir)) { Fail 'attempt directory is missing or substituted' }
   if (-not (Test-RealDirectory $reportDir) -or -not (Test-OrdinalEqual (Get-CanonicalDir $reportDir) $reportDir)) { Fail 'round directory is missing or substituted' }
   if (-not (Test-Path -LiteralPath $precheckPath -PathType Leaf) -or (Test-IsSymlink $precheckPath)) { Fail 'precheck evidence is missing or substituted' }
+  Assert-SavedRecoveryReference $root $precheckPath
   try { $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json } catch { Fail 'precheck evidence is not valid JSON' }
   $baseKeys = @('acceptance_sha256','attempt','calibration_sha256','edit_summary','feature','generated_at','input_sha256','investigation_sha256','requirements_sha256','reset','round','schema','spec_review_status_field','stage')
+  if (@($precheck.PSObject.Properties.Name) -ccontains 'recovery') { $baseKeys += 'recovery' }
   if (-not (Test-KeysExact $precheck $baseKeys)) { Fail 'precheck evidence has invalid fields' }
   $investigationMatches = if ($investigationSha) { Test-OrdinalEqual $precheck.investigation_sha256 $investigationSha } else { $null -eq $precheck.investigation_sha256 }
   if (-not (Test-OrdinalEqual $precheck.schema 'spec-review-precheck/v1') -or

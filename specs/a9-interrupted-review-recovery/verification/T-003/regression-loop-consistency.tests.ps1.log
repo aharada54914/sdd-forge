@@ -1,0 +1,105 @@
+UTC 2026-10-25T15:01:38.177980+00:00
+COMMAND ["/workspace/.tools/sdd-forge-dev/bin/pwsh", "-NoProfile", "-File", "tests/loop-consistency.tests.ps1"]
+=== TEST-008: drive spec/impl/task/domain rounds 1->3 ===
+ok: TEST-008.1: loop_fixture_init (spec leg fixture) succeeds
+REVIEW_CONTEXT_OK e72edc7c2c50033f2b50f4d8198142d40560311dd1a2a17f8c68351e4d506f43 sequence=2 previous_record_sha256=b3de33fb22432c6b69754bc7973c11270287d84d04d121e118d036cdfa612a70 pre_append_tip_sequence=1 identity_unique=yes
+REVIEW_CONTEXT_OK ddf05876030cb10d743146423b2dec10e13a9ade33e56069f5dc8bdd483eb6d0 sequence=3 previous_record_sha256=e72edc7c2c50033f2b50f4d8198142d40560311dd1a2a17f8c68351e4d506f43 pre_append_tip_sequence=2 identity_unique=yes
+REVIEW_CONTEXT_OK 4495303375d385409ecc56f1ef31a977c6013f1069e380c761be57d0472aec92 sequence=4 previous_record_sha256=ddf05876030cb10d743146423b2dec10e13a9ade33e56069f5dc8bdd483eb6d0 pre_append_tip_sequence=3 identity_unique=yes
+REVIEW_CONTEXT_OK d1f26bf6cb0d4c846ff6923b05ef4aa27ab23eda27baa3a096274bd3be670a42 sequence=5 previous_record_sha256=4495303375d385409ecc56f1ef31a977c6013f1069e380c761be57d0472aec92 pre_append_tip_sequence=4 identity_unique=yes
+REVIEW_CONTEXT_OK c4ad55973859eb7a7ef364a51d89a48b8cdc91d4b167c2e6b1983941c9ae92c0 sequence=6 previous_record_sha256=d1f26bf6cb0d4c846ff6923b05ef4aa27ab23eda27baa3a096274bd3be670a42 pre_append_tip_sequence=5 identity_unique=yes
+REVIEW_CONTEXT_OK f9e9494a8a1f87cc842fe24fe0579fba3fcad38c5dd226a1bf6dc9af46a84fe1 sequence=7 previous_record_sha256=c4ad55973859eb7a7ef364a51d89a48b8cdc91d4b167c2e6b1983941c9ae92c0 pre_append_tip_sequence=6 identity_unique=yes
+ok: TEST-008.2: spec leg drives rounds 1->3 green
+ok: TEST-008.3: spec leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-018.1: same-turn edit + reset (attempt 2 round 1) exits success
+ok: TEST-018.2: reset restores Spec-Review-Status: Pending after the same-turn Passed edit
+ok: TEST-018.3: reset persists the post-reset requirements hash, never the pre-mutation Passed bytes
+ok: TEST-018.4: reset persists the composite input hash recomputed from the post-reset bytes
+ok: TEST-008.4: loop_fixture_init (impl leg fixture) succeeds
+REVIEW_CONTEXT_OK 3a6b9b1eef70cdce08d6d7584e15b43f14bb4c2bb217928ea1ce90d4c01624d6 sequence=2 previous_record_sha256=b3de33fb22432c6b69754bc7973c11270287d84d04d121e118d036cdfa612a70 pre_append_tip_sequence=1 identity_unique=yes
+REVIEW_CONTEXT_OK 6c9786deb1655012d82c33094022fe40def76c918e7def339a3ea08eb95d2194 sequence=3 previous_record_sha256=3a6b9b1eef70cdce08d6d7584e15b43f14bb4c2bb217928ea1ce90d4c01624d6 pre_append_tip_sequence=2 identity_unique=yes
+REVIEW_CONTEXT_OK 002b73fc4dec6890711aac03980ee31dc4c73c93e0d6e33952c1b05371492297 sequence=4 previous_record_sha256=6c9786deb1655012d82c33094022fe40def76c918e7def339a3ea08eb95d2194 pre_append_tip_sequence=3 identity_unique=yes
+REVIEW_CONTEXT_OK 3c7065e7983712c79d539ede0ffcb989a0c00d78d2c2d0a0687e0fb4808849a5 sequence=5 previous_record_sha256=002b73fc4dec6890711aac03980ee31dc4c73c93e0d6e33952c1b05371492297 pre_append_tip_sequence=4 identity_unique=yes
+REVIEW_CONTEXT_OK a314fadfaf039c3d99a27fbfbe0928b5839ea50ba92ec44366715cd25eb938d3 sequence=6 previous_record_sha256=3c7065e7983712c79d539ede0ffcb989a0c00d78d2c2d0a0687e0fb4808849a5 pre_append_tip_sequence=5 identity_unique=yes
+REVIEW_CONTEXT_OK eb923abe83d0186389218cbe11378983e1db51e9dafb7a7b2bf8cef912174e59 sequence=7 previous_record_sha256=a314fadfaf039c3d99a27fbfbe0928b5839ea50ba92ec44366715cd25eb938d3 pre_append_tip_sequence=6 identity_unique=yes
+REVIEW_CONTEXT_OK 5e785740264a6ed006c65e76da53f439abb3da23a11a3892d0ead88e2ea6e069 sequence=8 previous_record_sha256=eb923abe83d0186389218cbe11378983e1db51e9dafb7a7b2bf8cef912174e59 pre_append_tip_sequence=7 identity_unique=yes
+REVIEW_CONTEXT_OK 957710191d3eb0bec0d4ca4b899d569b2627796667174c46c6c0f02eeb321ae5 sequence=9 previous_record_sha256=5e785740264a6ed006c65e76da53f439abb3da23a11a3892d0ead88e2ea6e069 pre_append_tip_sequence=8 identity_unique=yes
+REVIEW_CONTEXT_OK 60e2ade1c77a5d5486727c6b93171fc7a7779300bd906628e2f57c0c35bc4d4f sequence=10 previous_record_sha256=957710191d3eb0bec0d4ca4b899d569b2627796667174c46c6c0f02eeb321ae5 pre_append_tip_sequence=9 identity_unique=yes
+REVIEW_CONTEXT_OK a8437650274c89d118863b1b9caa7ce49e544f8408d42fc400ce1dbe7624cbae sequence=11 previous_record_sha256=60e2ade1c77a5d5486727c6b93171fc7a7779300bd906628e2f57c0c35bc4d4f pre_append_tip_sequence=10 identity_unique=yes
+REVIEW_CONTEXT_OK 3aae9f9ebc86e934ce6c65b14e1e5906855456a9a6b08574aeec14b5c46ad28c sequence=12 previous_record_sha256=a8437650274c89d118863b1b9caa7ce49e544f8408d42fc400ce1dbe7624cbae pre_append_tip_sequence=11 identity_unique=yes
+REVIEW_CONTEXT_OK d54018594016e05302ac21a806c5e97f1e2339e16e644e2d3c80ee70ef7d5665 sequence=13 previous_record_sha256=3aae9f9ebc86e934ce6c65b14e1e5906855456a9a6b08574aeec14b5c46ad28c pre_append_tip_sequence=12 identity_unique=yes
+ok: TEST-008.5: impl leg drives (genuine spec PASS prereq, then) rounds 1->3 green
+ok: TEST-008.6: impl leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.7: impl round-2 reviewer-a manifest carries round-1's integrated-summary.json (INV-012/2d8c6a5 fix in effect)
+ok: TEST-008.8: loop_fixture_init (task leg fixture) succeeds
+REVIEW_CONTEXT_OK 0afeb9d35314231bb07f80175f0d854eee01fdc5646b2c9638b4fddf90f4a32f sequence=2 previous_record_sha256=b3de33fb22432c6b69754bc7973c11270287d84d04d121e118d036cdfa612a70 pre_append_tip_sequence=1 identity_unique=yes
+REVIEW_CONTEXT_OK bb02b8dd96ca9f44fb29366766c597b3cd09cc6662f18ebb2dd5d353a05b1794 sequence=3 previous_record_sha256=0afeb9d35314231bb07f80175f0d854eee01fdc5646b2c9638b4fddf90f4a32f pre_append_tip_sequence=2 identity_unique=yes
+REVIEW_CONTEXT_OK 96075422273cf835184f9dbdd17aae188a5654a305ef3684a51172bd6caf06b0 sequence=4 previous_record_sha256=bb02b8dd96ca9f44fb29366766c597b3cd09cc6662f18ebb2dd5d353a05b1794 pre_append_tip_sequence=3 identity_unique=yes
+REVIEW_CONTEXT_OK 93c59bb9789f5c70fa66bae8e18f316d3ef23e5ff8ef112c0a035724ba55084b sequence=5 previous_record_sha256=96075422273cf835184f9dbdd17aae188a5654a305ef3684a51172bd6caf06b0 pre_append_tip_sequence=4 identity_unique=yes
+REVIEW_CONTEXT_OK 471114c751f83a40c71a3070152663cdceb800f4c8598becfa679ea747ead30e sequence=6 previous_record_sha256=93c59bb9789f5c70fa66bae8e18f316d3ef23e5ff8ef112c0a035724ba55084b pre_append_tip_sequence=5 identity_unique=yes
+REVIEW_CONTEXT_OK eb1bd85832d25c64855913ce8f36c9bacdc9067bcea49f1a9b2ccff55f2b74d2 sequence=7 previous_record_sha256=471114c751f83a40c71a3070152663cdceb800f4c8598becfa679ea747ead30e pre_append_tip_sequence=6 identity_unique=yes
+REVIEW_CONTEXT_OK e220d1f57d0ccc2220ca6b043b5483e5b638aabd00a0bbeec1f6ba963ee6b8a5 sequence=8 previous_record_sha256=eb1bd85832d25c64855913ce8f36c9bacdc9067bcea49f1a9b2ccff55f2b74d2 pre_append_tip_sequence=7 identity_unique=yes
+REVIEW_CONTEXT_OK b980367676e970dc73ede3815b14831f2e781b7774ab591d7d5d3bc07769bd2d sequence=9 previous_record_sha256=e220d1f57d0ccc2220ca6b043b5483e5b638aabd00a0bbeec1f6ba963ee6b8a5 pre_append_tip_sequence=8 identity_unique=yes
+REVIEW_CONTEXT_OK 946091b788cf9dffb593f0aa226def4c28903f6974a6b0c5ea54948466398331 sequence=10 previous_record_sha256=b980367676e970dc73ede3815b14831f2e781b7774ab591d7d5d3bc07769bd2d pre_append_tip_sequence=9 identity_unique=yes
+REVIEW_CONTEXT_OK 81e3d6f685b26a9304c994eece08e17e1d4dd0a93ba5b66908d96c9cd8d49dc0 sequence=11 previous_record_sha256=946091b788cf9dffb593f0aa226def4c28903f6974a6b0c5ea54948466398331 pre_append_tip_sequence=10 identity_unique=yes
+REVIEW_CONTEXT_OK a3ae799eb8e99e79c5b6f59872fac2f5ba695eee9efa68ea60c11e4105d690e9 sequence=12 previous_record_sha256=81e3d6f685b26a9304c994eece08e17e1d4dd0a93ba5b66908d96c9cd8d49dc0 pre_append_tip_sequence=11 identity_unique=yes
+REVIEW_CONTEXT_OK 791b8b5604ed8910aa2fe933d2c5d2d01f5463d4b29f0cb5b30f31d493cbec1c sequence=13 previous_record_sha256=a3ae799eb8e99e79c5b6f59872fac2f5ba695eee9efa68ea60c11e4105d690e9 pre_append_tip_sequence=12 identity_unique=yes
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK b7ce04223242b8bf02cf011c052f065aeab1c90670eeecb6d52db19cf52443a8 sequence=14 previous_record_sha256=791b8b5604ed8910aa2fe933d2c5d2d01f5463d4b29f0cb5b30f31d493cbec1c pre_append_tip_sequence=13 identity_unique=yes
+REVIEW_CONTEXT_OK fa841074985662a459d58640a6c76f0671490a7954f6980e24bdb46f0ea6a1fd sequence=15 previous_record_sha256=b7ce04223242b8bf02cf011c052f065aeab1c90670eeecb6d52db19cf52443a8 pre_append_tip_sequence=14 identity_unique=yes
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK c06c43c3965a8e59fc30b09d7d605ccc37314bca391b6aedcac2f35181ac6693 sequence=16 previous_record_sha256=fa841074985662a459d58640a6c76f0671490a7954f6980e24bdb46f0ea6a1fd pre_append_tip_sequence=15 identity_unique=yes
+REVIEW_CONTEXT_OK 1cc20f5948b1147e359605c59dda7c7c0fed5c3dae3927d1875cd4144ec759cf sequence=17 previous_record_sha256=c06c43c3965a8e59fc30b09d7d605ccc37314bca391b6aedcac2f35181ac6693 pre_append_tip_sequence=16 identity_unique=yes
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK 579422a8079bb1cfbf843cca2e40b08e143ee2e9407935df2130b27cfb5a66a3 sequence=18 previous_record_sha256=1cc20f5948b1147e359605c59dda7c7c0fed5c3dae3927d1875cd4144ec759cf pre_append_tip_sequence=17 identity_unique=yes
+REVIEW_CONTEXT_OK c8bf1bc0d0ab01c4efa90cb6d1349bd647fa2d6f0359639304770fb38bfda29e sequence=19 previous_record_sha256=579422a8079bb1cfbf843cca2e40b08e143ee2e9407935df2130b27cfb5a66a3 pre_append_tip_sequence=18 identity_unique=yes
+ok: TEST-008.9: task leg drives (genuine spec+impl PASS prereqs, then) rounds 1->3 green
+ok: TEST-008.10: task leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.11: loop_fixture_init (domain leg fixture) succeeds
+REVIEW_CONTEXT_OK c9eb0cb1c9eca9282a7d2dc51581c09400f22eebed7c38c18f58a07ac39d5236 sequence=2 previous_record_sha256=b3de33fb22432c6b69754bc7973c11270287d84d04d121e118d036cdfa612a70 pre_append_tip_sequence=1 identity_unique=yes
+REVIEW_CONTEXT_OK 7c14577e04c3f568935ce8e9bce78d7f3f192716336e06b3d95f9033ff6b51f4 sequence=3 previous_record_sha256=c9eb0cb1c9eca9282a7d2dc51581c09400f22eebed7c38c18f58a07ac39d5236 pre_append_tip_sequence=2 identity_unique=yes
+REVIEW_CONTEXT_OK 10b618270f903fa145fdc5295721806acda9f2efd5915d4d99b1f4ca48fe6029 sequence=4 previous_record_sha256=7c14577e04c3f568935ce8e9bce78d7f3f192716336e06b3d95f9033ff6b51f4 pre_append_tip_sequence=3 identity_unique=yes
+REVIEW_CONTEXT_OK 20913b60722e89c0ea88a68f12d724b23bdc5bc6483913eb89b432fe00adfae4 sequence=5 previous_record_sha256=10b618270f903fa145fdc5295721806acda9f2efd5915d4d99b1f4ca48fe6029 pre_append_tip_sequence=4 identity_unique=yes
+REVIEW_CONTEXT_OK 01a5d80cdbc21f5afd64b97c5e14d87476956178106122fd141706e71fe45e15 sequence=6 previous_record_sha256=20913b60722e89c0ea88a68f12d724b23bdc5bc6483913eb89b432fe00adfae4 pre_append_tip_sequence=5 identity_unique=yes
+REVIEW_CONTEXT_OK 5363ff41703362faa55490ab073d5c3b1424b290d18833cc9f0dcd1c20ecbe1a sequence=7 previous_record_sha256=01a5d80cdbc21f5afd64b97c5e14d87476956178106122fd141706e71fe45e15 pre_append_tip_sequence=6 identity_unique=yes
+ok: TEST-008.12: domain leg drives rounds 1->3 (cap-reached BLOCKED) green
+ok: TEST-008.13: domain leg observed end state BLOCKED matches the loop-inventory terminal
+=== TEST-008 brownfield-profile leg: canonical seed drives spec-review round 1 (AC-007, AC-010) ===
+ok: TEST-008.15 (AC-007): loop_fixture_init brownfield succeeds with LOOP_FIXTURE_SEED pointed at the canonical seed
+ok: TEST-008.16 (AC-007): the canonical seed content is present verbatim under $LoopFixtureRoot
+REVIEW_CONTEXT_OK fefd0f3b3e811cef124636d03072a17c2f123ec564c3e40e29fc79dddd5b589b sequence=2 previous_record_sha256=b3de33fb22432c6b69754bc7973c11270287d84d04d121e118d036cdfa612a70 pre_append_tip_sequence=1 identity_unique=yes
+REVIEW_CONTEXT_OK 8f730324a9ca8a8d222abf5a70e7fc7291b7324538c62d5783b84ce24efcaa16 sequence=3 previous_record_sha256=fefd0f3b3e811cef124636d03072a17c2f123ec564c3e40e29fc79dddd5b589b pre_append_tip_sequence=2 identity_unique=yes
+ok: TEST-008.17 (AC-010): brownfield-profile leg drives spec-review round 1 (PASS/Minor) green
+ok: TEST-008.18 (AC-010): brownfield-profile leg observed end state PASS matches the same inventory terminal the greenfield leg (TEST-008.3) already asserts
+=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ===
+ok: TEST-009.1: impl-review round-2 leg is green at HEAD (2d8c6a5/INV-012 fix in effect; see TEST-008.5/.7 above)
+ok: TEST-009.2: the one-time RED differential evidence against 2d8c6a5^ is recorded at specs/epic-159-pillar-a/verification/T-003/red-differential.log
+=== TEST-010: bidirectional invariant (downstream-required inputs are upstream-authorized) ===
+ok: TEST-010.0: loop_fixture_init (bidirectional-invariant fixture) succeeds
+REVIEW_CONTEXT_OK c245ab5fbc2d9b002b07b00c91d493796b41ba3435c5b5f03f650950ac2ce9e3 sequence=2 previous_record_sha256=b3de33fb22432c6b69754bc7973c11270287d84d04d121e118d036cdfa612a70 pre_append_tip_sequence=1 identity_unique=yes
+ok: TEST-010.1: spec-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK 1189e468c62656e7f6952a1204f24fd67add777357d953d609f3d0697336f198 sequence=2 previous_record_sha256=b3de33fb22432c6b69754bc7973c11270287d84d04d121e118d036cdfa612a70 pre_append_tip_sequence=1 identity_unique=yes
+ok: TEST-010.2: impl-review round-2 reviewer-a manifest (carrying round-1's integrated-summary.json) satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK 99af6780aa15c99be143ced4bc98cf836a9a3687c1643b748e2468f055245281 sequence=2 previous_record_sha256=b3de33fb22432c6b69754bc7973c11270287d84d04d121e118d036cdfa612a70 pre_append_tip_sequence=1 identity_unique=yes
+ok: TEST-010.3: task-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK ca7560b6a615505407ffda360fab8c198507990cfdd6920568dae248fee2018d sequence=2 previous_record_sha256=b3de33fb22432c6b69754bc7973c11270287d84d04d121e118d036cdfa612a70 pre_append_tip_sequence=1 identity_unique=yes
+ok: TEST-010.4: domain-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_PATH: domain-reviewer-a contains a real but role-unlisted path: specs/loop-consistency-inv-362998/requirements.md
+ok: TEST-010.5 (negative self-check): a synthetic required-but-unauthorized manifest entry (specs/.../requirements.md for a domain reviewer) turns Test-LoopBidirectionalInvariant red
+=== TEST-019: Context-absent round event trace matches the golden trace (AC-022, AC-023, AC-024, AC-026, AC-032) ===
+ok: TEST-019.1: loop_fixture_init (Context-absent event-trace fixture) succeeds
+REVIEW_CONTEXT_OK 894e81bd44e23c5ad4f8d4136faf798b2bb1bce450e8fc40f96c8c71339dd502 sequence=2 previous_record_sha256=b3de33fb22432c6b69754bc7973c11270287d84d04d121e118d036cdfa612a70 pre_append_tip_sequence=1 identity_unique=yes
+REVIEW_CONTEXT_OK e7d85fcbbb2eea5af566c2240e8cffac3417f8d93b8afa99b1165845a9d1024d sequence=3 previous_record_sha256=894e81bd44e23c5ad4f8d4136faf798b2bb1bce450e8fc40f96c8c71339dd502 pre_append_tip_sequence=2 identity_unique=yes
+ok: TEST-019.2 (AC-032): Context-absent round drives a single spec-review round (PASS/none) green
+ok: TEST-019.3: observed end state PASS matches the loop-inventory terminal
+ok: TEST-019.4 (AC-022, AC-023, AC-024, AC-026, AC-032): observed event trace matches the recorded golden trace via Test-EventTrace
+=== TEST-019.5 (AC-036): anchor-fingerprint drift check (active after Epic A5 caller integration) ===
+ok: TEST-019.5a (positive self-check): the anchor-fingerprint checker matches a non-drifted window and ordinal
+ok: TEST-019.5b (negative self-check): the anchor-fingerprint checker correctly detects a heading relocated ahead of an otherwise byte-identical window
+ok: TEST-019.5c (AC-036): live SKILL.md anchor fingerprint matches FP-A5-CALLER-CONTRACT-10 (Epic A5 merged)
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-consistency.tests.ps1: 38 passed, 0 failed, 40s elapsed
+
+EXIT 0

@@ -1,0 +1,70 @@
+UTC 2026-10-25T15:06:38.140704+00:00
+plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 SHA256 2f5976784b03e1ee79d4f946774235e8575b0e4f25d194a13861d38ab4de9b64
+OPERATOR 3 if ($Element.ValueKind -eq [System.Text.Json.JsonValueKind]::Object) {
+OPERATOR 9 } elseif ($Element.ValueKind -eq [System.Text.Json.JsonValueKind]::Array) {
+OPERATOR 18 if ($precheck.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) { throw 'precheck object required' }
+OPERATOR 22 if ($property.Name -cne 'recovery') { throw 'mis-cased recovery member' }
+OPERATOR 28 if ($schema.ValueKind -ne [System.Text.Json.JsonValueKind]::String -or $schema.GetString() -cne 'spec-review-precheck/v1') { throw 'invalid recovery precheck schema' }
+OPERATOR 29 if ($recovery.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) { throw 'recovery object required' }
+OPERATOR 31 if ($keys.Count -ne 2 -or $keys -cnotcontains 'record_path' -or $keys -cnotcontains 'record_sha256') { throw 'closed recovery reference required' }
+OPERATOR 33 if ($pathElement.ValueKind -ne [System.Text.Json.JsonValueKind]::String -or $hashElement.ValueKind -ne [System.Text.Json.JsonValueKind]::String) { throw 'recovery reference strings required' }
+OPERATOR 35 if ($hash -cnotmatch '^[0-9a-f]{64}$') { throw 'invalid recovery digest' }
+OPERATOR 36 if (-not $relative -or $relative -cmatch '[\\\x00-\x1f\x7f:]') { throw 'invalid recovery path' }
+CMDLET-LANGUAGE 38 foreach ($part in $relative.Split('/')) {
+OPERATOR 39 if (@('', '.', '..') -ccontains $part) { throw 'noncanonical recovery path' }
+CMDLET-LANGUAGE 40 $matches = @([IO.Directory]::EnumerateFileSystemEntries($current) | Where-Object { [string]::Equals([IO.Path]::GetFileName($_), $part, [StringComparison]::Ordinal) })
+OPERATOR 41 if ($matches.Count -ne 1) { throw 'missing or mis-cased recovery path' }
+CMDLET-LANGUAGE 43 $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+OPERATOR 44 if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'linked recovery path' }
+OPERATOR 46 if ($item -isnot [IO.FileInfo] -or ($item.Attributes -band [IO.FileAttributes]::Device) -ne 0) { throw 'recovery record is not a regular file' }
+OPERATOR 47 if (-not $IsWindows -and [string]$item.UnixStat.ItemType -cne 'File') { throw 'recovery record is not a regular file' }
+OPERATOR 48 if ((Get-FileHash -LiteralPath $current -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant() -cne $hash) { throw 'saved recovery record changed' }
+CMDLET-LANGUAGE 48 if ((Get-FileHash -LiteralPath $current -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant() -cne $hash) { throw 'saved recovery record changed' }
+plugins/sdd-review-loop/scripts/impl-review-precheck.ps1 SHA256 7fec8a3fd6b180f5530715564a4d489e336a9a2fdf0e599a024a4979d1b0927d
+OPERATOR 3 if ($Element.ValueKind -eq [System.Text.Json.JsonValueKind]::Object) {
+OPERATOR 9 } elseif ($Element.ValueKind -eq [System.Text.Json.JsonValueKind]::Array) {
+OPERATOR 18 if ($precheck.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) { throw 'precheck object required' }
+OPERATOR 22 if ($property.Name -cne 'recovery') { throw 'mis-cased recovery member' }
+OPERATOR 28 if ($schema.ValueKind -ne [System.Text.Json.JsonValueKind]::String -or $schema.GetString() -cne 'spec-review-precheck/v1') { throw 'invalid recovery precheck schema' }
+OPERATOR 29 if ($recovery.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) { throw 'recovery object required' }
+OPERATOR 31 if ($keys.Count -ne 2 -or $keys -cnotcontains 'record_path' -or $keys -cnotcontains 'record_sha256') { throw 'closed recovery reference required' }
+OPERATOR 33 if ($pathElement.ValueKind -ne [System.Text.Json.JsonValueKind]::String -or $hashElement.ValueKind -ne [System.Text.Json.JsonValueKind]::String) { throw 'recovery reference strings required' }
+OPERATOR 35 if ($hash -cnotmatch '^[0-9a-f]{64}$') { throw 'invalid recovery digest' }
+OPERATOR 36 if (-not $relative -or $relative -cmatch '[\\\x00-\x1f\x7f:]') { throw 'invalid recovery path' }
+CMDLET-LANGUAGE 38 foreach ($part in $relative.Split('/')) {
+OPERATOR 39 if (@('', '.', '..') -ccontains $part) { throw 'noncanonical recovery path' }
+CMDLET-LANGUAGE 40 $matches = @([IO.Directory]::EnumerateFileSystemEntries($current) | Where-Object { [string]::Equals([IO.Path]::GetFileName($_), $part, [StringComparison]::Ordinal) })
+OPERATOR 41 if ($matches.Count -ne 1) { throw 'missing or mis-cased recovery path' }
+CMDLET-LANGUAGE 43 $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+OPERATOR 44 if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'linked recovery path' }
+OPERATOR 46 if ($item -isnot [IO.FileInfo] -or ($item.Attributes -band [IO.FileAttributes]::Device) -ne 0) { throw 'recovery record is not a regular file' }
+OPERATOR 47 if (-not $IsWindows -and [string]$item.UnixStat.ItemType -cne 'File') { throw 'recovery record is not a regular file' }
+OPERATOR 48 if ((Get-FileHash -LiteralPath $current -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant() -cne $hash) { throw 'saved recovery record changed' }
+CMDLET-LANGUAGE 48 if ((Get-FileHash -LiteralPath $current -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant() -cne $hash) { throw 'saved recovery record changed' }
+plugins/sdd-review-loop/scripts/task-review-precheck.ps1 SHA256 a046dbd15e4cea8d0ec9dfcefdd2b44380d78e5577961a9f30ad8759b614d782
+OPERATOR 3 if ($Element.ValueKind -eq [System.Text.Json.JsonValueKind]::Object) {
+OPERATOR 9 } elseif ($Element.ValueKind -eq [System.Text.Json.JsonValueKind]::Array) {
+OPERATOR 18 if ($precheck.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) { throw 'precheck object required' }
+OPERATOR 22 if ($property.Name -cne 'recovery') { throw 'mis-cased recovery member' }
+OPERATOR 28 if ($schema.ValueKind -ne [System.Text.Json.JsonValueKind]::String -or $schema.GetString() -cne 'spec-review-precheck/v1') { throw 'invalid recovery precheck schema' }
+OPERATOR 29 if ($recovery.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) { throw 'recovery object required' }
+OPERATOR 31 if ($keys.Count -ne 2 -or $keys -cnotcontains 'record_path' -or $keys -cnotcontains 'record_sha256') { throw 'closed recovery reference required' }
+OPERATOR 33 if ($pathElement.ValueKind -ne [System.Text.Json.JsonValueKind]::String -or $hashElement.ValueKind -ne [System.Text.Json.JsonValueKind]::String) { throw 'recovery reference strings required' }
+OPERATOR 35 if ($hash -cnotmatch '^[0-9a-f]{64}$') { throw 'invalid recovery digest' }
+OPERATOR 36 if (-not $relative -or $relative -cmatch '[\\\x00-\x1f\x7f:]') { throw 'invalid recovery path' }
+CMDLET-LANGUAGE 38 foreach ($part in $relative.Split('/')) {
+OPERATOR 39 if (@('', '.', '..') -ccontains $part) { throw 'noncanonical recovery path' }
+CMDLET-LANGUAGE 40 $matches = @([IO.Directory]::EnumerateFileSystemEntries($current) | Where-Object { [string]::Equals([IO.Path]::GetFileName($_), $part, [StringComparison]::Ordinal) })
+OPERATOR 41 if ($matches.Count -ne 1) { throw 'missing or mis-cased recovery path' }
+CMDLET-LANGUAGE 43 $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+OPERATOR 44 if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'linked recovery path' }
+OPERATOR 46 if ($item -isnot [IO.FileInfo] -or ($item.Attributes -band [IO.FileAttributes]::Device) -ne 0) { throw 'recovery record is not a regular file' }
+OPERATOR 47 if (-not $IsWindows -and [string]$item.UnixStat.ItemType -cne 'File') { throw 'recovery record is not a regular file' }
+OPERATOR 48 if ((Get-FileHash -LiteralPath $current -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant() -cne $hash) { throw 'saved recovery record changed' }
+CMDLET-LANGUAGE 48 if ((Get-FileHash -LiteralPath $current -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant() -cne $hash) { throw 'saved recovery record changed' }
+PASS all three native validators identical. Non-c operators compare JsonValueKind enums, numeric counts/flags only. All schema/key/path/hash string comparisons are ordinal/case-sensitive; OrdinalIgnoreCase only detects and rejects recovery aliases. LiteralPath on file cmdlets; Directory enumeration + Ordinal filename equality. TEST-103 schema negative independently covers operator layer; TEST-083-P15::case covers filename/cmdlet layer. Unicode/space positive preserves admitted path contract.
+PARSE PASS spec
+PARSE PASS impl
+PARSE PASS task
+PASS split Bash marker emission exit90
+PASS split PowerShell marker emission exit90

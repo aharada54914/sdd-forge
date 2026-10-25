@@ -1,0 +1,12 @@
+UTC 2026-10-25T15:10:44.124723+00:00
+COMMAND ["bash", "tests/task-review-precheck.tests.sh"]
+ok: task review precheck records heading-style blocker dependencies
+ok: task review precheck accepts predecessor contracts from another checkout
+ok: task review precheck denies tampered foreign-checkout contract hashes
+ok: task review precheck denies anchor-less absolute manifest paths
+ok: task review precheck records frozen-artifact Done When items
+ok: task review precheck leaves citation-only Done When items unrecorded
+ok: task review precheck joins Done When continuation lines
+ok: task review precheck twins agree on frozen-artifact Done When items
+
+EXIT 0

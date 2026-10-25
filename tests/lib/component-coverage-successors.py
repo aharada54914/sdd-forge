@@ -1,8 +1,8 @@
 """Exact reviewed successors to two shared A3 archive entries.
 
-A9 T-002 intentionally updates these prechecks (commit b40dc88f); hashes match
-its reviewed-candidate-manifest.json, accepted at 021cf42c. The A3 archive stays
-immutable. This is a byte binding, not a path exemption or a formal gate verdict.
+A9 T-002 introduced the recovery route; these exact T-003 consumer bytes
+received independent source review. Earlier T-002 bindings and the A3 archive
+stay immutable. This is a byte binding, not a path exemption or a formal gate verdict.
 """
 import hashlib
 import json
@@ -12,9 +12,9 @@ import tempfile
 
 SUCCESSORS = {
     "plugins/sdd-review-loop/scripts/spec-review-precheck.sh":
-        "4032fa28afdfbc6a2af871d4c76b97313d831fb1e87aa7eed752633be3513474",
+        "69e7b47f7b17b6b46955ac983bb226023a26d6ad2c8f5db221976a4d12b134ec",
     "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1":
-        "e962f3f179e0e697ef6f645b7ab6eb082a06050f735ed24bf716b76e157bc42e",
+        "2f5976784b03e1ee79d4f946774235e8575b0e4f25d194a13861d38ab4de9b64",
 }
 
 

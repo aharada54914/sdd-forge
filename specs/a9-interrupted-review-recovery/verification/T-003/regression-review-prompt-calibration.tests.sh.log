@@ -1,0 +1,5 @@
+UTC 2026-10-25T14:59:25.606176+00:00
+COMMAND ["bash", "tests/review-prompt-calibration.tests.sh"]
+ok: review prompt calibration inventory is synchronized
+
+EXIT 0

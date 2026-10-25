@@ -1,0 +1,107 @@
+UTC 2026-10-25T14:59:37.908429+00:00
+COMMAND ["bash", "tests/structural-compatibility.tests.sh"]
+PASS: F1 corpus envelope matches the shipped schema
+PASS: F2 corpus envelope matches the shipped schema
+PASS: F3 corpus envelope matches the shipped schema
+PASS: F4 corpus envelope matches the shipped schema
+PASS: operator layer rejects a mis-cased shipped state
+PASS: language matching layer rejects a mis-cased shipped anchor
+PASS: fingerprinted Required Outputs injection anchor is unchanged
+PASS: full artifact paths and exact count derive from its shipped output surface
+markdown AST parse failure: Cannot find module 'js-yaml'
+Require stack:
+- /tmp/a9-t003-final/mcp/sdd-forge-mcp/package.json
+FAIL: full acceptance-tests.md canonicalizes without parse fallback
+PASS: full acceptance-tests.md status field names match its shipped template
+markdown AST parse failure: Cannot find module 'js-yaml'
+Require stack:
+- /tmp/a9-t003-final/mcp/sdd-forge-mcp/package.json
+FAIL: full design.md canonicalizes without parse fallback
+PASS: full design.md status field names match its shipped template
+markdown AST parse failure: Cannot find module 'js-yaml'
+Require stack:
+- /tmp/a9-t003-final/mcp/sdd-forge-mcp/package.json
+FAIL: full frontend-spec.md canonicalizes without parse fallback
+PASS: full frontend-spec.md status field names match its shipped template
+markdown AST parse failure: Cannot find module 'js-yaml'
+Require stack:
+- /tmp/a9-t003-final/mcp/sdd-forge-mcp/package.json
+FAIL: full infra-spec.md canonicalizes without parse fallback
+PASS: full infra-spec.md status field names match its shipped template
+markdown AST parse failure: Cannot find module 'js-yaml'
+Require stack:
+- /tmp/a9-t003-final/mcp/sdd-forge-mcp/package.json
+FAIL: full requirements.md canonicalizes without parse fallback
+PASS: full requirements.md status field names match its shipped template
+markdown AST parse failure: Cannot find module 'js-yaml'
+Require stack:
+- /tmp/a9-t003-final/mcp/sdd-forge-mcp/package.json
+FAIL: full security-spec.md canonicalizes without parse fallback
+PASS: full security-spec.md status field names match its shipped template
+markdown AST parse failure: Cannot find module 'js-yaml'
+Require stack:
+- /tmp/a9-t003-final/mcp/sdd-forge-mcp/package.json
+FAIL: full ux-spec.md canonicalizes without parse fallback
+PASS: full ux-spec.md status field names match its shipped template
+PASS: full generated identifiers retain the shipped three-digit grammar
+PASS: full output contains no reserved artifact or reference vocabulary
+PASS: lite artifact paths and exact count derive from its shipped output surface
+markdown AST parse failure: Cannot find module 'js-yaml'
+Require stack:
+- /tmp/a9-t003-final/mcp/sdd-forge-mcp/package.json
+FAIL: lite design.md canonicalizes without parse fallback
+PASS: lite design.md status field names match its shipped template
+markdown AST parse failure: Cannot find module 'js-yaml'
+Require stack:
+- /tmp/a9-t003-final/mcp/sdd-forge-mcp/package.json
+FAIL: lite requirements.md canonicalizes without parse fallback
+PASS: lite requirements.md status field names match its shipped template
+markdown AST parse failure: Cannot find module 'js-yaml'
+Require stack:
+- /tmp/a9-t003-final/mcp/sdd-forge-mcp/package.json
+FAIL: lite tasks.md canonicalizes without parse fallback
+PASS: lite tasks.md status field names match its shipped template
+PASS: lite generated identifiers retain the shipped three-digit grammar
+PASS: lite output contains no reserved artifact or reference vocabulary
+PASS: corpus artifact array order is comparison-irrelevant
+PASS: malformed frontmatter is a hard failure
+PASS: frontmatter rejects unterminated flow sequence without partial output
+PASS: frontmatter rejects unterminated flow mapping without partial output
+PASS: frontmatter rejects unterminated quoted scalar without partial output
+PASS: frontmatter rejects duplicate mapping key without partial output
+PASS: frontmatter rejects invalid nested mapping without partial output
+PASS: frontmatter rejects unknown executable tag without partial output
+PASS: frontmatter rejects frontmatter sequence root without partial output
+FAIL: frontmatter accepts flow sequence
+FAIL: frontmatter parses flow sequence into semantic values
+FAIL: frontmatter accepts nested mapping
+FAIL: frontmatter parses nested mapping into semantic values
+FAIL: frontmatter accepts quoted scalar
+FAIL: frontmatter parses quoted scalar into semantic values
+PASS: frontmatter rejects cyclic alias without partial output
+PASS: frontmatter rejects non-finite number without partial output
+PASS: frontmatter rejects unsafe integer boundary without partial output
+PASS: frontmatter rejects rounded unsafe integer without partial output
+PASS: frontmatter rejects negative unsafe integer without partial output
+PASS: frontmatter rejects hexadecimal unsafe integer without partial output
+PASS: frontmatter rejects exponent unsafe integer without partial output
+PASS: frontmatter rejects nested unsafe integer without partial output
+PASS: frontmatter rejects unsafe integer mapping key without partial output
+FAIL: frontmatter accepts safe integer limit
+FAIL: frontmatter parses safe integer limit into semantic values
+FAIL: frontmatter accepts negative safe integer limit
+FAIL: frontmatter parses negative safe integer limit into semantic values
+FAIL: frontmatter accepts quoted large integer
+FAIL: frontmatter parses quoted large integer into semantic values
+FAIL: frontmatter accepts finite fractional number
+FAIL: frontmatter parses finite fractional number into semantic values
+PASS: unrecognized heading grammar is a hard failure
+markdown AST parse failure: Cannot find module 'js-yaml'
+Require stack:
+- /tmp/a9-t003-final/mcp/sdd-forge-mcp/package.json
+FAIL: frontmatter order and permitted whitespace/line endings normalize
+markdown AST parse failure: Cannot find module 'js-yaml'
+Require stack:
+- /tmp/a9-t003-final/mcp/sdd-forge-mcp/package.json
+
+EXIT 2

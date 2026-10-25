@@ -1,0 +1,21 @@
+UTC 2026-10-25T15:06:02.230819+00:00
+Bash actual load_payload_manifest/payload_admits PASS
+plugins/sdd-review-loop/scripts/spec-review-precheck.sh
+plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+plugins/sdd-review-loop/scripts/impl-review-precheck.sh
+plugins/sdd-review-loop/scripts/impl-review-precheck.ps1
+plugins/sdd-review-loop/scripts/task-review-precheck.sh
+plugins/sdd-review-loop/scripts/task-review-precheck.ps1
+plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh
+plugins/sdd-review-loop/scripts/spec-review-precheck.sh
+plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+plugins/sdd-review-loop/scripts/impl-review-precheck.sh
+plugins/sdd-review-loop/scripts/impl-review-precheck.ps1
+plugins/sdd-review-loop/scripts/task-review-precheck.sh
+plugins/sdd-review-loop/scripts/task-review-precheck.ps1
+plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh
+PowerShell actual manifest parser and unchanged selection block PASS
+No new runtime file; test/report/spec development paths excluded in both selectors.
+install.sh sha256=69622850e204ab139d6a355e2f13c2db65a07d71a25065dc67daa7ee6105cc1a
+install.ps1 sha256=f0365914b93864e5eb67fb9b71280a89d9da3c0e5ac35c0d7a98b047349a5de1
+install-payload.txt sha256=fb3096c0a8192cb01ec3b62bb4861a982098495d0bb161ec7b312fdf22436d93

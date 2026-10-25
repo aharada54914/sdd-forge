@@ -1,0 +1,5 @@
+UTC 2026-10-25T15:13:22.904377+00:00
+COMMAND ["bash", "tests/downstream-review-precheck-parity.tests.sh"]
+ok: downstream review precheck shell and PowerShell outputs have equivalent semantics
+
+EXIT 0

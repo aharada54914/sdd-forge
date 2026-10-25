@@ -1,0 +1,22 @@
+UTC 2026-10-25T15:08:15.240548+00:00
+TEST-105::bash-missing-python exit=127
+/tmp/a9-prereq-95iqhaf3/probe.sh: line 3: python3: command not found
+TEST-105::powershell-missing-hash exit=1
+Exception: /tmp/a9-prereq-95iqhaf3/probe.ps1:55
+Line |
+  55 |  … tion Get-FileHash { throw 'Synthetic unavailable hashing primitive' }
+     |                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Synthetic unavailable hashing primitive
+TEST-105::missing-runtime exit=127
+missing-runtime: line 1: /tmp/a9-prereq-95iqhaf3/absent-pwsh: No such file or directory
+TEST-105::bash-malformed-parser-input exit=1
+ERROR: saved recovery reference: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+TEST-105::powershell-malformed-parser-input exit=1
+ParentContainsErrorRecordException: /tmp/a9-prereq-95iqhaf3/probe.ps1:16
+Line |
+  16 |    $document = [System.Text.Json.JsonDocument]::Parse($text)
+     |    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Exception calling "Parse" with "1" argument(s): "Expected depth to be
+     | zero at the end of the JSON payload. There is an open JSON object or
+     | array that should be closed. LineNumber: 0 | BytePositionInLine: 1."
+PASS prerequisite rejection; native runtime availability independently recorded in integration-powershell.log.

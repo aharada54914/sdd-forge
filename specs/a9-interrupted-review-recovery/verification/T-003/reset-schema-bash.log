@@ -1,0 +1,12 @@
+PASS bash TEST-097::real-publication-control exit=0 immutable=True utc=2026-10-25T14:59:54.181459+00:00
+PASS bash TEST-097::spec-verify-generated exit=0 immutable=True utc=2026-10-25T14:59:54.401782+00:00
+PASS bash TEST-100::PASS::current exit=0 immutable=True utc=2026-10-25T14:59:54.928775+00:00
+PASS bash TEST-100::BLOCKED::current exit=0 immutable=True utc=2026-10-25T14:59:55.541441+00:00
+PASS bash TEST-100::partial-quarantine::current exit=1 immutable=True utc=2026-10-25T14:59:55.627685+00:00
+PASS bash TEST-100::PASS::rollback exit=0 immutable=True utc=2026-10-25T14:59:56.316265+00:00
+PASS bash TEST-100::BLOCKED::rollback exit=0 immutable=True utc=2026-10-25T14:59:57.093310+00:00
+PASS bash TEST-100::partial-quarantine::rollback exit=1 immutable=True utc=2026-10-25T14:59:57.178394+00:00
+PASS bash TEST-103::mis-cased-schema::spec exit=1 immutable=True utc=2026-10-25T14:59:57.317564+00:00
+PASS bash TEST-103::mis-cased-schema::impl exit=1 immutable=True utc=2026-10-25T14:59:57.509683+00:00
+PASS bash TEST-103::mis-cased-schema::task exit=1 immutable=True utc=2026-10-25T14:59:57.722112+00:00
+CONSUMPTION_RESULT bash passed=11 failures=0

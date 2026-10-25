@@ -1,0 +1,214 @@
+UTC 2026-10-25T14:59:41.795206+00:00
+COMMAND ["/workspace/.tools/sdd-forge-dev/bin/pwsh", "-NoProfile", "-File", "tests/structural-compatibility.tests.ps1"]
+PASS: F1 corpus envelope matches the shipped schema
+PASS: F2 corpus envelope matches the shipped schema
+PASS: F3 corpus envelope matches the shipped schema
+PASS: F4 corpus envelope matches the shipped schema
+PASS: operator layer rejects a mis-cased shipped state
+PASS: language matching layer rejects a mis-cased shipped anchor
+PASS: fingerprinted Required Outputs injection anchor is unchanged
+PASS: full artifact paths and exact count derive from its shipped output surface
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:151
+Line |
+ 151 |  …              Fail "$Track $Path canonicalizes without parse fallback"
+     |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: full acceptance-tests.md canonicalizes without parse fallback
+PASS: full acceptance-tests.md status field names match its shipped template
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:151
+Line |
+ 151 |  …              Fail "$Track $Path canonicalizes without parse fallback"
+     |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: full design.md canonicalizes without parse fallback
+PASS: full design.md status field names match its shipped template
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:151
+Line |
+ 151 |  …              Fail "$Track $Path canonicalizes without parse fallback"
+     |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: full frontend-spec.md canonicalizes without parse fallback
+PASS: full frontend-spec.md status field names match its shipped template
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:151
+Line |
+ 151 |  …              Fail "$Track $Path canonicalizes without parse fallback"
+     |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: full infra-spec.md canonicalizes without parse fallback
+PASS: full infra-spec.md status field names match its shipped template
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:151
+Line |
+ 151 |  …              Fail "$Track $Path canonicalizes without parse fallback"
+     |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: full requirements.md canonicalizes without parse fallback
+PASS: full requirements.md status field names match its shipped template
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:151
+Line |
+ 151 |  …              Fail "$Track $Path canonicalizes without parse fallback"
+     |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: full security-spec.md canonicalizes without parse fallback
+PASS: full security-spec.md status field names match its shipped template
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:151
+Line |
+ 151 |  …              Fail "$Track $Path canonicalizes without parse fallback"
+     |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: full ux-spec.md canonicalizes without parse fallback
+PASS: full ux-spec.md status field names match its shipped template
+PASS: full generated identifiers retain the shipped three-digit grammar
+PASS: full output contains no reserved artifact or reference vocabulary
+PASS: lite artifact paths and exact count derive from its shipped output surface
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:151
+Line |
+ 151 |  …              Fail "$Track $Path canonicalizes without parse fallback"
+     |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: lite design.md canonicalizes without parse fallback
+PASS: lite design.md status field names match its shipped template
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:151
+Line |
+ 151 |  …              Fail "$Track $Path canonicalizes without parse fallback"
+     |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: lite requirements.md canonicalizes without parse fallback
+PASS: lite requirements.md status field names match its shipped template
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:151
+Line |
+ 151 |  …              Fail "$Track $Path canonicalizes without parse fallback"
+     |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: lite tasks.md canonicalizes without parse fallback
+PASS: lite tasks.md status field names match its shipped template
+PASS: lite generated identifiers retain the shipped three-digit grammar
+PASS: lite output contains no reserved artifact or reference vocabulary
+PASS: corpus artifact array order is comparison-irrelevant
+PASS: malformed frontmatter is a hard failure with its process exit captured
+PASS: frontmatter rejects unterminated flow sequence without partial output
+PASS: frontmatter rejects unterminated flow mapping without partial output
+PASS: frontmatter rejects unterminated quoted scalar without partial output
+PASS: frontmatter rejects duplicate mapping key without partial output
+PASS: frontmatter rejects invalid nested mapping without partial output
+PASS: frontmatter rejects unknown executable tag without partial output
+PASS: frontmatter rejects frontmatter sequence root without partial output
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter accepts flow sequence
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter parses flow sequence into semantic values
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter accepts nested mapping
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter parses nested mapping into semantic values
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter accepts quoted scalar
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter parses quoted scalar into semantic values
+PASS: frontmatter rejects cyclic alias without partial output
+PASS: frontmatter rejects non-finite number without partial output
+PASS: frontmatter rejects unsafe integer boundary without partial output
+PASS: frontmatter rejects rounded unsafe integer without partial output
+PASS: frontmatter rejects negative unsafe integer without partial output
+PASS: frontmatter rejects hexadecimal unsafe integer without partial output
+PASS: frontmatter rejects exponent unsafe integer without partial output
+PASS: frontmatter rejects nested unsafe integer without partial output
+PASS: frontmatter rejects unsafe integer mapping key without partial output
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter accepts safe integer limit
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter parses safe integer limit into semantic values
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter accepts negative safe integer limit
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter parses negative safe integer limit into semantic values
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter accepts quoted large integer
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter parses quoted large integer into semantic values
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter accepts finite fractional number
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter parses finite fractional number into semantic values
+PASS: unrecognized heading grammar is a hard failure with its process exit captured
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter order and permitted whitespace/line endings normalize
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: frontmatter values remain comparison-significant
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: heading level and document order remain comparison-significant
+ERROR: integration ancestry evidence unavailable
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:223
+Line |
+ 223 |  … DE -ne 1) { Fail "$Fixture activation evidence is unavailable or inva …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: F4 activation evidence is unavailable or invalid
+ERROR: integration ancestry evidence unavailable
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:223
+Line |
+ 223 |  … DE -ne 1) { Fail "$Fixture activation evidence is unavailable or inva …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: F3 activation evidence is unavailable or invalid
+ERROR: integration ancestry evidence unavailable
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:277
+Line |
+ 277 |  …    } else { Fail 'F5/F6 activation evidence is unavailable or invalid …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: F5/F6 activation evidence is unavailable or invalid
+ERROR: integration ancestry evidence unavailable
+Fail: /tmp/a9-t003-final/tests/structural-compatibility.tests.ps1:23
+Line |
+  23 |  … ]$Condition) { if ($Condition) { Pass $Label } else { Fail $Label } }
+     |                                                          ~~~~~~~~~~~
+     | FAIL: emitted dependency skips remain allowed on origin/main
+PASS: PowerShell aggregate runner registers this shipped suite exactly once
+PASS: registration accepts exact path
+PASS: registration rejects a comment-only reference
+PASS: registration rejects a mis-cased path
+PASS: registration rejects a longer path
+PASS: registration rejects an absent entry
+PASS: registration detects duplicate entries
+PASS: registration rejects failed queries even with a matching path
+50 passed, 31 failed
+
+EXIT 1

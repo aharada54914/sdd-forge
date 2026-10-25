@@ -1,0 +1,7 @@
+UTC 2026-10-25T15:00:14.633296+00:00
+COMMAND ["/workspace/.tools/sdd-forge-dev/bin/pwsh", "-NoProfile", "-File", "tests/compatibility-byte-identical.tests.ps1"]
+current byte capture: Command '['git', '-C', '/tmp/a9-t003-final', 'ls-files', '-z']' returned non-zero exit status 128.
+FAIL: current capture failed
+0 passed, 1 failed
+
+EXIT 1

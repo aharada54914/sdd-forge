@@ -9,6 +9,58 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+# Validate saved provenance only; publication eligibility is deliberately not replayed.
+function Assert-SavedRecoveryReference([string]$Repository, [string]$PrecheckPath) {
+  function Assert-UniqueJsonMembers([System.Text.Json.JsonElement]$Element) {
+    if ($Element.ValueKind -eq [System.Text.Json.JsonValueKind]::Object) {
+      $names = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+      foreach ($property in $Element.EnumerateObject()) {
+        if (-not $names.Add($property.Name)) { throw 'duplicate JSON member' }
+        Assert-UniqueJsonMembers $property.Value
+      }
+    } elseif ($Element.ValueKind -eq [System.Text.Json.JsonValueKind]::Array) {
+      foreach ($item in $Element.EnumerateArray()) { Assert-UniqueJsonMembers $item }
+    }
+  }
+  $text = [Text.UTF8Encoding]::new($false, $true).GetString([IO.File]::ReadAllBytes($PrecheckPath))
+  $document = [System.Text.Json.JsonDocument]::Parse($text)
+  try {
+    $precheck = $document.RootElement
+    Assert-UniqueJsonMembers $precheck
+    if ($precheck.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) { throw 'precheck object required' }
+    $found = $false
+    foreach ($property in $precheck.EnumerateObject()) {
+      if ([string]::Equals($property.Name, 'recovery', [StringComparison]::OrdinalIgnoreCase)) {
+        if ($property.Name -cne 'recovery') { throw 'mis-cased recovery member' }
+        $found = $true; $recovery = $property.Value
+      }
+    }
+    if (-not $found) { return }
+    $schema = $precheck.GetProperty('schema')
+    if ($schema.ValueKind -ne [System.Text.Json.JsonValueKind]::String -or $schema.GetString() -cne 'spec-review-precheck/v1') { throw 'invalid recovery precheck schema' }
+    if ($recovery.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) { throw 'recovery object required' }
+    $keys = @($recovery.EnumerateObject() | ForEach-Object { $_.Name })
+    if ($keys.Count -ne 2 -or $keys -cnotcontains 'record_path' -or $keys -cnotcontains 'record_sha256') { throw 'closed recovery reference required' }
+    $pathElement = $recovery.GetProperty('record_path'); $hashElement = $recovery.GetProperty('record_sha256')
+    if ($pathElement.ValueKind -ne [System.Text.Json.JsonValueKind]::String -or $hashElement.ValueKind -ne [System.Text.Json.JsonValueKind]::String) { throw 'recovery reference strings required' }
+    $relative = $pathElement.GetString(); $hash = $hashElement.GetString()
+    if ($hash -cnotmatch '^[0-9a-f]{64}$') { throw 'invalid recovery digest' }
+    if (-not $relative -or $relative -cmatch '[\\\x00-\x1f\x7f:]') { throw 'invalid recovery path' }
+    $current = $Repository
+    foreach ($part in $relative.Split('/')) {
+      if (@('', '.', '..') -ccontains $part) { throw 'noncanonical recovery path' }
+      $matches = @([IO.Directory]::EnumerateFileSystemEntries($current) | Where-Object { [string]::Equals([IO.Path]::GetFileName($_), $part, [StringComparison]::Ordinal) })
+      if ($matches.Count -ne 1) { throw 'missing or mis-cased recovery path' }
+      $current = $matches[0]
+      $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+      if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'linked recovery path' }
+    }
+    if ($item -isnot [IO.FileInfo] -or ($item.Attributes -band [IO.FileAttributes]::Device) -ne 0) { throw 'recovery record is not a regular file' }
+    if (-not $IsWindows -and [string]$item.UnixStat.ItemType -cne 'File') { throw 'recovery record is not a regular file' }
+    if ((Get-FileHash -LiteralPath $current -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant() -cne $hash) { throw 'saved recovery record changed' }
+  } finally { $document.Dispose() }
+}
+
 . (Join-Path $PSScriptRoot 'review-hash-normalization.ps1')
 function Test-AdrBoundFilePath {
     param([string]$Root, [string]$Relative)
@@ -464,6 +516,7 @@ function Require-Pass(
   $validVerdict = (Test-OrdinalEqual $data.feature $FeatureName) -and (Test-OrdinalEqual $data.stage $Stage) -and (Test-OrdinalEqual $data.verdict 'PASS') -and $data.attempt -gt 0 -and $data.round -gt 0
   if (Test-OrdinalEqual $Stage 'spec') { $validVerdict = $validVerdict -and (Test-OrdinalEqual $data.schema 'spec-review-integrated-verdict/v1') -and -not [string]::IsNullOrWhiteSpace($data.reviewer_a_run_id) -and -not [string]::IsNullOrWhiteSpace($data.reviewer_b_run_id) -and -not (Test-OrdinalEqual $data.reviewer_a_run_id $data.reviewer_b_run_id) -and -not [string]::IsNullOrWhiteSpace($data.reviewer_a_host_session_id) -and -not [string]::IsNullOrWhiteSpace($data.reviewer_b_host_session_id) -and -not (Test-OrdinalEqual $data.reviewer_a_host_session_id $data.reviewer_b_host_session_id) } else { $validVerdict = $validVerdict -and (Test-OrdinalEqual $data.schema 'integrated-verdict/v1') -and -not [string]::IsNullOrWhiteSpace($data.run_id) }
   if (-not $validVerdict) { Fail "persisted $Stage verdict is not a complete PASS contract" }
+  if ($Stage -ceq 'spec') { Assert-SavedRecoveryReference $repoRoot (Join-Path $verdict.DirectoryName 'precheck-result.json') }
   $contractPath = Join-Path $verdict.DirectoryName "$Stage-review-contract.json"
   if (-not (Test-Path -LiteralPath $contractPath -PathType Leaf) -or (Get-Item -LiteralPath $contractPath).LinkType) { Fail "missing persisted $Stage review contract" }
   $contract = Get-Content -LiteralPath $contractPath -Raw | ConvertFrom-Json

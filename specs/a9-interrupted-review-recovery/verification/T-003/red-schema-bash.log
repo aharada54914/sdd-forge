@@ -1,0 +1,8 @@
+PASS bash TEST-097::real-publication-control exit=0 immutable=True utc=2026-10-25T14:57:16.761025+00:00
+PASS bash TEST-097::spec-verify-generated exit=0 immutable=True utc=2026-10-25T14:57:16.805874+00:00
+PASS bash TEST-103::mis-cased-schema::spec exit=1 immutable=True utc=2026-10-25T14:57:16.860481+00:00
+FAIL bash TEST-103::mis-cased-schema::impl exit=0 immutable=True utc=2026-10-25T14:57:16.983795+00:00
+
+FAIL bash TEST-103::mis-cased-schema::task exit=0 immutable=True utc=2026-10-25T14:57:17.180011+00:00
+
+CONSUMPTION_RESULT bash passed=3 failures=2

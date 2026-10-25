@@ -1,0 +1,8 @@
+PASS powershell TEST-097::real-publication-control exit=0 immutable=True utc=2026-10-25T14:57:18.972337+00:00
+PASS powershell TEST-097::spec-verify-generated exit=0 immutable=True utc=2026-10-25T14:57:19.567702+00:00
+PASS powershell TEST-103::mis-cased-schema::spec exit=1 immutable=True utc=2026-10-25T14:57:20.153967+00:00
+FAIL powershell TEST-103::mis-cased-schema::impl exit=0 immutable=True utc=2026-10-25T14:57:20.815233+00:00
+
+FAIL powershell TEST-103::mis-cased-schema::task exit=0 immutable=True utc=2026-10-25T14:57:21.466204+00:00
+
+CONSUMPTION_RESULT powershell passed=3 failures=2

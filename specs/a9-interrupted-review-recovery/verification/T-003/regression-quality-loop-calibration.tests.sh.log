@@ -1,0 +1,5 @@
+UTC 2026-10-25T14:59:25.940177+00:00
+COMMAND ["bash", "tests/quality-loop-calibration.tests.sh"]
+ok: quality loop calibration is synchronized
+
+EXIT 0

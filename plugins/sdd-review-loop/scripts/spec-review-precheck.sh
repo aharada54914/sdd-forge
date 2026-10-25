@@ -200,6 +200,49 @@ else
   input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | sha256_stream)"
 fi
 
+# Validate saved provenance only; publication eligibility is deliberately not replayed.
+validate_saved_recovery_reference() {
+  python3 - "$1" "$2" <<'PY'
+import hashlib, json, os, pathlib, re, sys
+
+def pairs(items):
+    value = {}
+    for key, item in items:
+        if key in value: raise ValueError('duplicate JSON member')
+        value[key] = item
+    return value
+
+try:
+    root = pathlib.Path(sys.argv[1])
+    precheck = json.loads(pathlib.Path(sys.argv[2]).read_text(encoding='utf-8'), object_pairs_hook=pairs)
+    if type(precheck) is not dict: raise ValueError('precheck object required')
+    if any(key.lower() == 'recovery' and key != 'recovery' for key in precheck):
+        raise ValueError('mis-cased recovery member')
+    if 'recovery' in precheck:
+        if precheck.get('schema') != 'spec-review-precheck/v1': raise ValueError('invalid recovery precheck schema')
+        recovery = precheck['recovery']
+        if type(recovery) is not dict or set(recovery) != {'record_path', 'record_sha256'}:
+            raise ValueError('closed recovery reference required')
+        path, digest = recovery['record_path'], recovery['record_sha256']
+        if type(digest) is not str or re.fullmatch('[0-9a-f]{64}', digest) is None:
+            raise ValueError('invalid recovery digest')
+        if type(path) is not str or not path or re.search(r'[\\\x00-\x1f\x7f:]', path):
+            raise ValueError('invalid recovery path')
+        current = root
+        for part in path.split('/'):
+            if part in ('', '.', '..'): raise ValueError('noncanonical recovery path')
+            if part not in os.listdir(current): raise ValueError('missing or mis-cased recovery path')
+            current = current / part
+            if current.is_symlink(): raise ValueError('linked recovery path')
+        if not current.is_file(): raise ValueError('recovery record is not a regular file')
+        if hashlib.sha256(current.read_bytes()).hexdigest() != digest:
+            raise ValueError('saved recovery record changed')
+except (OSError, ValueError, TypeError) as error:
+    print('ERROR: saved recovery reference: ' + str(error), file=sys.stderr)
+    sys.exit(1)
+PY
+}
+
 if [[ "$verify_inputs" == true ]]; then
   precheck="${report_dir}/precheck-result.json"
   [[ -d "$report_root" && ! -L "$report_root" && "$(canonical_dir "$report_root")" == "$report_root" ]] || fail "report root is missing or substituted"
@@ -207,11 +250,12 @@ if [[ "$verify_inputs" == true ]]; then
      "$(canonical_dir "${report_root}/attempt-${attempt}")" == "${report_root}/attempt-${attempt}" ]] || fail "attempt directory is missing or substituted"
   [[ -d "$report_dir" && ! -L "$report_dir" && "$(canonical_dir "$report_dir")" == "$report_dir" ]] || fail "round directory is missing or substituted"
   [[ -f "$precheck" && ! -L "$precheck" ]] || fail "precheck evidence is missing or substituted"
+  validate_saved_recovery_reference "$repo_root" "$precheck" || fail "invalid saved recovery provenance"
   jq -se --arg feature "$feature" --argjson attempt "$attempt" --argjson round "$round" \
     --arg status "$status" --arg requirements "$requirements_sha" --arg acceptance "$acceptance_sha" \
     --arg calibration "$calibration_sha" --arg investigation "$investigation_sha" --arg input "$input_sha" '
       length == 1 and (.[0] | type == "object" and
-        keys == ["acceptance_sha256","attempt","calibration_sha256","edit_summary","feature","generated_at","input_sha256","investigation_sha256","requirements_sha256","reset","round","schema","spec_review_status_field","stage"] and
+        (del(.recovery) | keys) == ["acceptance_sha256","attempt","calibration_sha256","edit_summary","feature","generated_at","input_sha256","investigation_sha256","requirements_sha256","reset","round","schema","spec_review_status_field","stage"] and
         .schema == "spec-review-precheck/v1" and .stage == "spec" and
         .feature == $feature and .attempt == $attempt and .round == $round and
         .spec_review_status_field == $status and

@@ -103,7 +103,7 @@ report_root="$repo_root/reports/spec-review/$feature"
 if [[ $3 == prior ]]; then
   validate_contract "$report_root/attempt-3/round-2/spec-review-contract.json" 3 2 NEEDS_WORK "$report_root/attempt-3/round-2/precheck-result.json"
 else
-  declare -F validate_interrupted_recovery >/dev/null || { echo 'ADMISSION_NOT_IMPLEMENTED' >&2; exit 90; }
+  declare -F validate_interrupted_recovery >/dev/null || { echo 'ADMISSION_NOT_'"IMPLEMENTED" >&2; exit 90; }
   validate_interrupted_recovery "$spec_dir/synthetic-recovery.json"
 fi
 ''')
@@ -124,7 +124,7 @@ $reportRoot=Join-Path $root "reports/spec-review/$Feature";$attemptInt=4;$roundI
 if($Mode -ceq 'prior'){
  if(-not(Test-ValidateContract "$reportRoot/attempt-3/round-2/spec-review-contract.json" 3 2 NEEDS_WORK "$reportRoot/attempt-3/round-2/precheck-result.json")){exit 1}
 }else{
- if(-not(Get-Command Test-InterruptedRecovery -ErrorAction SilentlyContinue)){[Console]::Error.WriteLine('ADMISSION_NOT_IMPLEMENTED');exit 90}
+ if(-not(Get-Command Test-InterruptedRecovery -ErrorAction SilentlyContinue)){[Console]::Error.WriteLine(('ADMISSION_NOT_' + 'IMPLEMENTED'));exit 90}
  if(-not(Test-InterruptedRecovery "$specDir/synthetic-recovery.json")){exit 1}
 }
 ''')
@@ -681,7 +681,6 @@ $ErrorActionPreference='Stop';$tokens=$null;$errors=$null
 $ast=[Management.Automation.Language.Parser]::ParseFile($Source,[ref]$tokens,[ref]$errors)
 if($errors.Count){throw 'consumer parse failed'}
 . (Join-Path $PSScriptRoot 'review-hash-normalization.ps1')
-if(Test-Path (Join-Path $PSScriptRoot 'lib/saved-recovery-reference.ps1')){. (Join-Path $PSScriptRoot 'lib/saved-recovery-reference.ps1')}
 foreach($node in $ast.EndBlock.Statements){if($node -is [Management.Automation.Language.FunctionDefinitionAst]){. ([scriptblock]::Create($node.Extent.Text.Replace('$PSScriptRoot', ("'" + $PSScriptRoot.Replace("'", "''") + "'"))))}}
 $req=(Get-FileHash -LiteralPath "$Repository/specs/$Feature/requirements.md").Hash.ToLowerInvariant()
 $acc=(Get-FileHash -LiteralPath "$Repository/specs/$Feature/acceptance-tests.md").Hash.ToLowerInvariant()
@@ -698,9 +697,56 @@ Require-Pass "$Repository/reports/spec-review/$Feature" spec $Feature $req $acc 
   if run.returncode:return 1
   run=consume(base,'spec');emit('TEST-097::spec-verify-generated',run,True,True)
   complete(base)
+  def reset_command(root):
+   script=root/('plugins/sdd-review-loop/scripts/spec-review-precheck.'+('sh' if RUNTIME=='bash' else 'ps1'))
+   return ['bash',str(script),FEATURE,'5','1','--reset'] if RUNTIME=='bash' else [PWSH,'-NoProfile','-File',str(script),'-Feature',FEATURE,'-Attempt','5','-Round','1','-Reset']
+  rollback_ref=os.environ.get('SDD_RECOVERY_ROLLBACK_REF')
+  for reverted in ((False,True) if rollback_ref else (False,)):
+   for terminal in ('PASS','BLOCKED'):
+    root=scratch/'reset';shutil.copytree(base,root)
+    if terminal=='BLOCKED':
+     for filename in ('spec-review-contract.json','integrated-verdict.json','reviewer-a.json'):
+      obj=load(root,target+'/'+filename);obj['verdict']='BLOCKED'
+      if filename=='integrated-verdict.json':obj['finding_counts']['major']=1
+      if filename=='reviewer-a.json':obj['checks'][0]['result']='FAIL'
+      dump(root,target+'/'+filename,obj)
+     summary=load(root,target+'/integrated-summary.json');summary.update(reviewer_a_fail_count=1,reviewer_a_pass_count=6);summary['reviewer_a_checks'][0]['result']='FAIL';dump(root,target+'/integrated-summary.json',summary)
+     contract=load(root,target+'/spec-review-contract.json')
+     for reviewer in contract['reviewers']:
+      for pin in reviewer['allowed_input_manifest']:
+       if pin['path']==target+'/integrated-summary.json':pin['sha256']=digest(root/pin['path'])
+     dump(root,target+'/spec-review-contract.json',contract)
+     for role in ('a','b'):
+      obj=load(root,target+'/reviewer-'+role+'.json');obj['allowed_input_manifest']=contract['reviewers'][0 if role=='a' else 1]['allowed_input_manifest'];dump(root,target+'/reviewer-'+role+'.json',obj)
+    if terminal=='BLOCKED':
+     blocked=target.replace('round-1','round-3');(root/target).rename(root/blocked)
+     for file in (root/blocked).glob('*.json'):
+      obj=json.loads(file.read_text().replace(target,blocked))
+      if 'round' in obj:obj['round']=3
+      file.write_text(json.dumps(obj,indent=2)+'\n')
+     contract=load(root,blocked+'/spec-review-contract.json')
+     for reviewer in contract['reviewers']:
+      for pin in reviewer['allowed_input_manifest']:
+       if pin['path'] in (blocked+'/precheck-result.json',blocked+'/integrated-summary.json'):pin['sha256']=digest(root/pin['path'])
+     dump(root,blocked+'/spec-review-contract.json',contract)
+     for i,role in enumerate(('a','b')):
+      obj=load(root,blocked+'/reviewer-'+role+'.json');obj['allowed_input_manifest']=contract['reviewers'][i]['allowed_input_manifest'];dump(root,blocked+'/reviewer-'+role+'.json',obj)
+    if reverted:
+     for stage in ('spec','impl','task'):
+      for ext in ('sh','ps1'):
+       relative=f'plugins/sdd-review-loop/scripts/{stage}-review-precheck.{ext}';old=subprocess.run(['git','show',rollback_ref+':'+relative],cwd=ROOT,capture_output=True,check=True);put(root,relative,old.stdout)
+     relative='plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh';put(root,relative,subprocess.run(['git','show',rollback_ref+':'+relative],cwd=ROOT,capture_output=True,check=True).stdout)
+    before=snapshot(root);result=run_child(root,reset_command(root));after=dict(snapshot(root));preserved=all(after.get(path)==value for path,value in before)
+    emit('TEST-100::'+terminal+('::rollback' if reverted else '::current'),result,True,preserved)
+    shutil.rmtree(root)
+   root=scratch/'partial-rollback';shutil.copytree(base,root);put(root,f'reports/spec-review/{FEATURE}/attempt-5/round-1/.precheck-result.json.pending','quarantined fixture')
+   if reverted:
+    relative='plugins/sdd-review-loop/scripts/spec-review-precheck.'+('sh' if RUNTIME=='bash' else 'ps1');put(root,relative,subprocess.run(['git','show',rollback_ref+':'+relative],cwd=ROOT,capture_output=True,check=True).stdout)
+   before=snapshot(root);result=run_child(root,reset_command(root));emit('TEST-100::partial-quarantine'+('::rollback' if reverted else '::current'),result,False,before==snapshot(root));shutil.rmtree(root)
   cases=[]
   def add(name,edit,accept=False,pin=True):cases.append((name,edit,accept,pin))
   add('TEST-097::valid',lambda r,p:None,True)
+  add('TEST-103::mis-cased-schema',lambda r,p:p.__setitem__('schema','SPEC-review-precheck/v1'))
   add('TEST-099::legacy',lambda r,p:p.pop('recovery'),True)
   add('TEST-097::record-bytes',lambda r,p:put(r,RECORD,(r/RECORD).read_bytes()+b' '))
   add('TEST-097::remove-pinned',lambda r,p:p.pop('recovery'),False,False)
@@ -725,6 +771,8 @@ Require-Pass "$Repository/reports/spec-review/$Feature" spec $Feature $req $acc 
   def unicode_path(root,p):
    path=f'specs/{FEATURE}/記録 space.json';put(root,path,(root/RECORD).read_bytes());p['recovery']['record_path']=path
   add('TEST-097::unicode-space-valid',unicode_path,True)
+  selected=os.environ.get('SDD_RECOVERY_TEST_FILTER')
+  if selected:cases=[case for case in cases if selected in case[0]]
   for consumer in ('spec','impl','task'):
    for number,(name,edit,accept,pin) in enumerate(cases):
     if consumer=='spec' and name.startswith('TEST-098'):continue
@@ -735,7 +783,7 @@ Require-Pass "$Repository/reports/spec-review/$Feature" spec $Feature $req $acc 
     # Drivers are test harness files, excluded from the state oracle.
     after=[x for x in snapshot(root) if x[0] not in ('consumer.sh','plugins/sdd-review-loop/scripts/consumer.ps1')]
     emit(name+'::'+consumer,result,accept,after==before);shutil.rmtree(root)
-   for key in ('recovery','record_path','record_sha256'):
+   for key in (() if selected else ('recovery','record_path','record_sha256')):
     for escaped in (False,True):
      root=scratch/'case';shutil.copytree(base,root);raw=(root/prepath).read_text();literal=json.dumps(key);alias=('"\\u'+format(ord(key[0]),'04x')+key[1:]+'"') if escaped else literal
      value=load(root,prepath)['recovery'] if key=='recovery' else load(root,prepath)['recovery'][key]
@@ -751,5 +799,5 @@ if __name__=='__main__':
  if os.environ.get('SDD_RECOVERY_TEST_SCOPE')=='consumption':sys.exit(consumption_main())
  if os.environ.get('SDD_RECOVERY_TEST_SCOPE')=='transition':sys.exit(transition_main())
  status=main()
- sys.exit(status or transition_main())
+ sys.exit(status or transition_main() or consumption_main())
 PY

@@ -1,0 +1,13 @@
+{
+  "reviewer": "/root/a9_t003_review",
+  "utc": "2026-10-25T15:09:54.424842+00:00",
+  "source_sha256": {
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "69e7b47f7b17b6b46955ac983bb226023a26d6ad2c8f5db221976a4d12b134ec",
+    "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh": "69bcc632830dcd25e69c5d286c78c67490aed1e7d6e12f36cd74c547acabc182",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "2f5976784b03e1ee79d4f946774235e8575b0e4f25d194a13861d38ab4de9b64",
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1": "7fec8a3fd6b180f5530715564a4d489e336a9a2fdf0e599a024a4979d1b0927d",
+    "plugins/sdd-review-loop/scripts/task-review-precheck.ps1": "a046dbd15e4cea8d0ec9dfcefdd2b44380d78e5577961a9f30ad8759b614d782"
+  },
+  "bash_validator_copies_equal": true,
+  "powershell_validator_copies_equal": true
+}

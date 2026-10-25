@@ -1,0 +1,62 @@
+{
+  "utc": "2026-10-25T15:10:31.488915+00:00",
+  "boundary": "exact extracted production helper; identical copies separately verified",
+  "results": [
+    {
+      "case": "unicode",
+      "runtime": "bash",
+      "exit": 0,
+      "expected_accept": true,
+      "pass": true
+    },
+    {
+      "case": "unicode",
+      "runtime": "powershell",
+      "exit": 0,
+      "expected_accept": true,
+      "pass": true
+    },
+    {
+      "case": "fifo",
+      "runtime": "bash",
+      "exit": 1,
+      "expected_accept": false,
+      "pass": true
+    },
+    {
+      "case": "fifo",
+      "runtime": "powershell",
+      "exit": 1,
+      "expected_accept": false,
+      "pass": true
+    },
+    {
+      "case": "directory",
+      "runtime": "bash",
+      "exit": 1,
+      "expected_accept": false,
+      "pass": true
+    },
+    {
+      "case": "directory",
+      "runtime": "powershell",
+      "exit": 1,
+      "expected_accept": false,
+      "pass": true
+    },
+    {
+      "case": "dangling",
+      "runtime": "bash",
+      "exit": 1,
+      "expected_accept": false,
+      "pass": true
+    },
+    {
+      "case": "dangling",
+      "runtime": "powershell",
+      "exit": 1,
+      "expected_accept": false,
+      "pass": true
+    }
+  ]
+}

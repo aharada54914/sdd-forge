@@ -1,3 +1,46 @@
+# Validate saved provenance only; publication eligibility is deliberately not replayed.
+validate_saved_recovery_reference() {
+  python3 - "$1" "$2" <<'PY'
+import hashlib, json, os, pathlib, re, sys
+
+def pairs(items):
+    value = {}
+    for key, item in items:
+        if key in value: raise ValueError('duplicate JSON member')
+        value[key] = item
+    return value
+
+try:
+    root = pathlib.Path(sys.argv[1])
+    precheck = json.loads(pathlib.Path(sys.argv[2]).read_text(encoding='utf-8'), object_pairs_hook=pairs)
+    if type(precheck) is not dict: raise ValueError('precheck object required')
+    if any(key.lower() == 'recovery' and key != 'recovery' for key in precheck):
+        raise ValueError('mis-cased recovery member')
+    if 'recovery' in precheck:
+        if precheck.get('schema') != 'spec-review-precheck/v1': raise ValueError('invalid recovery precheck schema')
+        recovery = precheck['recovery']
+        if type(recovery) is not dict or set(recovery) != {'record_path', 'record_sha256'}:
+            raise ValueError('closed recovery reference required')
+        path, digest = recovery['record_path'], recovery['record_sha256']
+        if type(digest) is not str or re.fullmatch('[0-9a-f]{64}', digest) is None:
+            raise ValueError('invalid recovery digest')
+        if type(path) is not str or not path or re.search(r'[\\\x00-\x1f\x7f:]', path):
+            raise ValueError('invalid recovery path')
+        current = root
+        for part in path.split('/'):
+            if part in ('', '.', '..'): raise ValueError('noncanonical recovery path')
+            if part not in os.listdir(current): raise ValueError('missing or mis-cased recovery path')
+            current = current / part
+            if current.is_symlink(): raise ValueError('linked recovery path')
+        if not current.is_file(): raise ValueError('recovery record is not a regular file')
+        if hashlib.sha256(current.read_bytes()).hexdigest() != digest:
+            raise ValueError('saved recovery record changed')
+except (OSError, ValueError, TypeError) as error:
+    print('ERROR: saved recovery reference: ' + str(error), file=sys.stderr)
+    sys.exit(1)
+PY
+}
+
 # RT-20260908-004: scoped declaration inputs, never caller-selected ADR reads.
 persisted_adr_safe_file() {
   local relative=$1 current=$repo_root component entry found
@@ -414,6 +457,9 @@ require_persisted_pass() {
   local role_a="${stage}-reviewer-a" role_b="${stage}-reviewer-b"
   local precheck_path="reports/${stage}-review/${FEATURE}/attempt-${stored_attempt}/round-${stored_round}/precheck-result.json"
   local summary_path="reports/${stage}-review/${FEATURE}/attempt-${stored_attempt}/round-${stored_round}/integrated-summary.json"
+  if [[ "$stage" == spec ]]; then
+    validate_saved_recovery_reference "$repo_root" "$repo_root/$precheck_path" || fail "invalid saved recovery provenance"
+  fi
   local investigation_path="specs/${FEATURE}/investigation.md"
   manifest_has() {
     local role="$1" path="$2" hash_one="$3" hash_two="${4:-}"

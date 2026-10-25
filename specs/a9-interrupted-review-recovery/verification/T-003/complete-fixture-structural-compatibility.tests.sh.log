@@ -1,0 +1,142 @@
+UTC 2026-10-25T15:12:37.848489+00:00
+COMMAND ["bash", "tests/structural-compatibility.tests.sh"]
+PASS: F1 corpus envelope matches the shipped schema
+PASS: F2 corpus envelope matches the shipped schema
+PASS: F3 corpus envelope matches the shipped schema
+PASS: F4 corpus envelope matches the shipped schema
+PASS: operator layer rejects a mis-cased shipped state
+PASS: language matching layer rejects a mis-cased shipped anchor
+PASS: fingerprinted Required Outputs injection anchor is unchanged
+PASS: full artifact paths and exact count derive from its shipped output surface
+PASS: full acceptance-tests.md frontmatter and ordered headings match its shipped template
+PASS: full acceptance-tests.md status field names match its shipped template
+PASS: full design.md frontmatter and ordered headings match its shipped template
+PASS: full design.md status field names match its shipped template
+PASS: full frontend-spec.md frontmatter and ordered headings match its shipped template
+PASS: full frontend-spec.md status field names match its shipped template
+PASS: full infra-spec.md frontmatter and ordered headings match its shipped template
+PASS: full infra-spec.md status field names match its shipped template
+PASS: full requirements.md frontmatter and ordered headings match its shipped template
+PASS: full requirements.md status field names match its shipped template
+PASS: full security-spec.md frontmatter and ordered headings match its shipped template
+PASS: full security-spec.md status field names match its shipped template
+PASS: full ux-spec.md frontmatter and ordered headings match its shipped template
+PASS: full ux-spec.md status field names match its shipped template
+PASS: full generated identifiers retain the shipped three-digit grammar
+PASS: full output contains no reserved artifact or reference vocabulary
+PASS: lite artifact paths and exact count derive from its shipped output surface
+PASS: lite design.md frontmatter and ordered headings match its shipped template
+PASS: lite design.md status field names match its shipped template
+PASS: lite requirements.md frontmatter and ordered headings match its shipped template
+PASS: lite requirements.md status field names match its shipped template
+PASS: lite tasks.md frontmatter and ordered headings match its shipped template
+PASS: lite tasks.md status field names match its shipped template
+PASS: lite generated identifiers retain the shipped three-digit grammar
+PASS: lite output contains no reserved artifact or reference vocabulary
+PASS: corpus artifact array order is comparison-irrelevant
+PASS: malformed frontmatter is a hard failure
+PASS: frontmatter rejects unterminated flow sequence without partial output
+PASS: frontmatter rejects unterminated flow mapping without partial output
+PASS: frontmatter rejects unterminated quoted scalar without partial output
+PASS: frontmatter rejects duplicate mapping key without partial output
+PASS: frontmatter rejects invalid nested mapping without partial output
+PASS: frontmatter rejects unknown executable tag without partial output
+PASS: frontmatter rejects frontmatter sequence root without partial output
+PASS: frontmatter accepts flow sequence
+true
+PASS: frontmatter parses flow sequence into semantic values
+PASS: frontmatter accepts nested mapping
+true
+PASS: frontmatter parses nested mapping into semantic values
+PASS: frontmatter accepts quoted scalar
+true
+PASS: frontmatter parses quoted scalar into semantic values
+PASS: frontmatter rejects cyclic alias without partial output
+PASS: frontmatter rejects non-finite number without partial output
+PASS: frontmatter rejects unsafe integer boundary without partial output
+PASS: frontmatter rejects rounded unsafe integer without partial output
+PASS: frontmatter rejects negative unsafe integer without partial output
+PASS: frontmatter rejects hexadecimal unsafe integer without partial output
+PASS: frontmatter rejects exponent unsafe integer without partial output
+PASS: frontmatter rejects nested unsafe integer without partial output
+PASS: frontmatter rejects unsafe integer mapping key without partial output
+PASS: frontmatter accepts safe integer limit
+true
+PASS: frontmatter parses safe integer limit into semantic values
+PASS: frontmatter accepts negative safe integer limit
+true
+PASS: frontmatter parses negative safe integer limit into semantic values
+PASS: frontmatter accepts quoted large integer
+true
+PASS: frontmatter parses quoted large integer into semantic values
+PASS: frontmatter accepts finite fractional number
+true
+PASS: frontmatter parses finite fractional number into semantic values
+PASS: unrecognized heading grammar is a hard failure
+PASS: frontmatter order and permitted whitespace/line endings normalize
+PASS: frontmatter values remain comparison-significant
+PASS: heading level and document order remain comparison-significant
+AC-007 active: checking recorded F4 full-track artifacts
+PASS: full artifact paths and exact count derive from its shipped output surface
+PASS: full acceptance-tests.md frontmatter and ordered headings match its shipped template
+PASS: full acceptance-tests.md status field names match its shipped template
+PASS: full design.md frontmatter and ordered headings match its shipped template
+PASS: full design.md status field names match its shipped template
+PASS: full frontend-spec.md frontmatter and ordered headings match its shipped template
+PASS: full frontend-spec.md status field names match its shipped template
+PASS: full infra-spec.md frontmatter and ordered headings match its shipped template
+PASS: full infra-spec.md status field names match its shipped template
+PASS: full requirements.md frontmatter and ordered headings match its shipped template
+PASS: full requirements.md status field names match its shipped template
+PASS: full security-spec.md frontmatter and ordered headings match its shipped template
+PASS: full security-spec.md status field names match its shipped template
+PASS: full ux-spec.md frontmatter and ordered headings match its shipped template
+PASS: full ux-spec.md status field names match its shipped template
+PASS: full generated identifiers retain the shipped three-digit grammar
+PASS: full output contains no reserved artifact or reference vocabulary
+AC-042 active: checking recorded F3 full-track artifacts
+PASS: full artifact paths and exact count derive from its shipped output surface
+PASS: full acceptance-tests.md frontmatter and ordered headings match its shipped template
+PASS: full acceptance-tests.md status field names match its shipped template
+PASS: full design.md frontmatter and ordered headings match its shipped template
+PASS: full design.md status field names match its shipped template
+PASS: full frontend-spec.md frontmatter and ordered headings match its shipped template
+PASS: full frontend-spec.md status field names match its shipped template
+PASS: full infra-spec.md frontmatter and ordered headings match its shipped template
+PASS: full infra-spec.md status field names match its shipped template
+PASS: full requirements.md frontmatter and ordered headings match its shipped template
+PASS: full requirements.md status field names match its shipped template
+PASS: full security-spec.md frontmatter and ordered headings match its shipped template
+PASS: full security-spec.md status field names match its shipped template
+PASS: full ux-spec.md frontmatter and ordered headings match its shipped template
+PASS: full ux-spec.md status field names match its shipped template
+PASS: full generated identifiers retain the shipped three-digit grammar
+PASS: full output contains no reserved artifact or reference vocabulary
+AC-043 active: checking F5 Context-present Lite artifacts
+PASS: F5 real Resolver preserves its Context state and human Markdown
+PASS: lite artifact paths and exact count derive from its shipped output surface
+PASS: lite design.md frontmatter and ordered headings match its shipped template
+PASS: lite design.md status field names match its shipped template
+PASS: lite requirements.md frontmatter and ordered headings match its shipped template
+PASS: lite requirements.md status field names match its shipped template
+PASS: lite tasks.md frontmatter and ordered headings match its shipped template
+PASS: lite tasks.md status field names match its shipped template
+PASS: lite generated identifiers retain the shipped three-digit grammar
+PASS: lite output contains no reserved artifact or reference vocabulary
+AC-043 active: checking F6 Context-present Lite artifacts
+PASS: F6 real Resolver preserves its Context state and human Markdown
+PASS: lite artifact paths and exact count derive from its shipped output surface
+PASS: lite design.md frontmatter and ordered headings match its shipped template
+PASS: lite design.md status field names match its shipped template
+PASS: lite requirements.md frontmatter and ordered headings match its shipped template
+PASS: lite requirements.md status field names match its shipped template
+PASS: lite tasks.md frontmatter and ordered headings match its shipped template
+PASS: lite tasks.md status field names match its shipped template
+PASS: lite generated identifiers retain the shipped three-digit grammar
+PASS: lite output contains no reserved artifact or reference vocabulary
+audited 0 allowlisted lines
+PASS: emitted dependency skips remain allowed on origin/main
+PASS: Bash aggregate runner registers this shipped suite
+125 passed, 0 failed
+
+EXIT 0

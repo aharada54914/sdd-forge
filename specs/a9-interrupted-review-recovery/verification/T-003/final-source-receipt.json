@@ -1,0 +1,60 @@
+{
+  "receipt_utc": "2026-10-25T15:05:06.543047+00:00",
+  "head": "b52bfd6e1af8bb28cf837f6ea2bfa4dde12db030",
+  "matrix_source_sha256": {
+    "tests/spec-review-interrupted-recovery.tests.sh": "fed59a3c6eb1a40f42d822a5e018f798a78ab5872bd4568cb0a740ff4db949f6",
+    "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "69e7b47f7b17b6b46955ac983bb226023a26d6ad2c8f5db221976a4d12b134ec",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "2f5976784b03e1ee79d4f946774235e8575b0e4f25d194a13861d38ab4de9b64",
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.sh": "c35b033f438ee0f6e16113cf7e399d90ee7278237f96fc68f6d2e453b0e98b76",
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1": "7fec8a3fd6b180f5530715564a4d489e336a9a2fdf0e599a024a4979d1b0927d",
+    "plugins/sdd-review-loop/scripts/task-review-precheck.sh": "2b8881f9f5cd5d27811cdbb0b5eec1510073993761f68f3c4882b951fdf8d588",
+    "plugins/sdd-review-loop/scripts/task-review-precheck.ps1": "a046dbd15e4cea8d0ec9dfcefdd2b44380d78e5577961a9f30ad8759b614d782",
+    "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh": "69bcc632830dcd25e69c5d286c78c67490aed1e7d6e12f36cd74c547acabc182"
+  },
+  "approved_inputs_sha256": {
+    "specs/a9-interrupted-review-recovery/requirements.md": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983",
+    "specs/a9-interrupted-review-recovery/ux-spec.md": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1",
+    "specs/a9-interrupted-review-recovery/infra-spec.md": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e",
+    "specs/a9-interrupted-review-recovery/traceability.md": "69bce6e35065a25ed6b14d2b07f4707416844f37ea6a7c2570ef5b95145fcb19",
+    "specs/a9-interrupted-review-recovery/frontend-spec.md": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52",
+    "specs/a9-interrupted-review-recovery/security-spec.md": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f",
+    "specs/a9-interrupted-review-recovery/design.md": "3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e",
+    "specs/a9-interrupted-review-recovery/acceptance-tests.md": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9",
+    "specs/a9-interrupted-review-recovery/tasks.md": "976171e819c0543181fed149e5cf26e6ebc9913f0de5b8e668c51243e2f3e275"
+  },
+  "current_runner_sha256": "7cf1f8acba2e0fb680016d936b8c183821d0683802ecf13118aa226ae34ca41a",
+  "runner_only_followup": "Two detection marker strings split into non-contiguous literals after matrix source capture; emitted diagnostic unchanged. Production source unchanged. Follow-up detection, syntax and marker emission checks cover this runner-only correction.",
+  "verified_utc": "2026-10-25T15:17:03.713140+00:00",
+  "current_tasks_sha256": "1fa78f831acf29861ef5d0069081d0e955d77d706f1aec049c4df46b92d7e54d",
+  "final_commands": {
+    "bash": "SDD_RECOVERY_ROLLBACK_REF=b52bfd6e bash tests/spec-review-interrupted-recovery.tests.sh",
+    "powershell": "SDD_RECOVERY_ROLLBACK_REF=b52bfd6e /workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/spec-review-interrupted-recovery.tests.ps1"
+  },
+  "final_exit_codes": {
+    "bash": 0,
+    "powershell": 0
+  },
+  "final_log_sha256": {
+    "final-bash.log": "5127db111b1f50344e8c2cdd891ed5e7cffb4f21bf90bd9b79afaf16c1025924",
+    "final-powershell.log": "e20c7624e12a99e9dc4523258cd7d0946e03e380917fea56c63295db38fc30c6",
+    "case-results.tsv": "f69b752728e217096a06e2281bc764e6792f09f21dddfdf9ff67f9dec0929e25",
+    "author-sweeps.log": "2a57a0a5b1dce02bcef2636345a340c06646cc4ca09d6074c716b98c35162e0c",
+    "prerequisites.log": "3cfc6c3efb10383fce5729b982798e815d541aef52047461231c96b63b9da7e2",
+    "distribution.log": "06cffb77452987a80d5caee4abb1f34a55ab1ac01818d49578553f5b72a9a6dd",
+    "detection-green.log": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+  },
+  "component_successor_update": {
+    "author": "parent /root",
+    "scope": "two independently reviewed literal successor hashes and explanation only",
+    "helper_sha256": "ce4e9da1b3eeb048e9a46a9778adac4013ccc8ed34518f43dcc4d4ce820e7431",
+    "review": "independent-source-review.json",
+    "bash_passed": 46,
+    "powershell_passed": 47
+  },
+  "component_logs_sha256": {
+    "component-bash.log": "5d3fbfa466eeff92238b7710a6d78cd3fddfde72139599eec37e921497efcbc4",
+    "component-powershell.log": "4bcba03624972f0673c7828b427a0b21200ae6d54c2fc6cf726bca26653bbde8"
+  },
+  "packet_utc": "2026-10-25T15:16:32.913186+00:00"
+}
