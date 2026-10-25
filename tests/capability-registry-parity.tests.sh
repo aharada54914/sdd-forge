@@ -149,7 +149,7 @@ STAGED_SCRIPTS = [
     "check-criterion-freeze.py",
     # T-002's installed-layout checker is also a registered check-*.py
     # implementation and must be present for the clean-registry fixture.
-    "check-installed-plugin-drift.py",
+    "check-installed-plugin-drift.py", "check-source-evidence.py",
     # The shared python-master dispatcher every .sh/.ps1 wrapper above
     # sources; an installed plugin ships it beside the wrappers, and
     # without it every wrapper denies RUNTIME_UNAVAILABLE (exit 3).

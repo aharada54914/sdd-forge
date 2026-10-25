@@ -1,0 +1,95 @@
+{
+  "schema": "independent-research-display-evaluation/v1",
+  "issue": 610,
+  "runtime": {
+    "python": "3.12.14",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "browser": "Chromium",
+    "browser_version": "154.0.8037.57",
+    "executable": "/usr/bin/chromium",
+    "headless": true
+  },
+  "file_url_observation": "Direct file:// launch rejected by managed Chromium ERR_BLOCKED_BY_ADMINISTRATOR; exact HTML bytes evaluated through offline intercepted fixture URL without policy changes.",
+  "fixture_scope": "Author-created local text only; no third-party originals or live acquisition. Source-link navigation fulfilled from exact local fixture bytes with browser offline.",
+  "product_sha256": {
+    "research-evidence-tools.py": "efd207a4566dda87b4459cbb2cc60dae42a4ef94a42f5e0923086ddce49aba84",
+    "research_consumers.py": "e5a30f07d6059cdac0137258c6f4833e8301857a1a13d888fd34375c357e0fa4",
+    "research_evidence.py": "492faf897e0b9e3daea0456149829b5e3f4663e497f6a1e58c8337b8764e9d0f",
+    "research_extraction.py": "6042e79230dabde1976f5fcaa205dba033613e924a3356bf2f60126ed42e4990"
+  },
+  "report_sha256": "d39da0017cd2382f560113c28a6eb9c5e18ec368abaab7ed525bfa1fd2a59a29",
+  "browser_checks": {
+    "offline_report_loaded": true,
+    "no_external_assets": true,
+    "no_active_injected_elements": true,
+    "no_script_effect_or_dialog": true,
+    "reference_only_no_full_text": true,
+    "original_initially_collapsed": true,
+    "translation_distinct": true,
+    "click_opens_exact_original_range": true,
+    "keyboard_toggles_original": true,
+    "conflicting_and_unreached_explicit": true,
+    "unconfirmed_labeled_without_fresh_proof": true,
+    "no_absolute_snapshot_path_exposed": true,
+    "source_href_matches_record": true,
+    "source_click_routes_to_exact_fixture_original": true,
+    "no_unexpected_network": true
+  },
+  "negative_regeneration": [
+    {
+      "case": "false-quote",
+      "exit_code": 1,
+      "diagnostic": "research-evidence: INVALID: quote-mismatch /",
+      "prior_report_preserved": true
+    },
+    {
+      "case": "stale-hash",
+      "exit_code": 1,
+      "diagnostic": "research-evidence: INVALID: snapshot-hash-mismatch /",
+      "prior_report_preserved": true
+    },
+    {
+      "case": "missing-original",
+      "exit_code": 1,
+      "diagnostic": "research-evidence: INVALID: file-unreadable /",
+      "prior_report_preserved": true
+    },
+    {
+      "case": "missing-snapshot",
+      "exit_code": 1,
+      "diagnostic": "research-evidence: INVALID: snapshot-missing /",
+      "prior_report_preserved": true
+    },
+    {
+      "case": "stale-source",
+      "exit_code": 1,
+      "diagnostic": "research-evidence: INVALID: source-stale /",
+      "prior_report_preserved": true
+    },
+    {
+      "case": "stale-translation",
+      "exit_code": 1,
+      "diagnostic": "research-evidence: INVALID: report-annotations-stale /",
+      "prior_report_preserved": true
+    }
+  ],
+  "network_requests": [
+    {
+      "url": "report.html",
+      "resource_type": "document"
+    },
+    {
+      "url": "https://example.org/doc",
+      "resource_type": "document"
+    }
+  ],
+  "unsupported": [
+    "Direct file:// navigation in this managed Chromium (administrator policy)",
+    "Native Windows/macOS browser execution",
+    "External live acquisition and remote source availability",
+    "Shared-store per-user ACL enforcement",
+    "PDF multicolumn and video timestamp rendering (unsupported extractor/anchor formats)",
+    "Human screen-reader evaluation and translation meaning/accuracy"
+  ],
+  "passed": true
+}

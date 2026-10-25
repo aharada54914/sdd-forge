@@ -24,6 +24,18 @@
     {
       "path": "registry-fixture-ps.log",
       "sha256": "f88bc88383ea5782130d1391aa75a30439a907269e467f6ac137ac8b1246d040"
+    },
+    {
+      "path": "registry-parity-sh-final.log",
+      "sha256": "20f7f7be4a5d448070f0286f3619d6636221002d2b51e64c74b8af3c852e37dc"
+    },
+    {
+      "path": "registry-parity-ps-final.log",
+      "sha256": "20f7f7be4a5d448070f0286f3619d6636221002d2b51e64c74b8af3c852e37dc"
+    },
+    {
+      "path": "ci-predecessor.json",
+      "sha256": "b62f0076539a7879442f181902610bef59bf6e083e46cbadb9362ee87f3183ea"
     }
   ]
 }

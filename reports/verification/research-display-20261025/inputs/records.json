@@ -1,0 +1,182 @@
+{
+  "schema": "research-evidence/v1",
+  "feature": "sample",
+  "sources": [
+    {
+      "source_id": "SRC-001",
+      "record_revision": 1,
+      "source_type": "official-doc",
+      "title": "Fixture source <img src=x onerror=\"window.__injected=3\">",
+      "authors": [],
+      "url": "https://example.org/doc",
+      "final_url": "https://example.org/doc",
+      "source_revision": "v1",
+      "retrieval_status": "retrieved",
+      "attempted_at": "2026-10-01T00:00:00Z",
+      "retrieved_at": "2026-10-01T00:00:01Z",
+      "content_sha256": "1e8d8e1e66a281b23b096ae183b8293684296ae57a97e9f303a8e622a8755ccd",
+      "media_type": "text/plain",
+      "extraction": {
+        "method": "plain/v1",
+        "extracted_sha256": "1e8d8e1e66a281b23b096ae183b8293684296ae57a97e9f303a8e622a8755ccd"
+      },
+      "currency_status": "current",
+      "currency_note": null,
+      "verification_status": "unverified",
+      "verification_at": null,
+      "storage_mode": "reference_only",
+      "license_or_permission_basis": {
+        "status": "unknown",
+        "basis": null,
+        "asserted_by": null
+      },
+      "storage_location_class": "none",
+      "retention_or_expiry": null,
+      "access_scope": "none",
+      "access_scope_label": null,
+      "inherited_from": null,
+      "uncertainty": null
+    },
+    {
+      "source_id": "SRC-002",
+      "record_revision": 1,
+      "source_type": "official-doc",
+      "title": "Alternative fixture source",
+      "authors": [],
+      "url": "https://example.org/alternative",
+      "final_url": "https://example.org/alternative",
+      "source_revision": "v1",
+      "retrieval_status": "retrieved",
+      "attempted_at": "2026-10-01T00:00:00Z",
+      "retrieved_at": "2026-10-01T00:00:01Z",
+      "content_sha256": "9a685b30f4de979ee7f10445596903ffe2693833884ae015029527571dfa70da",
+      "media_type": "text/plain",
+      "extraction": {
+        "method": "plain/v1",
+        "extracted_sha256": "9a685b30f4de979ee7f10445596903ffe2693833884ae015029527571dfa70da"
+      },
+      "currency_status": "current",
+      "currency_note": null,
+      "verification_status": "unverified",
+      "verification_at": null,
+      "storage_mode": "reference_only",
+      "license_or_permission_basis": {
+        "status": "unknown",
+        "basis": null,
+        "asserted_by": null
+      },
+      "storage_location_class": "none",
+      "retention_or_expiry": null,
+      "access_scope": "none",
+      "access_scope_label": null,
+      "inherited_from": null,
+      "uncertainty": null
+    },
+    {
+      "source_id": "SRC-003",
+      "record_revision": 1,
+      "source_type": "official-doc",
+      "title": "Unavailable source (fixture)",
+      "authors": [],
+      "url": "https://example.org/unavailable",
+      "final_url": null,
+      "source_revision": "v1",
+      "retrieval_status": "unreachable",
+      "attempted_at": "2026-10-01T00:00:00Z",
+      "retrieved_at": null,
+      "content_sha256": null,
+      "media_type": null,
+      "extraction": null,
+      "currency_status": "current",
+      "currency_note": null,
+      "verification_status": "unverified",
+      "verification_at": null,
+      "storage_mode": "reference_only",
+      "license_or_permission_basis": {
+        "status": "unknown",
+        "basis": null,
+        "asserted_by": null
+      },
+      "storage_location_class": "none",
+      "retention_or_expiry": null,
+      "access_scope": "none",
+      "access_scope_label": null,
+      "inherited_from": null,
+      "uncertainty": null
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "CLM-001",
+      "record_revision": 1,
+      "statement": "Read the evidence; no design approval is asserted.",
+      "evidence_status": "conflicting",
+      "search_record": null,
+      "citations": [
+        {
+          "source_id": "SRC-001",
+          "source_record_revision": 1,
+          "relation": "supports",
+          "anchor": {
+            "line_start": 2,
+            "line_end": 2,
+            "quote": "Quoted fixture: <script>window.__injected=1</script><img src=x onerror=\"window.__injected=2\"> 日本語",
+            "quote_sha256": "ddbf3c8e2af899dedb91c4d2c46438c71bc3a4c7d590ff466de146acf7beba4b"
+          },
+          "quote_status": "unverified",
+          "quote_verified_at": null
+        },
+        {
+          "source_id": "SRC-002",
+          "source_record_revision": 1,
+          "relation": "contradicts",
+          "anchor": {
+            "line_start": 1,
+            "line_end": 1,
+            "quote": "Alternative fixture: this contradicts the proposed claim.",
+            "quote_sha256": "4d3f4f67600f3c5d868e3393e9f2329cc3c34207867645f6d677f50a7404c1ef"
+          },
+          "quote_status": "unverified",
+          "quote_verified_at": null
+        }
+      ],
+      "semantic_status": "unassessed",
+      "semantic_assessed_by": null,
+      "semantic_note": null,
+      "uncertainty": null
+    },
+    {
+      "claim_id": "CLM-002",
+      "record_revision": 1,
+      "statement": "Not searched fixture",
+      "evidence_status": "not-searched",
+      "search_record": null,
+      "citations": [],
+      "semantic_status": "unassessed",
+      "semantic_assessed_by": null,
+      "semantic_note": null,
+      "uncertainty": null
+    },
+    {
+      "claim_id": "CLM-003",
+      "record_revision": 1,
+      "statement": "Unconfirmed fixture",
+      "evidence_status": "unreachable",
+      "search_record": null,
+      "citations": [
+        {
+          "source_id": "SRC-003",
+          "source_record_revision": 1,
+          "relation": "supports",
+          "anchor": null,
+          "quote_status": "unverified",
+          "quote_verified_at": null
+        }
+      ],
+      "semantic_status": "unassessed",
+      "semantic_assessed_by": null,
+      "semantic_note": null,
+      "uncertainty": null
+    }
+  ]
+}

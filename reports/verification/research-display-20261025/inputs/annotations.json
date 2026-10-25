@@ -1,0 +1,14 @@
+{
+  "schema": "research-report-annotations/v1",
+  "feature": "sample",
+  "translations": [
+    {
+      "claim_id": "CLM-001",
+      "claim_revision": 1,
+      "citation": 0,
+      "quote_sha256": "ddbf3c8e2af899dedb91c4d2c46438c71bc3a4c7d590ff466de146acf7beba4b",
+      "language": "ja",
+      "text": "評価用の訳。<script>window.__injected=4</script> 原文とは区別する。"
+    }
+  ]
+}

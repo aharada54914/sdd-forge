@@ -1,0 +1,20 @@
+{
+  "command": [
+    "python3",
+    "plugins/sdd-bootstrap/scripts/research-acquire.py",
+    "--source-id",
+    "SRC-001",
+    "--title",
+    "CPython subprocess documentation",
+    "--url",
+    "https://raw.githubusercontent.com/python/cpython/2468c35c3b3375fe0745fa5b5429d47098ebb45e/Doc/library/subprocess.rst",
+    "--allow-host",
+    "raw.githubusercontent.com"
+  ],
+  "exit_code": 1,
+  "stdout": "{\"schema\": \"research-acquisition/v1\", \"status\": \"proxy-adapter-required\"}\n",
+  "stderr": "",
+  "observed_at": "2026-10-25T12:39:35.499496+00:00",
+  "proxy_preserved": true,
+  "source": "actual product CLI; no transport substitution"
+}

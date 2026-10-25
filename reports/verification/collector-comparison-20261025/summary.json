@@ -1,0 +1,459 @@
+{
+  "source_revision": "aecd3136278cdc18c377fac269e60b037d34dc25",
+  "source_root": "/workspace/scratch/collector-comparison-20261025/source",
+  "harness_sha256": "70d17c5047263f287bc4deca8121a9783a8d0eda4025e222d673a6545d7339fd",
+  "environment": {
+    "os": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "python": "3.12.14",
+    "host_load": "uncontrolled; root runs shared verification concurrently"
+  },
+  "scope": "scripted same-fixture API paths, no human-time/cognitive-load or TDD/critical comparison",
+  "statistics": {
+    "success": {
+      "manual-format": {
+        "total_ns": {
+          "n": 3,
+          "median": 291480239,
+          "minimum": 274563658,
+          "maximum": 293204835,
+          "mad": 1724596
+        },
+        "runner_ns": {
+          "n": 3,
+          "median": 125257749,
+          "minimum": 112075720,
+          "maximum": 141042367,
+          "mad": 13182029
+        },
+        "nonrunner_ns": {
+          "n": 3,
+          "median": 152162468,
+          "minimum": 149305909,
+          "maximum": 179404519,
+          "mad": 2856559
+        }
+      },
+      "collector": {
+        "total_ns": {
+          "n": 3,
+          "median": 266072704,
+          "minimum": 264085146,
+          "maximum": 291285118,
+          "mad": 1987558
+        },
+        "runner_ns": {
+          "n": 3,
+          "median": 107755464,
+          "minimum": 106606391,
+          "maximum": 131379373,
+          "mad": 1149073
+        },
+        "nonrunner_ns": {
+          "n": 3,
+          "median": 159466313,
+          "minimum": 156329682,
+          "maximum": 159905745,
+          "mad": 439432
+        }
+      }
+    },
+    "nonzero": {
+      "manual-format": {
+        "total_ns": {
+          "n": 3,
+          "median": 285025147,
+          "minimum": 254702316,
+          "maximum": 294424609,
+          "mad": 9399462
+        },
+        "runner_ns": {
+          "n": 3,
+          "median": 126657707,
+          "minimum": 107545638,
+          "maximum": 141414317,
+          "mad": 14756610
+        },
+        "nonrunner_ns": {
+          "n": 3,
+          "median": 153010292,
+          "minimum": 147156678,
+          "maximum": 158367440,
+          "mad": 5357148
+        }
+      },
+      "collector": {
+        "total_ns": {
+          "n": 3,
+          "median": 286687085,
+          "minimum": 267825087,
+          "maximum": 287720697,
+          "mad": 1033612
+        },
+        "runner_ns": {
+          "n": 3,
+          "median": 118981435,
+          "minimum": 116579392,
+          "maximum": 129955345,
+          "mad": 2402043
+        },
+        "nonrunner_ns": {
+          "n": 3,
+          "median": 157765352,
+          "minimum": 148843652,
+          "maximum": 170107693,
+          "mad": 8921700
+        }
+      }
+    }
+  },
+  "pairs": [
+    {
+      "scenario": "success",
+      "pair": 0,
+      "order": [
+        "manual-format",
+        "collector"
+      ],
+      "input_digest": "14236d5ff545d781f36096636509834b5466b158bbab2cb15a3bd43a8ffd9aaa",
+      "verdicts_match": true,
+      "contract_semantics_match": true,
+      "report_bytes_match": true,
+      "runs": [
+        {
+          "label": "success-0-manual-format",
+          "result": {
+            "task_id": "T-001",
+            "run_id": "run1",
+            "check_id": "smoke",
+            "execution_outcome": "passed",
+            "contract": "reports/project-skill-observations/T-001/run1/T-001.contract.json",
+            "report": "reports/project-skill-observations/T-001/run1/T-001.report.md",
+            "bundle": "reports/project-skill-observations/T-001/run1/T-001.evidence.json",
+            "contract_valid": true,
+            "bundle_valid": true,
+            "task_transition": null
+          },
+          "total_ns": 274563658,
+          "runner_ns": 125257749,
+          "nonrunner_ns": 149305909,
+          "scripted_caller_transfers": 20,
+          "scripted_caller_artifact_writes": 3,
+          "post_validation_corrections": 0,
+          "human_active_ns": null
+        },
+        {
+          "label": "success-0-collector",
+          "result": {
+            "task_id": "T-001",
+            "run_id": "run1",
+            "check_id": "smoke",
+            "execution_outcome": "passed",
+            "contract": "reports/project-skill-observations/T-001/run1/T-001.contract.json",
+            "report": "reports/project-skill-observations/T-001/run1/T-001.report.md",
+            "bundle": "reports/project-skill-observations/T-001/run1/T-001.evidence.json",
+            "contract_valid": true,
+            "bundle_valid": true,
+            "task_transition": null
+          },
+          "total_ns": 264085146,
+          "runner_ns": 107755464,
+          "nonrunner_ns": 156329682,
+          "scripted_caller_transfers": 0,
+          "scripted_caller_artifact_writes": 0,
+          "post_validation_corrections": 0,
+          "human_active_ns": null
+        }
+      ]
+    },
+    {
+      "scenario": "success",
+      "pair": 1,
+      "order": [
+        "collector",
+        "manual-format"
+      ],
+      "input_digest": "14236d5ff545d781f36096636509834b5466b158bbab2cb15a3bd43a8ffd9aaa",
+      "verdicts_match": true,
+      "contract_semantics_match": true,
+      "report_bytes_match": true,
+      "runs": [
+        {
+          "label": "success-1-collector",
+          "result": {
+            "task_id": "T-001",
+            "run_id": "run1",
+            "check_id": "smoke",
+            "execution_outcome": "passed",
+            "contract": "reports/project-skill-observations/T-001/run1/T-001.contract.json",
+            "report": "reports/project-skill-observations/T-001/run1/T-001.report.md",
+            "bundle": "reports/project-skill-observations/T-001/run1/T-001.evidence.json",
+            "contract_valid": true,
+            "bundle_valid": true,
+            "task_transition": null
+          },
+          "total_ns": 291285118,
+          "runner_ns": 131379373,
+          "nonrunner_ns": 159905745,
+          "scripted_caller_transfers": 0,
+          "scripted_caller_artifact_writes": 0,
+          "post_validation_corrections": 0,
+          "human_active_ns": null
+        },
+        {
+          "label": "success-1-manual-format",
+          "result": {
+            "task_id": "T-001",
+            "run_id": "run1",
+            "check_id": "smoke",
+            "execution_outcome": "passed",
+            "contract": "reports/project-skill-observations/T-001/run1/T-001.contract.json",
+            "report": "reports/project-skill-observations/T-001/run1/T-001.report.md",
+            "bundle": "reports/project-skill-observations/T-001/run1/T-001.evidence.json",
+            "contract_valid": true,
+            "bundle_valid": true,
+            "task_transition": null
+          },
+          "total_ns": 293204835,
+          "runner_ns": 141042367,
+          "nonrunner_ns": 152162468,
+          "scripted_caller_transfers": 20,
+          "scripted_caller_artifact_writes": 3,
+          "post_validation_corrections": 0,
+          "human_active_ns": null
+        }
+      ]
+    },
+    {
+      "scenario": "success",
+      "pair": 2,
+      "order": [
+        "manual-format",
+        "collector"
+      ],
+      "input_digest": "14236d5ff545d781f36096636509834b5466b158bbab2cb15a3bd43a8ffd9aaa",
+      "verdicts_match": true,
+      "contract_semantics_match": true,
+      "report_bytes_match": true,
+      "runs": [
+        {
+          "label": "success-2-manual-format",
+          "result": {
+            "task_id": "T-001",
+            "run_id": "run1",
+            "check_id": "smoke",
+            "execution_outcome": "passed",
+            "contract": "reports/project-skill-observations/T-001/run1/T-001.contract.json",
+            "report": "reports/project-skill-observations/T-001/run1/T-001.report.md",
+            "bundle": "reports/project-skill-observations/T-001/run1/T-001.evidence.json",
+            "contract_valid": true,
+            "bundle_valid": true,
+            "task_transition": null
+          },
+          "total_ns": 291480239,
+          "runner_ns": 112075720,
+          "nonrunner_ns": 179404519,
+          "scripted_caller_transfers": 20,
+          "scripted_caller_artifact_writes": 3,
+          "post_validation_corrections": 0,
+          "human_active_ns": null
+        },
+        {
+          "label": "success-2-collector",
+          "result": {
+            "task_id": "T-001",
+            "run_id": "run1",
+            "check_id": "smoke",
+            "execution_outcome": "passed",
+            "contract": "reports/project-skill-observations/T-001/run1/T-001.contract.json",
+            "report": "reports/project-skill-observations/T-001/run1/T-001.report.md",
+            "bundle": "reports/project-skill-observations/T-001/run1/T-001.evidence.json",
+            "contract_valid": true,
+            "bundle_valid": true,
+            "task_transition": null
+          },
+          "total_ns": 266072704,
+          "runner_ns": 106606391,
+          "nonrunner_ns": 159466313,
+          "scripted_caller_transfers": 0,
+          "scripted_caller_artifact_writes": 0,
+          "post_validation_corrections": 0,
+          "human_active_ns": null
+        }
+      ]
+    },
+    {
+      "scenario": "nonzero",
+      "pair": 0,
+      "order": [
+        "manual-format",
+        "collector"
+      ],
+      "input_digest": "09f355e4969c16b39469b7dea9d909852c7d6a092d42589140569b92ed4b4af3",
+      "verdicts_match": true,
+      "contract_semantics_match": true,
+      "report_bytes_match": true,
+      "runs": [
+        {
+          "label": "nonzero-0-manual-format",
+          "result": {
+            "task_id": "T-001",
+            "run_id": "run1",
+            "check_id": "smoke",
+            "execution_outcome": "failed",
+            "contract": "reports/project-skill-observations/T-001/run1/T-001.contract.json",
+            "report": "reports/project-skill-observations/T-001/run1/T-001.report.md",
+            "bundle": "reports/project-skill-observations/T-001/run1/T-001.evidence.json",
+            "contract_valid": false,
+            "bundle_valid": false,
+            "task_transition": null
+          },
+          "total_ns": 254702316,
+          "runner_ns": 107545638,
+          "nonrunner_ns": 147156678,
+          "scripted_caller_transfers": 20,
+          "scripted_caller_artifact_writes": 3,
+          "post_validation_corrections": 0,
+          "human_active_ns": null
+        },
+        {
+          "label": "nonzero-0-collector",
+          "result": {
+            "task_id": "T-001",
+            "run_id": "run1",
+            "check_id": "smoke",
+            "execution_outcome": "failed",
+            "contract": "reports/project-skill-observations/T-001/run1/T-001.contract.json",
+            "report": "reports/project-skill-observations/T-001/run1/T-001.report.md",
+            "bundle": "reports/project-skill-observations/T-001/run1/T-001.evidence.json",
+            "contract_valid": false,
+            "bundle_valid": false,
+            "task_transition": null
+          },
+          "total_ns": 267825087,
+          "runner_ns": 118981435,
+          "nonrunner_ns": 148843652,
+          "scripted_caller_transfers": 0,
+          "scripted_caller_artifact_writes": 0,
+          "post_validation_corrections": 0,
+          "human_active_ns": null
+        }
+      ]
+    },
+    {
+      "scenario": "nonzero",
+      "pair": 1,
+      "order": [
+        "collector",
+        "manual-format"
+      ],
+      "input_digest": "09f355e4969c16b39469b7dea9d909852c7d6a092d42589140569b92ed4b4af3",
+      "verdicts_match": true,
+      "contract_semantics_match": true,
+      "report_bytes_match": true,
+      "runs": [
+        {
+          "label": "nonzero-1-collector",
+          "result": {
+            "task_id": "T-001",
+            "run_id": "run1",
+            "check_id": "smoke",
+            "execution_outcome": "failed",
+            "contract": "reports/project-skill-observations/T-001/run1/T-001.contract.json",
+            "report": "reports/project-skill-observations/T-001/run1/T-001.report.md",
+            "bundle": "reports/project-skill-observations/T-001/run1/T-001.evidence.json",
+            "contract_valid": false,
+            "bundle_valid": false,
+            "task_transition": null
+          },
+          "total_ns": 286687085,
+          "runner_ns": 116579392,
+          "nonrunner_ns": 170107693,
+          "scripted_caller_transfers": 0,
+          "scripted_caller_artifact_writes": 0,
+          "post_validation_corrections": 0,
+          "human_active_ns": null
+        },
+        {
+          "label": "nonzero-1-manual-format",
+          "result": {
+            "task_id": "T-001",
+            "run_id": "run1",
+            "check_id": "smoke",
+            "execution_outcome": "failed",
+            "contract": "reports/project-skill-observations/T-001/run1/T-001.contract.json",
+            "report": "reports/project-skill-observations/T-001/run1/T-001.report.md",
+            "bundle": "reports/project-skill-observations/T-001/run1/T-001.evidence.json",
+            "contract_valid": false,
+            "bundle_valid": false,
+            "task_transition": null
+          },
+          "total_ns": 285025147,
+          "runner_ns": 126657707,
+          "nonrunner_ns": 158367440,
+          "scripted_caller_transfers": 20,
+          "scripted_caller_artifact_writes": 3,
+          "post_validation_corrections": 0,
+          "human_active_ns": null
+        }
+      ]
+    },
+    {
+      "scenario": "nonzero",
+      "pair": 2,
+      "order": [
+        "manual-format",
+        "collector"
+      ],
+      "input_digest": "09f355e4969c16b39469b7dea9d909852c7d6a092d42589140569b92ed4b4af3",
+      "verdicts_match": true,
+      "contract_semantics_match": true,
+      "report_bytes_match": true,
+      "runs": [
+        {
+          "label": "nonzero-2-manual-format",
+          "result": {
+            "task_id": "T-001",
+            "run_id": "run1",
+            "check_id": "smoke",
+            "execution_outcome": "failed",
+            "contract": "reports/project-skill-observations/T-001/run1/T-001.contract.json",
+            "report": "reports/project-skill-observations/T-001/run1/T-001.report.md",
+            "bundle": "reports/project-skill-observations/T-001/run1/T-001.evidence.json",
+            "contract_valid": false,
+            "bundle_valid": false,
+            "task_transition": null
+          },
+          "total_ns": 294424609,
+          "runner_ns": 141414317,
+          "nonrunner_ns": 153010292,
+          "scripted_caller_transfers": 20,
+          "scripted_caller_artifact_writes": 3,
+          "post_validation_corrections": 0,
+          "human_active_ns": null
+        },
+        {
+          "label": "nonzero-2-collector",
+          "result": {
+            "task_id": "T-001",
+            "run_id": "run1",
+            "check_id": "smoke",
+            "execution_outcome": "failed",
+            "contract": "reports/project-skill-observations/T-001/run1/T-001.contract.json",
+            "report": "reports/project-skill-observations/T-001/run1/T-001.report.md",
+            "bundle": "reports/project-skill-observations/T-001/run1/T-001.evidence.json",
+            "contract_valid": false,
+            "bundle_valid": false,
+            "task_transition": null
+          },
+          "total_ns": 287720697,
+          "runner_ns": 129955345,
+          "nonrunner_ns": 157765352,
+          "scripted_caller_transfers": 0,
+          "scripted_caller_artifact_writes": 0,
+          "post_validation_corrections": 0,
+          "human_active_ns": null
+        }
+      ]
+    }
+  ]
+}

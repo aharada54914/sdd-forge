@@ -1,0 +1,18 @@
+{
+  "schema": "research-snapshots/v1",
+  "feature": "sample",
+  "snapshots": [
+    {
+      "source_id": "SRC-001",
+      "record_revision": 1,
+      "original": "original.txt",
+      "extracted": "extracted.txt"
+    },
+    {
+      "source_id": "SRC-002",
+      "record_revision": 1,
+      "original": "alternative.txt",
+      "extracted": "alternative.txt"
+    }
+  ]
+}

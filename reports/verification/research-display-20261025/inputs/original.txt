@@ -1,0 +1,3 @@
+Author-created context before.
+Quoted fixture: <script>window.__injected=1</script><img src=x onerror="window.__injected=2"> 日本語
+UNQUOTED_PRIVATE_SENTINEL: context after.

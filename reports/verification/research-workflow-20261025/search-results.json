@@ -1,0 +1,110 @@
+{
+  "schema": "research-workflow-evaluation-searches/v1",
+  "live_provider_calls": true,
+  "entries": [
+    {
+      "route": "official",
+      "query": "TimeoutExpired kill communicate",
+      "repository": "python/cpython",
+      "provider": "GitHub github_search connector",
+      "limit": 2,
+      "results": [
+        {
+          "url": "https://github.com/python/cpython/blob/2468c35c3b3375fe0745fa5b5429d47098ebb45e/Lib/subprocess.py",
+          "path": "Lib/subprocess.py",
+          "display_url": "https://github.com/python/cpython/blob/2468c35c3b3375fe0745fa5b5429d47098ebb45e/Lib/subprocess.py",
+          "display_title": "Lib/subprocess.py",
+          "text_matches": [
+            {
+              "property": "content",
+              "fragment": "\nclass TimeoutExpired(SubprocessError):\n    \"\"\"This exception is raised when the timeout expires while waiting for a",
+              "matches": [
+                {
+                  "text": "TimeoutExpired",
+                  "indices": [
+                    7,
+                    21
+                  ]
+                }
+              ]
+            },
+            {
+              "property": "content",
+              "fragment": "\n    def communicate(self, input=None, timeout=None):\n        \"\"\"Interact with process: Send data to stdin and close it.",
+              "matches": [
+                {
+                  "text": "communicate",
+                  "indices": [
+                    9,
+                    20
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "url": "https://github.com/python/cpython/blob/2468c35c3b3375fe0745fa5b5429d47098ebb45e/Doc/library/subprocess.rst",
+          "path": "Doc/library/subprocess.rst",
+          "display_url": "https://github.com/python/cpython/blob/2468c35c3b3375fe0745fa5b5429d47098ebb45e/Doc/library/subprocess.rst",
+          "display_title": "Doc/library/subprocess.rst",
+          "text_matches": [
+            {
+              "property": "content",
+              "fragment": "\n      proc = subprocess.Popen(...)\n      try:\n          outs, errs = proc.communicate(timeout=15)\n      except TimeoutExpired:\n          proc.kill()\n          outs, errs = proc.communicate()",
+              "matches": [
+                {
+                  "text": "communicate",
+                  "indices": [
+                    75,
+                    86
+                  ]
+                },
+                {
+                  "text": "TimeoutExpired",
+                  "indices": [
+                    112,
+                    126
+                  ]
+                },
+                {
+                  "text": "kill",
+                  "indices": [
+                    143,
+                    147
+                  ]
+                },
+                {
+                  "text": "communicate",
+                  "indices": [
+                    178,
+                    189
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "is_error": false
+    },
+    {
+      "route": "citation-trail",
+      "query": "subprocess timeout cleanup",
+      "repository": "pallets/click",
+      "provider": "GitHub github_search connector",
+      "limit": 2,
+      "results": [],
+      "is_error": false
+    },
+    {
+      "route": "citation-trail",
+      "query": "_check_timeout _remaining_time",
+      "repository": "python/cpython",
+      "provider": "GitHub github_search connector",
+      "limit": 2,
+      "results": [],
+      "is_error": false
+    }
+  ]
+}

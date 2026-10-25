@@ -15,3 +15,8 @@ rejected all four. No frozen source evidence was rewritten.
 Hosted predecessor run 40192305692 exposed stale mirror registration and a missing
 source-evidence entry in the clean registry fixture; these local receipts verify
 the fixes. They do not claim that predecessor CI passed or replace final-head CI.
+
+A further native Windows parity run (job 121171256145, run 40193733323) found the
+clean registry fixture referenced a script absent from its simulated installed
+layout. Both fixture builders now copy that actual registered script. Bash and
+Linux PowerShell parity reruns passed 22 checks each; native rerun remains separate.

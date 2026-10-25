@@ -1,0 +1,87 @@
+{
+  "schema": "research-workflow-evaluation/v1",
+  "evaluated_commit": "aecd3136278cdc18c377fac269e60b037d34dc25",
+  "evaluation_kind": "author-run live behavior exercise",
+  "independent_author_review": false,
+  "repetitions": 1,
+  "comparison_performed": false,
+  "user_benefit_assessed": false,
+  "status": "blocked",
+  "capabilities": [
+    {
+      "stage": "bounded-query-plan",
+      "status": "passed",
+      "evidence": "search-plan.json"
+    },
+    {
+      "stage": "official-live-search",
+      "status": "passed",
+      "result_count": 2,
+      "evidence": "search-results.json"
+    },
+    {
+      "stage": "citation-trail-live-search",
+      "status": "executed-no-results",
+      "provider_calls": 2,
+      "result_count": 0,
+      "evidence": "search-results.json"
+    },
+    {
+      "stage": "product-original-acquisition",
+      "status": "blocked",
+      "reason": "proxy-adapter-required",
+      "evidence": "acquisition-attempt.json"
+    },
+    {
+      "stage": "live-original-citation-verification",
+      "status": "not-executed",
+      "reason": "no-original-acquired"
+    },
+    {
+      "stage": "live-original-negative-quote-control",
+      "status": "not-executed",
+      "reason": "no-original-acquired"
+    },
+    {
+      "stage": "live-HTML-generation-and-preservation",
+      "status": "not-executed",
+      "reason": "no-original-acquired"
+    },
+    {
+      "stage": "live-evidence-graph",
+      "status": "not-executed",
+      "reason": "no-verified-live-citations"
+    }
+  ],
+  "missing_capability": "Proxy-aware acquisition transport preserving DNS/address/redirect, size/deadline and injected network-policy trust boundaries.",
+  "environment": {
+    "os": "Linux",
+    "network_policy": "unrestricted HTTP, enforced sidecar",
+    "proxy_schemes_present": [
+      "http",
+      "https",
+      "no"
+    ],
+    "direct_tcp_grants": false,
+    "proxy_preserved": true,
+    "original_bytes_written": false
+  },
+  "acceptance": {
+    "issue_608": "not-complete: live second-route useful-source discovery and complete workflow not established",
+    "issue_610": "not-complete: actual original acquisition unavailable; fixture/unit coverage is separate"
+  },
+  "inputs_sha256": {
+    "plugins/sdd-bootstrap/scripts/research-acquire.py": "8c31247cdf1a33d23f8bcfd30353571beeb8198d3520de6acd8b90bc70c7dddd",
+    "plugins/sdd-bootstrap/scripts/research-sources.py": "8a684c13ad6bb8328cada3919a14d78dc6e62ef063cecd027029d86e95cfad3f",
+    "plugins/sdd-bootstrap/references/research-workflow.md": "6a27a555b67e7e175153c3a6d5dbe952bb5ecc114f3400e59a6521438e3add23",
+    "plugins/sdd-quality-loop/scripts/research_consumers.py": "e5a30f07d6059cdac0137258c6f4833e8301857a1a13d888fd34375c357e0fa4",
+    "plugins/sdd-quality-loop/scripts/research-evidence-tools.py": "efd207a4566dda87b4459cbb2cc60dae42a4ef94a42f5e0923086ddce49aba84"
+  },
+  "artifacts_sha256": {
+    "acquisition-attempt.json": "c036dcd3ff2ed5f1b03aef8fd8aa3b86e30852a45d90194be66ce64f06a5d8aa",
+    "rubric.md": "de17f4883f7b9b3395adbc7d1e5666628ffafb325136fb7ab414e2344fbd035f",
+    "search-plan.json": "c66fcd5c5dc87982318b25b6b0d8a8f2e1096aab7919847005185bbbc1de9fde",
+    "search-results.json": "c33fcd6f000e90cb38e758e4ec74c7a89a41f44c3b18e9f27c5f41daf31d6a15",
+    "README.md": "643e39c7474a8b42f23526c01bf3b1e0702dff3057cb0d96da9b0f4bde51fc3e"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "authority": "none",
+  "max_results": 4,
+  "question": "Python subprocess timeout process cleanup",
+  "routes": [
+    {
+      "query": "Python subprocess timeout process cleanup official documentation specification",
+      "route": "official"
+    },
+    {
+      "query": "Python subprocess timeout process cleanup primary source references implementation",
+      "route": "citation-trail"
+    }
+  ],
+  "schema": "research-search-plan/v1",
+  "stop_when": [
+    "budget-exhausted",
+    "both-routes-inspected",
+    "permission-denied"
+  ]
+}

@@ -38,6 +38,27 @@ artifacts only; independent review and existing signing remain separate.
 See [collection procedure](project-evidence-collection.md). No production review,
 signing authority, lost historical Red, or actual app evaluation is fabricated.
 
+The scripted #617 comparison retained six matched pairs (12 real executions) at
+`aecd3136`: success and exit-3 paths preserve identical report bytes and contract
+semantics, with matching original validator verdicts. Caller-side scripted
+transfers (20) and explicit artifact writes (3) move behind the collector API;
+internal copying/writes still happen. Both paths needed zero corrections. This
+is not measured human productivity, error-rate reduction, or causal speedup.
+[Protocol and all raw artifacts](../../reports/verification/collector-comparison-20261025/README.md).
+
+An actual public-source search/acquisition exercise retained real GitHub results
+and empty alternative-route results. Acquisition returned `proxy-adapter-required`
+in the enforced proxy environment; later original/citation/display/graph stages
+were not executed. This is an unsupported adapter, not an approval condition.
+[Bounded report](../../reports/verification/research-workflow-20261025/README.md).
+That live exercise is distinct from #610's local-fixture display acceptance.
+An independent Chromium evaluation passed 15 real interaction checks and six
+invalid-input preservation checks with exact offline fixture bytes, including
+source navigation, keyboard/click expansion, distinct translation labels, and
+inert injected script/image strings. Direct `file://` navigation was blocked by
+managed browser policy; no policy was changed.
+[Browser receipt and screenshot](../../reports/verification/research-display-20261025/README.md).
+
 ## Implementation checkpoint — 2026-10-25
 
 Follow-up `d36f7849` closes the independent execution-observation/manifest races
@@ -71,16 +92,16 @@ progress, not a claim that all 33 Issues meet every acceptance condition.
 | #605 | Closed research evidence contract and packaged identical schema | Final integration CI |
 | #606 | Bounded HTML/text acquisition, original preservation, SSRF/redirect/type/encoding controls and total worker deadline | PDF/subtitle conversion, shared stores and unsupported proxy adapters |
 | #607 | Fresh original-byte/extractor/citation verification, mutation rejection | Final integration CI |
-| #608 | Two-route discovery/citation-following contracts and bounded collection | Actual live search-provider exercise |
+| #608 | Two-route discovery/citation-following contracts and bounded collection; actual GitHub search queries retained, including empty second-route results | End-to-end live acquisition blocked by unsupported proxy adapter; existing fixtures remain separate |
 | #609 | Existing spec/implementation review manifest and contract-owner integration | Final integration CI |
-| #610 | Escaped HTML, original quotations, missing/conflicting claims and explicitly unverified optional translations | Real research workflow evaluation |
+| #610 | Escaped HTML and original quotations; independent Chromium evaluation passed 15 interaction/injection checks and 6 failed-regeneration preservation cases | Final integration CI; managed-browser direct file opening and unsupported PDF/video/native platforms remain unverified |
 | #611–#612 | Feed/content change separation, stale analysis and small evidence-graph impact lookup | Final integration CI |
-| #614–#615 | Owner measurement and feature-scoped correction feedback, preserving final whole-repository checks | Frozen baseline/candidate benchmark and final integration CI |
+| #614–#615 | Owner measurement and feature-scoped correction feedback, preserving final whole-repository checks; 80 paired baseline/candidate trials retained | Final integration CI; uncontrolled host load prevents causal speedup claims |
 | #616 | Conflicting sudo guidance corrected, negative cases retained, actual host trust boundary documented | Authentic host-side issuer unavailable; no fabricated enablement |
-| #617 | Actual runner-to-contract/bundle collector, prospective Red/Green, high/critical preparation; independent review and 21 tests | Production review/signing remains with existing owners; controlled manual-vs-collector transcription comparison pending |
+| #617 | Actual runner-to-contract/bundle collector, prospective Red/Green, high/critical preparation; independent review and 21 tests; 6 matched comparison pairs preserve contracts/reports/verdicts | Final integration CI; human-time and error-rate benefit unmeasured. No production-key or production-review prerequisite is imposed on development. |
 | #618 | Existing fixed-input manifest's reviewer navigation index | Safe heavy-result cache not shipped: dependency/issuer closure not established; benchmark pending |
 | #620 | Read-only PR-access preflight before costly audit; sanitized failure diagnostics | Actual PR-write credential remediation and successful full weekly run; permissions API still403 |
-| #622 | Pinned decision packets and existing human-only signer extension for adopt/reject/hold history | Final guard/integration review |
+| #622 | Pinned decision packets and existing human-only signer extension for adopt/reject/hold history; independent guard review closed | Final integration CI |
 | #623 | Source-pinned inventory and ADR for existing executor capabilities | No suitable cancellation/resume/lease adapter established; Issue-defined stop condition, no new scheduler |
 | #624 | Real paired fixture execution, 3baseline+3candidate runs and measured preparation spans | Real-app UX evaluation intentionally pending by user instruction; no benefit claim |
 | #197 | Existing advisory dogfood implementation retained | Actual release-cycle evidence, authorized promotion and facet-hybrid end-to-end run |
