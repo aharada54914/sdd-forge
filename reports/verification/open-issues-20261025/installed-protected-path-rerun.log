@@ -1,0 +1,7 @@
+test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval (__main__.InstalledProtectedCallerTests.test_installed_impl_task_pairs_forward_selection_and_preserve_independence_and_approval) ... ok
+test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding (__main__.InstalledProtectedCallerTests.test_protected_callers_block_scope_and_raw_control_drift_and_expose_missing_forwarding) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 76.538s
+
+OK

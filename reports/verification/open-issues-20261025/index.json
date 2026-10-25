@@ -61,6 +61,30 @@
     {
       "log": "guard-parity-final.log",
       "sha256": "7057f52d0e4aa90a2f21227161cd5823c1c1d04e9c665ae31646d768513e4c25"
+    },
+    {
+      "log": "a9-promotion-final.log",
+      "sha256": "553015875044a41c61f1052e486edce3477cea12daff962174e9be63f24198bf"
+    },
+    {
+      "log": "shared-profile-receipt.json",
+      "sha256": "351e1e9be2b624b4a4573cc0327a186ed1201456fe4a30c9be15c934ac57bae0"
+    },
+    {
+      "log": "installed-caller-path-rerun.log",
+      "sha256": "190f7c243010885b599bfa917fed450a31decc0775bd857305b48c11e49822fb"
+    },
+    {
+      "log": "installed-protected-path-rerun.log",
+      "sha256": "bbe3b0e54cb5528df5ab67a1040a2ddbe01e52968eea41068899740a0c897fd1"
+    },
+    {
+      "log": "workflow-post-registry.log",
+      "sha256": "8ea982255942f7f86535d011fadc3a596e0cccc598e72cf636045cf18226c9f7"
+    },
+    {
+      "log": "installed-domain-copilot-final.log",
+      "sha256": "c5e7b3b99009c678769e40a2527236e976f5e759e3ef31de0629ea391f22fddc"
     }
   ],
   "limitations": [
@@ -68,5 +92,18 @@
     "Hosted runtime CI not yet complete",
     "Native host behavior and actual model comparison not established",
     "Real app UX evaluation pending by user instruction"
-  ]
+  ],
+  "shared_profile_notes": {
+    "initial_passed": 31,
+    "initial_failed": 5,
+    "initial_receipt_preserved": true,
+    "reruns": [
+      "host-review-preflight-final.log",
+      "unified-launch-order-final.log",
+      "task-structured-output-final.log",
+      "model-panelist-final.log"
+    ],
+    "installed_rerun": "All 12 unique failed methods passed with actual rtk and pwsh on PATH; grouped 9+2 and individual 1 logs retained.",
+    "exact_final_head_full_ci": "pending"
+  }
 }

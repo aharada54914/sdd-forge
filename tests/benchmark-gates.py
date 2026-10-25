@@ -275,6 +275,7 @@ def run_steps(
     trial_id="trial",
     scenario_id="scenario",
 ):
+    outer_begin = time.monotonic_ns()
     output.mkdir(parents=True, exist_ok=False)
     directory = output / "measurement"
     run_id = scenario_id + "-" + trial_id + "-" + str(attempt)
@@ -292,7 +293,6 @@ def run_steps(
         )
         session = M.start_span(directory, phase="session", command_id="benchmark")
     rows = []
-    begin = time.monotonic_ns()
     for index, step in enumerate(steps):
         span = (
             M.start_span(
@@ -364,7 +364,7 @@ def run_steps(
     return {
         "measurement": str(directory) if measured else None,
         "summary": summary,
-        "outer_ns": time.monotonic_ns() - begin,
+        "outer_ns": time.monotonic_ns() - outer_begin,
         "steps": rows,
         "run_id": run_id,
     }

@@ -1,0 +1,429 @@
+{
+  "benchmark-baseline": {
+    "baseline_head": "c5a02f06c2aa6d6b287c0b81e203ce0d65f96620",
+    "implementation_revision": "c5a02f06c2aa6d6b287c0b81e203ce0d65f96620",
+    "environment": {
+      "os": "Linux",
+      "arch": "x86_64",
+      "python": "3.12.14",
+      "os_page_cache": "uncontrolled"
+    },
+    "fixture_fingerprint": "3da5f5acd9b480706a389babb40ba857764a88ef7afb51ac284cbef75255756c",
+    "instrumentation_sha256": "61ed33dc7e09e935f9403333114e725e7e0c31273e5fedb80eab7680bca82373",
+    "scenarios": {
+      "full-correction-cycle-initial-cold": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 90539606180,
+          "min": 81142007356,
+          "max": 93756997128,
+          "mad": 3217390948
+        },
+        "admissible": true
+      },
+      "scoped-correction-cycle-initial-cold": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 48546504818,
+          "min": 45772096849,
+          "max": 65815811429,
+          "mad": 2774407969
+        },
+        "admissible": true
+      }
+    }
+  },
+  "benchmark-candidate": {
+    "baseline_head": "c5a02f06c2aa6d6b287c0b81e203ce0d65f96620",
+    "implementation_revision": "dc0c17c24aff554e2535281ac5d9ee5f1db389b0",
+    "environment": {
+      "os": "Linux",
+      "arch": "x86_64",
+      "python": "3.12.14",
+      "os_page_cache": "uncontrolled"
+    },
+    "fixture_fingerprint": "3da5f5acd9b480706a389babb40ba857764a88ef7afb51ac284cbef75255756c",
+    "instrumentation_sha256": "61ed33dc7e09e935f9403333114e725e7e0c31273e5fedb80eab7680bca82373",
+    "scenarios": {
+      "full-correction-cycle-initial-cold": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 117063603871,
+          "min": 94137012974,
+          "max": 120731933937,
+          "mad": 3668330066
+        },
+        "admissible": true
+      },
+      "scoped-correction-cycle-initial-cold": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 42405108124,
+          "min": 40626095968,
+          "max": 45542900442,
+          "mad": 1779012156
+        },
+        "admissible": true
+      }
+    }
+  },
+  "benchmark-feature-baseline": {
+    "baseline_head": "c5a02f06c2aa6d6b287c0b81e203ce0d65f96620",
+    "implementation_revision": "c5a02f06c2aa6d6b287c0b81e203ce0d65f96620",
+    "environment": {
+      "os": "Linux",
+      "arch": "x86_64",
+      "python": "3.12.14",
+      "os_page_cache": "uncontrolled"
+    },
+    "fixture_fingerprint": "760b2b898bae3f8185407368369c13b410d4d807ae329963f121ed85d73ac19f",
+    "instrumentation_sha256": "61ed33dc7e09e935f9403333114e725e7e0c31273e5fedb80eab7680bca82373",
+    "scenarios": {
+      "feature-feedback-initial-cold": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 637192166,
+          "min": 570547962,
+          "max": 744866251,
+          "mad": 55742683
+        },
+        "admissible": true
+      },
+      "feature-feedback-initial-warm": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 591548875,
+          "min": 576097651,
+          "max": 648246925,
+          "mad": 15451224
+        },
+        "admissible": true
+      },
+      "feature-feedback-resume-cold": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 609877070,
+          "min": 593102445,
+          "max": 660742533,
+          "mad": 14165563
+        },
+        "admissible": true
+      },
+      "feature-feedback-resume-warm": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 539222032,
+          "min": 504360702,
+          "max": 597232035,
+          "mad": 22408830
+        },
+        "admissible": true
+      },
+      "feature-feedback-after-repair-cold": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 499415666,
+          "min": 487947346,
+          "max": 530824740,
+          "mad": 11468320
+        },
+        "admissible": true
+      },
+      "feature-feedback-after-repair-warm": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 504603134,
+          "min": 492161721,
+          "max": 523020580,
+          "mad": 6537040
+        },
+        "admissible": true
+      }
+    }
+  },
+  "benchmark-feature-candidate": {
+    "baseline_head": "c5a02f06c2aa6d6b287c0b81e203ce0d65f96620",
+    "implementation_revision": "dc0c17c24aff554e2535281ac5d9ee5f1db389b0",
+    "environment": {
+      "os": "Linux",
+      "arch": "x86_64",
+      "python": "3.12.14",
+      "os_page_cache": "uncontrolled"
+    },
+    "fixture_fingerprint": "760b2b898bae3f8185407368369c13b410d4d807ae329963f121ed85d73ac19f",
+    "instrumentation_sha256": "61ed33dc7e09e935f9403333114e725e7e0c31273e5fedb80eab7680bca82373",
+    "scenarios": {
+      "feature-feedback-initial-cold": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 551166109,
+          "min": 528637123,
+          "max": 639110446,
+          "mad": 22528986
+        },
+        "admissible": true
+      },
+      "feature-feedback-initial-warm": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 552517564,
+          "min": 518525833,
+          "max": 578254749,
+          "mad": 21187169
+        },
+        "admissible": true
+      },
+      "feature-feedback-resume-cold": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 523795749,
+          "min": 485516663,
+          "max": 555434920,
+          "mad": 31639171
+        },
+        "admissible": true
+      },
+      "feature-feedback-resume-warm": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 507369390,
+          "min": 484767822,
+          "max": 528676169,
+          "mad": 8330870
+        },
+        "admissible": true
+      },
+      "feature-feedback-after-repair-cold": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 525729193,
+          "min": 497151268,
+          "max": 843064455,
+          "mad": 28577925
+        },
+        "admissible": true
+      },
+      "feature-feedback-after-repair-warm": {
+        "n": 5,
+        "successful": 5,
+        "failed": 0,
+        "censored": 0,
+        "statistics": {
+          "median": 534223195,
+          "min": 478974791,
+          "max": 882795841,
+          "mad": 44798444
+        },
+        "admissible": true
+      }
+    }
+  },
+  "benchmark-feature-overhead": {
+    "baseline_head": "c5a02f06c2aa6d6b287c0b81e203ce0d65f96620",
+    "implementation_revision": "dc0c17c24aff554e2535281ac5d9ee5f1db389b0",
+    "environment": {
+      "os": "Linux",
+      "arch": "x86_64",
+      "python": "3.12.14",
+      "os_page_cache": "uncontrolled"
+    },
+    "fixture_fingerprint": "760b2b898bae3f8185407368369c13b410d4d807ae329963f121ed85d73ac19f",
+    "instrumentation_sha256": "61ed33dc7e09e935f9403333114e725e7e0c31273e5fedb80eab7680bca82373",
+    "scenarios": {
+      "feature-feedback": {
+        "absolute_difference_ns": {
+          "median": 20613386,
+          "min": -19986047,
+          "max": 36730020,
+          "mad": 16116634
+        },
+        "relative_difference": {
+          "median": 0.034239129481223284,
+          "min": -0.03431145959694273,
+          "max": 0.06076726932720727,
+          "mad": 0.026528139845983983
+        }
+      }
+    }
+  },
+  "benchmark-feature-overhead-complete": {
+    "baseline_head": "c5a02f06c2aa6d6b287c0b81e203ce0d65f96620",
+    "implementation_revision": "dc0c17c24aff554e2535281ac5d9ee5f1db389b0",
+    "environment": {
+      "os": "Linux",
+      "arch": "x86_64",
+      "python": "3.12.14",
+      "os_page_cache": "uncontrolled"
+    },
+    "fixture_fingerprint": "760b2b898bae3f8185407368369c13b410d4d807ae329963f121ed85d73ac19f",
+    "instrumentation_sha256": "61ed33dc7e09e935f9403333114e725e7e0c31273e5fedb80eab7680bca82373",
+    "scenarios": {
+      "feature-feedback": {
+        "absolute_difference_ns": {
+          "median": 28111675,
+          "min": -10115200,
+          "max": 32200083,
+          "mad": 4088408
+        },
+        "relative_difference": {
+          "median": 0.05487058615224892,
+          "min": -0.01840190049396801,
+          "max": 0.061215032062925334,
+          "mad": 0.006344445910676413
+        }
+      }
+    }
+  },
+  "benchmark-baseline-controls": {
+    "baseline_head": "c5a02f06c2aa6d6b287c0b81e203ce0d65f96620",
+    "implementation_revision": "c5a02f06c2aa6d6b287c0b81e203ce0d65f96620",
+    "environment": {
+      "os": "Linux",
+      "arch": "x86_64",
+      "python": "3.12.14",
+      "os_page_cache": "uncontrolled"
+    },
+    "fixture_fingerprint": "3da5f5acd9b480706a389babb40ba857764a88ef7afb51ac284cbef75255756c",
+    "instrumentation_sha256": "61ed33dc7e09e935f9403333114e725e7e0c31273e5fedb80eab7680bca82373",
+    "scenarios": {
+      "workflow-valid": {
+        "equal": true
+      },
+      "workflow-invalid": {
+        "equal": true
+      },
+      "workflow-stale": {
+        "equal": true
+      },
+      "workflow-forged": {
+        "equal": true
+      },
+      "workflow-boundary": {
+        "equal": true
+      }
+    }
+  },
+  "benchmark-candidate-controls": {
+    "baseline_head": "c5a02f06c2aa6d6b287c0b81e203ce0d65f96620",
+    "implementation_revision": "dc0c17c24aff554e2535281ac5d9ee5f1db389b0",
+    "environment": {
+      "os": "Linux",
+      "arch": "x86_64",
+      "python": "3.12.14",
+      "os_page_cache": "uncontrolled"
+    },
+    "fixture_fingerprint": "3da5f5acd9b480706a389babb40ba857764a88ef7afb51ac284cbef75255756c",
+    "instrumentation_sha256": "61ed33dc7e09e935f9403333114e725e7e0c31273e5fedb80eab7680bca82373",
+    "scenarios": {
+      "workflow-valid": {
+        "equal": true
+      },
+      "workflow-invalid": {
+        "equal": true
+      },
+      "workflow-stale": {
+        "equal": true
+      },
+      "workflow-forged": {
+        "equal": true
+      },
+      "workflow-boundary": {
+        "equal": true
+      }
+    }
+  },
+  "owner-baseline-controls": {
+    "baseline": "c5a02f06c2aa6d6b287c0b81e203ce0d65f96620",
+    "candidate": "dc0c17c24aff554e2535281ac5d9ee5f1db389b0",
+    "cases": [
+      {
+        "owner": "verification",
+        "exit": 0,
+        "equal": true,
+        "normalization": [
+          "results.seconds"
+        ]
+      },
+      {
+        "owner": "verification",
+        "exit": 3,
+        "equal": true,
+        "normalization": [
+          "results.seconds"
+        ]
+      },
+      {
+        "owner": "lite",
+        "case": "pass",
+        "equal": true,
+        "normalization": [
+          "recorded_at",
+          "checks.duration_ms"
+        ]
+      },
+      {
+        "owner": "lite",
+        "case": "fail",
+        "equal": true,
+        "normalization": [
+          "recorded_at",
+          "checks.duration_ms"
+        ]
+      },
+      {
+        "owner": "lite",
+        "case": "timeout",
+        "equal": true,
+        "normalization": [
+          "recorded_at",
+          "checks.duration_ms"
+        ]
+      }
+    ]
+  }
+}

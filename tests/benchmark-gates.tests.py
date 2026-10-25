@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location(
@@ -233,6 +234,24 @@ class BenchmarkTests(unittest.TestCase):
                 },
             )
         )
+
+    def test_outer_overhead_includes_measurement_setup(self):
+        ticks = [0]
+        original = B.M.open_measurement
+
+        def delayed_setup(*args, **kwargs):
+            ticks[0] += 1000
+            return original(*args, **kwargs)
+
+        with patch.object(B.time, "monotonic_ns", side_effect=lambda: ticks[0]):
+            with patch.object(B.M, "open_measurement", side_effect=delayed_setup):
+                result = B.run_steps(
+                    self.root,
+                    self.manifest["recipes"]["single"],
+                    Path(self.temp.name) / "outer",
+                    measured=True,
+                )
+        self.assertEqual(result["outer_ns"], 1000)
 
     def test_comparison_rejects_changed_transitive_baseline_tree(self):
         left = {

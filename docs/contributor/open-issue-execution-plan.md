@@ -19,6 +19,21 @@ Subsequent implementation changes need their own checks. Real app evaluation for
 
 ## Implementation checkpoint — 2026-10-25
 
+Follow-up `d36f7849` closes the independent execution-observation/manifest races
+and history ancestor deletion findings. The accepted guard run passed 372 legacy
+checks plus 63 new cases in Python, Node and Linux PowerShell; independent replay
+confirmed the reported bypasses reject while read-only controls remain allowed.
+The registered shared Python profile ran 36 suites: 31 passed initially; all five
+failure groups were resolved through the explicit protection-inventory update and
+reruns with installed `rtk`/PowerShell correctly exposed. Original failed receipt
+and separate successful reruns are retained in
+[`reports/verification/open-issues-20261025`](../../reports/verification/open-issues-20261025).
+These mixed-development runs are not reusable final-head receipts. Hosted final
+CI remains separate. The research gate is registered in the canonical capability
+registry and its vendored/generated projections. Existing A9 synthetic tests now
+bind the current registry in memory; historical evidence was not edited.
+
+
 The implementation checkpoint is `dc0c17c2`, on draft PR
 [#652](https://github.com/aharada54914/sdd-forge/pull/652). This is code and fixture
 progress, not a claim that all 33 Issues meet every acceptance condition.

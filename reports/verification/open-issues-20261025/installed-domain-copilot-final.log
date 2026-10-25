@@ -1,0 +1,10 @@
+cwd: /workspace/sdd-forge
+command: PATH=/workspace/.tools/rtk/0.51.0:/workspace/.tools/sdd-forge-dev/bin:$PATH python3 -B tests/model-policy-installed.tests.py InstalledDomainCallerTests.test_maintained_domain_copilot_auto_route_is_typed_model_unavailable_before_allocation -v
+exit_code: 0
+
+test_maintained_domain_copilot_auto_route_is_typed_model_unavailable_before_allocation (__main__.InstalledDomainCallerTests.test_maintained_domain_copilot_auto_route_is_typed_model_unavailable_before_allocation) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 6.628s
+
+OK
