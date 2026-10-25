@@ -262,6 +262,104 @@ def check_second_edit_is_read_only() -> int:
     return 2
 
 
+def check_extended_successors() -> int:
+    """Exercise all six reviewed consumer/sidecar pairs with real pinned bytes."""
+    fixture_names = (
+        "research-consumer-current-publication.json",
+        "decision-sidecar-current-publication.json",
+    )
+    documents = {
+        name: json.loads((ROOT / "tests/fixtures" / name).read_text(encoding="utf-8"))
+        for name in fixture_names
+    }
+    entries = [(name, entry) for name, document in documents.items()
+               for entry in document["successors"]]
+    assert len(entries) == 6
+    assert {entry["live"] for _, entry in entries} == {
+        "plugins/sdd-quality-loop/scripts/check-contract.py",
+        "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+        "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+        "plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py",
+        "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+    }
+    checks = 0
+    for fixture, entry in entries:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            live, staged = root / entry["live"], root / entry["staged"]
+            for destination, key, pin in ((live, "live", "live_sha256"), (staged, "staged", "staged_sha256")):
+                original = (ROOT / entry[key]).read_bytes()
+                assert hashlib.sha256(original).hexdigest() == entry[pin], (fixture, key, "repository pin drift")
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(original)
+            bundle = entry["staged"].split("/human-copy/", 1)[0] + "/human-copy"
+            (root / bundle / "MANIFEST.sha256").write_text(
+                f'{entry["staged_sha256"]}  {entry["live"]}\n', encoding="utf-8")
+            pin_file = root / "tests/fixtures" / fixture
+            pin_file.parent.mkdir(parents=True)
+            good = {"schema": documents[fixture]["schema"], "successors": [copy.deepcopy(entry)]}
+
+            def install(document):
+                pin_file.write_text(json.dumps(document), encoding="utf-8")
+
+            def check(expected, label, main=None):
+                before = {p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+                rows = list(MODULE.classify(str(root), MainMap(main)))
+                assert [row[0] for row in rows] == [expected], (fixture, entry["live"], label, rows)
+                after = {p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+                assert before == after, (label, "classification modified evidence")
+
+            install(good)
+            check("PUBLISHED", "exact reviewed pair"); checks += 1
+            live_bytes, staged_bytes = live.read_bytes(), staged.read_bytes()
+            live.write_bytes(live_bytes + b"\n# live drift\n")
+            check("STALE", "live drift"); checks += 1
+            live.write_bytes(live_bytes)
+            staged.write_bytes(staged_bytes + b"\n# staged drift\n")
+            check("STALE", "staged drift"); checks += 1
+            staged.write_bytes(live_bytes)
+            check("STALE", "tampered staging equals live"); checks += 1
+            staged.write_bytes(staged_bytes)
+            live.write_bytes(staged_bytes)
+            check("FRESH", "both equal pinned predecessor"); checks += 1
+            live.write_bytes(live_bytes)
+
+            pin_file.unlink()
+            check("STALE", "missing fixture"); checks += 1
+            invalid = []
+            invalid.append(("missing pair", {**good, "successors": []}))
+            invalid.append(("duplicate pair", {**good, "successors": [entry, entry]}))
+            invalid.append(("wrong fixture schema", {**good, "schema": "unreviewed/v1"}))
+            for field, value in (("live_sha256", "0" * 64), ("staged_sha256", "1" * 64),
+                                 ("live", "plugins/unreviewed.py"),
+                                 ("staged", entry["staged"].replace("specs/", "specs/unknown/", 1)),
+                                 ("intentional_changes", " ")):
+                invalid.append((f"forged {field}", {**good, "successors": [{**entry, field: value}]}))
+            for label, document in invalid:
+                install(document)
+                check("STALE", label); checks += 1
+            # A valid record in another publication fixture does not authorize this pair.
+            pin_file.unlink()
+            other_fixture = fixture_names[1] if fixture == fixture_names[0] else fixture_names[0]
+            (root / "tests/fixtures" / other_fixture).write_text(json.dumps(good), encoding="utf-8")
+            check("STALE", "misplaced valid pin"); checks += 1
+
+            # Pin entries cannot extend the exact allowlist to an unknown bundle.
+            unknown = "specs/unreviewed-copy/human-copy/" + entry["live"]
+            stage(root, "unreviewed-copy", entry["live"], staged_bytes.decode("utf-8"))
+            install({**good, "successors": [{**entry, "staged": unknown}]})
+            states_by_bundle = {row[1].replace("\\", "/"): row[0]
+                                for row in MODULE.classify(str(root), MainMap())}
+            assert states_by_bundle == {bundle: "STALE", "specs/unreviewed-copy/human-copy": "PENDING"}, states_by_bundle
+            checks += 1
+            states_by_bundle = {row[1].replace("\\", "/"): row[0]
+                                for row in MODULE.classify(str(root), MainMap({entry["live"]: entry["staged_sha256"]}))}
+            assert states_by_bundle == {bundle: "STALE", "specs/unreviewed-copy/human-copy": "STALE"}, states_by_bundle
+            checks += 1
+    return checks
+
+
 def main() -> None:
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
@@ -277,6 +375,7 @@ def main() -> None:
     passed += check_other_mirrors_unchanged()
     passed += check_manifest_digest_independent()
     passed += check_second_edit_is_read_only()
+    passed += check_extended_successors()
     print(f"human-copy mirror classification regression: {passed} passed")
 
 

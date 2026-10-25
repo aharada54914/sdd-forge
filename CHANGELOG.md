@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Project evidence collection supports prospective Red/Green in one live collection process with fixed tests/environment and explicit source changes; `--prepare` retains critical evidence for the existing independent review, clean commit and signing route.
 - Optional project-skill manifests, source-bound observations, explicit creation/maintenance helpers and host projections. Trial execution is separate from task evidence; unsupported process/host backends remain unverified.
 - Passive monotonic run measurements, owner-side opt-in recording, research Source/Claim validation and original/citation tooling, plus purpose-specific exploration and pinned decision packets. Signed decision choices reuse the existing human-operated approval sidecar authority.
 - Five source-backed golden fixtures and deterministic artifact/trace comparison, including missing/changed evidence and safety/regression refusal. Model collection and real-app evaluation remain separate from fixture results.

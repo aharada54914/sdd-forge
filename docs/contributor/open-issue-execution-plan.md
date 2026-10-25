@@ -17,6 +17,27 @@ The consolidation-only head `c5a02f06` passed hosted CI run `40164678505`.
 Subsequent implementation changes need their own checks. Real app evaluation for
 #624 remains pending by the user's explicit selection; its fixture work proceeds.
 
+## CI and prospective evidence follow-up — 2026-10-25
+
+`d6200026` fixed native temporary-directory aliases and explicit historical/live
+successor comparisons. Hosted run `40192305692` subsequently exposed two further
+fixture integration gaps: four mirrors lacked exact successor registration, and
+the clean registry fixture lacked the newly registered source-evidence gate.
+Both are corrected without modifying frozen staged files. Mirror classification
+passed 135 regression checks, and the registry suite passed 28 checks in Bash
+and Linux PowerShell. Hosted rerun is still required for the new head.
+
+The #617 collector now captures prospective Red and Green in the same live
+process, keeps sealed tests/command/environment fixed, permits only explicit
+implementation input changes, and binds both originals in the existing evidence
+artifact. Its 21 tests include the real CLI handoff and synthetic critical
+prepare/dirty rejection/clean commit/signature verification. Independent review
+reproduced and verified fixes for admission replacement, key inheritance,
+runtime substitution, and output-grant widening. High/critical capture prepares
+artifacts only; independent review and existing signing remain separate.
+See [collection procedure](project-evidence-collection.md). No production review,
+signing authority, lost historical Red, or actual app evaluation is fabricated.
+
 ## Implementation checkpoint — 2026-10-25
 
 Follow-up `d36f7849` closes the independent execution-observation/manifest races
@@ -56,7 +77,7 @@ progress, not a claim that all 33 Issues meet every acceptance condition.
 | #611–#612 | Feed/content change separation, stale analysis and small evidence-graph impact lookup | Final integration CI |
 | #614–#615 | Owner measurement and feature-scoped correction feedback, preserving final whole-repository checks | Frozen baseline/candidate benchmark and final integration CI |
 | #616 | Conflicting sudo guidance corrected, negative cases retained, actual host trust boundary documented | Authentic host-side issuer unavailable; no fabricated enablement |
-| #617 | Actual runner-to-contract/bundle collector; independent review in progress | TDD/critical provenance integration remains unsupported; no imported PASS acceptance |
+| #617 | Actual runner-to-contract/bundle collector, prospective Red/Green, high/critical preparation; independent review and 21 tests | Production review/signing remains with existing owners; controlled manual-vs-collector transcription comparison pending |
 | #618 | Existing fixed-input manifest's reviewer navigation index | Safe heavy-result cache not shipped: dependency/issuer closure not established; benchmark pending |
 | #620 | Read-only PR-access preflight before costly audit; sanitized failure diagnostics | Actual PR-write credential remediation and successful full weekly run; permissions API still403 |
 | #622 | Pinned decision packets and existing human-only signer extension for adopt/reject/hold history | Final guard/integration review |

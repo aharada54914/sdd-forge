@@ -1,0 +1,19 @@
+{
+  "schema": "decision-sidecar-current-publication/v1",
+  "successors": [
+    {
+      "live": "plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py",
+      "staged": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py",
+      "live_sha256": "f4628083cfe1cd13e80fa75e66e1fce0abfd9eef3839f21824e8b9002f258a5f",
+      "staged_sha256": "19672f400b225d26d1f328d28e4176f90acb8c868bba10805b4f1f5206a72592",
+      "intentional_changes": "Add decision-choice records using the existing human-operated signature authority; preserve legacy approval formats and frozen staging."
+    },
+    {
+      "live": "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+      "staged": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+      "live_sha256": "049fcab4a90c7327f776cca5d27305aa0e96416fe140f90f567dd5c1bcfcb2e8",
+      "staged_sha256": "d19f258b904dd168410f184f7854d47a3790319832b5bda919b3f7049ab41a06",
+      "intentional_changes": "Add decision-choice records using the existing human-operated signature authority; preserve legacy approval formats and frozen staging."
+    }
+  ]
+}

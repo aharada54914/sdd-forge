@@ -53,6 +53,12 @@
       "stage": "implementation",
       "blocking": true,
       "implementation_ref": "plugins/sdd-quality-loop/scripts/check-a8-citation-compliance.py"
+    },
+    {
+      "id": "check-source-evidence",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-source-evidence.py"
     }
   ],
   "capabilities": [

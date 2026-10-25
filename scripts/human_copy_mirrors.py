@@ -27,10 +27,10 @@ Classification
     is a reviewed change still waiting for a human to apply it.
 
 ``published``
-    only for the two reviewed ship successors in ``KNOWN_SUCCESSORS``: live
-    differs from staged, and ``PIN_FIXTURE`` pins BOTH full SHA-256 values for
+    only for exact reviewed successors in ``KNOWN_SUCCESSORS``: live
+    differs from staged, and the designated fixture pins BOTH full SHA-256 values for
     that exact (live, staged) pair with a schema, one entry, and non-empty
-    ``intentional_changes``. Every other state of those two mirrors that is not
+    ``intentional_changes``. Every other state of those registered mirrors that is not
     plainly fresh is ``stale``: a missing, malformed, duplicate or wrong-schema
     pin, or a live/staged edit, never waives the mismatch -- including live and
     staged mutated to equal each other. Historical bundles are never rewritten.
@@ -60,6 +60,24 @@ KNOWN_SUCCESSORS = frozenset(
     (KNOWN_LIVE, f"specs/{epic}/human-copy/{KNOWN_LIVE}")
     for epic in ("epic-136-phase2-gates", "epic-189-a1-project-context")
 )
+# Exact reviewed successors keep historical staged bytes immutable.
+SUCCESSOR_PINS = {pair: (PIN_FIXTURE, PIN_SCHEMA) for pair in KNOWN_SUCCESSORS}
+for epic, names, fixture, schema in (
+    ("epic-191-a3-path-ownership", (
+        "plugins/sdd-quality-loop/scripts/check-contract.py",
+        "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+        "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+    ), "research-consumer-current-publication.json", "research-consumer-current-publication/v1"),
+    ("epic-189-a1-project-context", (
+        "plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py",
+        "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+    ), "decision-sidecar-current-publication.json", "decision-sidecar-current-publication/v1"),
+):
+    for name in names:
+        SUCCESSOR_PINS[(name, f"specs/{epic}/human-copy/{name}")] = (
+            os.path.join("tests", "fixtures", fixture), schema)
+KNOWN_SUCCESSORS = frozenset(SUCCESSOR_PINS)
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 CANDIDATE_SUFFIX = ".candidate"
 CANDIDATE_MARKER = os.path.join("drafts", "human-copy-candidate") + os.sep
@@ -163,12 +181,13 @@ def manifest_digest_mismatches(root):
 
 def _load_pin(root, live, staged):
     """Return the one valid pin for exactly (live, staged), else None."""
+    fixture, schema = SUCCESSOR_PINS[(live, staged)]
     try:
-        with open(os.path.join(root, PIN_FIXTURE), encoding="utf-8") as handle:
+        with open(os.path.join(root, fixture), encoding="utf-8") as handle:
             data = json.load(handle)
     except (OSError, ValueError):
         return None
-    if not isinstance(data, dict) or data.get("schema") != PIN_SCHEMA:
+    if not isinstance(data, dict) or data.get("schema") != schema:
         return None
     entries = data.get("successors")
     if not isinstance(entries, list):
@@ -188,7 +207,7 @@ def _load_pin(root, live, staged):
 
 
 def _classify_known(root, bundle, rel, staged_digest, live_digest):
-    """State for one of the two reviewed ship successors; never PENDING."""
+    """State for one of the exact reviewed successors; never PENDING."""
     pin = _load_pin(root, rel, f"{bundle.replace(os.sep, '/')}/{rel}")
     if pin and staged_digest == pin["staged_sha256"]:
         if live_digest == pin["live_sha256"]:

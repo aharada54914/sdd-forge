@@ -1,0 +1,29 @@
+{
+  "scope": "Local follow-up validation; not hosted CI or production review authority",
+  "files": [
+    {
+      "path": "collector-tdd-final.log",
+      "sha256": "0186d05a47eb3a372eb7a6829e84082ebd856577618c758478549e8b49def47a"
+    },
+    {
+      "path": "mirror-classification-final.log",
+      "sha256": "d39903e75a7ede750301dc3e684b6b7e97e2d92ac064aecc5a538aeec235c047"
+    },
+    {
+      "path": "mirror-successor.log",
+      "sha256": "e9cb213af716174d781b788f5a66d9f91ae4ef38d171520a24824b220f3f5647"
+    },
+    {
+      "path": "mirror-successor-ps.log",
+      "sha256": "2851bf557a587b18861466eb0f693b1f26892e2d39451bcd21cfab40159e6945"
+    },
+    {
+      "path": "registry-fixture-sh.log",
+      "sha256": "f88bc88383ea5782130d1391aa75a30439a907269e467f6ac137ac8b1246d040"
+    },
+    {
+      "path": "registry-fixture-ps.log",
+      "sha256": "f88bc88383ea5782130d1391aa75a30439a907269e467f6ac137ac8b1246d040"
+    }
+  ]
+}
