@@ -109,7 +109,7 @@ def measured(root, observation, packet, alternative):
     try:
         # Reduce exactly the admitted bytes, not a second mutable source read.
         with tempfile.TemporaryDirectory(prefix="decision-measurement-") as temporary:
-            snapshot = Path(temporary)
+            snapshot = Path(temporary).resolve()
             for relative, raw in snapshots.items():
                 target = snapshot / relative
                 target.parent.mkdir(parents=True, exist_ok=True)
@@ -216,7 +216,7 @@ def signed_choice(root, relative, expected=None):
         raise ValueError("choice signature type required")
     registry_raw = inputs.read_safe(root, "sdd/approver-registry.yaml")
     with tempfile.TemporaryDirectory(prefix="decision-choice-") as temporary:
-        directory = Path(temporary)
+        directory = Path(temporary).resolve()
         content_path, approval_path, registry_path = (
             directory / x for x in ("choice.json", "approval.json", "registry.yaml")
         )

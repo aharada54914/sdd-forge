@@ -20,7 +20,7 @@ class MeasurementTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        self.d = Path(self.tmp.name) / "measurement"
+        self.d = Path(self.tmp.name).resolve() / "measurement"
         m.open_measurement(self.d, measurement_id="m1", run_id="r1", scope="all")
 
     def at(self, ns, func, *args, domain="boot:fixture", **kwargs):
@@ -141,7 +141,7 @@ class MeasurementTests(unittest.TestCase):
         )
 
     def test_artifact_integrity_and_missing_logs(self):
-        p = Path(self.tmp.name) / "receipt"
+        p = Path(self.tmp.name).resolve() / "receipt"
         p.write_text("original")
         self.span(
             "s", "session", 0, 100, artifacts=[("verification-receipt", str(p), None)]
@@ -176,7 +176,7 @@ class MeasurementTests(unittest.TestCase):
         self.assertFalse(m.summarize(self.d, as_of=None)["complete"])
 
     def test_symlink_and_secret_exclusion(self):
-        link = Path(self.tmp.name) / "linked"
+        link = Path(self.tmp.name).resolve() / "linked"
         link.symlink_to(self.d, target_is_directory=True)
         with self.assertRaises(m.MeasurementError):
             m.open_measurement(link, measurement_id="m", run_id="r", scope="all")
@@ -184,6 +184,28 @@ class MeasurementTests(unittest.TestCase):
             m.statistics([5, 1, 3, 9, 7]), {"median": 5, "min": 1, "max": 9, "mad": 2}
         )
         self.assertNotIn("argv", (self.d / "measurement.json").read_text())
+
+    def test_owned_temp_root_can_be_canonicalized_without_admitting_links(self):
+        physical = Path(self.tmp.name).resolve() / "physical-temp"
+        physical.mkdir()
+        alias = physical.parent / "temp-alias"
+        alias.symlink_to(physical, target_is_directory=True)
+        with tempfile.TemporaryDirectory(dir=alias) as temporary:
+            raw = Path(temporary) / "measurement"
+            with self.assertRaises(m.MeasurementError):
+                m.open_measurement(raw, measurement_id="m", run_id="r", scope="all")
+            self.assertFalse(raw.exists())
+            owned_root = Path(temporary).resolve()
+            destination = owned_root / "measurement"
+            m.open_measurement(destination, measurement_id="m", run_id="r", scope="all")
+            nested_link = owned_root / "evidence-alias"
+            nested_link.symlink_to(destination, target_is_directory=True)
+            for rejected in (nested_link, nested_link / "child"):
+                with self.assertRaises(m.MeasurementError):
+                    m.open_measurement(
+                        rejected, measurement_id="m", run_id="r", scope="all"
+                    )
+            self.assertFalse((destination / "child").exists())
 
     def test_all_outcomes(self):
         self.span("s", "session", 0, 100)
@@ -221,7 +243,7 @@ class MeasurementTests(unittest.TestCase):
                 m.statistics([value])
 
     def test_retried_finish_mark_and_changed_input(self):
-        path = Path(self.tmp.name) / "input"
+        path = Path(self.tmp.name).resolve() / "input"
         path.write_text("one")
         self.at(
             10,
@@ -381,7 +403,7 @@ class MeasurementTests(unittest.TestCase):
     def test_attempt_chain_keeps_undecided_and_decision_changes(self):
         directories = []
         for attempt, decision in [(1, "dec-1"), (2, None), (3, "dec-2")]:
-            directory = Path(self.tmp.name) / ("attempt-" + str(attempt))
+            directory = Path(self.tmp.name).resolve() / ("attempt-" + str(attempt))
             directories.append(directory)
             m.open_measurement(
                 directory,

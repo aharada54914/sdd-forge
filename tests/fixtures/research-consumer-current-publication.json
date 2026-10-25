@@ -1,0 +1,30 @@
+{
+  "schema": "research-consumer-current-publication/v1",
+  "note": "Exact optional research integration successors. Frozen staging is unchanged; legacy contracts and fixed review-input binding are exercised separately. No task approval or workflow-state promotion is implied.",
+  "successors": [
+    {
+      "live": "plugins/sdd-quality-loop/scripts/check-contract.py",
+      "staged": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/check-contract.py",
+      "staged_sha256": "9bbc96658f775ed46c8d876e92803a8de46c9bf242bbc83d412776164e89e6b7",
+      "live_sha256": "72c03a9eeb3007c266a4cf6ec5cd3766d1e57164679a66d7361151f66c3e7d2e"
+    },
+    {
+      "live": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "staged": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "staged_sha256": "66505c65b073bc083d32b734a4e073bc85a216dd98a3b81a5bf581ae4956d9b3",
+      "live_sha256": "a724c3caddfc9aed43126c31519fd7e28885c2f4487b74c116b78643da754d0f"
+    },
+    {
+      "live": "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "staged": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "staged_sha256": "73a547e30025ad4c54313aaf03a3bec31286e50f90d80c37340c22ffee0603d4",
+      "live_sha256": "21d8e4f4fb35a75e54f23e9d100302573b60933e6583b0472412c171f809e756"
+    },
+    {
+      "live": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "staged": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "staged_sha256": "08792df3be712917b9e771abec28e153a8d013624286ad221da1837f2d462b2e",
+      "live_sha256": "80c0def3f2b7157876935c394417b2418e3fca5c5966921d5769a22c7f85cd13"
+    }
+  ]
+}

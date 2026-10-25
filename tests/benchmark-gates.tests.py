@@ -22,7 +22,7 @@ class BenchmarkTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name) / "repository"
+        self.root = Path(self.temp.name).resolve() / "repository"
         self.root.mkdir()
         (self.root / "gates").mkdir()
         (self.root / "gates/check.py").write_text('print("marker-B")\n')
@@ -106,7 +106,7 @@ class BenchmarkTests(unittest.TestCase):
         self.path.write_text(json.dumps(self.manifest))
 
     def test_selected_revision_executed_with_frozen_inputs(self):
-        output = Path(self.temp.name) / "results"
+        output = Path(self.temp.name).resolve() / "results"
         self.assertEqual(
             B.main(
                 [
@@ -248,7 +248,7 @@ class BenchmarkTests(unittest.TestCase):
                 result = B.run_steps(
                     self.root,
                     self.manifest["recipes"]["single"],
-                    Path(self.temp.name) / "outer",
+                    Path(self.temp.name).resolve() / "outer",
                     measured=True,
                 )
         self.assertEqual(result["outer_ns"], 1000)
@@ -291,7 +291,7 @@ class BenchmarkTests(unittest.TestCase):
         manifest["temperatures"] = ["cold", "warm"]
         manifest["primary"]["lifecycle"] = "after-repair"
         self.path.write_text(json.dumps(manifest))
-        output = Path(self.temp.name) / "repair"
+        output = Path(self.temp.name).resolve() / "repair"
         self.assertEqual(
             B.main(["--manifest", str(self.path), "--output", str(output), "--run"]), 0
         )
@@ -306,7 +306,7 @@ class BenchmarkTests(unittest.TestCase):
             B.validate_manifest(self.root, manifest, self.candidate)
 
     def test_comparison_runs_real_gate_both_ways(self):
-        output = Path(self.temp.name) / "compare"
+        output = Path(self.temp.name).resolve() / "compare"
         self.assertEqual(
             B.main(
                 ["--manifest", str(self.path), "--output", str(output), "--compare"]

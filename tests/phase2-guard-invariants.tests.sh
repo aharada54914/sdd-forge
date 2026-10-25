@@ -329,6 +329,7 @@ import hashlib, json, os, re, sys
 root, target, fixture, stage_rel = sys.argv[1:5]
 SCHEMAS = {'plugins/sdd-ship/skills/ship/SKILL.md': 'ship-track-selection-current-publication/v1',
            'tests/guard-parity.tests.sh': 'phase2-guard-parity-current-publication/v1'}
+SCHEMAS.update({name: 'phase2-runtime-current-publication/v1' for name in ['plugins/sdd-quality-loop/scripts/sdd-hook-guard.py', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.js', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1', 'plugins/sdd-quality-loop/scripts/check-contract.ps1']})
 def digest(p):
     with open(p, 'rb') as f:
         return hashlib.sha256(f.read()).hexdigest()
@@ -365,7 +366,7 @@ PY
 }
 
 # Fixture-level mutation controls on a tiny scratch tree (no repo copy).
-successor_targets=('plugins/sdd-ship/skills/ship/SKILL.md' 'tests/guard-parity.tests.sh')
+successor_targets=('plugins/sdd-ship/skills/ship/SKILL.md' 'tests/guard-parity.tests.sh' 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py' 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.js' 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1' 'plugins/sdd-quality-loop/scripts/check-contract.ps1')
 other_rel='plugins/sdd-lite/skills/lite-spec/SKILL.md'
 ctl="$work/successor-control"
 ctl_sha() { sha256sum "$1" | awk '{print $1}'; }
@@ -384,7 +385,7 @@ ctl_fixture() {
 import json, sys
 out, live, staged, sh, lh = sys.argv[1:6]
 copies = int(sys.argv[6]) if len(sys.argv) > 6 else 1
-schema = sys.argv[7] if len(sys.argv) > 7 else ('phase2-guard-parity-current-publication/v1' if live == 'tests/guard-parity.tests.sh' else 'ship-track-selection-current-publication/v1')
+schema = sys.argv[7] if len(sys.argv) > 7 else ('phase2-guard-parity-current-publication/v1' if live == 'tests/guard-parity.tests.sh' else 'ship-track-selection-current-publication/v1' if live == 'plugins/sdd-ship/skills/ship/SKILL.md' else 'phase2-runtime-current-publication/v1')
 entry = {'live': live, 'staged': staged, 'staged_sha256': sh, 'live_sha256': lh}
 with open(out, 'w') as f:
     json.dump({'schema': schema, 'successors': [dict(entry) for _ in range(copies)]}, f)
@@ -440,6 +441,9 @@ for sync_target in "${phase2_targets[@]}"; do
   fi
   fixture="$successor_fixture"
   if [[ "$sync_target" == "tests/guard-parity.tests.sh" ]]; then fixture="$root/tests/fixtures/phase2-guard-parity-current-publication.json"; fi
+  case "$sync_target" in
+    plugins/sdd-quality-loop/scripts/sdd-hook-guard.py|plugins/sdd-quality-loop/scripts/sdd-hook-guard.js|plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1|plugins/sdd-quality-loop/scripts/check-contract.ps1) fixture="$root/tests/fixtures/phase2-runtime-current-publication.json" ;;
+  esac
   if ! target_in_sync "$root" "$sync_target" "$fixture"; then
     echo "  out of sync: $sync_target"
     sync_ok=0

@@ -19,7 +19,7 @@ class OwnerIntegration(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name) / "project"
+        self.root = Path(self.tmp.name).resolve() / "project"
         (self.root / "tests").mkdir(parents=True)
         helper = self.root / HELPER.relative_to(ROOT)
         helper.parent.mkdir(parents=True)
@@ -44,7 +44,9 @@ class OwnerIntegration(unittest.TestCase):
         (self.root / "tests/case.tests.py").write_text(
             "raise SystemExit(" + str(code) + ")\n"
         )
-        receipt = Path(self.tmp.name) / ("measured.json" if measured else "bare.json")
+        receipt = Path(self.tmp.name).resolve() / (
+            "measured.json" if measured else "bare.json"
+        )
         argv = [
             sys.executable,
             str(self.root / "tests/verification.py"),
@@ -54,7 +56,7 @@ class OwnerIntegration(unittest.TestCase):
             "--receipt",
             str(receipt),
         ]
-        directory = Path(self.tmp.name) / "measurement"
+        directory = Path(self.tmp.name).resolve() / "measurement"
         if measured:
             argv += ["--measure-dir", str(directory)]
         result = subprocess.run(argv, cwd=self.root, capture_output=True)
@@ -128,7 +130,7 @@ class OwnerIntegration(unittest.TestCase):
                 "0.05",
             ]
             bare = subprocess.run(argv, capture_output=True)
-            directory = Path(self.tmp.name) / ("lite-" + name)
+            directory = Path(self.tmp.name).resolve() / ("lite-" + name)
             measured = subprocess.run(
                 argv + ["--measure-dir", str(directory)], capture_output=True
             )
@@ -151,7 +153,9 @@ class OwnerIntegration(unittest.TestCase):
         import contextlib
         import io
 
-        observer = self.m.Observer(Path(self.tmp.name) / "broken", command_id="test")
+        observer = self.m.Observer(
+            Path(self.tmp.name).resolve() / "broken", command_id="test"
+        )
         shutil.rmtree(observer.directory)
         captured = io.StringIO()
         with contextlib.redirect_stderr(captured):
@@ -162,7 +166,7 @@ class OwnerIntegration(unittest.TestCase):
     def test_measurement_flags_require_run(self):
         (self.root / "tests/case.tests.py").write_text("pass\n")
         for flag in ("--list", "--plan"):
-            directory = Path(self.tmp.name) / "not-created"
+            directory = Path(self.tmp.name).resolve() / "not-created"
             result = subprocess.run(
                 [
                     sys.executable,

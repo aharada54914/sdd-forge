@@ -428,6 +428,10 @@ spec = importlib.util.spec_from_file_location('guard_evolution', repo / 'tests/l
 evolution = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(evolution)
 evolution.self_test(manifest.parent / 'plugins/sdd-quality-loop', repo / 'plugins/sdd-quality-loop')
+spec = importlib.util.spec_from_file_location('research_publication', repo / 'tests/lib/research-consumer-publication.py')
+research = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(research)
+research_paths = set(research.checked_paths(repo))
 evolved_paths = {
     'plugins/sdd-quality-loop/references/guard-invariants.json',
     'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py',
@@ -469,7 +473,7 @@ for line in manifest.read_text().splitlines():
     applied_bytes = applied.read_bytes()
     guard_applied = b'if (\$args.Count -gt 0)' in applied_bytes and b'unrecognized arguments:' in applied_bytes
     pending_human_apply = relative in declared_human_apply and not guard_applied
-    if not pending_human_apply and relative not in evolved_paths and hashlib.sha256(applied_bytes).hexdigest() != expected:
+    if not pending_human_apply and relative not in evolved_paths and relative not in research_paths and hashlib.sha256(applied_bytes).hexdigest() != expected:
         raise SystemExit(f'applied hash mismatch: {relative}')
 raise SystemExit(0)
 "; then

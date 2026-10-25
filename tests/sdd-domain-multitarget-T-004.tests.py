@@ -52,6 +52,26 @@ REVIEWED_CLOUD_INSERTION = b"""    # Cloud runtime is deliberately lazy: the leg
 """
 
 
+REVIEWED_RESEARCH_SHA256 = '72c03a9eeb3007c266a4cf6ec5cd3766d1e57164679a66d7361151f66c3e7d2e'
+REVIEWED_RESEARCH_INSERTIONS = (
+    b"""def _pass_research_evidence(checks, root, failures):
+    # Optional branch: old contracts do not load the newer research runtime.
+    for check in checks:
+        if check.get("id") != "source-evidence" or check.get("passes") is not True:
+            continue
+        try:
+            from research_consumers import relative_file, verify_check_record
+            evidence = relative_file(root, check.get("evidence"))
+            verify_check_record(evidence, root, os.environ.get("SDD_RESEARCH_SNAPSHOT_ROOT"))
+        except Exception:
+            failures.append("check 'source-evidence' fresh original verification failed")
+
+
+""",
+    b"    _pass_research_evidence(checks, evidence_root, failures)\n",
+)
+
+
 def load(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
     assert spec is not None and spec.loader is not None
@@ -70,12 +90,33 @@ def retained(feature):
 
 
 class CompatibilityTests(unittest.TestCase):
+    def strip_research(self, content):
+        self.assertEqual(hashlib.sha256(content).hexdigest(), REVIEWED_RESEARCH_SHA256)
+        for insertion in REVIEWED_RESEARCH_INSERTIONS:
+            self.assertEqual(content.count(insertion), 1)
+            content = content.replace(insertion, b'', 1)
+        self.assertEqual(hashlib.sha256(content).hexdigest(), REVIEWED_CLOUD_SHA256)
+        return content
+
+    def test_research_extension_retains_exact_predecessor_and_rejects_mutations(self):
+        content = (ROOT / CHECK_CONTRACT).read_bytes()
+        self.strip_research(content)
+        for insertion in REVIEWED_RESEARCH_INSERTIONS:
+            for altered in (content.replace(insertion, b'', 1),
+                            content.replace(insertion, insertion * 2, 1),
+                            content.replace(insertion, b'', 1) + insertion):
+                with self.assertRaises(AssertionError):
+                    self.strip_research(altered)
+        with self.assertRaises(AssertionError):
+            self.strip_research(content + b'\n')
+
     def assert_reviewed_consumer(self, path, content, expected):
         if path == REQUIREMENTS_TEMPLATE:
             self.assertEqual(hashlib.sha256(content).hexdigest(), REVIEWED_REQUIREMENTS_SHA256)
             self.assertTrue(content.startswith(REVIEWED_REQUIREMENTS_PREFIX))
             content = OLD_REQUIREMENTS_PREFIX + content[len(REVIEWED_REQUIREMENTS_PREFIX):]
         elif path == CHECK_CONTRACT:
+            content = self.strip_research(content)
             self.assertEqual(hashlib.sha256(content).hexdigest(), REVIEWED_CLOUD_SHA256)
             self.assertEqual(content.count(REVIEWED_CLOUD_INSERTION), 1)
             content = content.replace(REVIEWED_CLOUD_INSERTION, b'', 1)
@@ -129,17 +170,17 @@ class CompatibilityTests(unittest.TestCase):
                 self.assert_reviewed_consumer(CHECK_CONTRACT, changed, expected)
         with self.assertRaises(AssertionError):
             self.assert_reviewed_consumer(CHECK_CONTRACT, content, REVIEWED_CLOUD_SHA256)
-        reconstructed = content.replace(REVIEWED_CLOUD_INSERTION, b'', 1)
+        reconstructed = self.strip_research(content).replace(REVIEWED_CLOUD_INSERTION, b'', 1)
         self.assertEqual(hashlib.sha256(reconstructed).hexdigest(), expected)
 
     def test_reviewed_cloud_extension_preserves_actual_absent_and_v2_legacy(self):
         # Run baseline and current CLI with only the original stdlib dependency.
         # Missing cloud modules is deliberate: legacy must not import them.
         content = (ROOT / CHECK_CONTRACT).read_bytes()
-        self.assertEqual(hashlib.sha256(content).hexdigest(), REVIEWED_CLOUD_SHA256)
+        original = self.strip_research(content).replace(REVIEWED_CLOUD_INSERTION, b'', 1)
         with tempfile.TemporaryDirectory(prefix='t004-legacy-extension-') as folder:
             work = Path(folder).resolve()
-            for name, code in (('original.py', content.replace(REVIEWED_CLOUD_INSERTION, b'', 1)), ('reviewed.py', content)):
+            for name, code in (('original.py', original), ('reviewed.py', content)):
                 (work / name).write_bytes(code)
             shutil.copy2(SCRIPTS / 'validate_path.py', work / 'validate_path.py')
             (work / 'evidence.log').write_text('Synthetic legacy check evidence\n')

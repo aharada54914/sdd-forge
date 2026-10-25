@@ -167,7 +167,7 @@ def observe(root, name="a", outcome="success", run_id="a-run", exit_code=0):
 class FactoryContracts(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.p = fixture(self.root)
 
     def tearDown(self):

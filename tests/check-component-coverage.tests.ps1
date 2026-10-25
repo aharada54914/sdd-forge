@@ -390,7 +390,12 @@ $evolvedPaths = @(
     'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1',
     'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh'
 )
-$manifestOk = $invariantEvolutionOk
+$researchOut = & python3 (Join-Path $repoRoot 'tests/lib/research-consumer-publication.py') $repoRoot 2>&1
+$researchOk = $LASTEXITCODE -eq 0
+$researchPaths = @()
+if ($researchOk) { $researchPaths = @($researchOut | ConvertFrom-Json) }
+else { Write-Output $researchOut }
+$manifestOk = $invariantEvolutionOk -and $researchOk
 $manifestChecked = 0
 $liveChecked = 0
 $tasksText = Get-Content -Raw -LiteralPath (Join-Path $repoRoot 'specs/epic-191-a3-path-ownership/tasks.md')
@@ -422,7 +427,7 @@ foreach ($line in (Get-Content -LiteralPath $hcManifest191)) {
     $pendingHumanApply = $declaredHumanApply -ccontains $relativePath -and -not $guardApplied
     $liveHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $livePath).Hash.ToLowerInvariant()
     if (-not $pendingHumanApply) {
-        if ($liveHash -cne $parts[0].Trim() -and -not ($invariantEvolutionOk -and $evolvedPaths -ccontains $relativePath)) { $manifestOk = $false }
+        if ($liveHash -cne $parts[0].Trim() -and -not ($invariantEvolutionOk -and $evolvedPaths -ccontains $relativePath) -and -not ($researchOk -and $researchPaths -ccontains $relativePath)) { $manifestOk = $false }
         $liveChecked++
     }
     $manifestChecked++

@@ -1051,7 +1051,7 @@ if ($runnerPredatesRefresh -and ($env:SDD_PHASE2_RUNNER_CHILD -ne '1')) {
 # unchanged and still bind the staged bytes.
 $successorFixture = Join-Path $root 'tests/fixtures/ship-track-selection-current-publication.json'
 $successorStageRel = 'specs/epic-136-phase2-gates/human-copy'
-$successorTargets = @('plugins/sdd-ship/skills/ship/SKILL.md', 'tests/guard-parity.tests.sh')
+$successorTargets = @('plugins/sdd-ship/skills/ship/SKILL.md', 'tests/guard-parity.tests.sh', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.js', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1', 'plugins/sdd-quality-loop/scripts/check-contract.ps1')
 $successorSchema = 'ship-track-selection-current-publication/v1'
 function Test-TargetInSync([string]$Root, [string]$Target, [string]$Fixture) {
     try {
@@ -1060,7 +1060,7 @@ function Test-TargetInSync([string]$Root, [string]$Target, [string]$Fixture) {
         if ($liveHash -ceq $stagedHash) { return $true }
         if ($successorTargets -cnotcontains $Target) { return $false }
         $stagedKey = $successorStageRel + '/' + $Target
-        $expectedSchema = if ($Target -ceq 'tests/guard-parity.tests.sh') { 'phase2-guard-parity-current-publication/v1' } else { 'ship-track-selection-current-publication/v1' }
+        $expectedSchema = if ($Target -ceq 'tests/guard-parity.tests.sh') { 'phase2-guard-parity-current-publication/v1' } elseif ($Target -ceq 'plugins/sdd-ship/skills/ship/SKILL.md') { 'ship-track-selection-current-publication/v1' } else { 'phase2-runtime-current-publication/v1' }
         $data = Get-Content -Raw -LiteralPath $Fixture | ConvertFrom-Json -ErrorAction Stop
         if (($data -isnot [pscustomobject]) -or ($data.PSObject.Properties.Name -cnotcontains 'schema') -or ($data.schema -isnot [string]) -or ($data.schema -cne $expectedSchema)) { return $false }
         if ($data.PSObject.Properties.Name -cnotcontains 'successors') { return $false }
@@ -1113,7 +1113,7 @@ function Assert-CtlSync([bool]$Want, [string]$Target, [string]$Label) {
     Assert-True ((Test-TargetInSync $ctl $Target $ctlFixture) -eq $Want) "WFI-016 control [$successorShipRel]: $Label"
 }
 foreach ($successorShipRel in $successorTargets) {
-$successorSchema = if ($successorShipRel -ceq 'tests/guard-parity.tests.sh') { 'phase2-guard-parity-current-publication/v1' } else { 'ship-track-selection-current-publication/v1' }
+$successorSchema = if ($successorShipRel -ceq 'tests/guard-parity.tests.sh') { 'phase2-guard-parity-current-publication/v1' } elseif ($successorShipRel -ceq 'plugins/sdd-ship/skills/ship/SKILL.md') { 'ship-track-selection-current-publication/v1' } else { 'phase2-runtime-current-publication/v1' }
 $zeroHash = '0' * 64
 try {
     Reset-Ctl; Write-CtlGoodFixture
@@ -1164,6 +1164,7 @@ try {
             continue
         }
         $fixture = if ($syncTarget -ceq 'tests/guard-parity.tests.sh') { Join-Path $root 'tests/fixtures/phase2-guard-parity-current-publication.json' } else { $successorFixture }
+        if ($syncTarget.StartsWith('plugins/sdd-quality-loop/scripts/', [StringComparison]::Ordinal) -and $successorTargets -ccontains $syncTarget) { $fixture = Join-Path $root 'tests/fixtures/phase2-runtime-current-publication.json' }
         if (-not (Test-TargetInSync $root $syncTarget $fixture)) {
             Write-Host "  out of sync: $syncTarget"
             $syncOk = $false

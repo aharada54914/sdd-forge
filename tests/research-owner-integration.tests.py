@@ -201,6 +201,85 @@ class Owners(unittest.TestCase):
         with self.assertRaises(ValueError):
             conditional.resolve(self.root, "sample", "impl")
 
+    def test_powershell_research_opt_in_requires_exact_string_id(self):
+        pwsh = shutil.which("pwsh")
+        if pwsh is None:
+            self.skipTest("pwsh required for runtime parity")
+        # No dispatcher/Python module is installed beside this copy. Old-route
+        # inputs must still work; the exact opt-in must attempt delegation.
+        script = self.root / "check-contract.ps1"
+        script.write_bytes((SCRIPTS / "check-contract.ps1").read_bytes())
+        (self.root / "evidence.log").write_text("Synthetic legacy evidence\n")
+        path = self.root / "contract.json"
+        ids = (
+            "lint",
+            "typecheck",
+            "unit-tests",
+            "build",
+            "placeholder-scan",
+            "task-state-check",
+        )
+        for schema in (None, "verification-contract/v2"):
+            for check_id in (
+                True,
+                False,
+                ["source-evidence"],
+                [True],
+                None,
+                1,
+                "SOURCE-EVIDENCE",
+                "source-evidence",
+            ):
+                document = dict(
+                    task_id="T-001",
+                    checks=[
+                        dict(id=i, required=True, passes=True, evidence="evidence.log")
+                        for i in ids
+                    ],
+                )
+                document["checks"].append(
+                    dict(
+                        id=check_id,
+                        required=False,
+                        passes=False,
+                        waiver_reason="Fixture waiver",
+                    )
+                )
+                if schema is not None:
+                    document["schema"] = schema
+                path.write_text(json.dumps(document))
+                result = subprocess.run(
+                    [
+                        pwsh,
+                        "-NoProfile",
+                        "-File",
+                        str(script),
+                        str(path),
+                        str(self.root),
+                    ],
+                    text=True,
+                    capture_output=True,
+                )
+                with self.subTest(schema=schema, check_id=check_id):
+                    if check_id == "source-evidence":
+                        self.assertNotEqual(0, result.returncode)
+                        self.assertIn("py-dispatch.ps1", result.stderr)
+                    elif check_id is None:
+                        # Historical PowerShell null-key validation still fails
+                        # in the legacy owner, without loading Python.
+                        self.assertNotEqual(0, result.returncode)
+                        self.assertNotIn("py-dispatch", result.stderr)
+                        self.assertIn("ContainsKey", result.stderr)
+                    else:
+                        self.assertEqual(
+                            0, result.returncode, result.stdout + result.stderr
+                        )
+                        self.assertNotIn("py-dispatch", result.stderr)
+                        self.assertEqual(
+                            "Verification contract passed for task T-001.\n",
+                            result.stdout,
+                        )
+
     def test_packet_result_identity_status_and_closed_fields(self):
         self.assertEqual(0, self.bind())
         baseline = json.loads(self.packet.read_text())

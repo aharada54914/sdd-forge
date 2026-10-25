@@ -25,10 +25,10 @@ if (-not (Test-Path -LiteralPath $ContractPath)) {
 $contractRaw = Get-Content -Raw -Encoding Utf8 $ContractPath
 $contract = $contractRaw | ConvertFrom-Json
 
-# Only the explicit new cloud branch requires the newer Python shared runtime.
-# Never load it for the standalone legacy PowerShell path.
+# Only explicit cloud or exact-string research opt-ins use the shared runtime.
+# Never coerce malformed legacy IDs into a research opt-in.
 if ($contract.schema -ceq 'verification-contract/v3' -or
-    @($contract.checks | Where-Object { $_.id -ceq 'source-evidence' }).Count -gt 0) {
+    @($contract.checks | Where-Object { ($_.id -is [string]) -and $_.id -ceq 'source-evidence' }).Count -gt 0) {
     . (Join-Path $PSScriptRoot 'lib/py-dispatch.ps1')
     Invoke-SddPyDispatch -Master (Join-Path $PSScriptRoot 'check-contract.py') -DiagnosticPrefix 'cloud-profile' -Arguments @($ContractPath, $RepoRoot)
 }

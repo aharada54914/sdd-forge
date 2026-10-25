@@ -6,8 +6,8 @@
       "live": "tests/guard-parity.tests.sh",
       "staged": "specs/epic-136-phase2-gates/human-copy/tests/guard-parity.tests.sh",
       "staged_sha256": "5f78d7c5f80fc50fa36e2083221866045b4a437ee6c8feba2dbc3e882bf760b9",
-      "live_sha256": "1b2e27ea19bf3823b4c27c985e4db8c906c9aa779d6ed597ba0e1956de29c02b",
-      "intentional_changes": "Only Scenario 30 is added (17 lines): rm and cp-onto must deny, while cat must allow, for managed-model-entry.py and the Gemini/GPT PowerShell panelist runners. No existing assertion is removed or loosened."
+      "live_sha256": "ab9618cc129291d68f365b964885d353181a49c46d07a034774c655fd99f6999",
+      "intentional_changes": "Only Scenario 30 is added (17 lines): rm and cp-onto must deny, while cat must allow, for managed-model-entry.py and the Gemini/GPT PowerShell panelist runners. No existing assertion is removed or loosened. Adds explicit decision-record and destructive ancestor cases across Python/Node/PowerShell, including wrapper/option/cwd variants and read-only controls. Existing assertions remain."
     }
   ]
 }

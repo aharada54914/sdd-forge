@@ -1,0 +1,30 @@
+{
+  "schema": "phase2-runtime-current-publication/v1",
+  "note": "Exact runtime successors: decision-history destructive ancestor protection and string-exact optional research dispatch. Historical stage and manifest remain unchanged.",
+  "successors": [
+    {
+      "live": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "staged": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+      "live_sha256": "9c4cbe6231bd19aa3bdfc30486eb0416d1b226e2031b9407d8ef0dfe5233d80a",
+      "staged_sha256": "31935ccdf2fad222561c5bbcc548e39faa2a696613a987cc82e5b80f319075e9"
+    },
+    {
+      "live": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "staged": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "live_sha256": "c0761ea3c0293100eb10ad897dc352219f1949b3f1a0ab5cfaa9a1182959dc7e",
+      "staged_sha256": "e3006fd5cdc11d86658e6ba44ccff673aff61447c82f353754c2ab7e4bada8b3"
+    },
+    {
+      "live": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "staged": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "live_sha256": "35e7f683404500c7d1959a304ab09a3ef5e590afb4dbc11343981e29df7c0d71",
+      "staged_sha256": "9380b5f98bf24d595cdb4f81edf3b4ad3ec974a454ed1e2ce3a7c29dd17647cf"
+    },
+    {
+      "live": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "staged": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "live_sha256": "a724c3caddfc9aed43126c31519fd7e28885c2f4487b74c116b78643da754d0f",
+      "staged_sha256": "66505c65b073bc083d32b734a4e073bc85a216dd98a3b81a5bf581ae4956d9b3"
+    }
+  ]
+}

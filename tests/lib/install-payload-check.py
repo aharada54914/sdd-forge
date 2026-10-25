@@ -545,7 +545,7 @@ class PayloadChecks(unittest.TestCase):
                     sorted(k for k in set(rest) & set(want) if rest[k] != want[k])[:10])
             self.assertEqual(diff, ([], [], []), "installed set differs from the manifest (unexpected, missing, changed)")
 
-    def assert_entry_parses(self, root):
+    def assert_entry_parses(self, root, temporary_parent=None):
         # managed-model-entry.py has no --help: the unknown flag is a closed model-policy-error/v1 (exit 2).
         script = root / "plugins/sdd-implementation/scripts/managed-model-entry.py"
         result = run([sys.executable, "-I", str(script), "--help"], cwd=str(self.tmp), env=scenario_env(self.tmp))
@@ -588,7 +588,10 @@ fixture = load("payload_factory_fixture", pathlib.Path(sys.argv[2]))
 fixture.packet = load("payload_packet", root / "plugins/sdd-bootstrap/scripts/decision-packet.py")
 fixture.measurement = load("payload_measurement", root / "plugins/sdd-quality-loop/scripts/run_measurement.py")
 with tempfile.TemporaryDirectory() as temporary:
-    work = pathlib.Path(temporary)
+    if len(sys.argv) > 3:
+        assert pathlib.Path(temporary).parent == pathlib.Path(sys.argv[3])
+    # Canonicalize our newly allocated directory, not caller evidence paths.
+    work = pathlib.Path(temporary).resolve()
     packet = fixture.fixture(work)
     packet["alternatives"][0]["observations"] = [fixture.observe(work)]
     validated = fixture.packet.validate(work, packet, "pilot", "T-001", "experiment-1", fixture.packet.packet_digest(packet))
@@ -602,10 +605,25 @@ except research.Invalid as exc:
 else:
     raise AssertionError("invalid research evidence accepted")
 """
-        observed = run([sys.executable, "-I", "-c", smoke, str(root),
-                        str(REPO / "tests/factory-workflow.tests.py")],
-                       cwd=str(self.tmp), env=scenario_env(self.tmp))
+        smoke_args = [sys.executable, "-I", "-c", smoke, str(root),
+                      str(REPO / "tests/factory-workflow.tests.py")]
+        smoke_env = scenario_env(self.tmp)
+        if temporary_parent is not None:
+            smoke_args.append(str(temporary_parent))
+            for variable in ("TMPDIR", "TEMP", "TMP"):
+                smoke_env[variable] = str(temporary_parent)
+        observed = run(smoke_args, cwd=str(self.tmp), env=smoke_env)
         self.assertEqual(observed.returncode, 0, describe(observed))
+
+    def test_installed_smoke_with_symlinked_temporary_parent(self):
+        root = self.root_for("linked-temp")
+        self.install_ok(root, source=self.fx.path, skip_mcp=True)
+        physical = self.tmp.resolve() / "physical-temp"
+        physical.mkdir()
+        alias = self.tmp.resolve() / "temp-alias"
+        alias.symlink_to(physical, target_is_directory=True)
+        self.assert_entry_parses(root, temporary_parent=alias)
+        self.assertEqual(list(physical.iterdir()), [])
 
     def test_local_source_installs_only_the_payload(self):
         root = self.root_for("default")
