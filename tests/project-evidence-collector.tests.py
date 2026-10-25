@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import subprocess
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -120,6 +121,28 @@ class CollectorTests(unittest.TestCase):
         result = self.collect()
         self.assertEqual(result["execution_outcome"], "failed")
         self.assertFalse(result["contract_valid"])
+
+    def test_replaced_failed_observation_cannot_be_promoted_to_pass(self):
+        entry = self.fixture.skill / "run.py"
+        entry.write_text("raise SystemExit(3)\n")
+        self.fixture.manifest["files"][0]["sha256"] = C.V.digest(entry.read_bytes())
+        self.fixture.write_manifest()
+        self.fixture.task()
+        self.fixture.observation.unlink()
+        actual = C.RUNNER.run
+
+        def replace_observation(*args, **kwargs):
+            result = actual(*args, **kwargs)
+            observed = self.root / result["observation"]
+            value = json.loads(observed.read_text())
+            value.update(outcome="passed", exit_code=0)
+            observed.write_text(json.dumps(value))
+            return result
+
+        with patch.object(C.RUNNER, "run", side_effect=replace_observation):
+            with self.assertRaisesRegex(C.V.Invalid, "observation-execution-mismatch"):
+                self.collect()
+        self.assertFalse(list(self.root.rglob("T-001.contract.json")))
 
     def test_wrong_task_and_check_rejected_before_execution(self):
         for key, value in [("task_id", "T-002"), ("checks", [])]:

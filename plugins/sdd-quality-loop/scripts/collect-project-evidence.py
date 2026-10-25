@@ -68,9 +68,19 @@ def collect(root, contract_path, task_path, skill, check_id, *, timeout=30):
     if not result.get("observation_written") or not result.get("cleanup"):
         raise V.Invalid("execution-incomplete")
     observation_path = V.safe(root, result["observation"], missing=False)
+    observation, observation_bytes = V.load(observation_path, "observation-invalid")
+    if hashlib.sha256(observation_bytes).hexdigest() != result.get(
+        "observation_sha256"
+    ):
+        raise V.Invalid("observation-execution-mismatch")
     validated = V.validate(root, skill, observation_path, Path(task_path))
-    if validated[2] not in ("passed", "failed"):
-        raise V.Invalid("execution-incomplete")
+    if (
+        validated[2] not in ("passed", "failed")
+        or validated[2] != result.get("outcome")
+        or observation.get("exit_code") != result.get("exit_code")
+        or validated[1] != observation
+    ):
+        raise V.Invalid("observation-execution-mismatch")
     evidence = observation_path.parent
     transcript = []
     for stream in ("stdout", "stderr"):
@@ -91,7 +101,7 @@ def collect(root, contract_path, task_path, skill, check_id, *, timeout=30):
             output.write(raw)
             output.write(b"\n")
         output.write(b"observation=")
-        output.write(observation_path.read_bytes())
+        output.write(observation_bytes)
     updated = copy.deepcopy(contract)
     projected = V.project_execution(selected[0], validated)
     projected["evidence"] = combined.relative_to(root).as_posix()

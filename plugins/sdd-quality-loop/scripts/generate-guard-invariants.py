@@ -211,6 +211,7 @@ BASELINE_SUFFIXES = (
     # Optional evidence consumers and immutable human choice records.
     "plugins/sdd-bootstrap/scripts/workflow-playbook.py",
     "plugins/sdd-quality-loop/scripts/run_measurement.py",
+    "plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
     "decision-choice.json",
     "decision-choice.approval.json",
     "decision-choice.approved.json",

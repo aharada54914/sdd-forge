@@ -1,0 +1,23 @@
+{
+  "schema": "workflow-playbook-route/v1",
+  "purpose": "prototype",
+  "track": "full",
+  "delegate": "investigate-codebase",
+  "playbook": "references/playbooks/prototype.md",
+  "reason": "Explicit purpose selects work method; existing track and approval owners remain authoritative.",
+  "effect": "isolated-prototype",
+  "authorization": "none",
+  "budget": {
+    "seconds": 10,
+    "max_runs": 6,
+    "cost_limit": null,
+    "cost_reason": "no monetary observation"
+  },
+  "stop_conditions": [
+    "time or run budget exhausted",
+    "permission boundary reached",
+    "sufficient discriminating evidence",
+    "marginal evidence no longer improves the decision"
+  ],
+  "next": "existing bootstrap specification/review/task approval"
+}

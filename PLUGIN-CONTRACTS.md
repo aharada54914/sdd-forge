@@ -22,12 +22,18 @@ use identical packaged schema copies under `plugins/sdd-quality-loop/contracts/`
 The existing guard inventory protects the new validation paths and all three
 `decision-choice` basenames. The unsigned human choice record, signed approval
 and approved snapshot must remain available to detect superseded decisions.
+Destructive shell operations also protect history directories and existing
+ancestors containing protected records; read-only access remains available.
 
 The project-skill runner's temporary execution tree is not an OS sandbox. Its
 process ownership backend is tested on Linux; unsupported backends return
 not-run. Host wrapper generation is separate from actual host discovery and
 invocation. Research acquisition refuses unsupported proxy/extractor boundaries
-rather than treating them as successful retrieval. No persistent verification
+rather than treating them as successful retrieval. The existing source-evidence
+owner uses an optional pinned `research/review-input.json` envelope and the runtime
+`SDD_RESEARCH_SNAPSHOT_ROOT`; private cache paths are not persisted. HTML
+`--annotations` translations remain explicitly meaning-unverified. Feed changes
+(`feed_changed`) are separate from changes to pinned original content. No persistent verification
 cache, durable parallel scheduler, automatic human choice or automatic adoption
 is introduced by these interfaces.
 

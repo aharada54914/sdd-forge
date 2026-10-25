@@ -63,6 +63,34 @@ CLOSURE = [
     "plugins/sdd-quality-loop/contracts/project-verification-observation.schema.json",
 ]
 
+CLOSURE += [
+    'plugins/sdd-bootstrap/scripts/decision-packet.py',
+    'plugins/sdd-bootstrap/scripts/factory-adapter-readiness.py',
+    'plugins/sdd-bootstrap/scripts/research-acquire.py',
+    'plugins/sdd-bootstrap/scripts/research-sources.py',
+    'plugins/sdd-bootstrap/scripts/research-watch.py',
+    'plugins/sdd-bootstrap/scripts/workflow-playbook.py',
+    'plugins/sdd-quality-loop/scripts/check-contract.py',
+    'plugins/sdd-quality-loop/scripts/check-source-evidence.py',
+    'plugins/sdd-quality-loop/scripts/collect-project-evidence.py',
+    'plugins/sdd-quality-loop/scripts/research-evidence-tools.py',
+    'plugins/sdd-quality-loop/scripts/research_consumers.py',
+    'plugins/sdd-quality-loop/scripts/research_evidence.py',
+    'plugins/sdd-quality-loop/scripts/research_extraction.py',
+    'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py',
+    'plugins/sdd-quality-loop/scripts/run_measurement.py',
+    'plugins/sdd-quality-loop/scripts/validate-research-evidence.py',
+    'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py',
+    'plugins/sdd-quality-loop/scripts/validate-facet-manifest.py',
+    'contracts/approval-sidecar.schema.json',
+    'contracts/decision-choice.v1.schema.json',
+    'contracts/decision-packet.v1.schema.json',
+    'contracts/research-evidence.schema.json',
+    'contracts/run-measurement.schema.json',
+    'contracts/workflow-playbook-request.v1.schema.json',
+    'plugins/sdd-quality-loop/contracts/research-evidence.schema.json',
+]
+
 # Tracked development content that must never be installed (every value is FAKE).
 TRACKED_SEEDS = {
     "specs/fake/private.txt": "FAKE development spec\n",
@@ -526,11 +554,58 @@ class PayloadChecks(unittest.TestCase):
         for relative in (
             "plugins/sdd-bootstrap/scripts/project-skill.py",
             "plugins/sdd-bootstrap/scripts/project-skill-process.py",
+            'plugins/sdd-bootstrap/scripts/decision-packet.py',
+            'plugins/sdd-bootstrap/scripts/factory-adapter-readiness.py',
+            'plugins/sdd-bootstrap/scripts/research-acquire.py',
+            'plugins/sdd-bootstrap/scripts/research-sources.py',
+            'plugins/sdd-bootstrap/scripts/research-watch.py',
+            'plugins/sdd-bootstrap/scripts/workflow-playbook.py',
+            'plugins/sdd-quality-loop/scripts/check-source-evidence.py',
+            'plugins/sdd-quality-loop/scripts/collect-project-evidence.py',
+            'plugins/sdd-quality-loop/scripts/research-evidence-tools.py',
+            'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py',
+            'plugins/sdd-quality-loop/scripts/run_measurement.py',
+            'plugins/sdd-quality-loop/scripts/validate-research-evidence.py',
+
             "plugins/sdd-quality-loop/scripts/validate-project-skill.py",
         ):
             parsed = run([sys.executable, "-I", str(root / relative), "--help"],
                          cwd=str(self.tmp), env=scenario_env(self.tmp))
             self.assertEqual(parsed.returncode, 0, describe(parsed))
+
+        # Fixtures stay in the test harness; every product module used below is
+        # loaded from the installed tree, outside the source working directory.
+        smoke = r"""
+import importlib.util, pathlib, sys, tempfile
+root = pathlib.Path(sys.argv[1])
+def load(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+fixture = load("payload_factory_fixture", pathlib.Path(sys.argv[2]))
+fixture.packet = load("payload_packet", root / "plugins/sdd-bootstrap/scripts/decision-packet.py")
+fixture.measurement = load("payload_measurement", root / "plugins/sdd-quality-loop/scripts/run_measurement.py")
+with tempfile.TemporaryDirectory() as temporary:
+    work = pathlib.Path(temporary)
+    packet = fixture.fixture(work)
+    packet["alternatives"][0]["observations"] = [fixture.observe(work)]
+    validated = fixture.packet.validate(work, packet, "pilot", "T-001", "experiment-1", fixture.packet.packet_digest(packet))
+    assert "Reported success" in fixture.packet.render(validated)
+research = load("payload_research", root / "plugins/sdd-quality-loop/scripts/research_evidence.py")
+assert len(research.record_digest({"source": "fixture"})) == 64
+try:
+    research.validate_shape({})
+except research.Invalid as exc:
+    assert exc.code == "schema-invalid", str(exc)
+else:
+    raise AssertionError("invalid research evidence accepted")
+"""
+        observed = run([sys.executable, "-I", "-c", smoke, str(root),
+                        str(REPO / "tests/factory-workflow.tests.py")],
+                       cwd=str(self.tmp), env=scenario_env(self.tmp))
+        self.assertEqual(observed.returncode, 0, describe(observed))
 
     def test_local_source_installs_only_the_payload(self):
         root = self.root_for("default")

@@ -1,0 +1,185 @@
+{
+  "schema": "sdd-run-measurement/v1",
+  "kind": "summary",
+  "measurement": {
+    "attempt": 1,
+    "clock_domain": "linux-boot:2dd59cde-9674-419b-ac4c-44fa115230eb",
+    "decision_ref": null,
+    "environment": {
+      "arch": "x86_64",
+      "dirty": null,
+      "head": null,
+      "input_manifest_sha256": null,
+      "os": "Linux",
+      "python": "3.12.14",
+      "target_count": null,
+      "tools": {}
+    },
+    "experiment_ref": "574b9d3d8004b2fdfbd6226c561f508c30238994c5ec3331ff406cbc431c4c5a",
+    "feature": "pilot",
+    "kind": "measurement",
+    "measurement_id": "presentation-candidate-1",
+    "ns": 10569236922183,
+    "parent_run_id": "experiment-1",
+    "refs_missing_reason": {
+      "decision_ref": "not-supplied"
+    },
+    "rerun_detail": null,
+    "rerun_reason": "initial",
+    "run_id": "presentation-candidate-1",
+    "scenario_id": null,
+    "schema": "sdd-run-measurement/v1",
+    "scope": "feature",
+    "task": "T-001",
+    "trial_id": null,
+    "utc": "2026-10-25T08:01:10.299300Z",
+    "variant_ref": "candidate"
+  },
+  "as_of": {
+    "clock_domain": "linux-boot:2dd59cde-9674-419b-ac4c-44fa115230eb",
+    "ns": 10569251226786,
+    "utc": "2026-10-25T08:01:10.313604Z"
+  },
+  "complete": true,
+  "spans": [
+    {
+      "span_id": "9ab90ad4bd0e4ba99e3ce6db2a72e339",
+      "parent_span_id": "presentation-session",
+      "phase": "review-preparation",
+      "command_id": "fixture-presentation",
+      "clock_domain": "linux-boot:2dd59cde-9674-419b-ac4c-44fa115230eb",
+      "end_clock_domain": "linux-boot:2dd59cde-9674-419b-ac4c-44fa115230eb",
+      "start_ns": 10569239185045,
+      "end_ns": 10569246758157,
+      "duration_ns": 7573112,
+      "duration_reason": null,
+      "censored_ns": null,
+      "outcome": "success",
+      "exit_code": 0,
+      "signal": null,
+      "inputs": [
+        {
+          "missing": false,
+          "path": "/workspace/scratch/issue-resolution-20261025/factory-pilot-3/1-candidate/candidate-1-a.log",
+          "sha256": "3a45e44fc2d8262d99066a0bcc3ee8b11465c541590b1f1200c7ca2a17d6a1da"
+        },
+        {
+          "missing": false,
+          "path": "/workspace/scratch/issue-resolution-20261025/factory-pilot-3/1-candidate/candidate-1-b.log",
+          "sha256": "3a45e44fc2d8262d99066a0bcc3ee8b11465c541590b1f1200c7ca2a17d6a1da"
+        }
+      ],
+      "logs": [],
+      "token_usage": null,
+      "cost": null
+    },
+    {
+      "span_id": "presentation-session",
+      "parent_span_id": null,
+      "phase": "session",
+      "command_id": "fixture-presentation-session",
+      "clock_domain": "linux-boot:2dd59cde-9674-419b-ac4c-44fa115230eb",
+      "end_clock_domain": "linux-boot:2dd59cde-9674-419b-ac4c-44fa115230eb",
+      "start_ns": 10569238046769,
+      "end_ns": 10569248918345,
+      "duration_ns": 10871576,
+      "duration_reason": null,
+      "censored_ns": null,
+      "outcome": "success",
+      "exit_code": 0,
+      "signal": null,
+      "inputs": [],
+      "logs": [],
+      "token_usage": null,
+      "cost": null
+    }
+  ],
+  "counts": {
+    "started": 2,
+    "by_outcome": {
+      "success": 2,
+      "failure": 0,
+      "timeout": 0,
+      "interrupted": 0,
+      "rejected": 0,
+      "abandoned": 0,
+      "undecided": 0,
+      "open": 0
+    },
+    "invocations": {
+      "fixture-presentation": 1,
+      "fixture-presentation-session": 1
+    }
+  },
+  "elapsed": {
+    "session_ns": 10871576,
+    "machine_elapsed_ns": 7573112,
+    "machine_effort_ns": 7573112,
+    "machine_phases_unobserved": [
+      "gate",
+      "command",
+      "model"
+    ],
+    "phases": {
+      "session": {
+        "count": 1,
+        "elapsed_ns": 10871576,
+        "effort_ns": 10871576
+      },
+      "gate": {
+        "count": 0,
+        "elapsed_ns": null,
+        "effort_ns": null,
+        "reason": "not-observed"
+      },
+      "command": {
+        "count": 0,
+        "elapsed_ns": null,
+        "effort_ns": null,
+        "reason": "not-observed"
+      },
+      "review-preparation": {
+        "count": 1,
+        "elapsed_ns": 7573112,
+        "effort_ns": 7573112
+      },
+      "model": {
+        "count": 0,
+        "elapsed_ns": null,
+        "effort_ns": null,
+        "reason": "not-observed"
+      },
+      "human-wait": {
+        "count": 0,
+        "elapsed_ns": null,
+        "effort_ns": null,
+        "reason": "not-observed"
+      },
+      "human-active": {
+        "count": 0,
+        "elapsed_ns": null,
+        "effort_ns": null,
+        "reason": "not-observed"
+      }
+    },
+    "human_wait_ns": null,
+    "human_active_ns": null,
+    "human_wait_reason": "not-observed",
+    "human_active_reason": "not-observed"
+  },
+  "lead_times": {
+    "idea_to_comparable_ns": null,
+    "idea_to_comparable_reason": "milestone-missing",
+    "comparable_to_decision_ns": null,
+    "comparable_to_decision_reason": "milestone-missing",
+    "decision_to_verified_ns": null,
+    "decision_to_verified_reason": "milestone-missing"
+  },
+  "marks": {},
+  "artifacts": [],
+  "token_usage": null,
+  "token_usage_missing_reason": "not-reported",
+  "cost": null,
+  "cost_missing_reason": "not-reported",
+  "diagnostics": []
+}

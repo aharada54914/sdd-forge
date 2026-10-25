@@ -1,0 +1,34 @@
+{
+  "alternatives": [
+    "a",
+    "b"
+  ],
+  "app_evaluation": "pending",
+  "baseline": "existing raw-log presentation",
+  "candidate": "playbook route and passive packet display",
+  "configuration": {
+    "dirty": true,
+    "model": null,
+    "model_reason": "deterministic fixture; no model invoked",
+    "os": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "python": "3.12.14",
+    "revision": "d5e045812105789cab7d192f1d177b9784edcc12"
+  },
+  "human_choice": "pending",
+  "initial_input": "Find completed task 2",
+  "parallel_executor": "unavailable",
+  "repetitions": 3,
+  "rollback": "discard only this new isolated fixture directory; no product files modified",
+  "schema": "factory-fixture-protocol/v1",
+  "stop": {
+    "max_runs": 12,
+    "seconds": 30,
+    "subprocess_seconds": 3
+  },
+  "success": [
+    "both stdout logs equal completed task: 2",
+    "no task/approval changes",
+    "candidate exposes both source logs and unknown human decision"
+  ],
+  "tolerance": "exact output and state equality; no timing threshold"
+}

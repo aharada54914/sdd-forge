@@ -146,9 +146,14 @@ def validate_manifest(root, manifest, revision):
         if name == "after-repair":
             patch = config.get("defect_patch", {})
             path = relative(patch.get("path"))
-            if not config.get("defect_expected") or sha(
-                git(root, "show", baseline + ":" + path)
-            ) != patch.get("sha256"):
+            if patch.get("source", "baseline") not in ("baseline", "harness"):
+                raise ValueError("invalid defect patch source")
+            raw = (
+                (root / path).read_bytes()
+                if patch.get("source") == "harness"
+                else git(root, "show", baseline + ":" + path)
+            )
+            if not config.get("defect_expected") or sha(raw) != patch.get("sha256"):
                 raise ValueError("invalid defect patch")
     primary = manifest["primary"]
     if (
@@ -387,6 +392,7 @@ def aggregate_trials(recipe, trials):
                 "class": kind,
                 "value": value,
                 "attempts": attempts,
+                "setup_runs": trial.get("setup_runs", []),
             }
         )
     counts = {
@@ -488,8 +494,16 @@ def main(argv=None):
                                     )
                                 )
                                 with context as work:
+                                    setup_runs = []
                                     if lifecycle == "after-repair":
-                                        patch = work / config["defect_patch"]["path"]
+                                        pin = config["defect_patch"]
+                                        patch = (
+                                            root
+                                            if pin.get("source") == "harness"
+                                            else work
+                                        ) / pin["path"]
+                                        if sha(patch.read_bytes()) != pin["sha256"]:
+                                            raise ValueError("defect patch changed")
                                         git(work, "apply", str(patch))
                                         defect = run_steps(
                                             work,
@@ -508,6 +522,7 @@ def main(argv=None):
                                             for r in defect["steps"]
                                         ):
                                             raise ValueError("defect did not reproduce")
+                                        setup_runs.append(defect)
                                         git(work, "apply", "--reverse", str(patch))
                                     split = next(
                                         (
@@ -551,6 +566,7 @@ def main(argv=None):
                                         {
                                             "trial_id": "trial" + str(number),
                                             "attempts": attempts,
+                                            "setup_runs": setup_runs,
                                         }
                                     )
                         result["scenarios"][scenario] = aggregate_trials(recipe, trials)

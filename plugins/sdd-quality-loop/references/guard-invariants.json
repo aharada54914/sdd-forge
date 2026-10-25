@@ -132,6 +132,7 @@
     "plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1",
     "plugins/sdd-bootstrap/scripts/workflow-playbook.py",
     "plugins/sdd-quality-loop/scripts/run_measurement.py",
+    "plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
     "decision-choice.json",
     "decision-choice.approval.json",
     "decision-choice.approved.json",

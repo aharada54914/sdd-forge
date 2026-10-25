@@ -1,0 +1,130 @@
+{
+  "schema": "decision-packet/v1",
+  "feature": "pilot",
+  "task": "T-001",
+  "run_id": "experiment-1",
+  "objective": "Find completed tasks",
+  "scenario": "Open completed task 2",
+  "hypotheses": [
+    "Separate list may reduce scanning"
+  ],
+  "inputs": [
+    {
+      "path": "scenario.txt",
+      "sha256": "20da4cf89c63da4afb7d0fe02ed3284df3956aed0b7f8b66882f1edc920e5342"
+    }
+  ],
+  "approval": {
+    "path": "specs/pilot/tasks.md",
+    "sha256": "541a29a4e33a3052caea7c0762e89792c4ea71ca5969fbe7fa9eb7553df12186"
+  },
+  "alternatives": [
+    {
+      "id": "a",
+      "description": "Task view a",
+      "preview": {
+        "path": "a.html",
+        "sha256": "b063312125bb60f3d1bed3f5269776c9662591b99fa1289f3e88d251c595c74f"
+      },
+      "diff": {
+        "path": "a.diff",
+        "sha256": "dc7f631250cd184ce3f021b4f67a1891c61d3c514d48e4afedf69ec2b8efb064"
+      },
+      "observations": [
+        {
+          "outcome": "success",
+          "reason": "Actual deterministic subprocess; no UX judgment",
+          "evidence": {
+            "path": "candidate-1-a.log",
+            "sha256": "3a45e44fc2d8262d99066a0bcc3ee8b11465c541590b1f1200c7ca2a17d6a1da"
+          },
+          "measurement": {
+            "directory": "measure-candidate-1-a",
+            "span_id": "fixture",
+            "run_id": "candidate-1-a",
+            "records": [
+              {
+                "path": "measure-candidate-1-a/measurement.json",
+                "sha256": "3c39bb407e2926773f7b0b28fef95b99f0cec8f57aca1409fb6622a2e5e7b993"
+              },
+              {
+                "path": "measure-candidate-1-a/spans/fixture.finish.json",
+                "sha256": "3c1ca7358a80a0debeda06f5c9314e0972097886a11f81fbfefe8b67cd5e9e47"
+              },
+              {
+                "path": "measure-candidate-1-a/spans/fixture.start.json",
+                "sha256": "3fef2744da6c020da714d68adcd90b3af027d05cefaa439970ec1305071d1f2b"
+              }
+            ]
+          }
+        }
+      ],
+      "counterevidence": [
+        "No human UX test"
+      ],
+      "unknowns": [
+        "User preference"
+      ]
+    },
+    {
+      "id": "b",
+      "description": "Task view b",
+      "preview": {
+        "path": "b.html",
+        "sha256": "719efc796d16f0c8e390f691bfd42606194888b126938afb45fa56da8f01b8a0"
+      },
+      "diff": {
+        "path": "b.diff",
+        "sha256": "8c6f03baba0fd863e46108a0cb5132b12f6de80db58db114a44019238fd54f84"
+      },
+      "observations": [
+        {
+          "outcome": "success",
+          "reason": "Actual deterministic subprocess; no UX judgment",
+          "evidence": {
+            "path": "candidate-1-b.log",
+            "sha256": "3a45e44fc2d8262d99066a0bcc3ee8b11465c541590b1f1200c7ca2a17d6a1da"
+          },
+          "measurement": {
+            "directory": "measure-candidate-1-b",
+            "span_id": "fixture",
+            "run_id": "candidate-1-b",
+            "records": [
+              {
+                "path": "measure-candidate-1-b/measurement.json",
+                "sha256": "391f2ec553ea66154562b2d1d372e9effc33b46a0f634c646cef3ea15eab4d0e"
+              },
+              {
+                "path": "measure-candidate-1-b/spans/fixture.finish.json",
+                "sha256": "869915e41c538dc3cc156fff4f6475ffbb4d16f96ef3f342343591568285570e"
+              },
+              {
+                "path": "measure-candidate-1-b/spans/fixture.start.json",
+                "sha256": "ea02ed41a8dc44aa73d95c53b51fbc26b89647050385e1a320fc9eff67fcbc76"
+              }
+            ]
+          }
+        }
+      ],
+      "counterevidence": [
+        "No human UX test"
+      ],
+      "unknowns": [
+        "User preference"
+      ]
+    }
+  ],
+  "recommendation": {
+    "alternative": null,
+    "reason": "Need user evidence"
+  },
+  "unknowns": [
+    "No real app selected"
+  ],
+  "risks": [
+    "Fixture is not UX evidence"
+  ],
+  "next_action": "Run equal-condition fixture; retain human decision pending",
+  "previous": null,
+  "concept_test": false
+}

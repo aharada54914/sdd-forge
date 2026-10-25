@@ -9,6 +9,7 @@ import sys
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location(
@@ -99,6 +100,63 @@ class Lifecycle(unittest.TestCase):
         )
         self.assertIn("owned.txt", result["observed_outputs"])
         self.assertTrue((self.root / result["receipt"]).is_file())
+
+    def test_manifest_change_after_admission_cannot_pass(self):
+        self.seal("import sys\nraise SystemExit(3 if len(sys.argv)>1 else 0)\n")
+        original = A.V.discover
+
+        def replaced(root, name, task=None):
+            snapshot = original(root, name, task)
+            if root == self.root:
+                manifest = dict(snapshot[0], args=["fail"])
+                A.save(self.skill / "skill-manifest.json", manifest)
+            return snapshot
+
+        with (
+            patch.object(A.V, "discover", side_effect=replaced),
+            patch.object(A, "execute") as execute,
+        ):
+            result = self.run_skill()
+        execute.assert_not_called()
+        self.assertFalse(result["observation_written"])
+        self.assertEqual(result["outcome"], "failed")
+
+    def test_admitted_file_copy_uses_the_verified_read(self):
+        self.seal('print("ok")\n')
+        seed = self.root / "seed.txt"
+        seed.write_bytes(b"admitted")
+        original = Path.read_bytes
+        reads = 0
+        copied = []
+
+        def swapped(path):
+            nonlocal reads
+            data = original(path)
+            if path == seed:
+                reads += 1
+                if reads == 2:
+                    seed.write_bytes(b"replacement")
+            return data
+
+        def execute(argv, execution, timeout, limit):
+            copied.append(original(execution / "seed.txt"))
+            return 0, b"", b"", None, True
+
+        with (
+            patch.object(Path, "read_bytes", swapped),
+            patch.object(A, "execute", execute),
+        ):
+            self.run_skill(inputs=["seed.txt"])
+        self.assertEqual(copied, [b"admitted"])
+
+    def test_observation_receipt_binds_published_bytes(self):
+        self.seal("raise SystemExit(3)\n")
+        result = self.run_skill()
+        self.assertEqual(result["exit_code"], 3)
+        self.assertEqual(
+            result["observation_sha256"],
+            A.V.digest((self.root / result["observation"]).read_bytes()),
+        )
 
     def test_missing_seed_failure_not_success(self):
         self.seal(

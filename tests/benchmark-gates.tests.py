@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import copy
+import difflib
 import hashlib
 import importlib.util
 import json
@@ -224,6 +225,46 @@ class BenchmarkTests(unittest.TestCase):
                 {"fixture_fingerprint": fp, "primary": {"admissible": False}},
             )
         )
+
+    def test_repair_keeps_failed_control_and_runs_restored_input(self):
+        source = (self.root / "gates/check.py").read_text()
+        change = "".join(
+            difflib.unified_diff(
+                source.splitlines(True),
+                ["raise SystemExit(3)\n"],
+                fromfile="a/gates/check.py",
+                tofile="b/gates/check.py",
+            )
+        )
+        patch = self.root / "control.patch"
+        patch.write_text(change)
+        manifest = copy.deepcopy(self.manifest)
+        manifest["lifecycles"] = {
+            "after-repair": {
+                "defect_patch": {
+                    "source": "harness",
+                    "path": "control.patch",
+                    "sha256": B.sha(change.encode()),
+                },
+                "defect_expected": {"gate": 3},
+            }
+        }
+        manifest["temperatures"] = ["cold", "warm"]
+        manifest["primary"]["lifecycle"] = "after-repair"
+        self.path.write_text(json.dumps(manifest))
+        output = Path(self.temp.name) / "repair"
+        self.assertEqual(
+            B.main(["--manifest", str(self.path), "--output", str(output), "--run"]), 0
+        )
+        result = json.loads((output / "results.json").read_text())
+        for scenario in result["scenarios"].values():
+            self.assertEqual(scenario["successful"], 5)
+            for trial in scenario["samples"]:
+                self.assertEqual(trial["setup_runs"][0]["steps"][0]["exit_code"], 3)
+                self.assertEqual(trial["attempts"][0]["steps"][0]["exit_code"], 0)
+        patch.write_text(change + "tamper")
+        with self.assertRaises(ValueError):
+            B.validate_manifest(self.root, manifest, self.candidate)
 
     def test_comparison_runs_real_gate_both_ways(self):
         output = Path(self.temp.name) / "compare"

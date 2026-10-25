@@ -1,0 +1,28 @@
+{
+  "trial": 3,
+  "variant": "candidate",
+  "outcome": "success",
+  "reason": null,
+  "seconds": 0.062084242001219536,
+  "token": null,
+  "cost": null,
+  "metrics_reason": "no model or cost meter",
+  "human_active_seconds": null,
+  "human_wait_seconds": null,
+  "human_time_reason": "no human participant in fixture",
+  "artifacts": [
+    {
+      "path": "candidate-3-a.log",
+      "sha256": "3a45e44fc2d8262d99066a0bcc3ee8b11465c541590b1f1200c7ca2a17d6a1da"
+    },
+    {
+      "path": "candidate-3-b.log",
+      "sha256": "3a45e44fc2d8262d99066a0bcc3ee8b11465c541590b1f1200c7ca2a17d6a1da"
+    }
+  ],
+  "protocol_sha256": "574b9d3d8004b2fdfbd6226c561f508c30238994c5ec3331ff406cbc431c4c5a",
+  "presentation_measurement": {
+    "path": "presentation-summary.json",
+    "sha256": "cce5d31a246ebf3b3a5d084deb16f4e7382aed2029c45d5cd2d62c493f64966d"
+  }
+}

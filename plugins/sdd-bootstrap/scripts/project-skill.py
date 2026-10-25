@@ -174,11 +174,11 @@ def validate_limits(timeout, output_limit):
 
 def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1048576):
     validate_limits(timeout, output_limit)
-    manifest, _unused, _state = V.validate(root, name)
+    manifest, raw_manifest, closure = V.discover(root, name)
+    manifest_relative = "sdd/skills/" + name + "/skill-manifest.json"
+    closure[manifest_relative] = V.digest(raw_manifest)
     if check not in manifest["checks"]:
         raise ValueError("check-not-declared")
-    raw_manifest = (root / "sdd/skills" / name / "skill-manifest.json").read_bytes()
-    closure = V.files_under(root, "sdd/skills/" + name, "closure-escape")
     task, task_raw = V.load(task_path, "input-unbound") if task_path else (None, None)
     if task:
         V.schema(task, "task-input-manifest.schema.json", "input-unbound")
@@ -256,12 +256,17 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
             execution = Path(temporary)
             for path, sha in admitted.items():
                 source = V.safe(root, path, "input-unbound", missing=False)
-                if not source.is_file() or V.digest(source.read_bytes()) != sha:
+                if not source.is_file():
+                    raise ValueError("input-unbound")
+                source_bytes = source.read_bytes()
+                if V.digest(source_bytes) != sha:
                     raise ValueError("input-unbound")
                 target = V.safe(execution, path, "input-unbound")
                 target.parent.mkdir(parents=True, exist_ok=True)
-                target.write_bytes(source.read_bytes())
+                target.write_bytes(source_bytes)
             _m, _raw, skill_closure = V.discover(execution, name, task)
+            if _raw != raw_manifest or _m != manifest:
+                raise ValueError("manifest-changed-after-admission")
             # Validate admission/output boundaries before executing any command.
             if task:
                 V.source_records(execution, manifest, task, observation, skill_closure)
@@ -355,8 +360,12 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
             "sha256": V.digest(data),
         }
     if failure is None:
-        save(destination, observation, exclusive=bool(task))
+        observation_bytes = (json.dumps(observation, indent=2) + "\n").encode("utf-8")
+        result["observation_sha256"] = V.digest(observation_bytes)
+        with destination.open("xb" if task else "wb") as output:
+            output.write(observation_bytes)
         V.validate(root, name, destination, task_path)
+    result["exit_code"] = observation.get("exit_code")
     result["observation_written"] = failure is None
     save(log_stem.with_suffix(".receipt.json"), result, exclusive=True)
     result["receipt"] = (

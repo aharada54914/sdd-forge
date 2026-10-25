@@ -17,6 +17,44 @@ The consolidation-only head `c5a02f06` passed hosted CI run `40164678505`.
 Subsequent implementation changes need their own checks. Real app evaluation for
 #624 remains pending by the user's explicit selection; its fixture work proceeds.
 
+## Implementation checkpoint — 2026-10-25
+
+The implementation checkpoint is `dc0c17c2`, on draft PR
+[#652](https://github.com/aharada54914/sdd-forge/pull/652). This is code and fixture
+progress, not a claim that all 33 Issues meet every acceptance condition.
+
+| Issues | Implemented and exercised | Remaining acceptance |
+|---|---|---|
+| #594 | Closed skill/observation contracts, passive validators and projection | Final integration CI |
+| #595–#598 | Internal create/maintain skills; seal/run/maintain; isolated inputs and observed process cleanup; drift and invalidation fixtures | Linux execution backend only; unsupported platforms return not-run; unexercised document procedures remain draft |
+| #599 | Five bounded playbooks attached to existing bootstrap/ship entry points | Native host walkthrough |
+| #600 | Five real-failure-derived golden cases, blinded prepare/grade/compare and provenance checks | Native comparison cannot run: supported auth check reports reauthentication_required; no adoption result invented |
+| #601 | Source-backed regression cases and structural classification checks | Final integration CI; no claim that prose alone prevents every recurrence |
+| #602 | Canonical host wrapper generation, conflict checks and restrictive-control preservation | Actual native Claude/Codex/Copilot discovery/invocation |
+| #603 | Real TLC counterexample plus real Bash reservation-tail concurrency mutation/recovery | Bounded two-contender proof only; not whole-app verification |
+| #605 | Closed research evidence contract and packaged identical schema | Final integration CI |
+| #606 | Bounded HTML/text acquisition, original preservation, SSRF/redirect/type/encoding controls and total worker deadline | PDF/subtitle conversion, shared stores and unsupported proxy adapters |
+| #607 | Fresh original-byte/extractor/citation verification, mutation rejection | Final integration CI |
+| #608 | Two-route discovery/citation-following contracts and bounded collection | Actual live search-provider exercise |
+| #609 | Existing spec/implementation review manifest and contract-owner integration | Final integration CI |
+| #610 | Escaped HTML, original quotations, missing/conflicting claims and explicitly unverified optional translations | Real research workflow evaluation |
+| #611–#612 | Feed/content change separation, stale analysis and small evidence-graph impact lookup | Final integration CI |
+| #614–#615 | Owner measurement and feature-scoped correction feedback, preserving final whole-repository checks | Frozen baseline/candidate benchmark and final integration CI |
+| #616 | Conflicting sudo guidance corrected, negative cases retained, actual host trust boundary documented | Authentic host-side issuer unavailable; no fabricated enablement |
+| #617 | Actual runner-to-contract/bundle collector; independent review in progress | TDD/critical provenance integration remains unsupported; no imported PASS acceptance |
+| #618 | Existing fixed-input manifest's reviewer navigation index | Safe heavy-result cache not shipped: dependency/issuer closure not established; benchmark pending |
+| #620 | Read-only PR-access preflight before costly audit; sanitized failure diagnostics | Actual PR-write credential remediation and successful full weekly run; permissions API still403 |
+| #622 | Pinned decision packets and existing human-only signer extension for adopt/reject/hold history | Final guard/integration review |
+| #623 | Source-pinned inventory and ADR for existing executor capabilities | No suitable cancellation/resume/lease adapter established; Issue-defined stop condition, no new scheduler |
+| #624 | Real paired fixture execution, 3baseline+3candidate runs and measured preparation spans | Real-app UX evaluation intentionally pending by user instruction; no benefit claim |
+| #197 | Existing advisory dogfood implementation retained | Actual release-cycle evidence, authorized promotion and facet-hybrid end-to-end run |
+| #187/#593/#604/#613/#621 | Dependency tracking retained | Parent completion follows the unresolved child acceptance above |
+
+Independent review found and drove fixes for quoted-text forgery, evidence
+replacement after validation, acquisition timeout escape, decision replay and
+publication-journal bypass. Further integration findings are fixed before handoff.
+No historical approval or frozen evidence was rewritten to manufacture acceptance.
+
 ## Consolidation and branch cleanup — 2026-10-25 (JST)
 
 The current request authorizes work on all 33 open Issues and reuse/removal of
