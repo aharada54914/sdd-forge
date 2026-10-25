@@ -21,10 +21,14 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--status-fd", type=int, required=True)
     parser.add_argument("--timeout", type=float, required=True)
+    parser.add_argument("--inherit-stdin", action="store_true")
+    parser.add_argument("--output-limit-bytes", type=int)
     parser.add_argument("argv", nargs=argparse.REMAINDER)
     args = parser.parse_args()
     if not math.isfinite(args.timeout) or not 0 < args.timeout <= 3600:
         parser.error("--timeout must be finite and between 0 and 3600 seconds")
+    if args.output_limit_bytes is not None and not 0 < args.output_limit_bytes <= 32 * 1024 * 1024:
+        parser.error("--output-limit-bytes must be between 1 and 33554432")
     if not Path("/proc/self/stat").is_file():
         parser.error("process ownership requires Linux procfs")
     command = args.argv[1:] if args.argv[:1] == ["--"] else args.argv
@@ -38,8 +42,19 @@ def main():
         stop = [False]
         signal.signal(signal.SIGTERM, lambda *_: stop.__setitem__(0, True))
         signal.signal(signal.SIGINT, lambda *_: stop.__setitem__(0, True))
+        # A caller's cancellation must not strand its supervised descendants.
+        parent = os.getppid()
+        if libc.prctl(1, signal.SIGTERM, 0, 0, 0) != 0:
+            raise OSError("parent-death-registration-failed")
+        if parent == 1 or os.getppid() != parent:
+            raise ValueError("cancelled")
+        if args.output_limit_bytes is not None:
+            import resource
+            limit = min([args.output_limit_bytes] + [value for value in resource.getrlimit(resource.RLIMIT_FSIZE) if value >= 0])
+            resource.setrlimit(resource.RLIMIT_FSIZE, (limit, limit))
         process = subprocess.Popen(
-            command, stdin=subprocess.DEVNULL, close_fds=True, start_new_session=True
+            command, stdin=None if args.inherit_stdin else subprocess.DEVNULL,
+            close_fds=True, start_new_session=True
         )
         deadline = time.monotonic() + args.timeout
         while process.poll() is None:

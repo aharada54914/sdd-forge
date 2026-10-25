@@ -2,6 +2,9 @@
 """Public address, redirect, decoding and no-persistence acquisition controls."""
 
 import gzip
+import io
+import os
+import shutil
 import base64
 import copy
 import importlib.util
@@ -97,7 +100,7 @@ class Acquire(unittest.TestCase):
         self.assertIsNotNone(workers[0].poll())
         self.assertTrue(
             all(
-                stream.closed
+                stream is None or stream.closed
                 for stream in (workers[0].stdin, workers[0].stdout, workers[0].stderr)
             )
         )
@@ -339,7 +342,7 @@ class Acquire(unittest.TestCase):
             (
                 b"%PDF-1.5 many bytes but no sandboxed extractor",
                 "application/pdf",
-                "pdf-extractor-unavailable",
+                "pdf-(extractor-unavailable|sandbox-unavailable|invalid)",
             ),
         ]:
             with self.assertRaisesRegex(a.Invalid, error):
@@ -470,6 +473,195 @@ class Acquire(unittest.TestCase):
                     )["deleted"],
                 )
                 self.assertFalse(entry.exists())
+
+
+class PDFExtraction(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if sys.platform != 'linux' or not shutil.which('bwrap') or importlib.util.find_spec('pypdf') is None:
+            raise unittest.SkipTest('isolated PDF extraction requires Linux, bwrap and optional pypdf')
+        try:
+            a.extract(cls.pdf(), 'application/pdf')
+        except a.Invalid as error:
+            if error.code == 'pdf-sandbox-unavailable':
+                raise unittest.SkipTest('kernel/runtime cannot establish PDF sandbox')
+            raise
+
+    @staticmethod
+    def pdf(blank=False, encrypted=False):
+        import pypdf
+        from pypdf.generic import DictionaryObject, NameObject, DecodedStreamObject
+        writer = pypdf.PdfWriter()
+        page = writer.add_blank_page(width=612, height=792)
+        if not blank:
+            font = DictionaryObject({NameObject('/Type'): NameObject('/Font'),
+                                     NameObject('/Subtype'): NameObject('/Type1'),
+                                     NameObject('/BaseFont'): NameObject('/Helvetica')})
+            page[NameObject('/Resources')] = DictionaryObject({NameObject('/Font'): DictionaryObject({
+                NameObject('/F1'): writer._add_object(font)})})
+            stream = DecodedStreamObject()
+            stream.set_data(b'BT /F1 12 Tf 50 700 Td (Left column first statement.) Tj ET\n'
+                            b'BT /F1 12 Tf 320 700 Td (Right column second statement.) Tj ET\n'
+                            b'BT /F1 12 Tf 50 680 Td (Left column following context.) Tj ET')
+            page[NameObject('/Contents')] = writer._add_object(stream)
+        if encrypted:
+            writer.encrypt('synthetic-password')
+        buffer = io.BytesIO()
+        writer.write(buffer)
+        return buffer.getvalue()
+
+    def test_actual_pdf_layout_and_version_are_reproducible(self):
+        body = self.pdf()
+        extracted, method, media = a.extract(body, 'application/pdf')
+        self.assertEqual((extracted, method, media), a.extract(body, 'application/pdf'))
+        self.assertRegex(method, r'^pypdf-[0-9]+-[0-9]+-[0-9]+-[0-9a-f]{64}-layout/v1$')
+        first, second = [line for line in extracted.decode().splitlines() if line.strip()]
+        self.assertLess(first.index('Left column first'), first.index('Right column second'))
+        self.assertIn('Left column following context.', second)
+        for body, expected in ((self.pdf(blank=True), 'pdf-text-unavailable'),
+                               (self.pdf(encrypted=True), 'pdf-encrypted'),
+                               (b'%PDF-1.7 invalid fixture', 'pdf-invalid')):
+            with self.subTest(expected=expected), self.assertRaisesRegex(a.Invalid, expected):
+                a.extract(body, 'application/pdf')
+        with self.assertRaisesRegex(a.Invalid, 'media-mismatch'):
+            a.extract(self.pdf(), 'text/html')
+
+    def test_pdf_acquisition_metadata_binds_actual_parser_output(self):
+        body = self.pdf()
+        metadata, original, extracted = a._acquire(
+            'https://example.org/paper.pdf', ['example.org'], resolver=resolver,
+            transport=lambda *_: (200, {'content-type': 'application/pdf'}, body))
+        self.assertEqual(body, original)
+        self.assertEqual(a.digest(body), metadata['content_sha256'])
+        self.assertEqual(a.digest(extracted), metadata['extraction']['extracted_sha256'])
+        self.assertEqual('reference_only', metadata['storage_mode'])
+        packet = dict(metadata=metadata, body=base64.b64encode(original).decode(),
+                      extracted=base64.b64encode(extracted).decode())
+        with mock.patch.object(a, 'getproxies', return_value={}), \
+             mock.patch.object(a, '_run_bounded', return_value=(0, json.dumps(packet).encode())):
+            self.assertEqual((metadata, original, extracted),
+                             a.acquire('https://example.org/paper.pdf', ['example.org']))
+
+    def test_pdf_original_verification_rejects_wrong_order_and_recipe(self):
+        module_spec = importlib.util.spec_from_file_location('pdf_source_fixture', ROOT / 'tests/research-evidence.tests.py')
+        fixture = importlib.util.module_from_spec(module_spec)
+        module_spec.loader.exec_module(fixture)
+        from research_consumers import verify_originals
+        body = self.pdf()
+        extracted, method, _ = a.extract(body, 'application/pdf')
+        document = fixture.document()
+        source = document['sources'][0]
+        source.update(media_type='application/pdf', content_sha256=a.digest(body),
+                      extraction=dict(method=method, extracted_sha256=a.digest(extracted)))
+        first = extracted.decode().splitlines()[0]
+        citation = document['claims'][0]['citations'][0]
+        citation['anchor'].update(quote=first, quote_sha256=a.digest(first.encode()))
+        snapshots = dict(schema='research-snapshots/v1', feature='sample', snapshots=[dict(
+            source_id='SRC-001', record_revision=1, original='original', extracted='text')])
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'original').write_bytes(body)
+            (root / 'text').write_bytes(extracted)
+            self.assertTrue(verify_originals(document, snapshots, root)['complete'])
+            forged = b'Right column second statement. Left column first statement.\n'
+            (root / 'text').write_bytes(forged)
+            source['extraction']['extracted_sha256'] = a.digest(forged)
+            with self.assertRaisesRegex(a.Invalid, 'extraction-provenance-mismatch'):
+                verify_originals(document, snapshots, root)
+            (root / 'text').write_bytes(extracted)
+            source['extraction'] = dict(method='pypdf-0-0-0-' + '0' * 64 + '-layout/v1',
+                                        extracted_sha256=a.digest(extracted))
+            with self.assertRaisesRegex(a.Invalid, 'extraction-provenance-mismatch'):
+                verify_originals(document, snapshots, root)
+
+    def test_actual_sandbox_hides_environment_files_and_host_network(self):
+        import research_extraction as extraction
+        with tempfile.TemporaryDirectory() as directory, socket.socket() as listener:
+            root = Path(directory)
+            private = root / 'private.txt'
+            private.write_text('Synthetic private fixture; must stay outside parser')
+            listener.bind(('127.0.0.1', 0))
+            listener.listen()
+            port = listener.getsockname()[1]
+            package = root / 'pypdf'
+            package.mkdir()
+            # Trusted fault-injection parser tests the real namespace boundary;
+            # ordinary PDF extraction above uses the actual installed pypdf.
+            (package / '__init__.py').write_text("""import os, socket
+__version__ = '0.0.0'
+class Page:
+    def get_contents(self): return True
+    def extract_text(self, **kwargs):
+        outcomes = ['env-hidden' if 'PDF_PROBE_SECRET' not in os.environ else 'env-exposed']
+        try:
+            open(%r).read()
+            outcomes.append('file-exposed')
+        except OSError:
+            outcomes.append('file-hidden')
+        connection = socket.socket()
+        connection.settimeout(0.2)
+        try:
+            connection.connect(('127.0.0.1', %d))
+            outcomes.append('network-exposed')
+        except OSError:
+            outcomes.append('network-hidden')
+        finally:
+            connection.close()
+        try:
+            open('/tmp/unexpected-write', 'w').write('x')
+            outcomes.append('write-exposed')
+        except OSError:
+            outcomes.append('write-denied')
+        try:
+            child = os.fork()
+            if child == 0: os._exit(0)
+            os.waitpid(child, 0)
+            outcomes.append('fork-exposed')
+        except OSError:
+            outcomes.append('fork-denied')
+        return ' '.join(outcomes)
+class PdfReader:
+    is_encrypted = False
+    pages = [Page()]
+    def __init__(self, *args, **kwargs): pass
+""" % (str(private), port))
+            parser = importlib.util.spec_from_file_location('pypdf', package / '__init__.py')
+            with mock.patch.object(extraction.importlib.util, 'find_spec', return_value=parser), \
+                 mock.patch.dict(os.environ, {'PDF_PROBE_SECRET': 'synthetic-value'}):
+                output, _, _ = a.extract(b'%PDF-test-isolation', 'application/pdf')
+            self.assertEqual(b'env-hidden file-hidden network-hidden write-denied fork-denied', output)
+            self.assertTrue(private.exists())
+
+
+    def test_parser_stdout_cannot_expand_parent_communicate_buffer(self):
+        import research_extraction as extraction
+        observed = []
+        actual_popen = subprocess.Popen
+        with tempfile.TemporaryDirectory() as directory:
+            package = Path(directory) / 'pypdf'
+            package.mkdir()
+            (package / '__init__.py').write_text(
+                "import os\nfor _ in range(1024): os.write(1, b'x' * 65536)\nraise ImportError('probe')\n")
+            parser = importlib.util.spec_from_file_location('pypdf', package / '__init__.py')
+            def launch(*args, **kwargs):
+                captured = kwargs['stdout']
+                self.assertNotEqual(subprocess.PIPE, captured)
+                process = actual_popen(*args, **kwargs)
+                communicate = process.communicate
+                def measured(*args, **kwargs):
+                    result = communicate(*args, **kwargs)
+                    observed.append((result[0], os.fstat(captured.fileno()).st_size, process.returncode))
+                    return result
+                process.communicate = measured
+                return process
+            with mock.patch.object(extraction.importlib.util, 'find_spec', return_value=parser), \
+                 mock.patch.object(extraction.subprocess, 'Popen', side_effect=launch), \
+                 self.assertRaisesRegex(a.Invalid, 'pdf-worker-invalid'):
+                a.extract(b'%PDF-output-bound-probe', 'application/pdf')
+        self.assertEqual(1, len(observed))
+        self.assertIsNone(observed[0][0])
+        self.assertEqual(3 * 1024 * 1024, observed[0][1])
+        self.assertNotEqual(0, observed[0][2])
 
 
 if __name__ == "__main__":

@@ -2,6 +2,8 @@
 
 v1.20.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
 
+任意の原文根拠調査は、Linuxの対応環境でPDFの隔離抽出・再照合も利用できます。全文の保存は既定で行いません。[利用条件と境界](plugins/sdd-bootstrap/references/research-workflow.md)。
+
 ## クイックスタート（2コマンド）
 
 ```bash

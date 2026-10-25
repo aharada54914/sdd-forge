@@ -1,0 +1,12 @@
+{
+  "scope": "actual generated two-column PDF; metadata only, no third-party original",
+  "platform": "linux",
+  "python": "3.12.14",
+  "media_type": "application/pdf",
+  "method": "pypdf-6-10-0-871e199b87bd2d03c9de7819f76494e90876b458ae6b65a580557acf23000da6-layout/v1",
+  "original_sha256": "ad6abc01e06b9882aba47ba0b05af5d8697a6ba649b93f9e78e2f5b6f6c2a16e",
+  "extracted_sha256": "8eabc6acfa735632a3f3630226c87a528713d8d309d90e79c3d91f36015b6279",
+  "synthetic_text": "Left column first statement.                                  Right column second statement.\nLeft column following context.",
+  "fixture_source_sha256": "5f3f5f38615a7449ce8e45c42b13d9e1c439e0ecbb63a1033c9281b0884bba65",
+  "reusable": false
+}

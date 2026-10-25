@@ -1,0 +1,28 @@
+[
+  {
+    "case": "pdf-supervisor-timeout",
+    "result": "pdf-timeout",
+    "elapsed": 0.7217564549937379,
+    "tracked": [
+      1640924,
+      1640925,
+      1640926,
+      1640927
+    ],
+    "remaining": []
+  },
+  {
+    "case": "outer-acquisition-timeout-nested-pdf",
+    "result": "transport-timeout",
+    "elapsed": 1.2348505120025948,
+    "tracked": [
+      1640929,
+      1640930,
+      1640931,
+      1640932,
+      1640933,
+      1640934
+    ],
+    "remaining": []
+  }
+]

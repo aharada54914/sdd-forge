@@ -1,0 +1,42 @@
+{
+  "scope": "Actual sandbox and worker; trusted fake parser fault injection. Timeout shortened only at communicate call.",
+  "prior_stdout_probe": {
+    "note": "Recorded actual pre-fix observation from earlier review execution; not rerun on current product.",
+    "parent_buffer_bytes": 67108903,
+    "error": "extraction-too-large"
+  },
+  "current": [
+    {
+      "case": "flood-output",
+      "anonymous_bytes": 3145728,
+      "communicate_stdout_is_none": true
+    },
+    {
+      "case": "flood-result",
+      "error": "pdf-worker-invalid"
+    },
+    {
+      "case": "real-readonly-fork-thread",
+      "text": "blocked:/tmp/probe blocked:/dev/probe blocked:/probe blocked:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/pypdf/__init__.py fork-blocked thread-blocked"
+    },
+    {
+      "case": "timeout-result",
+      "error": "pdf-timeout"
+    },
+    {
+      "case": "timeout-processes",
+      "tracked": [
+        1640585,
+        1640586,
+        1640587
+      ],
+      "remaining": [
+        {
+          "pid": 1640586,
+          "stat": "1640586 (bwrap) Z 1 1640586 1640586 0 -1 4228428 104 0 0 0 0 0 0 0 20 0 1 0 3392651 0 0 18446744073709551615 0 0 0 0 0 0 65536 65536 0 1 0 0 17 3 0 0 0 0 0 0 0 0 0 0 0 0 9\n"
+        }
+      ],
+      "timeout_override_seconds": 0.2
+    }
+  ]
+}

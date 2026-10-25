@@ -1,0 +1,11 @@
+{
+  "schema": "verification-input-hashes/v1",
+  "reusable": false,
+  "files": {
+    "plugins/sdd-bootstrap/references/research-workflow.md": "b48ad25277a6af741b5f6560c384e86b6ab64019ac7cef18d051897f2cefa2e1",
+    "plugins/sdd-bootstrap/scripts/project-skill-process.py": "6ba8756e0f841d4dd841a59f24e15d0558b85522e8f6174fc3d4f6d2f806ebdc",
+    "plugins/sdd-bootstrap/scripts/research-acquire.py": "1cde837b96e4497e24b98bc9ff0e6791ab41bde7e38f849b8a2cdafc08c41a7b",
+    "plugins/sdd-quality-loop/scripts/research_extraction.py": "9857fad5ed701f1b163c03c94584facc15b18b70f6d265358aa524a6fb3b7304",
+    "tests/research-acquire.tests.py": "5f3f5f38615a7449ce8e45c42b13d9e1c439e0ecbb63a1033c9281b0884bba65"
+  }
+}

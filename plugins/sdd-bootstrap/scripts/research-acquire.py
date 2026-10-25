@@ -42,7 +42,7 @@ from research_evidence import (  # noqa: E402 - sibling runtime path is explicit
 )
 
 MAX_RESPONSE = 4 * 1024 * 1024
-from research_extraction import extract  # noqa: E402 - sibling runtime path is explicit.
+from research_extraction import extract, supervise  # noqa: E402 - sibling runtime path is explicit.
 
 
 def public_addresses(host, port, resolver=socket.getaddrinfo):
@@ -227,6 +227,8 @@ def _stop_worker(process):
 
 def _run_bounded(command, payload, timeout):
     _budget(timeout, 0)
+    if sys.platform == 'linux':
+        return supervise(command, payload, timeout, prefix='transport', output_limit=9 * 1024 * 1024)
     started = time.monotonic()
     try:
         process = subprocess.Popen(
@@ -256,7 +258,7 @@ def _run_bounded(command, payload, timeout):
 
 
 def _worker_main():
-    """Private subprocess entry; no cache writes and no child process launches."""
+    """Private fetch entry; isolated PDF children die with this worker; no cache writes."""
     try:
         raw = sys.stdin.buffer.read(16385)
         require(len(raw) <= 16384, "request-too-large")
@@ -376,7 +378,10 @@ def acquire(url, hosts, *, allow_http=False, timeout=15, redirects=3):
             {"text/html": "html-text/v1", "application/xhtml+xml": "html-text/v1"}
         )
         require(
-            media in methods and metadata["extraction"]["method"] == methods[media],
+            (media in methods and metadata["extraction"]["method"] == methods[media])
+            or (media == "application/pdf" and isinstance(metadata["extraction"]["method"], str)
+                and re.fullmatch(r"pypdf-[0-9]+-[0-9]+-[0-9]+-[0-9a-f]{64}-layout/v1",
+                                 metadata["extraction"]["method"]) is not None),
             "transport-worker-invalid",
         )
         require(

@@ -32,6 +32,17 @@ Historical failed pins grant no current approval. Final hosted CI and remaining
 Issue acceptance are tracked separately; #624 real-app evaluation remains pending
 by the user's instruction.
 
+## Optional PDF follow-up — 2026-10-25
+
+#606/#607 now share actual isolated PDF layout extraction and original-byte
+re-verification on supported Linux/pypdf runtimes. The existing process supervisor
+owns nested fetch/parser descendants and bounded output. Acquisition/PDF tests
+pass 27 cases and existing project lifecycle tests pass 35; independent timeout
+probes confirm complete ordinary descendant reaping. [Evidence](../../reports/verification/research-pdf-20261025/README.md).
+Shared-storage access and subtitle/video-time support remain implementation gaps;
+unsupported PDF platforms are not reported as passing. #615/#618 reuse and the
+external acceptance items below remain open work.
+
 ## Acceptance audit and research follow-up — 2026-10-25
 
 The latest independent audit separates real development gaps from unnecessary
@@ -47,8 +58,8 @@ The 36-suite shared Python profile completed with all exit codes zero, but its
 receipt is explicitly non-reusable because development commits changed during
 the run. Hosted final-source CI remains separate. #615 stage-two same-session
 full-result reuse and #618 heavy-result reuse are **implementation gaps**, not
-approval waits. Licensed shared storage/access and PDF/subtitle support remain
-research implementation gaps; optional live networking is not substituted for
+approval waits. Licensed shared storage/access and subtitle support remain
+research implementation gaps; supported Linux PDF work is recorded above; optional live networking is not substituted for
 fixture acceptance. Historical status sections below are superseded, not gates
 for this development session.
 

@@ -173,3 +173,28 @@ and actual research pins. The internal resolver marks this result
 semantic relations were reverified. Repairing current research therefore does not
 invalidate the saved failure. Current PASS/new-review admission continues to use
 live input verification. A failed historical record cannot supply current approval.
+
+
+## Optional PDF originals
+
+The existing acquisition command also accepts real `application/pdf` responses
+when Linux bubblewrap/user namespaces, pypdf and the shared project process
+supervisor are available. No parser is downloaded or invoked through a shell.
+PDF parsing runs with no host network, home, worktree or inherited credentials;
+its runtime mounts are read-only. Five CPU seconds, ten elapsed parser seconds,
+384 MiB address space, 500 pages, 32 MiB parser input and 2 MiB extracted output
+are upper bounds; tighter inherited limits remain in force. The existing fetch
+response and total-deadline limits still apply independently. Cleanup has its own
+bounded allowance and failure is never a successful extraction.
+
+The source stores a `pypdf-<version>-<source-sha256>-layout/v1` method. Original
+verification recomputes it and the text from original bytes, so a reordered
+column excerpt or different parser cannot borrow a previous verified result.
+Line positions refer to that layout extraction, not an inferred human reading
+order or semantic proof. Encrypted, image-only/empty and malformed PDFs fail;
+there is no automatic password handling, OCR or attachment execution.
+
+Default `reference_only` output contains metadata and hashes, not the full PDF
+or extracted body. Existing explicit local-cache rights/expiry controls apply to
+PDFs as they do to text. Licensed shared storage and unsupported environments
+still need their adapters. A failed acquisition does not replace old snapshots.

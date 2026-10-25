@@ -368,3 +368,5 @@ claude mcp add ci-mcp --scope user -- node <install-root>/mcp/ci-mcp/dist/index.
 ### 外部根拠の調査
 
 bootstrapのinvestigate/featureで外部根拠が必要な場合は、内部の`research-sources`が3〜6主張を整理し、異なる2経路で最大4周の調査を行います。通常の技術検索語は送信できますが、秘密や明示された送信禁止条件を守ります。原文を確認できない主張、反証、未到達事項は未解決のまま保持します。SRC/CLMのID・版と原文照合をinterviewerで確認し、既存レビューへ渡します。検索結果や引用の文字列一致は、人間の承認や意味の正しさを代替しません。公開コマンドの追加はありません。
+
+PDFの原文取得・再照合は、Linuxでbubblewrapとpypdf、既存のプロセス監督器が利用できる場合に対応します。解析はネットワーク・ホーム・作業ツリーから隔離し、抽出版と原文hashを記録します。既定のreference_onlyでは全文をGitや公開レポートへ保存しません。暗号化・画像だけのPDFや非対応環境は明示的に失敗し、OCRや認証回避は行いません。詳細は[研究入力の手順](plugins/sdd-bootstrap/references/research-workflow.md)を参照してください。

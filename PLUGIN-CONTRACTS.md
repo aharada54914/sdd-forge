@@ -39,7 +39,12 @@ The project-skill runner's temporary execution tree is not an OS sandbox. Its
 process ownership backend is tested on Linux; unsupported backends return
 not-run. Host wrapper generation is separate from actual host discovery and
 invocation. Research acquisition refuses unsupported proxy/extractor boundaries
-rather than treating them as successful retrieval. The existing source-evidence
+rather than treating them as successful retrieval. Optional Linux PDF support
+requires bubblewrap/user namespaces, pypdf and the existing project process
+supervisor. It shares extraction with original verification and records the parser
+version/source digest; encrypted/image-only PDFs and unavailable runtimes fail
+explicitly. Parser mounts are read-only and its network/environment are isolated.
+The existing source-evidence
 owner uses an optional pinned `research/review-input.json` envelope and the runtime
 `SDD_RESEARCH_SNAPSHOT_ROOT`; private cache paths are not persisted. HTML
 `--annotations` translations remain explicitly meaning-unverified. Feed changes
