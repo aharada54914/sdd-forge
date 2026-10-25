@@ -29,7 +29,25 @@
       "individual_red": false,
       "original_not_run": false,
       "evidence": "final-transition-bash-v4.log",
-      "original_checkpoint": "checkpoint-red-bash.log"
+      "original_checkpoint": "checkpoint-red-bash.log",
+      "historical_timing": "original preimplementation log retained; original per-call time unavailable",
+      "retrospective_timed_evidence": "retrospective-dispatch-timing.json",
+      "retrospective_matches": [
+        {
+          "source_revision": "aa54d2fcc1843cefb308cdc435768590f4b35276",
+          "phase": "checkpoint",
+          "started_at_utc": "2026-10-25T04:56:45.681554+00:00",
+          "finished_at_utc": "2026-10-25T04:56:45.683465+00:00",
+          "result": "PASS"
+        },
+        {
+          "source_revision": "f7e6bc53e386a0d5470dfb1b078ae43ee40aec9f",
+          "phase": "current",
+          "started_at_utc": "2026-10-25T04:56:45.730075+00:00",
+          "finished_at_utc": "2026-10-25T04:56:45.731627+00:00",
+          "result": "PASS"
+        }
+      ]
     },
     {
       "runtime": "bash",
@@ -39,7 +57,25 @@
       "individual_red": false,
       "original_not_run": false,
       "evidence": "final-transition-bash-v4.log",
-      "original_checkpoint": "checkpoint-red-bash.log"
+      "original_checkpoint": "checkpoint-red-bash.log",
+      "historical_timing": "original preimplementation log retained; original per-call time unavailable",
+      "retrospective_timed_evidence": "retrospective-dispatch-timing.json",
+      "retrospective_matches": [
+        {
+          "source_revision": "aa54d2fcc1843cefb308cdc435768590f4b35276",
+          "phase": "checkpoint",
+          "started_at_utc": "2026-10-25T04:56:45.686492+00:00",
+          "finished_at_utc": "2026-10-25T04:56:45.716248+00:00",
+          "result": "PASS"
+        },
+        {
+          "source_revision": "f7e6bc53e386a0d5470dfb1b078ae43ee40aec9f",
+          "phase": "current",
+          "started_at_utc": "2026-10-25T04:56:45.734613+00:00",
+          "finished_at_utc": "2026-10-25T04:56:45.759845+00:00",
+          "result": "PASS"
+        }
+      ]
     },
     {
       "runtime": "bash",
@@ -59,7 +95,25 @@
       "individual_red": false,
       "original_not_run": false,
       "evidence": "final-transition-bash-v4.log",
-      "original_checkpoint": "checkpoint-red-bash.log"
+      "original_checkpoint": "checkpoint-red-bash.log",
+      "historical_timing": "original preimplementation log retained; original per-call time unavailable",
+      "retrospective_timed_evidence": "retrospective-dispatch-timing.json",
+      "retrospective_matches": [
+        {
+          "source_revision": "aa54d2fcc1843cefb308cdc435768590f4b35276",
+          "phase": "checkpoint",
+          "started_at_utc": "2026-10-25T04:56:45.719526+00:00",
+          "finished_at_utc": "2026-10-25T04:56:45.720938+00:00",
+          "result": "PASS"
+        },
+        {
+          "source_revision": "f7e6bc53e386a0d5470dfb1b078ae43ee40aec9f",
+          "phase": "current",
+          "started_at_utc": "2026-10-25T04:56:45.763156+00:00",
+          "finished_at_utc": "2026-10-25T04:56:45.764584+00:00",
+          "result": "PASS"
+        }
+      ]
     },
     {
       "runtime": "bash",
@@ -640,7 +694,25 @@
       "individual_red": false,
       "original_not_run": false,
       "evidence": "final-transition-powershell-v4.log",
-      "original_checkpoint": "checkpoint-red-powershell.log"
+      "original_checkpoint": "checkpoint-red-powershell.log",
+      "historical_timing": "original preimplementation log retained; original per-call time unavailable",
+      "retrospective_timed_evidence": "retrospective-dispatch-timing.json",
+      "retrospective_matches": [
+        {
+          "source_revision": "aa54d2fcc1843cefb308cdc435768590f4b35276",
+          "phase": "checkpoint",
+          "started_at_utc": "2026-10-25T04:56:45.784758+00:00",
+          "finished_at_utc": "2026-10-25T04:56:46.059541+00:00",
+          "result": "PASS"
+        },
+        {
+          "source_revision": "f7e6bc53e386a0d5470dfb1b078ae43ee40aec9f",
+          "phase": "current",
+          "started_at_utc": "2026-10-25T04:56:46.728028+00:00",
+          "finished_at_utc": "2026-10-25T04:56:46.953498+00:00",
+          "result": "PASS"
+        }
+      ]
     },
     {
       "runtime": "powershell",
@@ -650,7 +722,25 @@
       "individual_red": false,
       "original_not_run": false,
       "evidence": "final-transition-powershell-v4.log",
-      "original_checkpoint": "checkpoint-red-powershell.log"
+      "original_checkpoint": "checkpoint-red-powershell.log",
+      "historical_timing": "original preimplementation log retained; original per-call time unavailable",
+      "retrospective_timed_evidence": "retrospective-dispatch-timing.json",
+      "retrospective_matches": [
+        {
+          "source_revision": "aa54d2fcc1843cefb308cdc435768590f4b35276",
+          "phase": "checkpoint",
+          "started_at_utc": "2026-10-25T04:56:46.062936+00:00",
+          "finished_at_utc": "2026-10-25T04:56:46.434247+00:00",
+          "result": "PASS"
+        },
+        {
+          "source_revision": "f7e6bc53e386a0d5470dfb1b078ae43ee40aec9f",
+          "phase": "current",
+          "started_at_utc": "2026-10-25T04:56:46.956947+00:00",
+          "finished_at_utc": "2026-10-25T04:56:47.353551+00:00",
+          "result": "PASS"
+        }
+      ]
     },
     {
       "runtime": "powershell",
@@ -670,7 +760,25 @@
       "individual_red": false,
       "original_not_run": false,
       "evidence": "final-transition-powershell-v4.log",
-      "original_checkpoint": "checkpoint-red-powershell.log"
+      "original_checkpoint": "checkpoint-red-powershell.log",
+      "historical_timing": "original preimplementation log retained; original per-call time unavailable",
+      "retrospective_timed_evidence": "retrospective-dispatch-timing.json",
+      "retrospective_matches": [
+        {
+          "source_revision": "aa54d2fcc1843cefb308cdc435768590f4b35276",
+          "phase": "checkpoint",
+          "started_at_utc": "2026-10-25T04:56:46.437735+00:00",
+          "finished_at_utc": "2026-10-25T04:56:46.718338+00:00",
+          "result": "PASS"
+        },
+        {
+          "source_revision": "f7e6bc53e386a0d5470dfb1b078ae43ee40aec9f",
+          "phase": "current",
+          "started_at_utc": "2026-10-25T04:56:47.357126+00:00",
+          "finished_at_utc": "2026-10-25T04:56:47.605498+00:00",
+          "result": "PASS"
+        }
+      ]
     },
     {
       "runtime": "powershell",

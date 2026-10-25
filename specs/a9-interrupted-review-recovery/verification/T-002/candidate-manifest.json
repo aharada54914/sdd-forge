@@ -4,7 +4,7 @@
   "files": {
     "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "e962f3f179e0e697ef6f645b7ab6eb082a06050f735ed24bf716b76e157bc42e",
     "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "4032fa28afdfbc6a2af871d4c76b97313d831fb1e87aa7eed752633be3513474",
-    "reports/implementation/a9-interrupted-review-recovery/T-002.md": "0f2093aae573db9c708269bb0ba7dd266c791fcc2a7f405e5c30783e6adcfe49",
+    "reports/implementation/a9-interrupted-review-recovery/T-002.md": "c11f4cc66d5d0e5471f3f396609a58c2994abf5c92b8ec13a2bf3a322de8f56b",
     "specs/a9-interrupted-review-recovery/tasks.md": "8c9d309f02572334136dbfa56adff056aa2fcccbfd0ed16365ce036a71975f05",
     "specs/a9-interrupted-review-recovery/verification/T-002/admission-regression-bash.log": "cd7ee35041e815e2dcad675da555e7da29dea1652d8116805f63095228b4175a",
     "specs/a9-interrupted-review-recovery/verification/T-002/admission-regression-powershell.log": "a318dc8728c068447c286c495482c6fd32efb7ea9cb8cae5a844028b2ea6fbc6",
@@ -15,7 +15,7 @@
     "specs/a9-interrupted-review-recovery/verification/T-002/approved-criterion.patch": "5748cd0c8d730ad74b63410b8c53869d7d636ee5e56ffcfcc5d062ffd587ef07",
     "specs/a9-interrupted-review-recovery/verification/T-002/approved-input-pins.json": "98a0ccfdd06db25c15fb84571573dcf7839ba63c65018fdd19d20401d2d2d469",
     "specs/a9-interrupted-review-recovery/verification/T-002/candidate-source-pins.json": "588acaf84129b76673fdc795f1ffd7ecb6e542036c5294962b266d11358a1878",
-    "specs/a9-interrupted-review-recovery/verification/T-002/case-results.json": "af026dca4d227cc1fa4d9a4207450f1989c72161889689490aad814a0eeab40f",
+    "specs/a9-interrupted-review-recovery/verification/T-002/case-results.json": "6a7b534521d47d2eea9f2cad267d4e3ec32e811a9d04ac064c9dc9480b9fb975",
     "specs/a9-interrupted-review-recovery/verification/T-002/checkpoint-red-bash.log": "f640649e6d50e965048156c666e53b9becbf58dc0517e337901ed04662755da1",
     "specs/a9-interrupted-review-recovery/verification/T-002/checkpoint-red-powershell.log": "f40f9dadb37d1e2133d8018376e5d6093e1d8ea106d1408291d2ac36f369e93e",
     "specs/a9-interrupted-review-recovery/verification/T-002/criterion-approval.json": "81c82045c0c886ee473817c3268a603184856620e85262d84b59a11939b3da0e",
@@ -50,10 +50,12 @@
     "specs/a9-interrupted-review-recovery/verification/T-002/third-powershell.log": "feb894c8de5da369e9288f34c08b4e37a63c43c212b944dac1151d5789acbc78",
     "specs/a9-interrupted-review-recovery/verification/T-002/unchanged-admission-boundary.json": "20f9603c83af735e51d83e7d1b290c2c2868eb69b8c13e90a9107a2f3b817884",
     "specs/a9-interrupted-review-recovery/verification/T-002/unexecuted-preflight-aliases.json": "9696c45ab2c73e45e9f451e8732cbe9eb0e22dbe9025e4ca9459d28ff9a1be97",
-    "specs/a9-interrupted-review-recovery/verification/T-002.md": "12337630384656051797bbb8a8330ac29e8fc9030fd360654fcff9c49df28f3b",
+    "specs/a9-interrupted-review-recovery/verification/T-002.md": "7a9c215b3e4761e01fe48a0f08e35a759da0d705f27f01b1c7105c7d29071a5f",
     "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
     "tests/spec-review-interrupted-recovery.tests.sh": "437b0988c747ef53195113768c14bd665adf18aae2b0ff3b5c33852faa351475",
-    "specs/a9-interrupted-review-recovery/verification/T-002/manifest-normalization-correction.json": "ca237069be42fc1809bc5c4f46aa212a66abce7a791fadcdfe51a8c4a048f57e"
+    "specs/a9-interrupted-review-recovery/verification/T-002/manifest-normalization-correction.json": "ca237069be42fc1809bc5c4f46aa212a66abce7a791fadcdfe51a8c4a048f57e",
+    "specs/a9-interrupted-review-recovery/verification/T-002/retrospective-dispatch-timing.json": "eec523cc4f1cd469c2027eadb9a51261f164e3744cfdae266210af7df6347a87",
+    "specs/a9-interrupted-review-recovery/verification/T-002/timed-dispatch-baseline.py": "ac298581c3f5685bc58fe31feb816b3f1fda014c17a3fb38552095253d753083"
   },
   "baseline": "757c3d63a98efbd0922c16ad01885c4ef4fd5d53",
   "red_checkpoint": "aa54d2fc",
@@ -61,6 +63,7 @@
   "actual_transition_assertions_per_runtime": 61,
   "actual_named_case_rows": 122,
   "user_approved_criterion_patch_sha256": "5748cd0c8d730ad74b63410b8c53869d7d636ee5e56ffcfcc5d062ffd587ef07",
-  "manifest_revision": 2,
-  "supersedes_manifest_sha256": "6520a7e3da3b47d94378c242fe64ec0258e0a455be04b17cd36ea7d5e6919aed"
+  "manifest_revision": 3,
+  "supersedes_manifest_sha256": "18275207fd259f5d86bac656c58421c36ae1f5363db01e2457819da2653f2f4d",
+  "supplement": "12 explicitly retrospective timed reused-dispatch checks; no production/test-source modification"
 }
