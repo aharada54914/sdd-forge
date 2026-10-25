@@ -26,11 +26,12 @@ have not been released or integrated into `main`.
   captured fresh configuration, completed its native audit and reported all five checks successful, but
   remained **partial**: PR creation returned 403 under the configured token and
   finalization was skipped. The user authorized token-permission remediation on 2026-10-25 (JST).
-  The current connection returns HTTP 403 for both repository Secret metadata
-  and Actions workflow-permission APIs; no browser-control tool is available.
-  The token owner must therefore apply the authorized PR-write permission change
-  (preserving Contents write and the repository selection), and update the same
-  Secret if rotating the token. No permission change or retry is claimed.
+  The current API connection returns HTTP 403 for both repository Secret
+  metadata and Actions workflow permissions. TinyFish is now connected for the
+  requested browser operation, but its Default profile has no recorded GitHub
+  sign-in; the login-state/setup response is pending. PR-write remediation remains
+  authorized, preserving Contents write and repository selection. No token value
+  was requested, and no permission change or retry is claimed.
   A complete guarded production run is still required for #620.
 - **#642's encoding correction is integrated and verified.**
   [PR #643](https://github.com/aharada54914/sdd-forge/pull/643) merged at
@@ -51,7 +52,14 @@ have not been released or integrated into `main`.
   membership and the current 36 CI installer obligations. Installation still
   copies all admitted plugin directories and may download the full source archive
   before filtering; selected-plugin-only copying is not claimed.
-- **Spec-reviewer-A adoption is human-approved.** The user accepted the
+- **Spec-reviewer-A and task A/B adoption are integrated.**
+  [PR #649](https://github.com/aharada54914/sdd-forge/pull/649) merged into `work`
+  at `fa196c92`, with tree `d23651a0` matching the tested merge.
+  [CI 40150536853](https://github.com/aharada54914/sdd-forge/actions/runs/40150536853)
+  completed 45 successful jobs and one expected skip, including all six installer
+  jobs; final required-checks succeeded. Local policy validation passed 59 tests.
+  Artifact/log access was unavailable, so this run is not independently reported
+  as a 449-obligation aggregate. The user accepted the
   prepared proposal on 2026-10-25 (JST); the integration adds its actual receipt
   and hash-bound policy reference for explicitly pinned Opus/high, limited to
   ordinary Phase-1/no-domain A reviews. Candidate lifecycle remains unchanged.
@@ -83,13 +91,31 @@ have not been released or integrated into `main`.
   [PR #640](https://github.com/aharada54914/sdd-forge/pull/640) at `563006cc` completed
   [449 PASS plus one expected skip](https://github.com/aharada54914/sdd-forge/actions/runs/40090187421),
   including native platform suites. That CI used the older `1c95ede8` base and
-  does not validate integration with current `work`. The original reviewed task
-  body remains canonical; the approved v2 criterion amendment is held pending
-  genuine task provenance rebinding. Applicable evaluator/review requirements
-  remain pending, and T-001 is not Done. T-002 recovery and T-003 compatibility
+  does not validate integration with current `work`. A separate local integration preserves the original #614 draft branch and
+  its registered native host. One actual Claude continuation applied the approved
+  v2 criterion without changing task statuses, then the real task precheck stopped:
+  the old implementation-policy review pins a reviewer-calibration hash changed
+  by `bc7be7f7`, before this adoption integration. All seven frozen specification
+  hashes still match. Repair requires implementation-policy provenance re-review
+  before task rebinding; the old contract was not rewritten. No child reviewer
+  launched, and T-001 is not Done. T-002 recovery and T-003 compatibility
   remain ordered dependents. Implementation approval excludes live historical
   recovery and A9 activation; actual recovery requires its original human
   approval/application provenance.
+- **Implementation-policy reviewer A has bounded qualifying evidence; B remains
+  withheld.** Eight fixed Sonnet/medium calls completed with no retries; all eight
+  output/execution contracts passed. A fresh separate-context source judgment
+  accepted seven outputs: A passed four of four outputs and all 44 checks; B passed
+  three of four and 43 of 44 checks. The B failure is an unsupported no-test-coverage
+  assertion against planned TEST-003; its additional Major scope finding is valid
+  and retained. The original joint HOLD report is preserved; the frozen promotion
+  rule permits a separate passing-role-only human decision. An A-only proposal is
+  prepared for human approval; no role is activated by these results. Evidence covers a small
+  nonlegacy CLI/full-profile workload without domain/design-system contracts in a
+  later-lifecycle context. A9 is labelled `bugfix` and uses local Bash/PowerShell
+  tooling without a frontend; any proposed application mapping must be explicit
+  in the human adoption decision. Amendment binding, convergence, protected entry,
+  actual A9 execution and first-time review remain separately unproved.
 - **Evaluator adoption is also on hold.** A separately versioned first-role
   Opus/high qualification completed four native calls and a fresh Work judgment
   with candidate identity withheld: **one ACCEPT, one NEEDS_WORK and two UNCLEAR**.
