@@ -387,6 +387,9 @@ function Get-PersistedConditionalInputs($Contract, [string]$Stage, [string]$Feat
   if (-not @($entries | Where-Object { (Get-ManifestRelativePath ([string]$_.path) $RepoRoot) -cmatch ('^(domain|design-system)/|^specs/' + [Regex]::Escape($FeatureName) + '/(concept-test|research/)') }).Count) { return @() }
   $researchArgs = @('--without-research')
   if (@($entries | Where-Object { ([string](Get-ManifestRelativePath ([string]$_.path) $RepoRoot)).StartsWith("specs/$FeatureName/research/", [StringComparison]::Ordinal) }).Count) { $researchArgs = @() }
+  if ($researchArgs.Count -eq 0 -and $Stage -ceq 'impl' -and $Contract.verdict -cin @('NEEDS_WORK', 'BLOCKED')) {
+    $researchArgs = @('--history-contract', "reports/impl-review/$FeatureName/attempt-$($Contract.attempt)/round-$($Contract.round)/impl-review-contract.json")
+  }
   $raw = & python3 (Join-Path $RepoRoot 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py') --root $RepoRoot --feature $FeatureName --stage $Stage @researchArgs
   if ($LASTEXITCODE -ne 0) { Fail 'persisted conditional inputs cannot be resolved' }
   $resolved = $raw | ConvertFrom-Json
@@ -395,7 +398,9 @@ function Get-PersistedConditionalInputs($Contract, [string]$Stage, [string]$Feat
     foreach ($pin in @($resolved.research_inputs)) {
       $matches = @($reviewer.allowed_input_manifest | Where-Object {
         (Get-ManifestRelativePath $_.path $RepoRoot) -ceq $pin.path })
-      if ($matches.Count -ne 1 -or $matches[0].sha256 -cne $pin.sha256) { Fail 'incomplete research manifest' }
+      if ($matches.Count -ne 1 -or ($matches[0].sha256 -cne $pin.sha256 -and
+          ($pin.path -cne "specs/$FeatureName/requirements.md" -or
+           $matches[0].sha256 -cne $resolved.observed.($pin.path)))) { Fail 'incomplete research manifest' }
     }
   }
   foreach ($entry in $entries) {

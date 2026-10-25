@@ -86,6 +86,28 @@ class Owners(unittest.TestCase):
         self.packet.unlink()
         self.assertEqual(before, conditional.resolve(self.root, "sample", "spec"))
 
+    def test_review_status_transition_preserves_exact_original_pin(self):
+        path = self.root / 'specs/sample/requirements.md'
+        original = b'Spec-Review-Status: Pending\n' + path.read_bytes()
+        path.write_bytes(original)
+        self.relations['edges'][0]['to']['document_sha256'] = digest(original)
+        self.relations_path.write_text(json.dumps(self.relations))
+        self.assertEqual(0, self.bind())
+        packet = self.packet.read_bytes()
+        passed = original.replace(b'Spec-Review-Status: Pending', b'Spec-Review-Status: Passed')
+        path.write_bytes(passed)
+        resolved = conditional.resolve(self.root, 'sample', 'spec')
+        pins = {entry['path']: entry['sha256'] for entry in resolved['research_inputs']}
+        self.assertEqual(digest(original), pins['specs/sample/requirements.md'])
+        self.assertEqual(digest(passed), resolved['observed']['specs/sample/requirements.md'])
+        self.assertEqual(packet, self.packet.read_bytes())
+        for changed in (passed + b'Changed requirement\n', passed.replace(b'REQ-001 First', b'REQ-001 Other'),
+                        passed + b'Spec-Review-Status: Passed\n',
+                        passed.replace(b'Spec-Review-Status: Passed', b'Spec-Review-Status: Unknown')):
+            with self.subTest(content=changed), self.assertRaises(ValueError):
+                path.write_bytes(changed)
+                conditional.resolve(self.root, 'sample', 'spec')
+
     def test_existing_bash_and_powershell_admission(self):
         pwsh = shutil.which("pwsh")
         if pwsh is None:

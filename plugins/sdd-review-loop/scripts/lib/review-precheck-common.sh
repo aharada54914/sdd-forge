@@ -107,10 +107,17 @@ persisted_conditional_inputs() {
     local research_args=(--without-research)
     if jq -e --arg feature "$FEATURE" '
       any(.reviewers[]?.allowed_input_manifest[]?;
-        .path | test("(^|/)specs/" + $feature + "/research/"))' "$contract" >/dev/null; then research_args=(); fi
+        .path | test("(^|/)specs/" + $feature + "/research/"))' "$contract" >/dev/null; then
+    research_args=()
+    if jq -e '.stage == "impl" and (.verdict == "NEEDS_WORK" or .verdict == "BLOCKED")' "$contract" >/dev/null; then
+      local history_contract
+      history_contract=$(jq -er '"reports/impl-review/" + .feature + "/attempt-" + (.attempt|tostring) + "/round-" + (.round|tostring) + "/impl-review-contract.json"' "$contract") || return 1
+      research_args=(--history-contract "$history_contract")
+    fi
+  fi
     conditional_inputs=$(python3 "${repo_root}/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py" \
       --root "$repo_root" --feature "$FEATURE" --stage "$stage" "${research_args[@]}") || fail "persisted conditional inputs cannot be resolved"
-    conditional_inputs=$(jq -ce --slurpfile contracts "$contract" --arg repo "${repo_root}/" '
+    conditional_inputs=$(jq -ce --slurpfile contracts "$contract" --arg feature "$FEATURE" --arg repo "${repo_root}/" '
       def relative:
         if startswith($repo) then .[($repo|length):]
         elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md)$") | .tail) // .)
@@ -118,7 +125,10 @@ persisted_conditional_inputs() {
       . as $selected |
       if all($contracts[0].reviewers[]; .allowed_input_manifest as $manifest |
         all($selected.research_inputs[]; . as $pin |
-          [$manifest[]|select((.path|relative) == $pin.path)|.sha256] == [$pin.sha256]))
+          [$manifest[]|select((.path|relative) == $pin.path)|.sha256] as $hashes |
+        ($hashes|length) == 1 and ($hashes[0] == $pin.sha256 or
+          ($pin.path == ("specs/" + $feature + "/requirements.md") and
+           $hashes[0] == $selected.observed[$pin.path]))))
       then .inputs else error("incomplete research manifest") end
     ' <<<"$conditional_inputs") || fail "invalid conditional input selection"
   fi

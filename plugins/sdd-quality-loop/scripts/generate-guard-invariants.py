@@ -236,6 +236,7 @@ BASELINE_SUFFIXES = (
     "contracts/project-skill-manifest.schema.json",
     "contracts/project-verification-observation.schema.json",
     "plugins/sdd-quality-loop/scripts/collect-project-evidence.py",
+    "plugins/sdd-bootstrap/scripts/research-sources.py",
     "plugins/sdd-bootstrap/scripts/project-skill.py",
     "plugins/sdd-bootstrap/scripts/project-skill-process.py",
 )

@@ -1103,10 +1103,17 @@ workflow_conditional_paths() {
       elif startswith($alias) then .[($alias|length):]
       elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
       else . end | startswith("specs/" + $feature + "/research/"))
-  ' "$contract" >/dev/null; then research_args=(); fi
+  ' "$contract" >/dev/null; then
+    research_args=()
+    if jq -e '.stage == "impl" and (.verdict == "NEEDS_WORK" or .verdict == "BLOCKED")' "$contract" >/dev/null; then
+      local history_contract
+      history_contract=$(jq -er '"reports/impl-review/" + .feature + "/attempt-" + (.attempt|tostring) + "/round-" + (.round|tostring) + "/impl-review-contract.json"' "$contract") || return 1
+      research_args=(--history-contract "$history_contract")
+    fi
+  fi
   selected=$(python3 "$REPO_ROOT/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py" \
     --root "$REPO_ROOT" --feature "$feature" --stage "$stage" "${research_args[@]}") || return 1
-  jq -ce --slurpfile contracts "$contract" --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" --arg recorded "${recorded:+$recorded/}" '
+  jq -ce --slurpfile contracts "$contract" --arg feature "$feature" --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" --arg recorded "${recorded:+$recorded/}" '
     def relative:
       gsub("\\\\"; "/") |
       if startswith($repo) then .[($repo|length):]
@@ -1116,7 +1123,10 @@ workflow_conditional_paths() {
     . as $selected |
     if all($contracts[0].reviewers[]; .allowed_input_manifest as $manifest |
       all($selected.research_inputs[]; . as $pin |
-        [$manifest[]|select((.path|relative) == $pin.path)|.sha256] == [$pin.sha256]))
+        [$manifest[]|select((.path|relative) == $pin.path)|.sha256] as $hashes |
+        ($hashes|length) == 1 and ($hashes[0] == $pin.sha256 or
+          ($pin.path == ("specs/" + $feature + "/requirements.md") and
+           $hashes[0] == $selected.observed[$pin.path]))))
     then [.inputs[].path] else error("incomplete research manifest") end
   ' <<< "$selected"
 }

@@ -47,7 +47,95 @@ def unique_object(pairs):
     return result
 
 
-def resolve(root, feature, stage, revision=None, *, include_research=True):
+def failed_research_history(root, feature, stage, relative):
+    """Saved failed-review agreement only; does not verify current source bytes."""
+    match = re.fullmatch(r'reports/impl-review/' + re.escape(feature) +
+                         r'/attempt-([1-9][0-9]*)/round-([1-9][0-9]*)/impl-review-contract.json', relative)
+    if stage != 'impl' or match is None:
+        raise ValueError('invalid failed research history location')
+    directory = relative.rsplit('/', 1)[0]
+
+    def saved(name):
+        value = json.loads(read_safe(root, directory + '/' + name), object_pairs_hook=unique_object)
+        if not isinstance(value, dict):
+            raise ValueError('invalid failed research history object')
+        return value
+
+    contract = saved('impl-review-contract.json')
+    verdict = saved('integrated-verdict.json')
+    if (contract.get('schema') != 'impl-review-contract/v1'
+            or verdict.get('schema') != 'integrated-verdict/v1'
+            or contract.get('verdict') not in ('NEEDS_WORK', 'BLOCKED')
+            or any(contract.get(key) != verdict.get(key) for key in
+                   ('feature', 'stage', 'attempt', 'round', 'verdict', 'run_id'))
+            or contract.get('feature') != feature or contract.get('stage') != stage
+            or not isinstance(contract.get('run_id'), str) or not contract['run_id'].strip()
+            or type(contract.get('attempt')) is not int or type(contract.get('round')) is not int
+            or contract.get('attempt') != int(match[1]) or contract.get('round') != int(match[2])):
+        raise ValueError('failed research history identity mismatch')
+    trio = {f'specs/{feature}/research/{name}' for name in
+            ('records/research-evidence.json', 'relations.json', 'review-input.json')}
+    declared_entries = contract.get('adr_inputs', [])
+    if not isinstance(declared_entries, list) or any(not isinstance(entry, dict)
+            or not isinstance(entry.get('path'), str) for entry in declared_entries):
+        raise ValueError('invalid failed design ADR declarations')
+    declared = {entry['path'] for entry in declared_entries}
+
+    def pins(owner):
+        selected = {}
+        manifest = owner.get('allowed_input_manifest')
+        if not isinstance(manifest, list):
+            raise ValueError('invalid failed research manifest')
+        for entry in manifest:
+            if (not isinstance(entry, dict) or set(entry) != {'path', 'sha256'}
+                    or not isinstance(entry['path'], str) or not isinstance(entry['sha256'], str)
+                    or re.fullmatch(r'[0-9a-f]{64}', entry['sha256']) is None):
+                raise ValueError('invalid failed research pin')
+            path = entry['path'].replace('\\', '/')
+            if any(part in ('.', '..') for part in path.split('/')):
+                raise ValueError('invalid failed research path')
+            candidates = [name for name in trio if path == name or path.endswith('/' + name)]
+            adr = re.search(r'(?:^|/)(docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md)$', path)
+            if adr and adr[1] not in declared:
+                candidates.append(adr[1])
+            if not candidates:
+                if f'specs/{feature}/research/' in path.casefold():
+                    raise ValueError('unlisted failed research input')
+                if re.search(r'(?:^|/)docs/adr/', path, re.I) and not (adr and adr[1] in declared):
+                    raise ValueError('invalid failed research ADR path')
+                continue
+            canonical = candidates[0]
+            if (len(candidates) != 1 or canonical in selected
+                    or (path != canonical and not re.match(r'^(?:/|[A-Za-z]:/)', path))):
+                raise ValueError('ambiguous failed research path')
+            selected[canonical] = entry['sha256']
+        if not trio.issubset(selected):
+            raise ValueError('incomplete failed research manifest')
+        return selected
+
+    reviewers = contract.get('reviewers')
+    if (not isinstance(reviewers, list) or len(reviewers) != 2
+            or any(not isinstance(reviewer, dict) or not isinstance(reviewer.get('role'), str) for reviewer in reviewers)
+            or {reviewer.get('role') for reviewer in reviewers} != {'impl-reviewer-a', 'impl-reviewer-b'}):
+        raise ValueError('invalid failed research reviewers')
+    all_pins = []
+    runs, sessions = set(), set()
+    for reviewer in reviewers:
+        actual = saved('reviewer-' + reviewer['role'][-1] + '.json')
+        if (actual.get('schema') != reviewer['role'] + '/v1' or actual.get('stage') != stage
+                or any(actual.get(key) != reviewer.get(key) for key in ('role', 'run_id', 'host_session_id'))
+                or any(not isinstance(reviewer.get(key), str) or not reviewer[key].strip()
+                       for key in ('run_id', 'host_session_id'))):
+            raise ValueError('failed research reviewer identity mismatch')
+        runs.add(reviewer['run_id'])
+        sessions.add(reviewer['host_session_id'])
+        all_pins.extend((pins(reviewer), pins(actual)))
+    if len(runs) != 2 or len(sessions) != 2 or any(value != all_pins[0] for value in all_pins[1:]):
+        raise ValueError('failed research reviewer pins disagree')
+    return [dict(path=path, sha256=sha) for path, sha in sorted(all_pins[0].items())]
+
+
+def resolve(root, feature, stage, revision=None, *, include_research=True, history_contract=None):
     root = Path(root).resolve(strict=True)
     if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', feature) or stage not in ('spec', 'impl', 'task', 'quality'):
         raise ValueError('unsupported feature or review stage')
@@ -96,7 +184,12 @@ def resolve(root, feature, stage, revision=None, *, include_research=True):
 
     # Research is explicit opt-in and stays bound to the same live/fixed source reader.
     research_packet = 'specs/' + feature + '/research/review-input.json'
-    if include_research and stage in ('spec', 'impl') and source(research_packet, True) is not None:
+    if history_contract is not None:
+        if revision is not None or not include_research:
+            raise ValueError('invalid failed research history mode')
+        research_inputs = failed_research_history(root, feature, stage, history_contract)
+        inputs.extend(research_inputs)
+    elif include_research and stage in ('spec', 'impl') and source(research_packet, True) is not None:
         scripts = str(Path(__file__).resolve().parent)
         if scripts not in sys.path:
             sys.path.insert(0, scripts)
@@ -182,7 +275,8 @@ def resolve(root, feature, stage, revision=None, *, include_research=True):
             ds_status = 'active'
             for name in ('design-tokens.json', 'design-system.md', 'ui-patterns.md'):
                 admit('design-system/' + name)
-    return {'inputs': inputs, 'research_inputs': research_inputs, 'domain_status': domain_status, 'design_system_status': ds_status,
+    return {'inputs': inputs, 'research_inputs': research_inputs, 'research_history_only': history_contract is not None,
+            'domain_status': domain_status, 'design_system_status': ds_status,
             'observed': observed}
 
 
@@ -194,10 +288,12 @@ def main():
     parser.add_argument('--revision')
     parser.add_argument('--without-research', action='store_true',
                         help='Historical manifests without research inputs only')
+    parser.add_argument('--history-contract', help='Canonical failed impl review record; no current-input authority')
     args = parser.parse_args()
     try:
         print(json.dumps(resolve(args.root, args.feature, args.stage, args.revision,
-                                 include_research=not args.without_research), sort_keys=True))
+                                 include_research=not args.without_research,
+                                 history_contract=args.history_contract), sort_keys=True))
     except (OSError, ValueError, UnicodeError, subprocess.SubprocessError) as error:
         print('CONDITIONAL_INPUTS: ' + str(error), file=sys.stderr)
         return 1

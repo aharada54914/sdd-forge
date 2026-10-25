@@ -1,0 +1,34 @@
+{
+  "scope": "synthetic failed-history fixture; actual Bash/PowerShell validators",
+  "repo_head": "f70f391c09fbbff4a4aa2a21ad98e053a6bf35de",
+  "results": [
+    {
+      "case": "original-packet",
+      "runtime": "bash",
+      "exit_code": 0,
+      "stdout": "workflow-state: ok\nimpl-review-precheck: complete. Output written to reports/impl-review/conditional-workflow-fixture/attempt-1/round-2/\n",
+      "stderr": ""
+    },
+    {
+      "case": "original-packet",
+      "runtime": "pwsh",
+      "exit_code": 0,
+      "stdout": "workflow-state: ok\nimpl-review-precheck: complete. Output written to /tmp/workflow-conditional-me7c30tg/fixtures/loop-fixture.s8IU6c/reports/impl-review/conditional-workflow-fixture/attempt-1/round-2/\n",
+      "stderr": ""
+    },
+    {
+      "case": "repaired-packet",
+      "runtime": "bash",
+      "exit_code": 0,
+      "stdout": "workflow-state: ok\nimpl-review-precheck: complete. Output written to reports/impl-review/conditional-workflow-fixture/attempt-1/round-2/\n",
+      "stderr": ""
+    },
+    {
+      "case": "repaired-packet",
+      "runtime": "pwsh",
+      "exit_code": 0,
+      "stdout": "workflow-state: ok\nimpl-review-precheck: complete. Output written to /tmp/workflow-conditional-me7c30tg/fixtures/loop-fixture.s8IU6c/reports/impl-review/conditional-workflow-fixture/attempt-1/round-2/\n",
+      "stderr": ""
+    }
+  ]
+}

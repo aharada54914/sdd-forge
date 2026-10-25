@@ -633,6 +633,9 @@ function Get-WorkflowConditionalPaths($Contract, [string]$Feature, [string]$Stag
     $resolver = Join-Path $RepositoryRoot 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py'
     $researchArgs = @()
     if (-not $hasResearch) { $researchArgs = @('--without-research') }
+    elseif ($Contract.stage -ceq 'impl' -and $Contract.verdict -cin @('NEEDS_WORK', 'BLOCKED')) {
+        $researchArgs = @('--history-contract', "reports/impl-review/$Feature/attempt-$($Contract.attempt)/round-$($Contract.round)/impl-review-contract.json")
+    }
     $output = & python3 $resolver --root $RepositoryRoot --feature $Feature --stage $Stage @researchArgs
     if ($LASTEXITCODE -ne 0) { throw 'conditional input resolution failed' }
     $resolved = ($output -join "`n") | ConvertFrom-Json
@@ -640,7 +643,9 @@ function Get-WorkflowConditionalPaths($Contract, [string]$Feature, [string]$Stag
         foreach ($pin in @($resolved.research_inputs)) {
             $matches = @($reviewer.allowed_input_manifest | Where-Object {
                 (Get-RepositoryRelativePath $_.path $RepositoryRoot $RecordedRoot) -ceq $pin.path })
-            if ($matches.Count -ne 1 -or $matches[0].sha256 -cne $pin.sha256) { throw 'incomplete research manifest' }
+            if ($matches.Count -ne 1 -or ($matches[0].sha256 -cne $pin.sha256 -and
+          ($pin.path -cne "specs/$Feature/requirements.md" -or
+           $matches[0].sha256 -cne $resolved.observed.($pin.path)))) { throw 'incomplete research manifest' }
         }
     }
     foreach ($entry in @($resolved.inputs)) { [string]$entry.path }

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Research-enabled review now binds the entire input closure through Bash/PowerShell workflow gates, preserves strict design ADR pins, and supports research-only/relocated ADRs. Failed-review reopening uses saved identity/pin agreement; ordinary Pending-to-Passed requirements transitions preserve the original raw research digest without rewriting evidence.
+
 ### Added
 - Opt-in research watch v2 records actual check time and detects local original/extracted or metadata changes independently of RSS updates, retaining the legacy v1 default and read-only state handling.
 - Internal `research-sources` connects bounded two-route investigation, canonical claim planning and citation-follow records to bootstrap; the interviewer validates adopted SRC/CLM revisions and preserves unresolved evidence.

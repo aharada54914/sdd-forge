@@ -618,6 +618,14 @@ def review_inputs(feature, read_source):
             "research-review-path",
         )
         content = read_source(path)
+        if (path == f"specs/{feature}/requirements.md"
+                and digest(content) != entry["sha256"]):
+            # Reconstruct only the existing Pending -> Passed lifecycle change.
+            # Exact original SHA matching still proves every other byte unchanged.
+            pattern = rb"(?m)^Spec-Review-Status: Passed(\r?)$"
+            if (len(re.findall(pattern, content)) == 1
+                    and len(re.findall(rb"(?m)^Spec-Review-Status:", content)) == 1):
+                content = re.sub(pattern, rb"Spec-Review-Status: Pending\1", content)
         require(digest(content) == entry["sha256"], "research-review-stale")
         selected[path] = entry["sha256"]
         parsed[path] = content

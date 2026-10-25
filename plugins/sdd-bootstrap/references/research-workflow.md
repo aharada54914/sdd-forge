@@ -149,3 +149,27 @@ The command never writes the previous state, repairs cache data, schedules work
 or changes approval. Exit zero means observation completed, not that every source
 is available or verified. Inspect `source_status` and `reverification_required`,
 then explicitly persist the returned state if appropriate.
+
+## Review lifecycle integration
+
+A research-enabled review pins the complete selected closure: canonical records,
+relations, review-input packet, and every selected REQ/ADR input. Each reviewer
+must include those inputs and hashes; mentioning only the records file cannot
+activate an unrecorded packet. Old manifests without research remain independent
+of research files added later. Research ADRs supplement the input set; they do
+not replace design-declared ADRs or relax their canonical path/hash checks.
+
+After a normal requirements `Spec-Review-Status: Pending` to `Passed` update, the
+review consumer can reconstruct that single exact status line only when the
+result matches the packet's original raw SHA-256. Every other byte remains bound.
+The packet, relation pins and old review outputs are not rewritten. Core workflow
+checks still verify the actual review and its state transition; the reconstruction
+is not an approval and does not change the raw checker/binder/graph semantics.
+
+Opening another impl round after NEEDS_WORK/BLOCKED validates the saved failed
+contract, integrated verdict, distinct reviewer identities and matching reserved
+and actual research pins. The internal resolver marks this result
+`research_history_only`; it cannot assert that current research bytes or historical
+semantic relations were reverified. Repairing current research therefore does not
+invalidate the saved failure. Current PASS/new-review admission continues to use
+live input verification. A failed historical record cannot supply current approval.

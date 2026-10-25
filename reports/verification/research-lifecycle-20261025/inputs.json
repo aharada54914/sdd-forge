@@ -1,0 +1,22 @@
+{
+  "schema": "verification-input-hashes/v1",
+  "reusable": false,
+  "files": {
+    "plugins/sdd-bootstrap/references/research-workflow.md": "e635799241f44a708fab902bb141b5a043ad37b0592962471f5560d2fe00bfdb",
+    "plugins/sdd-quality-loop/references/guard-invariants.json": "1ffe622a9724998b088ba40483ab83077eb11e891617a663d9d9af4a13f9da8c",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1": "c02d45ba955758f10c9cf6a58cfdf7ac96cf0241c163aee749a2ed33f28ba397",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh": "6ad6f6b1f2441f764617d42eefc30794b478bc03162e79fc6c24e63d12dc5fa0",
+    "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py": "2105e17c120c07b025597f23886bd5ec123d2e37afe36eb529d382152967b62f",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js": "d97815090973514d5a4cbb84ef61daf60a3f2672c98426274eacc8e9201baf7a",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1": "90340d51d793b628de31c832e606cc052e6bfeb6b2f0d463863991d9b99db28b",
+    "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh": "a1e0906eee986aeaea41f522403d4ac110c34d241d08aafb312bdeaafe248dc3",
+    "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py": "4c7ad6d78bb4ea15802b4bf1124fe6ae62deca594143bc8d643dd42588a895f4",
+    "plugins/sdd-quality-loop/scripts/research_consumers.py": "964d147a9a3c0c1d0dfe8a794d858e421388e71958b5b5a44c1e550164e04d6a",
+    "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py": "a3f93978dd5031533b4d8ff248bca9d23157bb357afeb9e1c78f981b76e4a42c",
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1": "7bf4f1c9b107e43817e2c3ba0203ea7eff1eb66a9ed92622d113c1d77b4de22c",
+    "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh": "3a42a6de312a29033ca59cc73bdc84b5a25b250b0cf0a5b5ccc59a737a3343c2",
+    "plugins/sdd-review-loop/scripts/task-review-precheck.ps1": "88a8cddcf3c4a67a62f95e581c7abebd95277d3a8188831b9c1a07118be7f689",
+    "tests/research-owner-integration.tests.py": "ee000d3f9cb18286d55a282c406b3cef7273a8cb1ea715759bcf0e2d102505f6",
+    "tests/workflow-conditional-inputs.tests.py": "8a85cea570b499c2b09b435cb99862c101af82e3061b8199faef7e5e75b2564b"
+  }
+}

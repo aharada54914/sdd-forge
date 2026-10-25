@@ -19,6 +19,14 @@ procedure or recommendation cannot approve a task or set Done.
 | `decision-packet/v1` | Existing bootstrap/ship optional playbooks / `decision-packet.py` | Selected packet digest, target/run/alternative identity and exact measured-source snapshots. Recommendations remain separate from signed human choices. |
 | `decision-choice/v1` | Existing human-operated sidecar issuer / decision display | `sdd-decision-choice-approval/v1` reuses the existing HMAC and approver registry. Immutable per-choice records bind packet/target/run/alternative, choice/reason, validity and prior history; they grant no task authority. |
 
+Research review closure is mandatory once a manifest opts in: each reviewer pins
+records, relations, the packet and selected REQ/ADR inputs. The existing conditional
+resolver's internal `research_history_only` result is restricted to consistent saved
+NEEDS_WORK/BLOCKED impl records; it supplies no current PASS or new-review authority.
+Normal admission still verifies live inputs. Requirements status-only reconstruction
+must match the packet's exact original raw digest, with core review/state validation
+remaining independent. Frozen packets and evidence are never rewritten.
+
 Schemas live in `contracts/`; installed project-skill and research validators
 use identical packaged schema copies under `plugins/sdd-quality-loop/contracts/`.
 The existing guard inventory protects the new validation paths and all three

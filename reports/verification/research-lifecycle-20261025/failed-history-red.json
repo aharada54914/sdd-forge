@@ -1,0 +1,34 @@
+{
+  "scope": "synthetic failed-history fixture; actual Bash/PowerShell validators",
+  "repo_head": "da7650dbf3e4c2abbd72c5c82343918407a77d8b",
+  "results": [
+    {
+      "case": "original-packet",
+      "runtime": "bash",
+      "exit_code": 0,
+      "stdout": "workflow-state: ok\nimpl-review-precheck: complete. Output written to reports/impl-review/conditional-workflow-fixture/attempt-1/round-2/\n",
+      "stderr": ""
+    },
+    {
+      "case": "original-packet",
+      "runtime": "pwsh",
+      "exit_code": 0,
+      "stdout": "workflow-state: ok\nimpl-review-precheck: complete. Output written to /tmp/workflow-conditional-byupqac6/fixtures/loop-fixture.Eh0LsD/reports/impl-review/conditional-workflow-fixture/attempt-1/round-2/\n",
+      "stderr": ""
+    },
+    {
+      "case": "repaired-packet",
+      "runtime": "bash",
+      "exit_code": 1,
+      "stdout": "workflow-state: ok\n",
+      "stderr": "jq: error (at <stdin>:1): incomplete research manifest\nERROR: impl-review-precheck: invalid conditional input selection\nERROR: impl-review-precheck: previous conditional input validation failed\n"
+    },
+    {
+      "case": "repaired-packet",
+      "runtime": "pwsh",
+      "exit_code": 1,
+      "stdout": "workflow-state: ok\n",
+      "stderr": "Exception: /tmp/workflow-conditional-byupqac6/fixtures/loop-fixture.Eh0LsD/plugins/sdd-review-loop/scripts/impl-review-precheck.ps1:333\nLine |\n 333 |  … ion Fail([string]$Message) { throw \"impl-review-precheck: $Message\" }\n     |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n     | impl-review-precheck: incomplete research manifest\n"
+    }
+  ]
+}

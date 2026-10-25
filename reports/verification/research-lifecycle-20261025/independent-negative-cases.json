@@ -1,0 +1,86 @@
+[
+  {
+    "case": "valid-failed",
+    "accepted": true,
+    "expected": true,
+    "error": ""
+  },
+  {
+    "case": "wrong-stage",
+    "accepted": false,
+    "expected": false,
+    "error": "invalid failed research history location"
+  },
+  {
+    "case": "traversal",
+    "accepted": false,
+    "expected": false,
+    "error": "invalid failed research history location"
+  },
+  {
+    "case": "revision-mixed",
+    "accepted": false,
+    "expected": false,
+    "error": "invalid fixed revision"
+  },
+  {
+    "case": "without-mixed",
+    "accepted": false,
+    "expected": false,
+    "error": "invalid failed research history mode"
+  },
+  {
+    "case": "PASS-contract",
+    "accepted": false,
+    "expected": false,
+    "error": "failed research history identity mismatch"
+  },
+  {
+    "case": "wrong-integrated-run",
+    "accepted": false,
+    "expected": false,
+    "error": "failed research history identity mismatch"
+  },
+  {
+    "case": "wrong-actual-session",
+    "accepted": false,
+    "expected": false,
+    "error": "failed research reviewer identity mismatch"
+  },
+  {
+    "case": "missing-actual-trio",
+    "accepted": false,
+    "expected": false,
+    "error": "incomplete failed research manifest"
+  },
+  {
+    "case": "duplicate-actual-pin",
+    "accepted": false,
+    "expected": false,
+    "error": "ambiguous failed research path"
+  },
+  {
+    "case": "changed-actual-sha",
+    "accepted": false,
+    "expected": false,
+    "error": "failed research reviewer pins disagree"
+  },
+  {
+    "case": "extra-actual-adr",
+    "accepted": false,
+    "expected": false,
+    "error": "failed research reviewer pins disagree"
+  },
+  {
+    "case": "unknown-research",
+    "accepted": false,
+    "expected": false,
+    "error": "unlisted failed research input"
+  },
+  {
+    "case": "repaired-packet-not-authority",
+    "accepted": true,
+    "expected": true,
+    "error": ""
+  }
+]

@@ -1,0 +1,40 @@
+{
+  "scope": "synthetic review status lifecycle; actual binder and validators",
+  "results": [
+    {
+      "case": "legacy-Passed-control",
+      "runtime": "bash",
+      "exit_code": 0,
+      "stdout": "workflow-state: ok\n",
+      "stderr": ""
+    },
+    {
+      "case": "legacy-Passed-control",
+      "runtime": "pwsh",
+      "exit_code": 0,
+      "stdout": "workflow-state: ok\n",
+      "stderr": ""
+    },
+    {
+      "case": "bind-while-Pending",
+      "runtime": "python",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "only-status-changed-to-Passed",
+      "runtime": "bash",
+      "exit_code": 0,
+      "stdout": "workflow-state: ok\n",
+      "stderr": ""
+    },
+    {
+      "case": "only-status-changed-to-Passed",
+      "runtime": "pwsh",
+      "exit_code": 0,
+      "stdout": "workflow-state: ok\n",
+      "stderr": ""
+    }
+  ]
+}

@@ -24,9 +24,12 @@ precheck validators. Each reviewer must pin the full research input closure;
 research ADRs remain separate from strict design ADR declarations. Local Bash /
 PowerShell integration passed 18 tests, resolver tests 18, owner tests 7 and loop
 consistency 34. [Evidence](../../reports/verification/research-workflow-gates-20261025/README.md).
-Independent review reproduced a remaining NEEDS_WORK reopening defect after a
-valid packet changes; that implementation fix is next. This is not an approval
-wait and #609 is not declared complete. #624 real-app evaluation remains pending
+Independent review then reproduced and verified fixes for NEEDS_WORK reopening
+after packet repair and the normal requirements Pending-to-Passed transition.
+The lifecycle suite now passes 20 integration tests, with 14 independent historical
+negative/positive cases. [Follow-up evidence](../../reports/verification/research-lifecycle-20261025/README.md).
+Historical failed pins grant no current approval. Final hosted CI and remaining
+Issue acceptance are tracked separately; #624 real-app evaluation remains pending
 by the user's instruction.
 
 ## Acceptance audit and research follow-up — 2026-10-25
