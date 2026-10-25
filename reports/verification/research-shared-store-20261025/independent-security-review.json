@@ -1,0 +1,34 @@
+[
+  {
+    "case": "baseline",
+    "result": "ACCEPT"
+  },
+  {
+    "case": "group-writable-ancestor",
+    "result": "shared-parent-permissions"
+  },
+  {
+    "case": "file-symlink",
+    "result": "shared-permissions"
+  },
+  {
+    "case": "file-hardlink",
+    "result": "shared-permissions"
+  },
+  {
+    "case": "named-ACL",
+    "result": "shared-acl-unsupported"
+  },
+  {
+    "case": "receipt-expiry-widened",
+    "result": "shared-receipt-mismatch"
+  },
+  {
+    "case": "forged-publisher-label",
+    "result": "shared-parent-permissions"
+  },
+  {
+    "case": "permission-error-classification-fault-injection",
+    "result": "shared-access-denied"
+  }
+]

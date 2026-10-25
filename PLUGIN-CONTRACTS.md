@@ -49,6 +49,11 @@ recipes. Fresh original re-verification emits `source-evidence-result/v2` when a
 subtitle quote has a derived `time_range` (`start_ms`, `end_ms`); ordinary results
 retain v1 unchanged. Stored v2 results are structural records, not fresh proof.
 HTML labels these as caption-file timings, without claiming video alignment.
+Optional `--shared-gid` reuses cache save/purge for preconfigured Linux local
+group stores. Source v1 binds a numeric publisher/group scope; a
+research-shared-cache/v1 receipt binds permission, expiry and both hashes.
+Fresh shared reads require the current strict owner/group/mode/ACL profile and
+matching receipt. Remote storage and other operating systems are unsupported.
 The existing source-evidence
 owner uses an optional pinned `research/review-input.json` envelope and the runtime
 `SDD_RESEARCH_SNAPSHOT_ROOT`; private cache paths are not persisted. HTML

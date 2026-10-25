@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Bounded, explicitly allowed public-source acquisition with pinned peers.
 
-Reference-only is the default. Proxy and shared-store transports require their
+Reference-only is the default. Proxy and remote-store transports require their
 own authenticated adapter; this direct transport refuses rather than bypassing
 an inherited proxy or claiming to enforce its remote DNS/peer boundary.
 """
@@ -39,6 +39,9 @@ from research_evidence import (  # noqa: E402 - sibling runtime path is explicit
     digest,
     values,
     read_json,
+    shared_root,
+    shared_permissions,
+    shared_scope,
 )
 
 MAX_RESPONSE = 4 * 1024 * 1024
@@ -412,6 +415,7 @@ def save_cache(
     permission_basis,
     expires_at,
     excluded=(),
+    shared_gid=None,
 ):
     """Create a new private content-addressed directory; never overwrite history."""
     require(os.name == "posix", "cache-acl-adapter-required")
@@ -448,10 +452,23 @@ def save_cache(
         not any((p / ".git").exists() for p in [cache, *cache.parents]),
         "cache-export-boundary",
     )
-    cache.mkdir(mode=0o700, parents=True, exist_ok=True)
+    shared = shared_gid is not None
+    if shared:
+        require(sys.platform == 'linux' and type(shared_gid) is int and shared_gid >= 0,
+                'shared-adapter-unavailable')
+        import grp
+        try:
+            grp.getgrgid(shared_gid)
+        except KeyError:
+            raise Invalid('shared-group-unavailable') from None
+        require(shared_gid in {os.getegid(), *os.getgroups()}, 'shared-group-unavailable')
+        # A preconfigured root avoids silently widening a private cache's access.
+        shared_root(cache, os.geteuid(), shared_gid)
+    else:
+        cache.mkdir(mode=0o700, parents=True, exist_ok=True)
     info = cache.stat()
     require(
-        info.st_uid == os.geteuid() and stat.S_IMODE(info.st_mode) == 0o700,
+        info.st_uid == os.geteuid() and stat.S_IMODE(info.st_mode) == (0o750 if shared else 0o700),
         "cache-permissions",
     )
     key = metadata["content_sha256"]
@@ -482,11 +499,24 @@ def save_cache(
             scratch / "receipt.json", os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600
         )
         with os.fdopen(fd, "w", encoding="utf-8") as stream:
+            if shared:
+                receipt.update(schema='research-shared-cache/v1', publisher_uid=os.geteuid(),
+                               reader_gid=shared_gid, access_scope=shared_scope(os.geteuid(), shared_gid))
             json.dump(receipt, stream, sort_keys=True)
+        if shared:
+            for child in scratch.iterdir():
+                os.chown(child, -1, shared_gid)
+                os.chmod(child, 0o640)
+                shared_permissions(child, os.geteuid(), shared_gid, directory=False)
+            os.chown(scratch, -1, shared_gid)
+            os.chmod(scratch, 0o750)
+            shared_permissions(scratch, os.geteuid(), shared_gid, directory=True)
         os.rename(scratch, target)
-        return dict(
-            metadata, storage_mode="local_cache", cache_key=key, expires_at=expires_at
-        )
+        result = dict(metadata, storage_mode='licensed_shared' if shared else 'local_cache',
+                      cache_key=key, expires_at=expires_at)
+        if shared:
+            result['access_scope_label'] = shared_scope(os.geteuid(), shared_gid)
+        return result
     finally:
         if scratch.exists():
             for child in scratch.iterdir():
@@ -494,7 +524,7 @@ def save_cache(
             scratch.rmdir()
 
 
-def purge_cache(cache, *, revoke=(), now=None):
+def purge_cache(cache, *, revoke=(), now=None, shared_gid=None):
     """Delete only expired/revoked, private, complete cache snapshots."""
     require(os.name == "posix", "cache-acl-adapter-required")
     cache = Path(cache).absolute()
@@ -503,8 +533,12 @@ def purge_cache(cache, *, revoke=(), now=None):
         "cache-path-invalid",
     )
     info = cache.stat()
+    shared = shared_gid is not None
+    if shared:
+        require(type(shared_gid) is int and shared_gid >= 0, 'shared-scope-invalid')
+        shared_root(cache, os.geteuid(), shared_gid)
     require(
-        info.st_uid == os.geteuid() and stat.S_IMODE(info.st_mode) == 0o700,
+        info.st_uid == os.geteuid() and stat.S_IMODE(info.st_mode) == (0o750 if shared else 0o700),
         "cache-permissions",
     )
     require(
@@ -531,21 +565,29 @@ def purge_cache(cache, *, revoke=(), now=None):
             == {"original", "extracted.txt", "receipt.json"},
             "cache-entry-invalid",
         )
+        if shared:
+            shared_permissions(entry, os.geteuid(), shared_gid, directory=True)
         for file in entry.iterdir():
+            if shared:
+                shared_permissions(file, os.geteuid(), shared_gid, directory=False)
             require(
                 not file.is_symlink()
                 and file.is_file()
                 and file.stat().st_uid == os.geteuid()
-                and stat.S_IMODE(file.stat().st_mode) == 0o600,
+                and stat.S_IMODE(file.stat().st_mode) == (0o640 if shared else 0o600),
                 "cache-permissions",
             )
         receipt = read_json(entry / "receipt.json")
         require(
             isinstance(receipt, dict)
-            and receipt.get("schema") == "research-cache/v1"
+            and receipt.get("schema") == ('research-shared-cache/v1' if shared else 'research-cache/v1')
             and receipt.get("content_sha256") == entry.name,
             "cache-entry-invalid",
         )
+        if shared:
+            require(receipt.get('publisher_uid') == os.geteuid() and receipt.get('reader_gid') == shared_gid
+                    and receipt.get('access_scope') == shared_scope(os.geteuid(), shared_gid),
+                    'shared-receipt-mismatch')
         timestamp(receipt.get("expires_at"), "/expires_at")
         require(isinstance(receipt.get("expires_at"), str), "cache-entry-invalid")
         if receipt["expires_at"] <= now or entry.name in revoke:
@@ -593,7 +635,7 @@ def source_record(metadata, source_id, title, permission_basis=None):
         inherited_from=None,
         uncertainty=None,
     )
-    if metadata["storage_mode"] == "local_cache":
+    if metadata["storage_mode"] in ('local_cache', 'licensed_shared'):
         source.update(
             license_or_permission_basis=dict(
                 status="permitted", basis=permission_basis, asserted_by="human"
@@ -605,6 +647,9 @@ def source_record(metadata, source_id, title, permission_basis=None):
             ),
             access_scope="local-user",
         )
+        if metadata['storage_mode'] == 'licensed_shared':
+            source.update(storage_location_class='shared-store', access_scope='named-group',
+                          access_scope_label=metadata['access_scope_label'])
     from research_evidence import validate_document
 
     validate_document(
@@ -627,6 +672,7 @@ def main(argv=None):
     parser.add_argument("--allow-http", action="store_true")
     parser.add_argument("--timeout", type=int, default=15)
     parser.add_argument("--cache")
+    parser.add_argument('--shared-gid', type=int)
     parser.add_argument("--repo-root")
     parser.add_argument("--permission-basis")
     parser.add_argument("--expires-at")
@@ -643,7 +689,7 @@ def main(argv=None):
             )
             print(
                 json.dumps(
-                    purge_cache(args.purge_cache, revoke=args.revoke), sort_keys=True
+                    purge_cache(args.purge_cache, revoke=args.revoke, shared_gid=args.shared_gid), sort_keys=True
                 )
             )
             return 0
@@ -660,6 +706,7 @@ def main(argv=None):
                 args.repo_root and args.permission_basis and args.expires_at,
                 "permission-required",
             )
+        require(args.shared_gid is None or args.cache, 'usage-invalid')
         metadata, body, text = acquire(
             args.url, args.allow_host, allow_http=args.allow_http, timeout=args.timeout
         )
@@ -672,6 +719,7 @@ def main(argv=None):
                 repository=args.repo_root,
                 permission_basis=args.permission_basis,
                 expires_at=args.expires_at,
+                shared_gid=args.shared_gid,
             )
         print(
             json.dumps(

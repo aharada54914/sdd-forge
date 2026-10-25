@@ -17,6 +17,7 @@ from research_evidence import (
     record_digest,
     timestamp,
     values,
+    shared_snapshot,
 )
 
 
@@ -91,6 +92,8 @@ def verify_originals(
             and source["extraction"] is not None,
             "source-unavailable",
         )
+        if source['storage_mode'] == 'licensed_shared':
+            shared_snapshot(snapshot_root, item, source)
         with relative_file(snapshot_root, item["original"]).open("rb") as stream:
             original = stream.read(32 * 1024 * 1024 + 1)
         with relative_file(snapshot_root, item["extracted"]).open("rb") as stream:

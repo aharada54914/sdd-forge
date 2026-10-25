@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 import socket
 import subprocess
+import struct
 import sys
 import tempfile
 import unittest
@@ -38,12 +39,134 @@ def response(url, addresses, timeout):
 
 
 class Acquire(unittest.TestCase):
+    @unittest.skipUnless(sys.platform == 'linux', 'Linux shared-store adapter')
+    def test_shared_store_permissions_receipt_expiry_and_existing_snapshot(self):
+        from research_evidence import shared_snapshot
+        # The real store is outside the repository and system temp export roots.
+        with tempfile.TemporaryDirectory(prefix='research-shared-', dir=Path.home()) as directory:
+            root = Path(directory)
+            cache = root / 'store'
+            cache.mkdir(mode=0o750)
+            cache.chmod(0o750)
+            metadata, body, extracted = self.run_acquire()
+            def save():
+                return a.save_cache(metadata, body, extracted, cache, repository=ROOT,
+                                    permission_basis='Synthetic fixture may be shared with the named OS group.',
+                                    expires_at='2099-01-01T00:00:00Z', shared_gid=os.getegid())
+            saved = save()
+            source = a.source_record(saved, 'SRC-001', 'Synthetic shared source',
+                                     'Synthetic fixture may be shared with the named OS group.')
+            key = saved['cache_key']
+            item = dict(original=f'{key}/original', extracted=f'{key}/extracted.txt')
+            shared_snapshot(cache, item, source)
+            self.assertEqual(source['storage_mode'], 'licensed_shared')
+            entry = cache / key
+            with self.assertRaisesRegex(a.Invalid, 'snapshot-exists'):
+                save()
+            self.assertEqual((entry / 'original').read_bytes(), body)
+            original = entry / 'original'
+            original.chmod(0o644)
+            with self.assertRaisesRegex(a.Invalid, 'shared-permissions'):
+                shared_snapshot(cache, item, source)
+            original.chmod(0o640)
+            alias = root / 'alias'
+            os.link(original, alias)
+            with self.assertRaisesRegex(a.Invalid, 'shared-permissions'):
+                shared_snapshot(cache, item, source)
+            alias.unlink()
+            backup = root / 'original-backup'
+            original.rename(backup)
+            original.symlink_to(backup)
+            with self.assertRaisesRegex(a.Invalid, 'shared-permissions'):
+                shared_snapshot(cache, item, source)
+            original.unlink()
+            backup.rename(original)
+            root.chmod(0o770)
+            with self.assertRaisesRegex(a.Invalid, 'shared-parent-permissions'):
+                shared_snapshot(cache, item, source)
+            root.chmod(0o700)
+            acl = struct.pack('<I', 2) + b''.join(struct.pack('<HHI', *entry) for entry in
+                [(1, 6, 0xffffffff), (2, 4, 65534), (4, 4, 0xffffffff), (16, 4, 0xffffffff), (32, 0, 0xffffffff)])
+            os.setxattr(original, 'system.posix_acl_access', acl)
+            with self.assertRaisesRegex(a.Invalid, 'shared-acl-unsupported'):
+                shared_snapshot(cache, item, source)
+            os.removexattr(original, 'system.posix_acl_access')
+            receipt = entry / 'receipt.json'
+            raw = receipt.read_bytes()
+            changed = json.loads(raw)
+            changed['permission_basis'] = 'Different permission'
+            receipt.write_text(json.dumps(changed))
+            with self.assertRaisesRegex(a.Invalid, 'shared-receipt-mismatch'):
+                shared_snapshot(cache, item, source)
+            receipt.write_bytes(raw)
+            self.assertEqual(a.purge_cache(cache, shared_gid=os.getegid(), now='2098-01-01T00:00:00Z')['deleted'], 0)
+            self.assertEqual(a.purge_cache(cache, shared_gid=os.getegid(), now='2100-01-01T00:00:00Z')['deleted'], 1)
+            self.assertFalse(entry.exists())
+            save()
+            self.assertEqual(a.purge_cache(cache, shared_gid=os.getegid(), revoke=[key])['deleted'], 1)
+
+    @unittest.skipUnless(sys.platform == 'linux' and hasattr(os, 'geteuid') and os.geteuid() == 0,
+                         'Distinct reader identities require isolated root-capable Linux CI')
+    def test_shared_store_actual_allowed_and_denied_reader_identities(self):
+        with tempfile.TemporaryDirectory(prefix='research-shared-', dir='/var/lib') as directory:
+            root = Path(directory)
+            root.chmod(0o755)
+            cache = root / 'store'
+            cache.mkdir(mode=0o750)
+            cache.chmod(0o750)
+            metadata, body, extracted = self.run_acquire()
+            saved = a.save_cache(metadata, body, extracted, cache, repository=ROOT,
+                                 permission_basis='Synthetic group-reader test permission',
+                                 expires_at='2099-01-01T00:00:00Z', shared_gid=os.getegid())
+            original = cache / saved['cache_key'] / 'original'
+            fixture_spec = importlib.util.spec_from_file_location('shared_fixture', ROOT / 'tests/research-evidence.tests.py')
+            fixture = importlib.util.module_from_spec(fixture_spec)
+            fixture_spec.loader.exec_module(fixture)
+            document = fixture.document()
+            document['sources'] = [a.source_record(saved, 'SRC-001', 'Synthetic source',
+                                                   'Synthetic group-reader test permission')]
+            anchor = document['claims'][0]['citations'][0]['anchor']
+            anchor.update(quote=extracted.decode(), quote_sha256=a.digest(extracted))
+            snapshots = dict(schema='research-snapshots/v1', feature=document['feature'], snapshots=[dict(
+                source_id='SRC-001', record_revision=1, original=f"{saved['cache_key']}/original",
+                extracted=f"{saved['cache_key']}/extracted.txt")])
+            script = '''import os,sys,pathlib,json
+path=pathlib.Path(sys.argv[1]); result={}
+for operation,mode in [('read','rb'),('write','ab')]:
+ try:
+  with path.open(mode) as stream:
+   if operation=='read': stream.read()
+  result[operation]=True
+ except PermissionError: result[operation]=False
+result['capabilities_zero']='CapEff:\\t0000000000000000' in pathlib.Path('/proc/self/status').read_text()
+sys.path.insert(0,sys.argv[2])
+from research_consumers import verify_originals
+from research_evidence import Invalid
+document,snapshots=json.loads(sys.argv[3])
+try: result['verified']=verify_originals(document,snapshots,path.parent.parent)['complete']
+except Invalid as error:
+ if error.code!='shared-access-denied': raise
+ result['verified']=False
+try: verify_originals(document,snapshots,path.parent.parent,now='2100-01-01T00:00:00Z')
+except Invalid as error: result['expired']=error.code=='rights-expired'
+print(json.dumps(result))
+'''
+            for uid, gid, allowed in [(65534, os.getegid(), True), (65533, 65533, False)]:
+                result = subprocess.run([sys.executable, '-c', script, str(original), str(a.QUALITY),
+                                         json.dumps([document, snapshots])], user=uid, group=gid,
+                                        extra_groups=[], capture_output=True, text=True, check=True)
+                self.assertEqual(json.loads(result.stdout), dict(read=allowed, write=False, capabilities_zero=True,
+                                                                verified=allowed, expired=True))
+            self.assertEqual(a.purge_cache(cache, shared_gid=os.getegid(), now='2100-01-01T00:00:00Z')['deleted'], 1)
+            self.assertFalse(original.exists())
+
     def test_subtitles_preserve_payload_and_normalize_only_cue_timing(self):
         for media, header, timing in [('text/vtt', 'WEBVTT\n\n', '00:01.200 --> 00:03.500'),
                                       ('application/x-subrip', '1\n', '00:00:01,200 --> 00:00:03,500')]:
             raw = (header + timing + '\nOriginal statement with context.\n').replace('\n', '\r\n').encode()
             expected = b'[cue 1200 3500 ms]\nOriginal statement with context.\n'
-            transport = lambda *args: (200, {'content-type': media}, raw)
+            def transport(*args):
+                return 200, {'content-type': media}, raw
             metadata, body, extracted = a._acquire('https://example.org/captions', ['example.org'],
                                                    resolver=resolver, transport=transport)
             self.assertEqual(raw, body)

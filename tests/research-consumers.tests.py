@@ -21,7 +21,7 @@ from research_consumers import (  # noqa: E402 - sibling runtime path is explici
     render_report,
     validate_verification_record,
 )
-from research_extraction import extract
+from research_extraction import extract  # noqa: E402 - sibling runtime path is explicit.
 
 spec = importlib.util.spec_from_file_location(
     "research_fixture", Path(__file__).with_name("research-evidence.tests.py")

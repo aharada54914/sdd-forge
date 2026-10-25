@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Optional licensed shared originals reuse the existing cache lifecycle for preconfigured Linux group stores. Fresh reads recheck owner/group/modes, ACL exclusion, permission receipt and expiry before original-byte verification; remote storage remains unsupported.
+
 - Direct WebVTT/SRT acquisition preserves plain caption payloads and normalizes cue timing. Original re-verification derives quote time spans for HTML display using source-evidence-result/v2; existing non-subtitle results retain v1. Unsupported cue markup/settings and timing maps fail explicitly.
 
 - Optional PDF acquisition and original re-verification use the same isolated pypdf layout recipe on supported Linux runtimes. Parser source/version fingerprints, bounded output/resources and reused descendant supervision prevent stale-text replay, parent stdout exhaustion and timeout zombies; original project-runner defaults are preserved.

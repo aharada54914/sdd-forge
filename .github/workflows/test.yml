@@ -196,6 +196,9 @@ jobs:
       - name: Test shared launch FilesOnly distribution
         shell: bash
         run: python3 -B tests/shared-launch-build.tests.py
+      - name: Test licensed shared store with distinct Linux reader identities
+        shell: bash
+        run: sudo python3 -B tests/research-acquire.tests.py Acquire.test_shared_store_actual_allowed_and_denied_reader_identities
       # Same pinned general YAML parser the weekly self-improvement run installs (issue #620).
       - name: Install repository syntax parser
         shell: bash

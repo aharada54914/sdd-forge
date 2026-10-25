@@ -1,0 +1,10 @@
+{
+  "reusable": false,
+  "files": {
+    "plugins/sdd-bootstrap/scripts/research-acquire.py": "76029e83d35b139be2dd062d937c0a14f12f14f6dc38e19d6b948039fa34f863",
+    "plugins/sdd-quality-loop/scripts/research_evidence.py": "72d621d0ddeb29a28f56e1f83e611b4d0ec2423ae2d897ee72ab6f5d0ad21745",
+    "plugins/sdd-quality-loop/scripts/research_consumers.py": "54614d1670ac5307ce7de958400dfea9f13d2d25cee7445d2beb90d743b4e307",
+    "tests/research-acquire.tests.py": "fcc46d3d462c6e15a2682bff33f3278e5f7ebafcc09b54569fc339954c81c864",
+    ".github/workflows/test.yml": "fd90897ee0875f48f78d8c920e4209705eec7d077d07e28d5d77f88405da2d58"
+  }
+}

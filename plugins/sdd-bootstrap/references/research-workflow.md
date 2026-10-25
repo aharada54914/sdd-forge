@@ -49,7 +49,8 @@ append corrections. Full original bytes never belong in this metadata directory.
 
 Acquisition defaults to reference-only, without persistence. A permitted local
 cache requires `--cache`, `--repo-root`, `--permission-basis`, `--expires-at`;
-keep it private and outside the repository. Shared storage is unsupported;
+keep it private and outside the repository. Licensed Linux group sharing uses
+the optional profile described below; remote shared storage is unsupported.
 optional PDF extraction requires the isolated Linux runtime described below.
 `research-acquire.py --purge-cache <cache>` removes expired
 objects; add `--revoke <content-sha256>` for each object whose permission was revoked. No background scheduler
@@ -197,7 +198,7 @@ there is no automatic password handling, OCR or attachment execution.
 
 Default `reference_only` output contains metadata and hashes, not the full PDF
 or extracted body. Existing explicit local-cache rights/expiry controls apply to
-PDFs as they do to text. Licensed shared storage and unsupported environments
+PDFs as they do to text. Remote shared storage and unsupported environments
 still need their adapters. A failed acquisition does not replace old snapshots.
 
 ## Direct subtitle originals
@@ -223,3 +224,33 @@ contain either version, but cannot substitute for fresh original verification.
 HTML shows the span as caption-file time; it does not prove synchronization with
 the video or semantic correctness. Original, excerpt and translation remain
 separate, and untrusted text is escaped.
+
+## Licensed Linux group storage
+
+When explicit permission covers both copying and sharing with a specific OS
+group, preconfigure a dedicated store outside repository, temporary, workspace
+and artifact export roots. The publisher must own the store and belong to its
+existing group; set directory mode 0750. The adapter does not create groups or
+widen an existing private cache. Use the normal acquisition command with
+`--cache <store> --repo-root <repository> --permission-basis '<copy/share scope>'
+--expires-at '<UTC expiry>' --shared-gid <numeric GID>`. The returned Source uses
+licensed_shared and a numeric publisher/group label, never the private store path.
+Group membership and the asserted permission must refer to the same intended
+readers; the tool cannot establish legal permission from a public URL.
+
+On supported local Linux filesystems, directories are 0750 and files 0640.
+Named/default ACLs, hardlinked files, symlinks and writable third-party ancestors
+are refused. The publisher and host administrator remain trusted; readers get
+read/traverse access without write access. Ancestors must also permit the intended
+readers to traverse them. A 0700 home directory will prevent other readers even
+if the store itself is 0750. No remote or macOS/Windows adapter is provided.
+
+For verification, supply the shared store as the runtime snapshot root. Snapshot
+paths are `<content-sha256>/original` and `<content-sha256>/extracted.txt`. The
+existing verifier checks current access restrictions and the matching permission
+receipt before hashing and re-extracting originals. Missing access, changed modes,
+receipt drift and expired rights cannot replay earlier PASS. Use
+`--purge-cache <store> --shared-gid <GID>` for expired objects or add
+`--revoke <content-sha256>` for revoked ones. Only the publisher can purge. No daemon
+runs; expiry blocks verification immediately, while deletion occurs on purge.
+Previously read copies and already-open descriptors cannot be revoked by deletion.

@@ -473,3 +473,13 @@ Acquisition 29, consumer 15 and Bash/PowerShell owner 8 tests pass, with indepen
 negative controls. [Evidence](../../reports/verification/research-subtitles-20261025/README.md).
 This does not establish live video synchronization or licensed shared storage.
 The CI all_pins missing type annotation is fixed; the same ruff/mypy check passes.
+
+## Licensed local-group storage follow-up — 2026-10-25
+
+#606/#607 reuse the existing cache lifecycle and Source v1 for explicit Linux
+local-group licensed_shared storage. Current filesystem permissions, ACL exclusion,
+receipt and rights are checked before fresh verification. Original group readers
+cannot write; unsupported remote/macOS/Windows profiles fail explicitly. Local
+acquisition has 30 PASS / 1 SKIP (distinct reader identities need privileged CI).
+The dedicated Linux CI case is added but its actual result remains pending.
+[Evidence](../../reports/verification/research-shared-store-20261025/README.md).

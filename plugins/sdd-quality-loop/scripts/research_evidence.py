@@ -10,6 +10,7 @@ import datetime as dt
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import re
 import stat
@@ -42,6 +43,74 @@ class Invalid(ValueError):
     def __init__(self, code, pointer="/"):
         self.code, self.pointer = code, pointer
         super().__init__(code)
+
+
+def shared_scope(uid, gid):
+    return f'linux-uid-{uid}-gid-{gid}'
+
+
+def shared_permissions(path, uid, gid, *, directory):
+    """Linux local-store profile; named ACLs and aliases are not supported."""
+    require(sys.platform == 'linux', 'shared-adapter-unavailable')
+    info = path.lstat()
+    expected = 0o750 if directory else 0o640
+    require((stat.S_ISDIR(info.st_mode) if directory else stat.S_ISREG(info.st_mode))
+            and info.st_uid == uid and info.st_gid == gid
+            and stat.S_IMODE(info.st_mode) == expected
+            and (directory or info.st_nlink == 1), 'shared-permissions')
+    require(not any(name.startswith('system.posix_acl_') for name in os.listxattr(path, follow_symlinks=False)),
+            'shared-acl-unsupported')
+
+
+def shared_root(path, uid, gid):
+    """Only publisher/root-controlled ancestors on a supported local mount."""
+    require(sys.platform == 'linux', 'shared-adapter-unavailable')
+    path = Path(path).absolute()
+    for parent in path.parents:
+        info = parent.lstat()
+        require(stat.S_ISDIR(info.st_mode) and info.st_uid in (0, uid)
+                and not info.st_mode & 0o022, 'shared-parent-permissions')
+        require(not any(name.startswith('system.posix_acl_') for name in os.listxattr(parent, follow_symlinks=False)),
+                'shared-acl-unsupported')
+    descriptor = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        info = Path(f'/proc/self/fdinfo/{descriptor}').read_text()
+        match = re.search(r'^mnt_id:\s+(\d+)$', info, re.MULTILINE)
+        require(match is not None, 'shared-filesystem-unsupported')
+        mounts = [line.split() for line in Path('/proc/self/mountinfo').read_text().splitlines()
+                  if line.split()[0] == match[1]]
+    finally:
+        os.close(descriptor)
+    require(len(mounts) == 1 and mounts[0][mounts[0].index('-') + 1] in ('ext4', 'xfs', 'btrfs', 'tmpfs', 'overlay'),
+            'shared-filesystem-unsupported')
+    shared_permissions(path, uid, gid, directory=True)
+
+
+def shared_snapshot(root, item, source):
+    """Admit licensed shared bytes using current OS permissions and bound receipt."""
+    try:
+        match = re.fullmatch(r'linux-uid-(\d+)-gid-(\d+)', source['access_scope_label'] or '')
+        require(match is not None, 'shared-scope-invalid')
+        uid, gid = map(int, match.groups())
+        root = Path(root).absolute()
+        key = source['content_sha256']
+        require(item['original'] == f'{key}/original' and item['extracted'] == f'{key}/extracted.txt',
+                'shared-snapshot-path-invalid')
+        shared_root(root, uid, gid)
+        entry = root / key
+        shared_permissions(entry, uid, gid, directory=True)
+        for name in ('original', 'extracted.txt', 'receipt.json'):
+            shared_permissions(entry / name, uid, gid, directory=False)
+        receipt = read_json(entry / 'receipt.json')
+        expected = dict(schema='research-shared-cache/v1', content_sha256=key,
+                        extracted_sha256=source['extraction']['extracted_sha256'],
+                        expires_at=source['retention_or_expiry']['expires_at'],
+                        permission_basis=source['license_or_permission_basis']['basis'],
+                        access_scope=shared_scope(uid, gid), publisher_uid=uid, reader_gid=gid)
+        require(receipt == expected and type(receipt['publisher_uid']) is int
+                and type(receipt['reader_gid']) is int, 'shared-receipt-mismatch')
+    except PermissionError:
+        raise Invalid('shared-access-denied') from None
 
 
 def require(condition, code, pointer="/"):
