@@ -1,0 +1,577 @@
+ok: workflow history bash legacy
+ok: workflow history bash legacy-precheck-absent
+ok: workflow history bash legacy-precheck-dangling
+ok: workflow history bash legacy-precheck-case
+ok: workflow history bash null-set
+ok: workflow history bash object-set
+ok: workflow history bash missing-precheck
+ok: workflow history bash equal-layer
+ok: workflow history bash interrupted-a-empty
+ok: workflow history bash interrupted-a-partial
+ok: workflow history bash interrupted-b-empty
+ok: workflow history bash interrupted-b-partial
+ok: workflow history bash output-only-layer
+ok: workflow history bash conflicting-layer
+ok: workflow history bash conflicting-layer-alias
+ok: workflow history bash canonical-adr-path
+ok: workflow history bash newline-adr-path
+ok: workflow history bash duplicate-adr-key
+ok: workflow history bash duplicate-escaped-adr-key
+ok: workflow history bash duplicate-nested-role
+ok: workflow history bash invalid-utf8
+ok: workflow history bash duplicate-check
+ok: workflow history bash missing-b-check
+ok: workflow history bash wrong-finding-count
+ok: workflow history bash wrong-reviewer-run
+ok: workflow history bash wrong-summary-count
+ok: workflow history bash wrong-summary-id
+ok: workflow history bash check-a-control-0
+ok: workflow history bash check-a-missing-0
+ok: workflow history bash check-a-missing-1
+ok: workflow history bash check-a-missing-2
+ok: workflow history bash check-a-missing-3
+ok: workflow history bash check-a-missing-4
+ok: workflow history bash check-a-missing-5
+ok: workflow history bash check-a-missing-6
+ok: workflow history bash check-a-missing-7
+ok: workflow history bash check-a-missing-8
+ok: workflow history bash check-a-missing-9
+ok: workflow history bash check-a-missing-10
+ok: workflow history bash check-a-duplicate-0
+ok: workflow history bash check-a-unknown-0
+ok: workflow history bash check-a-case-0
+ok: workflow history bash check-a-reorder-0
+ok: workflow history bash check-b-control-0
+ok: workflow history bash check-b-missing-0
+ok: workflow history bash check-b-missing-1
+ok: workflow history bash check-b-missing-2
+ok: workflow history bash check-b-missing-3
+ok: workflow history bash check-b-missing-4
+ok: workflow history bash check-b-missing-5
+ok: workflow history bash check-b-missing-6
+ok: workflow history bash check-b-missing-7
+ok: workflow history bash check-b-missing-8
+ok: workflow history bash check-b-missing-9
+ok: workflow history bash check-b-missing-10
+ok: workflow history bash check-b-duplicate-0
+ok: workflow history bash check-b-unknown-0
+ok: workflow history bash check-b-case-0
+ok: workflow history bash check-b-reorder-0
+history fixture: runtime=bash git-root=/workspace/sdd-forge introducing-commit=04cf0ad29001d7e58f7aea63a0f5cf631437af16 live=ffce0bdd0a0250eacecca39d8bd99ff5ac137cdfafc397106ff903f64cb78d07 historical=85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851
+ok: workflow history bash history-pin-control
+history fixture: runtime=bash git-root=/workspace/sdd-forge introducing-commit=04cf0ad29001d7e58f7aea63a0f5cf631437af16 live=ffce0bdd0a0250eacecca39d8bd99ff5ac137cdfafc397106ff903f64cb78d07 historical=85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851
+ok: workflow history bash history-pin-forged
+history fixture: runtime=bash git-root=/workspace/sdd-forge introducing-commit=04cf0ad29001d7e58f7aea63a0f5cf631437af16 live=ffce0bdd0a0250eacecca39d8bd99ff5ac137cdfafc397106ff903f64cb78d07 historical=85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851
+mutation receipt: {"mode":"late-contract-control","jq_exit":0,"before":"40034006d773c1d6aa8aa0e31108b50a7335b4b9bcaac42aae36bb9db060c2aa","after":"40034006d773c1d6aa8aa0e31108b50a7335b4b9bcaac42aae36bb9db060c2aa","changed":false}
+ok: workflow history bash late-contract-control
+history fixture: runtime=bash git-root=/workspace/sdd-forge introducing-commit=04cf0ad29001d7e58f7aea63a0f5cf631437af16 live=ffce0bdd0a0250eacecca39d8bd99ff5ac137cdfafc397106ff903f64cb78d07 historical=85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851
+ok: workflow history bash late-contract-missing
+history fixture: runtime=bash git-root=/workspace/sdd-forge introducing-commit=04cf0ad29001d7e58f7aea63a0f5cf631437af16 live=ffce0bdd0a0250eacecca39d8bd99ff5ac137cdfafc397106ff903f64cb78d07 historical=85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851
+mutation receipt: {"mode":"late-contract-rescue","jq_exit":0,"before":"1585f3059db6229ba541b9b2c73d855de78612c2d038154ba9ed45d33fd28191","after":"40034006d773c1d6aa8aa0e31108b50a7335b4b9bcaac42aae36bb9db060c2aa","changed":true}
+ok: workflow history bash late-contract-rescue
+Diagnostic: bash current-singleton
+workflow-state: ok
+ok: workflow history bash current-singleton
+Diagnostic: bash current-empty
+workflow-state: ok
+ok: workflow history bash current-empty
+Diagnostic: bash current-add
+workflow-state: workflow-state-integrity: stage-provenance: ADR current design declarations differ from saved bindings
+ok: workflow history bash current-add
+Diagnostic: bash current-remove
+workflow-state: workflow-state-integrity: stage-provenance: ADR current design declarations differ from saved bindings
+ok: workflow history bash current-remove
+Diagnostic: bash current-parent-link
+workflow-state: workflow-state-integrity: stage-provenance: ADR manifest input path is unsafe
+ok: workflow history bash current-parent-link
+Diagnostic: bash current-own-opening
+workflow-state: ok
+ok: workflow history bash current-own-opening
+ok: workflow history pwsh legacy
+ok: workflow history pwsh legacy-precheck-absent
+ok: workflow history pwsh legacy-precheck-dangling
+ok: workflow history pwsh legacy-precheck-case
+ok: workflow history pwsh null-set
+ok: workflow history pwsh object-set
+ok: workflow history pwsh missing-precheck
+ok: workflow history pwsh equal-layer
+ok: workflow history pwsh interrupted-a-empty
+ok: workflow history pwsh interrupted-a-partial
+ok: workflow history pwsh interrupted-b-empty
+ok: workflow history pwsh interrupted-b-partial
+ok: workflow history pwsh output-only-layer
+ok: workflow history pwsh conflicting-layer
+ok: workflow history pwsh conflicting-layer-alias
+ok: workflow history pwsh canonical-adr-path
+ok: workflow history pwsh newline-adr-path
+ok: workflow history pwsh duplicate-adr-key
+ok: workflow history pwsh duplicate-escaped-adr-key
+ok: workflow history pwsh duplicate-nested-role
+ok: workflow history pwsh invalid-utf8
+ok: workflow history pwsh duplicate-check
+ok: workflow history pwsh missing-b-check
+ok: workflow history pwsh wrong-finding-count
+ok: workflow history pwsh wrong-reviewer-run
+ok: workflow history pwsh wrong-summary-count
+ok: workflow history pwsh wrong-summary-id
+ok: workflow history pwsh check-a-control-0
+ok: workflow history pwsh check-a-missing-0
+ok: workflow history pwsh check-a-missing-1
+ok: workflow history pwsh check-a-missing-2
+ok: workflow history pwsh check-a-missing-3
+ok: workflow history pwsh check-a-missing-4
+ok: workflow history pwsh check-a-missing-5
+ok: workflow history pwsh check-a-missing-6
+ok: workflow history pwsh check-a-missing-7
+ok: workflow history pwsh check-a-missing-8
+ok: workflow history pwsh check-a-missing-9
+ok: workflow history pwsh check-a-missing-10
+ok: workflow history pwsh check-a-duplicate-0
+ok: workflow history pwsh check-a-unknown-0
+ok: workflow history pwsh check-a-case-0
+ok: workflow history pwsh check-a-reorder-0
+ok: workflow history pwsh check-b-control-0
+ok: workflow history pwsh check-b-missing-0
+ok: workflow history pwsh check-b-missing-1
+ok: workflow history pwsh check-b-missing-2
+ok: workflow history pwsh check-b-missing-3
+ok: workflow history pwsh check-b-missing-4
+ok: workflow history pwsh check-b-missing-5
+ok: workflow history pwsh check-b-missing-6
+ok: workflow history pwsh check-b-missing-7
+ok: workflow history pwsh check-b-missing-8
+ok: workflow history pwsh check-b-missing-9
+ok: workflow history pwsh check-b-missing-10
+ok: workflow history pwsh check-b-duplicate-0
+ok: workflow history pwsh check-b-unknown-0
+ok: workflow history pwsh check-b-case-0
+ok: workflow history pwsh check-b-reorder-0
+history fixture: runtime=pwsh git-root=/workspace/sdd-forge introducing-commit=04cf0ad29001d7e58f7aea63a0f5cf631437af16 live=ffce0bdd0a0250eacecca39d8bd99ff5ac137cdfafc397106ff903f64cb78d07 historical=85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851
+ok: workflow history pwsh history-pin-control
+history fixture: runtime=pwsh git-root=/workspace/sdd-forge introducing-commit=04cf0ad29001d7e58f7aea63a0f5cf631437af16 live=ffce0bdd0a0250eacecca39d8bd99ff5ac137cdfafc397106ff903f64cb78d07 historical=85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851
+ok: workflow history pwsh history-pin-forged
+Diagnostic: pwsh current-singleton
+workflow-state: ok
+ok: workflow history pwsh current-singleton
+Diagnostic: pwsh current-empty
+workflow-state: ok
+ok: workflow history pwsh current-empty
+Diagnostic: pwsh current-add
+workflow-state: workflow-state-integrity: stage-provenance: ADR current design declaration validation failed
+ok: workflow history pwsh current-add
+Diagnostic: pwsh current-remove
+workflow-state: workflow-state-integrity: stage-provenance: ADR current design declaration validation failed
+ok: workflow history pwsh current-remove
+Diagnostic: pwsh current-parent-link
+workflow-state: workflow-state-integrity: stage-provenance: ADR current input path or hash is invalid
+ok: workflow history pwsh current-parent-link
+Diagnostic: pwsh current-own-opening
+workflow-state: ok
+ok: workflow history pwsh current-own-opening
+Diagnostic: pwsh current-pwsh-control
+workflow-state: ok
+ok: observer receipt and incomplete-receipt rejection: control
+{"after": "0bd3015fa59710654fc03daf80d3afca9b65002693c928fc52c1c8687d828331", "before": "0bd3015fa59710654fc03daf80d3afca9b65002693c928fc52c1c8687d828331", "changed": false, "child_exit": 0, "completed": true, "hits": 1, "line": 2187, "mode": "control", "observer_ok": true, "receipt": "/tmp/sdd-adr-inputs.sfe9dB/workflow-pwsh-current-pwsh-control/pwsh-boundary-receipt.json", "schema": "adr-pwsh-boundary/v1", "target": "/tmp/sdd-adr-inputs.sfe9dB/workflow-pwsh-current-pwsh-control/reports/impl-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json", "validator": "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1", "validator_sha256": "eec57468d03c6f0924a77f0ae39485058bc5fd3ec7029722d6383e7e957f899a"}
+ok: workflow history pwsh current-pwsh-control
+Diagnostic: pwsh current-pwsh-early-poison
+workflow-state: workflow-state-integrity: stage-provenance: ADR impl review evidence validation failed
+ok: observer receipt and incomplete-receipt rejection: early-poison
+{"after": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96", "before": "0bd3015fa59710654fc03daf80d3afca9b65002693c928fc52c1c8687d828331", "changed": true, "child_exit": 1, "completed": true, "hits": 0, "line": 2187, "mode": "early-poison", "observer_ok": true, "receipt": "/tmp/sdd-adr-inputs.sfe9dB/workflow-pwsh-current-pwsh-early-poison/pwsh-boundary-receipt.json", "schema": "adr-pwsh-boundary/v1", "target": "/tmp/sdd-adr-inputs.sfe9dB/workflow-pwsh-current-pwsh-early-poison/reports/impl-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json", "validator": "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1", "validator_sha256": "eec57468d03c6f0924a77f0ae39485058bc5fd3ec7029722d6383e7e957f899a"}
+ok: workflow history pwsh current-pwsh-early-poison
+Diagnostic: pwsh current-pwsh-poison
+workflow-state: ok
+ok: observer receipt and incomplete-receipt rejection: poison
+{"after": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96", "before": "0bd3015fa59710654fc03daf80d3afca9b65002693c928fc52c1c8687d828331", "changed": true, "child_exit": 0, "completed": true, "hits": 1, "line": 2187, "mode": "poison", "observer_ok": true, "receipt": "/tmp/sdd-adr-inputs.sfe9dB/workflow-pwsh-current-pwsh-poison/pwsh-boundary-receipt.json", "schema": "adr-pwsh-boundary/v1", "target": "/tmp/sdd-adr-inputs.sfe9dB/workflow-pwsh-current-pwsh-poison/reports/impl-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json", "validator": "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1", "validator_sha256": "eec57468d03c6f0924a77f0ae39485058bc5fd3ec7029722d6383e7e957f899a"}
+ok: workflow history pwsh current-pwsh-poison
+ok: bash impl-reviewer-a legacy
+ok: bash impl-reviewer-a legacy-declared
+ok: bash impl-reviewer-a legacy-injected
+ok: bash impl-reviewer-a multi-precheck-legacy
+ok: bash impl-reviewer-a multi-precheck-null
+ok: bash impl-reviewer-a multi-precheck-bound
+ok: bash impl-reviewer-a multi-precheck-stream
+ok: bash impl-reviewer-a multi-precheck-invalid
+ok: bash impl-reviewer-a multi-precheck-keys
+ok: bash impl-reviewer-a keys-hidden
+ok: bash impl-reviewer-a keys-lower-hidden
+ok: bash impl-reviewer-a adr-keys-spoof
+ok: bash impl-reviewer-a zero-bound
+ok: bash impl-reviewer-a bound
+ok: bash impl-reviewer-a fs-fifo
+ok: bash impl-reviewer-a fs-directory
+ok: bash impl-reviewer-a fs-symlink
+ok: bash impl-reviewer-a fs-missing
+ok: bash impl-reviewer-a omitted
+ok: bash impl-reviewer-a null-set
+ok: bash impl-reviewer-a object-set
+ok: bash impl-reviewer-a missing-hash
+ok: bash impl-reviewer-a extra-key
+ok: bash impl-reviewer-a json-multiple-present
+ok: bash impl-reviewer-a json-multiple-absent
+ok: bash impl-reviewer-a json-duplicate-root
+ok: bash impl-reviewer-a json-duplicate-escaped
+ok: bash impl-reviewer-a json-duplicate-nested
+ok: bash impl-reviewer-a json-distinct-nested
+ok: bash impl-reviewer-a json-invalid-utf8
+ok: bash impl-reviewer-a json-bom
+ok: bash impl-reviewer-a design-invalid-utf8
+ok: bash impl-reviewer-a json-root-array
+ok: bash impl-reviewer-a json-root-nested-array
+ok: bash impl-reviewer-a path-link-precheck
+ok: bash impl-reviewer-a path-link-precheck-parent
+ok: bash impl-reviewer-a path-link-design
+ok: bash impl-reviewer-a path-link-design-parent
+ok: bash impl-reviewer-a path-link-root
+ok: bash impl-reviewer-a path-link-root-legacy
+ok: bash impl-reviewer-a path-root-dot
+ok: bash impl-reviewer-a path-root-dotdot
+ok: bash impl-reviewer-a path-root-empty-component
+ok: bash impl-reviewer-a path-hardlink-precheck
+ok: bash impl-reviewer-a path-hardlink-design
+fixture: path-case-precheck exact-variant-name=true canonical-alias-reachable=false
+ok: bash impl-reviewer-a path-case-precheck
+fixture: path-case-design exact-variant-name=true canonical-alias-reachable=false
+ok: bash impl-reviewer-a path-case-design
+ok: bash impl-reviewer-a duplicate-member
+ok: bash impl-reviewer-a invalid-hash
+ok: bash impl-reviewer-a empty-declared-set
+ok: bash impl-reviewer-a wrong-feature
+ok: bash impl-reviewer-a wrong-round
+ok: bash impl-reviewer-a lex-crlf
+ok: bash impl-reviewer-a lex-repeated
+ok: bash impl-reviewer-a lex-fence-empty
+ok: bash impl-reviewer-a lex-fence-injected
+ok: bash impl-reviewer-a lex-tilde-empty
+ok: bash impl-reviewer-a lex-tilde-injected
+ok: bash impl-reviewer-a lex-long-span-empty
+ok: bash impl-reviewer-a lex-long-span-injected
+ok: bash impl-reviewer-a lex-escaped-empty
+ok: bash impl-reviewer-a lex-escaped-injected
+ok: bash impl-reviewer-a lex-indent-empty
+ok: bash impl-reviewer-a lex-indent-injected
+ok: bash impl-reviewer-a lex-even-escape
+ok: bash impl-reviewer-a lex-three-spaces
+ok: bash impl-reviewer-a lex-fence-closed
+ok: bash impl-reviewer-a lex-tab-empty
+ok: bash impl-reviewer-a lex-tab-injected
+ok: bash impl-reviewer-a lex-unclosed-empty
+ok: bash impl-reviewer-a lex-unclosed-injected
+ok: bash impl-reviewer-a lex-suffix-empty
+ok: bash impl-reviewer-a lex-suffix-injected
+ok: bash impl-reviewer-a lex-short-close-empty
+ok: bash impl-reviewer-a lex-short-close-injected
+ok: bash impl-reviewer-a lex-trailing-close-empty
+ok: bash impl-reviewer-a lex-trailing-close-injected
+ok: bash impl-reviewer-b legacy
+ok: bash impl-reviewer-b legacy-declared
+ok: bash impl-reviewer-b legacy-injected
+ok: bash impl-reviewer-b multi-precheck-legacy
+ok: bash impl-reviewer-b multi-precheck-null
+ok: bash impl-reviewer-b multi-precheck-bound
+ok: bash impl-reviewer-b multi-precheck-stream
+ok: bash impl-reviewer-b multi-precheck-invalid
+ok: bash impl-reviewer-b multi-precheck-keys
+ok: bash impl-reviewer-b keys-hidden
+ok: bash impl-reviewer-b keys-lower-hidden
+ok: bash impl-reviewer-b adr-keys-spoof
+ok: bash impl-reviewer-b zero-bound
+ok: bash impl-reviewer-b bound
+ok: bash impl-reviewer-b fs-fifo
+ok: bash impl-reviewer-b fs-directory
+ok: bash impl-reviewer-b fs-symlink
+ok: bash impl-reviewer-b fs-missing
+ok: bash impl-reviewer-b omitted
+ok: bash impl-reviewer-b null-set
+ok: bash impl-reviewer-b object-set
+ok: bash impl-reviewer-b missing-hash
+ok: bash impl-reviewer-b extra-key
+ok: bash impl-reviewer-b json-multiple-present
+ok: bash impl-reviewer-b json-multiple-absent
+ok: bash impl-reviewer-b json-duplicate-root
+ok: bash impl-reviewer-b json-duplicate-escaped
+ok: bash impl-reviewer-b json-duplicate-nested
+ok: bash impl-reviewer-b json-distinct-nested
+ok: bash impl-reviewer-b json-invalid-utf8
+ok: bash impl-reviewer-b json-bom
+ok: bash impl-reviewer-b design-invalid-utf8
+ok: bash impl-reviewer-b json-root-array
+ok: bash impl-reviewer-b json-root-nested-array
+ok: bash impl-reviewer-b path-link-precheck
+ok: bash impl-reviewer-b path-link-precheck-parent
+ok: bash impl-reviewer-b path-link-design
+ok: bash impl-reviewer-b path-link-design-parent
+ok: bash impl-reviewer-b path-link-root
+ok: bash impl-reviewer-b path-link-root-legacy
+ok: bash impl-reviewer-b path-root-dot
+ok: bash impl-reviewer-b path-root-dotdot
+ok: bash impl-reviewer-b path-root-empty-component
+ok: bash impl-reviewer-b path-hardlink-precheck
+ok: bash impl-reviewer-b path-hardlink-design
+fixture: path-case-precheck exact-variant-name=true canonical-alias-reachable=false
+ok: bash impl-reviewer-b path-case-precheck
+fixture: path-case-design exact-variant-name=true canonical-alias-reachable=false
+ok: bash impl-reviewer-b path-case-design
+ok: bash impl-reviewer-b duplicate-member
+ok: bash impl-reviewer-b invalid-hash
+ok: bash impl-reviewer-b empty-declared-set
+ok: bash impl-reviewer-b wrong-feature
+ok: bash impl-reviewer-b wrong-round
+ok: bash impl-reviewer-b lex-crlf
+ok: bash impl-reviewer-b lex-repeated
+ok: bash impl-reviewer-b lex-fence-empty
+ok: bash impl-reviewer-b lex-fence-injected
+ok: bash impl-reviewer-b lex-tilde-empty
+ok: bash impl-reviewer-b lex-tilde-injected
+ok: bash impl-reviewer-b lex-long-span-empty
+ok: bash impl-reviewer-b lex-long-span-injected
+ok: bash impl-reviewer-b lex-escaped-empty
+ok: bash impl-reviewer-b lex-escaped-injected
+ok: bash impl-reviewer-b lex-indent-empty
+ok: bash impl-reviewer-b lex-indent-injected
+ok: bash impl-reviewer-b lex-even-escape
+ok: bash impl-reviewer-b lex-three-spaces
+ok: bash impl-reviewer-b lex-fence-closed
+ok: bash impl-reviewer-b lex-tab-empty
+ok: bash impl-reviewer-b lex-tab-injected
+ok: bash impl-reviewer-b lex-unclosed-empty
+ok: bash impl-reviewer-b lex-unclosed-injected
+ok: bash impl-reviewer-b lex-suffix-empty
+ok: bash impl-reviewer-b lex-suffix-injected
+ok: bash impl-reviewer-b lex-short-close-empty
+ok: bash impl-reviewer-b lex-short-close-injected
+ok: bash impl-reviewer-b lex-trailing-close-empty
+ok: bash impl-reviewer-b lex-trailing-close-injected
+ok: pwsh impl-reviewer-a legacy
+ok: pwsh impl-reviewer-a legacy-declared
+ok: pwsh impl-reviewer-a legacy-injected
+ok: pwsh impl-reviewer-a multi-precheck-legacy
+ok: pwsh impl-reviewer-a multi-precheck-null
+ok: pwsh impl-reviewer-a multi-precheck-bound
+ok: pwsh impl-reviewer-a multi-precheck-stream
+ok: pwsh impl-reviewer-a multi-precheck-invalid
+ok: pwsh impl-reviewer-a multi-precheck-keys
+ok: pwsh impl-reviewer-a keys-hidden
+ok: pwsh impl-reviewer-a keys-lower-hidden
+ok: pwsh impl-reviewer-a adr-keys-spoof
+ok: pwsh impl-reviewer-a zero-bound
+ok: pwsh impl-reviewer-a bound
+ok: pwsh impl-reviewer-a fs-fifo
+ok: pwsh impl-reviewer-a fs-directory
+ok: pwsh impl-reviewer-a fs-symlink
+ok: pwsh impl-reviewer-a fs-missing
+ok: pwsh impl-reviewer-a omitted
+ok: pwsh impl-reviewer-a null-set
+ok: pwsh impl-reviewer-a object-set
+ok: pwsh impl-reviewer-a missing-hash
+ok: pwsh impl-reviewer-a extra-key
+ok: pwsh impl-reviewer-a json-multiple-present
+ok: pwsh impl-reviewer-a json-multiple-absent
+ok: pwsh impl-reviewer-a json-duplicate-root
+ok: pwsh impl-reviewer-a json-duplicate-escaped
+ok: pwsh impl-reviewer-a json-duplicate-nested
+ok: pwsh impl-reviewer-a json-distinct-nested
+ok: pwsh impl-reviewer-a json-invalid-utf8
+ok: pwsh impl-reviewer-a json-bom
+ok: pwsh impl-reviewer-a design-invalid-utf8
+ok: pwsh impl-reviewer-a json-root-array
+ok: pwsh impl-reviewer-a json-root-nested-array
+ok: pwsh impl-reviewer-a path-link-precheck
+ok: pwsh impl-reviewer-a path-link-precheck-parent
+ok: pwsh impl-reviewer-a path-link-design
+ok: pwsh impl-reviewer-a path-link-design-parent
+ok: pwsh impl-reviewer-a path-link-root
+ok: pwsh impl-reviewer-a path-link-root-legacy
+ok: pwsh impl-reviewer-a path-root-dot
+ok: pwsh impl-reviewer-a path-root-dotdot
+ok: pwsh impl-reviewer-a path-root-empty-component
+ok: pwsh impl-reviewer-a path-hardlink-precheck
+ok: pwsh impl-reviewer-a path-hardlink-design
+fixture: path-case-precheck exact-variant-name=true canonical-alias-reachable=false
+ok: pwsh impl-reviewer-a path-case-precheck
+fixture: path-case-design exact-variant-name=true canonical-alias-reachable=false
+ok: pwsh impl-reviewer-a path-case-design
+ok: pwsh impl-reviewer-a duplicate-member
+ok: pwsh impl-reviewer-a invalid-hash
+ok: pwsh impl-reviewer-a empty-declared-set
+ok: pwsh impl-reviewer-a wrong-feature
+ok: pwsh impl-reviewer-a wrong-round
+ok: pwsh impl-reviewer-a lex-crlf
+ok: pwsh impl-reviewer-a lex-repeated
+ok: pwsh impl-reviewer-a lex-fence-empty
+ok: pwsh impl-reviewer-a lex-fence-injected
+ok: pwsh impl-reviewer-a lex-tilde-empty
+ok: pwsh impl-reviewer-a lex-tilde-injected
+ok: pwsh impl-reviewer-a lex-long-span-empty
+ok: pwsh impl-reviewer-a lex-long-span-injected
+ok: pwsh impl-reviewer-a lex-escaped-empty
+ok: pwsh impl-reviewer-a lex-escaped-injected
+ok: pwsh impl-reviewer-a lex-indent-empty
+ok: pwsh impl-reviewer-a lex-indent-injected
+ok: pwsh impl-reviewer-a lex-even-escape
+ok: pwsh impl-reviewer-a lex-three-spaces
+ok: pwsh impl-reviewer-a lex-fence-closed
+ok: pwsh impl-reviewer-a lex-tab-empty
+ok: pwsh impl-reviewer-a lex-tab-injected
+ok: pwsh impl-reviewer-a lex-unclosed-empty
+ok: pwsh impl-reviewer-a lex-unclosed-injected
+ok: pwsh impl-reviewer-a lex-suffix-empty
+ok: pwsh impl-reviewer-a lex-suffix-injected
+ok: pwsh impl-reviewer-a lex-short-close-empty
+ok: pwsh impl-reviewer-a lex-short-close-injected
+ok: pwsh impl-reviewer-a lex-trailing-close-empty
+ok: pwsh impl-reviewer-a lex-trailing-close-injected
+ok: pwsh impl-reviewer-b legacy
+ok: pwsh impl-reviewer-b legacy-declared
+ok: pwsh impl-reviewer-b legacy-injected
+ok: pwsh impl-reviewer-b multi-precheck-legacy
+ok: pwsh impl-reviewer-b multi-precheck-null
+ok: pwsh impl-reviewer-b multi-precheck-bound
+ok: pwsh impl-reviewer-b multi-precheck-stream
+ok: pwsh impl-reviewer-b multi-precheck-invalid
+ok: pwsh impl-reviewer-b multi-precheck-keys
+ok: pwsh impl-reviewer-b keys-hidden
+ok: pwsh impl-reviewer-b keys-lower-hidden
+ok: pwsh impl-reviewer-b adr-keys-spoof
+ok: pwsh impl-reviewer-b zero-bound
+ok: pwsh impl-reviewer-b bound
+ok: pwsh impl-reviewer-b fs-fifo
+ok: pwsh impl-reviewer-b fs-directory
+ok: pwsh impl-reviewer-b fs-symlink
+ok: pwsh impl-reviewer-b fs-missing
+ok: pwsh impl-reviewer-b omitted
+ok: pwsh impl-reviewer-b null-set
+ok: pwsh impl-reviewer-b object-set
+ok: pwsh impl-reviewer-b missing-hash
+ok: pwsh impl-reviewer-b extra-key
+ok: pwsh impl-reviewer-b json-multiple-present
+ok: pwsh impl-reviewer-b json-multiple-absent
+ok: pwsh impl-reviewer-b json-duplicate-root
+ok: pwsh impl-reviewer-b json-duplicate-escaped
+ok: pwsh impl-reviewer-b json-duplicate-nested
+ok: pwsh impl-reviewer-b json-distinct-nested
+ok: pwsh impl-reviewer-b json-invalid-utf8
+ok: pwsh impl-reviewer-b json-bom
+ok: pwsh impl-reviewer-b design-invalid-utf8
+ok: pwsh impl-reviewer-b json-root-array
+ok: pwsh impl-reviewer-b json-root-nested-array
+ok: pwsh impl-reviewer-b path-link-precheck
+ok: pwsh impl-reviewer-b path-link-precheck-parent
+ok: pwsh impl-reviewer-b path-link-design
+ok: pwsh impl-reviewer-b path-link-design-parent
+ok: pwsh impl-reviewer-b path-link-root
+ok: pwsh impl-reviewer-b path-link-root-legacy
+ok: pwsh impl-reviewer-b path-root-dot
+ok: pwsh impl-reviewer-b path-root-dotdot
+ok: pwsh impl-reviewer-b path-root-empty-component
+ok: pwsh impl-reviewer-b path-hardlink-precheck
+ok: pwsh impl-reviewer-b path-hardlink-design
+fixture: path-case-precheck exact-variant-name=true canonical-alias-reachable=false
+ok: pwsh impl-reviewer-b path-case-precheck
+fixture: path-case-design exact-variant-name=true canonical-alias-reachable=false
+ok: pwsh impl-reviewer-b path-case-design
+ok: pwsh impl-reviewer-b duplicate-member
+ok: pwsh impl-reviewer-b invalid-hash
+ok: pwsh impl-reviewer-b empty-declared-set
+ok: pwsh impl-reviewer-b wrong-feature
+ok: pwsh impl-reviewer-b wrong-round
+ok: pwsh impl-reviewer-b lex-crlf
+ok: pwsh impl-reviewer-b lex-repeated
+ok: pwsh impl-reviewer-b lex-fence-empty
+ok: pwsh impl-reviewer-b lex-fence-injected
+ok: pwsh impl-reviewer-b lex-tilde-empty
+ok: pwsh impl-reviewer-b lex-tilde-injected
+ok: pwsh impl-reviewer-b lex-long-span-empty
+ok: pwsh impl-reviewer-b lex-long-span-injected
+ok: pwsh impl-reviewer-b lex-escaped-empty
+ok: pwsh impl-reviewer-b lex-escaped-injected
+ok: pwsh impl-reviewer-b lex-indent-empty
+ok: pwsh impl-reviewer-b lex-indent-injected
+ok: pwsh impl-reviewer-b lex-even-escape
+ok: pwsh impl-reviewer-b lex-three-spaces
+ok: pwsh impl-reviewer-b lex-fence-closed
+ok: pwsh impl-reviewer-b lex-tab-empty
+ok: pwsh impl-reviewer-b lex-tab-injected
+ok: pwsh impl-reviewer-b lex-unclosed-empty
+ok: pwsh impl-reviewer-b lex-unclosed-injected
+ok: pwsh impl-reviewer-b lex-suffix-empty
+ok: pwsh impl-reviewer-b lex-suffix-injected
+ok: pwsh impl-reviewer-b lex-short-close-empty
+ok: pwsh impl-reviewer-b lex-short-close-injected
+ok: pwsh impl-reviewer-b lex-trailing-close-empty
+ok: pwsh impl-reviewer-b lex-trailing-close-injected
+ADR admission: passed=448 failed=0
+ok: bash precheck bound exit=0
+ok: bash precheck wrong-adr-hash exit=1
+ok: bash precheck missing-adr-hash exit=1
+ok: bash precheck null-adrs exit=1
+ok: bash precheck wrong-input-hash exit=1
+ok: pwsh precheck bound exit=0
+ok: pwsh precheck wrong-adr-hash exit=1
+ok: pwsh precheck missing-adr-hash exit=1
+ok: pwsh precheck null-adrs exit=1
+ok: pwsh precheck wrong-input-hash exit=1
+ADR precheck: passed=10 failed=0
+ok: bash generation design-change exit=0 baseline=True
+ok: bash generation emitted ADR set and aggregate hash
+ok: bash generation adr-only-change exit=0 baseline=True
+ok: bash generation unchanged exit=1 baseline=True
+ok: bash generation legacy-design-change exit=0 baseline=True
+ok: bash generation legacy-unchanged exit=1 baseline=True
+ok: bash generation missing-contract-extension exit=1 baseline=True
+ok: bash generation missing-precheck-extension exit=1 baseline=True
+ok: bash generation null-extension exit=1 baseline=True
+ok: bash generation mismatch/reservation/requirements.md exit=1 baseline=True
+ok: bash generation mismatch/reservation/acceptance-tests.md exit=1 baseline=True
+ok: bash generation mismatch/reservation/security-spec.md exit=1 baseline=True
+ok: bash generation mismatch/output/requirements.md exit=1 baseline=True
+ok: bash generation mismatch/output/acceptance-tests.md exit=1 baseline=True
+ok: bash generation mismatch/output/security-spec.md exit=1 baseline=True
+ok: pwsh generation design-change exit=0 baseline=True
+ok: pwsh generation emitted ADR set and aggregate hash
+ok: pwsh generation adr-only-change exit=0 baseline=True
+ok: pwsh generation unchanged exit=1 baseline=True
+ok: pwsh generation legacy-design-change exit=0 baseline=True
+ok: pwsh generation legacy-unchanged exit=1 baseline=True
+ok: pwsh generation missing-contract-extension exit=1 baseline=True
+ok: pwsh generation missing-precheck-extension exit=1 baseline=True
+ok: pwsh generation null-extension exit=1 baseline=True
+ok: pwsh generation mismatch/reservation/requirements.md exit=1 baseline=True
+ok: pwsh generation mismatch/reservation/acceptance-tests.md exit=1 baseline=True
+ok: pwsh generation mismatch/reservation/security-spec.md exit=1 baseline=True
+ok: pwsh generation mismatch/output/requirements.md exit=1 baseline=True
+ok: pwsh generation mismatch/output/acceptance-tests.md exit=1 baseline=True
+ok: pwsh generation mismatch/output/security-spec.md exit=1 baseline=True
+ADR generation: passed=30 failed=0
+ok: bash downstream legacy exit=0
+ok: bash downstream extended exit=0
+ok: bash downstream lifecycle-normalized exit=0
+ok: bash downstream absolute-core exit=0
+ok: bash downstream layer-bound exit=0
+ok: bash downstream stale-adr-hash exit=1
+ok: bash downstream wrong-input-hash exit=1
+ok: bash downstream missing-contract-extension exit=1
+ok: bash downstream missing-precheck-extension exit=1
+ok: bash downstream missing-reviewer-adr exit=1
+ok: bash downstream layer-pin-mismatch exit=1
+ok: bash downstream output-adr-mismatch exit=1
+ok: bash downstream output-precheck-mismatch exit=1
+ok: bash downstream output-design-mismatch exit=1
+ok: bash downstream output-identity-mismatch exit=1
+ok: bash downstream output-multiple-json-empty-b exit=1
+ok: pwsh downstream legacy exit=0
+ok: pwsh downstream extended exit=0
+ok: pwsh downstream lifecycle-normalized exit=0
+ok: pwsh downstream absolute-core exit=0
+ok: pwsh downstream layer-bound exit=0
+ok: pwsh downstream stale-adr-hash exit=1
+ok: pwsh downstream wrong-input-hash exit=1
+ok: pwsh downstream missing-contract-extension exit=1
+ok: pwsh downstream missing-precheck-extension exit=1
+ok: pwsh downstream missing-reviewer-adr exit=1
+ok: pwsh downstream layer-pin-mismatch exit=1
+ok: pwsh downstream output-adr-mismatch exit=1
+ok: pwsh downstream output-precheck-mismatch exit=1
+ok: pwsh downstream output-design-mismatch exit=1
+ok: pwsh downstream output-identity-mismatch exit=1
+ok: pwsh downstream output-multiple-json-empty-b exit=1
+ADR downstream: passed=32 failed=0 inconclusive=0

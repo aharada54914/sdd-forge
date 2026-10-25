@@ -1,0 +1,89 @@
+FF.FFFFFF
+======================================================================
+FAIL: test_relocated_research_manifest (__main__.ResearchInputs.test_relocated_research_manifest) (runtime='bash')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/workflow-conditional-inputs.tests.py", line 116, in check
+    self.assertEqual(result.returncode, 0, output)
+AssertionError: 1 != 0 : workflow-state: conditional-workflow-fixture: stage-provenance: spec reviewer manifest paths are not canonical
+
+
+======================================================================
+FAIL: test_relocated_research_manifest (__main__.ResearchInputs.test_relocated_research_manifest) (runtime='pwsh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/workflow-conditional-inputs.tests.py", line 116, in check
+    self.assertEqual(result.returncode, 0, output)
+AssertionError: 1 != 0 : workflow-state: conditional-workflow-fixture: stage-provenance: spec reviewer manifest paths are not canonical
+
+
+======================================================================
+FAIL: test_research_only_manifest (__main__.ResearchInputs.test_research_only_manifest) (runtime='bash')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/workflow-conditional-inputs.tests.py", line 116, in check
+    self.assertEqual(result.returncode, 0, output)
+AssertionError: 1 != 0 : workflow-state: conditional-workflow-fixture: stage-provenance: spec reviewer manifest paths are not canonical
+
+
+======================================================================
+FAIL: test_research_only_manifest (__main__.ResearchInputs.test_research_only_manifest) (runtime='pwsh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/workflow-conditional-inputs.tests.py", line 116, in check
+    self.assertEqual(result.returncode, 0, output)
+AssertionError: 1 != 0 : workflow-state: conditional-workflow-fixture: stage-provenance: spec reviewer manifest paths are not canonical
+
+
+======================================================================
+FAIL: test_research_only_manifest (__main__.ResearchInputs.test_research_only_manifest) (stage='impl', runtime='bash')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/workflow-conditional-inputs.tests.py", line 145, in precheck
+    self.assertEqual(result.returncode, 0, output)
+AssertionError: 1 != 0 : workflow-state: conditional-workflow-fixture: stage-provenance: spec reviewer manifest paths are not canonical
+ERROR: impl-review-precheck: canonical workflow-state validation failed
+
+
+======================================================================
+FAIL: test_research_only_manifest (__main__.ResearchInputs.test_research_only_manifest) (stage='impl', runtime='pwsh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/workflow-conditional-inputs.tests.py", line 145, in precheck
+    self.assertEqual(result.returncode, 0, output)
+AssertionError: 1 != 0 : workflow-state: conditional-workflow-fixture: stage-provenance: spec reviewer manifest paths are not canonical
+Exception: /tmp/workflow-conditional-x9qs679z/fixtures/loop-fixture.K20T2X/plugins/sdd-review-loop/scripts/impl-review-precheck.ps1:329
+Line |
+ 329 |  … ion Fail([string]$Message) { throw "impl-review-precheck: $Message" }
+     |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | impl-review-precheck: canonical workflow-state validation failed
+
+
+======================================================================
+FAIL: test_research_only_manifest (__main__.ResearchInputs.test_research_only_manifest) (stage='task', runtime='bash')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/workflow-conditional-inputs.tests.py", line 145, in precheck
+    self.assertEqual(result.returncode, 0, output)
+AssertionError: 1 != 0 : workflow-state: conditional-workflow-fixture: stage-provenance: spec reviewer manifest paths are not canonical
+ERROR: task-review-precheck: canonical workflow-state validation failed
+
+
+======================================================================
+FAIL: test_research_only_manifest (__main__.ResearchInputs.test_research_only_manifest) (stage='task', runtime='pwsh')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/sdd-forge/tests/workflow-conditional-inputs.tests.py", line 145, in precheck
+    self.assertEqual(result.returncode, 0, output)
+AssertionError: 1 != 0 : workflow-state: conditional-workflow-fixture: stage-provenance: spec reviewer manifest paths are not canonical
+Exception: /tmp/workflow-conditional-x9qs679z/fixtures/loop-fixture.K20T2X/plugins/sdd-review-loop/scripts/task-review-precheck.ps1:14
+Line |
+  14 |  … ion Fail([string]$Message) { throw "task-review-precheck: $Message" }
+     |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | task-review-precheck: canonical workflow-state validation failed
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 6.336s
+
+FAILED (failures=8)
