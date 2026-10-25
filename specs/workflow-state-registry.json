@@ -465,6 +465,10 @@
     {
       "feature": "research-evidence",
       "profile": "full"
+    },
+    {
+      "feature": "structural-error-prevention",
+      "profile": "full"
     }
   ]
 }
