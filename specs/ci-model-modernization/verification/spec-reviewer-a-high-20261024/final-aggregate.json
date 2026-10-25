@@ -1,0 +1,719 @@
+{
+  "kind": "disclosed adaptive diagnostic plus three fixed unused judge slots; no original results rewritten",
+  "original_campaign_preserved": true,
+  "offline_candidate_contract_diagnostics": {
+    "pass": 8,
+    "total": 8
+  },
+  "original_candidate_scores": {
+    "FAIL": 4,
+    "STRUCTURAL_PASS_SEMANTIC_PENDING": 4
+  },
+  "native_judge_overalls_unchanged": {
+    "a-dirty": [
+      "UNCLEAR",
+      "UNCLEAR"
+    ],
+    "a-clean": [
+      "PASS",
+      "PASS"
+    ],
+    "b-dirty": [
+      "PASS",
+      "UNCLEAR"
+    ],
+    "b-clean": [
+      "UNCLEAR",
+      "PASS"
+    ]
+  },
+  "candidate_rows": [
+    {
+      "index": 1,
+      "trial": "t01-claude-a-dirty-r1",
+      "role": "spec-reviewer-a",
+      "variant": "dirty",
+      "repetition": 1,
+      "configured": {
+        "effort": "high",
+        "model": "opus"
+      },
+      "native_reported_identity": {
+        "init_model": "claude-opus-5-5",
+        "message_models": [
+          "claude-opus-5-5"
+        ]
+      },
+      "original_structural_status": "FAIL",
+      "original_structural_failures": [
+        "citations_valid"
+      ],
+      "separate_contract_diagnostic": true,
+      "native_judge_overall_unchanged": "UNCLEAR",
+      "native_judge_status": "original validator rejected; v2 diagnostic accepts shape",
+      "check_assessments": {
+        "REQ-TESTABILITY": "VALID_FAIL",
+        "GOAL-AC-TRACE": "VALID_FAIL",
+        "AC-OBSERVABLE": "VALID_FAIL",
+        "SCOPE-BOUNDARY": "VALID_PASS",
+        "CONSTRAINTS-EXPLICIT": "ADJUDICATION_PENDING",
+        "RISK-VALIDATION-SURFACE": "VALID_PASS",
+        "DOMAIN-CONFORMANCE": "VALID_SKIP"
+      },
+      "real_grounding_defects": [],
+      "explicit_false_positives": [],
+      "pending_check_ids": [
+        "CONSTRAINTS-EXPLICIT"
+      ],
+      "recall_separate_from_correctness": {
+        "named_in_native_judge": [
+          "D1",
+          "D2",
+          "D3",
+          "D4"
+        ],
+        "source_witness_supported_named": [
+          "D1",
+          "D2",
+          "D3",
+          "D4"
+        ],
+        "VALID_FAIL_native_only": [
+          "D1",
+          "D2",
+          "D3",
+          "D4"
+        ],
+        "independently_source_adjudicated_additional": [
+          "D5"
+        ],
+        "amended_role_relevant": [
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D5"
+        ],
+        "supported_plus_adjudicated_count": 5,
+        "denominator": 5
+      },
+      "candidate_elapsed_seconds": 86.979,
+      "candidate_observed_cost_usd": 0.2917898,
+      "candidate_native_sha256": "f7335029c590c96d3330fea528bc8d908debfd559ef5fe403a23e27855a58a99",
+      "judge_native_sha256": "90ca3a46bc78187f46cd63246bc61ebf82f247d0e233323fc108c31445fe5590"
+    },
+    {
+      "index": 2,
+      "trial": "t02-claude-b-clean-r1",
+      "role": "spec-reviewer-b",
+      "variant": "clean",
+      "repetition": 1,
+      "configured": {
+        "effort": "high",
+        "model": "opus"
+      },
+      "native_reported_identity": {
+        "init_model": "claude-opus-5-5",
+        "message_models": [
+          "claude-opus-5-5"
+        ]
+      },
+      "original_structural_status": "STRUCTURAL_PASS_SEMANTIC_PENDING",
+      "original_structural_failures": [],
+      "separate_contract_diagnostic": true,
+      "native_judge_overall_unchanged": "PASS",
+      "native_judge_status": "verified continuation judgment",
+      "check_assessments": {
+        "AMBIGUITY": "VALID_PASS",
+        "CONTRADICTION": "VALID_PASS",
+        "EDGE-CASE-COVERAGE": "VALID_PASS",
+        "ASSUMPTIONS-RESOLVABLE": "VALID_PASS",
+        "APPROVAL-BOUNDARY": "VALID_PASS",
+        "DOWNSTREAM-READINESS": "VALID_PASS",
+        "DOMAIN-CONFORMANCE": "VALID_SKIP"
+      },
+      "real_grounding_defects": [],
+      "explicit_false_positives": [],
+      "pending_check_ids": [],
+      "recall_separate_from_correctness": {
+        "named_in_native_judge": [],
+        "source_witness_supported_named": [],
+        "VALID_FAIL_native_only": [],
+        "independently_source_adjudicated_additional": [],
+        "amended_role_relevant": [],
+        "supported_plus_adjudicated_count": null,
+        "denominator": null
+      },
+      "candidate_elapsed_seconds": 91.401,
+      "candidate_observed_cost_usd": 0.2952462,
+      "candidate_native_sha256": "3bed99a4b56a853edfaef39c2300ff2df96659bc7870784587d200a4e030ee0a",
+      "judge_native_sha256": "43464c06d942c2438db20bbf16096ec185cccba1df7c58314c91a1fee6a7a928"
+    },
+    {
+      "index": 3,
+      "trial": "t03-claude-a-clean-r1",
+      "role": "spec-reviewer-a",
+      "variant": "clean",
+      "repetition": 1,
+      "configured": {
+        "effort": "high",
+        "model": "opus"
+      },
+      "native_reported_identity": {
+        "init_model": "claude-opus-5-5",
+        "message_models": [
+          "claude-opus-5-5"
+        ]
+      },
+      "original_structural_status": "STRUCTURAL_PASS_SEMANTIC_PENDING",
+      "original_structural_failures": [],
+      "separate_contract_diagnostic": true,
+      "native_judge_overall_unchanged": "PASS",
+      "native_judge_status": "verified continuation judgment",
+      "check_assessments": {
+        "REQ-TESTABILITY": "VALID_PASS",
+        "GOAL-AC-TRACE": "VALID_PASS",
+        "AC-OBSERVABLE": "VALID_PASS",
+        "SCOPE-BOUNDARY": "VALID_PASS",
+        "CONSTRAINTS-EXPLICIT": "VALID_PASS",
+        "RISK-VALIDATION-SURFACE": "VALID_PASS",
+        "DOMAIN-CONFORMANCE": "VALID_SKIP"
+      },
+      "real_grounding_defects": [],
+      "explicit_false_positives": [],
+      "pending_check_ids": [],
+      "recall_separate_from_correctness": {
+        "named_in_native_judge": [],
+        "source_witness_supported_named": [],
+        "VALID_FAIL_native_only": [],
+        "independently_source_adjudicated_additional": [],
+        "amended_role_relevant": [],
+        "supported_plus_adjudicated_count": null,
+        "denominator": null
+      },
+      "candidate_elapsed_seconds": 111.737,
+      "candidate_observed_cost_usd": 0.3307154,
+      "candidate_native_sha256": "4b60e00d92fde1f6e2c68b9c9e64b3b5179a45981b1a50e4cbc6d11c8b8c598b",
+      "judge_native_sha256": "878d7287ac445acba5004d0c0e9d667f0305652e50937913eab7f09138675962"
+    },
+    {
+      "index": 4,
+      "trial": "t04-claude-b-dirty-r1",
+      "role": "spec-reviewer-b",
+      "variant": "dirty",
+      "repetition": 1,
+      "configured": {
+        "effort": "high",
+        "model": "opus"
+      },
+      "native_reported_identity": {
+        "init_model": "claude-opus-5-5",
+        "message_models": [
+          "claude-opus-5-5"
+        ]
+      },
+      "original_structural_status": "FAIL",
+      "original_structural_failures": [
+        "quotes_verbatim_in_cited_spans"
+      ],
+      "separate_contract_diagnostic": true,
+      "native_judge_overall_unchanged": "UNCLEAR",
+      "native_judge_status": "verified continuation judgment",
+      "check_assessments": {
+        "AMBIGUITY": "ADJUDICATION_PENDING",
+        "CONTRADICTION": "VALID_FAIL",
+        "EDGE-CASE-COVERAGE": "GROUNDING_DEFECT",
+        "ASSUMPTIONS-RESOLVABLE": "VALID_FAIL",
+        "APPROVAL-BOUNDARY": "ADJUDICATION_PENDING",
+        "DOWNSTREAM-READINESS": "VALID_FAIL",
+        "DOMAIN-CONFORMANCE": "VALID_SKIP"
+      },
+      "real_grounding_defects": [
+        "EDGE-CASE-COVERAGE"
+      ],
+      "explicit_false_positives": [],
+      "pending_check_ids": [
+        "AMBIGUITY",
+        "APPROVAL-BOUNDARY"
+      ],
+      "recall_separate_from_correctness": {
+        "named_in_native_judge": [
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D5"
+        ],
+        "source_witness_supported_named": [
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D5"
+        ],
+        "VALID_FAIL_native_only": [
+          "D2",
+          "D3",
+          "D4",
+          "D5"
+        ],
+        "independently_source_adjudicated_additional": [],
+        "amended_role_relevant": [
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D5"
+        ],
+        "supported_plus_adjudicated_count": 5,
+        "denominator": 5
+      },
+      "candidate_elapsed_seconds": 78.431,
+      "candidate_observed_cost_usd": 0.27334820000000004,
+      "candidate_native_sha256": "420dc21a7d7385c78b3bcee78872d33285bc1f0749883e2031a8cc79600fbf73",
+      "judge_native_sha256": "f35cd41d1b39e1f31238e8a547713ee3037ebb5dbca2da62f8580db7d73dcf46"
+    },
+    {
+      "index": 5,
+      "trial": "t05-claude-b-dirty-r2",
+      "role": "spec-reviewer-b",
+      "variant": "dirty",
+      "repetition": 2,
+      "configured": {
+        "effort": "high",
+        "model": "opus"
+      },
+      "native_reported_identity": {
+        "init_model": "claude-opus-5-5",
+        "message_models": [
+          "claude-opus-5-5"
+        ]
+      },
+      "original_structural_status": "FAIL",
+      "original_structural_failures": [
+        "quotes_verbatim_in_cited_spans"
+      ],
+      "separate_contract_diagnostic": true,
+      "native_judge_overall_unchanged": "PASS",
+      "native_judge_status": "verified continuation judgment",
+      "check_assessments": {
+        "AMBIGUITY": "VALID_FAIL",
+        "CONTRADICTION": "VALID_FAIL",
+        "EDGE-CASE-COVERAGE": "VALID_FAIL",
+        "ASSUMPTIONS-RESOLVABLE": "VALID_FAIL",
+        "APPROVAL-BOUNDARY": "VALID_FAIL",
+        "DOWNSTREAM-READINESS": "VALID_FAIL",
+        "DOMAIN-CONFORMANCE": "VALID_SKIP"
+      },
+      "real_grounding_defects": [],
+      "explicit_false_positives": [],
+      "pending_check_ids": [],
+      "recall_separate_from_correctness": {
+        "named_in_native_judge": [
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D5"
+        ],
+        "source_witness_supported_named": [
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D5"
+        ],
+        "VALID_FAIL_native_only": [
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D5"
+        ],
+        "independently_source_adjudicated_additional": [],
+        "amended_role_relevant": [
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D5"
+        ],
+        "supported_plus_adjudicated_count": 5,
+        "denominator": 5
+      },
+      "candidate_elapsed_seconds": 74.88,
+      "candidate_observed_cost_usd": 0.2653302,
+      "candidate_native_sha256": "43f794e980ef0fdd71ffc9651247bc34cb6873087918d9fb24648b388d340f51",
+      "judge_native_sha256": "f35cd41d1b39e1f31238e8a547713ee3037ebb5dbca2da62f8580db7d73dcf46"
+    },
+    {
+      "index": 6,
+      "trial": "t06-claude-a-clean-r2",
+      "role": "spec-reviewer-a",
+      "variant": "clean",
+      "repetition": 2,
+      "configured": {
+        "effort": "high",
+        "model": "opus"
+      },
+      "native_reported_identity": {
+        "init_model": "claude-opus-5-5",
+        "message_models": [
+          "claude-opus-5-5"
+        ]
+      },
+      "original_structural_status": "STRUCTURAL_PASS_SEMANTIC_PENDING",
+      "original_structural_failures": [],
+      "separate_contract_diagnostic": true,
+      "native_judge_overall_unchanged": "PASS",
+      "native_judge_status": "verified continuation judgment",
+      "check_assessments": {
+        "REQ-TESTABILITY": "VALID_PASS",
+        "GOAL-AC-TRACE": "VALID_PASS",
+        "AC-OBSERVABLE": "VALID_PASS",
+        "SCOPE-BOUNDARY": "VALID_PASS",
+        "CONSTRAINTS-EXPLICIT": "VALID_PASS",
+        "RISK-VALIDATION-SURFACE": "VALID_PASS",
+        "DOMAIN-CONFORMANCE": "VALID_SKIP"
+      },
+      "real_grounding_defects": [],
+      "explicit_false_positives": [],
+      "pending_check_ids": [],
+      "recall_separate_from_correctness": {
+        "named_in_native_judge": [],
+        "source_witness_supported_named": [],
+        "VALID_FAIL_native_only": [],
+        "independently_source_adjudicated_additional": [],
+        "amended_role_relevant": [],
+        "supported_plus_adjudicated_count": null,
+        "denominator": null
+      },
+      "candidate_elapsed_seconds": 80.363,
+      "candidate_observed_cost_usd": 0.2590502,
+      "candidate_native_sha256": "b93752756c15a051342e9775611e76968097c41381b14fc0318343b82139171c",
+      "judge_native_sha256": "878d7287ac445acba5004d0c0e9d667f0305652e50937913eab7f09138675962"
+    },
+    {
+      "index": 7,
+      "trial": "t07-claude-b-clean-r2",
+      "role": "spec-reviewer-b",
+      "variant": "clean",
+      "repetition": 2,
+      "configured": {
+        "effort": "high",
+        "model": "opus"
+      },
+      "native_reported_identity": {
+        "init_model": "claude-opus-5-5",
+        "message_models": [
+          "claude-opus-5-5"
+        ]
+      },
+      "original_structural_status": "STRUCTURAL_PASS_SEMANTIC_PENDING",
+      "original_structural_failures": [],
+      "separate_contract_diagnostic": true,
+      "native_judge_overall_unchanged": "UNCLEAR",
+      "native_judge_status": "verified continuation judgment",
+      "check_assessments": {
+        "AMBIGUITY": "VALID_PASS",
+        "CONTRADICTION": "VALID_PASS",
+        "EDGE-CASE-COVERAGE": "ADJUDICATION_PENDING",
+        "ASSUMPTIONS-RESOLVABLE": "VALID_PASS",
+        "APPROVAL-BOUNDARY": "VALID_PASS",
+        "DOWNSTREAM-READINESS": "VALID_PASS",
+        "DOMAIN-CONFORMANCE": "VALID_SKIP"
+      },
+      "real_grounding_defects": [],
+      "explicit_false_positives": [],
+      "pending_check_ids": [
+        "EDGE-CASE-COVERAGE"
+      ],
+      "recall_separate_from_correctness": {
+        "named_in_native_judge": [],
+        "source_witness_supported_named": [],
+        "VALID_FAIL_native_only": [],
+        "independently_source_adjudicated_additional": [],
+        "amended_role_relevant": [],
+        "supported_plus_adjudicated_count": null,
+        "denominator": null
+      },
+      "candidate_elapsed_seconds": 102.106,
+      "candidate_observed_cost_usd": 0.31490100000000004,
+      "candidate_native_sha256": "54f4ad9cc50dac409357281e3496f05a6e7ed9ba466eb22c83dfb5e5e97fcef3",
+      "judge_native_sha256": "43464c06d942c2438db20bbf16096ec185cccba1df7c58314c91a1fee6a7a928"
+    },
+    {
+      "index": 8,
+      "trial": "t08-claude-a-dirty-r2",
+      "role": "spec-reviewer-a",
+      "variant": "dirty",
+      "repetition": 2,
+      "configured": {
+        "effort": "high",
+        "model": "opus"
+      },
+      "native_reported_identity": {
+        "init_model": "claude-opus-5-5",
+        "message_models": [
+          "claude-opus-5-5"
+        ]
+      },
+      "original_structural_status": "FAIL",
+      "original_structural_failures": [
+        "quotes_verbatim_in_cited_spans"
+      ],
+      "separate_contract_diagnostic": true,
+      "native_judge_overall_unchanged": "UNCLEAR",
+      "native_judge_status": "original validator rejected; v2 diagnostic accepts shape",
+      "check_assessments": {
+        "REQ-TESTABILITY": "VALID_FAIL",
+        "GOAL-AC-TRACE": "VALID_FAIL",
+        "AC-OBSERVABLE": "VALID_FAIL",
+        "SCOPE-BOUNDARY": "VALID_PASS",
+        "CONSTRAINTS-EXPLICIT": "ADJUDICATION_PENDING",
+        "RISK-VALIDATION-SURFACE": "VALID_PASS",
+        "DOMAIN-CONFORMANCE": "VALID_SKIP"
+      },
+      "real_grounding_defects": [],
+      "explicit_false_positives": [],
+      "pending_check_ids": [
+        "CONSTRAINTS-EXPLICIT"
+      ],
+      "recall_separate_from_correctness": {
+        "named_in_native_judge": [
+          "D1",
+          "D2",
+          "D3",
+          "D4"
+        ],
+        "source_witness_supported_named": [
+          "D1",
+          "D2",
+          "D3",
+          "D4"
+        ],
+        "VALID_FAIL_native_only": [
+          "D1",
+          "D2",
+          "D3",
+          "D4"
+        ],
+        "independently_source_adjudicated_additional": [
+          "D5"
+        ],
+        "amended_role_relevant": [
+          "D1",
+          "D2",
+          "D3",
+          "D4",
+          "D5"
+        ],
+        "supported_plus_adjudicated_count": 5,
+        "denominator": 5
+      },
+      "candidate_elapsed_seconds": 85.492,
+      "candidate_observed_cost_usd": 0.2896018,
+      "candidate_native_sha256": "9414265c8fbb3f03c346a720ee3993f8e3fe58a29abe93fbb43c10f2d742bf5b",
+      "judge_native_sha256": "90ca3a46bc78187f46cd63246bc61ebf82f247d0e233323fc108c31445fe5590"
+    }
+  ],
+  "judge_execution_metrics": [
+    {
+      "batch": "a-dirty",
+      "original_or_continuation": "original first judge",
+      "configured": {
+        "effort": "high",
+        "model": "gpt-6-astra"
+      },
+      "native_reported_model": "gpt-6-astra",
+      "backend_identity": "not independently verified",
+      "native_turns_started": 1,
+      "model_tool_calls": 0,
+      "elapsed_seconds": 102.809,
+      "usage": {
+        "last": {
+          "cacheWriteInputTokens": 0,
+          "cachedInputTokens": 9856,
+          "inputTokens": 29752,
+          "outputTokens": 4694,
+          "reasoningOutputTokens": 365,
+          "totalTokens": 34446
+        },
+        "modelContextWindow": 258400,
+        "total": {
+          "cacheWriteInputTokens": 0,
+          "cachedInputTokens": 9856,
+          "inputTokens": 29752,
+          "outputTokens": 4694,
+          "reasoningOutputTokens": 365,
+          "totalTokens": 34446
+        }
+      },
+      "started_at": "2026-10-24T10:42:08.552394+00:00",
+      "finished_at": "2026-10-24T10:43:51.355963+00:00",
+      "failures": [],
+      "infrastructure": [],
+      "turn_status": "completed",
+      "response_sha256": "90ca3a46bc78187f46cd63246bc61ebf82f247d0e233323fc108c31445fe5590",
+      "provenance_sha256": "ef10e6dc83bf5184402eb92d5bff1121f52c679212c884843d8c071a4c459c21",
+      "native_overalls": [
+        "UNCLEAR",
+        "UNCLEAR"
+      ]
+    },
+    {
+      "batch": "a-clean",
+      "original_or_continuation": "amended continuation",
+      "configured": {
+        "effort": "high",
+        "model": "gpt-6-astra"
+      },
+      "native_reported_model": "gpt-6-astra",
+      "backend_identity": "not independently verified",
+      "native_turns_started": 1,
+      "model_tool_calls": 0,
+      "elapsed_seconds": 93.517,
+      "usage": {
+        "last": {
+          "cacheWriteInputTokens": 0,
+          "cachedInputTokens": 9856,
+          "inputTokens": 27739,
+          "outputTokens": 4246,
+          "reasoningOutputTokens": 203,
+          "totalTokens": 31985
+        },
+        "modelContextWindow": 258400,
+        "total": {
+          "cacheWriteInputTokens": 0,
+          "cachedInputTokens": 9856,
+          "inputTokens": 27739,
+          "outputTokens": 4246,
+          "reasoningOutputTokens": 203,
+          "totalTokens": 31985
+        }
+      },
+      "started_at": "2026-10-24T11:25:47.177230+00:00",
+      "finished_at": "2026-10-24T11:27:20.689128+00:00",
+      "failures": [],
+      "infrastructure": [],
+      "turn_status": "completed",
+      "response_sha256": "878d7287ac445acba5004d0c0e9d667f0305652e50937913eab7f09138675962",
+      "provenance_sha256": "b892b823d514798e9501aad45ed5d173cb12b3d1906deece624af77ef5108a8c",
+      "native_overalls": [
+        "PASS",
+        "PASS"
+      ]
+    },
+    {
+      "batch": "b-dirty",
+      "original_or_continuation": "amended continuation",
+      "configured": {
+        "effort": "high",
+        "model": "gpt-6-astra"
+      },
+      "native_reported_model": "gpt-6-astra",
+      "backend_identity": "not independently verified",
+      "native_turns_started": 1,
+      "model_tool_calls": 0,
+      "elapsed_seconds": 125.039,
+      "usage": {
+        "last": {
+          "cacheWriteInputTokens": 0,
+          "cachedInputTokens": 0,
+          "inputTokens": 31593,
+          "outputTokens": 5461,
+          "reasoningOutputTokens": 1342,
+          "totalTokens": 37054
+        },
+        "modelContextWindow": 258400,
+        "total": {
+          "cacheWriteInputTokens": 0,
+          "cachedInputTokens": 0,
+          "inputTokens": 31593,
+          "outputTokens": 5461,
+          "reasoningOutputTokens": 1342,
+          "totalTokens": 37054
+        }
+      },
+      "started_at": "2026-10-24T11:27:27.845681+00:00",
+      "finished_at": "2026-10-24T11:29:32.879917+00:00",
+      "failures": [],
+      "infrastructure": [],
+      "turn_status": "completed",
+      "response_sha256": "f35cd41d1b39e1f31238e8a547713ee3037ebb5dbca2da62f8580db7d73dcf46",
+      "provenance_sha256": "27642fab99d028105a5b41d0bde239d8f29d3bb9fba4a568fed864882a083a73",
+      "native_overalls": [
+        "PASS",
+        "UNCLEAR"
+      ]
+    },
+    {
+      "batch": "b-clean",
+      "original_or_continuation": "amended continuation",
+      "configured": {
+        "effort": "high",
+        "model": "gpt-6-astra"
+      },
+      "native_reported_model": "gpt-6-astra",
+      "backend_identity": "not independently verified",
+      "native_turns_started": 1,
+      "model_tool_calls": 0,
+      "elapsed_seconds": 76.396,
+      "usage": {
+        "last": {
+          "cacheWriteInputTokens": 0,
+          "cachedInputTokens": 0,
+          "inputTokens": 28277,
+          "outputTokens": 4753,
+          "reasoningOutputTokens": 516,
+          "totalTokens": 33030
+        },
+        "modelContextWindow": 258400,
+        "total": {
+          "cacheWriteInputTokens": 0,
+          "cachedInputTokens": 0,
+          "inputTokens": 28277,
+          "outputTokens": 4753,
+          "reasoningOutputTokens": 516,
+          "totalTokens": 33030
+        }
+      },
+      "started_at": "2026-10-24T11:29:41.564017+00:00",
+      "finished_at": "2026-10-24T11:30:57.954675+00:00",
+      "failures": [],
+      "infrastructure": [],
+      "turn_status": "completed",
+      "response_sha256": "43464c06d942c2438db20bbf16096ec185cccba1df7c58314c91a1fee6a7a928",
+      "provenance_sha256": "5641ada82c443d75e2c6ba43b44e09d83c85b44fc2a3a8f9f09378de85abda37",
+      "native_overalls": [
+        "UNCLEAR",
+        "PASS"
+      ]
+    }
+  ],
+  "totals": {
+    "candidates_executed_original": 8,
+    "candidate_reruns": 0,
+    "judges_original": 1,
+    "judges_continuation": 3,
+    "judge_retries": 0,
+    "remaining_not_run": [],
+    "continuation_elapsed_seconds": 294.952,
+    "all_judges_elapsed_seconds": 397.761,
+    "all_judges_token_totals": {
+      "inputTokens": 117361,
+      "outputTokens": 19154,
+      "cachedInputTokens": 19712,
+      "reasoningOutputTokens": 2426,
+      "totalTokens": 136515
+    },
+    "candidate_observed_cost_usd": 2.3199828
+  },
+  "important_limits": [
+    "n=2 per role/variant on one tiny held-out feature, targeted after medium-campaign failures; not a population success estimate.",
+    "Offline source adjudication and three amended judge packets are post-result adaptive. Original medium and original high scores remain immutable; medium/high is not a directly paired comparison.",
+    "A-dirty native UNCLEAR remains native UNCLEAR. D5 source validity is an independent root/reviewer decision in a separate layer.",
+    "B pending extra concerns are not automatically false positives. One concrete B grounding defect remains regardless of pending concerns.",
+    "No model adoption or formal quality-role registration is effected by this report."
+  ]
+}

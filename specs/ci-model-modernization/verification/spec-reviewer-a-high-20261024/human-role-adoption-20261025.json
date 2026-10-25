@@ -1,0 +1,16 @@
+{
+  "schema": "human-role-adoption-receipt/v1",
+  "answer": "仕様担当A・タスク担当A/Bの採用する",
+  "answer_transformation": "Visible labels preserved; Markdown link markup and local link destinations removed. The separate #620 token-permission authorization is outside this role adoption receipt.",
+  "source": "Direct user message in the current conversation; no questionItemId was supplied.",
+  "questionItemId": null,
+  "reviewed_at": null,
+  "receipt_written_at": "2026-10-25T01:22:09.564861+00:00",
+  "approved_roles": [
+    "spec-reviewer-a"
+  ],
+  "approved_patch_sha256": "49e34d6af77db3ed3a4084ca47d7008a913547978ca07f8023d1f4aa283c141f",
+  "approved_proposal_manifest_sha256": "3fa5835bfc994d3bc4739e4ab3ae9fd826af954c6e18a2404d555a2eec56afb2",
+  "scope": "Supervised ordinary Phase-1 specification review without a domain model or amendment rereview. One small held-out feature; no automatic generalization to other roles or review regimes.",
+  "not_authorized": "No other model roles, formal review PASS, risk-floor changes, backend identity claims, or lifecycle promotion."
+}

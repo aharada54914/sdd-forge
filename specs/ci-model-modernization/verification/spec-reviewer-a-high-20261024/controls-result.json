@@ -1,0 +1,205 @@
+{
+  "kind": "actual offline controls; 21 planned + 2 paired guards + 2 binding controls + 1 no-overconstraint guard",
+  "provider_calls": 0,
+  "passed": 26,
+  "total": 26,
+  "controls": [
+    {
+      "id": "citation_japanese_adjacency",
+      "expected": true,
+      "observed": true,
+      "pass": true
+    },
+    {
+      "id": "citation_unknown_path",
+      "expected": false,
+      "observed": false,
+      "pass": true
+    },
+    {
+      "id": "citation_wrong_prefix",
+      "expected": false,
+      "observed": false,
+      "pass": true
+    },
+    {
+      "id": "citation_traversal",
+      "expected": false,
+      "observed": false,
+      "pass": true
+    },
+    {
+      "id": "citation_absolute",
+      "expected": false,
+      "observed": false,
+      "pass": true
+    },
+    {
+      "id": "citation_line_overflow",
+      "expected": false,
+      "observed": false,
+      "pass": true
+    },
+    {
+      "id": "citation_no_fail_reference",
+      "expected": false,
+      "observed": false,
+      "pass": true
+    },
+    {
+      "id": "quote_wrong_explicit_span",
+      "expected": false,
+      "observed": false,
+      "pass": true
+    },
+    {
+      "id": "quote_fabricated",
+      "expected": false,
+      "observed": false,
+      "pass": true
+    },
+    {
+      "id": "quote_absent_label",
+      "expected": "Q3",
+      "observed": "Q3",
+      "pass": true
+    },
+    {
+      "id": "quote_accurate_id_attribution",
+      "expected": "Q6",
+      "observed": "Q6",
+      "pass": true
+    },
+    {
+      "id": "quote_ellipsis",
+      "expected": "Q4",
+      "observed": "Q4",
+      "pass": true
+    },
+    {
+      "id": "judge_ground_superset",
+      "expected": false,
+      "observed": false,
+      "pass": true
+    },
+    {
+      "id": "judge_unknown_ground",
+      "expected": true,
+      "observed": true,
+      "pass": true
+    },
+    {
+      "id": "judge_only_unassigned_ground",
+      "expected": {
+        "VALID_FAIL_rejected": true,
+        "PENDING_accepted": true
+      },
+      "observed": {
+        "VALID_FAIL_rejected": true,
+        "PENDING_accepted": true
+      },
+      "pass": true
+    },
+    {
+      "id": "judge_wrong_critical",
+      "expected": true,
+      "observed": true,
+      "pass": true
+    },
+    {
+      "id": "judge_fake_critical_ground",
+      "expected": true,
+      "observed": true,
+      "pass": true
+    },
+    {
+      "id": "judge_bad_severity",
+      "expected": true,
+      "observed": true,
+      "pass": true
+    },
+    {
+      "id": "judge_D5_roleA",
+      "expected": false,
+      "observed": false,
+      "pass": true
+    },
+    {
+      "id": "judge_domain_pass",
+      "expected": true,
+      "observed": true,
+      "pass": true
+    },
+    {
+      "id": "judge_typed_bool",
+      "expected": [
+        true,
+        true
+      ],
+      "observed": [
+        true,
+        true
+      ],
+      "pass": true
+    },
+    {
+      "id": "paired_ellipsis_reordered_or_meaning_changed",
+      "expected": [
+        null,
+        null
+      ],
+      "observed": [
+        null,
+        null
+      ],
+      "pass": true
+    },
+    {
+      "id": "paired_known_but_unsupported_extra_ground",
+      "expected": true,
+      "observed": true,
+      "pass": true
+    },
+    {
+      "id": "binding_all_six_contexts",
+      "expected": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4",
+        "Q5",
+        "Q6"
+      ],
+      "observed": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4",
+        "Q5",
+        "Q6"
+      ],
+      "pass": true
+    },
+    {
+      "id": "binding_source_or_output_drift",
+      "expected": [
+        null,
+        null
+      ],
+      "observed": [
+        null,
+        null
+      ],
+      "pass": true
+    },
+    {
+      "id": "supported_extra_ground_needs_no_new_per_ground_numeric_cite",
+      "expected": false,
+      "observed": false,
+      "pass": true
+    }
+  ],
+  "source_sha256": "03e6fafe3450828b3e98605748527c6d084ec4548230b9e0a13b3ebb7613e2b2",
+  "test_sha256": "b11c521afd5ba98745fa6750ae7f15030a692ff485f41b1dd2248db0839e2694",
+  "original_evidence_verified": true
+}

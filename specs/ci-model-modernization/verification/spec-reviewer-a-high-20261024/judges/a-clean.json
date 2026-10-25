@@ -1,0 +1,367 @@
+{
+  "batch": "a-clean",
+  "evaluations": [
+    {
+      "output_label": "O1",
+      "overall": "PASS",
+      "checks": [
+        {
+          "id": "REQ-TESTABILITY",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 17,
+              "end": 17,
+              "quote": "同時申込でも確定申込数は `capacity` を超えない。 判定順は開始日時、重複、定員の順とし、1回の判定と登録を不可分に行う。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 19,
+              "end": 19,
+              "quote": "操作種別・対象 id・結果コードを含む1行を `audit.log` に追記する。"
+            }
+          ],
+          "note": "Correctly identifies measurable responses, state changes, capacity limits, publication behavior, and log content across REQ-001–004. No later-phase evidence is required or claimed. Critical is the check's nominal severity, not an asserted defect."
+        },
+        {
+          "id": "GOAL-AC-TRACE",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 4,
+              "end": 4,
+              "quote": "G-01: 社内ワークショップの開催予定を一覧でき、受講者が定員内で申込でき、管理者の明示承認後にのみ受講者名簿を外部講師へ公開できる。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 9,
+              "end": 9,
+              "quote": "AC-004 (REQ-003, CON-003, G-01): 承認記録前の公開要求は `409 APPROVAL_REQUIRED` で `roster-outbox` は空のまま。"
+            }
+          ],
+          "note": "Accurately maps G-01's listing, capacity-limited enrollment, and approved publication goals to AC-001, AC-003, and AC-004. The Major check passes without a missing goal."
+        },
+        {
+          "id": "AC-OBSERVABLE",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 10,
+              "end": 10,
+              "quote": "AC-005 (REQ-004): 申込・承認記録・公開要求ごとに、操作種別・対象 id・結果コードを含む1行が `audit.log` に追加される。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "認証・役割の拒否を時刻や公開状態の判定より先に行う。"
+            }
+          ],
+          "note": "The criteria expose concrete responses, state, outbox content, and log changes. Suggestions about repeating status codes or adding precedence scenarios remain explicitly nonblocking; they do not incorrectly turn additional TEST rows into Phase-1 requirements."
+        },
+        {
+          "id": "SCOPE-BOUNDARY",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 7,
+              "end": 7,
+              "quote": "ワークショップの作成・削除・更新と存在しない id の要求は対象外で、対象 id はすべて事前に用意されたものとする。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 8,
+              "end": 8,
+              "quote": "NG-02: 実データと実在の外部サービスは使わない。外部公開先は合成のスタブ宛先 `roster-outbox` のみとする。"
+            }
+          ],
+          "note": "Explicit lifecycle exclusions, synthetic data, stub publication, and client-owned timezone display support PASS. The candidate's CRUD shorthand is imprecise because listing remains in scope, but its cited exclusions and overall scope conclusion are supported."
+        },
+        {
+          "id": "CONSTRAINTS-EXPLICIT",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 13,
+              "end": 13,
+              "quote": "対象ワークショップについて `admin` が明示的に承認を記録するまで、`roster-outbox` には何も送信しない。"
+            },
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 5,
+              "end": 5,
+              "quote": "DEC-003: 名簿の公開内容は受講者の表示名のみと決定済みで、メールアドレスや所属は含めない。"
+            }
+          ],
+          "note": "Datetime, roles, approval timing, disclosure fields, and concurrency constraints are decided. The audit-scope observation is explicitly a nonblocking clarification, not a claimed missing approval boundary or material FAIL."
+        },
+        {
+          "id": "RISK-VALIDATION-SURFACE",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 20,
+              "end": 20,
+              "quote": "MV-001: 隔離されたローカル環境でスタブ `roster-outbox`（ローカルファイルへの書き込みのみ）を使い、TEST-004 を手動で再現できる。外部ネットワークには接続しない。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 13,
+              "end": 13,
+              "quote": "合成データ200件で一覧を100回呼び、件数・順序・必須項目・p95 を AC-001 に照合する。"
+            }
+          ],
+          "note": "Approval and publication risks have AC-004, TEST-004, and MV-001; concurrency and performance also have planned scenarios. The finding correctly treats these as future validation surfaces, not executed evidence."
+        },
+        {
+          "id": "DOMAIN-CONFORMANCE",
+          "assessment": "VALID_SKIP",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+              "start": 20,
+              "end": 25,
+              "quote": "The specification review gate reviews only Phase 1 artifacts:\n\n- `specs/<feature>/requirements.md`\n- `specs/<feature>/acceptance-tests.md`\n- optional `specs/<feature>/investigation.md`\n- the current `precheck-result.json`"
+            }
+          ],
+          "note": "SKIP matches the packet's explicit no-domain fixture and the role's applicability rule. Manifest absence alone would not establish repository-wide absence, and the ListFiles execution claim cannot be independently verified here; neither changes the supplied no-domain determination."
+        }
+      ]
+    },
+    {
+      "output_label": "O2",
+      "overall": "PASS",
+      "checks": [
+        {
+          "id": "REQ-TESTABILITY",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 16,
+              "end": 16,
+              "quote": "各要素は最低限 `id`、`title`、`start_at`（UTC）、`capacity`、`remaining_seats` を含み"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 17,
+              "end": 17,
+              "quote": "判定順は開始日時、重複、定員の順とし、1回の判定と登録を不可分に行う。"
+            }
+          ],
+          "note": "Correctly recognizes observable behavior throughout REQ-001–004. Treating equivalent UTC serialization choices as delegable design does not invent a specification blocker. Critical is the nominal check severity."
+        },
+        {
+          "id": "GOAL-AC-TRACE",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 6,
+              "end": 6,
+              "quote": "AC-001 (REQ-001, G-01): 期間の両端を含むワークショップだけが開始日時昇順で返り"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 8,
+              "end": 8,
+              "quote": "AC-003 (REQ-002, G-01): 空席があれば `201` で `remaining_seats` が1減る。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 9,
+              "end": 9,
+              "quote": "AC-004 (REQ-003, CON-003, G-01): 承認記録前の公開要求は `409 APPROVAL_REQUIRED` で `roster-outbox` は空のまま。"
+            }
+          ],
+          "note": "All three components of G-01 have matching, explicitly linked acceptance criteria. PASS satisfies the Major traceability check."
+        },
+        {
+          "id": "AC-OBSERVABLE",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 9,
+              "end": 9,
+              "quote": "`admin` の承認記録後の公開要求で表示名のみの名簿が1件送信され、再要求は `409 ALREADY_PUBLISHED`。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 16,
+              "end": 16,
+              "quote": "各応答、状態不変、`roster-outbox` の件数・内容を AC-004 に照合する"
+            }
+          ],
+          "note": "Responses, remaining seats, publication artifacts, and audit lines are observable. The exact TEST-004 quotation is supported. Missing repetition of details already decided in requirements is appropriately treated as nonblocking."
+        },
+        {
+          "id": "SCOPE-BOUNDARY",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 7,
+              "end": 7,
+              "quote": "NG-01: 支払い、キャンセル待ち、申込の取消、承認の取消、リマインダー通知、繰り返し開催は扱わない。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 16,
+              "end": 16,
+              "quote": "他の項目の追加は設計に委ねる。"
+            }
+          ],
+          "note": "The candidate correctly identifies explicit exclusions and minimum listing content with additional fields delegated to design. No unbounded product scope or demand for a complete implementation schema is introduced."
+        },
+        {
+          "id": "CONSTRAINTS-EXPLICIT",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 12,
+              "end": 12,
+              "quote": "未認証の要求は既存基盤が `401` で拒否する。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 13,
+              "end": 13,
+              "quote": "承認記録は開催開始日時以降に限り可能で、開始前は `409 NOT_STARTED` で状態不変とする。"
+            },
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 9,
+              "end": 9,
+              "quote": "未解決のプロダクト判断はない。実装方針レビューに進める。"
+            }
+          ],
+          "note": "Material data, authentication, disclosure, and approval constraints are explicit. The readiness statement is not a later-phase artifact, so default Phase-1 calibration yields no sequencing violation. The audit-scope suggestion remains nonblocking."
+        },
+        {
+          "id": "RISK-VALIDATION-SURFACE",
+          "assessment": "VALID_PASS",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 15,
+              "end": 15,
+              "quote": "別の未申込の定員2対象では3人が同時に申込んでも成功は2件だけで確定申込数が2であることを確認する。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 20,
+              "end": 20,
+              "quote": "MV-001: 隔離されたローカル環境でスタブ `roster-outbox`（ローカルファイルへの書き込みのみ）を使い、TEST-004 を手動で再現できる。外部ネットワークには接続しない。"
+            }
+          ],
+          "note": "Publication, disclosure, capacity, authorization, and audit risks have planned validation surfaces. The optional pre-start member scenario is not elevated into a missing approval boundary. No runtime verification is claimed."
+        },
+        {
+          "id": "DOMAIN-CONFORMANCE",
+          "assessment": "VALID_SKIP",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+              "start": 20,
+              "end": 25,
+              "quote": "The specification review gate reviews only Phase 1 artifacts:\n\n- `specs/<feature>/requirements.md`\n- `specs/<feature>/acceptance-tests.md`\n- optional `specs/<feature>/investigation.md`\n- the current `precheck-result.json`"
+            }
+          ],
+          "note": "The packet explicitly establishes the no-domain skip condition, and the candidate emits SKIP. Its limited-manifest reasoning would not independently prove repository absence, but the result agrees with the supplied applicability facts and does not improperly fail the missing Bounded-Context field."
+        }
+      ]
+    }
+  ]
+}

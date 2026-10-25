@@ -1,6 +1,6 @@
 # Open issue dependency and execution plan
 
-## Current status — 2026-10-24 15:17 UTC
+## Current status — 2026-10-25 (JST)
 
 This section supersedes older authentication, task-exception, author-limit and
 execution-status statements below. The historical dependency graph is unchanged.
@@ -25,8 +25,13 @@ have not been released or integrated into `main`.
   The actual [weekly run 40088779741](https://github.com/aharada54914/sdd-forge/actions/runs/40088779741)
   captured fresh configuration, completed its native audit and reported all five checks successful, but
   remained **partial**: PR creation returned 403 under the configured token and
-  finalization was skipped. The token-permission remediation question remains
-  pending; a complete guarded production run is still required for #620.
+  finalization was skipped. The user authorized token-permission remediation on 2026-10-25 (JST).
+  The current connection returns HTTP 403 for both repository Secret metadata
+  and Actions workflow-permission APIs; no browser-control tool is available.
+  The token owner must therefore apply the authorized PR-write permission change
+  (preserving Contents write and the repository selection), and update the same
+  Secret if rotating the token. No permission change or retry is claimed.
+  A complete guarded production run is still required for #620.
 - **#642's encoding correction is integrated and verified.**
   [PR #643](https://github.com/aharada54914/sdd-forge/pull/643) merged at
   [`a46ad52b`](https://github.com/aharada54914/sdd-forge/commit/a46ad52b4c181691fa16e0d7edc14f071f46f3b6),
@@ -46,8 +51,10 @@ have not been released or integrated into `main`.
   membership and the current 36 CI installer obligations. Installation still
   copies all admitted plugin directories and may download the full source archive
   before filtering; selected-plugin-only copying is not claimed.
-- **Spec-reviewer-A adoption awaits a human decision.** The concrete proposal
-  covers explicitly pinned Opus/high for ordinary Phase-1/no-domain A reviews.
+- **Spec-reviewer-A adoption is human-approved.** The user accepted the
+  prepared proposal on 2026-10-25 (JST); the integration adds its actual receipt
+  and hash-bound policy reference for explicitly pinned Opus/high, limited to
+  ordinary Phase-1/no-domain A reviews. Candidate lifecycle remains unchanged.
   It preserves clean native PASS/PASS, dirty native UNCLEAR/UNCLEAR and separate
   source adjudication of D5. Spec-reviewer-B remains unadopted. Its completed
   clarified-fixture Sonnet/medium experiment has **zero PASS, two FAIL and two
@@ -62,13 +69,16 @@ have not been released or integrated into `main`.
   inputs. The same Work judge knew the profile/history; only output/repetition
   mapping was hidden. These small adaptive experiments do not establish
   domain/amendment coverage or normal settings/hooks equivalence.
-- **Task-reviewer-A/B adoption also awaits a human decision.** Eight native
+- **Task-reviewer-A/B adoption is human-approved.** The user accepted the
+  prepared proposal on 2026-10-25 (JST); the integration records explicitly pinned
+  Sonnet/medium only for supervised post-implementation provenance re-review.
+  Candidate lifecycle and caller effort/risk constraints remain unchanged. Eight native
   Sonnet/medium outputs passed their contracts; independent semantic judgment
   accepted all eight outputs and supported 92 checks. Candidate decisions remain
   **four clean PASS and four seeded-defect BLOCKED**. Scope is one compact synthetic
-  two-task workload with two repetitions per role/control pair. The proposal does
-  not itself activate policy, establish formal task-review PASS or prove backend
-  identity or protected-role admission.
+  two-task workload with two repetitions per role/control pair. The approved integration adds the two role references and real approval
+  receipt; it does not establish formal task-review PASS, first-time Draft review
+  coverage, backend identity or protected-role admission.
 - **Interrupted-review recovery remains In Progress.**
   [PR #640](https://github.com/aharada54914/sdd-forge/pull/640) at `563006cc` completed
   [449 PASS plus one expected skip](https://github.com/aharada54914/sdd-forge/actions/runs/40090187421),

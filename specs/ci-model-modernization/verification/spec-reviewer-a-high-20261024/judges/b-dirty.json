@@ -1,0 +1,415 @@
+{
+  "batch": "b-dirty",
+  "evaluations": [
+    {
+      "output_label": "O1",
+      "overall": "PASS",
+      "checks": [
+        {
+          "id": "AMBIGUITY",
+          "assessment": "VALID_FAIL",
+          "evidence_match": "OK",
+          "grounded_defects": ["D1"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 16,
+              "end": 16,
+              "quote": "一覧は十分に高速に応答する。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 13,
+              "end": 13,
+              "quote": "合成データ200件で一覧を100回呼び"
+            }
+          ],
+          "note": "D1 supports Major: the planned workload exists, but no performance acceptance threshold determines success. The finding identifies the resulting Phase-1 verification ambiguity; its measurement-condition wording should not be read as denying the stated workload."
+        },
+        {
+          "id": "CONTRADICTION",
+          "assessment": "VALID_FAIL",
+          "evidence_match": "OK",
+          "grounded_defects": ["D3"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "承認記録の有無にかかわらず名簿を `roster-outbox` に1回送信し `202` を返す。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 13,
+              "end": 13,
+              "quote": "`admin` が明示的に承認を記録するまで、`roster-outbox` には何も送信しない。"
+            }
+          ],
+          "note": "D3 directly requires both sending and withholding the unapproved roster. This Phase-1 approval contradiction justifies Critical. AC-004 need not independently repeat the approved-success code; that ancillary observation is unnecessary to the valid contradiction."
+        },
+        {
+          "id": "EDGE-CASE-COVERAGE",
+          "assessment": "VALID_FAIL",
+          "evidence_match": "OK",
+          "grounded_defects": ["D4"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 17,
+              "end": 17,
+              "quote": "判定順は開始日時、重複、定員の順とし、1回の判定と登録を不可分に行う。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 15,
+              "end": 15,
+              "quote": "u1、u1、u2、u3 の順に申込む。"
+            }
+          ],
+          "note": "D4 is a missing expected response for an already planned full-capacity scenario, not a demand for another test row. Implementers and verifiers cannot choose its error contract, supporting Major at Phase 1. The adjudicated ellipsis is acceptable."
+        },
+        {
+          "id": "ASSUMPTIONS-RESOLVABLE",
+          "assessment": "VALID_FAIL",
+          "evidence_match": "OK",
+          "grounded_defects": ["D5"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 5,
+              "end": 5,
+              "quote": "名簿に含める項目（表示名のみか、メールアドレスや所属も含めるか）は講師側と調整中で未決定。"
+            },
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 9,
+              "end": 9,
+              "quote": "未解決のプロダクト判断はない。実装方針レビューに進める。"
+            }
+          ],
+          "note": "D5 leaves externally disclosed fields unresolved without making their resolution a prerequisite to design. The resulting payload and verification ambiguity supports a Phase-1 Major finding."
+        },
+        {
+          "id": "APPROVAL-BOUNDARY",
+          "assessment": "VALID_FAIL",
+          "evidence_match": "OK",
+          "grounded_defects": ["D3", "D5"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 13,
+              "end": 13,
+              "quote": "名簿の外部公開は取り消せないため"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "承認記録の有無にかかわらず"
+            },
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 5,
+              "end": 5,
+              "quote": "名簿に含める項目（表示名のみか、メールアドレスや所属も含めるか）は講師側と調整中で未決定。"
+            }
+          ],
+          "note": "D3 independently establishes the Critical approval-boundary contradiction. The finding also concretely identifies D5's undecided approval payload. It acknowledges planned boundary validation and does not invent a phase-sequencing violation. The supplied calibration quotation disposition applies."
+        },
+        {
+          "id": "DOWNSTREAM-READINESS",
+          "assessment": "VALID_FAIL",
+          "evidence_match": "OK",
+          "grounded_defects": ["D1", "D2", "D3", "D4", "D5"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 4,
+              "end": 4,
+              "quote": "申込確認票を取得でき"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 16,
+              "end": 16,
+              "quote": "一覧は十分に高速に応答する。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 17,
+              "end": 17,
+              "quote": "判定順は開始日時、重複、定員の順"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "承認記録の有無にかかわらず"
+            },
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 5,
+              "end": 5,
+              "quote": "講師側と調整中で未決定。"
+            }
+          ],
+          "note": "D2 alone establishes readiness failure because confirmation-document behavior has no requirements or acceptance criteria. The finding additionally identifies D1, D3, D4 and D5 with concrete downstream decisions. Major is justified by the missing product behavior; all five keyed defects are recalled across O1."
+        },
+        {
+          "id": "DOMAIN-CONFORMANCE",
+          "assessment": "VALID_SKIP",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 1,
+              "end": 2,
+              "quote": "# workshop-enrollment 要件\nSpec-Review-Status: Pending"
+            }
+          ],
+          "note": "The packet explicitly establishes the no-domain fixture and supplies no approved domain contract. SKIP matches the role contract; the requirements header is an artifact reference, not independent proof of filesystem absence."
+        }
+      ]
+    },
+    {
+      "output_label": "O2",
+      "overall": "UNCLEAR",
+      "checks": [
+        {
+          "id": "AMBIGUITY",
+          "assessment": "ADJUDICATION_PENDING",
+          "evidence_match": "UNCLEAR",
+          "grounded_defects": ["D1"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 16,
+              "end": 16,
+              "quote": "一覧は十分に高速に応答する。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "承認記録の成功は `204` とし"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 16,
+              "end": 16,
+              "quote": "`admin` が承認記録"
+            }
+          ],
+          "note": "D1 independently supports a Major FAIL. The additional missing approval-operation route is specifically grounded and identifies a possible external-interface ambiguity, but the key does not adjudicate whether choosing that route belongs to Phase 1 or design. That additional concern remains pending, not a false positive; only D1 receives keyed recall."
+        },
+        {
+          "id": "CONTRADICTION",
+          "assessment": "VALID_FAIL",
+          "evidence_match": "OK",
+          "grounded_defects": ["D3"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "承認記録の有無にかかわらず名簿を `roster-outbox` に1回送信し `202` を返す。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 9,
+              "end": 9,
+              "quote": "承認記録前の公開要求は `409 APPROVAL_REQUIRED` で `roster-outbox` は空のまま。"
+            }
+          ],
+          "note": "The finding accurately identifies D3's mutually incompatible preapproval outcomes. Resolving this irreversible approval contradiction is a Phase-1 product decision and warrants Critical."
+        },
+        {
+          "id": "EDGE-CASE-COVERAGE",
+          "assessment": "GROUNDING_DEFECT",
+          "evidence_match": "NG",
+          "grounded_defects": ["D4"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 8,
+              "end": 8,
+              "quote": "重複は `409 DUPLICATE`、開始後は `409 CLOSED` で状態不変。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 15,
+              "end": 15,
+              "quote": "u1、u1、u2、u3 の順に申込む。"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "名簿を `roster-outbox` に1回送信し"
+            }
+          ],
+          "note": "D4 is correctly identified and supports Major at Phase 1. However, the explicit characterization of AC-003 as containing only the normal case is factually wrong: the cited line specifies duplicate and closed failures. This concrete grounding defect survives the valid D4 blocker. The additional concurrent-publication and empty-roster concerns are unkeyed and require separate adjudication, not automatic false-positive treatment."
+        },
+        {
+          "id": "ASSUMPTIONS-RESOLVABLE",
+          "assessment": "VALID_FAIL",
+          "evidence_match": "OK",
+          "grounded_defects": ["D5"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 5,
+              "end": 5,
+              "quote": "名簿に含める項目（表示名のみか、メールアドレスや所属も含めるか）は講師側と調整中で未決定。"
+            },
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 9,
+              "end": 9,
+              "quote": "未解決のプロダクト判断はない。"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 16,
+              "end": 16,
+              "quote": "`roster-outbox` の件数・内容"
+            }
+          ],
+          "note": "D5 leaves the disclosed data and expected roster contents undecided while declaring readiness. That is a concrete Major Phase-1 blocker. Both supplied quotation dispositions apply; neither the TEST-004 attribution nor the supported readiness paraphrase is a grounding defect."
+        },
+        {
+          "id": "APPROVAL-BOUNDARY",
+          "assessment": "ADJUDICATION_PENDING",
+          "evidence_match": "UNCLEAR",
+          "grounded_defects": ["D3"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 13,
+              "end": 13,
+              "quote": "名簿の外部公開は取り消せない"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "承認記録の有無にかかわらず"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 16,
+              "end": 16,
+              "quote": "`admin` が承認記録"
+            }
+          ],
+          "note": "D3 independently warrants Critical and makes SKIP unavailable. The additional approval-operation-route concern is rooted in REQ-003 and TEST-004 but remains unkeyed, so its status is pending. Critical is supported by D3, not by the missing route alone. The amendment-heading absence assertion is acceptable under the supplied disposition, and no phase-sequencing violation is alleged."
+        },
+        {
+          "id": "DOWNSTREAM-READINESS",
+          "assessment": "VALID_FAIL",
+          "evidence_match": "OK",
+          "grounded_defects": ["D2", "D3", "D4", "D5"],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 4,
+              "end": 4,
+              "quote": "申込確認票を取得でき"
+            },
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 18,
+              "end": 18,
+              "quote": "承認記録の有無にかかわらず"
+            },
+            {
+              "path": "specs/workshop-enrollment/acceptance-tests.md",
+              "start": 8,
+              "end": 8,
+              "quote": "判定は開始日時→重複→定員の順である。"
+            },
+            {
+              "path": "specs/workshop-enrollment/investigation.md",
+              "start": 5,
+              "end": 5,
+              "quote": "講師側と調整中で未決定。"
+            }
+          ],
+          "note": "The undefined confirmation document supplies D2 and independently justifies a Major readiness FAIL. The finding also substantively identifies D3, D4 and D5. D1 is not identified in this finding, though O2 identifies it under AMBIGUITY; the output's union recalls all five keyed defects."
+        },
+        {
+          "id": "DOMAIN-CONFORMANCE",
+          "assessment": "VALID_SKIP",
+          "evidence_match": "OK",
+          "grounded_defects": [],
+          "downstream_impact_ok": true,
+          "stage_attribution_ok": true,
+          "severity_ok": true,
+          "false_positive": false,
+          "refs": [
+            {
+              "path": "specs/workshop-enrollment/requirements.md",
+              "start": 1,
+              "end": 2,
+              "quote": "# workshop-enrollment 要件\nSpec-Review-Status: Pending"
+            }
+          ],
+          "note": "The packet establishes that no domain model is present. SKIP follows the explicit applicability rule. The requirements reference identifies the reviewed artifact; the no-domain determination comes from the supplied fixture contract."
+        }
+      ]
+    }
+  ]
+}
