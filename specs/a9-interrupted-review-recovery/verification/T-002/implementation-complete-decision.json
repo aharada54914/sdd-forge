@@ -1,0 +1,20 @@
+{
+  "schema": "a9-task-owner-decision/v1",
+  "task": "T-002",
+  "decision": "Implementation Complete",
+  "decision_actor": "/root",
+  "source": "actual parent task message accepting independent review in this conversation",
+  "recorded_at_utc": "2026-10-25T04:58:50.641587+00:00",
+  "approved_candidate_commit": "189ba7cf",
+  "reviewed_manifest_sha256": "20e740b3f6ce31b45bb3ee480ade16e0a2eca69ea51f8f4cf497afbdce246427",
+  "independent_review_sha256": "c27f7c490b0fd6dcd7a92fea0c36530d2f1617fe35e4eaa0f11213472a53faf6",
+  "status_change": "T-002 In Progress -> Implementation Complete only",
+  "not_claimed": [
+    "Done",
+    "formal quality gate PASS",
+    "formal task review rebinding",
+    "live recovery",
+    "push"
+  ],
+  "timestamp_limit": "record creation time, not invented approval-message timestamp"
+}

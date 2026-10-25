@@ -63,7 +63,7 @@ Human task approval and independent task-review gate pending. Actual recovery ad
 
 Source Issue: Approved separate A9 interrupted-review recovery scope
 Approval: Approved
-Status: In Progress
+Status: Implementation Complete
 Risk: high
 Risk Rationale: Authorization/provenance admission and persisted review-state mutation must fail closed (REQ-001, REQ-004).
 Required Workflow: tdd
