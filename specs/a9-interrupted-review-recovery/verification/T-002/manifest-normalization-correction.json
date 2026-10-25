@@ -1,0 +1,10 @@
+{
+  "scope": "manifest byte-normalization correction only; no product/test/output change",
+  "previous_candidate_commit": "b40dc88f",
+  "previous_manifest_sha256": "6520a7e3da3b47d94378c242fe64ec0258e0a455be04b17cd36ea7d5e6919aed",
+  "path": "specs/a9-interrupted-review-recovery/verification/T-002/field-counterpart-test-map.tsv",
+  "old_working_crlf_sha256": "115d752c11c5cdbf4fcfe6237e78a83546192968da60e010c564861f7698076c",
+  "committed_and_current_lf_sha256": "ded7ab25d3bf3cf6e704e7b813788e62140aa0c6541042abbbabe72b09b63959",
+  "cause": "csv writer CRLF was normalized by Git during checkpoint add; post-commit git-blob audit caught manifest mismatch",
+  "all_other_prior_pins_match_committed_blobs": true
+}
