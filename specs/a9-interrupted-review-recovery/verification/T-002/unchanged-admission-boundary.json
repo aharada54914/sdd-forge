@@ -1,0 +1,21 @@
+{
+  "note": "Actual earlier731 runs retained, not restamped as new full-source runs; admission code unchanged since checkpoint",
+  "boundaries": [
+    {
+      "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "baseline": "c1ac9fc4",
+      "boundary_start": "validate_interrupted_recovery() {",
+      "boundary_end": "if [[ \"$round\" -gt 1 ]]",
+      "sha256": "b4ff137c7ed65024b0bae6d02d8bc42f4378e3ff3e83232ae4edb263619c99af",
+      "unchanged": true
+    },
+    {
+      "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "baseline": "c1ac9fc4",
+      "boundary_start": "function Assert-Recovery(",
+      "boundary_end": "if ($roundInt -gt 1)",
+      "sha256": "9677ea809f118634438e23c0fe4b8832023c55ea1d7ecf682e9448f776c19827",
+      "unchanged": true
+    }
+  ]
+}

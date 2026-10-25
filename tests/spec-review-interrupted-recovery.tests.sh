@@ -32,7 +32,7 @@ def chain_record(seq,stage,role,run,session,previous,binding=None):
  if binding is not None: record['allowed_inputs_sha256']=binding;payload+='|allowed-inputs-v1|'+binding
  record['record_sha256']=sha(payload.encode());return record
 
-def fixture(root):
+def fixture(root,source_round=3):
  for ext in ("sh","ps1"):
   path=f"plugins/sdd-quality-loop/scripts/validate-review-context-set.{ext}"
   put(root,path,(ROOT/path).read_bytes())
@@ -41,12 +41,12 @@ def fixture(root):
  put(root,CAL,(ROOT/CAL).read_bytes())
  pins=sorted([ref(root,f'specs/{FEATURE}/{n}') for n in ('requirements.md','acceptance-tests.md','investigation.md')]+[ref(root,CAL)],key=lambda r:r['path'])
  hashes={pathlib.PurePosixPath(p['path']).name:p['sha256'] for p in pins}
- pre=dict(schema='spec-review-precheck/v1',stage='spec',feature=FEATURE,attempt=3,round=2,spec_review_status_field='Pending',requirements_sha256=hashes['requirements.md'],acceptance_sha256=hashes['acceptance-tests.md'],investigation_sha256=hashes['investigation.md'],calibration_sha256=hashes['spec-review-calibration.md'],input_sha256=sha(':'.join(hashes[n] for n in ('requirements.md','acceptance-tests.md','investigation.md')).encode()),edit_summary='Synthetic prior correction',reset=False,generated_at='2026-10-24T00:00:00Z')
+ pre=dict(schema='spec-review-precheck/v1',stage='spec',feature=FEATURE,attempt=3,round=source_round-1,spec_review_status_field='Pending',requirements_sha256=hashes['requirements.md'],acceptance_sha256=hashes['acceptance-tests.md'],investigation_sha256=hashes['investigation.md'],calibration_sha256=hashes['spec-review-calibration.md'],input_sha256=sha(':'.join(hashes[n] for n in ('requirements.md','acceptance-tests.md','investigation.md')).encode()),edit_summary='Synthetic prior correction',reset=False,generated_at='2026-10-24T00:00:00Z')
  dump(root,PRIOR+'/precheck-result.json',pre)
  ids_a=['REQ-TESTABILITY','GOAL-AC-TRACE','AC-OBSERVABLE','SCOPE-BOUNDARY','CONSTRAINTS-EXPLICIT','RISK-VALIDATION-SURFACE','DOMAIN-CONFORMANCE']
  ids_b=['AMBIGUITY','CONTRADICTION','EDGE-CASE-COVERAGE','ASSUMPTIONS-RESOLVABLE','APPROVAL-BOUNDARY','DOWNSTREAM-READINESS','DOMAIN-CONFORMANCE']
  checks=[dict(id=id,result='FAIL' if i==0 else 'PASS',severity='Major' if i==0 else 'Minor',finding='Synthetic finding' if i==0 else 'Synthetic pass') for i,id in enumerate(ids_a)]
- summary=dict(schema='integrated-summary/v1',attempt=3,round=2,reviewer_a_checks=[{k:c[k] for k in ('id','result','severity')} for c in checks],reviewer_a_fail_count=1,reviewer_a_pass_count=6,reviewer_a_skip_count=0,generated_at='2026-10-24T00:00:00Z')
+ summary=dict(schema='integrated-summary/v1',attempt=3,round=source_round-1,reviewer_a_checks=[{k:c[k] for k in ('id','result','severity')} for c in checks],reviewer_a_fail_count=1,reviewer_a_pass_count=6,reviewer_a_skip_count=0,generated_at='2026-10-24T00:00:00Z')
  dump(root,PRIOR+'/integrated-summary.json',summary)
  manifests=[sorted(pins+[ref(root,PRIOR+'/precheck-result.json')],key=lambda x:x['path'])]
  manifests.append(sorted(manifests[0]+[ref(root,PRIOR+'/integrated-summary.json')],key=lambda x:x['path']))
@@ -54,14 +54,14 @@ def fixture(root):
  for i,role in enumerate(('a','b')):
   identity=dict(role='spec-reviewer-'+role,run_id='synthetic-prior-'+role,host_session_id='synthetic-prior-session-'+role,allowed_input_manifest=manifests[i]);reviewers.append(identity)
   dump(root,PRIOR+'/reviewer-'+role+'.json',dict(schema='spec-reviewer-'+role+'/v1',stage='spec',**identity,verdict='NEEDS_WORK' if i==0 else 'PASS',checks=checks if i==0 else [dict(id=id,result='PASS',severity='Minor',finding='Synthetic pass') for id in ids_b]))
- dump(root,PRIOR+'/integrated-verdict.json',dict(schema='spec-review-integrated-verdict/v1',stage='spec',feature=FEATURE,attempt=3,round=2,reviewer_a_run_id=reviewers[0]['run_id'],reviewer_b_run_id=reviewers[1]['run_id'],reviewer_a_host_session_id=reviewers[0]['host_session_id'],reviewer_b_host_session_id=reviewers[1]['host_session_id'],finding_counts=dict(critical=0,major=1,minor=0),verdict='NEEDS_WORK',warningCount=0))
- dump(root,PRIOR+'/spec-review-contract.json',dict(schema='spec-review-contract/v1',stage='spec',feature=FEATURE,attempt=3,round=2,requirements_sha256=pre['requirements_sha256'],acceptance_sha256=pre['acceptance_sha256'],investigation_sha256=pre['investigation_sha256'],reviewers=reviewers,run_id='synthetic-prior-orchestrator',verdict='NEEDS_WORK',warningCount=0))
+ dump(root,PRIOR+'/integrated-verdict.json',dict(schema='spec-review-integrated-verdict/v1',stage='spec',feature=FEATURE,attempt=3,round=source_round-1,reviewer_a_run_id=reviewers[0]['run_id'],reviewer_b_run_id=reviewers[1]['run_id'],reviewer_a_host_session_id=reviewers[0]['host_session_id'],reviewer_b_host_session_id=reviewers[1]['host_session_id'],finding_counts=dict(critical=0,major=1,minor=0),verdict='NEEDS_WORK',warningCount=0))
+ dump(root,PRIOR+'/spec-review-contract.json',dict(schema='spec-review-contract/v1',stage='spec',feature=FEATURE,attempt=3,round=source_round-1,requirements_sha256=pre['requirements_sha256'],acceptance_sha256=pre['acceptance_sha256'],investigation_sha256=pre['investigation_sha256'],reviewers=reviewers,run_id='synthetic-prior-orchestrator',verdict='NEEDS_WORK',warningCount=0))
  investigation_path=f'specs/{FEATURE}/investigation.md'
  put(root,investigation_path,(root/investigation_path).read_bytes()+b'Synthetic correction after NEEDS_WORK.\n')
  pins=sorted([ref(root,f'specs/{FEATURE}/{name}') for name in ('requirements.md','acceptance-tests.md','investigation.md')]+[ref(root,CAL)],key=lambda pin:pin['path'])
  pre['investigation_sha256']=digest(root/investigation_path)
  pre['input_sha256']=sha(':'.join(pre[key] for key in ('requirements_sha256','acceptance_sha256','investigation_sha256')).encode())
- pre['round']=3;pre['edit_summary']='Synthetic source correction';dump(root,SOURCE+'/precheck-result.json',pre)
+ pre['round']=source_round;pre['edit_summary']='Synthetic source correction';dump(root,SOURCE+'/precheck-result.json',pre)
  genesis=chain_record(1,'host','orchestrator','synthetic-host','synthetic-host-session','')
  dump(root,LEDGER,dict(schema='review-identity-ledger/v1',records=[genesis]))
  inputs=sorted(pins+[ref(root,SOURCE+'/precheck-result.json')],key=lambda p:p['path'])
@@ -75,12 +75,12 @@ def fixture(root):
  dump(root,SOURCE+'/reviewer-a.json',dict(schema='spec-reviewer-a/v1',stage='spec',role='spec-reviewer-a',run_id=invocation['run_id'],host_session_id=invocation['host_session_id'],allowed_input_manifest=inputs,verdict='BLOCKED',checks=[dict(id=id,result='SKIP' if id=='DOMAIN-CONFORMANCE' else 'FAIL',severity='Major',finding='Explicit skip condition supplied: the domain directory is absent.' if id=='DOMAIN-CONFORMANCE' else 'Review blocked before substantive reading because manifest hash verification was denied.') for id in ids_a]))
  put(root,SOURCE+'/spec-review-report.md','# Synthetic interruption diagnostic\n\nExecution: BLOCKED before substantive review\n\nReviewer B was not launched following the launch-boundary stop.\n')
  inventory=sorted([ref(root,SOURCE+'/'+n) for n in ('precheck-result.json','reviewer-a.json','reviewer-a-reservation.txt','reviewer-a-host-receipt.json','spec-review-report.md')]+[ref(root,INV)],key=lambda x:x['path'])
- record=dict(schema='spec-review-interrupted-recovery/v1',feature=FEATURE,source=dict(attempt=3,round=3),target=dict(attempt=4,round=1),authorization=dict(path=AUTH,sha256='0'*64),previous_contract=ref(root,PRIOR+'/spec-review-contract.json'),interrupted_precheck=ref(root,SOURCE+'/precheck-result.json'),pinned_inputs=pins,interrupted_artifacts=inventory,reviewer_a=dict(invocation=ref(root,INV),sequence=2,stage='spec',role='spec-reviewer-a',run_id=invocation['run_id'],host_session_id=invocation['host_session_id'],record_sha256=reserved['record_sha256']))
+ record=dict(schema='spec-review-interrupted-recovery/v1',feature=FEATURE,source=dict(attempt=3,round=source_round),target=dict(attempt=4,round=1),authorization=dict(path=AUTH,sha256='0'*64),previous_contract=ref(root,PRIOR+'/spec-review-contract.json'),interrupted_precheck=ref(root,SOURCE+'/precheck-result.json'),pinned_inputs=pins,interrupted_artifacts=inventory,reviewer_a=dict(invocation=ref(root,INV),sequence=2,stage='spec',role='spec-reviewer-a',run_id=invocation['run_id'],host_session_id=invocation['host_session_id'],record_sha256=reserved['record_sha256']))
  authorize(root,record);return record
 
 def authorize(root,record):
  body={k:v for k,v in record.items() if k!='authorization'}
- put(root,AUTH,'# Fictional synthetic authorization; never human-origin proof.\n\n'+f'Feature: {FEATURE}\nSource Attempt: 3\nSource Round: 3\nTarget Attempt: 4\nTarget Round: 1\nMaximum Rounds: 3\nDecision: Authorize interrupted A-before-B recovery\nRecovery Binding SHA256: {sha(canonical(body))}\n')
+ put(root,AUTH,'# Fictional synthetic authorization; never human-origin proof.\n\n'+f'Feature: {FEATURE}\nSource Attempt: 3\nSource Round: {record["source"]["round"]}\nTarget Attempt: 4\nTarget Round: 1\nMaximum Rounds: 3\nDecision: Authorize interrupted A-before-B recovery\nRecovery Binding SHA256: {sha(canonical(body))}\n')
  record['authorization']=ref(root,AUTH);dump(root,RECORD,record)
 
 def functions_bash():
@@ -503,19 +503,24 @@ def main():
  print('RESULT '+RUNTIME+' passed='+str(passed)+' failures='+str(failed)+' designed='+str(len(cases)),flush=True)
  return int(failed>0)
 
-def transition_fixture(root):
- record=fixture(root)
+def transition_fixture(root,source_round=3):
+ global SOURCE,PRIOR,INV
+ saved_source,saved_prior,saved_inv=SOURCE,PRIOR,INV
+ SOURCE=f'reports/spec-review/{FEATURE}/attempt-3/round-{source_round}';PRIOR=f'reports/spec-review/{FEATURE}/attempt-3/round-{source_round-1}';INV=f'reports/review-context/{FEATURE}-spec-a3r{source_round}-a-invocation.json'
+ try:record=fixture(root,source_round)
+ finally:SOURCE,PRIOR,INV=saved_source,saved_prior,saved_inv
  for rel in ('plugins/sdd-review-loop/scripts/spec-review-precheck.sh','plugins/sdd-review-loop/scripts/spec-review-precheck.ps1','plugins/sdd-review-loop/scripts/review-contract-validate.sh','plugins/sdd-review-loop/scripts/review-contract-validate.ps1','plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh','plugins/sdd-review-loop/scripts/lib/fixed-input-source.ps1'):
   put(root,rel,(ROOT/rel).read_bytes());(root/rel).chmod(0o755)
  return record
 
-def transition_command(root,options=None,gate=None,stop=False):
+def transition_command(root,options=None,gate=None,stop=False,ancestor=False):
  options=options if options is not None else ['recovery']
  script=root/('plugins/sdd-review-loop/scripts/spec-review-precheck.'+('sh' if RUNTIME=='bash' else 'ps1'))
  args=[]
  for option in options:
   if option=='recovery':args+=['--recover-interrupted='+RECORD] if RUNTIME=='bash' else ['-RecoverInterrupted',RECORD]
   elif option=='reset':args+=['--reset'] if RUNTIME=='bash' else ['-Reset']
+  elif option=='record-case':args+=['--recover-interrupted='+RECORD.replace('synthetic-recovery.json','SYNTHETIC-RECOVERY.JSON')] if RUNTIME=='bash' else ['-RecoverInterrupted',RECORD.replace('synthetic-recovery.json','SYNTHETIC-RECOVERY.JSON')]
   elif option=='wrong-case':args+=['--Recover-Interrupted='+RECORD] if RUNTIME=='bash' else ['-recoverinterrupted',RECORD]
   else:args.append(option)
  env=os.environ.copy()
@@ -526,7 +531,11 @@ def transition_command(root,options=None,gate=None,stop=False):
    # Native debugger trap only: the real validation, lock and filesystem remain intact.
    hook.write_text('set -T\ntrap '+shlex.quote('if [[ "$BASH_COMMAND" == *\'mkdir "$lock_dir"\'* && ! -e '+shlex.quote(str(gate))+'.ready ]]; then : > '+shlex.quote(str(gate))+'.ready; while [[ ! -e '+shlex.quote(str(gate))+'.go ]]; do sleep 0.02; done; fi')+' DEBUG\n')
    if stop:
-    hook.write_text('set -T\ntrap '+shlex.quote('if [[ "$BASH_COMMAND" == *\'--arg schema "spec-review-precheck/v1"\'* ]]; then exit 97; fi')+' DEBUG\n')
+    hook.write_text('set -T\ntrap '+shlex.quote('if [[ "$BASH_COMMAND" == *\'--arg schema "spec-review-precheck/v1"\'* ]]; then trap - DEBUG; mkdir "$precheck_output"; fi')+' DEBUG\n')
+   if ancestor:
+    lines=script.read_text().splitlines();start=next(i for i,l in enumerate(lines) if l.startswith('# Only after every pure validation'))
+    boundary=next(i+1 for i in range(start+1,len(lines)) if lines[i].strip() and not lines[i].lstrip().startswith('#'))
+    hook.write_text('set -T\ntrap '+shlex.quote('if [[ "${BASH_SOURCE[0]}" == '+shlex.quote(str(script))+' && "$LINENO" == '+str(boundary)+' && ! -e '+shlex.quote(str(gate))+'.ready ]]; then : > '+shlex.quote(str(gate))+'.ready; while [[ ! -e '+shlex.quote(str(gate))+'.go ]]; do sleep 0.02; done; fi')+' DEBUG\n')
    env['BASH_ENV']=str(hook)
  else:
   cmd=[PWSH,'-NoLogo','-NoProfile','-File',str(script),'-Feature',FEATURE,'-Attempt','4','-Round','1',*args]
@@ -534,8 +543,13 @@ def transition_command(root,options=None,gate=None,stop=False):
    driver=gate.with_suffix('.ps1');source=script.read_text().splitlines()
    needle='$result | ConvertTo-Json' if stop else 'New-Item -ItemType Directory -Path $lockDir'
    line=next(i for i,l in enumerate(source,1) if needle in l)
-   action='throw "synthetic interrupted publication"' if stop else '[IO.File]::WriteAllText($global:Gate+".ready", ""); while(-not [IO.File]::Exists($global:Gate+".go")){Start-Sleep -Milliseconds 20}'
-   driver.write_text('param([string]$Script,[string]$Arguments,[string]$Gate)\n$ErrorActionPreference="Stop"\n$global:Gate=$Gate\n$bp=Set-PSBreakpoint -Script $Script -Line '+str(line)+' -Action { '+action+' }\ntry { $values=ConvertFrom-Json -InputObject $Arguments; & $Script @values; if(-not $?){exit 1} } finally { $bp | Remove-PSBreakpoint }\n')
+   if ancestor:
+    start=next(i for i,l in enumerate(source) if l.startswith('# Only after every pure validation'))
+    line=next(i+1 for i in range(start+1,len(source)) if source[i].strip() and not source[i].lstrip().startswith('#'))
+   action='[IO.Directory]::CreateDirectory($global:FailurePath) | Out-Null' if stop else '[IO.File]::WriteAllText($global:Gate+".ready", ""); while(-not [IO.File]::Exists($global:Gate+".go")){Start-Sleep -Milliseconds 20}'
+   quote=lambda value: "'"+str(value).replace("'","''")+"'"
+   invoke='& '+quote(script)+' -Feature '+quote(FEATURE)+' -Attempt 4 -Round 1 '+ ' '.join(arg if arg.startswith('-') else quote(arg) for arg in args)
+   driver.write_text('param([string]$Script,[string]$Arguments,[string]$Gate)\n$ErrorActionPreference="Stop"\n$global:Gate=$Gate\n$global:FailurePath='+quote(root/f'reports/spec-review/{FEATURE}/attempt-4/round-1/.precheck-result.json.pending')+'\n$bp=Set-PSBreakpoint -Script $Script -Line '+str(line)+' -Action { '+action+' }\ntry { '+invoke+'; if(-not $?){exit 1} } finally { $bp | Remove-PSBreakpoint }\n')
    cmd=[PWSH,'-NoLogo','-NoProfile','-File',str(driver),str(script),json.dumps(['-Feature',FEATURE,'-Attempt','4','-Round','1',*args]),str(gate)]
  return cmd,env
 
@@ -548,7 +562,7 @@ def transition_main():
  with tempfile.TemporaryDirectory(prefix='transition-',dir=parent) as tmp:
   scratch=pathlib.Path(tmp);base=scratch/'base';record=transition_fixture(base)
   def prepared(name):
-   root=scratch/name;shutil.copytree(base,root);return root
+   root=scratch/name.replace(':','-');shutil.copytree(base,root);return root
   def run(root,options=None,gate=None,stop=False):
    cmd,env=transition_command(root,options,gate,stop);return subprocess.run(cmd,env=env,text=True,capture_output=True,timeout=90)
   def unchanged(root,before):
@@ -564,7 +578,7 @@ def transition_main():
   route_ready=r.returncode==0 and published(root)
   emit('TEST-001::full-cli-publication',r.returncode==0 and published(root),'exit='+str(r.returncode)+' '+(r.stdout+r.stderr).strip())
   emit('TEST-096::success-preservation',r.returncode==0 and unchanged(root,before) and not (root/f'reports/spec-review/{FEATURE}/.spec-review.lock').exists(),'all original file hashes and ledger preserved')
-  for name,options in [('TEST-002',[]),('TEST-003',['reset']),('TEST-004',['recovery','reset']),('TEST-005',['--unknown']),('TEST-006',['wrong-case']),('TEST-007',['recovery','recovery'])]:
+  for name,options in [('TEST-002',[]),('TEST-003',['reset']),('TEST-004',['recovery','reset']),('TEST-005',['--unknown']),('TEST-006',['wrong-case']),('TEST-007',['recovery','recovery']),('TEST-006::record-filename-case',['record-case'])]:
    root=prepared(name);before=snapshot(root);r=run(root,options)
    emit(name+'::dispatch',r.returncode!=0 and snapshot(root)==before and not os.path.lexists(root/target),'exit='+str(r.returncode)+' '+(r.stdout+r.stderr).strip())
   if not route_ready:
@@ -584,8 +598,8 @@ def transition_main():
    root=prepared('path-'+str(index));edit(root);before=snapshot(root);r=run(root)
    emit(name,r.returncode!=0 and snapshot(root)==before,'exit='+str(r.returncode)+' unchanged='+str(snapshot(root)==before))
   # A real process pauses immediately before mkdir/New-Item lock, never replaces it.
-  def spawn(root,gate,stop=False):
-   cmd,env=transition_command(root,gate=gate,stop=stop)
+  def spawn(root,gate,stop=False,ancestor=False):
+   cmd,env=transition_command(root,gate=gate,stop=stop,ancestor=ancestor)
    return subprocess.Popen(cmd,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
   def wait_ready(proc,gate):
    until=time.monotonic()+20
@@ -593,8 +607,11 @@ def transition_main():
     if gate.with_suffix('.ready').exists():return True
     time.sleep(.02)
    return gate.with_suffix('.ready').exists()
-  for name,edit in [('TEST-092::requirements',lambda r:put(r,f'specs/{FEATURE}/requirements.md',(r/f'specs/{FEATURE}/requirements.md').read_bytes()+b'changed\n')),('TEST-092::record',lambda r:put(r,RECORD,(r/RECORD).read_bytes()+b' ')),('TEST-092::authorization',lambda r:put(r,AUTH,(r/AUTH).read_bytes()+b'changed\n')),('TEST-093',lambda r:(r/f'reports/spec-review/{FEATURE}/attempt-3/round-4').mkdir()),('TEST-094',lambda r:(r/target).mkdir(parents=True))]:
-   root=prepared(name.replace(':','-'));gate=scratch/(name.replace(':','-')+'-gate');proc=spawn(root,gate)
+  for name,edit in [(f'TEST-092::{name}',lambda r,p=path:put(r,p,(r/p).read_bytes()+b'changed\n')) for name,path in [('acceptance',f'specs/{FEATURE}/acceptance-tests.md'),('investigation',f'specs/{FEATURE}/investigation.md'),('calibration',CAL),('previous-contract',PRIOR+'/spec-review-contract.json'),('source-precheck',SOURCE+'/precheck-result.json'),('a-raw',SOURCE+'/reviewer-a.json'),('a-reservation',SOURCE+'/reviewer-a-reservation.txt'),('a-host-receipt',SOURCE+'/reviewer-a-host-receipt.json'),('diagnostic-report',SOURCE+'/spec-review-report.md'),('a-invocation',INV)]]+[('TEST-092::requirements',lambda r:put(r,f'specs/{FEATURE}/requirements.md',(r/f'specs/{FEATURE}/requirements.md').read_bytes()+b'changed\n')),('TEST-092::record',lambda r:put(r,RECORD,(r/RECORD).read_bytes()+b' ')),('TEST-092::authorization',lambda r:put(r,AUTH,(r/AUTH).read_bytes()+b'changed\n')),('TEST-093',lambda r:(r/f'reports/spec-review/{FEATURE}/attempt-3/round-3').mkdir()),('TEST-094',lambda r:(r/target).mkdir(parents=True))]:
+   root=prepared(name.replace(':','-'))
+   if name=='TEST-093':
+    shutil.rmtree(root);transition_fixture(root,2)
+   gate=scratch/(name.replace(':','-')+'-gate');proc=spawn(root,gate)
    ready=wait_ready(proc,gate)
    if ready:edit(root)
    before=snapshot(root);gate.with_suffix('.go').touch();out,err=proc.communicate(timeout=90)
@@ -603,12 +620,18 @@ def transition_main():
   for g in gates:g.with_suffix('.go').touch()
   for p in procs:p.communicate(timeout=90)
   emit('TEST-091',ready and sum(p.returncode==0 for p in procs)==1 and published(root) and unchanged(root,before),'barriers='+str(ready)+' exits='+str([p.returncode for p in procs]))
+  root=prepared('ancestor-race');gate=scratch/'ancestor-gate';external=scratch/'outside';external.mkdir();proc=spawn(root,gate,ancestor=True);ready=wait_ready(proc,gate)
+  if ready:
+   (root/'reports').rename(root/'reports-held');(root/'reports').symlink_to(external,target_is_directory=True)
+  before=snapshot(root);gate.with_suffix('.go').touch();out,err=proc.communicate(timeout=90);external_entries=sorted(str(p.relative_to(external)) for p in external.rglob('*'))
+  emit('TEST-087::ancestor-swap-no-external-write',ready and proc.returncode!=0 and snapshot(root)==before and not external_entries,'barrier='+str(ready)+' exit='+str(proc.returncode)+' external_entries='+json.dumps(external_entries)+' '+(out+err).strip())
   root=prepared('partial');before=snapshot(root);r=run(root,gate=scratch/'partial-gate',stop=True);partial=os.path.lexists(root/target);after=snapshot(root);again=run(root);reset=run(root,['reset'])
-  emit('TEST-095',r.returncode!=0 and partial and not published(root) and unchanged(root,before) and not (root/f'reports/spec-review/{FEATURE}/.spec-review.lock').exists() and again.returncode!=0 and reset.returncode!=0 and snapshot(root)==after,'exit='+str(r.returncode)+' partial='+str(partial)+' rerun='+str(again.returncode)+' reset='+str(reset.returncode))
+  emit('TEST-095',r.returncode!=0 and partial and not published(root) and unchanged(root,before) and not (root/f'reports/spec-review/{FEATURE}/.spec-review.lock').exists() and again.returncode!=0 and reset.returncode!=0 and snapshot(root)==after,'exit='+str(r.returncode)+' partial='+str(partial)+' pending='+str((root/target/'.precheck-result.json.pending').exists())+' final='+str((root/target/'precheck-result.json').exists())+' preserved='+str(unchanged(root,before))+' lock_removed='+str(not (root/f'reports/spec-review/{FEATURE}/.spec-review.lock').exists())+' rerun='+str(again.returncode)+' reset='+str(reset.returncode))
  print('TRANSITION_RESULT '+RUNTIME+' passed='+str(sum(ok for _,ok in results))+' failures='+str(sum(not ok for _,ok in results)),flush=True)
  return int(any(not ok for _,ok in results))
 
 if __name__=='__main__':
  if os.environ.get('SDD_RECOVERY_TEST_SCOPE')=='transition':sys.exit(transition_main())
- sys.exit(main())
+ status=main()
+ sys.exit(status or transition_main())
 PY

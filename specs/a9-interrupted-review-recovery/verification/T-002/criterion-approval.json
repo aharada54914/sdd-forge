@@ -1,0 +1,20 @@
+{
+  "schema": "human-criterion-approval-record/v1",
+  "scope": "T-002 completion-evidence classification sentence only",
+  "question_item_id": "[\"request_user_input_async\",\"call_f20559c2a3d440a39e79435d06cd7f67\",0]",
+  "actual_user_answer": "よい",
+  "source": "parent /root relay of actual user answer in active conversation",
+  "approval_timestamp": "not supplied; no timestamp invented",
+  "approved_patch_sha256": "5748cd0c8d730ad74b63410b8c53869d7d636ee5e56ffcfcc5d062ffd587ef07",
+  "applied": true,
+  "task_statuses_preserved": {
+    "T-001": "Implementation Complete",
+    "T-002": "In Progress",
+    "T-003": "Planned"
+  },
+  "not_claimed": [
+    "formal task review rebinding",
+    "quality PASS",
+    "live recovery approval"
+  ]
+}

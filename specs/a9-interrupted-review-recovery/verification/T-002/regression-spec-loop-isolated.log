@@ -1,0 +1,6 @@
+spec-review-precheck: complete. Output written to /workspace/a9-t002-regression-fixture-20261025/reports/spec-review/spec-review-fixture-16268-83819/attempt-1/round-1/
+spec-review-precheck: complete. Output written to /workspace/a9-t002-regression-fixture-20261025/reports/spec-review/spec-review-fixture-16268-83819/attempt-1/round-2/
+spec-review-precheck: complete. Output written to /workspace/a9-t002-regression-fixture-20261025/reports/spec-review/spec-review-fixture-16268-83819/attempt-1/round-3/
+spec-review-precheck: complete. Output written to /workspace/a9-t002-regression-fixture-20261025/reports/spec-review/spec-review-fixture-16268-83819/attempt-2/round-1/
+spec-review-precheck: complete. Output written to /workspace/a9-t002-regression-fixture-20261025/reports/spec-review/spec-review-fixture-16268-83819/attempt-2/round-1/
+ERROR: impl-review-precheck: feature specification directory must be a real directory

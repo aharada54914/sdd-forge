@@ -1,0 +1,801 @@
+{
+  "planned_rows": 181,
+  "unexecuted_individual_race_aliases": [
+    {
+      "field": "recovery.schema",
+      "planned_alias": "TEST-092::under-lock::recovery.schema",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.feature",
+      "planned_alias": "TEST-092::under-lock::recovery.feature",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.source",
+      "planned_alias": "TEST-092::under-lock::recovery.source",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.source.attempt",
+      "planned_alias": "TEST-092::under-lock::recovery.source.attempt",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.source.round",
+      "planned_alias": "TEST-092::under-lock::recovery.source.round",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.target",
+      "planned_alias": "TEST-092::under-lock::recovery.target",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.target.attempt",
+      "planned_alias": "TEST-092::under-lock::recovery.target.attempt",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.target.round",
+      "planned_alias": "TEST-092::under-lock::recovery.target.round",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.authorization",
+      "planned_alias": "TEST-092::under-lock::recovery.authorization",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.previous_contract",
+      "planned_alias": "TEST-092::under-lock::recovery.previous_contract",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_precheck",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_precheck",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.pinned_inputs",
+      "planned_alias": "TEST-092::under-lock::recovery.pinned_inputs",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_artifacts",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_artifacts",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.reviewer_a",
+      "planned_alias": "TEST-092::under-lock::recovery.reviewer_a",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.reviewer_a.invocation",
+      "planned_alias": "TEST-092::under-lock::recovery.reviewer_a.invocation",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.reviewer_a.sequence",
+      "planned_alias": "TEST-092::under-lock::recovery.reviewer_a.sequence",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.reviewer_a.stage",
+      "planned_alias": "TEST-092::under-lock::recovery.reviewer_a.stage",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.reviewer_a.role",
+      "planned_alias": "TEST-092::under-lock::recovery.reviewer_a.role",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.reviewer_a.run_id",
+      "planned_alias": "TEST-092::under-lock::recovery.reviewer_a.run_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.reviewer_a.host_session_id",
+      "planned_alias": "TEST-092::under-lock::recovery.reviewer_a.host_session_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.reviewer_a.record_sha256",
+      "planned_alias": "TEST-092::under-lock::recovery.reviewer_a.record_sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.authorization.path",
+      "planned_alias": "TEST-092::under-lock::recovery.authorization.path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.authorization.sha256",
+      "planned_alias": "TEST-092::under-lock::recovery.authorization.sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.previous_contract.path",
+      "planned_alias": "TEST-092::under-lock::recovery.previous_contract.path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.previous_contract.sha256",
+      "planned_alias": "TEST-092::under-lock::recovery.previous_contract.sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_precheck.path",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_precheck.path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_precheck.sha256",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_precheck.sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.pinned_inputs.requirements.path",
+      "planned_alias": "TEST-092::under-lock::recovery.pinned_inputs.requirements.path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.pinned_inputs.requirements.sha256",
+      "planned_alias": "TEST-092::under-lock::recovery.pinned_inputs.requirements.sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.pinned_inputs.acceptance.path",
+      "planned_alias": "TEST-092::under-lock::recovery.pinned_inputs.acceptance.path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.pinned_inputs.acceptance.sha256",
+      "planned_alias": "TEST-092::under-lock::recovery.pinned_inputs.acceptance.sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.pinned_inputs.investigation.path",
+      "planned_alias": "TEST-092::under-lock::recovery.pinned_inputs.investigation.path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.pinned_inputs.investigation.sha256",
+      "planned_alias": "TEST-092::under-lock::recovery.pinned_inputs.investigation.sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.pinned_inputs.calibration.path",
+      "planned_alias": "TEST-092::under-lock::recovery.pinned_inputs.calibration.path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.pinned_inputs.calibration.sha256",
+      "planned_alias": "TEST-092::under-lock::recovery.pinned_inputs.calibration.sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.precheck.path",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_artifacts.precheck.path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.precheck.sha256",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_artifacts.precheck.sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_raw.path",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_artifacts.a_raw.path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_raw.sha256",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_artifacts.a_raw.sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_reservation.path",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_artifacts.a_reservation.path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_reservation.sha256",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_artifacts.a_reservation.sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_host_receipt.path",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_artifacts.a_host_receipt.path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_host_receipt.sha256",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_artifacts.a_host_receipt.sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.diagnostic_report.path",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_artifacts.diagnostic_report.path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.diagnostic_report.sha256",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_artifacts.diagnostic_report.sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_invocation.path",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_artifacts.a_invocation.path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.interrupted_artifacts.a_invocation.sha256",
+      "planned_alias": "TEST-092::under-lock::recovery.interrupted_artifacts.a_invocation.sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.reviewer_a.invocation.path",
+      "planned_alias": "TEST-092::under-lock::recovery.reviewer_a.invocation.path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "recovery.reviewer_a.invocation.sha256",
+      "planned_alias": "TEST-092::under-lock::recovery.reviewer_a.invocation.sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "authorization.Feature",
+      "planned_alias": "TEST-092::under-lock::authorization.Feature",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "authorization.Source Attempt",
+      "planned_alias": "TEST-092::under-lock::authorization.Source Attempt",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "authorization.Source Round",
+      "planned_alias": "TEST-092::under-lock::authorization.Source Round",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "authorization.Target Attempt",
+      "planned_alias": "TEST-092::under-lock::authorization.Target Attempt",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "authorization.Target Round",
+      "planned_alias": "TEST-092::under-lock::authorization.Target Round",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "authorization.Maximum Rounds",
+      "planned_alias": "TEST-092::under-lock::authorization.Maximum Rounds",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "authorization.Decision",
+      "planned_alias": "TEST-092::under-lock::authorization.Decision",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "authorization.Recovery Binding SHA256",
+      "planned_alias": "TEST-092::under-lock::authorization.Recovery Binding SHA256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_precheck.schema",
+      "planned_alias": "TEST-092::under-lock::source_precheck.schema",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_precheck.stage",
+      "planned_alias": "TEST-092::under-lock::source_precheck.stage",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_precheck.feature",
+      "planned_alias": "TEST-092::under-lock::source_precheck.feature",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_precheck.attempt",
+      "planned_alias": "TEST-092::under-lock::source_precheck.attempt",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_precheck.round",
+      "planned_alias": "TEST-092::under-lock::source_precheck.round",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_precheck.spec_review_status_field",
+      "planned_alias": "TEST-092::under-lock::source_precheck.spec_review_status_field",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_precheck.requirements_sha256",
+      "planned_alias": "TEST-092::under-lock::source_precheck.requirements_sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_precheck.acceptance_sha256",
+      "planned_alias": "TEST-092::under-lock::source_precheck.acceptance_sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_precheck.investigation_sha256",
+      "planned_alias": "TEST-092::under-lock::source_precheck.investigation_sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_precheck.calibration_sha256",
+      "planned_alias": "TEST-092::under-lock::source_precheck.calibration_sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_precheck.input_sha256",
+      "planned_alias": "TEST-092::under-lock::source_precheck.input_sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_precheck.edit_summary",
+      "planned_alias": "TEST-092::under-lock::source_precheck.edit_summary",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_precheck.reset",
+      "planned_alias": "TEST-092::under-lock::source_precheck.reset",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_precheck.generated_at",
+      "planned_alias": "TEST-092::under-lock::source_precheck.generated_at",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.schema",
+      "planned_alias": "TEST-092::under-lock::previous_contract.schema",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.stage",
+      "planned_alias": "TEST-092::under-lock::previous_contract.stage",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.feature",
+      "planned_alias": "TEST-092::under-lock::previous_contract.feature",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.attempt",
+      "planned_alias": "TEST-092::under-lock::previous_contract.attempt",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.round",
+      "planned_alias": "TEST-092::under-lock::previous_contract.round",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.verdict",
+      "planned_alias": "TEST-092::under-lock::previous_contract.verdict",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.requirements_sha256",
+      "planned_alias": "TEST-092::under-lock::previous_contract.requirements_sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.acceptance_sha256",
+      "planned_alias": "TEST-092::under-lock::previous_contract.acceptance_sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.investigation_sha256",
+      "planned_alias": "TEST-092::under-lock::previous_contract.investigation_sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.run_id",
+      "planned_alias": "TEST-092::under-lock::previous_contract.run_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.warningCount",
+      "planned_alias": "TEST-092::under-lock::previous_contract.warningCount",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.reviewers.a.role",
+      "planned_alias": "TEST-092::under-lock::previous_contract.reviewers.a.role",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.reviewers.a.run_id",
+      "planned_alias": "TEST-092::under-lock::previous_contract.reviewers.a.run_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.reviewers.a.host_session_id",
+      "planned_alias": "TEST-092::under-lock::previous_contract.reviewers.a.host_session_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.reviewers.a.allowed_input_manifest[].path",
+      "planned_alias": "TEST-092::under-lock::previous_contract.reviewers.a.allowed_input_manifest[].path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.reviewers.a.allowed_input_manifest[].sha256",
+      "planned_alias": "TEST-092::under-lock::previous_contract.reviewers.a.allowed_input_manifest[].sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.reviewers.b.role",
+      "planned_alias": "TEST-092::under-lock::previous_contract.reviewers.b.role",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.reviewers.b.run_id",
+      "planned_alias": "TEST-092::under-lock::previous_contract.reviewers.b.run_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.reviewers.b.host_session_id",
+      "planned_alias": "TEST-092::under-lock::previous_contract.reviewers.b.host_session_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.reviewers.b.allowed_input_manifest[].path",
+      "planned_alias": "TEST-092::under-lock::previous_contract.reviewers.b.allowed_input_manifest[].path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_contract.reviewers.b.allowed_input_manifest[].sha256",
+      "planned_alias": "TEST-092::under-lock::previous_contract.reviewers.b.allowed_input_manifest[].sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_summary.schema",
+      "planned_alias": "TEST-092::under-lock::previous_summary.schema",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_summary.attempt",
+      "planned_alias": "TEST-092::under-lock::previous_summary.attempt",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_summary.round",
+      "planned_alias": "TEST-092::under-lock::previous_summary.round",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_summary.generated_at",
+      "planned_alias": "TEST-092::under-lock::previous_summary.generated_at",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_summary.reviewer_a_checks[].id",
+      "planned_alias": "TEST-092::under-lock::previous_summary.reviewer_a_checks[].id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_summary.reviewer_a_checks[].result",
+      "planned_alias": "TEST-092::under-lock::previous_summary.reviewer_a_checks[].result",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_summary.reviewer_a_checks[].severity",
+      "planned_alias": "TEST-092::under-lock::previous_summary.reviewer_a_checks[].severity",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_summary.reviewer_a_fail_count",
+      "planned_alias": "TEST-092::under-lock::previous_summary.reviewer_a_fail_count",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_summary.reviewer_a_pass_count",
+      "planned_alias": "TEST-092::under-lock::previous_summary.reviewer_a_pass_count",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_summary.reviewer_a_skip_count",
+      "planned_alias": "TEST-092::under-lock::previous_summary.reviewer_a_skip_count",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_integrated_verdict.schema",
+      "planned_alias": "TEST-092::under-lock::previous_integrated_verdict.schema",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_integrated_verdict.stage",
+      "planned_alias": "TEST-092::under-lock::previous_integrated_verdict.stage",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_integrated_verdict.feature",
+      "planned_alias": "TEST-092::under-lock::previous_integrated_verdict.feature",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_integrated_verdict.attempt",
+      "planned_alias": "TEST-092::under-lock::previous_integrated_verdict.attempt",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_integrated_verdict.round",
+      "planned_alias": "TEST-092::under-lock::previous_integrated_verdict.round",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_integrated_verdict.reviewer_a_run_id",
+      "planned_alias": "TEST-092::under-lock::previous_integrated_verdict.reviewer_a_run_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_integrated_verdict.reviewer_b_run_id",
+      "planned_alias": "TEST-092::under-lock::previous_integrated_verdict.reviewer_b_run_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_integrated_verdict.reviewer_a_host_session_id",
+      "planned_alias": "TEST-092::under-lock::previous_integrated_verdict.reviewer_a_host_session_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_integrated_verdict.reviewer_b_host_session_id",
+      "planned_alias": "TEST-092::under-lock::previous_integrated_verdict.reviewer_b_host_session_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_integrated_verdict.finding_counts.critical",
+      "planned_alias": "TEST-092::under-lock::previous_integrated_verdict.finding_counts.critical",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_integrated_verdict.finding_counts.major",
+      "planned_alias": "TEST-092::under-lock::previous_integrated_verdict.finding_counts.major",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_integrated_verdict.finding_counts.minor",
+      "planned_alias": "TEST-092::under-lock::previous_integrated_verdict.finding_counts.minor",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_integrated_verdict.verdict",
+      "planned_alias": "TEST-092::under-lock::previous_integrated_verdict.verdict",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "previous_integrated_verdict.warningCount",
+      "planned_alias": "TEST-092::under-lock::previous_integrated_verdict.warningCount",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "implementation_evidence.Run ID",
+      "planned_alias": "TEST-092::under-lock::implementation_evidence.Run ID",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "implementation_evidence.Task Attempt Count",
+      "planned_alias": "TEST-092::under-lock::implementation_evidence.Task Attempt Count",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "implementation_evidence.spec_revision",
+      "planned_alias": "TEST-092::under-lock::implementation_evidence.spec_revision",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "implementation_evidence.environment",
+      "planned_alias": "TEST-092::under-lock::implementation_evidence.environment",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "implementation_evidence.verdict",
+      "planned_alias": "TEST-092::under-lock::implementation_evidence.verdict",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "implementation_evidence.Critical",
+      "planned_alias": "TEST-092::under-lock::implementation_evidence.Critical",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "implementation_evidence.Major",
+      "planned_alias": "TEST-092::under-lock::implementation_evidence.Major",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "implementation_evidence.Minor",
+      "planned_alias": "TEST-092::under-lock::implementation_evidence.Minor",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "implementation_evidence.reviewer.run_id",
+      "planned_alias": "TEST-092::under-lock::implementation_evidence.reviewer.run_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "implementation_evidence.reviewer.host_session_id",
+      "planned_alias": "TEST-092::under-lock::implementation_evidence.reviewer.host_session_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "implementation_evidence.input_manifest.path",
+      "planned_alias": "TEST-092::under-lock::implementation_evidence.input_manifest.path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "implementation_evidence.input_manifest.sha256",
+      "planned_alias": "TEST-092::under-lock::implementation_evidence.input_manifest.sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "implementation_evidence.provenance",
+      "planned_alias": "TEST-092::under-lock::implementation_evidence.provenance",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "implementation_evidence.traceability",
+      "planned_alias": "TEST-092::under-lock::implementation_evidence.traceability",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "persisted_A.sequence",
+      "planned_alias": "TEST-092::under-lock::persisted_A.sequence",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "persisted_A.run_id",
+      "planned_alias": "TEST-092::under-lock::persisted_A.run_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "persisted_A.host_session_id",
+      "planned_alias": "TEST-092::under-lock::persisted_A.host_session_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "persisted_A.stage",
+      "planned_alias": "TEST-092::under-lock::persisted_A.stage",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "persisted_A.role",
+      "planned_alias": "TEST-092::under-lock::persisted_A.role",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "persisted_A.record_sha256",
+      "planned_alias": "TEST-092::under-lock::persisted_A.record_sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "persisted_A.previous_record_sha256",
+      "planned_alias": "TEST-092::under-lock::persisted_A.previous_record_sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "persisted_A.allowed_inputs_sha256",
+      "planned_alias": "TEST-092::under-lock::persisted_A.allowed_inputs_sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_invocation.schema",
+      "planned_alias": "TEST-092::under-lock::A_invocation.schema",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_invocation.input_mode",
+      "planned_alias": "TEST-092::under-lock::A_invocation.input_mode",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_invocation.fallback_mode",
+      "planned_alias": "TEST-092::under-lock::A_invocation.fallback_mode",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_invocation.read_only",
+      "planned_alias": "TEST-092::under-lock::A_invocation.read_only",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_invocation.feature",
+      "planned_alias": "TEST-092::under-lock::A_invocation.feature",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_invocation.identity_ledger_path",
+      "planned_alias": "TEST-092::under-lock::A_invocation.identity_ledger_path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_invocation.identity_ledger_sha256",
+      "planned_alias": "TEST-092::under-lock::A_invocation.identity_ledger_sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_invocation.allowed_input_manifest[].path",
+      "planned_alias": "TEST-092::under-lock::A_invocation.allowed_input_manifest[].path",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_invocation.allowed_input_manifest[].sha256",
+      "planned_alias": "TEST-092::under-lock::A_invocation.allowed_input_manifest[].sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_reservation.REVIEW_CONTEXT_OK.record_sha256",
+      "planned_alias": "TEST-092::under-lock::A_reservation.REVIEW_CONTEXT_OK.record_sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_reservation.REVIEW_CONTEXT_OK.sequence",
+      "planned_alias": "TEST-092::under-lock::A_reservation.REVIEW_CONTEXT_OK.sequence",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_reservation.REVIEW_CONTEXT_OK.previous_record_sha256",
+      "planned_alias": "TEST-092::under-lock::A_reservation.REVIEW_CONTEXT_OK.previous_record_sha256",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_reservation.REVIEW_CONTEXT_OK.pre_append_tip_sequence",
+      "planned_alias": "TEST-092::under-lock::A_reservation.REVIEW_CONTEXT_OK.pre_append_tip_sequence",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_reservation.REVIEW_CONTEXT_OK.identity_unique",
+      "planned_alias": "TEST-092::under-lock::A_reservation.REVIEW_CONTEXT_OK.identity_unique",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_host_receipt.review_execution_started",
+      "planned_alias": "TEST-092::under-lock::A_host_receipt.review_execution_started",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_host_receipt.host_session_id",
+      "planned_alias": "TEST-092::under-lock::A_host_receipt.host_session_id",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_raw.verdict",
+      "planned_alias": "TEST-092::under-lock::A_raw.verdict",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "A_raw.allowed_input_manifest",
+      "planned_alias": "TEST-092::under-lock::A_raw.allowed_input_manifest",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_diagnostic_report.bytes",
+      "planned_alias": "TEST-092::under-lock::source_diagnostic_report.bytes",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "source_inventory.members",
+      "planned_alias": "TEST-092::under-lock::source_inventory.members",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    },
+    {
+      "field": "B_absence.invocations_and_reserved_bindings",
+      "planned_alias": "TEST-092::under-lock::B_absence.invocations_and_reserved_bindings",
+      "status": "not executed as this individual alias; not counted as race coverage"
+    }
+  ],
+  "actual_races": "13 unique referenced-file mutations plus latest-source,target,two-writer,ancestor-swap and actual publication-failure controls; see case-results.json"
+}

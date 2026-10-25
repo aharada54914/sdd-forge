@@ -5,7 +5,7 @@
 set -euo pipefail
 
 usage() {
-  echo "Usage: spec-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs | --edit-summary=<text> --reset]" >&2
+  echo "Usage: spec-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs | --edit-summary=<text> --reset | --recover-interrupted=<record>]" >&2
   exit 1
 }
 
@@ -27,12 +27,13 @@ is_sha256() { [[ "$1" =~ ^[0-9a-f]{64}$ ]]; }
 
 [[ $# -ge 3 ]] || usage
 feature="$1"; attempt="$2"; round="$3"; shift 3
-edit_summary=""; reset=false; verify_inputs=false
+edit_summary=""; reset=false; verify_inputs=false; recover_interrupted=""
 fixed_input_record=""; fixed_input_snapshot=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --edit-summary=*) edit_summary="${1#*=}" ;;
     --reset) reset=true ;;
+    --recover-interrupted=*) [[ -z "$recover_interrupted" && -n "${1#*=}" ]] || fail "duplicate or empty recovery option"; recover_interrupted="${1#*=}" ;;
     --verify-inputs) verify_inputs=true ;;
     --fixed-input-record) fixed_input_record="${2:?missing fixed record}"; shift ;;
     --fixed-input-snapshot) fixed_input_snapshot="${2:?missing fixed snapshot}"; shift ;;
@@ -48,11 +49,17 @@ done
 if [[ "$verify_inputs" == true && ( "$reset" == true || -n "$edit_summary" ) ]]; then
   fail "--verify-inputs cannot be combined with transition options"
 fi
+if [[ -n "$recover_interrupted" ]]; then
+  [[ "$reset" == false && "$verify_inputs" == false && -z "$edit_summary" && -z "$fixed_input_record$fixed_input_snapshot" ]] || fail "recovery cannot be combined with other transition options"
+  [[ "$attempt" -gt 1 && "$round" -eq 1 ]] || fail "recovery starts only attempt N+1 round 1"
+fi
 [[ -z "$edit_summary" || "$round" -gt 1 ]] || fail "--edit-summary is valid only after round 1"
 if [[ "$verify_inputs" == false && "$round" -gt 1 ]]; then
   [[ -n "${edit_summary//[[:space:]]/}" ]] || fail "rounds 2 and 3 require a non-empty --edit-summary"
 fi
 if [[ "$verify_inputs" == true ]]; then
+  :
+elif [[ -n "$recover_interrupted" ]]; then
   :
 elif [[ "$reset" == true ]]; then
   [[ "$attempt" -gt 1 && "$round" -eq 1 ]] || fail "--reset starts only attempt N+1 round 1"
@@ -624,20 +631,48 @@ if [[ "$reset" == true ]]; then
     || fail "previous terminal contract is invalid"
 fi
 
+# Recovery validates the existing immutable evidence, never reserves a reviewer.
+recovery_path=""; recovery_sha=""
+if [[ -n "$recover_interrupted" ]]; then
+  recovery_path="${recover_interrupted#"$repo_root/"}"
+  validate_interrupted_recovery "$recovery_path" || fail "interrupted recovery admission failed"
+  recovery_sha="$(sha256 "$repo_root/$recovery_path")"
+fi
+
 # Only after every pure validation succeeds may this script acquire a lock or
 # create an evidence path. mkdir makes concurrent writers fail deterministically.
+if [[ -n "$recovery_path" ]]; then
+  # Recovery's validated source already supplies these parents. Creating them
+  # before rechecking an exchanged ancestor could write outside the repository.
+  for ancestor in "$reports_root" "$reports_base" "$report_root"; do
+    [[ -d "$ancestor" && ! -L "$ancestor" && "$(canonical_dir "$ancestor")" == "$ancestor" ]] || fail "recovery report parent must remain a real contained directory"
+  done
+else
 mkdir -p "$reports_base"
 [[ ! -L "$reports_base" && "$(canonical_dir "$reports_base")" == "$reports_base" ]] || fail "spec-review report base escapes reports root"
 mkdir -p "$report_root"
 [[ ! -L "$report_root" ]] || fail "report root must not be a symlink"
 [[ "$(canonical_dir "$report_root")" == "$report_root" ]] || fail "report root escapes report base"
+fi
 lock_dir="${report_root}/.spec-review.lock"
 if ! mkdir "$lock_dir" 2>/dev/null; then
   fail "another specification review transition holds the lock"
 fi
 trap 'rmdir "$lock_dir" 2>/dev/null || true' EXIT
-[[ ! -e "$report_dir" ]] || fail "round destination already exists (replay is forbidden)"
-mkdir -p "$report_dir"
+if [[ -n "$recovery_path" ]]; then
+  validate_interrupted_recovery "$recovery_path" || fail "interrupted recovery changed before locked publication"
+  [[ "$(sha256 "$repo_root/$recovery_path")" == "$recovery_sha" && "$(sha256 "$requirements")" == "$requirements_sha" && "$(sha256 "$acceptance")" == "$acceptance_sha" && "$(sha256 "$investigation")" == "$investigation_sha" && "$(sha256 "$calibration")" == "$calibration_sha" ]] || fail "recovery pins changed before locked publication"
+  for ancestor in "$reports_root" "$reports_base" "$report_root" "$(dirname "$report_dir")"; do
+    [[ ! -L "$ancestor" ]] || fail "recovery output ancestor is a symlink"
+    if [[ -e "$ancestor" ]]; then [[ -d "$ancestor" && "$(canonical_dir "$ancestor")" == "$ancestor" ]] || fail "recovery output ancestor escapes repository"; fi
+  done
+  [[ ! -e "$report_dir" && ! -L "$report_dir" ]] || fail "round destination already exists (replay is forbidden)"
+  mkdir -p "$(dirname "$report_dir")"
+  mkdir "$report_dir" || fail "round destination appeared during publication"
+else
+  [[ ! -e "$report_dir" ]] || fail "round destination already exists (replay is forbidden)"
+  mkdir -p "$report_dir"
+fi
 
 # Exercise the shared portable foundation against the canonical composite input
 # before persisting the gate-specific precheck evidence.
@@ -663,6 +698,8 @@ if [[ "$reset" == true && "$status" == "Passed" ]]; then
   if [[ -n "$investigation_sha" ]]; then input_sha="$(printf '%s:%s:%s' "$requirements_sha" "$acceptance_sha" "$investigation_sha" | sha256_stream)"; else input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | sha256_stream)"; fi
 fi
 
+precheck_output="${report_dir}/precheck-result.json"
+[[ -z "$recovery_path" ]] || precheck_output="${report_dir}/.precheck-result.json.pending"
 generated_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 investigation_json='null'
 [[ -n "$investigation_sha" ]] && investigation_json="\"$investigation_sha\""
@@ -671,8 +708,13 @@ jq -n \
   --argjson attempt "$attempt" --argjson round "$round" \
   --arg requirements_sha256 "$requirements_sha" --arg acceptance_sha256 "$acceptance_sha" --arg calibration_sha256 "$calibration_sha" --arg input_sha256 "$input_sha" \
   --arg status "$status" --arg edit_summary "$edit_summary" --arg generated_at "$generated_at" \
+  --arg recovery_path "$recovery_path" --arg recovery_sha "$recovery_sha" \
   --argjson reset "$reset" --argjson investigation_sha256 "$investigation_json" \
-  '{schema:$schema,stage:"spec",feature:$feature,attempt:$attempt,round:$round,spec_review_status_field:$status,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,investigation_sha256:$investigation_sha256,calibration_sha256:$calibration_sha256,input_sha256:$input_sha256,edit_summary:$edit_summary,reset:$reset,generated_at:$generated_at}' \
-  > "${report_dir}/precheck-result.json"
+  '{schema:$schema,stage:"spec",feature:$feature,attempt:$attempt,round:$round,spec_review_status_field:$status,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,investigation_sha256:$investigation_sha256,calibration_sha256:$calibration_sha256,input_sha256:$input_sha256,edit_summary:$edit_summary,reset:$reset,generated_at:$generated_at} + (if $recovery_path == "" then {} else {recovery:{record_path:$recovery_path,record_sha256:$recovery_sha}} end)' \
+  > "$precheck_output"
+if [[ -n "$recovery_path" ]]; then
+  : > "${report_dir}/spec-review-report.md"
+  mv "$precheck_output" "${report_dir}/precheck-result.json"
+fi
 
 echo "spec-review-precheck: complete. Output written to ${report_dir}/"

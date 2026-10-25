@@ -1,0 +1,10 @@
+{
+  "checkpoint": "aa54d2fc",
+  "preflight_report_commit": "c1ac9fc4",
+  "files": {
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "4032fa28afdfbc6a2af871d4c76b97313d831fb1e87aa7eed752633be3513474",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "e962f3f179e0e697ef6f645b7ab6eb082a06050f735ed24bf716b76e157bc42e",
+    "tests/spec-review-interrupted-recovery.tests.sh": "437b0988c747ef53195113768c14bd665adf18aae2b0ff3b5c33852faa351475",
+    "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d"
+  }
+}

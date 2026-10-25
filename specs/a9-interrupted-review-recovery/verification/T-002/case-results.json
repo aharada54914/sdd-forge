@@ -1,0 +1,1227 @@
+{
+  "criterion_disposition": "Exact separate T002 amendment approved and applied; formal rebinding separate",
+  "cases": [
+    {
+      "runtime": "bash",
+      "case": "TEST-001::full-cli-publication",
+      "result": "PASS",
+      "evidence_category": "observed missing recovery CLI Red\u2192Green",
+      "individual_red": true,
+      "original_not_run": false,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-096::success-preservation",
+      "result": "PASS",
+      "evidence_category": "observed missing recovery CLI Red\u2192Green",
+      "individual_red": true,
+      "original_not_run": false,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-002::dispatch",
+      "result": "PASS",
+      "evidence_category": "actual preimplementation baseline PASS + regression",
+      "individual_red": false,
+      "original_not_run": false,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-003::dispatch",
+      "result": "PASS",
+      "evidence_category": "actual preimplementation baseline PASS + regression",
+      "individual_red": false,
+      "original_not_run": false,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-004::dispatch",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": false,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-005::dispatch",
+      "result": "PASS",
+      "evidence_category": "actual preimplementation baseline PASS + regression",
+      "individual_red": false,
+      "original_not_run": false,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-006::dispatch",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": false,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-007::dispatch",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": false,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-006::record-filename-case::dispatch",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-084",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-085",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-087",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-089",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-090::file",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-090::dangling",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-086-P01",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-088-P01",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-086-P02",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-088-P02",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-086-P03",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-088-P03",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-086-P04",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-088-P04",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-086-P05",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-088-P05",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-086-P06",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-088-P06",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-086-P07",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-088-P07",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-086-P08",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-088-P08",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-086-P09",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-088-P09",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-086-P10",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-088-P10",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-086-P11",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-088-P11",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-086-P12",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-088-P12",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-086-P13",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-088-P13",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-086-P14",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-088-P14",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-092::acceptance",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-092::investigation",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-092::calibration",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-092::previous-contract",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-092::source-precheck",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-092::a-raw",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-092::a-reservation",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-092::a-host-receipt",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-092::diagnostic-report",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-092::a-invocation",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-092::requirements",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-092::record",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-092::authorization",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-093",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-094",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-091",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-087::ancestor-swap-no-external-write",
+      "result": "PASS",
+      "evidence_category": "observed ancestor creation race Red\u2192Green",
+      "individual_red": true,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log",
+      "actual_later_red": "ancestor-red-bash.log"
+    },
+    {
+      "runtime": "bash",
+      "case": "TEST-095",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-bash-v4.log",
+      "original_checkpoint": "checkpoint-red-bash.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-001::full-cli-publication",
+      "result": "PASS",
+      "evidence_category": "observed missing recovery CLI Red\u2192Green",
+      "individual_red": true,
+      "original_not_run": false,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-096::success-preservation",
+      "result": "PASS",
+      "evidence_category": "observed missing recovery CLI Red\u2192Green",
+      "individual_red": true,
+      "original_not_run": false,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-002::dispatch",
+      "result": "PASS",
+      "evidence_category": "actual preimplementation baseline PASS + regression",
+      "individual_red": false,
+      "original_not_run": false,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-003::dispatch",
+      "result": "PASS",
+      "evidence_category": "actual preimplementation baseline PASS + regression",
+      "individual_red": false,
+      "original_not_run": false,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-004::dispatch",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": false,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-005::dispatch",
+      "result": "PASS",
+      "evidence_category": "actual preimplementation baseline PASS + regression",
+      "individual_red": false,
+      "original_not_run": false,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-006::dispatch",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": false,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-007::dispatch",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": false,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-006::record-filename-case::dispatch",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-084",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-085",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-087",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-089",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-090::file",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-090::dangling",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-086-P01",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-088-P01",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-086-P02",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-088-P02",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-086-P03",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-088-P03",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-086-P04",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-088-P04",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-086-P05",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-088-P05",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-086-P06",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-088-P06",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-086-P07",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-088-P07",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-086-P08",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-088-P08",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-086-P09",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-088-P09",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-086-P10",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-088-P10",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-086-P11",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-088-P11",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-086-P12",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-088-P12",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-086-P13",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-088-P13",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-086-P14",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-088-P14",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-092::acceptance",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-092::investigation",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-092::calibration",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-092::previous-contract",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-092::source-precheck",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-092::a-raw",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-092::a-reservation",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-092::a-host-receipt",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-092::diagnostic-report",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-092::a-invocation",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-092::requirements",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-092::record",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-092::authorization",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-093",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-094",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-091",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-087::ancestor-swap-no-external-write",
+      "result": "PASS",
+      "evidence_category": "observed ancestor creation race Red\u2192Green",
+      "individual_red": true,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log",
+      "actual_later_red": "ancestor-red-powershell.log"
+    },
+    {
+      "runtime": "powershell",
+      "case": "TEST-095",
+      "result": "PASS",
+      "evidence_category": "new-route assertion; missing-entry control Red only; no individual Red",
+      "individual_red": false,
+      "original_not_run": true,
+      "evidence": "final-transition-powershell-v4.log",
+      "original_checkpoint": "checkpoint-red-powershell.log"
+    }
+  ]
+}

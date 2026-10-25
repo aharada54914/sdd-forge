@@ -1,0 +1,1 @@
+{"runtime": "powershell", "reverted_source": "aa54d2fc", "status": "PASS", "cases": [{"case": "recovery-remains-disabled", "exit": 1, "history_unchanged": true, "partial_quarantined": true}, {"case": "ordinary-reset-retains-terminal-contract-rule", "exit": 1, "history_unchanged": true, "partial_quarantined": true}], "live_recovery": false}

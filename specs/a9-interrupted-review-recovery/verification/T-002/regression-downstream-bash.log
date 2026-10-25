@@ -1,0 +1,3 @@
+ok: downstream prechecks reject bad predecessors and cycles before evidence, then preserve valid graph edges
+ok: impl --provenance-rereview re-binds a prior PASS, refuses without one, and treats the canonical gate as advisory
+ok: sealed predecessor contracts take their investigation.md pin from the contract, and refuse an ambiguous one

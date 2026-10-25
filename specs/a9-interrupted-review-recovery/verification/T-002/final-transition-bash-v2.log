@@ -1,0 +1,61 @@
+PASS bash TEST-001::full-cli-publication exit=0 spec-review-precheck: complete. Output written to /workspace/sdd-a9-recovery/specs/a9-interrupted-review-recovery/verification/T-002/transition-ypjc7kvk/valid/reports/spec-review/synthetic-a9-recovery/attempt-4/round-1/
+PASS bash TEST-096::success-preservation all original file hashes and ledger preserved
+PASS bash TEST-002::dispatch exit=1 ERROR: spec-review-precheck: a new attempt requires --reset
+PASS bash TEST-003::dispatch exit=1 ERROR: spec-review-precheck: reset requires a terminal PASS or BLOCKED contract
+PASS bash TEST-004::dispatch exit=1 ERROR: spec-review-precheck: recovery cannot be combined with other transition options
+PASS bash TEST-005::dispatch exit=1 Usage: spec-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs | --edit-summary=<text> --reset | --recover-interrupted=<record>]
+PASS bash TEST-006::dispatch exit=1 Usage: spec-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs | --edit-summary=<text> --reset | --recover-interrupted=<record>]
+PASS bash TEST-007::dispatch exit=1 ERROR: spec-review-precheck: duplicate or empty recovery option
+PASS bash TEST-006::record-filename-case::dispatch exit=1 ERROR: interrupted recovery: missing reference component
+ERROR: spec-review-precheck: interrupted recovery admission failed
+PASS bash TEST-084 exit=1 unchanged=True
+PASS bash TEST-085 exit=1 unchanged=True
+PASS bash TEST-087 exit=1 unchanged=True
+PASS bash TEST-089 exit=1 unchanged=True
+PASS bash TEST-090::file exit=1 unchanged=True
+PASS bash TEST-090::dangling exit=1 unchanged=True
+PASS bash TEST-086-P01 exit=1 unchanged=True
+PASS bash TEST-088-P01 exit=1 unchanged=True
+PASS bash TEST-086-P02 exit=1 unchanged=True
+PASS bash TEST-088-P02 exit=1 unchanged=True
+PASS bash TEST-086-P03 exit=1 unchanged=True
+PASS bash TEST-088-P03 exit=1 unchanged=True
+PASS bash TEST-086-P04 exit=1 unchanged=True
+PASS bash TEST-088-P04 exit=1 unchanged=True
+PASS bash TEST-086-P05 exit=1 unchanged=True
+PASS bash TEST-088-P05 exit=1 unchanged=True
+PASS bash TEST-086-P06 exit=1 unchanged=True
+PASS bash TEST-088-P06 exit=1 unchanged=True
+PASS bash TEST-086-P07 exit=1 unchanged=True
+PASS bash TEST-088-P07 exit=1 unchanged=True
+PASS bash TEST-086-P08 exit=1 unchanged=True
+PASS bash TEST-088-P08 exit=1 unchanged=True
+PASS bash TEST-086-P09 exit=1 unchanged=True
+PASS bash TEST-088-P09 exit=1 unchanged=True
+PASS bash TEST-086-P10 exit=1 unchanged=True
+PASS bash TEST-088-P10 exit=1 unchanged=True
+PASS bash TEST-086-P11 exit=1 unchanged=True
+PASS bash TEST-088-P11 exit=1 unchanged=True
+PASS bash TEST-086-P12 exit=1 unchanged=True
+PASS bash TEST-088-P12 exit=1 unchanged=True
+PASS bash TEST-086-P13 exit=1 unchanged=True
+PASS bash TEST-088-P13 exit=1 unchanged=True
+PASS bash TEST-086-P14 exit=1 unchanged=True
+PASS bash TEST-088-P14 exit=1 unchanged=True
+PASS bash TEST-092::acceptance barrier=True exit=1 ERROR: interrupted recovery: reference SHA256 mismatch
+ERROR: spec-review-precheck: interrupted recovery changed before locked publication
+PASS bash TEST-092::investigation barrier=True exit=1 ERROR: interrupted recovery: reference SHA256 mismatch
+ERROR: spec-review-precheck: interrupted recovery changed before locked publication
+PASS bash TEST-092::calibration barrier=True exit=1 ERROR: interrupted recovery: reference SHA256 mismatch
+ERROR: spec-review-precheck: interrupted recovery changed before locked publication
+PASS bash TEST-092::requirements barrier=True exit=1 ERROR: interrupted recovery: reference SHA256 mismatch
+ERROR: spec-review-precheck: interrupted recovery changed before locked publication
+PASS bash TEST-092::record barrier=True exit=1 ERROR: spec-review-precheck: recovery pins changed before locked publication
+PASS bash TEST-092::authorization barrier=True exit=1 ERROR: interrupted recovery: reference SHA256 mismatch
+ERROR: spec-review-precheck: interrupted recovery changed before locked publication
+PASS bash TEST-093 barrier=True exit=1 ERROR: interrupted recovery: source is not latest round
+ERROR: spec-review-precheck: interrupted recovery changed before locked publication
+PASS bash TEST-094 barrier=True exit=1 ERROR: spec-review-precheck: round destination already exists (replay is forbidden)
+PASS bash TEST-091 barriers=True exits=[0, 1]
+PASS bash TEST-095 exit=1 partial=True pending=True final=False preserved=True lock_removed=True rerun=1 reset=1
+TRANSITION_RESULT bash passed=53 failures=0

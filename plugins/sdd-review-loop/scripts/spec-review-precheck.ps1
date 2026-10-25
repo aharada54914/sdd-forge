@@ -1,4 +1,4 @@
-# Usage: spec-review-precheck.ps1 -Feature <slug> -Attempt <n> -Round <n> [-EditSummary <text>] [-Reset]
+# Usage: spec-review-precheck.ps1 -Feature <slug> -Attempt <n> -Round <n> [-EditSummary <text>] [-Reset] [-RecoverInterrupted <record>]
 # Full-parity PowerShell port of spec-review-precheck.sh (Issue #174,
 # epic-159-pillar-a2 T-004). Validates a specification-review transition
 # before any reviewer receives input or evidence is written. The
@@ -19,7 +19,8 @@ param(
   [switch]$Reset,
   [switch]$VerifyInputs,
   [string]$FixedInputRecord = '',
-  [string]$FixedInputSnapshot = ''
+  [string]$FixedInputSnapshot = '',
+  [Parameter(ValueFromRemainingArguments=$true, Position=4)][string[]]$AdditionalArguments
 )
 
 $ErrorActionPreference = 'Stop'
@@ -186,6 +187,16 @@ function Test-ChecksArrayValid([object]$Checks) {
 # --- Argument normalization (mirrors domain-review-precheck.ps1's argv loop,
 # which itself mirrors spec-review-precheck.sh's --edit-summary=/--reset
 # parsing loop at lines 23-30). ---
+$RecoverInterrupted = ''
+# Preserve exact spelling for this new option; normal named-parameter binding is
+# case-insensitive and would otherwise accept aliases/prefixes before validation.
+if ($AdditionalArguments.Count -gt 0) {
+  if ($AdditionalArguments.Count -eq 1 -and $AdditionalArguments[0] -cmatch '^--edit-summary=(.*)$' -and -not $EditSummary) {
+    $EditSummary = $Matches[1]
+  } elseif ($AdditionalArguments.Count -eq 2 -and $AdditionalArguments[0] -ceq '-RecoverInterrupted' -and -not [string]::IsNullOrEmpty($AdditionalArguments[1])) {
+    $RecoverInterrupted = $AdditionalArguments[1]
+  } else { Fail 'unknown, duplicate or mis-cased recovery option' }
+}
 if ($EditSummary -cmatch '^--edit-summary=(.*)$') { $EditSummary = $Matches[1] }
 if (Test-OrdinalEqual $EditSummary '--reset') { $EditSummary = ''; $Reset = $true }
 
@@ -196,12 +207,18 @@ $attemptInt = [int64]$Attempt
 $roundInt = [int64]$Round
 if ($roundInt -gt 3) { Fail 'round must be between 1 and 3' }
 if (-not ([string]::IsNullOrEmpty($EditSummary)) -and $roundInt -le 1) { Fail '--edit-summary is valid only after round 1' }
+if ($RecoverInterrupted) {
+  if ($Reset -or $VerifyInputs -or $EditSummary -or $FixedInputRecord -or $FixedInputSnapshot) { Fail 'recovery cannot be combined with other transition options' }
+  if ($attemptInt -le 1 -or $roundInt -ne 1) { Fail 'recovery starts only attempt N+1 round 1' }
+}
 if ($VerifyInputs -and ($EditSummary -or $Reset)) { Fail '-VerifyInputs cannot be combined with transition options' }
 if (-not $VerifyInputs -and $roundInt -gt 1) {
   if ([string]::IsNullOrEmpty(($EditSummary -replace '\s', ''))) { Fail 'rounds 2 and 3 require a non-empty --edit-summary' }
 }
 if ($VerifyInputs) {
   # Verify a persisted round without changing its inputs or evidence.
+} elseif ($RecoverInterrupted) {
+  # Explicit recovery has its own source predicate, never the reset verdict rule.
 } elseif ($Reset) {
   if (-not ($attemptInt -gt 1 -and $roundInt -eq 1)) { Fail '--reset starts only attempt N+1 round 1' }
 } else {
@@ -943,14 +960,28 @@ if ($Reset) {
   }
 }
 
+$recoveryPath = ''; $recoverySha = ''
+if ($RecoverInterrupted) {
+  $recoveryPath = Get-RecoveryRelative $RecoverInterrupted
+  if (-not (Test-InterruptedRecovery $recoveryPath)) { Fail 'interrupted recovery admission failed' }
+  $recoverySha = Get-Sha256File (Join-Path $root $recoveryPath)
+}
+
 # Only after every pure validation succeeds may this script acquire a lock or
 # create an evidence path. New-Item -ErrorAction Stop on the lock directory
 # makes concurrent writers fail deterministically.
+if ($recoveryPath) {
+  # Recovery uses existing source parents, never creates them through a changed ancestor.
+  foreach ($ancestor in @($reportsRoot,$reportsBase,$reportRoot)) {
+    if (-not (Test-RealDirectory $ancestor) -or (Get-CanonicalDir $ancestor) -cne $ancestor) { Fail 'recovery report parent must remain a real contained directory' }
+  }
+} else {
 New-Item -ItemType Directory -Path $reportsBase -Force | Out-Null
 if ((Test-IsSymlink $reportsBase) -or -not (Test-OrdinalEqual (Get-CanonicalDir $reportsBase) $reportsBase)) { Fail 'spec-review report base escapes reports root' }
 New-Item -ItemType Directory -Path $reportRoot -Force | Out-Null
 if (Test-IsSymlink $reportRoot) { Fail 'report root must not be a symlink' }
 if (-not (Test-OrdinalEqual (Get-CanonicalDir $reportRoot) $reportRoot)) { Fail 'report root escapes report base' }
+}
 $lockDir = Join-Path $reportRoot '.spec-review.lock'
 try {
   New-Item -ItemType Directory -Path $lockDir -ErrorAction Stop | Out-Null
@@ -958,8 +989,22 @@ try {
   Fail 'another specification review transition holds the lock'
 }
 try {
-  if (Test-Path -LiteralPath $reportDir) { Fail 'round destination already exists (replay is forbidden)' }
-  New-Item -ItemType Directory -Path $reportDir -Force | Out-Null
+  if ($recoveryPath) {
+    if (-not (Test-InterruptedRecovery $recoveryPath)) { Fail 'interrupted recovery changed before locked publication' }
+    if ((Get-Sha256File (Join-Path $root $recoveryPath)) -cne $recoverySha -or (Get-Sha256File $requirements) -cne $requirementsSha -or (Get-Sha256File $acceptance) -cne $acceptanceSha -or (Get-Sha256File $investigation) -cne $investigationSha -or (Get-Sha256File $calibration) -cne $calibrationSha) { Fail 'recovery pins changed before locked publication' }
+    foreach ($ancestor in @($reportsRoot,$reportsBase,$reportRoot,(Split-Path -Parent $reportDir))) {
+      if (Test-IsSymlink $ancestor) { Fail 'recovery output ancestor is a symlink' }
+      if (Test-Path -LiteralPath $ancestor) {
+        if (-not (Test-RealDirectory $ancestor) -or (Get-CanonicalDir $ancestor) -cne $ancestor) { Fail 'recovery output ancestor escapes repository' }
+      }
+    }
+    if ((Test-Path -LiteralPath $reportDir) -or (Test-IsSymlink $reportDir)) { Fail 'round destination already exists (replay is forbidden)' }
+    New-Item -ItemType Directory -Path (Split-Path -Parent $reportDir) -Force | Out-Null
+    New-Item -ItemType Directory -Path $reportDir -ErrorAction Stop | Out-Null
+  } else {
+    if (Test-Path -LiteralPath $reportDir) { Fail 'round destination already exists (replay is forbidden)' }
+    New-Item -ItemType Directory -Path $reportDir -Force | Out-Null
+  }
 
   # Exercise the shared portable foundation against the canonical composite
   # input before persisting the gate-specific precheck evidence.
@@ -1017,7 +1062,16 @@ try {
     reset                     = [bool]$Reset
     generated_at              = $generatedAt
   }
-  $result | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $reportDir 'precheck-result.json') -Encoding utf8NoBOM
+  $precheckOutput = Join-Path $reportDir 'precheck-result.json'
+  if ($recoveryPath) {
+    $result.recovery = [ordered]@{record_path=$recoveryPath;record_sha256=$recoverySha}
+    $precheckOutput = Join-Path $reportDir '.precheck-result.json.pending'
+  }
+  $result | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $precheckOutput -Encoding utf8NoBOM
+  if ($recoveryPath) {
+    [IO.File]::WriteAllText((Join-Path $reportDir 'spec-review-report.md'), '')
+    [IO.File]::Move($precheckOutput,(Join-Path $reportDir 'precheck-result.json'))
+  }
 
   Write-Output "spec-review-precheck: complete. Output written to $reportDir/"
 } finally {
