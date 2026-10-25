@@ -390,7 +390,16 @@ $evolvedPaths = @(
     'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1',
     'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh'
 )
-$manifestOk = $invariantEvolutionOk
+# Exact reviewed A9 successors; helper verifies both bytes and mutation controls.
+$successorOutput = & python3 (Join-Path $repoRoot 'tests/lib/component-coverage-successors.py') $repoRoot
+$successorsOk = $LASTEXITCODE -eq 0
+$successorHashes = [System.Collections.Generic.Dictionary[string,string]]::new([System.StringComparer]::Ordinal)
+if ($successorsOk) {
+    foreach ($property in ($successorOutput | ConvertFrom-Json).PSObject.Properties) {
+        $successorHashes.Add($property.Name, [string]$property.Value)
+    }
+}
+$manifestOk = $invariantEvolutionOk -and $successorsOk
 $manifestChecked = 0
 $liveChecked = 0
 $tasksText = Get-Content -Raw -LiteralPath (Join-Path $repoRoot 'specs/epic-191-a3-path-ownership/tasks.md')
@@ -422,13 +431,13 @@ foreach ($line in (Get-Content -LiteralPath $hcManifest191)) {
     $pendingHumanApply = $declaredHumanApply -ccontains $relativePath -and -not $guardApplied
     $liveHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $livePath).Hash.ToLowerInvariant()
     if (-not $pendingHumanApply) {
-        if ($liveHash -cne $parts[0].Trim() -and -not ($invariantEvolutionOk -and $evolvedPaths -ccontains $relativePath)) { $manifestOk = $false }
+        if ($liveHash -cne $parts[0].Trim() -and -not ($invariantEvolutionOk -and $evolvedPaths -ccontains $relativePath) -and -not ($successorsOk -and $successorHashes.ContainsKey($relativePath) -and $liveHash -ceq $successorHashes[$relativePath])) { $manifestOk = $false }
         $liveChecked++
     }
     $manifestChecked++
 }
 if ($liveAddOk -and $manifestOk -and $manifestChecked -gt 0 -and $liveChecked -gt 0) {
-    Ok "TEST-036.4: T-004's live registrations remain applied; all $manifestChecked shared-manifest candidate hashes verify; and all $liveChecked live protected rows are byte-identical or verified additive invariant evolution"
+    Ok "TEST-036.4: T-004's live registrations remain applied; all $manifestChecked shared-manifest candidate hashes verify; and all $liveChecked live protected rows are byte-identical to archived/reviewed successor bindings or verified additive invariant evolution"
 } else {
     Fail "TEST-036.4: T-004 registration, staged-candidate integrity, or T-004-owned live byte identity failed (addOk=$liveAddOk manifestOk=$manifestOk candidates=$manifestChecked live=$liveChecked)"
 }
