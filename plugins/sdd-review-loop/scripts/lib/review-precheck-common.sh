@@ -95,9 +95,40 @@ persisted_adr_input_hash() {
 }
 
 
+persisted_conditional_inputs() {
+  local contract=$1 stage=$2 conditional_inputs='[]'
+  if [[ "$stage" == spec || "$stage" == impl || "$stage" == task ]] && jq -e --arg repo "${repo_root}/" --arg feature "$FEATURE" '
+    def relative_path:
+      if startswith($repo) then .[($repo | length):]
+      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md|domain/.+|design-system/(design-tokens\\.json|design-system\\.md|ui-patterns\\.md))$") | .tail) // .)
+      else . end;
+    any(.reviewers[]?.allowed_input_manifest[]?;
+      .path | relative_path | test("^(domain|design-system)/|^specs/" + $feature + "/(concept-test|research/)"))' "$contract" >/dev/null; then
+    local research_args=(--without-research)
+    if jq -e --arg feature "$FEATURE" '
+      any(.reviewers[]?.allowed_input_manifest[]?;
+        .path | test("(^|/)specs/" + $feature + "/research/"))' "$contract" >/dev/null; then research_args=(); fi
+    conditional_inputs=$(python3 "${repo_root}/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py" \
+      --root "$repo_root" --feature "$FEATURE" --stage "$stage" "${research_args[@]}") || fail "persisted conditional inputs cannot be resolved"
+    conditional_inputs=$(jq -ce --slurpfile contracts "$contract" --arg repo "${repo_root}/" '
+      def relative:
+        if startswith($repo) then .[($repo|length):]
+        elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md)$") | .tail) // .)
+        else . end;
+      . as $selected |
+      if all($contracts[0].reviewers[]; .allowed_input_manifest as $manifest |
+        all($selected.research_inputs[]; . as $pin |
+          [$manifest[]|select((.path|relative) == $pin.path)|.sha256] == [$pin.sha256]))
+      then .inputs else error("incomplete research manifest") end
+    ' <<<"$conditional_inputs") || fail "invalid conditional input selection"
+  fi
+  printf '%s\n' "$conditional_inputs"
+}
+
 # Current PASS only; historical NEEDS_WORK must not require current ADR hashes.
 persisted_adr_pass_paths() {
   local contract=$1 attempt=$2 round=$3 design_reviewed=$4 design_current=$5
+  local conditional_inputs=${6:-'[]'}
   local relative_root="reports/impl-review/${FEATURE}/attempt-${attempt}/round-${round}"
   local contract_relative="$relative_root/impl-review-contract.json"
   local precheck="$relative_root/precheck-result.json" design="specs/${FEATURE}/design.md"
@@ -120,14 +151,14 @@ persisted_adr_pass_paths() {
     persisted_adr_safe_file "$path" || fail "unsafe persisted ADR reviewer output"
   done
   precheck_hash=$(sha256 "$repo_root/$precheck") || fail "cannot hash ADR precheck"
-  recorded=$(jq -cne --arg feature "$FEATURE" --argjson attempt "$attempt" --argjson round "$round" \
+  recorded=$(jq -cne --argjson conditional_inputs "$conditional_inputs" --arg feature "$FEATURE" --argjson attempt "$attempt" --argjson round "$round" \
     --slurpfile contracts "$contract" --slurpfile prechecks "$repo_root/$precheck" \
     --slurpfile outputs_a "$repo_root/$reviewer_a" --slurpfile outputs_b "$repo_root/$reviewer_b" \
     --arg pc "$precheck" --arg pc_hash "$precheck_hash" --arg design "$design" --arg repo "${repo_root}/" '
     def digest: type == "string" and length == 64 and test("^[0-9a-f]{64}$");
     def relative_path:
       if startswith($repo) then .[($repo | length):]
-      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md)$") | .tail) // .)
       else . end;
     def adr_set:
       type == "array" and
@@ -135,9 +166,9 @@ persisted_adr_pass_paths() {
         (.path | type == "string" and test("^docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md$")) and
         (.sha256 | digest)) and
       ([.[].path] == ([.[].path] | sort | unique));
-    def normalized_manifest:
+    def normalized_manifest($p):
       map(.path as $raw | (.path | relative_path) as $relative |
-        if ($relative | startswith("docs/adr/")) and $raw != $relative then
+        if any($p.adr_inputs[]; .path == $relative) and $raw != $relative then
           error("ADR output path must be raw canonical relative")
         else {path:$relative,sha256:.sha256} end) | sort_by(.path);
     select(all([$contracts,$prechecks,$outputs_a,$outputs_b][];
@@ -163,7 +194,7 @@ persisted_adr_pass_paths() {
       ($o.run_id | type == "string" and length > 0) and $o.run_id == $r.run_id and
       ($o.host_session_id | type == "string" and length > 0) and $o.host_session_id == $r.host_session_id and
       ($o.allowed_input_manifest | type == "array") and
-      (($o.allowed_input_manifest | normalized_manifest) == ($r.allowed_input_manifest | normalized_manifest)))) |
+      (($o.allowed_input_manifest | normalized_manifest($p)) == ($r.allowed_input_manifest | normalized_manifest($p))))) |
     select(all($c.reviewers[];
       .allowed_input_manifest as $m |
       ([$m[] | select((.path | relative_path) == $pc) | .sha256] == [$pc_hash]) and
@@ -171,8 +202,9 @@ persisted_adr_pass_paths() {
         "requirements.md":$p.requirements_sha256,"acceptance-tests.md":$p.acceptance_sha256}) |
         to_entries | all(.[]; . as $pin |
           [$m[] | select((.path | relative_path) == ("specs/"+$feature+"/"+$pin.key)) | .sha256] == [$pin.value])) and
-      (([$m[] | select(.path | startswith("docs/adr/")) | {path:.path,sha256:.sha256}] |
-        sort_by(.path)) == $p.adr_inputs))) |
+      all($p.adr_inputs[]; . as $pin | [$m[]|select(.path == $pin.path)|{path,sha256}] == [$pin]) and
+      all($m[]|select(.path|relative_path|startswith("docs/adr/")); . as $entry | ($entry.path|relative_path) as $rel |
+        any(($p.adr_inputs + $conditional_inputs)[]; .path == $rel and .sha256 == $entry.sha256)))) |
     $p.adr_inputs | map({path:.path,sha256:.sha256})
   ') || fail "inconsistent ADR persisted bindings"
   bound_design=$(jq -er '.design_sha256' "$repo_root/$precheck") || fail "missing ADR design pin"
@@ -244,7 +276,7 @@ assert_contract_reviewer_agreement() {
     jq -r --arg role "$1" --arg path "$2" --arg repo "${repo_root}/" '
       def relative_path:
         if startswith($repo) then .[($repo | length):]
-        elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+        elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md)$") | .tail) // .)
         else . end;
       [.reviewers[]? | select(.role == $role) | .allowed_input_manifest[]?
        | select((.path | relative_path) == $path) | .sha256] | first // ""
@@ -309,22 +341,12 @@ require_persisted_pass() {
       .reviewer_a_run_id != .reviewer_b_run_id and .reviewer_a_host_session_id != .reviewer_b_host_session_id
      else .schema == "integrated-verdict/v1" and (.run_id | type == "string" and length > 0) end)' "$verdict" >/dev/null ||
     fail "persisted ${stage} verdict is not a complete PASS contract"
-  local conditional_inputs='[]'
-  if [[ "$stage" == spec || "$stage" == impl || "$stage" == task ]] && jq -e --arg repo "${repo_root}/" --arg feature "$FEATURE" '
-    def relative_path:
-      if startswith($repo) then .[($repo | length):]
-      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|domain/.+|design-system/(design-tokens\\.json|design-system\\.md|ui-patterns\\.md))$") | .tail) // .)
-      else . end;
-    any(.reviewers[]?.allowed_input_manifest[]?;
-      .path | relative_path | test("^(domain|design-system)/|^specs/" + $feature + "/(concept-test|research/)"))' "$contract" >/dev/null; then
-    conditional_inputs=$(python3 "${repo_root}/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py" \
-      --root "$repo_root" --feature "$FEATURE" --stage "$stage") || fail "persisted conditional inputs cannot be resolved"
-    conditional_inputs=$(jq -ce '.inputs' <<<"$conditional_inputs") || fail "invalid conditional input selection"
-  fi
+  local conditional_inputs
+  conditional_inputs=$(persisted_conditional_inputs "$contract" "$stage") || fail "persisted conditional input validation failed"
   local verified_adr_paths='[]'
   if [[ "$stage" == "impl" ]]; then
     verified_adr_paths=$(persisted_adr_pass_paths "$contract" "$stored_attempt" "$stored_round" \
-      "$design_hash" "$design_current_hash") || fail "persisted ADR validation failed"
+      "$design_hash" "$design_current_hash" "$conditional_inputs") || fail "persisted ADR validation failed"
   fi
   jq -e --arg feature "$FEATURE" --arg stage "$stage" --arg req "$requirements_hash" --arg req_current "$requirements_current_hash" \
     --arg accept "$acceptance_hash" --arg design "$design_hash" --arg design_current "$design_current_hash" \
@@ -335,7 +357,7 @@ require_persisted_pass() {
     # anchors so evidence stays verifiable from any checkout (issue #61).
     def relative_path:
       if startswith($repo) then .[($repo | length):]
-      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|domain/.+|design-system/(design-tokens\\.json|design-system\\.md|ui-patterns\\.md))$") | .tail) // .)
+      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md|domain/.+|design-system/(design-tokens\\.json|design-system\\.md|ui-patterns\\.md))$") | .tail) // .)
       else . end;
     def allowed_input($role; $path; $attempt; $round):
       ($stage + "-reviewer-a") as $role_a |
@@ -421,7 +443,7 @@ require_persisted_pass() {
       --arg hash_one "$hash_one" --arg hash_two "$hash_two" '
       def relative_path:
         if startswith($repo) then .[($repo | length):]
-        elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+        elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md)$") | .tail) // .)
         else . end;
       any(.reviewers[]?;
         .role == $role and
@@ -465,7 +487,7 @@ require_persisted_pass() {
   investigation_pin="$(jq -r --arg path "$investigation_path" --arg repo "${repo_root}/" '
     def relative_path:
       if startswith($repo) then .[($repo | length):]
-      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md)$") | .tail) // .)
       else . end;
     [.reviewers[]?.allowed_input_manifest[]? | select((.path | relative_path) == $path) | .sha256] |
     unique |

@@ -192,10 +192,22 @@ workflow_adr_history_bindings() {
       then error("one-sided ADR extension")
     else .[0]|has("adr_inputs") end
   ' "$contract" "$pair_file") || diagnostic "$feature" stage-provenance "ADR extension pairing is invalid"
+  recorded_root=$(recorded_repo_root "$contract") || diagnostic "$feature" stage-provenance "ADR recorded root cannot be read"
+  [[ "$recorded_root" != __INVALID__ ]] || diagnostic "$feature" stage-provenance "ADR recorded root is ambiguous"
+  local conditional_paths
+  conditional_paths=$(workflow_conditional_paths "$contract" "$feature" impl "$recorded_root") ||
+    diagnostic "$feature" stage-provenance "ADR conditional input resolution failed"
   if [[ "$present" == false ]]; then
-    jq -se '
+    jq -se --argjson conditional_paths "$conditional_paths" --arg repo "$REPO_ROOT/" \
+      --arg alias "$REPO_ROOT_ALIAS/" --arg recorded "${recorded_root:+$recorded_root/}" '
+      def relative:
+        gsub("\\\\"; "/") |
+        if startswith($repo) then .[($repo|length):]
+        elif startswith($alias) then .[($alias|length):]
+        elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
+        else . end;
       all(.[]; all(..|objects|select(has("path"))|.path;
-        type == "string" and (gsub("\\\\";"/")|test("(^|/)docs/adr/";"i")|not)))
+        type == "string" and ((. | relative) as $path | (gsub("\\\\";"/")|test("(^|/)docs/adr/";"i")|not) or any($conditional_paths[]; . == $path))))
     ' "$contract" "$snapshot_dir/reviewer-a.json" "$snapshot_dir/reviewer-b.json" >/dev/null ||
       diagnostic "$feature" stage-provenance "ADR input has no binding extension"
     adrs='[]'
@@ -215,11 +227,6 @@ workflow_adr_history_bindings() {
       diagnostic "$feature" stage-provenance "ADR previous summary cannot be hashed"
   fi
   hash=$(sha256_file "$precheck") || diagnostic "$feature" stage-provenance "ADR precheck hash failed"
-  recorded_root=$(recorded_repo_root "$contract") || diagnostic "$feature" stage-provenance "ADR recorded root cannot be read"
-  [[ "$recorded_root" != __INVALID__ ]] || diagnostic "$feature" stage-provenance "ADR recorded root is ambiguous"
-  local conditional_paths
-  conditional_paths=$(workflow_conditional_paths "$contract" "$feature" impl "$recorded_root") ||
-    diagnostic "$feature" stage-provenance "ADR conditional input resolution failed"
   adrs=$(jq -cse --arg feature "$feature" --arg stage impl \
     --argjson conditional_paths "$conditional_paths" \
     --argjson attempt "$attempt" --argjson round "$round" \
@@ -300,7 +307,8 @@ workflow_adr_history_bindings() {
         ($paths|length) == ($paths|unique|length)) and
       all($m[]; .path as $raw | ($raw|relative_path) as $rel |
         if ($raw|gsub("\\\\";"/")|test("(^|/)docs/adr/";"i"))
-        then any($p.adr_inputs[]; .path == $raw)
+        then (any($p.adr_inputs[]; .path == $raw) or
+          (all($p.adr_inputs[]; .path != $rel) and any($conditional_paths[]; . == $rel)))
         else allowed($role;$rel) end) and
       ([$m[]|select(.path == $pc)|.sha256] == [$pc_hash]) and
       ([$m[]|select(.path == $design)|.sha256] == [$p.design_sha256]) and
@@ -316,7 +324,7 @@ workflow_adr_history_bindings() {
       (if $role=="impl-reviewer-b" then
         ([$m[]|select((.path|relative_path) == ($pc|sub("precheck-result.json$";"integrated-summary.json")))|.sha256] == [$summary_hash])
        else true end) and
-      ([$m[]|select(.path|startswith("docs/adr/"))|{path,sha256}]|sort_by(.path)) == $p.adr_inputs;
+      all($p.adr_inputs[]; . as $pin | [$m[]|select(.path == $pin.path)|{path,sha256}] == [$pin]);
     def norm: map({path,sha256})|sort_by(.path);
     def superset($actual;$bound):
       ($actual|norm) as $a | ($bound|norm) as $b |
@@ -1085,11 +1093,32 @@ workflow_conditional_paths() {
       if startswith($repo) then .[($repo|length):]
       elif startswith($alias) then .[($alias|length):]
       elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
-      else . end | test("^(domain|design-system)/|^specs/" + $feature + "/concept-test"))
+      else . end | test("^(domain|design-system)/|^specs/" + $feature + "/(concept-test|research/)"))
   ' "$contract" >/dev/null; then printf '[]\n'; return; fi
+  local research_args=(--without-research)
+  if jq -e --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" --arg recorded "${recorded:+$recorded/}" --arg feature "$feature" '
+    any(.reviewers[].allowed_input_manifest[].path;
+      gsub("\\\\"; "/") |
+      if startswith($repo) then .[($repo|length):]
+      elif startswith($alias) then .[($alias|length):]
+      elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
+      else . end | startswith("specs/" + $feature + "/research/"))
+  ' "$contract" >/dev/null; then research_args=(); fi
   selected=$(python3 "$REPO_ROOT/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py" \
-    --root "$REPO_ROOT" --feature "$feature" --stage "$stage") || return 1
-  jq -ce '[.inputs[].path]' <<< "$selected"
+    --root "$REPO_ROOT" --feature "$feature" --stage "$stage" "${research_args[@]}") || return 1
+  jq -ce --slurpfile contracts "$contract" --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" --arg recorded "${recorded:+$recorded/}" '
+    def relative:
+      gsub("\\\\"; "/") |
+      if startswith($repo) then .[($repo|length):]
+      elif startswith($alias) then .[($alias|length):]
+      elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
+      else . end;
+    . as $selected |
+    if all($contracts[0].reviewers[]; .allowed_input_manifest as $manifest |
+      all($selected.research_inputs[]; . as $pin |
+        [$manifest[]|select((.path|relative) == $pin.path)|.sha256] == [$pin.sha256]))
+    then [.inputs[].path] else error("incomplete research manifest") end
+  ' <<< "$selected"
 }
 
 recorded_repo_root() {
@@ -1099,15 +1128,17 @@ recorded_repo_root() {
     def rooted: test("^(/|[A-Za-z]:/)");
     def canonical_suffix:
       test("^specs/[a-z0-9][a-z0-9-]*/[^/]+$") or
+      test("^specs/[a-z0-9][a-z0-9-]*/research/(records/research-evidence[.]json|relations[.]json|review-input[.]json)$") or
       test("^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$") or
       test("^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$") or
+      test("^docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md$") or
       test("^domain/[^/]+(/[^/]+)*$") or
       test("^design-system/(design-tokens[.]json|design-system[.]md|ui-patterns[.]md)$");
     [.reviewers[].allowed_input_manifest[].path |
       normalized |
       select(rooted and (startswith($repo) or startswith($alias) | not)) |
       . as $path |
-      ([(($path | indices("/specs/")), ($path | indices("/reports/")), ($path | indices("/plugins/")), ($path | indices("/domain/")), ($path | indices("/design-system/")))[] |
+      ([(($path | indices("/specs/")), ($path | indices("/reports/")), ($path | indices("/plugins/")), ($path | indices("/docs/")), ($path | indices("/domain/")), ($path | indices("/design-system/")))[] |
          . as $i | select($path[$i + 1:] | canonical_suffix) | $path[0:$i]]
         | unique) as $candidates |
       if ($candidates | length) == 1 then $candidates[0]

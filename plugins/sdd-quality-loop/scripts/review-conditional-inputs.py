@@ -47,11 +47,12 @@ def unique_object(pairs):
     return result
 
 
-def resolve(root, feature, stage, revision=None):
+def resolve(root, feature, stage, revision=None, *, include_research=True):
     root = Path(root).resolve(strict=True)
     if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', feature) or stage not in ('spec', 'impl', 'task', 'quality'):
         raise ValueError('unsupported feature or review stage')
     inputs = []
+    research_inputs = []
     observed = {}
     tree = {}
     if revision is not None:
@@ -95,12 +96,13 @@ def resolve(root, feature, stage, revision=None):
 
     # Research is explicit opt-in and stays bound to the same live/fixed source reader.
     research_packet = 'specs/' + feature + '/research/review-input.json'
-    if stage in ('spec', 'impl') and source(research_packet, True) is not None:
+    if include_research and stage in ('spec', 'impl') and source(research_packet, True) is not None:
         scripts = str(Path(__file__).resolve().parent)
         if scripts not in sys.path:
             sys.path.insert(0, scripts)
         from research_consumers import review_inputs
-        for entry in review_inputs(feature, source):
+        research_inputs = review_inputs(feature, source)
+        for entry in research_inputs:
             observe(entry['path'])
             if entry['path'] != 'specs/' + feature + '/requirements.md':
                 inputs.append(entry)
@@ -113,7 +115,7 @@ def resolve(root, feature, stage, revision=None):
     concept_required = isinstance(candidate, dict) and candidate.get('schema') == 'domain-contract/v2'
     if stage in ('task', 'quality'):
         if not concept_required and source('specs/' + feature + '/concept-test.json', True) is None:
-            return {'inputs': [], 'domain_status': 'skipped', 'design_system_status': 'not-applicable', 'observed': {}}
+            return {'inputs': [], 'research_inputs': [], 'domain_status': 'skipped', 'design_system_status': 'not-applicable', 'observed': {}}
     if stage == 'impl':
         admit('specs/' + feature + '/investigation.md', True)
     context = admit('domain/context-map.md', True)
@@ -180,7 +182,7 @@ def resolve(root, feature, stage, revision=None):
             ds_status = 'active'
             for name in ('design-tokens.json', 'design-system.md', 'ui-patterns.md'):
                 admit('design-system/' + name)
-    return {'inputs': inputs, 'domain_status': domain_status, 'design_system_status': ds_status,
+    return {'inputs': inputs, 'research_inputs': research_inputs, 'domain_status': domain_status, 'design_system_status': ds_status,
             'observed': observed}
 
 
@@ -190,9 +192,12 @@ def main():
     parser.add_argument('--feature', required=True)
     parser.add_argument('--stage', choices=('spec', 'impl', 'task', 'quality'), required=True)
     parser.add_argument('--revision')
+    parser.add_argument('--without-research', action='store_true',
+                        help='Historical manifests without research inputs only')
     args = parser.parse_args()
     try:
-        print(json.dumps(resolve(args.root, args.feature, args.stage, args.revision), sort_keys=True))
+        print(json.dumps(resolve(args.root, args.feature, args.stage, args.revision,
+                                 include_research=not args.without_research), sort_keys=True))
     except (OSError, ValueError, UnicodeError, subprocess.SubprocessError) as error:
         print('CONDITIONAL_INPUTS: ' + str(error), file=sys.stderr)
         return 1

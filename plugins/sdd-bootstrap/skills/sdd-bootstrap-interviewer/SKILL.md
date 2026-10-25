@@ -169,26 +169,6 @@ apply its documented `HEAD` default; never infer or omit `--config`,
   interview pass. Any later layer generation consumes the already captured
   result.
 
-### Optional research adoption
-
-When external claims inform an interview answer, use internal `research-sources`
-from this plugin. Keep code investigation under `INV-NNN` separate from canonical
-`SRC-NNN` / `CLM-NNN` research identities. Before adopting a claim, validate the
-canonical records and each selected source/claim revision with the commands in
-[research-workflow](../../references/research-workflow.md). Recheck original bytes
-and citation ranges through `check-source-evidence.py` when verification is
-required; a search snippet or a previously stored PASS cannot replace that run.
-
-Record adopted SRC/CLM IDs, exact record revisions and the relevant REQ/ADR
-relation pins in the answer's provenance. Inspect support, contradictions and
-meaning independently of string verification. Missing/stale revisions, unavailable
-originals, unverified meaning or conflicting support stay in `Open Questions`
-with an owner and resolution path; do not turn them into an asserted requirement
-or silently select a newer revision. Use the existing graph/impact and review-input
-binder to pass only validated metadata to the existing reviewers. Original/cache
-paths stay private. Optional research never grants approval, changes risk/track,
-or bypasses the ordinary interview and review handoffs.
-
 ### Full-Profile Layer Interview
 
 For non-LITE work, use `references/interview-question-bank.md` to cover product,
@@ -224,6 +204,26 @@ design catch-all.
   and continue. If supplied, follow `references/claude-design-workflow.md`;
   Mermaid remains canonical and the step remains manual and optional.
 - LITE excludes this section and produces no layer documents.
+
+### Optional research adoption
+
+When external claims inform an interview answer, use internal `research-sources`
+from this plugin. Keep code investigation under `INV-NNN` separate from canonical
+`SRC-NNN` / `CLM-NNN` research identities. Before adopting a claim, validate the
+canonical records and each selected source/claim revision with the commands in
+[research-workflow](../../references/research-workflow.md). Recheck original bytes
+and citation ranges through `check-source-evidence.py` when verification is
+required; a search snippet or a previously stored PASS cannot replace that run.
+
+Record adopted SRC/CLM IDs, exact record revisions and the relevant REQ/ADR
+relation pins in the answer's provenance. Inspect support, contradictions and
+meaning independently of string verification. Missing/stale revisions, unavailable
+originals, unverified meaning or conflicting support stay in `Open Questions`
+with an owner and resolution path; do not turn them into an asserted requirement
+or silently select a newer revision. Use the existing graph/impact and review-input
+binder to pass only validated metadata to the existing reviewers. Original/cache
+paths stay private. Optional research never grants approval, changes risk/track,
+or bypasses the ordinary interview and review handoffs.
 
 ## Architecture diagrams
 

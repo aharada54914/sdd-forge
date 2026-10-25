@@ -1,0 +1,15 @@
+{
+  "schema": "verification-input-hashes/v1",
+  "reusable": false,
+  "files": {
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md": "cb3fda6ae74ce8bc91e4c6fed0964083b99df39b31cdbf74cc9d135a9f6dd80b",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh": "bbb68365bff350ec5dc8d787d0cac27f19ca404feb098ad13f62d787891fc44d",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1": "eec57468d03c6f0924a77f0ae39485058bc5fd3ec7029722d6383e7e957f899a",
+    "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py": "e3c90bd4050baf0621432ab60c790dc3b9c4d75679383679e22424379d472bc3",
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.sh": "e6298a6d5b83a9f45f61074b44c29cb4b61e0c1eff508dbad6e4fc71f3706e50",
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1": "8a0f5be11457cac041b35d1e75f41862f9e6e8ec67f836451db55c3df1fa5efa",
+    "plugins/sdd-review-loop/scripts/task-review-precheck.ps1": "26bcefbc57b980d013f9ee351cf63d7d757a545ba426ea062f6821bec828e1a9",
+    "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh": "20331efdc1d100916f46ce6979f3af9bee714c7f31f73f123214205c8e8f7f19",
+    "tests/workflow-conditional-inputs.tests.py": "77a4a73b89ebd18440cd1e5a51ba49c397e3c9c7bb0b055446aedcdca6f6a51e"
+  }
+}

@@ -246,6 +246,7 @@ function Get-AdrPreviousRoundJson {
   }
   $layers = Get-AdrLayerJson $precheck.layer_sha256
   if ((Get-AdrLayerJson $Prior.layer_sha256) -cne $layers) { Fail 'previous ADR layer pins disagree' }
+  $conditionalInputs = @(Get-PersistedConditionalInputs $Prior 'impl' $FeatureName $RepoRoot)
   $reviewers = @($Prior.reviewers)
   if ($reviewers.Count -ne 2) { Fail 'previous ADR review requires two reviewers' }
   foreach ($role in @('impl-reviewer-a','impl-reviewer-b')) {
@@ -299,10 +300,13 @@ function Get-AdrPreviousRoundJson {
       foreach ($entry in $entries) {
         if ($entry.path -isnot [string]) { Fail 'invalid previous reviewer path type' }
         $relative = Get-ManifestRelativePath $entry.path $RepoRoot
-        if ($relative -is [string] -and $relative.StartsWith('docs/adr/', [StringComparison]::Ordinal) -and
+        if (@($precheck.adr_inputs | Where-Object { $_.path -ceq $relative }).Count -and
             $entry.path -cne $relative) { Fail 'previous ADR reviewer path must be raw canonical relative' }
-        if (-not $entry.path.StartsWith('docs/adr/', [StringComparison]::Ordinal)) { continue }
+        $relative = Get-ManifestRelativePath $entry.path $RepoRoot
+      if (-not $relative.StartsWith('docs/adr/', [StringComparison]::Ordinal)) { continue }
         if ($adrMap.ContainsKey($entry.path)) { Fail 'duplicate previous reviewer ADR entry' }
+        if (-not @($precheck.adr_inputs | Where-Object { $_.path -ceq $relative }).Count -and
+            @($conditionalInputs | Where-Object { $_.path -ceq $relative -and $_.sha256 -ceq $entry.sha256 }).Count) { continue }
         $adrMap.Add($entry.path, [pscustomobject]@{path=$entry.path;sha256=$entry.sha256})
       }
       if ((Get-AdrHistoryJson @($adrMap.Values)) -cne $recorded) { Fail 'incomplete previous reviewer ADR set' }
@@ -340,7 +344,7 @@ function Get-ManifestRelativePath([string]$Path, [string]$RepoRoot) {
     # checkout that generated them. Relativize against the known repository
     # anchors so evidence stays verifiable from any checkout (issue #61).
     $anchorMatch = [Text.RegularExpressions.Regex]::Match(
-      $normalizedPath, '^.*/(?<tail>(specs|reports|plugins)/.+|domain/.+|design-system/(design-tokens\.json|design-system\.md|ui-patterns\.md))$')
+      $normalizedPath, '^.*/(?<tail>(specs|reports|plugins)/.+|docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md|domain/.+|design-system/(design-tokens\.json|design-system\.md|ui-patterns\.md))$')
     if (-not $anchorMatch.Success) { return $null }
     $normalizedPath = $anchorMatch.Groups['tail'].Value
   }
@@ -381,9 +385,19 @@ function Get-PersistedConditionalInputs($Contract, [string]$Stage, [string]$Feat
   if ($Stage -cnotin @('spec', 'impl', 'task')) { return @() }
   $entries = @($Contract.reviewers | ForEach-Object { $_.allowed_input_manifest })
   if (-not @($entries | Where-Object { (Get-ManifestRelativePath ([string]$_.path) $RepoRoot) -cmatch ('^(domain|design-system)/|^specs/' + [Regex]::Escape($FeatureName) + '/(concept-test|research/)') }).Count) { return @() }
-  $raw = & python3 (Join-Path $RepoRoot 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py') --root $RepoRoot --feature $FeatureName --stage $Stage
+  $researchArgs = @('--without-research')
+  if (@($entries | Where-Object { ([string](Get-ManifestRelativePath ([string]$_.path) $RepoRoot)).StartsWith("specs/$FeatureName/research/", [StringComparison]::Ordinal) }).Count) { $researchArgs = @() }
+  $raw = & python3 (Join-Path $RepoRoot 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py') --root $RepoRoot --feature $FeatureName --stage $Stage @researchArgs
   if ($LASTEXITCODE -ne 0) { Fail 'persisted conditional inputs cannot be resolved' }
-  $selected = @(($raw | ConvertFrom-Json).inputs)
+  $resolved = $raw | ConvertFrom-Json
+  $selected = @($resolved.inputs)
+  foreach ($reviewer in $Contract.reviewers) {
+    foreach ($pin in @($resolved.research_inputs)) {
+      $matches = @($reviewer.allowed_input_manifest | Where-Object {
+        (Get-ManifestRelativePath $_.path $RepoRoot) -ceq $pin.path })
+      if ($matches.Count -ne 1 -or $matches[0].sha256 -cne $pin.sha256) { Fail 'incomplete research manifest' }
+    }
+  }
   foreach ($entry in $entries) {
     $relative = Get-ManifestRelativePath $entry.path $RepoRoot
     if ($relative -cmatch ('^(domain|design-system)/|^specs/' + [Regex]::Escape($FeatureName) + '/(concept-test|research/)')) {
