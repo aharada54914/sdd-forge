@@ -457,6 +457,10 @@
     {
       "feature": "verification-measurement",
       "profile": "full"
+    },
+    {
+      "feature": "project-skill-observation",
+      "profile": "full"
     }
   ]
 }
