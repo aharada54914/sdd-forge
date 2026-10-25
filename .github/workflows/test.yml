@@ -216,8 +216,8 @@ jobs:
         run: |
           # Runner home has named ACLs, which the shared-store adapter rejects.
           shared_store_parent=$(sudo mktemp -d /var/lib/sdd-research-test.XXXXXXXX)
-          sudo chown "$(id -u):$(id -g)" "$shared_store_parent"
           echo "SDD_TEST_SHARED_STORE_PARENT=$shared_store_parent" >> "$GITHUB_ENV"
+          sudo chown "$(id -u):$(id -g)" "$shared_store_parent"
       - name: Test shared review launch and conditional input contracts
         shell: bash
         run: |
@@ -226,7 +226,7 @@ jobs:
         if: always()
         shell: bash
         run: |
-          if [[ "${SDD_TEST_SHARED_STORE_PARENT:-}" == /var/lib/sdd-research-test.* ]]; then
+          if [[ "${SDD_TEST_SHARED_STORE_PARENT:-}" =~ ^/var/lib/sdd-research-test\.[A-Za-z0-9]{8}$ ]]; then
             sudo rm -rf -- "$SDD_TEST_SHARED_STORE_PARENT"
           fi
       - name: Bind Pester cache to actual PowerShell runtime
