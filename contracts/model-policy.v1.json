@@ -206,6 +206,11 @@
           "role": "task-reviewer-b",
           "path": "contracts/model-adoption/task-reviewer-medium-20261024.json",
           "sha256": "00dc6c8698d5fe5453e058671bbe6a03ed609a945b6b45428fec0bdf7299640a"
+        },
+        {
+          "role": "impl-reviewer-a",
+          "path": "contracts/model-adoption/impl-reviewer-a-medium-20261025.json",
+          "sha256": "af931cb994dd3063c8f9d4439199132145e7f54fd429f787aad9c854b457b39b"
         }
       ]
     },

@@ -931,6 +931,10 @@ class PolicySelection(unittest.TestCase):
             {'role': role, 'path': task_review_path, 'sha256': task_review_hash}
             for role in ('task-reviewer-a', 'task-reviewer-b')
         ]
+        impl_review_path = 'contracts/model-adoption/impl-reviewer-a-medium-20261025.json'
+        impl_review_hash = 'af931cb994dd3063c8f9d4439199132145e7f54fd429f787aad9c854b457b39b'
+        expected_adoptions['anthropic/sonnet'].append(
+            {'role': 'impl-reviewer-a', 'path': impl_review_path, 'sha256': impl_review_hash})
         for model in policy['models']:
             self.assertEqual(model['adoption'], expected_adoptions.get(model['id'], []),
                              'Adoption remains restricted to the actually approved roles')
@@ -970,6 +974,25 @@ class PolicySelection(unittest.TestCase):
             for evidence in bounded_adoption['evidence']:
                 self.assertEqual(hashlib.sha256((ROOT / evidence['path']).read_bytes()).hexdigest(),
                                  evidence['sha256'])
+        impl_bytes = (ROOT / impl_review_path).read_bytes()
+        self.assertEqual(hashlib.sha256(impl_bytes).hexdigest(), impl_review_hash)
+        impl_adoption = json.loads(impl_bytes)
+        self.assertEqual(impl_adoption['decision_status'], 'approved-for-impl-reviewer-a-only')
+        self.assertEqual(impl_adoption['proposed_role'], 'impl-reviewer-a')
+        self.assertEqual(impl_adoption['proposed_catalog_id'], 'anthropic/sonnet')
+        self.assertEqual(impl_adoption['proposed_effort'], 'medium')
+        self.assertEqual(impl_adoption['proposed_policy'], 'pinned')
+        self.assertEqual(impl_adoption['lifecycle_remains'], 'candidate')
+        human = impl_adoption['human_review']
+        self.assertIsInstance(human['decision'], str)
+        self.assertTrue(human['decision'].strip())
+        receipt_bytes = (ROOT / human['source']['path']).read_bytes()
+        self.assertEqual(hashlib.sha256(receipt_bytes).hexdigest(), human['source']['sha256'])
+        receipt = json.loads(receipt_bytes)
+        self.assertEqual(receipt['answer'], human['decision'])
+        self.assertEqual(receipt['approved_patch_sha256'], human['approved_patch_sha256'])
+        for ref in impl_adoption['evidence']:
+            self.assertEqual(hashlib.sha256((ROOT / ref['path']).read_bytes()).hexdigest(), ref['sha256'])
         task_bytes = (ROOT / task_review_path).read_bytes()
         self.assertEqual(hashlib.sha256(task_bytes).hexdigest(), task_review_hash)
         task_adoption = json.loads(task_bytes)

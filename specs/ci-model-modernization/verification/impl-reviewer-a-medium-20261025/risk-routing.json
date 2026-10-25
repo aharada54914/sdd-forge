@@ -1,0 +1,157 @@
+{
+  "source_commit": "fa196c92b0c421d466d05a99c8e629a174e676e7",
+  "source_pins": {
+    "tests/model-policy.tests.py": "4d96148f6a82b1fa9ac71456d26ef336410b80a44e22b7724e271118190ce5a2",
+    "plugins/sdd-implementation/scripts/model-policy.py": "dcbdfc81b5dc0f1dbe15791a0f9dd74cd7b1eb86c281b0ff25164ae06eb046e1",
+    "plugins/sdd-implementation/scripts/select-agent-model.sh": "344a5a8b8be620c2a033ef2c2d30b8bda673d7fda4d6cd39e5adf3e1afad35d1",
+    "plugins/sdd-implementation/scripts/select-agent-model.ps1": "4ebfacd53bc65151942f2f133c9c5158da8ce235d21c773aa1e662b1737357e8",
+    "contracts/agent-model-capabilities.v2.json": "334605e7ef37861c12af9143ce3418c9e4f3936cdec68857ebc887df3d31bed8"
+  },
+  "base_policy_sha256": "475b0997d469b2d3ebb32a35913d960f3436ff6c894dcff9f5d3fa3da451f9c6",
+  "cases": [
+    {
+      "role": "impl-reviewer-a",
+      "runtime": "bash",
+      "case": "high-medium",
+      "risk": "high",
+      "requested_effort": "medium",
+      "selector_options": [],
+      "expected": "selected",
+      "actual_exit_code": 0,
+      "stdout_sha256": "fbbad4253cae9d5ff2a69d3c012ee6bd9df71fb98b706170748a6c01a317a24b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "role": "impl-reviewer-a",
+      "runtime": "bash",
+      "case": "high-default-clamp",
+      "risk": "high",
+      "requested_effort": null,
+      "selector_options": [],
+      "expected": "selected",
+      "actual_exit_code": 0,
+      "stdout_sha256": "10924cde35c09ce5a5bcc5e9c531436df418e6c6fdc89870d21b27f7d49b31f0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "role": "impl-reviewer-a",
+      "runtime": "bash",
+      "case": "strong-caller-floor",
+      "risk": "high",
+      "requested_effort": "medium",
+      "selector_options": [
+        "--minimum-tier",
+        "strong"
+      ],
+      "expected": "model-tier-unavailable",
+      "actual_exit_code": 2,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "5e64a2e9999c34432bac4955d432d1995c363b2e201e4609ede800147842cfa6"
+    },
+    {
+      "role": "impl-reviewer-a",
+      "runtime": "bash",
+      "case": "unsupported-high-effort",
+      "risk": "high",
+      "requested_effort": "high",
+      "selector_options": [],
+      "expected": "effort-unavailable",
+      "actual_exit_code": 2,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "cf57568cb4a855733a4547f3cd343a2e94f19402f898fcb6419b06eac9844c62"
+    },
+    {
+      "role": "impl-reviewer-a",
+      "runtime": "bash",
+      "case": "standard-recurrence-escalation",
+      "risk": "high",
+      "requested_effort": "medium",
+      "selector_options": [
+        "--failure-history",
+        "review-major,review-major",
+        "--previous-tier",
+        "standard",
+        "--attempt-number",
+        "3"
+      ],
+      "expected": "model-tier-unavailable",
+      "actual_exit_code": 2,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "5e64a2e9999c34432bac4955d432d1995c363b2e201e4609ede800147842cfa6"
+    },
+    {
+      "role": "impl-reviewer-a",
+      "runtime": "powershell",
+      "case": "high-medium",
+      "risk": "high",
+      "requested_effort": "medium",
+      "selector_options": [],
+      "expected": "selected",
+      "actual_exit_code": 0,
+      "stdout_sha256": "5cc132247715de2d3feb0dee0ebd48e52889344ff15c9c3edc5e9ad013695922",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "role": "impl-reviewer-a",
+      "runtime": "powershell",
+      "case": "high-default-clamp",
+      "risk": "high",
+      "requested_effort": null,
+      "selector_options": [],
+      "expected": "selected",
+      "actual_exit_code": 0,
+      "stdout_sha256": "07ce33e351f380e2530f09e71f9bf01fffcf7d0527c8389a276af116015da096",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "role": "impl-reviewer-a",
+      "runtime": "powershell",
+      "case": "strong-caller-floor",
+      "risk": "high",
+      "requested_effort": "medium",
+      "selector_options": [
+        "-MinimumTier",
+        "strong"
+      ],
+      "expected": "model-tier-unavailable",
+      "actual_exit_code": 2,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "d9eb622f2e68846d72014b77d0afe97d0ba46e844df6c1e1b4be7e3f84dbc9de"
+    },
+    {
+      "role": "impl-reviewer-a",
+      "runtime": "powershell",
+      "case": "unsupported-high-effort",
+      "risk": "high",
+      "requested_effort": "high",
+      "selector_options": [],
+      "expected": "effort-unavailable",
+      "actual_exit_code": 2,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "cf57568cb4a855733a4547f3cd343a2e94f19402f898fcb6419b06eac9844c62"
+    },
+    {
+      "role": "impl-reviewer-a",
+      "runtime": "powershell",
+      "case": "standard-recurrence-escalation",
+      "risk": "high",
+      "requested_effort": "medium",
+      "selector_options": [
+        "-FailureHistory",
+        "review-major,review-major",
+        "-PreviousTier",
+        "standard",
+        "-AttemptNumber",
+        "3"
+      ],
+      "expected": "model-tier-unavailable",
+      "actual_exit_code": 2,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "5e64a2e9999c34432bac4955d432d1995c363b2e201e4609ede800147842cfa6"
+    }
+  ],
+  "scope": "Existing test fixture and exact real Bash/PowerShell selectors. Conditional on a hash-valid impl adoption reference and synthetic availability. No human adoption, provider availability, protected launch or ledger proof.",
+  "all_expected_outcomes_observed": true,
+  "provider_calls": 0,
+  "risk_and_registry_lowered": false
+}

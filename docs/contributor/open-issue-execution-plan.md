@@ -102,19 +102,21 @@ have not been released or integrated into `main`.
   remain ordered dependents. Implementation approval excludes live historical
   recovery and A9 activation; actual recovery requires its original human
   approval/application provenance.
-- **Implementation-policy reviewer A has bounded qualifying evidence; B remains
+- **Implementation-policy reviewer A adoption is human-approved; B remains
   withheld.** Eight fixed Sonnet/medium calls completed with no retries; all eight
   output/execution contracts passed. A fresh separate-context source judgment
   accepted seven outputs: A passed four of four outputs and all 44 checks; B passed
   three of four and 43 of 44 checks. The B failure is an unsupported no-test-coverage
   assertion against planned TEST-003; its additional Major scope finding is valid
   and retained. The original joint HOLD report is preserved; the frozen promotion
-  rule permits a separate passing-role-only human decision. An A-only proposal is
-  prepared for human approval; no role is activated by these results. Evidence covers a small
+  rule permits a separate passing-role-only human decision. The user approved the A-only proposal on 2026-10-25 (JST); the integration
+  adds the genuine receipt and a pinned Sonnet/medium reference for A only, while
+  preserving the five existing role references and candidate lifecycle. Evidence covers a small
   nonlegacy CLI/full-profile workload without domain/design-system contracts in a
   later-lifecycle context. A9 is labelled `bugfix` and uses local Bash/PowerShell
-  tooling without a frontend; any proposed application mapping must be explicit
-  in the human adoption decision. Amendment binding, convergence, protected entry,
+  tooling without a frontend; the approved application scope explicitly includes that local non-fullstack
+  tooling surface, without claiming a bugfix-labelled benchmark was executed.
+  First-time/fullstack/legacy/domain/design-system targets remain excluded. Amendment binding, convergence, protected entry,
   actual A9 execution and first-time review remain separately unproved.
 - **Evaluator adoption is also on hold.** A separately versioned first-role
   Opus/high qualification completed four native calls and a fresh Work judgment

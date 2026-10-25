@@ -1,0 +1,118 @@
+{
+  "schema": "impl-role-public-collection/v1",
+  "configured": {
+    "catalog_id": "anthropic/sonnet",
+    "native_alias": "sonnet",
+    "effort": "medium"
+  },
+  "identity_scope": "Client-reported model labels/configured effort only; no backend/version or hidden effort attestation.",
+  "executed": 8,
+  "retries": 0,
+  "extra_probes": 0,
+  "contract_pass": 8,
+  "semantic_accept": 7,
+  "semantic_needs_work": 1,
+  "supported_checks": 87,
+  "unsupported_checks": 1,
+  "joint_campaign_decision": "HOLD (unchanged)",
+  "elapsed_seconds": 256.058,
+  "client_reported_cost_usd": 1.0488812,
+  "cells": [
+    {
+      "cell": "t01",
+      "role": "impl-reviewer-a",
+      "case": "a-gap",
+      "repetition": 1,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "tool_calls": 10,
+      "elapsed_seconds": 31.44,
+      "client_reported_cost_usd": 0.1324704,
+      "reported_message_model": "claude-sonnet-5-5",
+      "first_semantic_assessment": "ACCEPT"
+    },
+    {
+      "cell": "t02",
+      "role": "impl-reviewer-b",
+      "case": "clean",
+      "repetition": 1,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "tool_calls": 10,
+      "elapsed_seconds": 33.191,
+      "client_reported_cost_usd": 0.13140780000000002,
+      "reported_message_model": "claude-sonnet-5-5",
+      "first_semantic_assessment": "ACCEPT"
+    },
+    {
+      "cell": "t03",
+      "role": "impl-reviewer-a",
+      "case": "clean",
+      "repetition": 1,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "tool_calls": 11,
+      "elapsed_seconds": 32.558,
+      "client_reported_cost_usd": 0.1331325,
+      "reported_message_model": "claude-sonnet-5-5",
+      "first_semantic_assessment": "ACCEPT"
+    },
+    {
+      "cell": "t04",
+      "role": "impl-reviewer-b",
+      "case": "b-gap",
+      "repetition": 1,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "tool_calls": 10,
+      "elapsed_seconds": 34.704,
+      "client_reported_cost_usd": 0.13333879999999998,
+      "reported_message_model": "claude-sonnet-5-5",
+      "first_semantic_assessment": "NEEDS_WORK"
+    },
+    {
+      "cell": "t05",
+      "role": "impl-reviewer-b",
+      "case": "b-gap",
+      "repetition": 2,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "tool_calls": 10,
+      "elapsed_seconds": 32.853,
+      "client_reported_cost_usd": 0.1317783,
+      "reported_message_model": "claude-sonnet-5-5",
+      "first_semantic_assessment": "ACCEPT"
+    },
+    {
+      "cell": "t06",
+      "role": "impl-reviewer-a",
+      "case": "clean",
+      "repetition": 2,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "tool_calls": 10,
+      "elapsed_seconds": 31.52,
+      "client_reported_cost_usd": 0.13014969999999998,
+      "reported_message_model": "claude-sonnet-5-5",
+      "first_semantic_assessment": "ACCEPT"
+    },
+    {
+      "cell": "t07",
+      "role": "impl-reviewer-b",
+      "case": "clean",
+      "repetition": 2,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "tool_calls": 10,
+      "elapsed_seconds": 29.795,
+      "client_reported_cost_usd": 0.1283401,
+      "reported_message_model": "claude-sonnet-5-5",
+      "first_semantic_assessment": "ACCEPT"
+    },
+    {
+      "cell": "t08",
+      "role": "impl-reviewer-a",
+      "case": "a-gap",
+      "repetition": 2,
+      "status": "CONTRACT_PASS_SEMANTIC_PENDING",
+      "tool_calls": 10,
+      "elapsed_seconds": 29.997,
+      "client_reported_cost_usd": 0.1282636,
+      "reported_message_model": "claude-sonnet-5-5",
+      "first_semantic_assessment": "ACCEPT"
+    }
+  ]
+}
