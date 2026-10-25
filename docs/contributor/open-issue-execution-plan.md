@@ -1,5 +1,22 @@
 # Open issue dependency and execution plan
 
+## Development-session correction — 2026-10-25 (JST)
+
+The user explicitly clarified that this is development **of** sdd-forge, not a
+session governed by the plugin's own workflow. Product AGENTS/skill text,
+reviewer-model adoption, and internal Draft/Approved/Passed state are development
+artifacts, not prerequisites for implementing these Issues in this session.
+The earlier decision to stop implementation on those prerequisites was mistaken.
+Independent review and behavior-evaluation delegation is now explicitly allowed.
+Implementation proceeds directly against the Issue requirements and acceptance
+criteria, with independent code review and actual tests. Product-side authorization,
+trust boundaries, legacy compatibility and truthful evidence remain requirements;
+historical review/approval records are not fabricated or retroactively rewritten.
+
+The consolidation-only head `c5a02f06` passed hosted CI run `40164678505`.
+Subsequent implementation changes need their own checks. Real app evaluation for
+#624 remains pending by the user's explicit selection; its fixture work proceeds.
+
 ## Consolidation and branch cleanup — 2026-10-25 (JST)
 
 The current request authorizes work on all 33 open Issues and reuse/removal of
@@ -44,8 +61,9 @@ local and remote `work` ref, so this task uses `work-<timestamp>-<task>`.
   separately authenticated human-input/issuer boundary described in its host
   readiness report.
 
-No Issue has been closed by this consolidation. The independent-review/delegation
-question in the current chat is pending; no additional model evaluation was run.
+No Issue was closed by this consolidation. At that checkpoint no additional model
+evaluation had run; the development-session correction above supersedes the
+earlier delegation and implementation-blocking interpretation.
 The remaining Issue dependencies and original acceptance conditions below apply.
 
 ## Current status — 2026-10-25 (JST)

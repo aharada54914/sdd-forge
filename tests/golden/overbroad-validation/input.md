@@ -1,0 +1,1 @@
+Create plan.json with suites and limitations for this documentation-only typo correction. policy.json defines the required bounded checks. Do not schedule the unrelated exhaustive scan. Preserve all required checks.

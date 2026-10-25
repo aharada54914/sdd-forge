@@ -1092,7 +1092,9 @@
     {
       "path": "tests/human-copy-mirrors-classification.tests.py",
       "runtime": "python",
-      "excluded": "Focused mirror classification diagnostic; not registered by the previous runners."
+      "ci_jobs": [
+        "posix-regression"
+      ]
     },
     {
       "path": "tests/human-copy-runner-contract.tests.ps1",
@@ -2305,6 +2307,20 @@
       "ci_jobs": [
         "posix-regression"
       ]
+    },
+    {
+      "path": "tests/golden-eval.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
+      "path": "tests/self-improvement-pr-access.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
     }
   ],
   "profiles": {
@@ -2521,7 +2537,10 @@
       "tests/model-policy-launch.tests.py",
       "tests/model-policy-launch-platform.tests.py",
       "tests/model-policy-installed.tests.py",
-      "tests/repository-syntax.tests.py"
+      "tests/repository-syntax.tests.py",
+      "tests/golden-eval.tests.py",
+      "tests/human-copy-mirrors-classification.tests.py",
+      "tests/self-improvement-pr-access.tests.py"
     ],
     "local-powershell": [
       "tests/cloud-orchestration-contracts.tests.py",
@@ -2767,7 +2786,10 @@
       "tests/t001-evaluation-preparation.tests.py",
       "tests/model-policy-launch.tests.py",
       "tests/model-policy-installed.tests.py",
-      "tests/repository-syntax.tests.py"
+      "tests/repository-syntax.tests.py",
+      "tests/golden-eval.tests.py",
+      "tests/human-copy-mirrors-classification.tests.py",
+      "tests/self-improvement-pr-access.tests.py"
     ],
     "ci-a7-native": [
       "tests/golden-baseline-contract.tests.ps1",

@@ -45,3 +45,68 @@ tests/golden/
 スキャフォールドのみ。fixture は今後、実失敗（review ticket / BLOCKED /
 Regressed WFI）が発生するたびに 1 件ずつ追加する。retrospective の friction
 pattern が fixture 候補の供給源である。
+
+## Source-backed deterministic cases (#600/#601)
+
+Five reduced controls now live under this directory: `unrun-pass`,
+`wrong-routing`, `weak-cleanup`, `overbroad-validation`, and `stale-skill`.
+Each records its actual incident source in `origin.md`. A reduced control is not
+an exact historical replay or proof of the original cause. `case.json` is grader
+metadata and must stay outside candidate context. The tuning/held-out split is
+fixed there; do not tune prompts using held-out outcomes or relabel cases after
+seeing results. These cases are public, so they are held out from the local
+adjustment cycle, not claimed to be absent from model training.
+
+Prepare only natural input and project-shaped fixture files for an independently
+isolated executor (use neutral workspace names):
+
+```sh
+python3 tests/golden-eval.py prepare --case unrun-pass --output /tmp/project-cedar
+python3 tests/golden-eval.py grade --case unrun-pass --output /tmp/project-cedar
+```
+
+The grader checks actual output bytes/JSON and retained source files. A PASS
+claim, output symlink, changed source, extra output, missing cleanup or malformed
+JSON cannot substitute for the required artifacts. Every `grader.sh` uses this
+same grader. `tests/golden-eval.tests.py` checks valid and intentionally bad
+outputs, false completion, retained evidence, source changes and poisoned JSON.
+
+Collection is deliberately separate: no model call or containment claim follows
+from creating a temporary directory. Use an existing host executor with verified
+filesystem/tool isolation and an observed timeout/cancellation boundary. Keep
+rubric, origin, A/B mapping and experiment metadata out of its accessible input.
+The collector must enforce limits *before and during execution*; retrospective
+comparison cannot enforce an already-spent budget. Do not invoke a plain model
+CLI in these directories and call that a blind or contained experiment.
+
+The passive comparison interface is:
+
+```sh
+python3 tests/golden-eval.py compare --manifest experiment.json
+```
+
+`golden-comparison/v1` has `cases`, `repetitions` (initial value 3; 1–10),
+`timeout_seconds`, `total_seconds_limit`, `conditions` (`model`, `effort`, `host`,
+`tool_permissions`), `variants` (A/B each with `framework_revision`, `config_sha256`, `adapter_version`),
+`case_sha256`, `input_sha256`, and `runs`. Freeze these inputs
+before collection. `prepare` returns the case/input digests. Runs are ordered by
+case, then repetition, alternating A/B and B/A. Every run records `case`,
+`variant` (A/B), `repetition`, `status` (completed/failed/timeout/interrupted/not-run),
+`seconds`, identical `conditions` and `input_sha256`, boolean `safety_violation`
+and `required_regression`, and observed `tokens`/`cost` or null with explicit
+`tokens_unavailable_reason`/`cost_unavailable_reason`. Every attempted run must pin an independently collected nonempty tool log via
+relative `trace` and `trace_sha256`; not-run cells carry no execution claim.
+Completed runs additionally name a relative `output` directory and its `output_sha256` from `snapshot()`.
+Retain all failed, interrupted and unrun cells; omission and duplicate trials
+are errors. The externally supplied observations are not independently
+authenticated and are never product gate evidence.
+
+The result preserves trial artifacts and checks, n/k, all-success, median/range,
+null p95 for the small fixed sample, unknown metrics and the split. Any observed safety/required-check regression or exceeded budget fails
+`mechanical_criteria_satisfied`. `adoption_eligible` is always false until
+collection authenticity, actual tool traces and independent safety observations
+are reviewed outside this passive helper. `adoption_decision` always stays
+`pending-human`; this tool does not approve or change task state. Freeze the result before revealing the A/B identities. Human
+UX judgments and real-app evaluation remain separate and unperformed. No paid
+model, held-out native run, comparative superiority, or retention success has
+been demonstrated by the deterministic suite.

@@ -1,5 +1,26 @@
 # #616 host-input / issuer readiness
 
+## 2026-10-25 development correction
+
+The development session is not required to use the plugin's approval or reviewer
+adoption workflow. Those mechanisms are product behavior under development, not
+authorization gates on this repair. The missing issuer below is a runtime trust
+boundary, independent of those internal workflow states.
+
+The `sdd-sudo` skill now removes the exception that could be read as permitting
+agent token mutation after explicit invocation. Its quick start no longer claims
+that typing a command enables sudo on an unverified host. Critical second approval
+is explicitly retained. The fallback Python HMAC example now sends the exact
+five-field message without the extra newline introduced by a Bash here-string.
+
+Current checks found Codex CLI 0.159.2, no callable host attestation/issuer tool,
+and no human-prompt issuer registration in the bundled hook manifests. `claude`
+and `copilot` were not on PATH; the historical Claude binary path below no longer
+exists in this workspace. These observations do not prove that other installations
+lack such capabilities. No key/token was inspected or changed and no host support
+is claimed. Existing sudo mutation and static signature tests passed; actual
+enable/status/off, replay revocation and human-event provenance remain unverified.
+
 Read-only assessment on 2026-10-22, repository HEAD `8818e33e4ab283c00efcc79b23e2570d164aba21`, using local pstack-how. Scope: source tracing, existing CLI version/help, and public documentation retrieval. No inference/model calls, sudo enable/status/off, key/token/credential/ledger access, hook installation, native prompt-event replay, source edits or approvals.
 
 **Finding:** existing code verifies HMAC sudo tokens and blocks agent mutation; it does not implement the requested authenticated host-input issuer. Native prompt hooks are documented for the CLIs, but none of the inspected interfaces proves both human origin and isolation of issuance authority from an agent. No host can be marked #616 complete from this investigation.

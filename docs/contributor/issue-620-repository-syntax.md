@@ -1,5 +1,26 @@
 # Issue 620: repository JSON / YAML syntax check
 
+## 2026-10-25 selected PR credential preflight
+
+The workflow now checks the exact `SDD_SESSION_PR_TOKEN || github.token` credential
+before native installation or a model invocation. The read-only helper
+`.github/scripts/check-self-improvement-pr-access.py` lists at most one PR via the
+existing `gh` client, with a 30-second timeout. Authentication/access errors,
+timeouts and malformed responses fail the workflow early. Failure reporting uses
+fixed categories and never includes the token or remote response body. The missing
+PAT fallback and final audit-completion/recovery predicates are unchanged.
+
+This catches credentials that cannot even read PRs; a successful read does **not**
+prove PR write permission. It does not fix the repository token configuration or
+establish production recovery. A read-only fine-grained token may pass this probe
+and still fail the actual PR creation. Repository selection, expiry and required
+Pull requests write permission must be corrected through the credential owner,
+then an actual complete guarded run must succeed. No write probe or remote settings
+change is performed by this helper.
+
+Offline checks: `python3 tests/self-improvement-pr-access.tests.py` (10 tests)
+and the existing `tests/self-improvement-guard.tests.sh` (71 assertions) passed.
+
 The [failed weekly run](https://github.com/aharada54914/sdd-forge/actions/runs/39191099402)
 reported `status=partial` and `json_yaml=false`; the other four checks and its
 run/attempt/HEAD checks succeeded. That diagnostic identifies the failed check,

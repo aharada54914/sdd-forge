@@ -1,0 +1,27 @@
+{
+  "split": "held-out",
+  "origin": "docs/workflow-improvements/WFI-044-audit-cycle-2.md",
+  "files": {
+    "policy.json": {
+      "required": [
+        "markdown-links",
+        "placeholder-scan"
+      ],
+      "unrelated": [
+        "all-runtime-operator-scan"
+      ]
+    },
+    "change.txt": "Correct a spelling mistake in a contributor paragraph.\n"
+  },
+  "expected": {
+    "plan.json": {
+      "suites": [
+        "markdown-links",
+        "placeholder-scan"
+      ],
+      "limitations": [
+        "runtime behavior unchanged"
+      ]
+    }
+  }
+}

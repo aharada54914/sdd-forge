@@ -113,6 +113,17 @@ try {
             Fail "$label aggregate starts with UTF-8 BOM ($head)"
         } else { Ok "$label aggregate has no UTF-8 BOM ($head)" }
 
+        # Synthetic consumer negative, not a claim about which runtime wrote history.
+        $bomAggregate = Join-Path $verification 'synthetic-bom.json'
+        [System.IO.File]::WriteAllBytes($bomAggregate, ([byte[]]@(0xEF, 0xBB, 0xBF) + $bytes))
+        foreach ($negative in @(@('python', $python, @('-I', $pyConsumer, $bomAggregate)),
+                                @('node', $node, @($jsConsumer, $bomAggregate)))) {
+            if (-not $negative[1]) { continue }
+            $rejected = & $negative[1] @($negative[2]) 2>&1
+            if ($LASTEXITCODE -ne 0) { Ok "$label strict $($negative[0]) rejects synthetic BOM" }
+            else { Fail "$label strict $($negative[0]) accepted synthetic BOM" }
+        }
+
         $expected = '["' + $case.Result + '",["' + $modelEscaped + '","' + $modelEscaped + '"]]'
         foreach ($consumer in @(@('python', $python, @('-I', $pyConsumer, $aggregate)),
                                 @('node', $node, @($jsConsumer, $aggregate)))) {

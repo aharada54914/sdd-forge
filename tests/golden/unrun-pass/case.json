@@ -1,0 +1,23 @@
+{
+  "split": "tuning",
+  "origin": "docs/contributor/issue-620-repository-syntax.md",
+  "files": {
+    "audit.json": {
+      "status": "partial",
+      "checks": {
+        "json_yaml": false
+      },
+      "finding": "invalid JSON detected",
+      "cause": null
+    }
+  },
+  "expected": {
+    "assessment.json": {
+      "process_status": "incomplete",
+      "findings": [
+        "invalid JSON detected"
+      ],
+      "cause": "unknown"
+    }
+  }
+}

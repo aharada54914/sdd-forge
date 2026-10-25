@@ -1,0 +1,15 @@
+{
+  "split": "tuning",
+  "origin": "docs/workflow-improvements/WFI-043.md",
+  "files": {
+    "current/SKILL.md": "current branch second edit\n",
+    "pending/SKILL.md": "reviewed branch first edit\n",
+    "main/SKILL.md": "published main\n"
+  },
+  "expected": {
+    "assessment.json": {
+      "state": "ambiguous",
+      "action": "human-reconciliation"
+    }
+  }
+}

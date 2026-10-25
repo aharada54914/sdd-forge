@@ -99,6 +99,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Reject an unusable selected PR credential before spending a model run.
+      # Listing is read-only and does not prove that this token can create PRs.
+      - name: Preflight - verify session PR read access
+        id: pr_access
+        env:
+          GH_TOKEN: ${{ secrets.SDD_SESSION_PR_TOKEN || github.token }}
+        run: python3 -I -B .github/scripts/check-self-improvement-pr-access.py
+
       # 決定論的 PR 前ガードのベースライン(REQ-005 / AC-011, security-spec.md B2):
       # セッション起動前に既に open だった PR の head ref を記録し、後続ガードが
       # セッション自身が作成した PR だけを検査できるようにする。ここでの取得失敗は
@@ -320,6 +328,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PREFLIGHT_REASON: ${{ steps.preflight.outputs.failure_reason }}
+          PR_ACCESS_REASON: ${{ steps.pr_access.outputs.failure_reason }}
           CLAUDE_STEP_OUTCOME: ${{ steps.claude_session.outcome }}
           COMPLETION_STEP_OUTCOME: ${{ steps.audit_completion.outcome }}
           GUARD_STEP_OUTCOME: ${{ steps.enforce_guard.outcome }}
@@ -327,6 +336,8 @@ jobs:
         run: |
           if [ -n "$PREFLIGHT_REASON" ]; then
             reason="$PREFLIGHT_REASON"
+          elif [ -n "$PR_ACCESS_REASON" ]; then
+            reason="$PR_ACCESS_REASON"
           elif [ "$CLAUDE_STEP_OUTCOME" = failure ]; then
             reason="Claude self-improvement action step failed. The issue report omits execution payload; inspect the action's sanitized run log."
           elif [ "$COMPLETION_STEP_OUTCOME" = failure ]; then

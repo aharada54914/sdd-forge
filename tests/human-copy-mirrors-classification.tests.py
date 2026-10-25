@@ -247,6 +247,21 @@ def check_manifest_digest_independent() -> int:
     return 2
 
 
+def check_second_edit_is_read_only() -> int:
+    # WFI-043: after the first sync, a second live edit is ambiguous, not permission.
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        stage(root, "second-edit", OTHER, "first branch edit\n")
+        (root / OTHER).parent.mkdir(parents=True)
+        (root / OTHER).write_text("second branch edit\n", encoding="utf-8")
+        before = {str(p.relative_to(root)): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+        rows = list(MODULE.classify(str(root), MainMap({OTHER: sha("main bytes\n")})))
+        assert [r[0] for r in rows] == ["PENDING"], rows
+        after = {str(p.relative_to(root)): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+        assert after == before, "classification must not repair ambiguous historical bytes"
+    return 2
+
+
 def main() -> None:
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
@@ -261,6 +276,7 @@ def main() -> None:
     passed += check_pins_never_waive()
     passed += check_other_mirrors_unchanged()
     passed += check_manifest_digest_independent()
+    passed += check_second_edit_is_read_only()
     print(f"human-copy mirror classification regression: {passed} passed")
 
 

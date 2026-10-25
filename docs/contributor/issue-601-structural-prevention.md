@@ -48,3 +48,45 @@ The shared mirror classifier is already a successful deduplication boundary. Its
 Use the existing golden layout (`tests/golden/README.md:20`), presently documented as scaffold (`:43`). Supply these three classes as source-backed candidates within #600's five-case scope, with negative and legitimate-operation controls, origin references, grader mutations, and artifact/tool-trace assertions. #600 still owns tuning/held-out separation, concealed rubrics, matched model/configuration/budget, initial three repetitions and reporting n/k and time without causal overclaim. Deterministic fixtures must enter the existing catalog/CI profiles or an actual executed delegation; model runs stay opt-in. No held-out cases, graders, CI registration or behavior results were produced here.
 
 For every selected class, the future correction record should link observed symptom → exact source/runtime → reproduction and counterexample → hypothesis or confirmed cause → structural change → retention fixture. Reuse existing WFI sections and addenda; do not add a rulebook, rewrite frozen records, change WFI/task approvals, or claim these proposals are already enforced.
+
+## 2026-10-25 implementation addendum
+
+The development session implements these Issue requirements directly; the
+plugin's own workflow approval and model-adoption records are product data, not
+prerequisites for editing the plugin. Existing product approval/enforcement
+semantics remain unchanged.
+
+- C1: the focused mirror suite now explicitly recreates the WFI-043 second-edit
+  state and checks both `PENDING` classification and byte-for-byte no-write
+  behavior. All 33 focused assertions pass on Linux. This is safe refusal, not
+  an automatic resolution of the human ambiguity. The suite's catalog
+  registration is part of the integrating change.
+- C2: the already delegated encoding helper now prefixes a temporary copy with
+  EF BB BF and separately requires rejection by unchanged strict Python and
+  Node consumers. The original unprefixed producer controls still pass. Linux
+  PowerShell Core completed 25 assertions. This synthetic negative is not an
+  old-producer Red and does not establish historical origin or Windows Desktop
+  behavior. Windows PowerShell 5.1 `UTF8` writes a BOM; PowerShell 7 `utf8` does
+  not ([versioned runtime discussion](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_character_encoding)).
+- C3: `tests/golden/unrun-pass` preserves a finding while classifying incomplete
+  process evidence and an unknown cause. Its bad-artifact and fake-PASS controls
+  fail the grader. The comparison harness preserves failed/unrun/interrupted
+  cells and refuses omitted trials, stale inputs, changed artifacts and missing
+  metric observations; this does not authenticate an external collector's claims.
+
+The three classes are now represented in the five-case golden portfolio:
+C1 → `stale-skill`, C2 remains the existing cross-model encoding fixture,
+C3 → `unrun-pass`; the other golden cases cover documented routing, cleanup and
+an overbroad proposed scan. Exact runtime serialization remains a real producer/
+consumer test rather than an LLM's JSON explanation. Golden `origin.md` files
+link source records and distinguish reduced controls from exact historical
+reproduction. Nineteen offline harness tests pass, including bad-output controls.
+
+The two duplicate-validator candidates above remain deliberately unextracted:
+strict current-authoring validation, historical parsing and review admission
+have different trust responsibilities; Full and Lite approval policy likewise
+must remain distinct. Existing shared mirror classification is reused.
+No old reports, human-copy artifacts, task approvals or frozen specs were
+rewritten. Retention: **Not evaluated**. Actual model/held-out trials, human
+UX/adoption decisions and subsequent Horizon observations remain unperformed;
+fixture pass counts do not demonstrate a reduction in recurring mistakes.
