@@ -701,7 +701,9 @@ function Test-IsProtectedGateFile {
         return $false
     }
     foreach ($suffix in $ProtectedGateSuffixes) {
-        if ($normalized.EndsWith($suffix.ToLower())) { return $true }
+        $sl = $suffix.ToLower()
+        if (($sl.Contains("/") -and $normalized.EndsWith($sl)) -or
+            (-not $sl.Contains("/") -and ($normalized -eq $sl -or $normalized.EndsWith("/" + $sl)))) { return $true }
     }
     foreach ($suffix in $ProtectedGatePluginJsonSuffixes) {
         $sl = $suffix.ToLower()
@@ -1392,6 +1394,168 @@ function Test-CommandReferencesProtectedPath {
     return $false
 }
 
+function Test-DestructiveTargetIsProtected {
+    param([string]$Target)
+    $normalized = Normalize-PosixPath ($Target -replace "\\", "/")
+    $staging = ($normalized + '/') -match '(?:^|/)specs/[^/]+/human-copy/'
+    if ((-not $staging -and $normalized -match '(?:^|/)specs/[^/]+/decisions(?:/|$)') -or (Test-IsProtectedGateFile $normalized)) { return $true }
+    if ($normalized -match '[$`~]') { return $true }
+    $wildcard = [regex]::Match($normalized, '[*?\[]')
+    if ($wildcard.Success) {
+        $prefix = $normalized.Substring(0, $wildcard.Index)
+        $slash = $prefix.LastIndexOf('/')
+        $normalized = if ($slash -ge 0) { $prefix.Substring(0, $slash) } else { '.' }
+        if (-not $normalized) { $normalized = '/' }
+    }
+    $pending = New-Object System.Collections.Generic.Stack[string]
+    $pending.Push($normalized)
+    $seen = 0
+    try {
+        while ($pending.Count) {
+            $directory = $pending.Pop()
+            if (-not (Test-Path -LiteralPath $directory -PathType Container -ErrorAction Stop)) { continue }
+            foreach ($entry in Get-ChildItem -LiteralPath $directory -Force -ErrorAction Stop) {
+                $seen++
+                if ($seen -gt 10000) { return $true }
+                if (Test-IsProtectedGateFile $entry.FullName) { return $true }
+                if ($entry.PSIsContainer -and -not ($entry.Attributes -band [IO.FileAttributes]::ReparsePoint)) { $pending.Push($entry.FullName) }
+            }
+        }
+    } catch { return $true }
+    return $false
+}
+
+function Test-ShellDestructiveAncestorHits {
+    param([string]$Cmd, $Directories = @())
+    $parsed = Tokenize-ShellCommand $Cmd
+    if ($null -eq $parsed) { return $false }
+    $segments = New-Object System.Collections.Generic.List[object]
+    $words = New-Object System.Collections.Generic.List[string]
+    foreach ($token in $parsed.Tokens) {
+        if ($token[0] -eq 'sep') {
+            if ($words.Count) { $segments.Add($words.ToArray()); $words.Clear() }
+        } else { $words.Add($token[1]) }
+    }
+    if ($words.Count) { $segments.Add($words.ToArray()) }
+    $starts = @($Directories | Where-Object { $_ -is [string] -and $_ })
+    if (-not $starts.Count) { $starts = @((Get-Location).Path) }
+    foreach ($start in $starts) {
+        $current = [IO.Path]::GetFullPath($start)
+        $known = $true
+        foreach ($segment in $segments) {
+            $verb = Get-ShellTokenBasename $segment[0]
+            if ($ShellCdCmds -contains $verb) {
+                $state = Apply-CdTransition $current $known $segment
+                $current = $state.Dir; $known = $state.Known
+                continue
+            }
+            if ($verb -eq 'popd') { $known = $false; continue }
+            $at = 0; $commandDir = $current; $commandKnown = $known; $shellCwd = $true
+            while ($at -lt $segment.Count -and $segment[$at] -match '^[A-Za-z_][A-Za-z0-9_]*=') { $at++ }
+            while ($at -lt $segment.Count -and @('sudo','env','command','builtin') -contains (Get-ShellTokenBasename $segment[$at])) {
+                $wrapper = Get-ShellTokenBasename $segment[$at]
+                $shellCwd = $shellCwd -and @('command','builtin') -contains $wrapper; $at++
+                while ($at -lt $segment.Count -and ($segment[$at].StartsWith('-') -or $segment[$at] -match '^[A-Za-z_][A-Za-z0-9_]*=')) {
+                    $option = $segment[$at]
+                    if ($option -eq '--') { $at++; break }
+                    $inlineCwd = $null
+                    if (@('env','sudo') -contains $wrapper -and $option.StartsWith('--chdir=')) { $inlineCwd = $option.Substring(8) }
+                    elseif ($option.Length -gt 2 -and (($wrapper -eq 'env' -and $option.StartsWith('-C')) -or ($wrapper -eq 'sudo' -and $option.StartsWith('-D')))) { $inlineCwd = $option.Substring(2) }
+                    if ($null -ne $inlineCwd) {
+                        $state = Apply-CdTransition $commandDir $commandKnown @('cd', $inlineCwd)
+                        $commandDir = $state.Dir; $commandKnown = $state.Known
+                        $at++; continue
+                    }
+                    $takesValue = ($wrapper -eq 'env' -and @('-u','--unset','-C','--chdir') -ccontains $option) -or ($wrapper -eq 'sudo' -and @('-u','--user','-g','--group','-h','--host','-p','--prompt','-C','--close-from','-D','--chdir') -ccontains $option)
+                    if ($wrapper -eq 'command' -and @('-v','-V') -ccontains $option) { $at = $segment.Count; break }
+                    if ($takesValue -and $at + 1 -lt $segment.Count) {
+                        if ($option -ceq '--chdir' -or ($wrapper -eq 'env' -and $option -ceq '-C') -or ($wrapper -eq 'sudo' -and $option -ceq '-D')) {
+                            $state = Apply-CdTransition $commandDir $commandKnown @('cd', $segment[$at + 1])
+                            $commandDir = $state.Dir; $commandKnown = $state.Known
+                        }
+                        $at += 2
+                    } else { $at++ }
+                }
+            }
+            if ($at -ge $segment.Count) { continue }
+            $actual = Get-ShellTokenBasename $segment[$at]
+            if ($ShellCdCmds -contains $actual) {
+                if ($shellCwd) {
+                    $state = Apply-CdTransition $current $known $segment[$at..($segment.Count - 1)]
+                    $current = $state.Dir; $known = $state.Known
+                }
+                continue
+            }
+            if ($actual -eq 'popd') { if ($shellCwd) { $known = $false }; continue }
+            if ($actual -eq 'find') {
+                $remaining = @($segment | Select-Object -Skip ($at + 1))
+                $destructiveFind = $remaining -ccontains '-delete'
+                for ($j = 0; $j + 1 -lt $remaining.Count; $j++) {
+                    if (@('-exec','-execdir') -ccontains $remaining[$j] -and @('rm','rmdir','unlink','mv','remove-item','move-item') -contains (Get-ShellTokenBasename $remaining[$j + 1])) { $destructiveFind = $true }
+                }
+                if ($destructiveFind) {
+                    if ($remaining -ccontains '-L') { return $true }
+                    $roots = New-Object System.Collections.Generic.List[string]
+                    foreach ($item in $remaining) {
+                        if (@('-H','-P') -ccontains $item) { continue }
+                        if ($item.StartsWith('-') -or @('(','!') -contains $item) { break }
+                        $roots.Add($item)
+                    }
+                    if (-not $roots.Count) { $roots.Add('.') }
+                    foreach ($target in $roots) {
+                        if (-not $commandKnown -and -not [IO.Path]::IsPathRooted($target)) { return $true }
+                        $resolved = if ([IO.Path]::IsPathRooted($target)) { $target } else { [IO.Path]::Combine($commandDir, $target) }
+                        if (Test-DestructiveTargetIsProtected $resolved) { return $true }
+                    }
+                }
+                continue
+            }
+            if (@('git','git.exe') -contains $actual) {
+                $at++
+                while ($at -lt $segment.Count -and $segment[$at].StartsWith('-')) {
+                    $option = $segment[$at]
+                    if ($option.StartsWith('-C') -and $option.Length -gt 2) {
+                        $state = Apply-CdTransition $commandDir $commandKnown @('cd', $option.Substring(2))
+                        $commandDir = $state.Dir; $commandKnown = $state.Known
+                        $at++; continue
+                    }
+                    if (@('-C','-c','--work-tree','--git-dir') -ccontains $option -and $at + 1 -lt $segment.Count) {
+                        if (@('-C','--work-tree') -ccontains $option) {
+                            $state = Apply-CdTransition $commandDir $commandKnown @('cd', $segment[$at + 1])
+                            $commandDir = $state.Dir; $commandKnown = $state.Known
+                        }
+                        $at += 2
+                    } else {
+                        if ($option.StartsWith('--work-tree=')) {
+                            $state = Apply-CdTransition $commandDir $commandKnown @('cd', $option.Substring(12))
+                            $commandDir = $state.Dir; $commandKnown = $state.Known
+                        }
+                        $at++
+                    }
+                }
+            }
+            if ($at -ge $segment.Count -or @('rm','rmdir','unlink','mv','remove-item','move-item','ri','del','erase','rd','ren','rename','rename-item','mi') -notcontains (Get-ShellTokenBasename $segment[$at])) { continue }
+            $operands = $false
+            for ($i = $at + 1; $i -lt $segment.Count; $i++) {
+                $token = $segment[$i]
+                if ($token -eq '--' -and -not $operands) { $operands = $true; continue }
+                if (-not $operands -and $token.StartsWith('-')) {
+                    if ($token -notmatch '^-[A-Za-z][A-Za-z0-9]*:(.+)$') { continue }
+                    $token = $Matches[1]
+                }
+                $targets = @($token) + @($token.Split(','))
+                foreach ($target in $targets) {
+                    if (-not $target) { continue }
+                    if (-not $commandKnown -and -not [IO.Path]::IsPathRooted($target)) { return $true }
+                    $resolved = if ([IO.Path]::IsPathRooted($target)) { $target } else { [IO.Path]::Combine($commandDir, $target) }
+                    if (Test-DestructiveTargetIsProtected $resolved) { return $true }
+                }
+            }
+        }
+    }
+    return $false
+}
+
 function Test-ShellTargetsProtectedGateFile {
     # R-10: Deny shell commands that WRITE to protected gate files. Token-based
     # pre-filter (a protected path appears as a shell token or redirect target)
@@ -1406,6 +1570,7 @@ function Test-ShellTargetsProtectedGateFile {
     # REQ-002: cd/pushd-aware resolution catches protected writes that never spell
     # the full protected path literally. Read-only segments never hit, so this is
     # checked before the read-only short-circuit below.
+    if (Test-ShellDestructiveAncestorHits $Cmd $Directories) { return $true }
     if (Test-ShellCwdWriteHitsProtected $Cmd) { return $true }
     # WFI-048: a patch applier names its target inside the file it is given,
     # so neither the pre-filter nor the write vocabulary can decide it.

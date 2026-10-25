@@ -2411,6 +2411,11 @@ class SelectedPanelistLaunch(LaunchFixture):
             SDD_TEST_NATIVE_AUDIT=str(self.audit), SDD_PANELIST_TIMEOUT='5')
         (self.base / 'sudo-key.txt').write_text(self.KEY)
         shims = self.base / 'shims'
+        # Keep native model tools isolated while admitting the test's actual
+        # PowerShell installation (it need not live under /usr/bin).
+        pwsh = shutil.which('pwsh')
+        if pwsh:
+            (shims / 'pwsh').symlink_to(pwsh)
         self.environment['PATH'] = str(shims) + os.pathsep + '/usr/bin:/bin'
         self.environment['SDD_PANELIST_CODEX_CMD'] = str(shims / 'codex')
         self.install_native_stub(shims / 'codex')

@@ -2,7 +2,7 @@
   "_generated": {
     "source": "contracts/capability-registry.json",
     "schema_version": 1,
-    "sha256": "dfc1b948bb085d3c86f1f7958b9564c1cb6cf6240ce9d57551656fffc2f15c75",
+    "sha256": "c0b958d7767b6e078536748be7dbc8362ee60b6afb3c06c27b56f331d85e65a2",
     "notice": "This file is generated. Do not edit."
   },
   "gates": [
@@ -53,6 +53,12 @@
       "stage": "implementation",
       "blocking": true,
       "implementation_ref": "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py"
+    },
+    {
+      "id": "check-source-evidence",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-source-evidence.py"
     }
   ],
   "capability_gate_map": {

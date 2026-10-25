@@ -48,6 +48,12 @@
       "stage": "implementation",
       "blocking": true,
       "implementation_ref": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
+    },
+    {
+      "id": "check-source-evidence",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-source-evidence.py"
     }
   ],
   "capabilities": [

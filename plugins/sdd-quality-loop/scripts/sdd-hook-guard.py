@@ -1100,7 +1100,9 @@ def _is_protected_gate_file(file_path):
                 return True
         return False
     for suffix in _PROTECTED_GATE_SUFFIXES:
-        if normalized.endswith(suffix.lower()):
+        sl = suffix.lower()
+        if (normalized.endswith(sl) if "/" in sl else
+                normalized == sl or normalized.endswith("/" + sl)):
             return True
     for suffix in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES:
         sl = suffix.lower()
@@ -1750,6 +1752,171 @@ def _command_references_protected_path(cmd, directories=()):
     return False
 
 
+def _destructive_target_is_protected(target):
+    """Directory removal/move also mutates protected descendants. No symlink walk."""
+    normalized = os.path.normpath(target.replace("\\", "/")).replace("\\", "/")
+    staging = _HUMAN_COPY_STAGING_RE.search(normalized.lower() + "/")
+    if not staging and re.search(r"(?:^|/)specs/[^/]+/decisions(?:/|$)", normalized, re.I):
+        return True
+    if _is_protected_gate_file(normalized):
+        return True
+    # Expand no shell expressions. A literal directory prefix is conservatively
+    # checked for globs; dynamic destructive targets fail closed.
+    if any(c in normalized for c in "$`~"):
+        return True
+    wildcard = re.search(r"[*?\[]", normalized)
+    if wildcard:
+        normalized = os.path.dirname(normalized[:wildcard.start()] + "_") or "."
+    pending = [normalized]
+    seen = 0
+    try:
+        while pending:
+            directory = pending.pop()
+            try:
+                info = os.stat(directory)
+            except (FileNotFoundError, NotADirectoryError):
+                continue
+            if not stat.S_ISDIR(info.st_mode):
+                continue
+            with os.scandir(directory) as entries:
+                for entry in entries:
+                    seen += 1
+                    if seen > 10000:  # bounded inspection fails closed
+                        return True
+                    if _is_protected_gate_file(entry.path):
+                        return True
+                    if entry.is_dir(follow_symlinks=False):
+                        pending.append(entry.path)
+    except OSError:
+        return True
+    return False
+
+
+def _shell_destructive_ancestor_hits(cmd, directories=()):
+    tokens = _tokenize_shell_command(cmd)
+    if tokens is None:
+        return False
+    segments, words = [], []
+    for kind, text in tokens + [("sep", "")]:
+        if kind == "sep":
+            if words:
+                segments.append(words)
+                words = []
+        else:
+            words.append(text)
+    starts = [d for d in directories if isinstance(d, str) and d] or [os.getcwd()]
+    for start in starts:
+        current, known = os.path.abspath(start), True
+        for words in segments:
+            verb = _shell_token_basename(words[0])
+            if verb in _SHELL_CD_CMDS:
+                current, known = _apply_cd_transition(current, known, words)
+                continue
+            if verb == "popd":
+                known = False
+                continue
+            # Normalize assignments and ordinary wrappers before classifying the verb.
+            at = 0
+            command_dir, command_known = current, known
+            shell_cwd = True
+            while at < len(words) and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", words[at]):
+                at += 1
+            while at < len(words) and _shell_token_basename(words[at]) in ("sudo", "env", "command", "builtin"):
+                wrapper = _shell_token_basename(words[at])
+                shell_cwd = shell_cwd and wrapper in ("command", "builtin")
+                at += 1
+                while at < len(words) and (words[at].startswith("-") or re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", words[at])):
+                    option = words[at]
+                    if option == "--":
+                        at += 1
+                        break
+                    inline_cwd = (option.split("=", 1)[1] if wrapper in ("env", "sudo") and option.startswith("--chdir=") else
+                                  option[2:] if len(option) > 2 and ((wrapper == "env" and option.startswith("-C")) or (wrapper == "sudo" and option.startswith("-D"))) else None)
+                    if inline_cwd is not None:
+                        command_dir, command_known = _apply_cd_transition(command_dir, command_known, ["cd", inline_cwd])
+                        at += 1
+                        continue
+                    takes_value = ((wrapper == "env" and option in ("-u", "--unset", "-C", "--chdir")) or
+                                   (wrapper == "sudo" and option in ("-u", "--user", "-g", "--group", "-h", "--host", "-p", "--prompt", "-C", "--close-from", "-D", "--chdir")))
+                    if wrapper == "command" and option in ("-v", "-V"):
+                        at = len(words)
+                        break
+                    if takes_value and at + 1 < len(words):
+                        if option == "--chdir" or (wrapper == "env" and option == "-C") or (wrapper == "sudo" and option == "-D"):
+                            command_dir, command_known = _apply_cd_transition(command_dir, command_known, ["cd", words[at + 1]])
+                        at += 2
+                    else:
+                        at += 1
+            if at >= len(words):
+                continue
+            actual = _shell_token_basename(words[at])
+            if actual in _SHELL_CD_CMDS:
+                if shell_cwd:
+                    current, known = _apply_cd_transition(current, known, words[at:])
+                continue
+            if actual == "popd":
+                if shell_cwd:
+                    known = False
+                continue
+            if actual == "find":
+                remaining = words[at + 1:]
+                destructive_find = "-delete" in remaining or (any(x in ("-exec", "-execdir") and i + 1 < len(remaining) and _shell_token_basename(remaining[i + 1]) in ("rm", "rmdir", "unlink", "mv", "remove-item", "move-item") for i, x in enumerate(remaining)))
+                if destructive_find:
+                    if "-L" in remaining:
+                        return True  # following descendant symlinks cannot use the no-follow scan
+                    roots = []
+                    for item in remaining:
+                        if item in ("-H", "-P"):
+                            continue
+                        if item.startswith("-") or item in ("(", "!"):
+                            break
+                        roots.append(item)
+                    for target in roots or ["."]:
+                        if not command_known and not os.path.isabs(target):
+                            return True
+                        if _destructive_target_is_protected(target if os.path.isabs(target) else os.path.join(command_dir, target)):
+                            return True
+                continue
+            if actual in ("git", "git.exe"):
+                at += 1
+                while at < len(words) and words[at].startswith("-"):
+                    option = words[at]
+                    if option.startswith("-C") and len(option) > 2:
+                        command_dir, command_known = _apply_cd_transition(command_dir, command_known, ["cd", option[2:]])
+                        at += 1
+                        continue
+                    if option in ("-C", "-c", "--work-tree", "--git-dir") and at + 1 < len(words):
+                        if option in ("-C", "--work-tree"):
+                            command_dir, command_known = _apply_cd_transition(command_dir, command_known, ["cd", words[at + 1]])
+                        at += 2
+                    else:
+                        if option.startswith("--work-tree="):
+                            command_dir, command_known = _apply_cd_transition(command_dir, command_known, ["cd", option.split("=", 1)[1]])
+                        at += 1
+            if at >= len(words) or _shell_token_basename(words[at]) not in (
+                "rm", "rmdir", "unlink", "mv", "remove-item", "move-item", "ri", "del", "erase", "rd", "ren", "rename", "rename-item", "mi"):
+                continue
+            operands = False
+            for token in words[at + 1:]:
+                if token == "--" and not operands:
+                    operands = True
+                    continue
+                if not operands and token.startswith("-"):
+                    named = re.match(r"^-[A-Za-z][A-Za-z0-9]*:(.+)$", token, re.I)
+                    if not named:
+                        continue
+                    token = named.group(1)
+                for target in dict.fromkeys([token, *token.split(",")]):
+                    if not target:
+                        continue
+                    if not command_known and not os.path.isabs(target):
+                        return True
+                    resolved = target if os.path.isabs(target) else os.path.join(command_dir, target)
+                    if _destructive_target_is_protected(resolved):
+                        return True
+    return False
+
+
 def _shell_targets_protected_gate_file(cmd, directories=()):
     """R-10: Deny shell commands that WRITE to protected gate files.
     Uses a token-based pre-filter (a protected path appears as a shell token
@@ -1770,6 +1937,8 @@ def _shell_targets_protected_gate_file(cmd, directories=()):
     # REQ-002: cd/pushd-aware resolution catches protected writes that never
     # spell the full protected path literally. Read-only segments never hit,
     # so this is checked before the read-only short-circuit below.
+    if _shell_destructive_ancestor_hits(cmd, directories):
+        return True
     if _shell_cwd_write_hits_protected(cmd):
         return True
     # WFI-048: a patch applier names its target inside the file it is given,

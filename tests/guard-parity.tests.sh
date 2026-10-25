@@ -1083,6 +1083,113 @@ parity_check "wfi061 file tool exact target (deny)" 2 \
 # Shared reader grammar uses the actual Python/Node guard entrypoints.
 python3 "$REPO_ROOT/tests/guard-readonly-inputs.tests.py" --runtime python --runtime node
 
+for choice_name in decision-choice.json decision-choice.approval.json decision-choice.approved.json; do
+    parity_check "immutable choice file $choice_name (deny)" 2 \
+        "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"specs/pilot/decisions/choice-1/$choice_name\",\"content\":\"x\"}}"
+    parity_check "immutable choice shell $choice_name (deny)" 2 \
+        "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"rm specs/pilot/decisions/choice-1/$choice_name\"}}"
+done
+parity_check "choice lookalike remains ordinary data" 0 \
+    '{"tool_name":"write","tool_input":{"file_path":"notes/my-decision-choice.json","content":"x"}}'
+
+# Directory removal and source moves must preserve immutable decision history.
+# Exercise native PowerShell too when available; this is the same actual-file corpus.
+python3 - "$REPO_ROOT" "$WORK" "${PWSH:-pwsh}" <<'PYHISTORY'
+import json, pathlib, shutil, subprocess, sys
+root, work = map(pathlib.Path, sys.argv[1:3])
+fixture = work / 'history ancestors'
+for name in ['specs/pilot/decisions/choice-1/decision-choice.json',
+             'archives/history/decision-choice.approval.json',
+             'specs/pilot/human-copy/decisions/choice-1/decision-choice.json',
+             '-backup/decision-choice.approval.json',
+             'comma,folder/decision-choice.approval.json',
+             'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1',
+             'ordinary/notes.txt']:
+    file = fixture / name
+    file.parent.mkdir(parents=True, exist_ok=True)
+    file.write_text('{}')
+(fixture / 'history-link').symlink_to(fixture / 'archives/history', target_is_directory=True)
+scripts = root / 'plugins/sdd-quality-loop/scripts'
+runtimes = [('python', [sys.executable, str(scripts / 'sdd-hook-guard.py')]),
+            ('node', ['node', str(scripts / 'sdd-hook-guard.js')])]
+ps = shutil.which(sys.argv[3])
+if ps:
+    runtimes.append(('powershell', [ps, '-NoProfile', '-File', str(scripts / 'sdd-hook-guard.ps1')]))
+else:
+    print('SKIP: native PowerShell ancestor corpus (runtime unavailable)')
+cases = [
+    ('option terminator', 'rm -rf -- -backup', 2),
+    ('absolute git executable', '/usr/bin/git rm -r archives', 2),
+    ('env option argument', 'env -u UNRELATED rm -rf archives', 2),
+    ('wrapped cwd builtin', 'command cd archives; rm -rf history', 2),
+    ('assignment prefix', 'X=1 rm -rf archives', 2),
+    ('PowerShell colon parameter', 'Remove-Item -LiteralPath:archives -Recurse', 2),
+    ('PowerShell array parameter', 'Remove-Item archives,ordinary -Recurse', 2),
+    ('git worktree option', 'git --work-tree=. rm -r archives', 2),
+    ('env cannot change shell cwd', 'env cd ordinary; rm -rf archives', 2),
+    ('wrapped readonly arguments', 'env -u UNRELATED echo rm archives', 0),
+    ('PowerShell ordinary colon', 'Remove-Item -LiteralPath:ordinary -Recurse', 0),
+    ('PowerShell ordinary array', 'Remove-Item ordinary,absent -Recurse', 0),
+    ('protected staging publisher', 'rm -rf specs/epic-136-phase2-gates/human-copy', 2),
+    ('find delete', 'find archives -delete', 2),
+    ('find direct destructive exec', 'find archives -exec rm -rf {} +', 2),
+    ('find read command argument', 'find archives -exec echo rm {} +', 0),
+    ('find read', 'find archives -print', 0),
+    ('find ordinary delete', 'find ordinary -delete', 0),
+    ('builtin cwd', 'builtin cd archives; rm -rf history', 2),
+    ('builtin command', 'builtin command rm -rf archives', 2),
+    ('command default path flag', 'command -p rm -rf archives', 2),
+    ('command introspection', 'command -v rm archives', 0),
+    ('sudo option value', 'sudo -u root rm -rf archives', 2),
+    ('sudo fd flag keeps cwd', 'sudo -C 3 rm -rf archives', 2),
+    ('env inline cwd', 'env --chdir=archives rm -rf history', 2),
+    ('git attached cwd', 'git -Carchives rm -r history', 2),
+    ('env attached cwd', 'env -Carchives rm -rf history', 2),
+    ('sudo inline cwd', 'sudo --chdir=archives rm -rf history', 2),
+    ('PowerShell rm colon alias', 'rm -LiteralPath:archives -Recurse', 2),
+    ('PowerShell rm array alias', 'rm archives,ordinary -Recurse', 2),
+    ('PowerShell mv colon alias', 'mv -Path:archives -Destination elsewhere', 2),
+    ('POSIX comma literal directory', 'rm -rf "comma,folder"', 2),
+    ('PowerShell LP parameter alias', 'Remove-Item -LP:archives -Recurse', 2),
+    ('PowerShell PSPath parameter alias', 'Move-Item -PSPath:archives elsewhere', 2),
+    ('namespace directory', 'rm -rf specs/unused/decisions/id', 2),
+    ('git directory removal', 'git rm -r archives', 2),
+    ('wrapped directory removal', 'env CHECK=1 rm -rf archives', 2),
+    ('rename source', 'Rename-Item archives/history renamed', 2),
+    ('git directory option', 'git -C archives rm -r history', 2),
+    ('git directory read', 'git -C archives status', 0),
+    ('unknown stack', 'popd && rm -rf history', 2),
+    ('unknown cwd', 'cd "$PLACE" && rm -rf history', 2),
+    ('dynamic operand', 'rm -rf "$PLACE"', 2),
+    ('decision parent', 'rm -rf specs/pilot/decisions', 2),
+    ('feature parent', 'rm -rf specs/pilot', 2),
+    ('specs parent', 'rm -rf specs', 2),
+    ('glob ancestor', 'rm -rf specs/*', 2),
+    ('symlink directory operand', 'rm -rf history-link', 2),
+    ('arbitrary history ancestor', 'rm -rf archives', 2),
+    ('tracked cwd', 'cd archives && rm -rf history', 2),
+    ('move ancestor source', 'mv archives/history elsewhere', 2),
+    ('move direct source', 'mv specs/pilot/decisions/choice-1/decision-choice.json elsewhere', 2),
+    ('PowerShell parent', 'Remove-Item -Recurse -LiteralPath archives/history', 2),
+    ('PowerShell move', 'Move-Item -LiteralPath archives/history -Destination elsewhere', 2),
+    ('absolute parent', 'rm -rf "' + str(fixture / 'archives') + '"', 2),
+    ('ordinary directory', 'rm -rf ordinary', 0),
+    ('lookalike namespace', 'rm -rf specs/pilot/decisions-not-history', 0),
+    ('read history', 'cat specs/pilot/decisions/choice-1/decision-choice.json', 0),
+    ('copy history source', 'cp -r archives/history elsewhere', 0),
+    ('wrapped read words', 'env echo rm archives', 0),
+    ('git read words', 'git show rm archives', 0),
+    ('read command words', 'echo rm archives', 0),
+    ('staging copy', 'rm -rf specs/pilot/human-copy', 0),
+]
+for label, command, expected in cases:
+    payload = json.dumps({'tool_name': 'bash', 'tool_input': {'command': command, 'cwd': str(fixture)}})
+    for name, argv in runtimes:
+        result = subprocess.run(argv, input=payload, text=True, capture_output=True, timeout=20)
+        assert result.returncode == expected, (label, name, result.returncode, expected, result.stdout, result.stderr)
+    print('ok: history ancestor parity:', label)
+PYHISTORY
+
 # ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------

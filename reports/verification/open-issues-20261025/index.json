@@ -1,0 +1,72 @@
+{
+  "scope": "Development regression evidence, not feature acceptance or reusable gate results",
+  "original_root": "/workspace/scratch/issue-resolution-20261025",
+  "logs": [
+    {
+      "log": "catalog-final.log",
+      "sha256": "f5826c9477fe2301ceb5de5c1cb214f179ce56d046ad9fe331c50de56027cbeb"
+    },
+    {
+      "log": "repository-final.log",
+      "sha256": "8448d5435551f7384e27f00fa97b711e5abc45d49b7f89765fb4cabf285e8d25"
+    },
+    {
+      "log": "workflow-final.log",
+      "sha256": "8ea982255942f7f86535d011fadc3a596e0cccc598e72cf636045cf18226c9f7"
+    },
+    {
+      "log": "issuer-final.log",
+      "sha256": "21b409590973c87bcc80ef53d0c5f0dab8997bf71daf35b723b8dbdec20dccfe"
+    },
+    {
+      "log": "validator-final.log",
+      "sha256": "eda335ac4bdab8f5da023af42e07fa7d9fc0c17d3136b667c23ef139eeab5890"
+    },
+    {
+      "log": "factory-final.log",
+      "sha256": "3c0e06f8ac128952812f8ef8b31a68c1dd0297b159041a3dcd8306b2b01d7dfb"
+    },
+    {
+      "log": "required-posix-final.log",
+      "sha256": "e5e78f077f6c1b0b8f9239fa87b9985496e2ab3463b3f9f5b7e3d84b4e253148"
+    },
+    {
+      "log": "host-review-preflight-final.log",
+      "sha256": "fa9d2051feaa67692370fc4df1b12a3327b11c4f0ded1397cb89b4009a28e5e9"
+    },
+    {
+      "log": "unified-launch-order-final.log",
+      "sha256": "9f1bd4de2e5534fadb7948eb12b17b35821113d0bc7f5bf83fda6493a4e1a9db"
+    },
+    {
+      "log": "task-structured-output-final.log",
+      "sha256": "dfdf420055750f293dff1c3d8075730153f79d2b05eaef98fd2663ded60f042f"
+    },
+    {
+      "log": "model-panelist-final.log",
+      "sha256": "bfaa4f99b8c39d7f312201813ecc99bcc2228e9c188835721c7a3258d6d28a02"
+    },
+    {
+      "log": "traceability-final.log",
+      "sha256": "47ab386262809f4a953b8776537d9460811147d01ec79cbeb9a296c71fa64891"
+    },
+    {
+      "log": "gate-capabilities-final.log",
+      "sha256": "15650e4e594ffdc7581cc78095741a9d2cf14e1bef0b4050b737fa731a68093c"
+    },
+    {
+      "log": "guard-readonly-final.log",
+      "sha256": "ffa7bc96c365566be261b54dcd10b2518fb3d33c2b014d96016c4061dd24ae0a"
+    },
+    {
+      "log": "guard-parity-final.log",
+      "sha256": "7057f52d0e4aa90a2f21227161cd5823c1c1d04e9c665ae31646d768513e4c25"
+    }
+  ],
+  "limitations": [
+    "Full shared profile initially failed tool PATH setup; affected suites rerun separately",
+    "Hosted runtime CI not yet complete",
+    "Native host behavior and actual model comparison not established",
+    "Real app UX evaluation pending by user instruction"
+  ]
+}

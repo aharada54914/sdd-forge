@@ -1,0 +1,8 @@
+==> tests/host-review-preflight.tests.py
+.....................
+----------------------------------------------------------------------
+Ran 21 tests in 14.036s
+
+OK
+PASSED: tests/host-review-preflight.tests.py
+{"schema":"verification-receipt/v1","profile":null,"revision":"dc0c17c24aff554e2535281ac5d9ee5f1db389b0","clean_before":false,"reusable":false,"catalog_sha256":"ca7f54f4bbe2040def2bec16bf1073c99ed706522ab4663598404e50a8ddf052","selected":["tests/host-review-preflight.tests.py"],"results":[{"suite":"tests/host-review-preflight.tests.py","source_sha256":"ab1b9dd61f349f80371c741bf1f9e9e46e96580785cd0d150a33a625021fd822","status":"passed","exit_code":0,"seconds":14.199607}],"revision_after":"dc0c17c24aff554e2535281ac5d9ee5f1db389b0","clean_after":false}

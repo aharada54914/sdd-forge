@@ -1,0 +1,8 @@
+==> tests/factory-workflow.tests.py
+......................................
+----------------------------------------------------------------------
+Ran 38 tests in 13.351s
+
+OK
+PASSED: tests/factory-workflow.tests.py
+{"schema":"verification-receipt/v1","profile":null,"revision":"dc0c17c24aff554e2535281ac5d9ee5f1db389b0","clean_before":false,"reusable":false,"catalog_sha256":"ca7f54f4bbe2040def2bec16bf1073c99ed706522ab4663598404e50a8ddf052","selected":["tests/factory-workflow.tests.py"],"results":[{"suite":"tests/factory-workflow.tests.py","source_sha256":"be79d475cf641d53371e2be350839451fc02b925fe8433a014c7b6b61796f648","status":"passed","exit_code":0,"seconds":13.568195}],"revision_after":"dc0c17c24aff554e2535281ac5d9ee5f1db389b0","clean_after":false}

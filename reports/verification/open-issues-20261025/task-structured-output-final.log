@@ -1,0 +1,8 @@
+==> tests/task-structured-output.tests.py
+...............
+----------------------------------------------------------------------
+Ran 15 tests in 0.933s
+
+OK
+PASSED: tests/task-structured-output.tests.py
+{"schema":"verification-receipt/v1","profile":null,"revision":"dc0c17c24aff554e2535281ac5d9ee5f1db389b0","clean_before":false,"reusable":false,"catalog_sha256":"ca7f54f4bbe2040def2bec16bf1073c99ed706522ab4663598404e50a8ddf052","selected":["tests/task-structured-output.tests.py"],"results":[{"suite":"tests/task-structured-output.tests.py","source_sha256":"51a17f49fac6570e39c7b7079b539de3b179725dda418184410399cc20299a83","status":"passed","exit_code":0,"seconds":1.134213}],"revision_after":"dc0c17c24aff554e2535281ac5d9ee5f1db389b0","clean_after":false}

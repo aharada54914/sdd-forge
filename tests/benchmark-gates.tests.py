@@ -221,10 +221,30 @@ class BenchmarkTests(unittest.TestCase):
         self.assertNotEqual(fp, B.fingerprint(changed, env))
         self.assertFalse(
             B.comparable(
-                {"fixture_fingerprint": fp, "primary": {"admissible": True}},
-                {"fixture_fingerprint": fp, "primary": {"admissible": False}},
+                {
+                    "baseline_head": self.baseline,
+                    "fixture_fingerprint": fp,
+                    "primary": {"admissible": True},
+                },
+                {
+                    "baseline_head": self.baseline,
+                    "fixture_fingerprint": fp,
+                    "primary": {"admissible": False},
+                },
             )
         )
+
+    def test_comparison_rejects_changed_transitive_baseline_tree(self):
+        left = {
+            "baseline_head": self.baseline,
+            "fixture_fingerprint": "same",
+            "primary": {"admissible": True},
+        }
+        self.assertTrue(B.comparable(left, dict(left)))
+        right = dict(left, baseline_head=self.candidate)
+        self.assertFalse(B.comparable(left, right))
+        right.pop("baseline_head")
+        self.assertFalse(B.comparable(left, right))
 
     def test_repair_keeps_failed_control_and_runs_restored_input(self):
         source = (self.root / "gates/check.py").read_text()

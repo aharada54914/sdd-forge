@@ -244,6 +244,7 @@ function isProtectedGateFile(filePath) {
   }
   return [...PROTECTED_GATE_SUFFIXES, ...PROTECTED_GATE_PLUGIN_JSON_SUFFIXES].some(s => {
     const sl = s.toLowerCase();
+    if (!sl.includes('/')) return normalized === sl || normalized.endsWith('/' + sl);
     // Match absolute paths and relative paths for suffixes that start with /.
     return normalized.endsWith(sl) || (sl.startsWith('/') && normalized.endsWith(sl.slice(1)));
   });
@@ -853,6 +854,124 @@ function commandReferencesProtectedPath(cmd, directories = []) {
   return false;
 }
 
+function destructiveTargetIsProtected(target) {
+  let normalized = path.posix.normalize(target.replace(/\\/g, '/'));
+  const staging = HUMAN_COPY_STAGING_RE.test(normalized.toLowerCase() + '/');
+  if ((!staging && /(?:^|\/)specs\/[^/]+\/decisions(?:\/|$)/i.test(normalized)) || isProtectedGateFile(normalized)) return true;
+  if (/[$`~]/.test(normalized)) return true;
+  const wildcard = normalized.search(/[*?\[]/);
+  if (wildcard >= 0) normalized = path.posix.dirname(normalized.slice(0, wildcard) + '_') || '.';
+  const pending = [normalized];
+  let seen = 0;
+  try {
+    while (pending.length) {
+      const directory = pending.pop();
+      let info;
+      try { info = fs.statSync(directory); }
+      catch (error) { if (['ENOENT', 'ENOTDIR'].includes(error.code)) continue; throw error; }
+      if (!info.isDirectory()) continue;
+      for (const entry of fs.readdirSync(directory, {withFileTypes: true})) {
+        if (++seen > 10000) return true;
+        const child = path.join(directory, entry.name);
+        if (isProtectedGateFile(child)) return true;
+        if (entry.isDirectory() && !entry.isSymbolicLink()) pending.push(child);
+      }
+    }
+  } catch (_) { return true; }
+  return false;
+}
+
+function shellDestructiveAncestorHits(cmd, directories = []) {
+  const tokens = tokenizeShellCommand(cmd);
+  if (tokens === null) return false;
+  const segments = []; let words = [];
+  for (const [kind, text] of [...tokens, ['sep', '']]) {
+    if (kind === 'sep') { if (words.length) { segments.push(words); words = []; } }
+    else words.push(text);
+  }
+  const supplied = directories.filter(d => typeof d === 'string' && d);
+  for (const start of supplied.length ? supplied : [process.cwd()]) {
+    let current = path.resolve(start), known = true;
+    for (const segment of segments) {
+      const verb = shellTokenBasename(segment[0]);
+      if (SHELL_CD_CMDS.includes(verb)) { [current, known] = applyCdTransition(current, known, segment); continue; }
+      if (verb === 'popd') { known = false; continue; }
+      let at = 0, commandDir = current, commandKnown = known, shellCwd = true;
+      while (at < segment.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(segment[at])) at++;
+      while (at < segment.length && ['sudo', 'env', 'command', 'builtin'].includes(shellTokenBasename(segment[at]))) {
+        const wrapper = shellTokenBasename(segment[at]);
+        shellCwd = shellCwd && ['command', 'builtin'].includes(wrapper); at++;
+        while (at < segment.length && (segment[at].startsWith('-') || /^[A-Za-z_][A-Za-z0-9_]*=/.test(segment[at]))) {
+          const option = segment[at];
+          if (option === '--') { at++; break; }
+          const inlineCwd = (['env', 'sudo'].includes(wrapper) && option.startsWith('--chdir=')) ? option.slice(8) :
+            (option.length > 2 && ((wrapper === 'env' && option.startsWith('-C')) || (wrapper === 'sudo' && option.startsWith('-D')))) ? option.slice(2) : null;
+          if (inlineCwd !== null) { [commandDir, commandKnown] = applyCdTransition(commandDir, commandKnown, ['cd', inlineCwd]); at++; continue; }
+          const takesValue = (wrapper === 'env' && ['-u', '--unset', '-C', '--chdir'].includes(option)) || (wrapper === 'sudo' && ['-u', '--user', '-g', '--group', '-h', '--host', '-p', '--prompt', '-C', '--close-from', '-D', '--chdir'].includes(option));
+          if (wrapper === 'command' && ['-v', '-V'].includes(option)) { at = segment.length; break; }
+          if (takesValue && at + 1 < segment.length) {
+            if (option === '--chdir' || (wrapper === 'env' && option === '-C') || (wrapper === 'sudo' && option === '-D')) [commandDir, commandKnown] = applyCdTransition(commandDir, commandKnown, ['cd', segment[at + 1]]);
+            at += 2;
+          } else at++;
+        }
+      }
+      if (at >= segment.length) continue;
+      const actual = shellTokenBasename(segment[at]);
+      if (SHELL_CD_CMDS.includes(actual)) { if (shellCwd) [current, known] = applyCdTransition(current, known, segment.slice(at)); continue; }
+      if (actual === 'popd') { if (shellCwd) known = false; continue; }
+      if (actual === 'find') {
+        const remaining = segment.slice(at + 1);
+        const destructiveFind = remaining.includes('-delete') || (remaining.some((x, i) => ['-exec', '-execdir'].includes(x) && i + 1 < remaining.length && ['rm', 'rmdir', 'unlink', 'mv', 'remove-item', 'move-item'].includes(shellTokenBasename(remaining[i + 1]))));
+        if (destructiveFind) {
+          if (remaining.includes('-L')) return true;
+          const roots = [];
+          for (const item of remaining) {
+            if (['-H', '-P'].includes(item)) continue;
+            if (item.startsWith('-') || ['(', '!'].includes(item)) break;
+            roots.push(item);
+          }
+          for (const target of roots.length ? roots : ['.']) {
+            if (!commandKnown && !path.isAbsolute(target)) return true;
+            if (destructiveTargetIsProtected(path.isAbsolute(target) ? target : path.join(commandDir, target))) return true;
+          }
+        }
+        continue;
+      }
+      if (['git', 'git.exe'].includes(actual)) {
+        at++;
+        while (at < segment.length && segment[at].startsWith('-')) {
+          const option = segment[at];
+          if (option.startsWith('-C') && option.length > 2) { [commandDir, commandKnown] = applyCdTransition(commandDir, commandKnown, ['cd', option.slice(2)]); at++; continue; }
+          if (['-C', '-c', '--work-tree', '--git-dir'].includes(option) && at + 1 < segment.length) {
+            if (['-C', '--work-tree'].includes(option)) [commandDir, commandKnown] = applyCdTransition(commandDir, commandKnown, ['cd', segment[at + 1]]);
+            at += 2;
+          } else {
+            if (option.startsWith('--work-tree=')) [commandDir, commandKnown] = applyCdTransition(commandDir, commandKnown, ['cd', option.slice(12)]);
+            at++;
+          }
+        }
+      }
+      if (at >= segment.length || !['rm', 'rmdir', 'unlink', 'mv', 'remove-item', 'move-item', 'ri', 'del', 'erase', 'rd', 'ren', 'rename', 'rename-item', 'mi'].includes(shellTokenBasename(segment[at]))) continue;
+      let operands = false;
+      for (let token of segment.slice(at + 1)) {
+        if (token === '--' && !operands) { operands = true; continue; }
+        if (!operands && token.startsWith('-')) {
+          const named = /^-[A-Za-z][A-Za-z0-9]*:(.+)$/i.exec(token);
+          if (!named) continue;
+          token = named[1];
+        }
+        for (const target of new Set([token, ...token.split(',')])) {
+          if (!target) continue;
+          if (!commandKnown && !path.isAbsolute(target)) return true;
+          const resolved = path.isAbsolute(target) ? target : path.join(commandDir, target);
+          if (destructiveTargetIsProtected(resolved)) return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 function shellTargetsProtectedGateFile(cmd, directories = []) {
   // R-10: Deny shell commands that WRITE to protected gate files.
   // Token-based pre-filter (a protected path appears as a shell token or
@@ -866,6 +985,7 @@ function shellTargetsProtectedGateFile(cmd, directories = []) {
   // REQ-002: cd/pushd-aware resolution catches protected writes that never
   // spell the full protected path literally. Read-only segments never hit,
   // so this is checked before the read-only short-circuit below.
+  if (shellDestructiveAncestorHits(cmd, directories)) return true;
   if (shellCwdWriteHitsProtected(cmd)) return true;
   // WFI-048: a patch applier names its target inside the file it is given,
   // so neither the pre-filter nor the write vocabulary can decide it.

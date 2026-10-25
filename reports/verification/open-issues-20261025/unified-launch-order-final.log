@@ -1,0 +1,8 @@
+==> tests/unified-launch-order.tests.py
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 33.880s
+
+OK
+PASSED: tests/unified-launch-order.tests.py
+{"schema":"verification-receipt/v1","profile":null,"revision":"dc0c17c24aff554e2535281ac5d9ee5f1db389b0","clean_before":false,"reusable":false,"catalog_sha256":"ca7f54f4bbe2040def2bec16bf1073c99ed706522ab4663598404e50a8ddf052","selected":["tests/unified-launch-order.tests.py"],"results":[{"suite":"tests/unified-launch-order.tests.py","source_sha256":"ed7815e25d294eb19332eb708a3c0c718c2f328e54147096fb7353cea59c13ff","status":"passed","exit_code":0,"seconds":34.03479}],"revision_after":"dc0c17c24aff554e2535281ac5d9ee5f1db389b0","clean_after":false}

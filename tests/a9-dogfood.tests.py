@@ -414,6 +414,8 @@ class PromotionPreflightTests(unittest.TestCase):
         for document in (self.evidence, self.manifest):
             document["context_binding"]["full_context_revision"] = OWNERSHIP.canonical_digest(self.baseline)
             document["context_binding"]["ownership_digest"] = ownership["context_binding"]["ownership_digest"]
+            # Refresh synthetic bindings; archived observation bytes stay unchanged.
+            document["context_binding"]["registry_digest"] = load("validate-resolver-evidence").whole_registry_digest(self.registry)
         self.head = self.pr_head
         self.commit = "c" * 40
         self.cycle = {"schema": "a9-release-cycle/v1", "base_sha": "a" * 40, "head_sha": self.commit,

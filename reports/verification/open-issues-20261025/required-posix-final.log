@@ -1,0 +1,174 @@
+==> tests/required-checks-posix.tests.py
+test_a9_workflow_privacy_mutations_are_rejected (__main__.RequiredChecksTests.test_a9_workflow_privacy_mutations_are_rejected) ... ok
+test_a9_workflow_trust_and_private_retention_boundary (__main__.RequiredChecksTests.test_a9_workflow_trust_and_private_retention_boundary) ... ok
+test_all_success (__main__.RequiredChecksTests.test_all_success) ... fixture execution
+fixture execution
+ok
+test_catalog_declared_ci_jobs_have_actual_execution (__main__.RequiredChecksTests.test_catalog_declared_ci_jobs_have_actual_execution) ... ok
+test_dependencies_and_always (__main__.RequiredChecksTests.test_dependencies_and_always) ... ok
+test_domain_finalization_has_its_own_unconditional_native_step (__main__.RequiredChecksTests.test_domain_finalization_has_its_own_unconditional_native_step) ... ok
+test_duplicate_yaml_keys_and_wrong_shell_are_not_execution (__main__.RequiredChecksTests.test_duplicate_yaml_keys_and_wrong_shell_are_not_execution) ... ok
+test_each_dependency_non_success (__main__.RequiredChecksTests.test_each_dependency_non_success) ... fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+ok
+test_each_native_python_failure_propagates_to_the_step (__main__.RequiredChecksTests.test_each_native_python_failure_propagates_to_the_step) ... ok
+test_fallback_shards_are_complete_unconditional_and_required (__main__.RequiredChecksTests.test_fallback_shards_are_complete_unconditional_and_required) ... ok
+test_inactive_advisory_is_skipped_not_success (__main__.RequiredChecksTests.test_inactive_advisory_is_skipped_not_success) ... fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+fixture execution
+ok
+test_matrix_suite_profile_and_condition_coverage (__main__.RequiredChecksTests.test_matrix_suite_profile_and_condition_coverage) ... ok
+test_powershell_multiline_native_failure_is_not_coverage (__main__.RequiredChecksTests.test_powershell_multiline_native_failure_is_not_coverage) ... ok
+test_previously_missing_suites_have_unconditional_steps (__main__.RequiredChecksTests.test_previously_missing_suites_have_unconditional_steps) ... ok
+test_removed_disabled_or_prose_invocations_cannot_prove_coverage (__main__.RequiredChecksTests.test_removed_disabled_or_prose_invocations_cannot_prove_coverage) ... ok
+test_selected_plan_full_suite_runs_on_all_native_platforms (__main__.RequiredChecksTests.test_selected_plan_full_suite_runs_on_all_native_platforms) ... ok
+test_transport_dependency_is_pinned_and_installed_first (__main__.RequiredChecksTests.test_transport_dependency_is_pinned_and_installed_first) ... ok
+test_yaml_format_and_step_names_do_not_define_coverage (__main__.RequiredChecksTests.test_yaml_format_and_step_names_do_not_define_coverage) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 72.942s
+
+OK
+PASSED: tests/required-checks-posix.tests.py
+{"schema":"verification-receipt/v1","profile":null,"revision":"dc0c17c24aff554e2535281ac5d9ee5f1db389b0","clean_before":false,"reusable":false,"catalog_sha256":"ca7f54f4bbe2040def2bec16bf1073c99ed706522ab4663598404e50a8ddf052","selected":["tests/required-checks-posix.tests.py"],"results":[{"suite":"tests/required-checks-posix.tests.py","source_sha256":"4a412e19b3a1b50c7ba13d801468c08682eed24f8e76d587d0434b79f9982b19","status":"passed","exit_code":0,"seconds":73.072942}],"revision_after":"dc0c17c24aff554e2535281ac5d9ee5f1db389b0","clean_after":false}

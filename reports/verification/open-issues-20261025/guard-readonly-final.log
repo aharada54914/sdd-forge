@@ -1,0 +1,8 @@
+==> tests/guard-readonly-inputs.tests.py
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 50.426s
+
+OK
+PASSED: tests/guard-readonly-inputs.tests.py
+{"schema":"verification-receipt/v1","profile":null,"revision":"47c66a9913171501c0462ecfe003f3c7191eda85","clean_before":false,"reusable":false,"catalog_sha256":"ca7f54f4bbe2040def2bec16bf1073c99ed706522ab4663598404e50a8ddf052","selected":["tests/guard-readonly-inputs.tests.py"],"results":[{"suite":"tests/guard-readonly-inputs.tests.py","source_sha256":"9ad61bc430e560e98b42605cf72f4455e4c623c813d2586ae3f72841184ac742","status":"passed","exit_code":0,"seconds":50.504958}],"revision_after":"47c66a9913171501c0462ecfe003f3c7191eda85","clean_after":false}

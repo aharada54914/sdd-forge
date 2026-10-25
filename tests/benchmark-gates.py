@@ -425,7 +425,9 @@ def fingerprint(manifest, environment):
 
 def comparable(left, right):
     return (
-        left["fixture_fingerprint"] == right["fixture_fingerprint"]
+        isinstance(left.get("baseline_head"), str)
+        and left["baseline_head"] == right.get("baseline_head")
+        and left["fixture_fingerprint"] == right["fixture_fingerprint"]
         and left["primary"]["admissible"]
         and right["primary"]["admissible"]
     )

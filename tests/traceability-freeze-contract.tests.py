@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class TraceabilityFreezeTests(unittest.TestCase):
     def test_persisted_binding_twins(self):
         source = (ROOT / "tests/workflow-state.tests.sh").read_text()
+        source += "\n" + (ROOT / "tests/lib/workflow-state-cases.sh").read_text()
         names = ("fail", "rule_id", "make_full_fixture", "expect_rule",
                  "expect_valid", "latest_task_round_dir", "wfi030_sha",
                  "wfi030_set_status", "wfi030_fixture")

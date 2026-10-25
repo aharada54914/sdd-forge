@@ -1,0 +1,16 @@
+test_both_shells_apply_selected_gpt_configuration_isolation_and_no_actual_id_claim (__main__.SelectedPanelistLaunch.test_both_shells_apply_selected_gpt_configuration_isolation_and_no_actual_id_claim) ... ok
+test_both_shells_block_conflicting_options_actual_id_and_persisted_live_controls (__main__.SelectedPanelistLaunch.test_both_shells_block_conflicting_options_actual_id_and_persisted_live_controls) ... ok
+test_both_shells_gemini_is_explicitly_unavailable_after_valid_consent (__main__.SelectedPanelistLaunch.test_both_shells_gemini_is_explicitly_unavailable_after_valid_consent) ... ok
+test_both_shells_reject_bundle_identity_body_digest_and_consent_substitution (__main__.SelectedPanelistLaunch.test_both_shells_reject_bundle_identity_body_digest_and_consent_substitution) ... ok
+test_both_shells_retain_real_signed_sudo_and_block_invalid_tokens (__main__.SelectedPanelistLaunch.test_both_shells_retain_real_signed_sudo_and_block_invalid_tokens) ... ok
+test_both_vendors_recheck_real_task_consent_before_any_send (__main__.SelectedPanelistLaunch.test_both_vendors_recheck_real_task_consent_before_any_send) ... ok
+test_native_failures_never_publish_a_verdict_or_accepted_delivery (__main__.SelectedPanelistLaunch.test_native_failures_never_publish_a_verdict_or_accepted_delivery) ... ok
+test_output_ancestor_symlinks_cause_no_target_writes_or_native_send (__main__.SelectedPanelistLaunch.test_output_ancestor_symlinks_cause_no_target_writes_or_native_send) ... ok
+test_panelist_postbindings_and_every_context_leaf_are_checked_retrospectively (__main__.SelectedPanelistLaunch.test_panelist_postbindings_and_every_context_leaf_are_checked_retrospectively) ... ok
+test_postnative_source_change_never_publishes_accepted_binding_or_verdict (__main__.SelectedPanelistLaunch.test_postnative_source_change_never_publishes_accepted_binding_or_verdict) ... ok
+test_repeated_binding_rejects_and_distinct_attempt_preserves_immutable_evidence (__main__.SelectedPanelistLaunch.test_repeated_binding_rejects_and_distinct_attempt_preserves_immutable_evidence) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 60.494s
+
+OK
