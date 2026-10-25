@@ -387,13 +387,13 @@ function Assert-ContractReviewerAgreement([object]$Contract, [string]$Stage, [st
 function Get-PersistedConditionalInputs($Contract, [string]$Stage, [string]$FeatureName, [string]$RepoRoot) {
   if ($Stage -cnotin @('spec', 'impl', 'task')) { return @() }
   $entries = @($Contract.reviewers | ForEach-Object { $_.allowed_input_manifest })
-  if (-not @($entries | Where-Object { (Get-ManifestRelativePath ([string]$_.path) $RepoRoot) -cmatch ('^(domain|design-system)/|^specs/' + [Regex]::Escape($FeatureName) + '/concept-test') }).Count) { return @() }
+  if (-not @($entries | Where-Object { (Get-ManifestRelativePath ([string]$_.path) $RepoRoot) -cmatch ('^(domain|design-system)/|^specs/' + [Regex]::Escape($FeatureName) + '/(concept-test|research/)') }).Count) { return @() }
   $raw = & python3 (Join-Path $RepoRoot 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py') --root $RepoRoot --feature $FeatureName --stage $Stage
   if ($LASTEXITCODE -ne 0) { Fail 'persisted conditional inputs cannot be resolved' }
   $selected = @(($raw | ConvertFrom-Json).inputs)
   foreach ($entry in $entries) {
     $relative = Get-ManifestRelativePath $entry.path $RepoRoot
-    if ($relative -cmatch ('^(domain|design-system)/|^specs/' + [Regex]::Escape($FeatureName) + '/concept-test')) {
+    if ($relative -cmatch ('^(domain|design-system)/|^specs/' + [Regex]::Escape($FeatureName) + '/(concept-test|research/)')) {
       if (-not @($selected | Where-Object { $_.path -ceq $relative -and $_.sha256 -ceq $entry.sha256 }).Count) {
         Fail 'persisted conditional input is outside selection or its hash changed'
       }

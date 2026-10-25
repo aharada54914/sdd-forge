@@ -52,6 +52,15 @@ CLOSURE = [
     "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
     "contracts/agent-model-capabilities.v2.json", "contracts/model-policy.v1.json",
     "contracts/model-launch-controls.schema.json",
+    "plugins/sdd-bootstrap/scripts/project-skill.py",
+    "plugins/sdd-bootstrap/scripts/project-skill-process.py",
+    "plugins/sdd-bootstrap/skills/create-project-skill/SKILL.md",
+    "plugins/sdd-bootstrap/skills/maintain-project-skill/SKILL.md",
+    "plugins/sdd-quality-loop/scripts/validate-project-skill.py",
+    "plugins/sdd-quality-loop/scripts/validate-project-skill.sh",
+    "plugins/sdd-quality-loop/scripts/validate-project-skill.ps1",
+    "plugins/sdd-quality-loop/contracts/project-skill-manifest.schema.json",
+    "plugins/sdd-quality-loop/contracts/project-verification-observation.schema.json",
 ]
 
 # Tracked development content that must never be installed (every value is FAKE).
@@ -514,6 +523,14 @@ class PayloadChecks(unittest.TestCase):
         result = run([sys.executable, "-I", str(script), "--help"], cwd=str(self.tmp), env=scenario_env(self.tmp))
         self.assertEqual(result.returncode, 2, describe(result))
         self.assertEqual(json.loads(result.stderr.strip().splitlines()[-1])["schema"], "model-policy-error/v1")
+        for relative in (
+            "plugins/sdd-bootstrap/scripts/project-skill.py",
+            "plugins/sdd-bootstrap/scripts/project-skill-process.py",
+            "plugins/sdd-quality-loop/scripts/validate-project-skill.py",
+        ):
+            parsed = run([sys.executable, "-I", str(root / relative), "--help"],
+                         cwd=str(self.tmp), env=scenario_env(self.tmp))
+            self.assertEqual(parsed.returncode, 0, describe(parsed))
 
     def test_local_source_installs_only_the_payload(self):
         root = self.root_for("default")

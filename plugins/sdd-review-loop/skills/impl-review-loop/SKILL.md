@@ -64,6 +64,24 @@ Flags:
 - `--edit-summary "<text>"`: required when re-invoking after human edits (rounds
   2 and 3). Summarises what the human changed. Stored in impl-review-contract.json.
 
+## Optional fixed-input navigation
+
+When a fixed input snapshot and its existing inventory are available, prepare a
+human-readable JSON index without replacing any required original input:
+
+```bash
+python3 plugins/sdd-review-loop/scripts/fixed-review-inputs.py reviewer-index \
+  --repo . --snapshot <existing-snapshot> --record <existing-inventory>
+```
+
+The index references every selected original with its hash and line count and
+quotes existing state fields. It is not an independent review, an approval, or a
+cached verdict. Regenerate it before presentation: missing or modified originals,
+a changed selected HEAD, or dirty selected working files stop preparation. Its
+scope is the existing selected inventory; it does not discover a complete build
+dependency closure or certify unselected files. Reviewers still read the required
+full originals and evaluate unresolved findings themselves.
+
 ## Preconditions
 
 Before running:

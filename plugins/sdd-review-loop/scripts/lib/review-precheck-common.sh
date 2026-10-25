@@ -316,7 +316,7 @@ require_persisted_pass() {
       elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|domain/.+|design-system/(design-tokens\\.json|design-system\\.md|ui-patterns\\.md))$") | .tail) // .)
       else . end;
     any(.reviewers[]?.allowed_input_manifest[]?;
-      .path | relative_path | test("^(domain|design-system)/|^specs/" + $feature + "/concept-test"))' "$contract" >/dev/null; then
+      .path | relative_path | test("^(domain|design-system)/|^specs/" + $feature + "/(concept-test|research/)"))' "$contract" >/dev/null; then
     conditional_inputs=$(python3 "${repo_root}/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py" \
       --root "$repo_root" --feature "$FEATURE" --stage "$stage") || fail "persisted conditional inputs cannot be resolved"
     conditional_inputs=$(jq -ce '.inputs' <<<"$conditional_inputs") || fail "invalid conditional input selection"
@@ -394,7 +394,7 @@ require_persisted_pass() {
              (($path | startswith("/")) | not) and
              ($path | test("(^|/)\\.\\.?(/|$)") | not) and
              allowed_input($role; $path; $attempt; $round) and
-             (if ($path | test("^(domain|design-system)/|^specs/" + $feature + "/concept-test")) then
+             (if ($path | test("^(domain|design-system)/|^specs/" + $feature + "/(concept-test|research/)")) then
                 .sha256 as $hash | any($conditional_inputs[]; .path == $path and .sha256 == $hash)
               else true end) and
              (.sha256 | type == "string") and

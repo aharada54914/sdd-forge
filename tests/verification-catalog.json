@@ -2316,7 +2316,98 @@
       ]
     },
     {
+      "path": "tests/project-skill-observation.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
+      "path": "tests/research-evidence.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
+      "path": "tests/run-measurement-integration.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
+      "path": "tests/run-measurement.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
       "path": "tests/self-improvement-pr-access.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
+      "path": "tests/factory-workflow.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
+      "path": "tests/project-skill-lifecycle.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
+      "path": "tests/research-acquire.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
+      "path": "tests/research-consumers.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
+      "path": "tests/project-evidence-collector.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
+      "path": "tests/project-skill-formal.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
+      "path": "tests/research-discovery.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
+      "path": "tests/benchmark-gates.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
+      "path": "tests/research-owner-integration.tests.py",
       "runtime": "python",
       "ci_jobs": [
         "posix-regression"
@@ -2523,6 +2614,7 @@
       "tests/workflow-conditional-inputs.tests.py",
       "tests/spec-review-verify-inputs.tests.py",
       "tests/host-review-preflight.tests.py",
+      "tests/human-copy-mirrors-classification.tests.py",
       "tests/unified-launch-order.tests.py",
       "tests/unified-task-launch.tests.py",
       "tests/task-structured-output.tests.py",
@@ -2538,9 +2630,21 @@
       "tests/model-policy-launch-platform.tests.py",
       "tests/model-policy-installed.tests.py",
       "tests/repository-syntax.tests.py",
+      "tests/project-skill-observation.tests.py",
+      "tests/run-measurement.tests.py",
+      "tests/research-evidence.tests.py",
+      "tests/self-improvement-pr-access.tests.py",
       "tests/golden-eval.tests.py",
-      "tests/human-copy-mirrors-classification.tests.py",
-      "tests/self-improvement-pr-access.tests.py"
+      "tests/run-measurement-integration.tests.py",
+      "tests/factory-workflow.tests.py",
+      "tests/project-skill-lifecycle.tests.py",
+      "tests/research-acquire.tests.py",
+      "tests/research-consumers.tests.py",
+      "tests/project-evidence-collector.tests.py",
+      "tests/project-skill-formal.tests.py",
+      "tests/research-discovery.tests.py",
+      "tests/benchmark-gates.tests.py",
+      "tests/research-owner-integration.tests.py"
     ],
     "local-powershell": [
       "tests/cloud-orchestration-contracts.tests.py",
@@ -2779,6 +2883,7 @@
       "tests/workflow-conditional-inputs.tests.py",
       "tests/spec-review-verify-inputs.tests.py",
       "tests/host-review-preflight.tests.py",
+      "tests/human-copy-mirrors-classification.tests.py",
       "tests/unified-launch-order.tests.py",
       "tests/unified-task-launch.tests.py",
       "tests/task-structured-output.tests.py",
@@ -2787,9 +2892,21 @@
       "tests/model-policy-launch.tests.py",
       "tests/model-policy-installed.tests.py",
       "tests/repository-syntax.tests.py",
+      "tests/project-skill-observation.tests.py",
+      "tests/run-measurement.tests.py",
+      "tests/research-evidence.tests.py",
+      "tests/self-improvement-pr-access.tests.py",
       "tests/golden-eval.tests.py",
-      "tests/human-copy-mirrors-classification.tests.py",
-      "tests/self-improvement-pr-access.tests.py"
+      "tests/run-measurement-integration.tests.py",
+      "tests/factory-workflow.tests.py",
+      "tests/project-skill-lifecycle.tests.py",
+      "tests/research-acquire.tests.py",
+      "tests/research-consumers.tests.py",
+      "tests/project-evidence-collector.tests.py",
+      "tests/project-skill-formal.tests.py",
+      "tests/research-discovery.tests.py",
+      "tests/benchmark-gates.tests.py",
+      "tests/research-owner-integration.tests.py"
     ],
     "ci-a7-native": [
       "tests/golden-baseline-contract.tests.ps1",

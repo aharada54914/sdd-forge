@@ -1,0 +1,91 @@
+{
+  "distribution_tag": "v1.8.0",
+  "observed_tool_version": "TLC2 Version 2026.10.24.013619 (rev: 2ef2af8)",
+  "jar_sha256": "d15655eeaff4b3f7b3d65c46b838bc0f35d131b2ef4b1e473689b62c98d4726f",
+  "source_sha256": "45fc5f8d221981ecbd04bcdd48a9eb0e4cd0c8bee45c4bb6e5cddc1cc190474a",
+  "scope": "two contenders, one original ledger hash, one attempt each; no crashes, retries, hostile filesystem or OS-wide proof",
+  "runs": [
+    {
+      "case": "negative",
+      "exit_code": 12,
+      "seconds": 1.0457128769994597,
+      "counterexample": true,
+      "expected_result": true,
+      "real_code_replay": {
+        "accepted": 2,
+        "calls": [
+          {
+            "exit_code": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "exit_code": 0,
+            "stdout": "",
+            "stderr": ""
+          }
+        ],
+        "ledger": {
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "b",
+              "host_session_id": "b",
+              "previous_record_sha256": "",
+              "record_sha256": "b"
+            },
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "a",
+              "host_session_id": "a",
+              "previous_record_sha256": "",
+              "record_sha256": "a"
+            }
+          ]
+        }
+      },
+      "replay_expected": true
+    },
+    {
+      "case": "baseline",
+      "exit_code": 0,
+      "seconds": 1.3352631510006177,
+      "counterexample": false,
+      "expected_result": true,
+      "real_code_replay": {
+        "accepted": 1,
+        "calls": [
+          {
+            "exit_code": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "IDENTITY canonical identity ledger reservation is already in progress\n"
+          }
+        ],
+        "ledger": {
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "a",
+              "host_session_id": "a",
+              "previous_record_sha256": "",
+              "record_sha256": "a"
+            }
+          ]
+        }
+      },
+      "replay_expected": true
+    }
+  ],
+  "passed": true
+}

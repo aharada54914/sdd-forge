@@ -583,7 +583,8 @@ class WorkflowIntegrationTests(unittest.TestCase):
         added = changed(lambda items: items[index]['suites'].append('tests/model-observation.tests.py'))
         self.assertEqual(added, baseline, 'appending a new suite to an existing obligation must project away')
         mutations = {
-            'old-suite-removed': lambda items: items[index]['suites'].pop(0),
+            'old-suite-removed': lambda items: items[index]['suites'].remove(
+                next(s for s in items[index]['suites'] if s in historical)),
             'obligation-deleted': lambda items: items.pop(index),
             'obligation-duplicated': lambda items: items.append(copy.deepcopy(items[index])),
             'os-changed': lambda items: items[index].update(runner='macos-latest'),

@@ -111,6 +111,14 @@ case, never the probe's.
 
 ## Step 1 — Target Selection
 
+An explicitly requested investigation, performance study, isolated prototype or
+handoff can return to bootstrap's optional purpose playbook before implementation.
+Use the installed bootstrap `references/decision-packet.md` and selected playbook;
+do not invent another entry point or reinterpret a playbook as task approval.
+For pending alternative choices, the passive decision packet may display fixed
+inputs and evidence. Recheck its digest and source pins on resume, then follow
+this skill's existing target, track and approval checks. It never writes Done.
+
 ### With a path argument
 
 Use the given `specs/<feature>/tasks.md` (with optional `#T-NNN` task selector).

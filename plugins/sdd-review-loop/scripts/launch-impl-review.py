@@ -17,7 +17,7 @@ transport = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(transport)
 
 
-def runtime_files(root, stage, fixed_inputs=False, model_policy=False):
+def runtime_files(root, stage, fixed_inputs=False, model_policy=False, research=False):
     if not fixed_inputs:
         files = {p for folder in ('plugins/sdd-review-loop', 'plugins/sdd-quality-loop', 'plugins/sdd-domain', 'contracts')
                  for p in (root / folder).rglob('*') if p.is_file()}
@@ -48,6 +48,10 @@ def runtime_files(root, stage, fixed_inputs=False, model_policy=False):
                   'plugins/sdd-domain/scripts/validate-concept-test.py',
                   'plugins/sdd-domain/scripts/validate-domain-contract.sh',
                   'plugins/sdd-domain/scripts/validate-domain-contract.ps1'))
+    if research:
+        names.update(quality + name for name in (
+            'research_evidence.py', 'research_consumers.py', 'research_extraction.py'))
+        names.add('plugins/sdd-quality-loop/contracts/research-evidence.schema.json')
     if stage == 'quality':
         names.add(quality + 'preflight-evaluator-delivery.py')
     else:
@@ -462,7 +466,8 @@ def launch(root, invocation, output, manifest_sha256=None, *,
                            'snapshot paths; retain all substantive review checks.')
     # Pin current dependencies, not just the caller's manifest. No baseline promotion.
     files = {invocation, role_path, probe}
-    files.update(runtime_files(root, stage, bool(fixed_inputs), model_policy=binding is not None))
+    files.update(runtime_files(root, stage, bool(fixed_inputs), model_policy=binding is not None,
+                               research=any(e['path'].endswith('/research/review-input.json') for e in data['allowed_input_manifest'])))
     control_pins: dict[str, str] = {}
     if binding is not None:
         control_pins = {str(root.joinpath(*entry['path'].split('/'))): entry['sha256'] for entry in

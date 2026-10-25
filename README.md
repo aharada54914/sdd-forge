@@ -16,6 +16,11 @@ v1.20.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD�
 > **lite トラック（限定された通常の不具合修正・社内アプリ向け）**: `/sdd-bootstrap:bootstrap feature --lite <source>` → `/sdd-ship:ship --lite specs/<feature>/tasks.md`
 > 通常の不具合修正は `/sdd-bootstrap:bootstrap bugfix --lite <source>` から開始できます。短い受け入れ条件を定め、実装後に一度の独立レビューと関連回帰を確認します。既存のリスク昇格と full プロファイルの保護は維持され、重大な変更や影響不明な変更を自動で Lite に降格しません。
 
+開発版では、既存の入口から任意の用途別プレイブック、プロジェクト固有スキル、
+外部根拠の原文検証、判断資料の表示を利用できます。
+[任意の検証・探索ツール](docs/skill-reference.md#任意の検証探索ツール開発版)を参照してください。
+生成物や観測結果だけで承認・Doneには移行しません。
+
 
 ```mermaid
 flowchart TD
@@ -310,7 +315,7 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 | [PLUGIN-CONTRACTS.md](PLUGIN-CONTRACTS.md) | プラグイン間の契約 |
 | [docs/workflow-guide.md](docs/workflow-guide.md) | 開発業務フロー：正常系・異常系・仕様変更・レビュー運用 |
 | [docs/architecture/overview.md](docs/architecture/overview.md) | リポジトリ全体のアーキテクチャ |
-| [docs/skill-reference.md](docs/skill-reference.md) | 29スキル（＋ `plugins/` 外の単独スキル1件）・エージェント・フック・スクリプトの詳細 |
+| [docs/skill-reference.md](docs/skill-reference.md) | 31スキル（＋ `plugins/` 外の単独スキル1件）・エージェント・フック・スクリプトの詳細 |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | 問題解決と対応策 |
 | [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) | 脅威モデル：信頼境界・攻撃面・リスク低減策 |
 | [docs/agent-capability-matrix.md](docs/agent-capability-matrix.md) | エージェント能力マトリクス：各エージェントが実行できる操作の一覧 |

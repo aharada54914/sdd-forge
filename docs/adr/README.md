@@ -269,6 +269,7 @@ must never rely on a bare legacy number.
 | 0039 | [Verification measurement is passive observation joined by reference](0039-run-measurement-observation-ownership.md) | Proposed |
 | 0040 | [Project skills supply execution methods; obligations and verdicts stay put](0040-project-skill-observation-ownership.md) | Proposed |
 | 0041 | [External Source/Claim research evidence contract](0041-research-evidence-contract.md) | Proposed |
+| 0043 | [Optional exploration and decision record ownership](0043-workflow-exploration-decision-ownership.md) | Proposed |
 
 ## Cloud orchestration implementation reference
 
@@ -276,3 +277,5 @@ must never rely on a bare legacy number.
 [cloud-orchestration guide](../cloud-orchestration.md) を参照してください。SDD selected-plan は
 deployment engine ではなく、既存 ADR と frozen review artifacts は歴史的判断として保持します。
 この文書更新は新たな ADR 採番や既存判断の書き換えではありません。
+
+- [ADR-0044: Research evidence extends existing owners](0044-research-evidence-ownership.md)

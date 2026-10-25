@@ -1,6 +1,6 @@
 # SDD スキルリファレンス
 
-9つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite、sdd-domain、sdd-azure-cloud、sdd-aws-cloud）に含まれる29のスキル（＋ `plugins/` 外の単独スキル1件: [`skills/adversarial-review`](#skillsadversarial-reviewplugins-外の単独スキル)）の詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+9つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite、sdd-domain、sdd-azure-cloud、sdd-aws-cloud）に含まれる31のスキル（＋ `plugins/` 外の単独スキル1件: [`skills/adversarial-review`](#skillsadversarial-reviewplugins-外の単独スキル)）の詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
 
 > **2コマンドワークフロー**: 標準の feature workflow は `/sdd-bootstrap:bootstrap` と `/sdd-ship:ship` の2つで開始します。人間専用の補助コマンドを含む可視性契約は、この後の一覧を参照してください。
 
@@ -17,6 +17,8 @@
 | domain-sync | sdd-domain | Approved な `domain/` を検出し、正準の Bounded Context と用語を sdd-bootstrap Phase 1 の requirements.md / design.md へ注入。`domain/` 不在または未 Approved なら skip 行を1行だけ記録して継続し、仕様生成をブロックしない | sdd-bootstrap-interviewer [Phase 1 冒頭] | sdd-bootstrap-interviewer [Phase 1 生成] |
 | sdd-adopt | sdd-bootstrap | 既存プロジェクトにSDD構造を導入 | — | investigate-codebase, sdd-bootstrap-interviewer |
 | investigate-codebase | sdd-bootstrap | コードベース・問題領域の読み取り調査 | sdd-adopt | sdd-bootstrap-interviewer |
+| create-project-skill | sdd-bootstrap | 実コードと利用経路から固有手順を作り、明示的な試行で観測を保存する内部補助 | bootstrap | maintain-project-skill |
+| maintain-project-skill | sdd-bootstrap | 固有手順の変更追従、再実行、利用者編集を保持したホスト投影を行う内部補助 | create-project-skill | 既存の品質ゲート |
 | sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様生成 [Phase 1] と タスク生成 [Phase 2] | investigate-codebase (任意) | spec-review-loop → impl-review-loop (Phase 1後), task-review-loop (Phase 2後) |
 | design-sync-loop | sdd-bootstrap | UI アプリ（`ds_profile: custom`）で `design-system/` 契約を保証（ui-ux-pro-max シード生成 / Figma DTCG 取込 / テンプレートインタビュー）し、トークン駆動モックアップの確認ループを回す（claude.ai/design 連携・任意・非ブロッキング） | sdd-bootstrap-interviewer, lite-spec | — |
 | **spec-review-loop** | **sdd-review-loop** | **requirements.md と acceptance-tests.md を `spec-reviewer-a/b` が独立レビューし、implementation-policy review の前提 PASS を作る** | **sdd-bootstrap-interviewer [Phase 1]** | **impl-review-loop (Spec-Review-Status: Passed後)** |
@@ -38,6 +40,25 @@
 **重要（スキルの可視性契約、WFI-054 改定）:** 入口スキル 8 本が `disable-model-invocation: true` を指定します（モデルが勝手に起動できず、人間がコマンドをタイプして初めて動く）。それ以外の内部オーケストレーション用スキルは `user-invocable: false`（スラッシュコマンドメニューに出ない）かつ `disable-model-invocation: false`（唯一の呼び出し元である ship / bootstrap の指示を実行するモデルから起動できる）です。両フラグを同時に立てる組合せはモデルも人間も拒否して誰からも到達不能になるため禁止です（2026-08-25 まで 16 スキルがこの状態でした）。ユーザーに見えるコマンドは次の8つです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）、`/sdd-domain:domain-model`（DDD 上流レーンのエントリ）、`/sdd-azure-cloud:orchestrate`、`/sdd-aws-cloud:orchestrate`（明示 cloud エントリ）。この契約は `tests/validate-repository.ps1` が強制します。
 
 ## 2. 各スキル詳細
+
+### 任意の検証・探索ツール（開発版）
+
+`bootstrap` / `ship` が必要な手順だけを読む任意の補助です。既存の
+Full/Lite選択、必須チェック、承認の正本を変更しません。
+
+| 用途 | 実装・使い方 | 結果の範囲 |
+|---|---|---|
+| 固有手順の作成・保守 | `plugins/sdd-bootstrap/scripts/project-skill.py --help`、`create-project-skill` / `maintain-project-skill` | manifestと実行観測。生成だけでは実走済みにならない |
+| 用途別探索 | `plugins/sdd-bootstrap/scripts/workflow-playbook.py --request request.json` | 調査・不具合修正・性能・隔離試作・引継ぎの推奨。実行権限は付与しない |
+| 判断資料 | `plugins/sdd-bootstrap/scripts/decision-packet.py --help` | 入力・比較案・実測ログの束縛とMarkdown表示。推奨と人間の判断を区別 |
+| 原文根拠 | `plugins/sdd-quality-loop/scripts/research-evidence-tools.py --help` | 原文/引用照合、影響グラフ、抜き書き、レビュー参照。引用一致は主張の真実性の証明ではない |
+| 工程計測 | `plugins/sdd-quality-loop/scripts/run_measurement.py --help` | 単調時計、再試行、失敗、中断、未取得値を記録。ゲートの合否は既存の実行者が決める |
+| 振る舞いの比較 | `python3 tests/golden-eval.py --help` | 固定fixture・成果物・traceの比較。実モデル収集は別途必要、自動採用しない |
+
+固有手順の一時ディレクトリはOSサンドボックスではありません。ホスト投影の
+生成成功と、各ホストでの実際の検出・呼出し成功も別です。外部取得の非対応
+プロキシ/PDF抽出等は明示的に拒否し、未実走の結果を成功として扱いません。
+実アプリ評価と、リリースサイクル全体のdogfoodはfixture検証で代替しません。
 
 ### sdd-bootstrap（公開エントリーポイント）
 

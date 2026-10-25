@@ -1,0 +1,111 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "purpose",
+    "track",
+    "requested_effect",
+    "objective",
+    "scenario",
+    "constraints",
+    "hypotheses",
+    "selection_criteria",
+    "budget"
+  ],
+  "properties": {
+    "schema": {
+      "const": "workflow-playbook-request/v1"
+    },
+    "purpose": {
+      "enum": [
+        "investigate",
+        "bugfix",
+        "performance",
+        "prototype",
+        "handoff"
+      ]
+    },
+    "track": {
+      "enum": [
+        "full",
+        "lite",
+        "legacy"
+      ]
+    },
+    "requested_effect": {
+      "enum": [
+        "read-only",
+        "specification",
+        "isolated-prototype"
+      ]
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scenario": {
+      "type": "string",
+      "minLength": 1
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "hypotheses": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "selection_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "seconds",
+        "max_runs",
+        "cost_limit",
+        "cost_reason"
+      ],
+      "properties": {
+        "seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_runs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "cost_limit": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cost_reason": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -93,6 +93,18 @@ def resolve(root, feature, stage, revision=None):
             inputs.append({'path': relative, 'sha256': hashlib.sha256(raw).hexdigest()})
         return raw
 
+    # Research is explicit opt-in and stays bound to the same live/fixed source reader.
+    research_packet = 'specs/' + feature + '/research/review-input.json'
+    if stage in ('spec', 'impl') and source(research_packet, True) is not None:
+        scripts = str(Path(__file__).resolve().parent)
+        if scripts not in sys.path:
+            sys.path.insert(0, scripts)
+        from research_consumers import review_inputs
+        for entry in review_inputs(feature, source):
+            observe(entry['path'])
+            if entry['path'] != 'specs/' + feature + '/requirements.md':
+                inputs.append(entry)
+
     raw_contract = source('domain/domain-contract.json', True)
     try:
         candidate = json.loads(raw_contract, object_pairs_hook=unique_object) if raw_contract is not None else {}

@@ -1,0 +1,589 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/aharada54914/sdd-forge/contracts/research-evidence.schema.json",
+  "title": "Passive research evidence metadata; validation does not establish original verification or authority",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "feature",
+    "sources",
+    "claims"
+  ],
+  "properties": {
+    "schema": {
+      "const": "research-evidence/v1"
+    },
+    "feature": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/source"
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/claim"
+      }
+    }
+  },
+  "definitions": {
+    "permission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "basis",
+        "asserted_by"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "unknown",
+            "permitted",
+            "restricted",
+            "requires-human"
+          ]
+        },
+        "basis": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "asserted_by": {
+          "enum": [
+            null,
+            "human"
+          ]
+        }
+      }
+    },
+    "retention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expires_at",
+        "delete_when"
+      ],
+      "properties": {
+        "expires_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "delete_when": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "expiry",
+              "rights-revoked",
+              "feature-closed"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "inherited": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "feature",
+        "source_id",
+        "record_revision",
+        "record_sha256"
+      ],
+      "properties": {
+        "feature": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "source_id": {
+          "type": "string",
+          "pattern": "^SRC-[0-9]{3}$"
+        },
+        "record_revision": {
+          "type": "integer"
+        },
+        "record_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "extraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "extracted_sha256"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+/v[0-9]+$"
+        },
+        "extracted_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "line_start",
+        "line_end",
+        "quote",
+        "quote_sha256"
+      ],
+      "properties": {
+        "line_start": {
+          "type": "integer"
+        },
+        "line_end": {
+          "type": "integer"
+        },
+        "quote": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quote_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "source_record_revision",
+        "relation",
+        "anchor",
+        "quote_status",
+        "quote_verified_at"
+      ],
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "pattern": "^SRC-[0-9]{3}$"
+        },
+        "source_record_revision": {
+          "type": "integer"
+        },
+        "relation": {
+          "enum": [
+            "supports",
+            "contradicts",
+            "context"
+          ]
+        },
+        "anchor": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/anchor"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "quote_status": {
+          "enum": [
+            "unverified",
+            "verified",
+            "mismatch",
+            "not-checkable"
+          ]
+        },
+        "quote_verified_at": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "record_revision",
+        "source_type",
+        "title",
+        "authors",
+        "url",
+        "final_url",
+        "source_revision",
+        "retrieval_status",
+        "attempted_at",
+        "retrieved_at",
+        "content_sha256",
+        "media_type",
+        "extraction",
+        "currency_status",
+        "currency_note",
+        "verification_status",
+        "verification_at",
+        "storage_mode",
+        "license_or_permission_basis",
+        "storage_location_class",
+        "retention_or_expiry",
+        "access_scope",
+        "access_scope_label",
+        "inherited_from",
+        "uncertainty"
+      ],
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "pattern": "^SRC-[0-9]{3}$"
+        },
+        "record_revision": {
+          "type": "integer"
+        },
+        "source_type": {
+          "enum": [
+            "official-doc",
+            "standard",
+            "paper",
+            "author-implementation",
+            "repository",
+            "issue-tracker",
+            "article",
+            "other"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "url": {
+          "type": "string",
+          "minLength": 1
+        },
+        "final_url": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_revision": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retrieval_status": {
+          "enum": [
+            "retrieved",
+            "unreachable",
+            "access-restricted",
+            "not-attempted"
+          ]
+        },
+        "attempted_at": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retrieved_at": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "content_sha256": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "media_type": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "extraction": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/extraction"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "currency_status": {
+          "enum": [
+            "current",
+            "stale",
+            "retracted",
+            "unknown"
+          ]
+        },
+        "currency_note": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "verification_status": {
+          "enum": [
+            "unverified",
+            "hash-verified",
+            "hash-mismatch",
+            "not-verifiable"
+          ]
+        },
+        "verification_at": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "storage_mode": {
+          "enum": [
+            "reference_only",
+            "local_cache",
+            "licensed_shared",
+            "blocked"
+          ]
+        },
+        "license_or_permission_basis": {
+          "$ref": "#/definitions/permission"
+        },
+        "storage_location_class": {
+          "enum": [
+            "none",
+            "local-cache",
+            "shared-store"
+          ]
+        },
+        "retention_or_expiry": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/retention"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "access_scope": {
+          "enum": [
+            "none",
+            "local-user",
+            "named-group"
+          ]
+        },
+        "access_scope_label": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "inherited_from": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/inherited"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "uncertainty": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_id",
+        "record_revision",
+        "statement",
+        "evidence_status",
+        "search_record",
+        "citations",
+        "semantic_status",
+        "semantic_assessed_by",
+        "semantic_note",
+        "uncertainty"
+      ],
+      "properties": {
+        "claim_id": {
+          "type": "string",
+          "pattern": "^CLM-[0-9]{3}$"
+        },
+        "record_revision": {
+          "type": "integer"
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_status": {
+          "enum": [
+            "cited",
+            "conflicting",
+            "searched-not-found",
+            "not-searched",
+            "unreachable"
+          ]
+        },
+        "search_record": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "searched_at",
+                "scope"
+              ],
+              "properties": {
+                "searched_at": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "scope": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "citations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/citation"
+          }
+        },
+        "semantic_status": {
+          "enum": [
+            "unassessed",
+            "supported",
+            "not-supported",
+            "disputed"
+          ]
+        },
+        "semantic_assessed_by": {
+          "enum": [
+            null,
+            "human",
+            "independent-review"
+          ]
+        },
+        "semantic_note": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "uncertainty": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

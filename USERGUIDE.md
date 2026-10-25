@@ -11,6 +11,10 @@ SDD のワークフロー手順・Skill の選び方・トラブルシューテ�
 
 ## エージェントモデルルーティング — Effort Policy
 
+固有スキル・用途別探索・原文根拠・計測の開発版補助CLIは
+[スキルリファレンス](docs/skill-reference.md#任意の検証探索ツール開発版)を参照してください。
+これらの観測データはMCPやモデル選択の認可を変更しません。
+
 `select-agent-model` の `--effort-policy` は、T-007 (Issue #155,
 epic-159-pillar-c Phase 2) 以降、既定値が `matrix` になった
 (`risk_effort_matrix` に基づくリスク連動 effort 選択 + escalation bump +

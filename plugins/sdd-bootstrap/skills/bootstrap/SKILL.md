@@ -122,6 +122,27 @@ probe's.
 
 ## Routing
 
+### Explicit reusable project procedure
+
+When the user explicitly asks to create a reusable repository-specific procedure,
+delegate to the internal `create-project-skill` skill. For an existing procedure
+whose inputs or implementation changed, delegate to `maintain-project-skill`.
+Read only the selected skill. These optional routes do not change normal
+specification or Full/Lite selection, approvals, or required gate ownership.
+
+### Optional purpose playbook
+
+For an explicit investigation, bug fix, performance investigation, isolated
+prototype or handoff request, read `references/decision-packet.md` and invoke the
+installed `scripts/workflow-playbook.py` with the bounded request described there.
+Read only its selected playbook. This selects a work method, never a track or an
+approval: retain the ordinary routing below, managed allocation boundaries and
+existing handoff formats. A prototype requires separately authorized host isolation;
+the helper grants no write authority. Unsupported requests stay in ordinary
+bootstrap clarification, never fall through to direct implementation. If several
+options need a human decision, use the passive decision packet described in that
+reference and revalidate its input pins on every resume.
+
 ### Explicit cloud operation handoff
 
 Only when the user explicitly selects an **existing cloud deployment unit** and
@@ -328,3 +349,18 @@ After sdd-bootstrap completes, report:
 - Human action required: set `Approval: Approved` on tasks in `tasks.md`
 - Next command: `/sdd-ship:ship specs/<feature-slug>/tasks.md`
   (or `/sdd-ship:ship --lite specs/<feature-slug>/tasks.md` for lite track)
+
+## Optional evidence and project skills
+
+When external evidence is needed, read
+[research-workflow](../../references/research-workflow.md) on demand. Use both
+available search routes with bounded budgets, then the safe acquisition and
+metadata adapters. Missing tools or originals remain open questions. Optional
+`research/review-input.json` is consumed by the existing spec/implementation
+reviewers; the existing contract owner checks source evidence. These inputs do
+not grant approval.
+
+When project-specific behavioral or formal verification is requested, invoke
+`create-project-skill`; when an existing project skill needs repair, invoke
+`maintain-project-skill`. These internal helpers preserve the existing gate
+owners and report actual observations separately from generation or discovery.

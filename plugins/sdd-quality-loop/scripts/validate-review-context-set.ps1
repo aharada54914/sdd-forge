@@ -993,13 +993,27 @@ print("true" if result.stdout else "false")
         $isConditionalInput = "$($document.stage):$($document.role)" -cmatch '^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab]|task:task-reviewer-[ab]|quality:sdd-evaluator)$' -and
             ($input.path -cmatch '^(domain|design-system)/' -or
              $input.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$'))
+        $researchPacketPath = "specs/$($document.feature)/research/review-input.json"
+        $isResearchInput = $document.stage -cin @('spec','impl') -and
+            $document.role -cmatch '^(spec|impl)-reviewer-[ab]$' -and
+            ($input.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/research/(review-input\.json|relations\.json|records/research-evidence\.json)$') -or
+             $input.path -cmatch '^docs/adr/[0-9]{4}-[a-z0-9-]+\.md$') -and
+            @($inputs | Where-Object { $_.path -ceq $researchPacketPath }).Count -eq 1
         $isAdrInput = $document.stage -ceq 'impl' -and
             $input.path.StartsWith('docs/adr/',[StringComparison]::Ordinal)
-        if ($isAdrInput -and $null -eq $verifiedAdrInputs) {
+        if ($isAdrInput -and -not $isResearchInput -and $null -eq $verifiedAdrInputs) {
             $verifiedAdrInputs = Get-CapturedAdrBinding $document $implPrechecks $implDesignBytes
         }
         $authorized = if (@($fixedReferences | Where-Object { $_.path -ceq $input.path -and $_.sha256 -ceq $input.sha256 }).Count -eq 1) {
             $true
+        } elseif ($isResearchInput) {
+            if ($null -ne $persistedMatch) {
+                $persistedMatch.ContainsKey('allowed_inputs_sha256')
+            } else {
+                $researchPath = $input.path
+                $researchHash = $input.sha256
+                @($conditionalInputs | Where-Object { $_.path -ceq $researchPath -and $_.sha256 -ceq $researchHash }).Count -eq 1
+            }
         } elseif ($isAdrInput) {
             $document.role -cin @('impl-reviewer-a','impl-reviewer-b') -and
             $verifiedAdrInputs.ContainsKey($input.path) -and

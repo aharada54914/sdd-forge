@@ -96,8 +96,13 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
      the report but do not block until the error promotion
      (`SDD_DOMAIN_ENFORCE=error`); when `domain/` is absent the script skips
      with a note.
-   - `check-workflow-state` without `--feature`: validates the canonical
-     persisted-state invariant for every registered specification.
+   - During a correction cycle, `check-workflow-state --feature <feature>` gives
+     early feedback on the selected specification. This result is explicitly
+     feature-scoped and cannot satisfy the final repository-wide check.
+     At finalization run `check-workflow-state` without `--feature`: validates the
+     canonical persisted-state invariant for every registered specification.
+     Any edit after that final check invalidates it; rerun before Done. Never
+     substitute a saved PASS flag, receipt timestamp or feature-only success.
    - `check-task-state` on tasks.md.
    - `check-contract` on the task contract: enforces the tier-minimum required
      set (superset rule) and, when `required_workflow` is `tdd`, non-empty
@@ -443,6 +448,9 @@ deterministic gates apply; every check runs as normal.
 
 Set the task to `Done` only when:
 
+- `check-workflow-state` without `--feature` passes against the final input tree,
+  including specifications outside the selected feature. A correction-cycle
+  feature check is early feedback only; it cannot authorize Done.
 - `check-risk` passes: valid tier + rationale, and `high`/`critical` declares
   `Required Workflow: tdd`
 - `check-contract` passes: every required contract check (the tier-minimum
@@ -523,3 +531,27 @@ these excuses — each one launders a claim into a `Done`.
 - An acceptance criterion with no test traced to it.
 - Setting `Done` while a Critical or Major finding is unresolved.
 - Running the critical review in the same context as the implementation.
+
+
+## Optional passive timing
+
+Existing execution owners accept `--measure-dir <new-empty-directory>` and
+`--measure-parent <open-parent-span-id>`: `tests/verification.py --run` and
+`sdd-lite/lib/run-lite-gate.py`. The immutable `sdd-run-measurement/v1` sidecar is
+observation only. It records separate command/gate/session spans, real outcomes,
+and hashes the owner's receipt/output only after publication. It does not replace
+run-records, contracts, independent review, evidence bundles or final checks.
+
+For existing Bash or PowerShell gate calls, open a measurement with
+`python run_measurement.py open --dir D --measurement-id ID --run-id RUN --scope feature --feature FEATURE`,
+then `start --dir D --phase gate --command-id GATE --span-id SPAN`; execute the
+original gate and save its exit code before calling
+`finish --dir D --span-id SPAN --outcome success|failure --exit-code CODE`.
+Return the saved original gate exit code, not the recorder's. Use an enclosing
+session span for aggregation. Record timeout/interruption only when the execution
+owner actually observed it; exit 124 alone is not a timeout observation.
+`summary` is obtained with `summarize --dir D --as-of none --ref-root ROOT`.
+Human-active and human-wait phases require explicit observation; unobserved time,
+tokens and cost stay null, never zero. Across processes on platforms without a
+shared monotonic clock domain, duration stays unknown. Native macOS/Windows clock
+domain support is not claimed by Linux validation.

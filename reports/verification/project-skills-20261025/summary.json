@@ -1,0 +1,62 @@
+{
+  "schema": "project-skill-development-verification/v1",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "python": "3.12.14",
+  "tests": [
+    {
+      "command": [
+        "python3",
+        "tests/project-skill-observation.tests.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.33625687700077833,
+      "log": "reports/verification/project-skills-20261025/check-1.log",
+      "sha256": "ee9a4979c42d850d2633676167696eabef5e9d0b1a5e75e7da34ee3f17231dd0"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/project-skill-lifecycle.tests.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.6219478610000806,
+      "log": "reports/verification/project-skills-20261025/check-2.log",
+      "sha256": "43921beb67419c02f444346cb275da2b4ff23ef12db17d27b9c9c52d73cc1ce6"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/project-skill-formal.tests.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.44881880799948703,
+      "log": "reports/verification/project-skills-20261025/check-3.log",
+      "sha256": "b42a4a34dd7e7ed08b4f3926d999d1965d8226e21d7d66436f1a286e6081e82e"
+    },
+    {
+      "command": [
+        "/workspace/.tools/sdd-forge-python/bin/ruff",
+        "check",
+        "plugins/sdd-quality-loop/scripts/validate-project-skill.py",
+        "plugins/sdd-bootstrap/scripts/project-skill.py",
+        "plugins/sdd-bootstrap/scripts/project-skill-process.py",
+        "tests/project-skill-observation.tests.py",
+        "tests/project-skill-lifecycle.tests.py",
+        "tests/project-skill-formal.tests.py",
+        "tests/verify-review-reservation.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.011673209999571554,
+      "log": "reports/verification/project-skills-20261025/check-4.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  ],
+  "limitations": [
+    "Native Claude/Codex/Copilot discovery/invocation not tested",
+    "macOS/Windows execution backend returns not-run",
+    "Process lifecycle tracking is not an OS sandbox",
+    "Formal result covers pinned two-contender model and reservation tail only",
+    "Registered catalog route temporarily blocked by concurrently created unregistered suites; direct commands below are actual executions"
+  ],
+  "passed": true
+}

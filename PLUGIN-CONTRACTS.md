@@ -3,6 +3,34 @@
 This document defines the inter-plugin interfaces for sdd-forge. These contracts
 govern how plugins communicate and hand off control at version boundaries.
 
+## Optional project skills, research and observation interfaces (development)
+
+These additions preserve the existing entry points, Full/Lite required-check
+sets, task authority and legacy no-option behavior. An observation, generated
+procedure or recommendation cannot approve a task or set Done.
+
+| Interface | Producer / consumer | Binding and authority |
+|---|---|---|
+| `project-skill-manifest/v1` and project verification observations | `project-skill.py` / `validate-project-skill.py` | Closed skill-file closure, runtime/check identity, task inputs and outputs. Trial observations cannot satisfy task gates; owner-side execution remains necessary. |
+| `sdd-run-measurement/v1` | Existing verification/Lite owners / `run_measurement.py` | Monotonic clock domains, immutable spans, exact artifact hashes, attempt lineage, explicit missing metrics. Measurement I/O failure after execution does not change the owner's result. |
+| Research evidence | `validate-research-evidence.py`, `check-source-evidence.py`, `research-evidence-tools.py` | Versioned Source/Claim metadata, original bytes, extractor provenance, exact citations and pinned REQ/ADR references. Matching a citation is not proving its interpretation true. |
+| `decision-packet/v1` | Existing bootstrap/ship optional playbooks / `decision-packet.py` | Selected packet digest, target/run/alternative identity and exact measured-source snapshots. Recommendations remain separate from signed human choices. |
+| `decision-choice/v1` | Existing human-operated sidecar issuer / decision display | `sdd-decision-choice-approval/v1` reuses the existing HMAC and approver registry. Immutable per-choice records bind packet/target/run/alternative, choice/reason, validity and prior history; they grant no task authority. |
+
+Schemas live in `contracts/`; installed project-skill and research validators
+use identical packaged schema copies under `plugins/sdd-quality-loop/contracts/`.
+The existing guard inventory protects the new validation paths and all three
+`decision-choice` basenames. The unsigned human choice record, signed approval
+and approved snapshot must remain available to detect superseded decisions.
+
+The project-skill runner's temporary execution tree is not an OS sandbox. Its
+process ownership backend is tested on Linux; unsupported backends return
+not-run. Host wrapper generation is separate from actual host discovery and
+invocation. Research acquisition refuses unsupported proxy/extractor boundaries
+rather than treating them as successful retrieval. No persistent verification
+cache, durable parallel scheduler, automatic human choice or automatic adoption
+is introduced by these interfaces.
+
 ## Read-only inspection through protection hooks
 
 The protection hooks allow file inspection independently of write protection.
