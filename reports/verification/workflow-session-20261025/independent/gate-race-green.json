@@ -1,0 +1,5 @@
+{
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"/workspace/scratch/issue-resolution-20261025/workflow-session-gate-race-review.py\", line 23, in <module>\n    with patch.object(m,'stable_file',side_effect=swap_read):result=m.batch(registry,['first','second'])\n                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/workflow-state-session.py\", line 244, in batch\n    after = capture(registry)\n            ^^^^^^^^^^^^^^^^^\n  File \"/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/workflow-state-session.py\", line 191, in capture\n    raise Ineligible('gate-dependency-audit-required')\nsession.Ineligible: gate-dependency-audit-required\n"
+}

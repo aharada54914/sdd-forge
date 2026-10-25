@@ -23,6 +23,7 @@ def main():
     parser.add_argument("--timeout", type=float, required=True)
     parser.add_argument("--inherit-stdin", action="store_true")
     parser.add_argument("--output-limit-bytes", type=int)
+    parser.add_argument('--sealed-input-fd', type=int, action='append', default=[])
     parser.add_argument("argv", nargs=argparse.REMAINDER)
     args = parser.parse_args()
     if not math.isfinite(args.timeout) or not 0 < args.timeout <= 3600:
@@ -36,6 +37,14 @@ def main():
     try:
         if sys.platform != "linux" or not command:
             raise ValueError("process-ownership-backend-unavailable")
+        if args.sealed_input_fd:
+            import fcntl
+            # Linux UAPI constants; some Python builds omit their symbolic exports.
+            required = 0x0f  # WRITE | SHRINK | GROW | SEAL
+            if (len(args.sealed_input_fd) > 8192 or len(set(args.sealed_input_fd)) != len(args.sealed_input_fd)
+                    or any(fd < 3 or fd == args.status_fd or fcntl.fcntl(fd, 1034) & required != required
+                           for fd in args.sealed_input_fd)):
+                raise ValueError('unsealed-input-fd')
         libc = ctypes.CDLL(None, use_errno=True)
         if libc.prctl(36, 1, 0, 0, 0) != 0:
             raise OSError("subreaper-registration-failed")
@@ -54,7 +63,7 @@ def main():
             resource.setrlimit(resource.RLIMIT_FSIZE, (limit, limit))
         process = subprocess.Popen(
             command, stdin=None if args.inherit_stdin else subprocess.DEVNULL,
-            close_fds=True, start_new_session=True
+            close_fds=True, start_new_session=True, pass_fds=tuple(args.sealed_input_fd)
         )
         deadline = time.monotonic() + args.timeout
         while process.poll() is None:

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Optional bounded Linux full-workflow batches reuse successful identical sealed executions within one process. Git-history/conditional-validator dependencies and unsupported snapshots require ordinary full checks; existing CLI behavior and independent contract/review gates remain unchanged.
+
 - Optional licensed shared originals reuse the existing cache lifecycle for preconfigured Linux group stores. Fresh reads recheck owner/group/modes, ACL exclusion, permission receipt and expiry before original-byte verification; remote storage remains unsupported.
 
 - Direct WebVTT/SRT acquisition preserves plain caption payloads and normalizes cue timing. Original re-verification derives quote time spans for HTML display using source-evidence-result/v2; existing non-subtitle results retain v1. Unsupported cue markup/settings and timing maps fail explicitly.

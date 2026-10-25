@@ -483,3 +483,29 @@ cannot write; unsupported remote/macOS/Windows profiles fail explicitly. Local
 acquisition has 30 PASS / 1 SKIP (distinct reader identities need privileged CI).
 The dedicated Linux CI case is added but its actual result remains pending.
 [Evidence](../../reports/verification/research-shared-store-20261025/README.md).
+
+The distinct Linux group-reader test subsequently passed in hosted run 40208046008
+(f7ebf27a, step completed 15:53:33 UTC). The test uses readable copies of actual
+product modules without changing runner-home permissions; child stderr now
+surfaces any failure. The wider hosted suite remains separately tracked.
+
+## Bounded full-workflow reuse follow-up — 2026-10-25
+
+#615/#618 now have an opt-in batch on the existing full checker. It uses the
+existing project process owner, sealed actual input/runtime bytes, same-process
+successful origins and final full revalidation. No saved PASS is admitted. Git
+history reconciliation and conditional external validators remain cold; ordinary
+Bash/PowerShell Full/Lite/legacy behavior and other minimum gates are unchanged.
+Nine actual session/negative tests, 35 existing project-runner tests and 419 guard
+parity checks pass. Independent review reproduced and closed a separate-audit-read
+race; independent normal parity and Passed Full cold-only behavior are recorded.
+[Verification](../../reports/verification/workflow-session-20261025/README.md).
+
+The original #614 frozen repository exceeds the initial sealed-file bound and
+has zero reuse. Its two-full-check component was 78.003 s ordinary versus 79.237 s
+with batch refusal/fallback (one pair). An additional, separately identified
+48-Pending-Full workload improved by 22.2% at five requests and 43.5% at ten, but
+was 13.4% slower at two. No half-time goal or whole-lifecycle speedup is claimed.
+The optional path is recommended only after measured total-time benefit; the
+implementation does not broaden closure or omit inputs to manufacture a hit.
+[Comparison](../../reports/verification/workflow-session-comparison-20261025/README.md).

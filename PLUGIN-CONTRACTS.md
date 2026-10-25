@@ -62,6 +62,15 @@ owner uses an optional pinned `research/review-input.json` envelope and the runt
 cache, durable parallel scheduler, automatic human choice or automatic adoption
 is introduced by these interfaces.
 
+## Bounded full-workflow batches
+
+The optional Linux full-workflow `--batch` API uses workflow-state-batch/v1 and
+workflow-state-batch-result/v1. Only actual, same-process, successful sealed-byte
+executions can be reused; no saved result is accepted as proof. Final full input
+revalidation binds every returned request. Unsupported dependency/runtime/input
+profiles return cold-required (exit 2), requiring the ordinary full checker.
+Other required gates and review authority are unchanged. See ADR-0045.
+
 ## Read-only inspection through protection hooks
 
 The protection hooks allow file inspection independently of write protection.

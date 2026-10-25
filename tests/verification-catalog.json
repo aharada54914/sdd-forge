@@ -2358,6 +2358,13 @@
       ]
     },
     {
+      "path": "tests/workflow-state-session.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
       "path": "tests/project-skill-lifecycle.tests.py",
       "runtime": "python",
       "ci_jobs": [
@@ -2637,6 +2644,7 @@
       "tests/golden-eval.tests.py",
       "tests/run-measurement-integration.tests.py",
       "tests/factory-workflow.tests.py",
+      "tests/workflow-state-session.tests.py",
       "tests/project-skill-lifecycle.tests.py",
       "tests/research-acquire.tests.py",
       "tests/research-consumers.tests.py",
@@ -2899,6 +2907,7 @@
       "tests/golden-eval.tests.py",
       "tests/run-measurement-integration.tests.py",
       "tests/factory-workflow.tests.py",
+      "tests/workflow-state-session.tests.py",
       "tests/project-skill-lifecycle.tests.py",
       "tests/research-acquire.tests.py",
       "tests/research-consumers.tests.py",

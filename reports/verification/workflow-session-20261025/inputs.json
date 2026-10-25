@@ -1,0 +1,10 @@
+{
+  "reusable": false,
+  "files": {
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh": "8ddf68a6dea4adc4193007db61e4a024d3ea4b7cf50a9e75cc97885757b042be",
+    "plugins/sdd-quality-loop/scripts/workflow-state-session.py": "0bd8fd0571d21787e736cd5860504bee7bdb4971feac788e64d79dbec75b4746",
+    "plugins/sdd-bootstrap/scripts/project-skill.py": "2e85f50513653a92b974feed7c52593e52158fd0c05eb48a45beb14cce5b4ed5",
+    "plugins/sdd-bootstrap/scripts/project-skill-process.py": "2311490d2503ccd270bb90795b8de4c98ad6bc4bc05acd250d689b62a7ec5efa",
+    "tests/workflow-state-session.tests.py": "94803d74df6ac4be4df38cbc47d7aef795df22b96a979a63b6959bbc5c42ec09"
+  }
+}

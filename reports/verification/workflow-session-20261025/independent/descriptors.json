@@ -1,0 +1,30 @@
+[
+  {
+    "case": "sealed-input-write",
+    "denied": true
+  },
+  {
+    "case": "sealed-child-fd-inventory",
+    "exit_code": 0,
+    "stdout": "/proc/self/fd/0\n/proc/self/fd/1\n/proc/self/fd/2\n/proc/self/fd/3\n",
+    "stderr": "",
+    "reason": null,
+    "cleanup": true
+  },
+  {
+    "case": "private-parent-fd-not-inherited",
+    "exit_code": 0,
+    "stdout": "PRIVATE_FD_ABSENT",
+    "stderr": "",
+    "reason": null,
+    "cleanup": true
+  },
+  {
+    "case": "unsealed-fd-refused",
+    "exit_code": 125,
+    "stdout": "",
+    "stderr": "",
+    "reason": "unsealed-input-fd",
+    "cleanup": false
+  }
+]

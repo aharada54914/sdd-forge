@@ -1,0 +1,36 @@
+{
+  "schema": "workflow-state-batch-result/v1",
+  "scope": "repository",
+  "results": [
+    {
+      "request": "first",
+      "run_id": "dc41bb9dd56447a1a848fc1ed375d5c9",
+      "executed": true,
+      "reuse_reason": null,
+      "snapshot_sha256": "9740cc2c98ca84d3546994a19cce07177f9a8bdccb4f5b23a7447597f15a14a4",
+      "exit_code": 0,
+      "stdout": "Rk9SR0VEX0NIRUNLRVJfU1VDQ0VTUwo=",
+      "stderr": "",
+      "stdout_sha256": "578ec697bde37c59219c9cb0786fc3bada4e0f290bb25ae34808f2080e47efb6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "request_seconds": 0.5222113139971043
+    },
+    {
+      "request": "second",
+      "run_id": "dc41bb9dd56447a1a848fc1ed375d5c9",
+      "executed": false,
+      "reuse_reason": "same-process-identical-sealed-inputs",
+      "snapshot_sha256": "9740cc2c98ca84d3546994a19cce07177f9a8bdccb4f5b23a7447597f15a14a4",
+      "exit_code": 0,
+      "stdout": "Rk9SR0VEX0NIRUNLRVJfU1VDQ0VTUwo=",
+      "stderr": "",
+      "stdout_sha256": "578ec697bde37c59219c9cb0786fc3bada4e0f290bb25ae34808f2080e47efb6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "request_seconds": 0.23251916300068842
+    }
+  ],
+  "snapshot_sha256": "9740cc2c98ca84d3546994a19cce07177f9a8bdccb4f5b23a7447597f15a14a4",
+  "complete": true,
+  "authority": "full-workflow-check-only; other required gates and approvals remain independent",
+  "fixture_scope": "Only gate location redirected to disposable fixture; real capture/seals/bwrap/runner retained. Audit read sees original, snapshot read sees stable alternate inode through untracked parent alias."
+}

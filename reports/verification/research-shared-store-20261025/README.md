@@ -24,3 +24,11 @@ Expiry rejects fresh verification; explicit purge removes files. Already-read
 copies/open descriptors and background expiry deletion are not promised.
 
 inputs.json contains the exact tested source digests, not a reusable PASS receipt.
+
+Follow-up: hosted run 40208046008 on f7ebf27a reports the distinct-reader step
+successful (2026-10-25 15:53:33 UTC), recorded in hosted-distinct-readers.json.
+The first hosted attempt exposed a test fixture access boundary: reader processes
+could not rely on traversing the runner-private checkout. The corrected test
+copies exact product modules/schema into the readable fixture area, leaving the
+runner home private and exposing child stderr on failure. The full CI job was
+still running when this step evidence was captured; it is not a whole-CI PASS.

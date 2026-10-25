@@ -77,7 +77,7 @@ def seal(root, name, runtime, entry, checks, requires):
     }
 
 
-def execute(argv, cwd, timeout, limit):
+def execute(argv, cwd, timeout, limit, *, input_fds=()):
     """Bound capture; the dedicated Linux subreaper owns detached descendants."""
     validate_limits(timeout, limit)
     if sys.platform != "linux":
@@ -92,6 +92,7 @@ def execute(argv, cwd, timeout, limit):
                 str(write_fd),
                 "--timeout",
                 str(timeout),
+                *[part for fd in input_fds for part in ('--sealed-input-fd', str(fd))],
                 "--",
                 *argv,
             ],
@@ -100,7 +101,7 @@ def execute(argv, cwd, timeout, limit):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             start_new_session=True,
-            pass_fds=(write_fd,),
+            pass_fds=(write_fd, *input_fds),
         )
     finally:
         os.close(write_fd)

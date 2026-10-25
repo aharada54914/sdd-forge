@@ -1,0 +1,256 @@
+{
+  "scope": "Linux Bash and Linux PowerShell; sealed batch Linux bubblewrap only",
+  "passed": true,
+  "results": [
+    {
+      "case": "valid",
+      "bash": {
+        "exit_code": 0,
+        "stdout": "workflow-state: ok\n",
+        "stderr": ""
+      },
+      "powershell": {
+        "exit_code": 0,
+        "stdout": "workflow-state: ok\n",
+        "stderr": ""
+      },
+      "sealed_raw": {
+        "exit_code": 75,
+        "stdout": "",
+        "stderr": "workflow-state: repository: snapshot-ineligible: git-history\nworkflow-state: workflow-state-integrity: stage-provenance: spec reviewer manifest input hash is stale\n",
+        "reason": null,
+        "cleanup": true
+      },
+      "batch_cli_exit": 2,
+      "batch": {
+        "schema": "workflow-state-batch-result/v1",
+        "complete": false,
+        "status": "cold-required",
+        "reason": "external-or-historical-dependency",
+        "results": []
+      },
+      "comparison": "explicit cold fallback, no published PASS"
+    },
+    {
+      "case": "stale",
+      "bash": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "workflow-state: workflow-state-integrity: stage-provenance: implementation design hash is stale\n"
+      },
+      "powershell": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "workflow-state: workflow-state-integrity: stage-provenance: implementation design hash is stale\n"
+      },
+      "batch_cli_exit": 2,
+      "batch": {
+        "schema": "workflow-state-batch-result/v1",
+        "complete": false,
+        "status": "cold-required",
+        "reason": "external-or-historical-dependency",
+        "results": []
+      },
+      "comparison": "explicit cold fallback, no published PASS"
+    },
+    {
+      "case": "forged",
+      "bash": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "workflow-state: workflow-state-integrity: stage-provenance: task review contract identity is invalid\n"
+      },
+      "powershell": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "workflow-state: workflow-state-integrity: stage-provenance: task review contract identity is invalid\n"
+      },
+      "batch_cli_exit": 2,
+      "batch": {
+        "schema": "workflow-state-batch-result/v1",
+        "complete": false,
+        "status": "cold-required",
+        "reason": "external-or-historical-dependency",
+        "results": []
+      },
+      "comparison": "explicit cold fallback, no published PASS"
+    },
+    {
+      "case": "invalid",
+      "bash": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "workflow-state: repository: registry-malformed: registry is not valid JSON\n"
+      },
+      "powershell": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "workflow-state: repository: registry-malformed: registry is not valid JSON\n"
+      },
+      "batch_cli_exit": 1,
+      "batch": {
+        "authority": "full-workflow-check-only; other required gates and approvals remain independent",
+        "complete": false,
+        "results": [
+          {
+            "cleanup": true,
+            "executed": true,
+            "exit_code": 1,
+            "finished_at": "2026-10-25T15:49:32.209726+00:00",
+            "request": "first",
+            "request_seconds": 0.6152885549963685,
+            "reuse_reason": null,
+            "run_id": "cbbc85e95a8949d499050f6388b25a7c",
+            "snapshot_sha256": "3e7b8ebed5a410dc4b7df1df3f996727802ba4e259b44bcef6f51032a8452f72",
+            "started_at": "2026-10-25T15:49:31.840193+00:00",
+            "stderr": "d29ya2Zsb3ctc3RhdGU6IHJlcG9zaXRvcnk6IHJlZ2lzdHJ5LW1hbGZvcm1lZDogcmVnaXN0cnkgaXMgbm90IHZhbGlkIEpTT04K",
+            "stderr_sha256": "3f69b5943d384ea0e3222105cebb255dbb841f773a9714aec649e64723849c11",
+            "stdout": "",
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "cleanup": true,
+            "executed": true,
+            "exit_code": 1,
+            "finished_at": "2026-10-25T15:49:32.804487+00:00",
+            "request": "second",
+            "request_seconds": 0.5936733050039038,
+            "reuse_reason": null,
+            "run_id": "5f08427164744109993cb5e01c251133",
+            "snapshot_sha256": "3e7b8ebed5a410dc4b7df1df3f996727802ba4e259b44bcef6f51032a8452f72",
+            "started_at": "2026-10-25T15:49:32.454343+00:00",
+            "stderr": "d29ya2Zsb3ctc3RhdGU6IHJlcG9zaXRvcnk6IHJlZ2lzdHJ5LW1hbGZvcm1lZDogcmVnaXN0cnkgaXMgbm90IHZhbGlkIEpTT04K",
+            "stderr_sha256": "3f69b5943d384ea0e3222105cebb255dbb841f773a9714aec649e64723849c11",
+            "stdout": "",
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ],
+        "schema": "workflow-state-batch-result/v1",
+        "scope": "repository",
+        "snapshot_sha256": "3e7b8ebed5a410dc4b7df1df3f996727802ba4e259b44bcef6f51032a8452f72"
+      },
+      "comparison": "same normal exit and stderr"
+    },
+    {
+      "case": "boundary",
+      "bash": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "workflow-state: repository: registry-malformed: registry shape or version is invalid\n"
+      },
+      "powershell": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "workflow-state: repository: registry-malformed: registry shape or version is invalid\n"
+      },
+      "batch_cli_exit": 1,
+      "batch": {
+        "authority": "full-workflow-check-only; other required gates and approvals remain independent",
+        "complete": false,
+        "results": [
+          {
+            "cleanup": true,
+            "executed": true,
+            "exit_code": 1,
+            "finished_at": "2026-10-25T15:49:33.889528+00:00",
+            "request": "first",
+            "request_seconds": 0.6081842760031577,
+            "reuse_reason": null,
+            "run_id": "8e158e145da34c478b98f86fe071e462",
+            "snapshot_sha256": "22767eb48d787d2fc97367fd624301724ebf486a35c727dc204dcfa8e175f5a9",
+            "started_at": "2026-10-25T15:49:33.523775+00:00",
+            "stderr": "d29ya2Zsb3ctc3RhdGU6IHJlcG9zaXRvcnk6IHJlZ2lzdHJ5LW1hbGZvcm1lZDogcmVnaXN0cnkgc2hhcGUgb3IgdmVyc2lvbiBpcyBpbnZhbGlkCg==",
+            "stderr_sha256": "2bbb978a0bae575988d0afa0b2d5fa6a3ef393b645750129fb367bb24a0cc986",
+            "stdout": "",
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "cleanup": true,
+            "executed": true,
+            "exit_code": 1,
+            "finished_at": "2026-10-25T15:49:34.492409+00:00",
+            "request": "second",
+            "request_seconds": 0.6011545739966095,
+            "reuse_reason": null,
+            "run_id": "c44be358716a49f281464d70fc5ca3c2",
+            "snapshot_sha256": "22767eb48d787d2fc97367fd624301724ebf486a35c727dc204dcfa8e175f5a9",
+            "started_at": "2026-10-25T15:49:34.135049+00:00",
+            "stderr": "d29ya2Zsb3ctc3RhdGU6IHJlcG9zaXRvcnk6IHJlZ2lzdHJ5LW1hbGZvcm1lZDogcmVnaXN0cnkgc2hhcGUgb3IgdmVyc2lvbiBpcyBpbnZhbGlkCg==",
+            "stderr_sha256": "2bbb978a0bae575988d0afa0b2d5fa6a3ef393b645750129fb367bb24a0cc986",
+            "stdout": "",
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ],
+        "schema": "workflow-state-batch-result/v1",
+        "scope": "repository",
+        "snapshot_sha256": "22767eb48d787d2fc97367fd624301724ebf486a35c727dc204dcfa8e175f5a9"
+      },
+      "comparison": "same normal exit and stderr"
+    },
+    {
+      "case": "pending",
+      "bash": {
+        "exit_code": 0,
+        "stdout": "workflow-state: ok\n",
+        "stderr": ""
+      },
+      "powershell": {
+        "exit_code": 0,
+        "stdout": "workflow-state: ok\n",
+        "stderr": ""
+      },
+      "batch_cli_exit": 0,
+      "batch": {
+        "authority": "full-workflow-check-only; other required gates and approvals remain independent",
+        "complete": true,
+        "results": [
+          {
+            "cleanup": true,
+            "executed": true,
+            "exit_code": 0,
+            "finished_at": "2026-10-25T15:50:08.402904+00:00",
+            "request": "first",
+            "request_seconds": 0.5454696060041897,
+            "reuse_reason": null,
+            "run_id": "148133f0f759451f996968bcd5a99189",
+            "snapshot_sha256": "4db1823fbe4931632e596433c4c45ab1efd978b0364e97037d23b6ae45bc68a0",
+            "started_at": "2026-10-25T15:50:08.093444+00:00",
+            "stderr": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout": "d29ya2Zsb3ctc3RhdGU6IG9rCg==",
+            "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0"
+          },
+          {
+            "cleanup": true,
+            "executed": false,
+            "exit_code": 0,
+            "finished_at": "2026-10-25T15:50:08.402904+00:00",
+            "request": "second",
+            "request_seconds": 0.24756254899693886,
+            "reuse_reason": "same-process-identical-sealed-inputs",
+            "run_id": "148133f0f759451f996968bcd5a99189",
+            "snapshot_sha256": "4db1823fbe4931632e596433c4c45ab1efd978b0364e97037d23b6ae45bc68a0",
+            "started_at": "2026-10-25T15:50:08.093444+00:00",
+            "stderr": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout": "d29ya2Zsb3ctc3RhdGU6IG9rCg==",
+            "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0"
+          }
+        ],
+        "schema": "workflow-state-batch-result/v1",
+        "scope": "repository",
+        "snapshot_sha256": "4db1823fbe4931632e596433c4c45ab1efd978b0364e97037d23b6ae45bc68a0"
+      },
+      "comparison": "same normal exit/stdout/stderr; second request reuses sealed in-process execution"
+    }
+  ],
+  "product_sha256": {
+    "workflow-state-session.py": "37329629ce5974e8770f671695e9c0c9eca69d1de7615260c8da4a40b350e331",
+    "check-workflow-state.sh": "9b7f892c35e8791b4b08cf1b6ac1878159448bb6c34051cd1c1dc788b240f352",
+    "check-workflow-state.ps1": "c02d45ba955758f10c9cf6a58cfdf7ac96cf0241c163aee749a2ed33f28ba397"
+  },
+  "existing_checks": {
+    "workflow_state_session_tests": 7,
+    "workflow_state_bash_powershell_parity": "passed"
+  }
+}

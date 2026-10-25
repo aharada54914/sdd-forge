@@ -103,6 +103,21 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
      canonical persisted-state invariant for every registered specification.
      Any edit after that final check invalidates it; rerun before Done. Never
      substitute a saved PASS flag, receipt timestamp or feature-only success.
+     Only when the existing measurement owner shows a total-time benefit for
+     several tasks evaluated together on an unchanged repository, an optional
+     supported Linux profile can use `check-workflow-state.sh --batch
+     <requests.json>`. The external request file contains only
+     `{"schema":"workflow-state-batch/v1","requests":["feature/T-001","feature/T-002"]}`.
+     It requests the same full scan for each label; labels do not grant task
+     approval. Keep requests, outputs and measurements outside the checked tree.
+     Accept only this invocation's completed result bound to its final snapshot;
+     retained origin run IDs/timestamps identify any same-process reuse. Exit 2
+     (`cold-required`) means run the ordinary full checker, with no earlier batch
+     PASS reused. Exit 1 retains ordinary failed-check diagnostics. All remaining
+     gates below and independent reviewers still run. This optional profile does
+     not support Git-history reconciliation, conditional external validators,
+     symlinks/ACLs, oversized trees or arbitrary build/test caching. See
+     `docs/adr/0045-workflow-session-reuse.md` for the execution boundary.
    - `check-task-state` on tasks.md.
    - `check-contract` on the task contract: enforces the tier-minimum required
      set (superset rule) and, when `required_workflow` is `tdd`, non-empty
