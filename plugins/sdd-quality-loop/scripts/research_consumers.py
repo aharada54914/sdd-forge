@@ -20,7 +20,9 @@ from research_evidence import (
 )
 
 
-from research_extraction import extract
+from research_extraction import extract, subtitle_range
+
+SUBTITLE_METHODS = ('webvtt-plain-cues/v1', 'srt-plain-cues/v1')
 
 
 def closed(value, keys):
@@ -155,8 +157,10 @@ def verify_originals(
                     extracted=item["extracted"],
                 )
             )
+            if sources[key]['extraction']['method'] in SUBTITLE_METHODS:
+                results[-1]['time_range'] = subtitle_range(text, anchor['line_start'], anchor['line_end'])
     return dict(
-        schema="source-evidence-result/v1",
+        schema="source-evidence-result/v2" if any('time_range' in result for result in results) else "source-evidence-result/v1",
         feature=document["feature"],
         verified_at=now,
         meaning_assessed=False,
@@ -472,6 +476,14 @@ def render_report(doc, verified, annotations=None):
                 )
             if r["result"] == "reverified":
                 a = cite["anchor"]
+                if 'time_range' in r:
+                    def clock(milliseconds):
+                        seconds, fraction = divmod(milliseconds, 1000)
+                        minutes, seconds = divmod(seconds, 60)
+                        hours, minutes = divmod(minutes, 60)
+                        return f'{hours:02}:{minutes:02}:{seconds:02}.{fraction:03}'
+                    span = r['time_range']
+                    parts.append(f"<p>Subtitle cue time: {clock(span['start_ms'])}–{clock(span['end_ms'])}; timing from the caption file, video alignment not independently verified.</p>")
                 parts.append(
                     f"<details><summary>Original excerpt, lines {a['line_start']}–{a['line_end']}</summary><blockquote>{esc(a['quote'])}</blockquote></details>"
                 )
@@ -496,7 +508,7 @@ def validate_verification_record(doc, verification):
         ["schema", "feature", "verified_at", "meaning_assessed", "results", "complete"],
     )
     require(
-        verification["schema"] == "source-evidence-result/v1"
+        verification["schema"] in ("source-evidence-result/v1", "source-evidence-result/v2")
         and verification["feature"] == doc["feature"]
         and verification["meaning_assessed"] is False
         and type(verification["complete"]) is bool
@@ -524,6 +536,7 @@ def validate_verification_record(doc, verification):
             "source_id",
             "source_revision",
         ]
+        source = sources[(cite["source_id"], cite["source_record_revision"])]
         if result["result"] == "reverified":
             keys += [
                 "matching",
@@ -533,6 +546,14 @@ def validate_verification_record(doc, verification):
                 "original",
                 "extracted",
             ]
+            if source['extraction']['method'] in SUBTITLE_METHODS:
+                require(verification['schema'] == 'source-evidence-result/v2', 'research-review-invalid')
+                keys.append('time_range')
+                span = result.get('time_range')
+                closed(span, ['start_ms', 'end_ms'])
+                require(type(span['start_ms']) is int and type(span['end_ms']) is int
+                        and 0 <= span['start_ms'] < span['end_ms'] < 3600000000000,
+                        'research-review-invalid')
         closed(result, keys)
         require(
             result["claim_id"] == claim["claim_id"]

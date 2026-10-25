@@ -377,6 +377,7 @@ def acquire(url, hosts, *, allow_http=False, timeout=15, redirects=3):
         methods.update(
             {"text/html": "html-text/v1", "application/xhtml+xml": "html-text/v1"}
         )
+        methods.update({"text/vtt": "webvtt-plain-cues/v1", "application/x-subrip": "srt-plain-cues/v1"})
         require(
             (media in methods and metadata["extraction"]["method"] == methods[media])
             or (media == "application/pdf" and isinstance(metadata["extraction"]["method"], str)

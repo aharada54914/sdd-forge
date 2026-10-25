@@ -118,7 +118,7 @@ def failed_research_history(root, feature, stage, relative):
             or any(not isinstance(reviewer, dict) or not isinstance(reviewer.get('role'), str) for reviewer in reviewers)
             or {reviewer.get('role') for reviewer in reviewers} != {'impl-reviewer-a', 'impl-reviewer-b'}):
         raise ValueError('invalid failed research reviewers')
-    all_pins = []
+    all_pins: list[dict[str, str]] = []
     runs, sessions = set(), set()
     for reviewer in reviewers:
         actual = saved('reviewer-' + reviewer['role'][-1] + '.json')

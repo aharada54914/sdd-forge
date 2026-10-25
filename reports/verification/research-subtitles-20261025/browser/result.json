@@ -1,0 +1,77 @@
+{
+  "schema": "subtitle-display-evaluation/v1",
+  "runtime": {
+    "browser": "Chromium",
+    "version": "154.0.8037.57",
+    "python": "3.12.14",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.41"
+  },
+  "product_sha256": {
+    "research_consumers.py": "5ce1a067d7330b0cc15e5a7a9125ee2c5fdbb2c3466b4a8fbf42b6af334f4bb1",
+    "research_extraction.py": "ee970a8d084cbc096563a999bca2d1bde3fade51da40f15f74b51b22d555b0b9",
+    "research-evidence-tools.py": "efd207a4566dda87b4459cbb2cc60dae42a4ef94a42f5e0923086ddce49aba84"
+  },
+  "cli": [
+    {
+      "case": "subtitle",
+      "check_exit": 0,
+      "report_exit": 0,
+      "schema": "source-evidence-result/v2",
+      "time_range": {
+        "end_ms": 3500,
+        "start_ms": 1200
+      },
+      "report_sha256": "0a53e378a59b5e9bbc566b71d709356efb3f764401510c1e0d9245cbf96f645e"
+    },
+    {
+      "case": "forged-extracted-time",
+      "report_exit": 1,
+      "prior_report_preserved": true,
+      "diagnostic": "research-evidence: INVALID: extraction-provenance-mismatch /"
+    },
+    {
+      "case": "subtitle-markup",
+      "report_exit": 1,
+      "prior_report_preserved": true,
+      "diagnostic": "research-evidence: INVALID: subtitle-markup-unsupported /"
+    },
+    {
+      "case": "plain",
+      "check_exit": 0,
+      "report_exit": 0,
+      "schema": "source-evidence-result/v1",
+      "time_range": null,
+      "report_sha256": "60c6eeef7e58efbb3665f938e07a50fffdd2e27eeb88282a252483a2ba2f8981"
+    }
+  ],
+  "browser_checks": {
+    "subtitle": {
+      "original_click": true,
+      "translation_distinct": true,
+      "injection_inert": true,
+      "csp_present": true,
+      "no_cdn": true,
+      "time_display": true,
+      "video_limit_explicit": true
+    },
+    "plain": {
+      "original_click": true,
+      "translation_distinct": true,
+      "injection_inert": true,
+      "csp_present": true,
+      "no_cdn": true,
+      "legacy_no_subtitle_claim": true
+    }
+  },
+  "requests": [
+    "https://fixture.invalid/subtitle.html",
+    "https://fixture.invalid/plain.html"
+  ],
+  "network_scope": "Offline browser; exact local report bytes fulfilled by fixture route. No live source fetch or direct file:// test.",
+  "limitations": [
+    "Actual video synchronization and timestamp accuracy against video were not tested.",
+    "Only Linux Chromium was executed.",
+    "Plain-cue WebVTT subset tested; richer cue markup is explicitly rejected."
+  ],
+  "passed": true
+}

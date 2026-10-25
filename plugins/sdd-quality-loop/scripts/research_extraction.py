@@ -21,6 +21,57 @@ MAX_EXTRACTED = 2 * 1024 * 1024
 MAX_PDF = 32 * 1024 * 1024
 
 
+def subtitle_cues(text, media):
+    """Strict plain-cue subset: preserve payload, reject unsupported timing semantics."""
+    text = text.replace('\r\n', '\n')
+    require('\r' not in text and '\x00' not in text, 'subtitle-invalid')
+    blocks = re.split(r'\n[ \t]*\n', text.strip())
+    if media == 'text/vtt':
+        require(blocks and blocks.pop(0) == 'WEBVTT', 'subtitle-header-unsupported')
+    require(0 < len(blocks) <= 10000, 'subtitle-cue-limit')
+    cues, previous = [], -1
+    separator = '.' if media == 'text/vtt' else ','
+
+    def milliseconds(value):
+        pattern = r'(?:(\d{2,}):)?([0-5]\d):([0-5]\d)' + re.escape(separator) + r'(\d{3})'
+        match = re.fullmatch(pattern, value)
+        require(match is not None, 'subtitle-time-invalid')
+        hours, minutes, seconds, fraction = match.groups()
+        require(hours is None or len(hours) <= 6, 'subtitle-time-invalid')
+        return ((int(hours or 0) * 60 + int(minutes)) * 60 + int(seconds)) * 1000 + int(fraction)
+
+    for block in blocks:
+        lines = block.split('\n')
+        if '-->' not in lines[0]:
+            require(len(lines) > 1 and re.fullmatch(r'[A-Za-z0-9_-]{1,80}', lines.pop(0)) is not None,
+                    'subtitle-identifier-unsupported')
+        timing = re.fullmatch(r'(\S+) --> (\S+)', lines.pop(0))
+        require(timing is not None and lines and all(line.strip() for line in lines), 'subtitle-cue-invalid')
+        start, end = map(milliseconds, timing.groups())
+        require(previous <= start < end, 'subtitle-time-invalid')
+        # Inline timing, tags, regions and cue settings need a separate extraction recipe.
+        require(all('<' not in line and '>' not in line and '-->' not in line for line in lines),
+                'subtitle-markup-unsupported')
+        previous = start
+        cues.append((start, end, lines))
+    return cues
+
+
+def subtitle_range(text, start_line, end_line):
+    """Time span of selected payload lines in the canonical extraction."""
+    selected, active = [], None
+    for number, line in enumerate(text.split('\n'), 1):
+        timing = re.fullmatch(r'\[cue ([0-9]+) ([0-9]+) ms\]', line)
+        if timing:
+            active = tuple(map(int, timing.groups()))
+        elif not line:
+            active = None
+        if start_line <= number <= end_line and active is not None:
+            selected.append(active)
+    require(selected, 'subtitle-quote-time-missing')
+    return dict(start_ms=min(item[0] for item in selected), end_ms=max(item[1] for item in selected))
+
+
 def supervise(command, payload, timeout, *, prefix, output_limit, env=None):
     """Reuse the existing Linux subreaper; bounded output and owned descendants."""
     here = Path(__file__).resolve().parent
@@ -249,6 +300,8 @@ def extract(body, content_type):
         media
         in (
             "text/plain",
+            "text/vtt",
+            "application/x-subrip",
             "text/html",
             "application/xhtml+xml",
             "application/xml",
@@ -279,7 +332,14 @@ def extract(body, content_type):
         text = body.decode("utf-8-sig" if charset in ("utf-8", "utf8") else charset)
     except (UnicodeError, LookupError):
         raise Invalid("encoding-invalid") from None
-    if media in ("text/html", "application/xhtml+xml"):
+    if media in ('text/vtt', 'application/x-subrip'):
+        cues = subtitle_cues(text, media)
+        require(all(not re.fullmatch(r'\[cue [0-9]+ [0-9]+ ms\]', line)
+                    for _, _, lines in cues for line in lines), 'subtitle-reserved-payload')
+        text = '\n\n'.join(f'[cue {start} {end} ms]\n' + '\n'.join(lines)
+                           for start, end, lines in cues) + '\n'
+        method = 'webvtt-plain-cues/v1' if media == 'text/vtt' else 'srt-plain-cues/v1'
+    elif media in ("text/html", "application/xhtml+xml"):
         parser = TextHTML()
         parser.feed(text)
         require(

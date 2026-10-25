@@ -44,6 +44,11 @@ requires bubblewrap/user namespaces, pypdf and the existing project process
 supervisor. It shares extraction with original verification and records the parser
 version/source digest; encrypted/image-only PDFs and unavailable runtimes fail
 explicitly. Parser mounts are read-only and its network/environment are isolated.
+Direct WebVTT/SRT URLs support a bounded plain-cue subset with versioned extraction
+recipes. Fresh original re-verification emits `source-evidence-result/v2` when a
+subtitle quote has a derived `time_range` (`start_ms`, `end_ms`); ordinary results
+retain v1 unchanged. Stored v2 results are structural records, not fresh proof.
+HTML labels these as caption-file timings, without claiming video alignment.
 The existing source-evidence
 owner uses an optional pinned `research/review-input.json` envelope and the runtime
 `SDD_RESEARCH_SNAPSHOT_ROOT`; private cache paths are not persisted. HTML

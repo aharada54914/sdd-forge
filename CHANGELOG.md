@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Direct WebVTT/SRT acquisition preserves plain caption payloads and normalizes cue timing. Original re-verification derives quote time spans for HTML display using source-evidence-result/v2; existing non-subtitle results retain v1. Unsupported cue markup/settings and timing maps fail explicitly.
+
 - Optional PDF acquisition and original re-verification use the same isolated pypdf layout recipe on supported Linux runtimes. Parser source/version fingerprints, bounded output/resources and reused descendant supervision prevent stale-text replay, parent stdout exhaustion and timeout zombies; original project-runner defaults are preserved.
 
 - Research-enabled review now binds the entire input closure through Bash/PowerShell workflow gates, preserves strict design ADR pins, and supports research-only/relocated ADRs. Failed-review reopening uses saved identity/pin agreement; ordinary Pending-to-Passed requirements transitions preserve the original raw research digest without rewriting evidence.

@@ -1,0 +1,60 @@
+[
+  {
+    "case": "forged-canonical-marker",
+    "result": "subtitle-reserved-payload",
+    "elapsed": 0.0002491959967301227
+  },
+  {
+    "case": "inline-time",
+    "result": "subtitle-markup-unsupported",
+    "elapsed": 2.085100277327001e-05
+  },
+  {
+    "case": "cue-settings",
+    "result": "subtitle-cue-invalid",
+    "elapsed": 8.533002983313054e-06
+  },
+  {
+    "case": "backward-time",
+    "result": "subtitle-time-invalid",
+    "elapsed": 1.070599682861939e-05
+  },
+  {
+    "case": "overflow-minutes",
+    "result": "subtitle-time-invalid",
+    "elapsed": 9.405004675500095e-06
+  },
+  {
+    "case": "excess-hours",
+    "result": "subtitle-time-invalid",
+    "elapsed": 8.031995093915612e-06
+  },
+  {
+    "case": "nul",
+    "result": "subtitle-invalid",
+    "elapsed": 3.234999894630164e-06
+  },
+  {
+    "case": "bare-cr",
+    "result": "subtitle-invalid",
+    "elapsed": 2.564003807492554e-06
+  },
+  {
+    "case": "unsorted-cues",
+    "result": "subtitle-time-invalid",
+    "elapsed": 1.5051999071147293e-05
+  },
+  {
+    "case": "over-cue-limit",
+    "result": "subtitle-cue-limit",
+    "elapsed": 0.00176632399961818
+  },
+  {
+    "case": "second-cue-only",
+    "range": {
+      "start_ms": 3000,
+      "end_ms": 5000
+    },
+    "method": "webvtt-plain-cues/v1"
+  }
+]

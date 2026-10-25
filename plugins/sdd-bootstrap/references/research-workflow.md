@@ -49,8 +49,9 @@ append corrections. Full original bytes never belong in this metadata directory.
 
 Acquisition defaults to reference-only, without persistence. A permitted local
 cache requires `--cache`, `--repo-root`, `--permission-basis`, `--expires-at`;
-keep it private and outside the repository. Shared storage and PDF extraction
-are unsupported. `research-acquire.py --purge-cache <cache>` removes expired
+keep it private and outside the repository. Shared storage is unsupported;
+optional PDF extraction requires the isolated Linux runtime described below.
+`research-acquire.py --purge-cache <cache>` removes expired
 objects; add `--revoke <content-sha256>` for each object whose permission was revoked. No background scheduler
 is installed.
 
@@ -198,3 +199,27 @@ Default `reference_only` output contains metadata and hashes, not the full PDF
 or extracted body. Existing explicit local-cache rights/expiry controls apply to
 PDFs as they do to text. Licensed shared storage and unsupported environments
 still need their adapters. A failed acquisition does not replace old snapshots.
+
+## Direct subtitle originals
+
+A permitted direct caption URL with `text/vtt` or `application/x-subrip` uses the
+same host allowlist, bounded acquisition and rights/cache rules. No video-service
+downloader, authentication bypass or automatic transcript generation is added.
+The supported subset is plain WebVTT (`WEBVTT` header) or SRT cues, with optional
+simple identifiers, valid ordered start/end times and multiline plain payloads.
+Cue settings, regions, styles, notes, inline tags/timestamps and timestamp maps
+are rejected rather than silently changing meaning. CRLF becomes LF; payload
+words and punctuation are preserved. Overlapping cues are retained.
+
+The versioned recipes `webvtt-plain-cues/v1` and `srt-plain-cues/v1` produce a
+`[cue <start-ms> <end-ms> ms]` line followed by payload lines, with blank lines
+between cues. That header syntax is reserved and rejected inside payloads.
+Select ordinary quote lines using the existing line-based anchor and quote
+budget. Re-verification regenerates the entire extraction from the original,
+then derives the selected cue span. A subtitle result uses
+`source-evidence-result/v2` and includes `time_range` with integer `start_ms` and
+`end_ms`; other successful media continue to emit v1. Stored review packets may
+contain either version, but cannot substitute for fresh original verification.
+HTML shows the span as caption-file time; it does not prove synchronization with
+the video or semantic correctness. Original, excerpt and translation remain
+separate, and untrusted text is escaped.

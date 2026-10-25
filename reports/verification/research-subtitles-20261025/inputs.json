@@ -1,0 +1,11 @@
+{
+  "reusable": false,
+  "files": {
+    "plugins/sdd-quality-loop/scripts/research_extraction.py": "ee970a8d084cbc096563a999bca2d1bde3fade51da40f15f74b51b22d555b0b9",
+    "plugins/sdd-quality-loop/scripts/research_consumers.py": "5ce1a067d7330b0cc15e5a7a9125ee2c5fdbb2c3466b4a8fbf42b6af334f4bb1",
+    "plugins/sdd-bootstrap/scripts/research-acquire.py": "79e417b5b33a6838dd50b9cc73a2f101d8bcfd9fadf08a1f630d468914523c77",
+    "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py": "54dda8da53ccebc605cc0afa414b104886724929e46d48157ba02f89e3db6fc0",
+    "tests/research-acquire.tests.py": "43a7d2c3f1df9425ff37f3b35ca8685cac8ad68452fd84c3198001e6a8ee3428",
+    "tests/research-consumers.tests.py": "b42b9640df9d394a1f965356043e084c8f7639735fc8f8beb1de96b1397a0ea6"
+  }
+}

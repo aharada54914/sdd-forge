@@ -38,6 +38,36 @@ def response(url, addresses, timeout):
 
 
 class Acquire(unittest.TestCase):
+    def test_subtitles_preserve_payload_and_normalize_only_cue_timing(self):
+        for media, header, timing in [('text/vtt', 'WEBVTT\n\n', '00:01.200 --> 00:03.500'),
+                                      ('application/x-subrip', '1\n', '00:00:01,200 --> 00:00:03,500')]:
+            raw = (header + timing + '\nOriginal statement with context.\n').replace('\n', '\r\n').encode()
+            expected = b'[cue 1200 3500 ms]\nOriginal statement with context.\n'
+            transport = lambda *args: (200, {'content-type': media}, raw)
+            metadata, body, extracted = a._acquire('https://example.org/captions', ['example.org'],
+                                                   resolver=resolver, transport=transport)
+            self.assertEqual(raw, body)
+            self.assertEqual(expected, extracted)
+            packet = json.dumps(dict(metadata=metadata, body=base64.b64encode(body).decode(),
+                                     extracted=base64.b64encode(extracted).decode())).encode()
+            with mock.patch.object(a, 'getproxies', return_value={}), mock.patch.object(a, '_run_bounded', return_value=(0, packet)):
+                self.assertEqual(a.acquire('https://example.org/captions', ['example.org'])[0], metadata)
+
+    def test_subtitle_unsupported_semantics_and_forged_headers_fail_closed(self):
+        from research_extraction import extract
+        bad = ['WEBVTT\nX-TIMESTAMP-MAP=LOCAL:00:00:00.000,MPEGTS:900000\n\n00:01.000 --> 00:02.000\ntext',
+               'WEBVTT\n\n00:03.000 --> 00:02.000\ntext',
+               'WEBVTT\n\n00:01.000 --> 00:02.000 align:start\ntext',
+               'WEBVTT\n\n00:01.000 --> 00:02.000\n<00:01.500>text',
+               'WEBVTT\n\n00:01.000 --> 00:02.000\n[cue 9000 9500 ms]',
+               'WEBVTT\n\n00:01.000 --> 00:02.000\n<script>text</script>',
+               'WEBVTT\n\n00:61.000 --> 00:62.000\ntext',
+               'WEBVTT\n\n00:01.000 --> 00:02.000\ntext\n\nSTYLE\n::cue { color: red }',
+               'WEBVTT\n\n00:03.000 --> 00:05.000\nfirst\n\n00:01.000 --> 00:02.000\nsecond']
+        for value in bad:
+            with self.subTest(value=value), self.assertRaises(a.Invalid):
+                extract(value.encode(), 'text/vtt')
+
     def test_invalid_total_budget_never_launches_worker(self):
         for timeout in [float("nan"), float("inf"), -1, 0, 61, 10**1000, True, "1"]:
             with (

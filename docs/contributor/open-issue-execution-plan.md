@@ -463,3 +463,13 @@ root; never create an approval, model observation, identity or host result to
 make the graph appear unblocked. Review/implementation status stays in the
 existing feature artifacts, not in this planning document. #197 and #624 need
 actual operational/human trials and cannot be closed by static code inspection.
+
+## Direct subtitle follow-up — 2026-10-25
+
+#606/#610 now support direct WebVTT/SRT URLs using a strict plain-cue subset.
+Original-byte re-extraction derives quote time ranges for HTML; ordinary v1
+results are unchanged. Unsupported markup/settings/timestamp maps fail explicitly.
+Acquisition 29, consumer 15 and Bash/PowerShell owner 8 tests pass, with independent
+negative controls. [Evidence](../../reports/verification/research-subtitles-20261025/README.md).
+This does not establish live video synchronization or licensed shared storage.
+The CI all_pins missing type annotation is fixed; the same ruff/mypy check passes.

@@ -1,0 +1,69 @@
+{
+  "schema": "research-evidence/v1",
+  "feature": "sample",
+  "sources": [
+    {
+      "source_id": "SRC-001",
+      "record_revision": 1,
+      "source_type": "official-doc",
+      "title": "Fixture <script>window.__injected=1</script>",
+      "authors": [],
+      "url": "https://example.org/doc",
+      "final_url": "https://example.org/doc",
+      "source_revision": "v1",
+      "retrieval_status": "retrieved",
+      "attempted_at": "2026-10-01T00:00:00Z",
+      "retrieved_at": "2026-10-01T00:00:01Z",
+      "content_sha256": "25718360e05d3c2d0963d1381e9dd4dae5fca789244ee4b9f861adcc0cc96218",
+      "media_type": "text/plain",
+      "extraction": {
+        "method": "plain/v1",
+        "extracted_sha256": "25718360e05d3c2d0963d1381e9dd4dae5fca789244ee4b9f861adcc0cc96218"
+      },
+      "currency_status": "current",
+      "currency_note": null,
+      "verification_status": "unverified",
+      "verification_at": null,
+      "storage_mode": "reference_only",
+      "license_or_permission_basis": {
+        "status": "unknown",
+        "basis": null,
+        "asserted_by": null
+      },
+      "storage_location_class": "none",
+      "retention_or_expiry": null,
+      "access_scope": "none",
+      "access_scope_label": null,
+      "inherited_from": null,
+      "uncertainty": null
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "CLM-001",
+      "record_revision": 1,
+      "statement": "A claim needing independent interpretation",
+      "evidence_status": "cited",
+      "search_record": null,
+      "citations": [
+        {
+          "source_id": "SRC-001",
+          "source_record_revision": 1,
+          "relation": "supports",
+          "anchor": {
+            "line_start": 1,
+            "line_end": 1,
+            "quote": "original",
+            "quote_sha256": "0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5"
+          },
+          "quote_status": "unverified",
+          "quote_verified_at": null
+        }
+      ],
+      "semantic_status": "unassessed",
+      "semantic_assessed_by": null,
+      "semantic_note": null,
+      "uncertainty": null
+    }
+  ]
+}

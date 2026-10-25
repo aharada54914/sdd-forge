@@ -1,0 +1,7 @@
+Python: /workspace/.tools/sdd-forge-python/bin/python
+Command: ['/workspace/.tools/sdd-forge-python/bin/python', '-m', 'ruff', 'check', '--config', 'tests/shared-launch-python/pyproject.toml', 'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py', 'plugins/sdd-review-loop/scripts/probe-nontty-review.py', 'plugins/sdd-review-loop/scripts/preflight-host-review.py', 'plugins/sdd-review-loop/scripts/launch-impl-review.py', 'plugins/sdd-quality-loop/scripts/preflight-evaluator-delivery.py', 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py', 'plugins/sdd-quality-loop/scripts/validate-feature-scratch-history.py']
+All checks passed!
+Exit: 0
+Command: ['/workspace/.tools/sdd-forge-python/bin/python', '-m', 'mypy', '--config-file', 'tests/shared-launch-python/pyproject.toml']
+Success: no issues found in 7 source files
+Exit: 0

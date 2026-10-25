@@ -1,0 +1,27 @@
+{
+  "complete": true,
+  "feature": "sample",
+  "meaning_assessed": false,
+  "results": [
+    {
+      "citation": 0,
+      "claim_id": "CLM-001",
+      "claim_revision": 1,
+      "content_sha256": "6785b0ec08d0522b94ee819910a7421cced3419ab3f28249c722578d6e23efc2",
+      "extracted": "extracted",
+      "extracted_sha256": "02cfdd5c37ad19a70155e153f54e1a881113f1aac78dc591a6f12e0811805fd2",
+      "matching": "exact",
+      "original": "original",
+      "quote_sha256": "19c802fcbde48914bf4a7b8e622b2a5af2c4f8de926881e950e5c0ba68403dd2",
+      "result": "reverified",
+      "source_id": "SRC-001",
+      "source_revision": 1,
+      "time_range": {
+        "end_ms": 3500,
+        "start_ms": 1200
+      }
+    }
+  ],
+  "schema": "source-evidence-result/v2",
+  "verified_at": "2026-10-25T15:04:18Z"
+}

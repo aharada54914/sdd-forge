@@ -19,7 +19,9 @@ from research_consumers import (  # noqa: E402 - sibling runtime path is explici
     validate_relations,
     impact,
     render_report,
+    validate_verification_record,
 )
+from research_extraction import extract
 
 spec = importlib.util.spec_from_file_location(
     "research_fixture", Path(__file__).with_name("research-evidence.tests.py")
@@ -52,6 +54,36 @@ class Consumers(unittest.TestCase):
 
     def verify(self):
         return verify_originals(self.doc, self.snapshots, self.root, now=self.now)
+
+    def test_subtitle_time_is_recomputed_from_original_not_claimed_metadata(self):
+        original = b'WEBVTT\n\n00:01.200 --> 00:03.500\noriginal\n\n00:04.000 --> 00:06.000\nLater statement.\n'
+        extracted, method, _ = extract(original, 'text/vtt')
+        (self.root / 'original').write_bytes(original)
+        (self.root / 'text').write_bytes(extracted)
+        source = self.doc['sources'][0]
+        source.update(media_type='text/vtt', content_sha256=digest(original))
+        source['extraction'] = dict(method=method, extracted_sha256=digest(extracted))
+        anchor = self.doc['claims'][0]['citations'][0]['anchor']
+        anchor.update(line_start=2, line_end=2)
+        result = self.verify()
+        self.assertEqual(result['schema'], 'source-evidence-result/v2')
+        self.assertEqual(result['results'][0]['time_range'], dict(start_ms=1200, end_ms=3500))
+        validate_verification_record(self.doc, result)
+        self.assertIn('00:00:01.200–00:00:03.500', render_report(self.doc, result))
+        for bad in [dict(start_ms=True, end_ms=3500), dict(start_ms=4000, end_ms=3500), {}]:
+            forged = copy.deepcopy(result)
+            forged['results'][0]['time_range'] = bad
+            with self.subTest(bad=bad), self.assertRaises(Invalid):
+                validate_verification_record(self.doc, forged)
+        forged = copy.deepcopy(result)
+        forged['schema'] = 'source-evidence-result/v1'
+        with self.assertRaises(Invalid):
+            validate_verification_record(self.doc, forged)
+        changed = extracted.replace(b'1200 3500', b'9000 9500')
+        (self.root / 'text').write_bytes(changed)
+        source['extraction']['extracted_sha256'] = digest(changed)
+        with self.assertRaisesRegex(Invalid, 'extraction-provenance-mismatch'):
+            self.verify()
 
     def test_recomputes_original_and_quote_and_never_semantic_pass(self):
         result = self.verify()
