@@ -1,0 +1,15 @@
+{
+  "schema": "native-connectivity-observation/v1",
+  "observed_at": "2026-10-25T16:24:19Z",
+  "profile": "isolated verify-codex",
+  "command": "verify-codex exec --ephemeral --json --skip-git-repo-check --sandbox read-only <no-tools connectivity prompt>",
+  "raw_sha256": "8ccd19034595d27671a25ebeb0b25c08c5051d40a6239355de124c02b53f7844",
+  "model_response_completed": false,
+  "models_endpoint_http_status": 401,
+  "responses_endpoint_http_status": 401,
+  "terminal_event": "turn.failed",
+  "terminal_message": "Your access token could not be refreshed because you have since logged out or signed in to another account. Please sign in again.",
+  "tool_transport_status": 451,
+  "conclusion": "Remote model access requires reauthentication. Discovery success does not establish invocation success.",
+  "raw_log_committed": false
+}

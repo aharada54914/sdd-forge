@@ -1,0 +1,1286 @@
+2026-10-25T16:16:16.523304Z ERROR codex_app_server: Project-local config, hooks, and exec policies are disabled in the following folders until the project is trusted, but skills still load.
+    1. /workspace/sdd-forge/.codex
+       To load project-local config, hooks, and exec policies, add /workspace/sdd-forge as a trusted project in /workspace/.tools/sdd-forge-dev/codex-verify/config.toml.
+
+2026-10-25T16:16:16.526041Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.526073Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.526097Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.526222Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.526240Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.526245Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.526247Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.526251Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=44.9µs time.idle=167µs
+2026-10-25T16:16:16.526760Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.526774Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.526788Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.527208Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.527215Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.527342Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.527352Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.527355Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.527356Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.527358Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.527360Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=19.3µs time.idle=582µs
+2026-10-25T16:16:16.527371Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.527374Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.527389Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.530639Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.530661Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.530665Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.530667Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.530670Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=68.4µs time.idle=3.23ms
+2026-10-25T16:16:16.531061Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.531070Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.531072Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.531073Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.531075Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=139µs time.idle=3.73ms
+2026-10-25T16:16:16.532413Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.532427Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.532440Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.532610Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.532622Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.532624Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.532626Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.532628Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=28.1µs time.idle=187µs
+2026-10-25T16:16:16.532712Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.532715Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.532729Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.532837Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.532841Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.532842Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.532851Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.532853Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=26.8µs time.idle=115µs
+2026-10-25T16:16:16.532946Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.532950Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.532961Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.533086Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.533099Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.533123Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.533129Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.533200Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.533217Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.533399Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.533405Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.533479Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.533491Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.533493Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.533495Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.533497Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=68.1µs time.idle=499µs
+2026-10-25T16:16:16.533717Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.533724Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.533744Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.533777Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.533787Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.533806Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.533808Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.533813Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.533815Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.533817Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.533819Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=28.6µs time.idle=73.4µs
+2026-10-25T16:16:16.533954Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.533958Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.533970Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.533975Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.533976Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.533982Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534021Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534178Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534182Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534183Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534198Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534209Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534243Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534265Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534322Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534340Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534185Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534409Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534489Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534492Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534493Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534524Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=193µs time.idle=555µs
+2026-10-25T16:16:16.534503Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.534531Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534543Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534567Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534570Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534572Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534573Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534574Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=16.5µs time.idle=55.1µs
+2026-10-25T16:16:16.534711Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.534716Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534733Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534746Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534748Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534510Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=19.0µs time.idle=537µs
+2026-10-25T16:16:16.534762Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.534764Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534772Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534828Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534838Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534841Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534843Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534846Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=22.3µs time.idle=62.2µs
+2026-10-25T16:16:16.534848Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534853Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534854Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534856Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534857Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=24.9µs time.idle=121µs
+2026-10-25T16:16:16.534865Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.534867Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534877Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534902Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.534908Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534919Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534922Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534923Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534924Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.534928Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.534929Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=17.0µs time.idle=47.5µs
+2026-10-25T16:16:16.534996Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535009Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535025Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.535029Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535086Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535206Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535211Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535224Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535242Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535317Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535329Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535364Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535363Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535373Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535384Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535393Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535395Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.535406Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535407Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535414Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535470Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535476Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535483Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535489Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535491Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535492Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535495Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=75.7µs time.idle=517µs
+2026-10-25T16:16:16.535496Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535502Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535503Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535505Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535507Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=15.5µs time.idle=96.4µs
+2026-10-25T16:16:16.535514Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.535516Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535526Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535568Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.535572Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535587Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535593Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535597Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535599Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535600Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535602Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=136µs time.idle=441µs
+2026-10-25T16:16:16.535612Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535614Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535620Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535621Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535623Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=14.8µs time.idle=94.3µs
+2026-10-25T16:16:16.535640Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535644Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.535649Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535655Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535659Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.535666Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.535670Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.535757Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537143Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537166Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537172Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537180Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537182Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537184Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537186Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=15.8µs time.idle=1.53ms
+2026-10-25T16:16:16.537197Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.537194Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537199Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537206Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537232Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537234Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537236Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537237Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537238Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=10.1µs time.idle=31.8µs
+2026-10-25T16:16:16.537243Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.537244Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537254Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537260Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537301Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537311Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537313Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537314Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537316Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537321Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=22.5µs time.idle=56.2µs
+2026-10-25T16:16:16.537323Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537346Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537355Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537373Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.537371Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537376Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537382Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537384Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537385Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537391Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537400Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537411Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537428Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537387Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=141µs time.idle=1.68ms
+2026-10-25T16:16:16.537457Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537466Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537468Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537470Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537471Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537474Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537476Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537474Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=147µs time.idle=1.66ms
+2026-10-25T16:16:16.537477Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=71.7µs time.idle=33.0µs
+2026-10-25T16:16:16.537497Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.537499Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537506Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537508Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.537510Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537519Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537521Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.537522Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537530Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537547Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537551Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537553Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537558Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537560Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=15.8µs time.idle=46.5µs
+2026-10-25T16:16:16.537569Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537571Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537573Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=9.82µs time.idle=41.8µs
+2026-10-25T16:16:16.537575Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537576Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537578Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=10.7µs time.idle=58.7µs
+2026-10-25T16:16:16.537585Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.537587Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537599Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537800Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.537807Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537818Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537823Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537826Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537827Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537828Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537830Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=15.4µs time.idle=230µs
+2026-10-25T16:16:16.537835Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.537837Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537842Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537844Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537846Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537847Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537848Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537849Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=13.8µs time.idle=35.8µs
+2026-10-25T16:16:16.537853Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.537855Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537863Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537882Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537883Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537885Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537886Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537887Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=7.39µs time.idle=44.3µs
+2026-10-25T16:16:16.537895Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.537896Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537900Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537903Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537904Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537905Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537907Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537908Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=11.7µs time.idle=43.4µs
+2026-10-25T16:16:16.537915Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.537917Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537927Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537961Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537963Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537964Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537966Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537967Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=13.2µs time.idle=38.5µs
+2026-10-25T16:16:16.537971Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.537973Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537980Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537985Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537987Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537988Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.537989Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.537991Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=6.62µs time.idle=89.3µs
+2026-10-25T16:16:16.538013Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538015Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538016Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538017Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538018Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=11.1µs time.idle=36.4µs
+2026-10-25T16:16:16.538022Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.538024Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538026Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538040Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538041Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538043Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538046Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538047Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=7.88µs time.idle=17.5µs
+2026-10-25T16:16:16.538051Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.538052Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538061Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538098Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538101Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538102Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538103Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538105Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=12.5µs time.idle=41.4µs
+2026-10-25T16:16:16.538111Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.538113Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538146Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.538148Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538158Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538163Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538164Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538165Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538167Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=50.9µs time.idle=4.45µs
+2026-10-25T16:16:16.538171Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.538173Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538176Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538201Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538203Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538204Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538205Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538207Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=13.1µs time.idle=47.6µs
+2026-10-25T16:16:16.538222Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538224Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538225Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538226Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538235Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=5.54µs time.idle=58.7µs
+2026-10-25T16:16:16.538240Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.538241Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538251Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538287Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538288Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538290Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=11.1µs time.idle=38.8µs
+2026-10-25T16:16:16.538293Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.538294Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538303Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538281Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.538308Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538322Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538324Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538325Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538326Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=15.4µs time.idle=30.5µs
+2026-10-25T16:16:16.538562Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538570Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538572Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538573Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538574Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=19.0µs time.idle=263µs
+2026-10-25T16:16:16.538752Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.538763Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538774Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538815Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538818Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538819Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538820Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538822Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=14.1µs time.idle=55.9µs
+2026-10-25T16:16:16.538838Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.538840Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538850Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538894Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538896Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538898Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.538899Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.538900Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=14.0µs time.idle=48.4µs
+2026-10-25T16:16:16.539085Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.539096Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539114Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539136Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539141Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539144Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539146Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539148Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=25.5µs time.idle=38.4µs
+2026-10-25T16:16:16.539156Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.539159Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539173Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539177Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.539184Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539223Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.539225Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539223Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539236Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539241Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539244Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539245Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539245Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539247Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539247Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=34.4µs time.idle=56.2µs
+2026-10-25T16:16:16.539248Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539251Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=62.8µs time.idle=11.3µs
+2026-10-25T16:16:16.539258Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.539258Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.539260Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539260Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539271Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539285Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539287Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539288Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539290Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=26.2µs time.idle=5.21µs
+2026-10-25T16:16:16.539299Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.539301Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539308Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539310Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539311Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539316Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=8.08µs time.idle=8.20µs
+2026-10-25T16:16:16.539319Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.539321Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539329Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539334Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539336Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539337Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539338Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539339Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=13.8µs time.idle=103µs
+2026-10-25T16:16:16.539345Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.539347Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539353Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539355Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539356Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539357Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=7.78µs time.idle=4.38µs
+2026-10-25T16:16:16.539360Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.539362Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539371Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539388Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539390Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539392Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539393Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539394Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=11.5µs time.idle=63.8µs
+2026-10-25T16:16:16.539398Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.539399Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539408Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539410Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539412Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539414Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539415Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539417Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=12.5µs time.idle=43.9µs
+2026-10-25T16:16:16.539420Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.539422Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539429Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539431Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539434Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539436Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=11.2µs time.idle=4.66µs
+2026-10-25T16:16:16.539439Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.539440Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539415Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539454Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539450Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539456Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539457Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539462Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539464Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539465Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539467Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=15.3µs time.idle=53.8µs
+2026-10-25T16:16:16.539463Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539498Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=54.7µs time.idle=186µs
+2026-10-25T16:16:16.539570Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539577Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539579Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.539581Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.539583Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=18.1µs time.idle=126µs
+2026-10-25T16:16:16.540002Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.540011Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540026Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540048Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540052Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540054Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540056Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540059Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=21.9µs time.idle=36.0µs
+2026-10-25T16:16:16.540066Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.540069Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540081Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540097Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540100Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540102Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540104Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540111Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=16.8µs time.idle=28.0µs
+2026-10-25T16:16:16.540389Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.540394Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540467Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540471Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540473Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540505Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=75.5µs time.idle=40.8µs
+2026-10-25T16:16:16.540514Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.540517Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540536Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540597Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540608Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540610Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540612Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540614Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=32.4µs time.idle=67.6µs
+2026-10-25T16:16:16.540625Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.540627Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540683Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540685Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540686Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540736Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=56.7µs time.idle=54.7µs
+2026-10-25T16:16:16.540741Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.540743Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540754Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540837Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540847Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540850Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540852Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540855Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=23.0µs time.idle=90.9µs
+2026-10-25T16:16:16.540867Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.540871Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540889Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540914Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540918Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540920Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540925Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.540927Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=27.5µs time.idle=32.1µs
+2026-10-25T16:16:16.540958Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.540961Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.540983Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541014Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541082Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541085Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541119Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541122Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=124µs time.idle=40.1µs
+2026-10-25T16:16:16.541172Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.541176Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541194Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541263Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541268Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541269Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541271Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541272Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=24.5µs time.idle=75.9µs
+2026-10-25T16:16:16.541288Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.541290Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541304Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541306Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541307Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541308Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=15.5µs time.idle=4.82µs
+2026-10-25T16:16:16.541312Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.541314Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541324Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541326Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.541328Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541350Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541352Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541353Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541355Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=23.6µs time.idle=4.72µs
+2026-10-25T16:16:16.541358Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.541360Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541376Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541379Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.541380Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541387Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541388Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541390Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541391Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541393Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541394Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=13.2µs time.idle=68.4µs
+2026-10-25T16:16:16.541407Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541409Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541410Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541411Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541413Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=19.3µs time.idle=35.4µs
+2026-10-25T16:16:16.541415Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541447Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541448Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541449Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541451Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=39.5µs time.idle=32.6µs
+2026-10-25T16:16:16.541500Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.541612Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541723Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541726Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.541727Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.541729Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=113µs time.idle=116µs
+2026-10-25T16:16:16.542045Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.542060Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542073Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542091Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542093Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542235Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542246Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542249Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542251Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542254Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=29.1µs time.idle=180µs
+2026-10-25T16:16:16.542283Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.542287Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542307Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542311Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.542313Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542549Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542558Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542561Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542563Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=238µs time.idle=14.7µs
+2026-10-25T16:16:16.542572Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.542575Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542593Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542595Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542598Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542600Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=19.9µs time.idle=8.74µs
+2026-10-25T16:16:16.542625Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.542627Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542748Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542762Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.542766Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542777Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542779Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542783Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542785Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542787Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542790Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=25.5µs time.idle=481µs
+2026-10-25T16:16:16.542796Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542798Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542800Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542803Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542805Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=125µs time.idle=55.7µs
+2026-10-25T16:16:16.542809Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542812Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542814Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.542815Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.542817Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=15.5µs time.idle=39.7µs
+2026-10-25T16:16:16.546876Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.546888Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.546901Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.546911Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.546913Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.546919Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.546926Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.546928Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.546958Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.546964Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.546966Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547036Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547126Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.547129Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547188Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547197Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547256Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547258Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547280Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547282Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547285Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547286Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547290Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547291Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547349Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547351Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547353Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547355Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=118µs time.idle=112µs
+2026-10-25T16:16:16.547497Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547578Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547593Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547597Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547599Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547604Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547606Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547607Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547609Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=80.5µs time.idle=565µs
+2026-10-25T16:16:16.547629Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547646Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547648Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547649Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547650Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=45.4µs time.idle=694µs
+2026-10-25T16:16:16.547751Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547755Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547757Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547758Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.547759Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=158µs time.idle=726µs
+2026-10-25T16:16:16.547771Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.547780Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.548076Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.548089Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.548166Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.548174Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.548176Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.548177Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.548179Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=68.9µs time.idle=1.18ms
+2026-10-25T16:16:16.549842Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.549850Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.549862Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.549868Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.549869Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.549878Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.549882Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.549884Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.549894Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.549899Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.549901Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.549905Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.549911Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.549914Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.549916Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.549923Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.549925Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550078Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550087Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550129Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550140Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550162Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550164Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550186Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550193Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550199Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550201Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550307Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550311Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550510Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550519Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550552Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550581Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550623Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550625Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550665Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550766Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550806Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550812Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550824Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550828Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550841Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550843Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550851Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550854Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550856Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550860Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=288µs time.idle=704µs
+2026-10-25T16:16:16.550918Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550956Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550960Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550965Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550967Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.550969Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.550971Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=211µs time.idle=862µs
+2026-10-25T16:16:16.551007Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.551018Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.551021Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.551023Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.551026Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=237µs time.idle=907µs
+2026-10-25T16:16:16.551047Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.551051Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.551053Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.551055Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.551058Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=114µs time.idle=1.10ms
+2026-10-25T16:16:16.552470Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.552480Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.552544Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.552661Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.552664Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.552698Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.552727Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.552783Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.552786Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.552794Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.552806Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.552823Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.552825Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.552828Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.553279Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.553711Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.553800Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.553967Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.553971Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=739µs time.idle=762µs
+2026-10-25T16:16:16.555438Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.555465Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.555823Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.555846Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.555918Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.555952Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.555955Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.555957Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.555960Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=134µs time.idle=3.17ms
+2026-10-25T16:16:16.559304Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.559316Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559323Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559340Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.559343Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559361Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559366Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.559368Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559378Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559384Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.559386Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559395Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559401Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.559403Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559413Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559418Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.559420Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559430Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559444Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559452Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559454Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559485Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559487Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559490Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559492Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559506Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559508Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559516Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559527Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559531Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559532Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559540Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559543Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559553Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559555Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559558Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559562Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=61.9µs time.idle=160µs
+2026-10-25T16:16:16.559685Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559698Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559700Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559712Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559714Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559723Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559724Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559733Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559735Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559740Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559782Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559867Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559872Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559888Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559892Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559901Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559905Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559912Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559915Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559929Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559963Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.559972Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.559975Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.560223Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.560227Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.560229Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.560232Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=288µs time.idle=526µs
+2026-10-25T16:16:16.560343Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.560349Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.560352Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.560355Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.560357Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=53.9µs time.idle=919µs
+2026-10-25T16:16:16.560378Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.560383Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.560386Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.560388Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.560391Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=41.9µs time.idle=1.04ms
+2026-10-25T16:16:16.560424Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.560429Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.560432Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.560434Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.560436Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=129µs time.idle=906µs
+2026-10-25T16:16:16.560474Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.560525Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.560549Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.560555Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.560558Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.560560Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.560564Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=102µs time.idle=1.10ms
+2026-10-25T16:16:16.563018Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.563030Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.563044Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.563050Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.563052Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.563062Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.563068Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.563070Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.563080Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.563097Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.563104Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.563106Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.563110Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.563112Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.563115Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.563279Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.563303Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.563307Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.563532Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.563539Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.563602Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.563623Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.563634Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.563637Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.563666Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.563675Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.563703Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.563717Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.563723Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.563726Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.563728Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.563730Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=276µs time.idle=405µs
+2026-10-25T16:16:16.564387Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.564399Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.564551Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.564605Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.565096Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=173µs time.idle=1.49ms
+2026-10-25T16:16:16.566862Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.566887Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.566975Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.566991Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.566994Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.566996Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.566998Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=101µs time.idle=3.88ms
+2026-10-25T16:16:16.568468Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.568481Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.568498Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.568523Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.568536Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.568551Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.568564Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.568603Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.568651Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.568785Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.568982Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.569031Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.569041Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.569043Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.569045Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.569047Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=300µs time.idle=279µs
+2026-10-25T16:16:16.570638Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.570664Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.570680Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.570686Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.570690Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.570784Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.570840Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.570842Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.570845Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=96.1µs time.idle=63.0µs
+2026-10-25T16:16:16.571030Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.571041Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.571056Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.571062Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.571064Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.571069Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.571073Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.571076Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.571089Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.571092Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.571095Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.571097Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.571099Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.571101Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=20.6µs time.idle=443µs
+2026-10-25T16:16:16.571116Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.571119Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.571122Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.571125Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.571127Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=20.5µs time.idle=76.3µs
+2026-10-25T16:16:16.571131Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.571133Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.571135Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.571137Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.571138Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=8.83µs time.idle=68.0µs
+2026-10-25T16:16:16.571142Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.571145Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.571147Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.571148Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.571155Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=17.7µs time.idle=63.8µs
+2026-10-25T16:16:16.571187Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.571191Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.571199Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.571272Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.571286Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.571288Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.571289Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.571291Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=23.6µs time.idle=80.7µs
+2026-10-25T16:16:16.575835Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.576423Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.576656Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577225Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.577235Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577252Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577263Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.577266Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577280Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577290Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.577293Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577299Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577303Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.577305Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577317Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577325Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.577328Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577341Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577345Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.577348Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577361Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577369Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.577372Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577377Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577381Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.577384Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577391Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577425Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.577429Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577435Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577438Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.577441Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577448Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577451Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577455Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577457Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577479Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577482Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577507Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577509Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577536Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577540Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577544Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577546Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577548Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577552Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=184µs time.idle=1.53ms
+2026-10-25T16:16:16.577561Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.577565Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577577Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577594Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577605Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577607Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577634Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577638Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577642Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577645Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577674Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577727Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577751Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577753Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577832Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577836Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577864Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577867Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577876Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577883Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577888Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577890Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577899Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577904Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577908Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577909Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577910Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577912Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=17.7µs time.idle=334µs
+2026-10-25T16:16:16.577926Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.577929Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577962Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577972Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577982Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577984Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.577993Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.577995Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578006Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578009Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578018Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578019Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578028Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578029Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578032Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578034Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578046Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578048Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578201Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578219Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578225Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578227Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578228Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578230Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=52.6µs time.idle=875µs
+2026-10-25T16:16:16.578359Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578364Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578365Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578367Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578371Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=43.3µs time.idle=1.04ms
+2026-10-25T16:16:16.578559Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578576Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578578Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578586Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578588Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578596Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578597Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578617Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578619Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578620Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578621Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=66.2µs time.idle=1.19ms
+2026-10-25T16:16:16.578626Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578635Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578636Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578645Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578647Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578757Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578759Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578782Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578784Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=354µs time.idle=1.21ms
+2026-10-25T16:16:16.578806Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578809Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578848Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.578853Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.578856Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=47.9µs time.idle=1.54ms
+2026-10-25T16:16:16.579034Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579045Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579046Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579048Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579050Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=69.2µs time.idle=1.66ms
+2026-10-25T16:16:16.579053Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579067Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579069Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579105Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579108Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579133Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579135Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579155Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579157Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=148µs time.idle=1.58ms
+2026-10-25T16:16:16.579184Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579314Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579316Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579317Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579318Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=174µs time.idle=1.71ms
+2026-10-25T16:16:16.579437Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579443Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579444Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579446Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579447Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=70.2µs time.idle=2.03ms
+2026-10-25T16:16:16.579469Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579473Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579474Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579476Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579477Z  INFO fs.read_file{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=70.0µs time.idle=2.03ms
+2026-10-25T16:16:16.579501Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579504Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579505Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579507Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579508Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=37.2µs time.idle=1.54ms
+2026-10-25T16:16:16.579536Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.579539Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579565Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579566Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579568Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579586Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=27.1µs time.idle=22.7µs
+2026-10-25T16:16:16.579603Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.579605Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579640Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579748Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579751Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579765Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579766Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579768Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=40.2µs time.idle=124µs
+2026-10-25T16:16:16.579773Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.579775Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579786Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579835Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579850Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579853Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579856Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579859Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=29.0µs time.idle=57.2µs
+2026-10-25T16:16:16.579883Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.579887Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579895Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579913Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579916Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579919Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579921Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.579923Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=13.3µs time.idle=27.1µs
+2026-10-25T16:16:16.579930Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.579955Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.579961Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580019Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580073Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580075Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580076Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580078Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=62.5µs time.idle=86.2µs
+2026-10-25T16:16:16.580087Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.580089Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580095Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580185Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580196Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580199Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580202Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580206Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=20.6µs time.idle=98.0µs
+2026-10-25T16:16:16.580230Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.580234Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580251Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580302Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580310Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580312Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580314Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580316Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=26.3µs time.idle=60.2µs
+2026-10-25T16:16:16.580328Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.580331Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580338Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580375Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580389Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580391Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580393Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580396Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=23.1µs time.idle=45.3µs
+2026-10-25T16:16:16.580404Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.580408Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580421Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580490Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580496Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580497Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580499Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580501Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=20.7µs time.idle=75.7µs
+2026-10-25T16:16:16.580513Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.580514Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580519Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580592Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580599Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580601Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580603Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580606Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=14.5µs time.idle=79.2µs
+2026-10-25T16:16:16.580616Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.580619Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580634Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580649Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580657Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580660Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580662Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580665Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=25.9µs time.idle=23.0µs
+2026-10-25T16:16:16.580671Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.580674Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580686Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580701Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580704Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580706Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580708Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580710Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=17.2µs time.idle=21.8µs
+2026-10-25T16:16:16.580721Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.580724Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580736Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580750Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580753Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580756Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580758Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580760Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=17.3µs time.idle=22.8µs
+2026-10-25T16:16:16.580766Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.580769Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580783Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580808Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580812Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580813Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580815Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580816Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=19.7µs time.idle=30.6µs
+2026-10-25T16:16:16.580822Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.580824Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580833Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580835Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580836Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580837Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=10.9µs time.idle=4.58µs
+2026-10-25T16:16:16.580844Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.580850Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580854Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580877Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580883Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580886Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580888Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.580891Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=12.9µs time.idle=34.6µs
+2026-10-25T16:16:16.580901Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.580904Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.580919Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.581097Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.581116Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.581119Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.581122Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.581125Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=36.8µs time.idle=187µs
+2026-10-25T16:16:16.581137Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: new
+2026-10-25T16:16:16.581141Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.581148Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.581192Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.581203Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.581205Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: enter
+2026-10-25T16:16:16.581207Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: exit
+2026-10-25T16:16:16.581209Z  INFO fs.get_metadata{sandboxed=false}: codex_exec_server::local_file_system: close time.busy=19.7µs time.idle=52.0µs

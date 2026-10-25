@@ -122,7 +122,7 @@ registry and its vendored/generated projections. Existing A9 synthetic tests now
 bind the current registry in memory; historical evidence was not edited.
 
 
-The implementation checkpoint is `dc0c17c2`, on draft PR
+The implementation checkpoint is `fefbcb7a`, on draft PR
 [#652](https://github.com/aharada54914/sdd-forge/pull/652). This is code and fixture
 progress, not a claim that all 33 Issues meet every acceptance condition.
 
@@ -133,22 +133,22 @@ progress, not a claim that all 33 Issues meet every acceptance condition.
 | #599 | Five bounded playbooks attached to existing bootstrap/ship entry points; routing/authority fixtures | Final integration CI; native discovery requirements belong to #602 |
 | #600 | Five real-failure-derived golden cases, blinded prepare/grade/compare and provenance checks | Native comparison cannot run: supported auth check reports reauthentication_required; no adoption result invented |
 | #601 | Source-backed regression cases and structural classification checks | Final integration CI; no claim that prose alone prevents every recurrence |
-| #602 | Canonical host wrapper generation, conflict checks and restrictive-control preservation | Actual native Claude/Codex/Copilot discovery/invocation |
+| #602 | Canonical host wrappers; actual Codex 0.159.2 skills/list discovery and removal verified in the isolated profile | Actual model invocation is auth-blocked; Claude/Copilot unavailable |
 | #603 | Real TLC counterexample plus real Bash reservation-tail concurrency mutation/recovery | Bounded two-contender proof only; not whole-app verification |
 | #605 | Closed research evidence contract and packaged identical schema | Final integration CI |
-| #606 | Bounded HTML/text acquisition, original preservation, SSRF/redirect/type/encoding controls and total worker deadline | PDF/subtitle conversion, shared stores and unsupported proxy adapters |
-| #607 | Fresh original-byte/extractor/citation verification, mutation rejection | Final integration CI; licensed shared-store permitted/denied reader support remains incomplete |
+| #606 | Bounded HTML/text, isolated PDF and direct WebVTT/SRT acquisition; licensed Linux group store; source/rights/hash and deadline controls | Final CI; remote shared stores and proxy adapters unsupported |
+| #607 | Fresh original-byte/extractor/citation verification; actual distinct Linux reader permission/expiry/deletion CI step passed | Final integration CI; unsupported storage platforms remain explicit |
 | #608 | Internal research skill, 3–6 canonical claims with pinned current revisions, bounded two-route procedure, citation-follow/stop/typed-handoff fixtures | Final integration CI; procedure execution is coordinator-owned. Optional live fetch is unsupported in this proxy environment |
 | #609 | Existing review/contract-owner integration plus interviewer SRC/CLM revision validation and unresolved-question handoff | Final integration CI |
-| #610 | Escaped HTML and original quotations; independent Chromium evaluation passed 15 interaction/injection checks and 6 failed-regeneration preservation cases | Final integration CI; licensed shared-reader access and PDF/video support remain incomplete; managed direct file opening/native platforms unverified |
+| #610 | Escaped HTML, PDF provenance and derived subtitle cue ranges; independent browser and preservation checks; shared-reader enforcement | Final CI; real-video synchronization, direct file opening and other native platforms unverified |
 | #611 | Opt-in watch v2 records actual check time and independently detects metadata/cache/feed changes, with feature/source-bound state | Final integration CI; no background scheduler implied |
 | #612 | Validated graph/impact lookup, cycles and traceability integration | Final integration CI |
 | #614 | Owner measurement; 80 paired baseline/candidate trials retained | Final integration CI; uncontrolled host load prevents causal speedup claims |
-| #615 | Feature-scoped correction feedback while retaining final whole-repository checks | Same-session identical-input full-result reuse and invalidation remain unimplemented |
+| #615 | Feature feedback plus bounded same-process sealed full-check batches and final input revalidation | Final CI; original large/historical workload remains cold and half-time target unmet |
 | #616 | Conflicting sudo guidance corrected, negative cases retained, actual host trust boundary documented | Authentic host-side issuer unavailable; no fabricated enablement |
 | #617 | Actual runner-to-contract/bundle collector, prospective Red/Green, high/critical preparation; independent review and 21 tests; 6 matched comparison pairs preserve contracts/reports/verdicts | Final integration CI; human-time and error-rate benefit unmeasured. No production-key or production-review prerequisite is imposed on development. |
-| #618 | Existing fixed-input manifest's reviewer navigation index | Safe heavy-result cache not shipped: dependency/issuer closure not established; benchmark pending |
-| #620 | Read-only PR-access preflight before costly audit; sanitized failure diagnostics | Actual PR-write credential remediation and successful full weekly run; permissions API still403 |
+| #618 | Fixed-input reviewer navigation plus shared full-workflow batch reuse, with source-bound origin runs and comparative measurements | Final CI; arbitrary build/test caching is outside the initial proven profile; independent reviews remain fresh |
+| #620 | PR-access preflight and sanitized failure diagnostics; authenticated browser reached token list | GitHub Confirm access (2FA) required before token details/repair; successful weekly run still pending |
 | #622 | Pinned decision packets and existing human-only signer extension for adopt/reject/hold history; independent guard review closed | Final integration CI |
 | #623 | Source-pinned inventory and ADR for existing executor capabilities | No suitable cancellation/resume/lease adapter established; Issue-defined stop condition, no new scheduler |
 | #624 | Real paired fixture execution, 3baseline+3candidate runs and measured preparation spans | Real-app UX evaluation intentionally pending by user instruction; no benefit claim |
@@ -509,3 +509,21 @@ was 13.4% slower at two. No half-time goal or whole-lifecycle speedup is claimed
 The optional path is recommended only after measured total-time benefit; the
 implementation does not broaden closure or omit inputs to manufacture a hit.
 [Comparison](../../reports/verification/workflow-session-comparison-20261025/README.md).
+
+## Native/authentication follow-up — 2026-10-25
+
+Actual Codex 0.159.2 app-server skills/list discovers the product-generated custom
+wrapper in the isolated verify workspace, then confirms removal after cleanup.
+[Evidence](../../reports/verification/project-skill-native-discovery-20261025/README.md).
+The supported explicit auth probe still reports reauthentication_required for both
+CLI profiles. A separate native model request also failed with HTTP 401 and
+turn.failed requesting sign-in again at 16:24 UTC; no model comparison or
+invocation success is claimed for #600/#602.
+
+For #620, API workflow-permission access still returns HTTP 403. The previously
+signed-in TinyFish GitHub profile reached the token list as the expected account,
+but token detail/permission pages require GitHub Confirm access (2FA). No token
+value was accessed and no settings changed. A user reauthentication question is
+pending; the existing authorization to repair PR permissions has not been withdrawn.
+#197 has no published GitHub release-cycle evidence; release/promotion acceptance
+is not fabricated. #624 real-app evaluation remains pending by explicit instruction.
