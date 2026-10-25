@@ -1,0 +1,21 @@
+{
+  "head": "b00d7e242f07b042daabd9a4ff8017110c6aab9b",
+  "scope": "working bytes; tasks.md already dirty before read-only preparation",
+  "files": {
+    "specs/a9-interrupted-review-recovery/tasks.md": "adf5c5c5d5cc9451a742aa348cf6d9c931940fc5e83e012383c3971986c706d8",
+    "specs/a9-interrupted-review-recovery/requirements.md": "78f15fd55ce39ca300af64f5ea4d127a76d52fb972cfd34f77e5dc9e65798983",
+    "specs/a9-interrupted-review-recovery/design.md": "3f2165800effda3f43710a3fa88ac6c2118126dcd3f2b5e2b8ec16674be5da7e",
+    "specs/a9-interrupted-review-recovery/acceptance-tests.md": "f5a736c7149c9f84e18b6d9d88e9bee977af1628d955ca42518c01a9429874b9",
+    "specs/a9-interrupted-review-recovery/traceability.md": "69bce6e35065a25ed6b14d2b07f4707416844f37ea6a7c2570ef5b95145fcb19",
+    "specs/a9-interrupted-review-recovery/ux-spec.md": "5caf58617045edb4e16db70127b01065508ac85c9801c6d1c67d1cada31304f1",
+    "specs/a9-interrupted-review-recovery/frontend-spec.md": "d92d16cc10638a87a0b25e852bec941b19e0c4febe1498b72d9ad52b07376f52",
+    "specs/a9-interrupted-review-recovery/infra-spec.md": "142cfb7fbc24a4dd43c7eba2b458ab0476ef6c3494bb3c44c6acdff26718439e",
+    "specs/a9-interrupted-review-recovery/security-spec.md": "aa4064b8ce23b2a97cce7a1735c9f4c82272eb787f80a134993b43bcd746b18f",
+    "contracts/spec-review-interrupted-recovery.v1.data-contract.md": "9cc49eb4468d4b16ea49d385798297e8bcae9b401e30c7bfac65820185daf6c1",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "88062b265569f02573565aa904d26b4385eea5f4e45b82e4c819732f476752f2",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "fc41fea4e6c6c3eeb39bb2e9ca4f5f96d7a1a9c70ce78fe47d9934000966b60e",
+    "tests/spec-review-interrupted-recovery.tests.sh": "d2f726f7b242563b41a4622320592f610c42d88348ee5e2df8c662b83370de2e",
+    "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "specs/a9-interrupted-review-recovery/verification/T-001/v2/original-authoring-report.md": "d97a7f5792ac44b8a3b9a519256d26393ab47e21891770e78cf54bfdfefec2a8"
+  }
+}

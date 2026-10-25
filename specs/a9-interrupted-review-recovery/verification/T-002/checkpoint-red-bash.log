@@ -1,0 +1,9 @@
+FAIL bash TEST-001::full-cli-publication exit=1 Usage: spec-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs | --edit-summary=<text> --reset]
+FAIL bash TEST-096::success-preservation all original file hashes and ledger preserved
+PASS bash TEST-002::dispatch exit=1 ERROR: spec-review-precheck: a new attempt requires --reset
+PASS bash TEST-003::dispatch exit=1 ERROR: spec-review-precheck: reset requires a terminal PASS or BLOCKED contract
+PASS bash TEST-004::dispatch exit=1 Usage: spec-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs | --edit-summary=<text> --reset]
+PASS bash TEST-005::dispatch exit=1 Usage: spec-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs | --edit-summary=<text> --reset]
+PASS bash TEST-006::dispatch exit=1 Usage: spec-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs | --edit-summary=<text> --reset]
+PASS bash TEST-007::dispatch exit=1 Usage: spec-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs | --edit-summary=<text> --reset]
+NOT_RUN bash TEST-084-095 path/race/publication controls: missing CLI route; no individual Red claimed

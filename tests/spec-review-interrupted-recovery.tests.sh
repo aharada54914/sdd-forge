@@ -502,5 +502,113 @@ def main():
      else:passed+=1
  print('RESULT '+RUNTIME+' passed='+str(passed)+' failures='+str(failed)+' designed='+str(len(cases)),flush=True)
  return int(failed>0)
-if __name__=='__main__':sys.exit(main())
+
+def transition_fixture(root):
+ record=fixture(root)
+ for rel in ('plugins/sdd-review-loop/scripts/spec-review-precheck.sh','plugins/sdd-review-loop/scripts/spec-review-precheck.ps1','plugins/sdd-review-loop/scripts/review-contract-validate.sh','plugins/sdd-review-loop/scripts/review-contract-validate.ps1','plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh','plugins/sdd-review-loop/scripts/lib/fixed-input-source.ps1'):
+  put(root,rel,(ROOT/rel).read_bytes());(root/rel).chmod(0o755)
+ return record
+
+def transition_command(root,options=None,gate=None,stop=False):
+ options=options if options is not None else ['recovery']
+ script=root/('plugins/sdd-review-loop/scripts/spec-review-precheck.'+('sh' if RUNTIME=='bash' else 'ps1'))
+ args=[]
+ for option in options:
+  if option=='recovery':args+=['--recover-interrupted='+RECORD] if RUNTIME=='bash' else ['-RecoverInterrupted',RECORD]
+  elif option=='reset':args+=['--reset'] if RUNTIME=='bash' else ['-Reset']
+  elif option=='wrong-case':args+=['--Recover-Interrupted='+RECORD] if RUNTIME=='bash' else ['-recoverinterrupted',RECORD]
+  else:args.append(option)
+ env=os.environ.copy()
+ if RUNTIME=='bash':
+  cmd=['bash',str(script),FEATURE,'4','1',*args]
+  if gate:
+   hook=gate.with_suffix('.bashenv')
+   # Native debugger trap only: the real validation, lock and filesystem remain intact.
+   hook.write_text('set -T\ntrap '+shlex.quote('if [[ "$BASH_COMMAND" == *\'mkdir "$lock_dir"\'* && ! -e '+shlex.quote(str(gate))+'.ready ]]; then : > '+shlex.quote(str(gate))+'.ready; while [[ ! -e '+shlex.quote(str(gate))+'.go ]]; do sleep 0.02; done; fi')+' DEBUG\n')
+   if stop:
+    hook.write_text('set -T\ntrap '+shlex.quote('if [[ "$BASH_COMMAND" == *\'--arg schema "spec-review-precheck/v1"\'* ]]; then exit 97; fi')+' DEBUG\n')
+   env['BASH_ENV']=str(hook)
+ else:
+  cmd=[PWSH,'-NoLogo','-NoProfile','-File',str(script),'-Feature',FEATURE,'-Attempt','4','-Round','1',*args]
+  if gate:
+   driver=gate.with_suffix('.ps1');source=script.read_text().splitlines()
+   needle='$result | ConvertTo-Json' if stop else 'New-Item -ItemType Directory -Path $lockDir'
+   line=next(i for i,l in enumerate(source,1) if needle in l)
+   action='throw "synthetic interrupted publication"' if stop else '[IO.File]::WriteAllText($global:Gate+".ready", ""); while(-not [IO.File]::Exists($global:Gate+".go")){Start-Sleep -Milliseconds 20}'
+   driver.write_text('param([string]$Script,[string]$Arguments,[string]$Gate)\n$ErrorActionPreference="Stop"\n$global:Gate=$Gate\n$bp=Set-PSBreakpoint -Script $Script -Line '+str(line)+' -Action { '+action+' }\ntry { $values=ConvertFrom-Json -InputObject $Arguments; & $Script @values; if(-not $?){exit 1} } finally { $bp | Remove-PSBreakpoint }\n')
+   cmd=[PWSH,'-NoLogo','-NoProfile','-File',str(driver),str(script),json.dumps(['-Feature',FEATURE,'-Attempt','4','-Round','1',*args]),str(gate)]
+ return cmd,env
+
+def transition_main():
+ import time
+ results=[];target=f'reports/spec-review/{FEATURE}/attempt-4/round-1'
+ parent=ROOT/'specs/a9-interrupted-review-recovery/verification/T-002';parent.mkdir(parents=True,exist_ok=True)
+ def emit(name,ok,detail):
+  print(('PASS' if ok else 'FAIL')+' '+RUNTIME+' '+name+' '+detail,flush=True);results.append((name,ok))
+ with tempfile.TemporaryDirectory(prefix='transition-',dir=parent) as tmp:
+  scratch=pathlib.Path(tmp);base=scratch/'base';record=transition_fixture(base)
+  def prepared(name):
+   root=scratch/name;shutil.copytree(base,root);return root
+  def run(root,options=None,gate=None,stop=False):
+   cmd,env=transition_command(root,options,gate,stop);return subprocess.run(cmd,env=env,text=True,capture_output=True,timeout=90)
+  def unchanged(root,before):
+   after=dict(snapshot(root));return all(after.get(path)==value for path,value in before)
+  def published(root):
+   path=root/target
+   if not path.is_dir() or sorted(p.name for p in path.iterdir())!=['precheck-result.json','spec-review-report.md']:return False
+   p=load(root,target+'/precheck-result.json')
+   expected=load(root,SOURCE+'/precheck-result.json')
+   keys={'schema','stage','feature','attempt','round','spec_review_status_field','requirements_sha256','acceptance_sha256','investigation_sha256','calibration_sha256','input_sha256','edit_summary','reset','generated_at','recovery'}
+   return set(p)==keys and p['schema']=='spec-review-precheck/v1' and p['stage']=='spec' and p['feature']==FEATURE and p['attempt']==4 and p['round']==1 and p['spec_review_status_field']=='Pending' and p['reset'] is False and p['edit_summary']=='' and all(p[k]==expected[k] for k in ('requirements_sha256','acceptance_sha256','investigation_sha256','calibration_sha256','input_sha256')) and p['recovery']=={'record_path':RECORD,'record_sha256':digest(root/RECORD)} and re.fullmatch(r'\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ',p['generated_at']) is not None and (path/'spec-review-report.md').read_bytes()==b''
+  root=prepared('valid');before=snapshot(root);r=run(root)
+  route_ready=r.returncode==0 and published(root)
+  emit('TEST-001::full-cli-publication',r.returncode==0 and published(root),'exit='+str(r.returncode)+' '+(r.stdout+r.stderr).strip())
+  emit('TEST-096::success-preservation',r.returncode==0 and unchanged(root,before) and not (root/f'reports/spec-review/{FEATURE}/.spec-review.lock').exists(),'all original file hashes and ledger preserved')
+  for name,options in [('TEST-002',[]),('TEST-003',['reset']),('TEST-004',['recovery','reset']),('TEST-005',['--unknown']),('TEST-006',['wrong-case']),('TEST-007',['recovery','recovery'])]:
+   root=prepared(name);before=snapshot(root);r=run(root,options)
+   emit(name+'::dispatch',r.returncode!=0 and snapshot(root)==before and not os.path.lexists(root/target),'exit='+str(r.returncode)+' '+(r.stdout+r.stderr).strip())
+  if not route_ready:
+   print('NOT_RUN '+RUNTIME+' TEST-084-095 path/race/publication controls: missing CLI route; no individual Red claimed',flush=True)
+   return 1
+  # Real leaf/ancestor symlinks cover each canonical reference independently.
+  refs=[record['authorization'],record['previous_contract'],record['interrupted_precheck']]+record['pinned_inputs']
+  order=[f'specs/{FEATURE}/requirements.md',f'specs/{FEATURE}/acceptance-tests.md',f'specs/{FEATURE}/investigation.md',CAL]
+  refs=[record['authorization'],record['previous_contract'],record['interrupted_precheck']]+[next(p for p in record['pinned_inputs'] if p['path']==x) for x in order]+[next(p for p in record['interrupted_artifacts'] if p['path']==x) for x in [SOURCE+'/precheck-result.json',SOURCE+'/reviewer-a.json',SOURCE+'/reviewer-a-reservation.txt',SOURCE+'/reviewer-a-host-receipt.json',SOURCE+'/spec-review-report.md',INV]]+[record['reviewer_a']['invocation']]
+  def link(root,path,ancestor=False):
+   original=root/path;original=original.parent if ancestor else original
+   moved=original.with_name(original.name+'.held');original.rename(moved);original.symlink_to(moved.name,target_is_directory=moved.is_dir())
+  cases=[('TEST-084',lambda r:link(r,SOURCE+'/precheck-result.json',True)),('TEST-085',lambda r:link(r,RECORD)),('TEST-087',lambda r:link(r,f'reports/spec-review/{FEATURE}/attempt-3',True)),('TEST-089',lambda r:(r/target).mkdir(parents=True)),('TEST-090::file',lambda r:put(r,target,'occupied')),('TEST-090::dangling',lambda r:((r/target).parent.mkdir(parents=True),(r/target).symlink_to('missing')))]
+  for i,ref_ in enumerate(refs,1):
+   for test,ancestor in [('086',False),('088',True)]:cases.append((f'TEST-{test}-P{i:02d}',lambda r,p=ref_['path'],a=ancestor:link(r,p,a)))
+  for index,(name,edit) in enumerate(cases):
+   root=prepared('path-'+str(index));edit(root);before=snapshot(root);r=run(root)
+   emit(name,r.returncode!=0 and snapshot(root)==before,'exit='+str(r.returncode)+' unchanged='+str(snapshot(root)==before))
+  # A real process pauses immediately before mkdir/New-Item lock, never replaces it.
+  def spawn(root,gate,stop=False):
+   cmd,env=transition_command(root,gate=gate,stop=stop)
+   return subprocess.Popen(cmd,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+  def wait_ready(proc,gate):
+   until=time.monotonic()+20
+   while time.monotonic()<until and proc.poll() is None:
+    if gate.with_suffix('.ready').exists():return True
+    time.sleep(.02)
+   return gate.with_suffix('.ready').exists()
+  for name,edit in [('TEST-092::requirements',lambda r:put(r,f'specs/{FEATURE}/requirements.md',(r/f'specs/{FEATURE}/requirements.md').read_bytes()+b'changed\n')),('TEST-092::record',lambda r:put(r,RECORD,(r/RECORD).read_bytes()+b' ')),('TEST-092::authorization',lambda r:put(r,AUTH,(r/AUTH).read_bytes()+b'changed\n')),('TEST-093',lambda r:(r/f'reports/spec-review/{FEATURE}/attempt-3/round-4').mkdir()),('TEST-094',lambda r:(r/target).mkdir(parents=True))]:
+   root=prepared(name.replace(':','-'));gate=scratch/(name.replace(':','-')+'-gate');proc=spawn(root,gate)
+   ready=wait_ready(proc,gate)
+   if ready:edit(root)
+   before=snapshot(root);gate.with_suffix('.go').touch();out,err=proc.communicate(timeout=90)
+   emit(name,ready and proc.returncode!=0 and snapshot(root)==before,'barrier='+str(ready)+' exit='+str(proc.returncode)+' '+(out+err).strip())
+  root=prepared('concurrent');before=snapshot(root);gates=[scratch/'writer1',scratch/'writer2'];procs=[spawn(root,g) for g in gates];ready=all(wait_ready(p,g) for p,g in zip(procs,gates))
+  for g in gates:g.with_suffix('.go').touch()
+  for p in procs:p.communicate(timeout=90)
+  emit('TEST-091',ready and sum(p.returncode==0 for p in procs)==1 and published(root) and unchanged(root,before),'barriers='+str(ready)+' exits='+str([p.returncode for p in procs]))
+  root=prepared('partial');before=snapshot(root);r=run(root,gate=scratch/'partial-gate',stop=True);partial=os.path.lexists(root/target);after=snapshot(root);again=run(root);reset=run(root,['reset'])
+  emit('TEST-095',r.returncode!=0 and partial and not published(root) and unchanged(root,before) and not (root/f'reports/spec-review/{FEATURE}/.spec-review.lock').exists() and again.returncode!=0 and reset.returncode!=0 and snapshot(root)==after,'exit='+str(r.returncode)+' partial='+str(partial)+' rerun='+str(again.returncode)+' reset='+str(reset.returncode))
+ print('TRANSITION_RESULT '+RUNTIME+' passed='+str(sum(ok for _,ok in results))+' failures='+str(sum(not ok for _,ok in results)),flush=True)
+ return int(any(not ok for _,ok in results))
+
+if __name__=='__main__':
+ if os.environ.get('SDD_RECOVERY_TEST_SCOPE')=='transition':sys.exit(transition_main())
+ sys.exit(main())
 PY

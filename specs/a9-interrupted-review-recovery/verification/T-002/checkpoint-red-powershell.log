@@ -1,0 +1,9 @@
+FAIL powershell TEST-001::full-cli-publication exit=1 spec-review-precheck.ps1: A parameter cannot be found that matches parameter name 'RecoverInterrupted'.
+FAIL powershell TEST-096::success-preservation all original file hashes and ledger preserved
+PASS powershell TEST-002::dispatch exit=1 ERROR: spec-review-precheck: a new attempt requires --reset
+PASS powershell TEST-003::dispatch exit=1 ERROR: spec-review-precheck: reset requires a terminal PASS or BLOCKED contract
+PASS powershell TEST-004::dispatch exit=1 spec-review-precheck.ps1: A parameter cannot be found that matches parameter name 'RecoverInterrupted'.
+PASS powershell TEST-005::dispatch exit=1 spec-review-precheck.ps1: A parameter cannot be found that matches parameter name '-unknown'.
+PASS powershell TEST-006::dispatch exit=1 spec-review-precheck.ps1: A parameter cannot be found that matches parameter name 'recoverinterrupted'.
+PASS powershell TEST-007::dispatch exit=1 spec-review-precheck.ps1: A parameter cannot be found that matches parameter name 'RecoverInterrupted'.
+NOT_RUN powershell TEST-084-095 path/race/publication controls: missing CLI route; no individual Red claimed
