@@ -1,0 +1,32 @@
+{
+  "utc": "2026-10-25T14:49:19.990352+00:00",
+  "head": "1c28a2f8f6b6cb79a5cc509cad45c45f2a4a455a",
+  "files": {
+    "tests/spec-review-interrupted-recovery.tests.sh": "d3f38f0953bedfe5b79a8b6092146cd15b2c909daf498c5667140d80726314dc",
+    "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "4032fa28afdfbc6a2af871d4c76b97313d831fb1e87aa7eed752633be3513474",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "e962f3f179e0e697ef6f645b7ab6eb082a06050f735ed24bf716b76e157bc42e",
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.sh": "c35b033f438ee0f6e16113cf7e399d90ee7278237f96fc68f6d2e453b0e98b76",
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1": "2f08227f3c697307777e762fc6c01f604e9ffe5d521a304930563ff5895fd867",
+    "plugins/sdd-review-loop/scripts/task-review-precheck.sh": "2b8881f9f5cd5d27811cdbb0b5eec1510073993761f68f3c4882b951fdf8d588",
+    "plugins/sdd-review-loop/scripts/task-review-precheck.ps1": "6fc9975eb047af08004a299be8a5d0a00dbf2e91fb8af917e5b60235e187acbe",
+    "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh": "a32d8e831d0360470c90c80089208fd401262cbe47fba2e2a0e90157f724e1ee"
+  },
+  "receipt_utc": "2026-10-25T14:51:59.652723+00:00",
+  "commands": {
+    "bash": "SDD_RECOVERY_TEST_SCOPE=consumption bash tests/spec-review-interrupted-recovery.tests.sh",
+    "powershell": "SDD_RECOVERY_TEST_SCOPE=consumption /workspace/.tools/sdd-forge-dev/bin/pwsh -NoProfile -File tests/spec-review-interrupted-recovery.tests.ps1"
+  },
+  "results": {
+    "bash": {
+      "exit": 1,
+      "passed": 62,
+      "failures": 91
+    },
+    "powershell": {
+      "exit": 1,
+      "passed": 62,
+      "failures": 91
+    }
+  }
+}

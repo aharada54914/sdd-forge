@@ -1,0 +1,189 @@
+field	counterpart	failing-mismatch-test
+recovery.schema	Closed recovery record schema literal	TEST-050-F01::missing; TEST-051-F01::wrong-type; TEST-044::counterpart-mismatch
+recovery.feature	CLI feature and source/target prechecks	TEST-050-F02::missing; TEST-051-F02::wrong-type; TEST-045::counterpart-mismatch
+recovery.source	Actual immediately preceding attempt latest round	TEST-050-F03::missing; TEST-051-F03::wrong-type; TEST-008::counterpart-mismatch
+recovery.source.attempt	Actual source attempt, target.attempt - 1	TEST-050-F04::missing; TEST-051-F04::wrong-type; TEST-046::counterpart-mismatch
+recovery.source.round	Actual latest source round, previous_contract.round + 1	TEST-050-F05::missing; TEST-051-F05::wrong-type; TEST-047::counterpart-mismatch
+recovery.target	CLI attempt and round	TEST-050-F06::missing; TEST-051-F06::wrong-type; TEST-048::counterpart-mismatch
+recovery.target.attempt	CLI attempt, source.attempt + 1	TEST-050-F07::missing; TEST-051-F07::wrong-type; TEST-048::counterpart-mismatch
+recovery.target.round	CLI round and constant 1	TEST-050-F08::missing; TEST-051-F08::wrong-type; TEST-049::counterpart-mismatch
+recovery.authorization	Eight bare binding lines, exact raw bytes, canonical record digest	TEST-050-F09::missing; TEST-051-F09::wrong-type; TEST-035::counterpart-mismatch
+recovery.previous_contract	Canonical source previous round own-stage NEEDS_WORK contract	TEST-050-F10::missing; TEST-051-F10::wrong-type; TEST-016::counterpart-mismatch
+recovery.interrupted_precheck	Canonical source precheck-result.json; repeated inventory entry	TEST-050-F11::missing; TEST-051-F11::wrong-type; TEST-062::counterpart-mismatch
+recovery.pinned_inputs	Exactly four sorted unique canonical inputs; source precheck and invocation	TEST-050-F12::missing; TEST-051-F12::wrong-type; TEST-058::counterpart-mismatch
+recovery.interrupted_artifacts	Exactly six sorted unique canonical references; five local files plus external invocation	TEST-050-F13::missing; TEST-051-F13::wrong-type; TEST-068::counterpart-mismatch
+recovery.reviewer_a	Persisted A identity, invocation and reservation receipt	TEST-050-F14::missing; TEST-051-F14::wrong-type; TEST-069::counterpart-mismatch
+recovery.reviewer_a.invocation	Exact same path/hash as inventory a_invocation	TEST-050-F15::missing; TEST-051-F15::wrong-type; TEST-066::counterpart-mismatch
+recovery.reviewer_a.sequence	Invocation sequence and persisted historical record sequence	TEST-050-F16::missing; TEST-051-F16::wrong-type; TEST-069::counterpart-mismatch
+recovery.reviewer_a.stage	Invocation/persisted stage and literal spec	TEST-050-F17::missing; TEST-051-F17::wrong-type; TEST-072::counterpart-mismatch
+recovery.reviewer_a.role	Invocation/persisted role and literal spec-reviewer-a	TEST-050-F18::missing; TEST-051-F18::wrong-type; TEST-073::counterpart-mismatch
+recovery.reviewer_a.run_id	Invocation, persisted record, raw diagnostic and host identity	TEST-050-F19::missing; TEST-051-F19::wrong-type; TEST-070::counterpart-mismatch
+recovery.reviewer_a.host_session_id	Invocation, persisted record and allocation host receipt	TEST-050-F20::missing; TEST-051-F20::wrong-type; TEST-071::counterpart-mismatch
+recovery.reviewer_a.record_sha256	Recomputed historical record SHA and reservation REVIEW_CONTEXT_OK hash	TEST-050-F21::missing; TEST-051-F21::wrong-type; TEST-074::counterpart-mismatch
+recovery.authorization.path	Canonical authorization role-specific repository path and same path in source/invocation/inventory	TEST-083-P01::authorization::path-mutation; TEST-050::authorization.path::missing
+recovery.authorization.sha256	Exact bytes at admitted canonical authorization path, plus all repeated pins	TEST-057-H01::authorization::incorrect; TEST-057-H01::authorization::missing/null/uppercase/nonhex/short
+recovery.previous_contract.path	Canonical previous_contract role-specific repository path and same path in source/invocation/inventory	TEST-083-P02::previous_contract::path-mutation; TEST-050::previous_contract.path::missing
+recovery.previous_contract.sha256	Exact bytes at admitted canonical previous_contract path, plus all repeated pins	TEST-057-H02::previous_contract::incorrect; TEST-057-H02::previous_contract::missing/null/uppercase/nonhex/short
+recovery.interrupted_precheck.path	Canonical interrupted_precheck role-specific repository path and same path in source/invocation/inventory	TEST-083-P03::interrupted_precheck::path-mutation; TEST-050::interrupted_precheck.path::missing
+recovery.interrupted_precheck.sha256	Exact bytes at admitted canonical interrupted_precheck path, plus all repeated pins	TEST-057-H03::interrupted_precheck::incorrect; TEST-057-H03::interrupted_precheck::missing/null/uppercase/nonhex/short
+recovery.pinned_inputs.requirements.path	Canonical pinned_inputs.requirements role-specific repository path and same path in source/invocation/inventory	TEST-083-P04::pinned_inputs.requirements::path-mutation; TEST-050::pinned_inputs.requirements.path::missing
+recovery.pinned_inputs.requirements.sha256	Exact bytes at admitted canonical pinned_inputs.requirements path, plus all repeated pins	TEST-057-H04::pinned_inputs.requirements::incorrect; TEST-057-H04::pinned_inputs.requirements::missing/null/uppercase/nonhex/short
+recovery.pinned_inputs.acceptance.path	Canonical pinned_inputs.acceptance role-specific repository path and same path in source/invocation/inventory	TEST-083-P05::pinned_inputs.acceptance::path-mutation; TEST-050::pinned_inputs.acceptance.path::missing
+recovery.pinned_inputs.acceptance.sha256	Exact bytes at admitted canonical pinned_inputs.acceptance path, plus all repeated pins	TEST-057-H05::pinned_inputs.acceptance::incorrect; TEST-057-H05::pinned_inputs.acceptance::missing/null/uppercase/nonhex/short
+recovery.pinned_inputs.investigation.path	Canonical pinned_inputs.investigation role-specific repository path and same path in source/invocation/inventory	TEST-083-P06::pinned_inputs.investigation::path-mutation; TEST-050::pinned_inputs.investigation.path::missing
+recovery.pinned_inputs.investigation.sha256	Exact bytes at admitted canonical pinned_inputs.investigation path, plus all repeated pins	TEST-057-H06::pinned_inputs.investigation::incorrect; TEST-057-H06::pinned_inputs.investigation::missing/null/uppercase/nonhex/short
+recovery.pinned_inputs.calibration.path	Canonical pinned_inputs.calibration role-specific repository path and same path in source/invocation/inventory	TEST-083-P07::pinned_inputs.calibration::path-mutation; TEST-050::pinned_inputs.calibration.path::missing
+recovery.pinned_inputs.calibration.sha256	Exact bytes at admitted canonical pinned_inputs.calibration path, plus all repeated pins	TEST-057-H07::pinned_inputs.calibration::incorrect; TEST-057-H07::pinned_inputs.calibration::missing/null/uppercase/nonhex/short
+recovery.interrupted_artifacts.precheck.path	Canonical interrupted_artifacts.precheck role-specific repository path and same path in source/invocation/inventory	TEST-083-P08::interrupted_artifacts.precheck::path-mutation; TEST-050::interrupted_artifacts.precheck.path::missing
+recovery.interrupted_artifacts.precheck.sha256	Exact bytes at admitted canonical interrupted_artifacts.precheck path, plus all repeated pins	TEST-057-H08::interrupted_artifacts.precheck::incorrect; TEST-057-H08::interrupted_artifacts.precheck::missing/null/uppercase/nonhex/short
+recovery.interrupted_artifacts.a_raw.path	Canonical interrupted_artifacts.a_raw role-specific repository path and same path in source/invocation/inventory	TEST-083-P09::interrupted_artifacts.a_raw::path-mutation; TEST-050::interrupted_artifacts.a_raw.path::missing
+recovery.interrupted_artifacts.a_raw.sha256	Exact bytes at admitted canonical interrupted_artifacts.a_raw path, plus all repeated pins	TEST-057-H09::interrupted_artifacts.a_raw::incorrect; TEST-057-H09::interrupted_artifacts.a_raw::missing/null/uppercase/nonhex/short
+recovery.interrupted_artifacts.a_reservation.path	Canonical interrupted_artifacts.a_reservation role-specific repository path and same path in source/invocation/inventory	TEST-083-P10::interrupted_artifacts.a_reservation::path-mutation; TEST-050::interrupted_artifacts.a_reservation.path::missing
+recovery.interrupted_artifacts.a_reservation.sha256	Exact bytes at admitted canonical interrupted_artifacts.a_reservation path, plus all repeated pins	TEST-057-H10::interrupted_artifacts.a_reservation::incorrect; TEST-057-H10::interrupted_artifacts.a_reservation::missing/null/uppercase/nonhex/short
+recovery.interrupted_artifacts.a_host_receipt.path	Canonical interrupted_artifacts.a_host_receipt role-specific repository path and same path in source/invocation/inventory	TEST-083-P11::interrupted_artifacts.a_host_receipt::path-mutation; TEST-050::interrupted_artifacts.a_host_receipt.path::missing
+recovery.interrupted_artifacts.a_host_receipt.sha256	Exact bytes at admitted canonical interrupted_artifacts.a_host_receipt path, plus all repeated pins	TEST-057-H11::interrupted_artifacts.a_host_receipt::incorrect; TEST-057-H11::interrupted_artifacts.a_host_receipt::missing/null/uppercase/nonhex/short
+recovery.interrupted_artifacts.diagnostic_report.path	Canonical interrupted_artifacts.diagnostic_report role-specific repository path and same path in source/invocation/inventory	TEST-083-P12::interrupted_artifacts.diagnostic_report::path-mutation; TEST-050::interrupted_artifacts.diagnostic_report.path::missing
+recovery.interrupted_artifacts.diagnostic_report.sha256	Exact bytes at admitted canonical interrupted_artifacts.diagnostic_report path, plus all repeated pins	TEST-057-H12::interrupted_artifacts.diagnostic_report::incorrect; TEST-057-H12::interrupted_artifacts.diagnostic_report::missing/null/uppercase/nonhex/short
+recovery.interrupted_artifacts.a_invocation.path	Canonical interrupted_artifacts.a_invocation role-specific repository path and same path in source/invocation/inventory	TEST-083-P13::interrupted_artifacts.a_invocation::path-mutation; TEST-050::interrupted_artifacts.a_invocation.path::missing
+recovery.interrupted_artifacts.a_invocation.sha256	Exact bytes at admitted canonical interrupted_artifacts.a_invocation path, plus all repeated pins	TEST-057-H13::interrupted_artifacts.a_invocation::incorrect; TEST-057-H13::interrupted_artifacts.a_invocation::missing/null/uppercase/nonhex/short
+recovery.reviewer_a.invocation.path	Canonical reviewer_a.invocation role-specific repository path and same path in source/invocation/inventory	TEST-083-P14::reviewer_a.invocation::path-mutation; TEST-050::reviewer_a.invocation.path::missing
+recovery.reviewer_a.invocation.sha256	Exact bytes at admitted canonical reviewer_a.invocation path, plus all repeated pins	TEST-057-H14::reviewer_a.invocation::incorrect; TEST-057-H14::reviewer_a.invocation::missing/null/uppercase/nonhex/short
+authorization.Feature	recovery record feature; exactly one bare line	TEST-050-A01::missing-line; TEST-050-A01::duplicate-line; TEST-050-A01::changed-value
+authorization.Source Attempt	recovery record source.attempt; exactly one bare line	TEST-050-A02::missing-line; TEST-050-A02::duplicate-line; TEST-050-A02::changed-value
+authorization.Source Round	recovery record source.round; exactly one bare line	TEST-050-A03::missing-line; TEST-050-A03::duplicate-line; TEST-050-A03::changed-value
+authorization.Target Attempt	recovery record target.attempt; exactly one bare line	TEST-050-A04::missing-line; TEST-050-A04::duplicate-line; TEST-050-A04::changed-value
+authorization.Target Round	exactly 1, matching target.round; exactly one bare line	TEST-050-A05::missing-line; TEST-050-A05::duplicate-line; TEST-050-A05::changed-value
+authorization.Maximum Rounds	exactly 3; exactly one bare line	TEST-050-A06::missing-line; TEST-050-A06::duplicate-line; TEST-050-A06::changed-value
+authorization.Decision	exactly `Authorize interrupted A-before-B recovery`; exactly one bare line	TEST-050-A07::missing-line; TEST-050-A07::duplicate-line; TEST-050-A07::changed-value
+authorization.Recovery Binding SHA256	lowercase 64-hex canonical record digest defined in requirements.md; exactly one bare line	TEST-050-A08::missing-line; TEST-050-A08::duplicate-line; TEST-050-A08::changed-value
+source_precheck.schema	spec-review-precheck/v1	TEST-062::schema-mismatch
+source_precheck.stage	spec	TEST-062::stage-mismatch
+source_precheck.feature	record.feature / CLI feature	TEST-062::feature-mismatch
+source_precheck.attempt	record.source.attempt	TEST-046::source-precheck-attempt
+source_precheck.round	record.source.round	TEST-047::source-precheck-round
+source_precheck.spec_review_status_field	Exact Pending; current requirements Spec-Review-Status	TEST-012/013/014/015::status
+source_precheck.requirements_sha256	live requirements bytes, pinned_inputs and invocation	TEST-058::live-requirements
+source_precheck.acceptance_sha256	live acceptance bytes, pinned_inputs and invocation	TEST-059::live-acceptance
+source_precheck.investigation_sha256	required live investigation bytes, pinned_inputs and invocation	TEST-060::live-investigation
+source_precheck.calibration_sha256	live calibration bytes, pinned_inputs and invocation	TEST-061::live-calibration
+source_precheck.input_sha256	existing SHA(requirements:acceptance:investigation) composite	TEST-082::composite-mismatch
+source_precheck.edit_summary	raw source precheck hash and immutable source bytes	TEST-062::altered-edit-summary
+source_precheck.reset	raw source precheck hash and immutable source bytes	TEST-062::altered-reset
+source_precheck.generated_at	raw source precheck hash and immutable source bytes, no freshness rewrite	TEST-062::altered-generated-at
+previous_contract.schema	spec-review-contract/v1	TEST-017::schema
+previous_contract.stage	spec	TEST-017::stage
+previous_contract.feature	CLI and source feature	TEST-017::feature
+previous_contract.attempt	source.attempt	TEST-017::attempt
+previous_contract.round	source.round - 1	TEST-017::round
+previous_contract.verdict	NEEDS_WORK and integrated verdict	TEST-018/019/023::verdict
+previous_contract.requirements_sha256	saved previous precheck and reviewer manifests	TEST-022::requirements_sha256
+previous_contract.acceptance_sha256	saved previous precheck and reviewer manifests	TEST-022::acceptance_sha256
+previous_contract.investigation_sha256	existing own-stage legacy normalization and reviewer manifest	TEST-022::investigation_sha256
+previous_contract.run_id	existing own-stage nonempty orchestrator identity rule	TEST-017::run_id
+previous_contract.warningCount	summary counts and existing verdict rule	TEST-021/023::warningCount
+previous_contract.reviewers.a.role	Existing own-stage reviewer a output and expected current-stage manifest	TEST-022::reviewer-a::role
+previous_contract.reviewers.a.run_id	Existing own-stage reviewer a output and expected current-stage manifest	TEST-022::reviewer-a::run_id
+previous_contract.reviewers.a.host_session_id	Existing own-stage reviewer a output and expected current-stage manifest	TEST-022::reviewer-a::host_session_id
+previous_contract.reviewers.a.allowed_input_manifest[].path	Existing own-stage reviewer a output and expected current-stage manifest	TEST-022::reviewer-a::allowed_input_manifest[].path
+previous_contract.reviewers.a.allowed_input_manifest[].sha256	Existing own-stage reviewer a output and expected current-stage manifest	TEST-022::reviewer-a::allowed_input_manifest[].sha256
+previous_contract.reviewers.b.role	Existing own-stage reviewer b output and expected current-stage manifest	TEST-022::reviewer-b::role
+previous_contract.reviewers.b.run_id	Existing own-stage reviewer b output and expected current-stage manifest	TEST-022::reviewer-b::run_id
+previous_contract.reviewers.b.host_session_id	Existing own-stage reviewer b output and expected current-stage manifest	TEST-022::reviewer-b::host_session_id
+previous_contract.reviewers.b.allowed_input_manifest[].path	Existing own-stage reviewer b output and expected current-stage manifest	TEST-022::reviewer-b::allowed_input_manifest[].path
+previous_contract.reviewers.b.allowed_input_manifest[].sha256	Existing own-stage reviewer b output and expected current-stage manifest	TEST-022::reviewer-b::allowed_input_manifest[].sha256
+previous_summary.schema	Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts	TEST-021::summary::schema
+previous_summary.attempt	Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts	TEST-021::summary::attempt
+previous_summary.round	Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts	TEST-021::summary::round
+previous_summary.generated_at	Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts	TEST-021::summary::generated_at
+previous_summary.reviewer_a_checks[].id	Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts	TEST-021::summary::reviewer_a_checks[].id
+previous_summary.reviewer_a_checks[].result	Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts	TEST-021::summary::reviewer_a_checks[].result
+previous_summary.reviewer_a_checks[].severity	Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts	TEST-021::summary::reviewer_a_checks[].severity
+previous_summary.reviewer_a_fail_count	Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts	TEST-021::summary::reviewer_a_fail_count
+previous_summary.reviewer_a_pass_count	Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts	TEST-021::summary::reviewer_a_pass_count
+previous_summary.reviewer_a_skip_count	Existing own-stage summary schema, prior A checks, prior attempt/round and integrated finding counts	TEST-021::summary::reviewer_a_skip_count
+previous_integrated_verdict.schema	Existing own-stage contract/summary/reviewer identity and finding count counterpart	TEST-023::integrated-verdict::schema
+previous_integrated_verdict.stage	Existing own-stage contract/summary/reviewer identity and finding count counterpart	TEST-023::integrated-verdict::stage
+previous_integrated_verdict.feature	Existing own-stage contract/summary/reviewer identity and finding count counterpart	TEST-023::integrated-verdict::feature
+previous_integrated_verdict.attempt	Existing own-stage contract/summary/reviewer identity and finding count counterpart	TEST-023::integrated-verdict::attempt
+previous_integrated_verdict.round	Existing own-stage contract/summary/reviewer identity and finding count counterpart	TEST-023::integrated-verdict::round
+previous_integrated_verdict.reviewer_a_run_id	Existing own-stage contract/summary/reviewer identity and finding count counterpart	TEST-023::integrated-verdict::reviewer_a_run_id
+previous_integrated_verdict.reviewer_b_run_id	Existing own-stage contract/summary/reviewer identity and finding count counterpart	TEST-023::integrated-verdict::reviewer_b_run_id
+previous_integrated_verdict.reviewer_a_host_session_id	Existing own-stage contract/summary/reviewer identity and finding count counterpart	TEST-023::integrated-verdict::reviewer_a_host_session_id
+previous_integrated_verdict.reviewer_b_host_session_id	Existing own-stage contract/summary/reviewer identity and finding count counterpart	TEST-023::integrated-verdict::reviewer_b_host_session_id
+previous_integrated_verdict.finding_counts.critical	Existing own-stage contract/summary/reviewer identity and finding count counterpart	TEST-023::integrated-verdict::finding_counts.critical
+previous_integrated_verdict.finding_counts.major	Existing own-stage contract/summary/reviewer identity and finding count counterpart	TEST-023::integrated-verdict::finding_counts.major
+previous_integrated_verdict.finding_counts.minor	Existing own-stage contract/summary/reviewer identity and finding count counterpart	TEST-023::integrated-verdict::finding_counts.minor
+previous_integrated_verdict.verdict	Existing own-stage contract/summary/reviewer identity and finding count counterpart	TEST-023::integrated-verdict::verdict
+previous_integrated_verdict.warningCount	Existing own-stage contract/summary/reviewer identity and finding count counterpart	TEST-023::integrated-verdict::warningCount
+implementation_evidence.Run ID	actual implementation context/run record; no made-up reserved identity	EVIDENCE::run-id-mismatch
+implementation_evidence.Task Attempt Count	actual task execution attempt history	EVIDENCE::task-attempt-count-mismatch
+implementation_evidence.spec_revision	exact current frozen input digest set	EVIDENCE::spec-revision-mismatch
+implementation_evidence.environment	actual Bash/PowerShell/tool versions and executed commands	EVIDENCE::environment-mismatch
+implementation_evidence.verdict	actual independent quality verdict/report counterpart	EVIDENCE::verdict-mismatch
+implementation_evidence.Critical	actual independent finding list	EVIDENCE::critical-count-mismatch
+implementation_evidence.Major	actual independent finding list	EVIDENCE::major-count-mismatch
+implementation_evidence.Minor	actual independent finding list	EVIDENCE::minor-count-mismatch
+implementation_evidence.reviewer.run_id	actual independent reviewer reservation	EVIDENCE::reviewer-run-mismatch
+implementation_evidence.reviewer.host_session_id	actual independent reviewer host/session receipt	EVIDENCE::reviewer-session-mismatch
+implementation_evidence.input_manifest.path	actual path-safe review input artifact	EVIDENCE::input-manifest-path-mismatch
+implementation_evidence.input_manifest.sha256	exact bytes at the cited input manifest	EVIDENCE::input-manifest-hash-mismatch
+implementation_evidence.provenance	actual commands/checkpoint commit/output/rollback records	EVIDENCE::provenance-mismatch
+implementation_evidence.traceability	T001 → REQ002/003 → AC002/003 → every assigned TEST ID and variant; execution addendum only	EVIDENCE::coverage-claim-mismatch
+target_precheck.schema	spec-review-precheck/v1; existing sibling schema	TEST-001::publication-schema
+target_precheck.stage	spec	TEST-001::publication-stage
+target_precheck.feature	CLI / record.feature	TEST-001::publication-feature
+target_precheck.attempt	CLI / recovery.target.attempt = source+1	TEST-001::publication-attempt
+target_precheck.round	CLI / recovery.target.round = 1	TEST-001::publication-round
+target_precheck.spec_review_status_field	Pending; unchanged current requirements	TEST-096::status-preserved
+target_precheck.requirements_sha256	live admitted requirements raw bytes/source pin	TEST-092::requirements
+target_precheck.acceptance_sha256	live admitted acceptance raw bytes/source pin	TEST-092::acceptance
+target_precheck.investigation_sha256	required live investigation raw bytes/source pin	TEST-092::investigation
+target_precheck.calibration_sha256	live calibration raw bytes/source pin	TEST-092::calibration
+target_precheck.input_sha256	SHA256 requirements:acceptance:investigation digest string	TEST-001::composite
+target_precheck.edit_summary	blank first-round value; no invented completed edit/review	TEST-001::blank-edit-summary
+target_precheck.reset	false; explicit recovery is not reset	TEST-004::exclusive-route
+target_precheck.generated_at	actual writer UTC timestamp; historical times unchanged	TEST-096::timestamps
+target_precheck.recovery.record_path	exact admitted contained record path	TEST-001::published-record-path
+target_precheck.recovery.record_sha256	whole admitted record raw SHA256, rechecked under lock	TEST-092::record-sha256
+target_report.bytes	blank spec-review-report.md; no review identity/verdict/count	TEST-001::blank-report
+implementation_report.Run ID	actual implementation run identity, not review identity	TEST-096::report-run-id-evidence
+implementation_report.Task Attempt Count	actual task attempt count, not source review attempt	TEST-096::report-task-attempt-evidence
+implementation_report.spec_revision	exact approved-input source/hash manifest	TEST-096::report-spec-revision-evidence
+implementation_report.verdict_counts_identity_provenance	independent result only when executed; not blank target report	TEST-096::no-fabricated-review
+verification_report.traceability	T002 -> REQ001/004 -> AC001/004 -> each assigned case exact result	TEST-096::traceability-evidence
+persisted_A.sequence	Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash	TEST-069::sequence
+persisted_A.run_id	Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash	TEST-070::run_id
+persisted_A.host_session_id	Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash	TEST-071::host_session_id
+persisted_A.stage	Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash	TEST-072::stage
+persisted_A.role	Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash	TEST-073::role
+persisted_A.record_sha256	Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash	TEST-074::record_sha256
+persisted_A.previous_record_sha256	Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash	TEST-075::previous_record_sha256
+persisted_A.allowed_inputs_sha256	Historical A invocation plus existing full-chain validator and reservation receipt; do not require current ledger-tip hash	TEST-076::allowed_inputs_sha256
+A_invocation.schema	Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics	TEST-066::invocation::schema
+A_invocation.input_mode	Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics	TEST-066::invocation::input_mode
+A_invocation.fallback_mode	Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics	TEST-066::invocation::fallback_mode
+A_invocation.read_only	Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics	TEST-066::invocation::read_only
+A_invocation.feature	Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics	TEST-066::invocation::feature
+A_invocation.identity_ledger_path	Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics	TEST-066::invocation::identity_ledger_path
+A_invocation.identity_ledger_sha256	Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics	TEST-066::invocation::identity_ledger_sha256
+A_invocation.allowed_input_manifest[].path	Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics	TEST-076::invocation::allowed_input_manifest[].path
+A_invocation.allowed_input_manifest[].sha256	Existing invocation schema/admission and source feature; raw invocation pin; persisted verifier semantics	TEST-076::invocation::allowed_input_manifest[].sha256
+A_reservation.REVIEW_CONTEXT_OK.record_sha256	Existing receipt grammar and historical A chain facts, not current tip	TEST-065::receipt::record_sha256
+A_reservation.REVIEW_CONTEXT_OK.sequence	Existing receipt grammar and historical A chain facts, not current tip	TEST-065::receipt::sequence
+A_reservation.REVIEW_CONTEXT_OK.previous_record_sha256	Existing receipt grammar and historical A chain facts, not current tip	TEST-065::receipt::previous_record_sha256
+A_reservation.REVIEW_CONTEXT_OK.pre_append_tip_sequence	Existing receipt grammar and historical A chain facts, not current tip	TEST-065::receipt::pre_append_tip_sequence
+A_reservation.REVIEW_CONTEXT_OK.identity_unique	Existing receipt grammar and historical A chain facts, not current tip	TEST-065::receipt::identity_unique
+A_host_receipt.review_execution_started	Exact false, consistent unreadable-input interruption	TEST-033::execution-started
+A_host_receipt.host_session_id	A allocation session and invocation identity	TEST-071::host-receipt-session
+A_raw.verdict	BLOCKED interruption diagnostic only; never integrated result	TEST-034::completed-substantive-review
+A_raw.allowed_input_manifest	Pinned source precheck/live inputs/calibration and invocation	TEST-063::altered-raw-input-pin
+source_diagnostic_report.bytes	Immutable raw hash and explicit launch failure / B-not-launched diagnosis; no final integrated verdict	TEST-067::altered-report; TEST-030::integrated-result
+source_inventory.members	Exactly five local entries; one external A invocation; no B/integrated artifacts/subdirectory	TEST-024/026/027/028/029/030/031/032/068
+B_absence.invocations_and_reserved_bindings	Same feature/source precheck path and reserved input-binding attribution; absence must be provable	TEST-024::B-invocation; TEST-025::orphan-B-reservation; TEST-080::ambiguous-attribution
+saved recovery keys	closed two-member contract	TEST-050/051/052/053/055 saved consumption variants
+saved record_path	contained real admitted raw record	TEST-083/086/088-P15 each path variant
+saved record_sha256	exact raw record digest	TEST-057-H15 and TEST-097 record-bytes
+whole precheck digest	reviewer manifests	TEST-097 remove-pinned/alter-pinned
+verdict/counts/identity/spec_revision	prior contract, summary, reviewer pins	TEST-098 no-pass/contradictory-verdict/wrong-identity; prior TEST-020–023
+Run ID / Task Attempt Count	report identity and actual receipts	report field missing/mismatch verification
+REQ005/AC005/TEST claims	frozen traceability and actual case results	evidence case omission/source digest mismatch verification

@@ -1,0 +1,245 @@
+PASS powershell TEST-097::real-publication-control exit=0 immutable=True utc=2026-10-25T14:49:59.233933+00:00
+FAIL powershell TEST-097::spec-verify-generated exit=1 immutable=True utc=2026-10-25T14:49:59.742350+00:00
+ERROR: spec-review-precheck: precheck evidence has invalid fields
+FAIL powershell TEST-097::valid::spec exit=1 immutable=True utc=2026-10-25T14:50:00.250948+00:00
+ERROR: spec-review-precheck: precheck evidence has invalid fields
+PASS powershell TEST-099::legacy::spec exit=0 immutable=True utc=2026-10-25T14:50:00.788046+00:00
+PASS powershell TEST-097::record-bytes::spec exit=1 immutable=True utc=2026-10-25T14:50:01.320513+00:00
+PASS powershell TEST-051::recovery-null::spec exit=1 immutable=True utc=2026-10-25T14:50:01.835607+00:00
+PASS powershell TEST-051::recovery-array::spec exit=1 immutable=True utc=2026-10-25T14:50:02.362560+00:00
+PASS powershell TEST-055::RECOVERY::spec exit=1 immutable=True utc=2026-10-25T14:50:02.894177+00:00
+PASS powershell TEST-050::record_path-missing::spec exit=1 immutable=True utc=2026-10-25T14:50:03.423681+00:00
+PASS powershell TEST-051::record_path-null::spec exit=1 immutable=True utc=2026-10-25T14:50:03.945954+00:00
+PASS powershell TEST-051::record_path-number::spec exit=1 immutable=True utc=2026-10-25T14:50:04.486813+00:00
+PASS powershell TEST-051::record_path-boolean::spec exit=1 immutable=True utc=2026-10-25T14:50:05.026482+00:00
+PASS powershell TEST-051::record_path-array::spec exit=1 immutable=True utc=2026-10-25T14:50:05.570156+00:00
+PASS powershell TEST-051::record_path-object::spec exit=1 immutable=True utc=2026-10-25T14:50:06.137930+00:00
+PASS powershell TEST-055::record_path-case::spec exit=1 immutable=True utc=2026-10-25T14:50:06.675712+00:00
+PASS powershell TEST-050::record_sha256-missing::spec exit=1 immutable=True utc=2026-10-25T14:50:07.198310+00:00
+PASS powershell TEST-051::record_sha256-null::spec exit=1 immutable=True utc=2026-10-25T14:50:07.717031+00:00
+PASS powershell TEST-051::record_sha256-number::spec exit=1 immutable=True utc=2026-10-25T14:50:08.244837+00:00
+PASS powershell TEST-051::record_sha256-boolean::spec exit=1 immutable=True utc=2026-10-25T14:50:08.797717+00:00
+PASS powershell TEST-051::record_sha256-array::spec exit=1 immutable=True utc=2026-10-25T14:50:09.366132+00:00
+PASS powershell TEST-051::record_sha256-object::spec exit=1 immutable=True utc=2026-10-25T14:50:09.905116+00:00
+PASS powershell TEST-055::record_sha256-case::spec exit=1 immutable=True utc=2026-10-25T14:50:10.447684+00:00
+PASS powershell TEST-052::unknown::spec exit=1 immutable=True utc=2026-10-25T14:50:10.996082+00:00
+PASS powershell TEST-057-H15::empty::spec exit=1 immutable=True utc=2026-10-25T14:50:11.529434+00:00
+PASS powershell TEST-057-H15::uppercase::spec exit=1 immutable=True utc=2026-10-25T14:50:12.073702+00:00
+PASS powershell TEST-057-H15::nonhex::spec exit=1 immutable=True utc=2026-10-25T14:50:12.608554+00:00
+PASS powershell TEST-057-H15::short::spec exit=1 immutable=True utc=2026-10-25T14:50:13.186001+00:00
+PASS powershell TEST-057-H15::incorrect::spec exit=1 immutable=True utc=2026-10-25T14:50:13.838712+00:00
+PASS powershell TEST-083-P15::empty::spec exit=1 immutable=True utc=2026-10-25T14:50:14.505734+00:00
+PASS powershell TEST-083-P15::absolute::spec exit=1 immutable=True utc=2026-10-25T14:50:15.114197+00:00
+PASS powershell TEST-083-P15::traversal::spec exit=1 immutable=True utc=2026-10-25T14:50:15.730044+00:00
+PASS powershell TEST-083-P15::dot::spec exit=1 immutable=True utc=2026-10-25T14:50:16.305620+00:00
+PASS powershell TEST-083-P15::double-slash::spec exit=1 immutable=True utc=2026-10-25T14:50:16.863036+00:00
+PASS powershell TEST-083-P15::backslash::spec exit=1 immutable=True utc=2026-10-25T14:50:17.422064+00:00
+PASS powershell TEST-083-P15::control::spec exit=1 immutable=True utc=2026-10-25T14:50:18.001209+00:00
+PASS powershell TEST-083-P15::nul::spec exit=1 immutable=True utc=2026-10-25T14:50:18.572660+00:00
+PASS powershell TEST-083-P15::del::spec exit=1 immutable=True utc=2026-10-25T14:50:19.110388+00:00
+PASS powershell TEST-083-P15::drive::spec exit=1 immutable=True utc=2026-10-25T14:50:19.648466+00:00
+PASS powershell TEST-083-P15::case::spec exit=1 immutable=True utc=2026-10-25T14:50:20.162260+00:00
+PASS powershell TEST-083-P15::missing::spec exit=1 immutable=True utc=2026-10-25T14:50:20.669834+00:00
+PASS powershell TEST-086-P15::leaf::spec exit=1 immutable=True utc=2026-10-25T14:50:21.167622+00:00
+PASS powershell TEST-088-P15::ancestor::spec exit=1 immutable=True utc=2026-10-25T14:50:21.599628+00:00
+FAIL powershell TEST-097::unicode-space-valid::spec exit=1 immutable=True utc=2026-10-25T14:50:22.097362+00:00
+ERROR: spec-review-precheck: precheck evidence has invalid fields
+PASS powershell TEST-053::recovery-duplicate::spec exit=1 immutable=True utc=2026-10-25T14:50:22.600979+00:00
+PASS powershell TEST-053::recovery-escaped::spec exit=1 immutable=True utc=2026-10-25T14:50:23.122122+00:00
+PASS powershell TEST-053::record_path-duplicate::spec exit=1 immutable=True utc=2026-10-25T14:50:23.655141+00:00
+PASS powershell TEST-053::record_path-escaped::spec exit=1 immutable=True utc=2026-10-25T14:50:24.157776+00:00
+PASS powershell TEST-053::record_sha256-duplicate::spec exit=1 immutable=True utc=2026-10-25T14:50:24.695965+00:00
+PASS powershell TEST-053::record_sha256-escaped::spec exit=1 immutable=True utc=2026-10-25T14:50:25.215991+00:00
+PASS powershell TEST-097::valid::impl exit=0 immutable=True utc=2026-10-25T14:50:25.797740+00:00
+PASS powershell TEST-099::legacy::impl exit=0 immutable=True utc=2026-10-25T14:50:26.377428+00:00
+FAIL powershell TEST-097::record-bytes::impl exit=0 immutable=True utc=2026-10-25T14:50:26.949824+00:00
+
+PASS powershell TEST-097::remove-pinned::impl exit=1 immutable=True utc=2026-10-25T14:50:27.539761+00:00
+PASS powershell TEST-097::alter-pinned::impl exit=1 immutable=True utc=2026-10-25T14:50:28.157344+00:00
+PASS powershell TEST-098::no-pass::impl exit=1 immutable=True utc=2026-10-25T14:50:28.721997+00:00
+PASS powershell TEST-098::contradictory-verdict::impl exit=1 immutable=True utc=2026-10-25T14:50:29.252244+00:00
+PASS powershell TEST-098::wrong-identity::impl exit=1 immutable=True utc=2026-10-25T14:50:29.886401+00:00
+FAIL powershell TEST-051::recovery-null::impl exit=0 immutable=True utc=2026-10-25T14:50:30.483268+00:00
+
+FAIL powershell TEST-051::recovery-array::impl exit=0 immutable=True utc=2026-10-25T14:50:31.070609+00:00
+
+FAIL powershell TEST-055::RECOVERY::impl exit=0 immutable=True utc=2026-10-25T14:50:31.685557+00:00
+
+FAIL powershell TEST-050::record_path-missing::impl exit=0 immutable=True utc=2026-10-25T14:50:32.318421+00:00
+
+FAIL powershell TEST-051::record_path-null::impl exit=0 immutable=True utc=2026-10-25T14:50:32.887031+00:00
+
+FAIL powershell TEST-051::record_path-number::impl exit=0 immutable=True utc=2026-10-25T14:50:33.453214+00:00
+
+FAIL powershell TEST-051::record_path-boolean::impl exit=0 immutable=True utc=2026-10-25T14:50:34.025322+00:00
+
+FAIL powershell TEST-051::record_path-array::impl exit=0 immutable=True utc=2026-10-25T14:50:34.614087+00:00
+
+FAIL powershell TEST-051::record_path-object::impl exit=0 immutable=True utc=2026-10-25T14:50:35.194974+00:00
+
+FAIL powershell TEST-055::record_path-case::impl exit=0 immutable=True utc=2026-10-25T14:50:35.786069+00:00
+
+FAIL powershell TEST-050::record_sha256-missing::impl exit=0 immutable=True utc=2026-10-25T14:50:36.390244+00:00
+
+FAIL powershell TEST-051::record_sha256-null::impl exit=0 immutable=True utc=2026-10-25T14:50:36.966278+00:00
+
+FAIL powershell TEST-051::record_sha256-number::impl exit=0 immutable=True utc=2026-10-25T14:50:37.531976+00:00
+
+FAIL powershell TEST-051::record_sha256-boolean::impl exit=0 immutable=True utc=2026-10-25T14:50:38.128777+00:00
+
+FAIL powershell TEST-051::record_sha256-array::impl exit=0 immutable=True utc=2026-10-25T14:50:38.704264+00:00
+
+FAIL powershell TEST-051::record_sha256-object::impl exit=0 immutable=True utc=2026-10-25T14:50:39.294341+00:00
+
+FAIL powershell TEST-055::record_sha256-case::impl exit=0 immutable=True utc=2026-10-25T14:50:39.864392+00:00
+
+FAIL powershell TEST-052::unknown::impl exit=0 immutable=True utc=2026-10-25T14:50:40.451712+00:00
+
+FAIL powershell TEST-057-H15::empty::impl exit=0 immutable=True utc=2026-10-25T14:50:41.026115+00:00
+
+FAIL powershell TEST-057-H15::uppercase::impl exit=0 immutable=True utc=2026-10-25T14:50:41.621205+00:00
+
+FAIL powershell TEST-057-H15::nonhex::impl exit=0 immutable=True utc=2026-10-25T14:50:42.183057+00:00
+
+FAIL powershell TEST-057-H15::short::impl exit=0 immutable=True utc=2026-10-25T14:50:42.767202+00:00
+
+FAIL powershell TEST-057-H15::incorrect::impl exit=0 immutable=True utc=2026-10-25T14:50:43.341356+00:00
+
+FAIL powershell TEST-083-P15::empty::impl exit=0 immutable=True utc=2026-10-25T14:50:43.928237+00:00
+
+FAIL powershell TEST-083-P15::absolute::impl exit=0 immutable=True utc=2026-10-25T14:50:44.547225+00:00
+
+FAIL powershell TEST-083-P15::traversal::impl exit=0 immutable=True utc=2026-10-25T14:50:45.116615+00:00
+
+FAIL powershell TEST-083-P15::dot::impl exit=0 immutable=True utc=2026-10-25T14:50:45.703308+00:00
+
+FAIL powershell TEST-083-P15::double-slash::impl exit=0 immutable=True utc=2026-10-25T14:50:46.288434+00:00
+
+FAIL powershell TEST-083-P15::backslash::impl exit=0 immutable=True utc=2026-10-25T14:50:46.878173+00:00
+
+FAIL powershell TEST-083-P15::control::impl exit=0 immutable=True utc=2026-10-25T14:50:47.448212+00:00
+
+FAIL powershell TEST-083-P15::nul::impl exit=0 immutable=True utc=2026-10-25T14:50:48.030916+00:00
+
+FAIL powershell TEST-083-P15::del::impl exit=0 immutable=True utc=2026-10-25T14:50:48.617445+00:00
+
+FAIL powershell TEST-083-P15::drive::impl exit=0 immutable=True utc=2026-10-25T14:50:49.265018+00:00
+
+FAIL powershell TEST-083-P15::case::impl exit=0 immutable=True utc=2026-10-25T14:50:49.874149+00:00
+
+FAIL powershell TEST-083-P15::missing::impl exit=0 immutable=True utc=2026-10-25T14:50:50.538128+00:00
+
+FAIL powershell TEST-086-P15::leaf::impl exit=0 immutable=True utc=2026-10-25T14:50:51.292117+00:00
+
+FAIL powershell TEST-088-P15::ancestor::impl exit=0 immutable=True utc=2026-10-25T14:50:52.030416+00:00
+
+PASS powershell TEST-097::unicode-space-valid::impl exit=0 immutable=True utc=2026-10-25T14:50:52.682166+00:00
+FAIL powershell TEST-053::recovery-duplicate::impl exit=0 immutable=True utc=2026-10-25T14:50:53.358334+00:00
+
+FAIL powershell TEST-053::recovery-escaped::impl exit=0 immutable=True utc=2026-10-25T14:50:54.093876+00:00
+
+FAIL powershell TEST-053::record_path-duplicate::impl exit=0 immutable=True utc=2026-10-25T14:50:54.938294+00:00
+
+FAIL powershell TEST-053::record_path-escaped::impl exit=0 immutable=True utc=2026-10-25T14:50:55.634269+00:00
+
+FAIL powershell TEST-053::record_sha256-duplicate::impl exit=0 immutable=True utc=2026-10-25T14:50:56.392277+00:00
+
+FAIL powershell TEST-053::record_sha256-escaped::impl exit=0 immutable=True utc=2026-10-25T14:50:57.067980+00:00
+
+PASS powershell TEST-097::valid::task exit=0 immutable=True utc=2026-10-25T14:50:57.830124+00:00
+PASS powershell TEST-099::legacy::task exit=0 immutable=True utc=2026-10-25T14:50:58.538159+00:00
+FAIL powershell TEST-097::record-bytes::task exit=0 immutable=True utc=2026-10-25T14:50:59.194096+00:00
+
+PASS powershell TEST-097::remove-pinned::task exit=1 immutable=True utc=2026-10-25T14:50:59.795023+00:00
+PASS powershell TEST-097::alter-pinned::task exit=1 immutable=True utc=2026-10-25T14:51:00.470598+00:00
+PASS powershell TEST-098::no-pass::task exit=1 immutable=True utc=2026-10-25T14:51:01.015872+00:00
+PASS powershell TEST-098::contradictory-verdict::task exit=1 immutable=True utc=2026-10-25T14:51:01.550642+00:00
+PASS powershell TEST-098::wrong-identity::task exit=1 immutable=True utc=2026-10-25T14:51:02.217584+00:00
+FAIL powershell TEST-051::recovery-null::task exit=0 immutable=True utc=2026-10-25T14:51:02.795290+00:00
+
+FAIL powershell TEST-051::recovery-array::task exit=0 immutable=True utc=2026-10-25T14:51:03.404170+00:00
+
+FAIL powershell TEST-055::RECOVERY::task exit=0 immutable=True utc=2026-10-25T14:51:03.998336+00:00
+
+FAIL powershell TEST-050::record_path-missing::task exit=0 immutable=True utc=2026-10-25T14:51:04.675468+00:00
+
+FAIL powershell TEST-051::record_path-null::task exit=0 immutable=True utc=2026-10-25T14:51:05.327875+00:00
+
+FAIL powershell TEST-051::record_path-number::task exit=0 immutable=True utc=2026-10-25T14:51:05.949967+00:00
+
+FAIL powershell TEST-051::record_path-boolean::task exit=0 immutable=True utc=2026-10-25T14:51:06.537262+00:00
+
+FAIL powershell TEST-051::record_path-array::task exit=0 immutable=True utc=2026-10-25T14:51:07.103776+00:00
+
+FAIL powershell TEST-051::record_path-object::task exit=0 immutable=True utc=2026-10-25T14:51:07.701063+00:00
+
+FAIL powershell TEST-055::record_path-case::task exit=0 immutable=True utc=2026-10-25T14:51:08.286985+00:00
+
+FAIL powershell TEST-050::record_sha256-missing::task exit=0 immutable=True utc=2026-10-25T14:51:08.882620+00:00
+
+FAIL powershell TEST-051::record_sha256-null::task exit=0 immutable=True utc=2026-10-25T14:51:09.486201+00:00
+
+FAIL powershell TEST-051::record_sha256-number::task exit=0 immutable=True utc=2026-10-25T14:51:10.081202+00:00
+
+FAIL powershell TEST-051::record_sha256-boolean::task exit=0 immutable=True utc=2026-10-25T14:51:10.663720+00:00
+
+FAIL powershell TEST-051::record_sha256-array::task exit=0 immutable=True utc=2026-10-25T14:51:11.240000+00:00
+
+FAIL powershell TEST-051::record_sha256-object::task exit=0 immutable=True utc=2026-10-25T14:51:11.814143+00:00
+
+FAIL powershell TEST-055::record_sha256-case::task exit=0 immutable=True utc=2026-10-25T14:51:12.401873+00:00
+
+FAIL powershell TEST-052::unknown::task exit=0 immutable=True utc=2026-10-25T14:51:12.964562+00:00
+
+FAIL powershell TEST-057-H15::empty::task exit=0 immutable=True utc=2026-10-25T14:51:13.542332+00:00
+
+FAIL powershell TEST-057-H15::uppercase::task exit=0 immutable=True utc=2026-10-25T14:51:14.108395+00:00
+
+FAIL powershell TEST-057-H15::nonhex::task exit=0 immutable=True utc=2026-10-25T14:51:14.683876+00:00
+
+FAIL powershell TEST-057-H15::short::task exit=0 immutable=True utc=2026-10-25T14:51:15.262832+00:00
+
+FAIL powershell TEST-057-H15::incorrect::task exit=0 immutable=True utc=2026-10-25T14:51:15.841200+00:00
+
+FAIL powershell TEST-083-P15::empty::task exit=0 immutable=True utc=2026-10-25T14:51:16.437078+00:00
+
+FAIL powershell TEST-083-P15::absolute::task exit=0 immutable=True utc=2026-10-25T14:51:17.038395+00:00
+
+FAIL powershell TEST-083-P15::traversal::task exit=0 immutable=True utc=2026-10-25T14:51:17.625447+00:00
+
+FAIL powershell TEST-083-P15::dot::task exit=0 immutable=True utc=2026-10-25T14:51:18.222018+00:00
+
+FAIL powershell TEST-083-P15::double-slash::task exit=0 immutable=True utc=2026-10-25T14:51:18.835189+00:00
+
+FAIL powershell TEST-083-P15::backslash::task exit=0 immutable=True utc=2026-10-25T14:51:19.470126+00:00
+
+FAIL powershell TEST-083-P15::control::task exit=0 immutable=True utc=2026-10-25T14:51:20.073769+00:00
+
+FAIL powershell TEST-083-P15::nul::task exit=0 immutable=True utc=2026-10-25T14:51:20.673032+00:00
+
+FAIL powershell TEST-083-P15::del::task exit=0 immutable=True utc=2026-10-25T14:51:21.247823+00:00
+
+FAIL powershell TEST-083-P15::drive::task exit=0 immutable=True utc=2026-10-25T14:51:21.829331+00:00
+
+FAIL powershell TEST-083-P15::case::task exit=0 immutable=True utc=2026-10-25T14:51:22.423288+00:00
+
+FAIL powershell TEST-083-P15::missing::task exit=0 immutable=True utc=2026-10-25T14:51:23.014364+00:00
+
+FAIL powershell TEST-086-P15::leaf::task exit=0 immutable=True utc=2026-10-25T14:51:23.584336+00:00
+
+FAIL powershell TEST-088-P15::ancestor::task exit=0 immutable=True utc=2026-10-25T14:51:24.175146+00:00
+
+PASS powershell TEST-097::unicode-space-valid::task exit=0 immutable=True utc=2026-10-25T14:51:24.786075+00:00
+FAIL powershell TEST-053::recovery-duplicate::task exit=0 immutable=True utc=2026-10-25T14:51:25.377622+00:00
+
+FAIL powershell TEST-053::recovery-escaped::task exit=0 immutable=True utc=2026-10-25T14:51:25.954379+00:00
+
+FAIL powershell TEST-053::record_path-duplicate::task exit=0 immutable=True utc=2026-10-25T14:51:26.571741+00:00
+
+FAIL powershell TEST-053::record_path-escaped::task exit=0 immutable=True utc=2026-10-25T14:51:27.168509+00:00
+
+FAIL powershell TEST-053::record_sha256-duplicate::task exit=0 immutable=True utc=2026-10-25T14:51:27.771501+00:00
+
+FAIL powershell TEST-053::record_sha256-escaped::task exit=0 immutable=True utc=2026-10-25T14:51:28.378134+00:00
+
+CONSUMPTION_RESULT powershell passed=62 failures=91

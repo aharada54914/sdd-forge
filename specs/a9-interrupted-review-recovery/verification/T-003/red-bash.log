@@ -1,0 +1,245 @@
+PASS bash TEST-097::real-publication-control exit=0 immutable=True utc=2026-10-25T14:49:20.742319+00:00
+FAIL bash TEST-097::spec-verify-generated exit=1 immutable=True utc=2026-10-25T14:49:20.767390+00:00
+ERROR: spec-review-precheck: review inputs or precheck identity changed after precheck
+FAIL bash TEST-097::valid::spec exit=1 immutable=True utc=2026-10-25T14:49:20.804306+00:00
+ERROR: spec-review-precheck: review inputs or precheck identity changed after precheck
+PASS bash TEST-099::legacy::spec exit=0 immutable=True utc=2026-10-25T14:49:20.837298+00:00
+PASS bash TEST-097::record-bytes::spec exit=1 immutable=True utc=2026-10-25T14:49:20.872655+00:00
+PASS bash TEST-051::recovery-null::spec exit=1 immutable=True utc=2026-10-25T14:49:20.908738+00:00
+PASS bash TEST-051::recovery-array::spec exit=1 immutable=True utc=2026-10-25T14:49:20.947960+00:00
+PASS bash TEST-055::RECOVERY::spec exit=1 immutable=True utc=2026-10-25T14:49:20.989822+00:00
+PASS bash TEST-050::record_path-missing::spec exit=1 immutable=True utc=2026-10-25T14:49:21.033003+00:00
+PASS bash TEST-051::record_path-null::spec exit=1 immutable=True utc=2026-10-25T14:49:21.069993+00:00
+PASS bash TEST-051::record_path-number::spec exit=1 immutable=True utc=2026-10-25T14:49:21.108832+00:00
+PASS bash TEST-051::record_path-boolean::spec exit=1 immutable=True utc=2026-10-25T14:49:21.144840+00:00
+PASS bash TEST-051::record_path-array::spec exit=1 immutable=True utc=2026-10-25T14:49:21.179697+00:00
+PASS bash TEST-051::record_path-object::spec exit=1 immutable=True utc=2026-10-25T14:49:21.213306+00:00
+PASS bash TEST-055::record_path-case::spec exit=1 immutable=True utc=2026-10-25T14:49:21.247916+00:00
+PASS bash TEST-050::record_sha256-missing::spec exit=1 immutable=True utc=2026-10-25T14:49:21.280787+00:00
+PASS bash TEST-051::record_sha256-null::spec exit=1 immutable=True utc=2026-10-25T14:49:21.317245+00:00
+PASS bash TEST-051::record_sha256-number::spec exit=1 immutable=True utc=2026-10-25T14:49:21.356177+00:00
+PASS bash TEST-051::record_sha256-boolean::spec exit=1 immutable=True utc=2026-10-25T14:49:21.394938+00:00
+PASS bash TEST-051::record_sha256-array::spec exit=1 immutable=True utc=2026-10-25T14:49:21.434090+00:00
+PASS bash TEST-051::record_sha256-object::spec exit=1 immutable=True utc=2026-10-25T14:49:21.473945+00:00
+PASS bash TEST-055::record_sha256-case::spec exit=1 immutable=True utc=2026-10-25T14:49:21.513508+00:00
+PASS bash TEST-052::unknown::spec exit=1 immutable=True utc=2026-10-25T14:49:21.552585+00:00
+PASS bash TEST-057-H15::empty::spec exit=1 immutable=True utc=2026-10-25T14:49:21.590066+00:00
+PASS bash TEST-057-H15::uppercase::spec exit=1 immutable=True utc=2026-10-25T14:49:21.628658+00:00
+PASS bash TEST-057-H15::nonhex::spec exit=1 immutable=True utc=2026-10-25T14:49:21.668587+00:00
+PASS bash TEST-057-H15::short::spec exit=1 immutable=True utc=2026-10-25T14:49:21.708546+00:00
+PASS bash TEST-057-H15::incorrect::spec exit=1 immutable=True utc=2026-10-25T14:49:21.747180+00:00
+PASS bash TEST-083-P15::empty::spec exit=1 immutable=True utc=2026-10-25T14:49:21.784717+00:00
+PASS bash TEST-083-P15::absolute::spec exit=1 immutable=True utc=2026-10-25T14:49:21.821478+00:00
+PASS bash TEST-083-P15::traversal::spec exit=1 immutable=True utc=2026-10-25T14:49:21.857713+00:00
+PASS bash TEST-083-P15::dot::spec exit=1 immutable=True utc=2026-10-25T14:49:21.895214+00:00
+PASS bash TEST-083-P15::double-slash::spec exit=1 immutable=True utc=2026-10-25T14:49:21.932163+00:00
+PASS bash TEST-083-P15::backslash::spec exit=1 immutable=True utc=2026-10-25T14:49:21.969904+00:00
+PASS bash TEST-083-P15::control::spec exit=1 immutable=True utc=2026-10-25T14:49:22.006589+00:00
+PASS bash TEST-083-P15::nul::spec exit=1 immutable=True utc=2026-10-25T14:49:22.049539+00:00
+PASS bash TEST-083-P15::del::spec exit=1 immutable=True utc=2026-10-25T14:49:22.091801+00:00
+PASS bash TEST-083-P15::drive::spec exit=1 immutable=True utc=2026-10-25T14:49:22.132009+00:00
+PASS bash TEST-083-P15::case::spec exit=1 immutable=True utc=2026-10-25T14:49:22.172464+00:00
+PASS bash TEST-083-P15::missing::spec exit=1 immutable=True utc=2026-10-25T14:49:22.213760+00:00
+PASS bash TEST-086-P15::leaf::spec exit=1 immutable=True utc=2026-10-25T14:49:22.251996+00:00
+PASS bash TEST-088-P15::ancestor::spec exit=1 immutable=True utc=2026-10-25T14:49:22.265102+00:00
+FAIL bash TEST-097::unicode-space-valid::spec exit=1 immutable=True utc=2026-10-25T14:49:22.305464+00:00
+ERROR: spec-review-precheck: review inputs or precheck identity changed after precheck
+PASS bash TEST-053::recovery-duplicate::spec exit=1 immutable=True utc=2026-10-25T14:49:22.343365+00:00
+PASS bash TEST-053::recovery-escaped::spec exit=1 immutable=True utc=2026-10-25T14:49:22.382598+00:00
+PASS bash TEST-053::record_path-duplicate::spec exit=1 immutable=True utc=2026-10-25T14:49:22.420809+00:00
+PASS bash TEST-053::record_path-escaped::spec exit=1 immutable=True utc=2026-10-25T14:49:22.457641+00:00
+PASS bash TEST-053::record_sha256-duplicate::spec exit=1 immutable=True utc=2026-10-25T14:49:22.494235+00:00
+PASS bash TEST-053::record_sha256-escaped::spec exit=1 immutable=True utc=2026-10-25T14:49:22.530934+00:00
+PASS bash TEST-097::valid::impl exit=0 immutable=True utc=2026-10-25T14:49:22.642375+00:00
+PASS bash TEST-099::legacy::impl exit=0 immutable=True utc=2026-10-25T14:49:22.756834+00:00
+FAIL bash TEST-097::record-bytes::impl exit=0 immutable=True utc=2026-10-25T14:49:22.865999+00:00
+
+PASS bash TEST-097::remove-pinned::impl exit=1 immutable=True utc=2026-10-25T14:49:22.927065+00:00
+PASS bash TEST-097::alter-pinned::impl exit=1 immutable=True utc=2026-10-25T14:49:22.987819+00:00
+PASS bash TEST-098::no-pass::impl exit=1 immutable=True utc=2026-10-25T14:49:23.016272+00:00
+PASS bash TEST-098::contradictory-verdict::impl exit=1 immutable=True utc=2026-10-25T14:49:23.046888+00:00
+PASS bash TEST-098::wrong-identity::impl exit=1 immutable=True utc=2026-10-25T14:49:23.156637+00:00
+FAIL bash TEST-051::recovery-null::impl exit=0 immutable=True utc=2026-10-25T14:49:23.269958+00:00
+
+FAIL bash TEST-051::recovery-array::impl exit=0 immutable=True utc=2026-10-25T14:49:23.381290+00:00
+
+FAIL bash TEST-055::RECOVERY::impl exit=0 immutable=True utc=2026-10-25T14:49:23.505073+00:00
+
+FAIL bash TEST-050::record_path-missing::impl exit=0 immutable=True utc=2026-10-25T14:49:23.628385+00:00
+
+FAIL bash TEST-051::record_path-null::impl exit=0 immutable=True utc=2026-10-25T14:49:23.750883+00:00
+
+FAIL bash TEST-051::record_path-number::impl exit=0 immutable=True utc=2026-10-25T14:49:23.898488+00:00
+
+FAIL bash TEST-051::record_path-boolean::impl exit=0 immutable=True utc=2026-10-25T14:49:24.015171+00:00
+
+FAIL bash TEST-051::record_path-array::impl exit=0 immutable=True utc=2026-10-25T14:49:24.138291+00:00
+
+FAIL bash TEST-051::record_path-object::impl exit=0 immutable=True utc=2026-10-25T14:49:24.260639+00:00
+
+FAIL bash TEST-055::record_path-case::impl exit=0 immutable=True utc=2026-10-25T14:49:24.377038+00:00
+
+FAIL bash TEST-050::record_sha256-missing::impl exit=0 immutable=True utc=2026-10-25T14:49:24.489784+00:00
+
+FAIL bash TEST-051::record_sha256-null::impl exit=0 immutable=True utc=2026-10-25T14:49:24.604907+00:00
+
+FAIL bash TEST-051::record_sha256-number::impl exit=0 immutable=True utc=2026-10-25T14:49:24.718411+00:00
+
+FAIL bash TEST-051::record_sha256-boolean::impl exit=0 immutable=True utc=2026-10-25T14:49:24.831285+00:00
+
+FAIL bash TEST-051::record_sha256-array::impl exit=0 immutable=True utc=2026-10-25T14:49:24.947678+00:00
+
+FAIL bash TEST-051::record_sha256-object::impl exit=0 immutable=True utc=2026-10-25T14:49:25.072906+00:00
+
+FAIL bash TEST-055::record_sha256-case::impl exit=0 immutable=True utc=2026-10-25T14:49:25.199516+00:00
+
+FAIL bash TEST-052::unknown::impl exit=0 immutable=True utc=2026-10-25T14:49:25.326588+00:00
+
+FAIL bash TEST-057-H15::empty::impl exit=0 immutable=True utc=2026-10-25T14:49:25.442296+00:00
+
+FAIL bash TEST-057-H15::uppercase::impl exit=0 immutable=True utc=2026-10-25T14:49:25.556179+00:00
+
+FAIL bash TEST-057-H15::nonhex::impl exit=0 immutable=True utc=2026-10-25T14:49:25.676374+00:00
+
+FAIL bash TEST-057-H15::short::impl exit=0 immutable=True utc=2026-10-25T14:49:25.797994+00:00
+
+FAIL bash TEST-057-H15::incorrect::impl exit=0 immutable=True utc=2026-10-25T14:49:25.913022+00:00
+
+FAIL bash TEST-083-P15::empty::impl exit=0 immutable=True utc=2026-10-25T14:49:26.026225+00:00
+
+FAIL bash TEST-083-P15::absolute::impl exit=0 immutable=True utc=2026-10-25T14:49:26.140399+00:00
+
+FAIL bash TEST-083-P15::traversal::impl exit=0 immutable=True utc=2026-10-25T14:49:26.256147+00:00
+
+FAIL bash TEST-083-P15::dot::impl exit=0 immutable=True utc=2026-10-25T14:49:26.368213+00:00
+
+FAIL bash TEST-083-P15::double-slash::impl exit=0 immutable=True utc=2026-10-25T14:49:26.489963+00:00
+
+FAIL bash TEST-083-P15::backslash::impl exit=0 immutable=True utc=2026-10-25T14:49:26.599825+00:00
+
+FAIL bash TEST-083-P15::control::impl exit=0 immutable=True utc=2026-10-25T14:49:26.710218+00:00
+
+FAIL bash TEST-083-P15::nul::impl exit=0 immutable=True utc=2026-10-25T14:49:26.811202+00:00
+
+FAIL bash TEST-083-P15::del::impl exit=0 immutable=True utc=2026-10-25T14:49:26.914736+00:00
+
+FAIL bash TEST-083-P15::drive::impl exit=0 immutable=True utc=2026-10-25T14:49:27.017845+00:00
+
+FAIL bash TEST-083-P15::case::impl exit=0 immutable=True utc=2026-10-25T14:49:27.127359+00:00
+
+FAIL bash TEST-083-P15::missing::impl exit=0 immutable=True utc=2026-10-25T14:49:27.233512+00:00
+
+FAIL bash TEST-086-P15::leaf::impl exit=0 immutable=True utc=2026-10-25T14:49:27.342517+00:00
+
+FAIL bash TEST-088-P15::ancestor::impl exit=0 immutable=True utc=2026-10-25T14:49:27.456134+00:00
+
+PASS bash TEST-097::unicode-space-valid::impl exit=0 immutable=True utc=2026-10-25T14:49:27.556319+00:00
+FAIL bash TEST-053::recovery-duplicate::impl exit=0 immutable=True utc=2026-10-25T14:49:27.656211+00:00
+
+FAIL bash TEST-053::recovery-escaped::impl exit=0 immutable=True utc=2026-10-25T14:49:27.764363+00:00
+
+FAIL bash TEST-053::record_path-duplicate::impl exit=0 immutable=True utc=2026-10-25T14:49:27.869326+00:00
+
+FAIL bash TEST-053::record_path-escaped::impl exit=0 immutable=True utc=2026-10-25T14:49:27.969493+00:00
+
+FAIL bash TEST-053::record_sha256-duplicate::impl exit=0 immutable=True utc=2026-10-25T14:49:28.068173+00:00
+
+FAIL bash TEST-053::record_sha256-escaped::impl exit=0 immutable=True utc=2026-10-25T14:49:28.167866+00:00
+
+PASS bash TEST-097::valid::task exit=0 immutable=True utc=2026-10-25T14:49:28.265610+00:00
+PASS bash TEST-099::legacy::task exit=0 immutable=True utc=2026-10-25T14:49:28.363752+00:00
+FAIL bash TEST-097::record-bytes::task exit=0 immutable=True utc=2026-10-25T14:49:28.463502+00:00
+
+PASS bash TEST-097::remove-pinned::task exit=1 immutable=True utc=2026-10-25T14:49:28.518113+00:00
+PASS bash TEST-097::alter-pinned::task exit=1 immutable=True utc=2026-10-25T14:49:28.576266+00:00
+PASS bash TEST-098::no-pass::task exit=1 immutable=True utc=2026-10-25T14:49:28.604088+00:00
+PASS bash TEST-098::contradictory-verdict::task exit=1 immutable=True utc=2026-10-25T14:49:28.633032+00:00
+PASS bash TEST-098::wrong-identity::task exit=1 immutable=True utc=2026-10-25T14:49:28.737445+00:00
+FAIL bash TEST-051::recovery-null::task exit=0 immutable=True utc=2026-10-25T14:49:28.834963+00:00
+
+FAIL bash TEST-051::recovery-array::task exit=0 immutable=True utc=2026-10-25T14:49:28.932232+00:00
+
+FAIL bash TEST-055::RECOVERY::task exit=0 immutable=True utc=2026-10-25T14:49:29.028721+00:00
+
+FAIL bash TEST-050::record_path-missing::task exit=0 immutable=True utc=2026-10-25T14:49:29.128718+00:00
+
+FAIL bash TEST-051::record_path-null::task exit=0 immutable=True utc=2026-10-25T14:49:29.226216+00:00
+
+FAIL bash TEST-051::record_path-number::task exit=0 immutable=True utc=2026-10-25T14:49:29.325148+00:00
+
+FAIL bash TEST-051::record_path-boolean::task exit=0 immutable=True utc=2026-10-25T14:49:29.422727+00:00
+
+FAIL bash TEST-051::record_path-array::task exit=0 immutable=True utc=2026-10-25T14:49:29.521382+00:00
+
+FAIL bash TEST-051::record_path-object::task exit=0 immutable=True utc=2026-10-25T14:49:29.621851+00:00
+
+FAIL bash TEST-055::record_path-case::task exit=0 immutable=True utc=2026-10-25T14:49:29.726842+00:00
+
+FAIL bash TEST-050::record_sha256-missing::task exit=0 immutable=True utc=2026-10-25T14:49:29.830492+00:00
+
+FAIL bash TEST-051::record_sha256-null::task exit=0 immutable=True utc=2026-10-25T14:49:29.939950+00:00
+
+FAIL bash TEST-051::record_sha256-number::task exit=0 immutable=True utc=2026-10-25T14:49:30.039321+00:00
+
+FAIL bash TEST-051::record_sha256-boolean::task exit=0 immutable=True utc=2026-10-25T14:49:30.137809+00:00
+
+FAIL bash TEST-051::record_sha256-array::task exit=0 immutable=True utc=2026-10-25T14:49:30.239554+00:00
+
+FAIL bash TEST-051::record_sha256-object::task exit=0 immutable=True utc=2026-10-25T14:49:30.339126+00:00
+
+FAIL bash TEST-055::record_sha256-case::task exit=0 immutable=True utc=2026-10-25T14:49:30.438741+00:00
+
+FAIL bash TEST-052::unknown::task exit=0 immutable=True utc=2026-10-25T14:49:30.537466+00:00
+
+FAIL bash TEST-057-H15::empty::task exit=0 immutable=True utc=2026-10-25T14:49:30.635680+00:00
+
+FAIL bash TEST-057-H15::uppercase::task exit=0 immutable=True utc=2026-10-25T14:49:30.737484+00:00
+
+FAIL bash TEST-057-H15::nonhex::task exit=0 immutable=True utc=2026-10-25T14:49:30.835917+00:00
+
+FAIL bash TEST-057-H15::short::task exit=0 immutable=True utc=2026-10-25T14:49:30.936432+00:00
+
+FAIL bash TEST-057-H15::incorrect::task exit=0 immutable=True utc=2026-10-25T14:49:31.036114+00:00
+
+FAIL bash TEST-083-P15::empty::task exit=0 immutable=True utc=2026-10-25T14:49:31.151936+00:00
+
+FAIL bash TEST-083-P15::absolute::task exit=0 immutable=True utc=2026-10-25T14:49:31.261300+00:00
+
+FAIL bash TEST-083-P15::traversal::task exit=0 immutable=True utc=2026-10-25T14:49:31.368549+00:00
+
+FAIL bash TEST-083-P15::dot::task exit=0 immutable=True utc=2026-10-25T14:49:31.471276+00:00
+
+FAIL bash TEST-083-P15::double-slash::task exit=0 immutable=True utc=2026-10-25T14:49:31.569086+00:00
+
+FAIL bash TEST-083-P15::backslash::task exit=0 immutable=True utc=2026-10-25T14:49:31.672525+00:00
+
+FAIL bash TEST-083-P15::control::task exit=0 immutable=True utc=2026-10-25T14:49:31.772886+00:00
+
+FAIL bash TEST-083-P15::nul::task exit=0 immutable=True utc=2026-10-25T14:49:31.874331+00:00
+
+FAIL bash TEST-083-P15::del::task exit=0 immutable=True utc=2026-10-25T14:49:31.974365+00:00
+
+FAIL bash TEST-083-P15::drive::task exit=0 immutable=True utc=2026-10-25T14:49:32.073419+00:00
+
+FAIL bash TEST-083-P15::case::task exit=0 immutable=True utc=2026-10-25T14:49:32.194879+00:00
+
+FAIL bash TEST-083-P15::missing::task exit=0 immutable=True utc=2026-10-25T14:49:32.313813+00:00
+
+FAIL bash TEST-086-P15::leaf::task exit=0 immutable=True utc=2026-10-25T14:49:32.414508+00:00
+
+FAIL bash TEST-088-P15::ancestor::task exit=0 immutable=True utc=2026-10-25T14:49:32.514320+00:00
+
+PASS bash TEST-097::unicode-space-valid::task exit=0 immutable=True utc=2026-10-25T14:49:32.612792+00:00
+FAIL bash TEST-053::recovery-duplicate::task exit=0 immutable=True utc=2026-10-25T14:49:32.714442+00:00
+
+FAIL bash TEST-053::recovery-escaped::task exit=0 immutable=True utc=2026-10-25T14:49:32.813654+00:00
+
+FAIL bash TEST-053::record_path-duplicate::task exit=0 immutable=True utc=2026-10-25T14:49:32.912603+00:00
+
+FAIL bash TEST-053::record_path-escaped::task exit=0 immutable=True utc=2026-10-25T14:49:33.011179+00:00
+
+FAIL bash TEST-053::record_sha256-duplicate::task exit=0 immutable=True utc=2026-10-25T14:49:33.107849+00:00
+
+FAIL bash TEST-053::record_sha256-escaped::task exit=0 immutable=True utc=2026-10-25T14:49:33.204991+00:00
+
+CONSUMPTION_RESULT bash passed=62 failures=91

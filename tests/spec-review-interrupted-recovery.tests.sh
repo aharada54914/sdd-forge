@@ -630,7 +630,125 @@ def transition_main():
  print('TRANSITION_RESULT '+RUNTIME+' passed='+str(sum(ok for _,ok in results))+' failures='+str(sum(not ok for _,ok in results)),flush=True)
  return int(any(not ok for _,ok in results))
 
+
+def consumption_main():
+ import datetime
+ target=f'reports/spec-review/{FEATURE}/attempt-4/round-1'
+ prepath=target+'/precheck-result.json'
+ results=[]
+ def emit(name,result,expected,unchanged):
+  ok=(result.returncode==0 if expected else result.returncode!=0) and unchanged
+  results.append(ok)
+  print(('PASS' if ok else 'FAIL')+' '+RUNTIME+' '+name+' exit='+str(result.returncode)+' immutable='+str(unchanged)+' utc='+datetime.datetime.now(datetime.timezone.utc).isoformat(),flush=True)
+  if not ok:print((result.stdout+result.stderr).strip(),flush=True)
+ def complete(root):
+  old=load(root,PRIOR+'/spec-review-contract.json')
+  old.update(attempt=4,round=1,verdict='PASS')
+  pre=load(root,prepath)
+  for key in ('requirements_sha256','acceptance_sha256','investigation_sha256'):old[key]=pre[key]
+  summary=load(root,PRIOR+'/integrated-summary.json');summary.update(attempt=4,round=1,reviewer_a_fail_count=0,reviewer_a_pass_count=7)
+  for check in summary['reviewer_a_checks']:check['result']='PASS'
+  dump(root,target+'/integrated-summary.json',summary)
+  pins=[ref(root,f'specs/{FEATURE}/'+n) for n in ('requirements.md','acceptance-tests.md','investigation.md')]+[ref(root,CAL),ref(root,prepath)]
+  for i,reviewer in enumerate(old['reviewers']):
+   reviewer['allowed_input_manifest']=sorted(pins+([ref(root,target+'/integrated-summary.json')] if i else []),key=lambda x:x['path'])
+   raw=load(root,PRIOR+'/reviewer-'+('b' if i else 'a')+'.json');raw.update(**reviewer,verdict='PASS')
+   for check in raw['checks']:check['result']='PASS'
+   dump(root,target+'/reviewer-'+('b' if i else 'a')+'.json',raw)
+  dump(root,target+'/spec-review-contract.json',old)
+  verdict=load(root,PRIOR+'/integrated-verdict.json');verdict.update(attempt=4,round=1,verdict='PASS',finding_counts=dict(critical=0,major=0,minor=0));dump(root,target+'/integrated-verdict.json',verdict)
+ def rebind(root):
+  contract=load(root,target+'/spec-review-contract.json')
+  for reviewer in contract['reviewers']:
+   for pin in reviewer['allowed_input_manifest']:
+    if pin['path']==prepath:pin['sha256']=digest(root/prepath)
+  dump(root,target+'/spec-review-contract.json',contract)
+ def consume(root,consumer):
+  if consumer=='spec':return run_child(root,transition_command(root,['--verify-inputs'] if RUNTIME=='bash' else ['-VerifyInputs'])[0])
+  source=root/f'plugins/sdd-review-loop/scripts/{consumer}-review-precheck.'
+  if RUNTIME=='bash':
+   text=pathlib.Path(str(source)+'sh').read_text()
+   funcs=re.findall(r'^[a-zA-Z_][a-zA-Z_0-9]*\(\) \{[^\n]*\}\s*$|^[a-zA-Z_][a-zA-Z_0-9]*\(\) \{\n.*?^\}',text,re.M|re.S)
+   driver=root/'consumer.sh';driver.write_text('set -euo pipefail\n'+ '\n'.join(funcs)+r"""
+repo_root=$1; FEATURE=$2; CALIBRATION_MD=plugins/sdd-review-loop/references/reviewer-calibration.md
+source "$repo_root/plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh"
+require_persisted_pass "$repo_root/reports/spec-review/$FEATURE" spec "$(sha256 "$repo_root/specs/$FEATURE/requirements.md")" "$(sha256 "$repo_root/specs/$FEATURE/acceptance-tests.md")" '' "$(sha256 "$repo_root/specs/$FEATURE/requirements.md")" ''
+""")
+   cmd=['bash',str(driver),str(root),FEATURE]
+  else:
+   driver=root/'plugins/sdd-review-loop/scripts/consumer.ps1';driver.write_text(r"""param($Repository,$Feature,$Source)
+$ErrorActionPreference='Stop';$tokens=$null;$errors=$null
+$ast=[Management.Automation.Language.Parser]::ParseFile($Source,[ref]$tokens,[ref]$errors)
+if($errors.Count){throw 'consumer parse failed'}
+. (Join-Path $PSScriptRoot 'review-hash-normalization.ps1')
+if(Test-Path (Join-Path $PSScriptRoot 'lib/saved-recovery-reference.ps1')){. (Join-Path $PSScriptRoot 'lib/saved-recovery-reference.ps1')}
+foreach($node in $ast.EndBlock.Statements){if($node -is [Management.Automation.Language.FunctionDefinitionAst]){. ([scriptblock]::Create($node.Extent.Text.Replace('$PSScriptRoot', ("'" + $PSScriptRoot.Replace("'", "''") + "'"))))}}
+$req=(Get-FileHash -LiteralPath "$Repository/specs/$Feature/requirements.md").Hash.ToLowerInvariant()
+$acc=(Get-FileHash -LiteralPath "$Repository/specs/$Feature/acceptance-tests.md").Hash.ToLowerInvariant()
+Require-Pass "$Repository/reports/spec-review/$Feature" spec $Feature $req $acc '' $req ''
+""")
+   cmd=[PWSH,'-NoLogo','-NoProfile','-File',str(driver),str(root),FEATURE,str(source)+'ps1']
+  return run_child(root,cmd)
+ with tempfile.TemporaryDirectory(prefix='a9-consume-') as tmp:
+  scratch=pathlib.Path(tmp);base=scratch/'base';transition_fixture(base)
+  for rel in ('plugins/sdd-review-loop/scripts','plugins/sdd-review-loop/references'):
+   shutil.copytree(ROOT/rel,base/rel,dirs_exist_ok=True)
+  run=run_child(base,transition_command(base)[0])
+  emit('TEST-097::real-publication-control',run,True,True)
+  if run.returncode:return 1
+  run=consume(base,'spec');emit('TEST-097::spec-verify-generated',run,True,True)
+  complete(base)
+  cases=[]
+  def add(name,edit,accept=False,pin=True):cases.append((name,edit,accept,pin))
+  add('TEST-097::valid',lambda r,p:None,True)
+  add('TEST-099::legacy',lambda r,p:p.pop('recovery'),True)
+  add('TEST-097::record-bytes',lambda r,p:put(r,RECORD,(r/RECORD).read_bytes()+b' '))
+  add('TEST-097::remove-pinned',lambda r,p:p.pop('recovery'),False,False)
+  add('TEST-097::alter-pinned',lambda r,p:p['recovery'].__setitem__('record_sha256','0'*64),False,False)
+  add('TEST-098::no-pass',lambda r,p:(root_remove(r,target+'/integrated-verdict.json')))
+  add('TEST-098::contradictory-verdict',lambda r,p:dump(r,target+'/integrated-verdict.json',{**load(r,target+'/integrated-verdict.json'),'verdict':'BLOCKED'}))
+  add('TEST-098::wrong-identity',lambda r,p:dump(r,target+'/integrated-verdict.json',{**load(r,target+'/integrated-verdict.json'),'reviewer_a_run_id':'wrong'}))
+  add('TEST-051::recovery-null',lambda r,p:p.__setitem__('recovery',None))
+  add('TEST-051::recovery-array',lambda r,p:p.__setitem__('recovery',[]))
+  add('TEST-055::RECOVERY',lambda r,p:p.__setitem__('RECOVERY',p.pop('recovery')))
+  for key in ('record_path','record_sha256'):
+   add('TEST-050::'+key+'-missing',lambda r,p,k=key:p['recovery'].pop(k))
+   for label,value in [('null',None),('number',1),('boolean',True),('array',[]),('object',{})]:add('TEST-051::'+key+'-'+label,lambda r,p,k=key,v=value:p['recovery'].__setitem__(k,v))
+   add('TEST-055::'+key+'-case',lambda r,p,k=key:p['recovery'].__setitem__(k.upper(),p['recovery'].pop(k)))
+  add('TEST-052::unknown',lambda r,p:p['recovery'].__setitem__('unexpected',1))
+  for label,value in [('empty',''),('uppercase','A'*64),('nonhex','g'*64),('short','a'*63),('incorrect','0'*64)]:add('TEST-057-H15::'+label,lambda r,p,v=value:p['recovery'].__setitem__('record_sha256',v))
+  for label,value in [('empty',''),('absolute','/tmp/record'),('traversal','../record'),('dot','./'+RECORD),('double-slash',RECORD.replace('/','//',1)),('backslash','a\\b'),('control','a\nb'),('nul','a\0b'),('del','a\x7fb'),('drive','C:/record'),('case',RECORD.upper()),('missing','missing.json')]:add('TEST-083-P15::'+label,lambda r,p,v=value:p['recovery'].__setitem__('record_path',v))
+  def linked(root,path,ancestor=False):
+   f=root/path;f=f.parent if ancestor else f;new=f.with_name(f.name+'.held');f.rename(new);f.symlink_to(new.name,target_is_directory=new.is_dir())
+  add('TEST-086-P15::leaf',lambda r,p:linked(r,RECORD))
+  add('TEST-088-P15::ancestor',lambda r,p:linked(r,RECORD,True))
+  def unicode_path(root,p):
+   path=f'specs/{FEATURE}/記録 space.json';put(root,path,(root/RECORD).read_bytes());p['recovery']['record_path']=path
+  add('TEST-097::unicode-space-valid',unicode_path,True)
+  for consumer in ('spec','impl','task'):
+   for number,(name,edit,accept,pin) in enumerate(cases):
+    if consumer=='spec' and name.startswith('TEST-098'):continue
+    if consumer=='spec' and name in ('TEST-097::remove-pinned','TEST-097::alter-pinned'):continue
+    root=scratch/'case';shutil.copytree(base,root);p=load(root,prepath);edit(root,p);dump(root,prepath,p)
+    if pin:rebind(root)
+    before=snapshot(root);result=consume(root,consumer)
+    # Drivers are test harness files, excluded from the state oracle.
+    after=[x for x in snapshot(root) if x[0] not in ('consumer.sh','plugins/sdd-review-loop/scripts/consumer.ps1')]
+    emit(name+'::'+consumer,result,accept,after==before);shutil.rmtree(root)
+   for key in ('recovery','record_path','record_sha256'):
+    for escaped in (False,True):
+     root=scratch/'case';shutil.copytree(base,root);raw=(root/prepath).read_text();literal=json.dumps(key);alias=('"\\u'+format(ord(key[0]),'04x')+key[1:]+'"') if escaped else literal
+     value=load(root,prepath)['recovery'] if key=='recovery' else load(root,prepath)['recovery'][key]
+     raw=raw.replace(literal+':',alias+':'+json.dumps(value)+','+literal+':',1);put(root,prepath,raw);rebind(root)
+     before=snapshot(root);result=consume(root,consumer);after=[x for x in snapshot(root) if x[0] not in ('consumer.sh','plugins/sdd-review-loop/scripts/consumer.ps1')]
+     emit('TEST-053::'+key+('-escaped' if escaped else '-duplicate')+'::'+consumer,result,False,after==before);shutil.rmtree(root)
+ print('CONSUMPTION_RESULT '+RUNTIME+' passed='+str(sum(results))+' failures='+str(len(results)-sum(results)),flush=True)
+ return int(not all(results))
+
+def root_remove(root,path): (root/path).unlink()
+
 if __name__=='__main__':
+ if os.environ.get('SDD_RECOVERY_TEST_SCOPE')=='consumption':sys.exit(consumption_main())
  if os.environ.get('SDD_RECOVERY_TEST_SCOPE')=='transition':sys.exit(transition_main())
  status=main()
  sys.exit(status or transition_main())
