@@ -130,6 +130,21 @@ class Acquire(unittest.TestCase):
             snapshots = dict(schema='research-snapshots/v1', feature=document['feature'], snapshots=[dict(
                 source_id='SRC-001', record_revision=1, original=f"{saved['cache_key']}/original",
                 extracted=f"{saved['cache_key']}/extracted.txt")])
+            # A hosted runner's home/checkout can be private to the runner user.
+            # Give test readers the actual product modules, without widening that home.
+            runtime = root / 'runtime'
+            scripts = runtime / 'scripts'
+            contracts = runtime / 'contracts'
+            for directory in (runtime, scripts, contracts):
+                directory.mkdir(mode=0o755)
+                directory.chmod(0o755)
+            for name in ('research_consumers.py', 'research_evidence.py', 'research_extraction.py',
+                         'validate-facet-manifest.py', 'canonicalize-sdd-yaml.py'):
+                shutil.copyfile(a.QUALITY / name, scripts / name)
+                (scripts / name).chmod(0o644)
+            shutil.copyfile(a.QUALITY.parent / 'contracts/research-evidence.schema.json',
+                            contracts / 'research-evidence.schema.json')
+            (contracts / 'research-evidence.schema.json').chmod(0o644)
             script = '''import os,sys,pathlib,json
 path=pathlib.Path(sys.argv[1]); result={}
 for operation,mode in [('read','rb'),('write','ab')]:
@@ -152,9 +167,10 @@ except Invalid as error: result['expired']=error.code=='rights-expired'
 print(json.dumps(result))
 '''
             for uid, gid, allowed in [(65534, os.getegid(), True), (65533, 65533, False)]:
-                result = subprocess.run([sys.executable, '-c', script, str(original), str(a.QUALITY),
+                result = subprocess.run([sys.executable, '-c', script, str(original), str(scripts),
                                          json.dumps([document, snapshots])], user=uid, group=gid,
-                                        extra_groups=[], capture_output=True, text=True, check=True)
+                                        extra_groups=[], capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(json.loads(result.stdout), dict(read=allowed, write=False, capabilities_zero=True,
                                                                 verified=allowed, expired=True))
             self.assertEqual(a.purge_cache(cache, shared_gid=os.getegid(), now='2100-01-01T00:00:00Z')['deleted'], 1)
