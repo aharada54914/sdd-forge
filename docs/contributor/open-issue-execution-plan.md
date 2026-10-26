@@ -539,3 +539,16 @@ and product admission rules are unchanged. The local acquisition suite passes
 30 tests with one root-only skip, including a new actual ancestor-ACL rejection.
 Final-source hosted CI is still required; this fixes test placement, not an ACL
 exception in shared storage.
+
+## macOS integration follow-up — 2026-10-27 (JST)
+
+Run [40242573713](https://github.com/aharada54914/sdd-forge/actions/runs/40242573713)
+at `3f488686` completed with 43 successful jobs, one expected skip and two failed
+jobs (macOS version gates and the required-checks aggregate). The POSIX shared
+profile and isolated shared-store fixture now pass. The sole underlying failure
+was check-component-coverage TEST-036.2: `grep -q` closed its pipe early and
+`printf` failed with Broken pipe under `pipefail`. The suite now drains piped
+text while retaining matching/nonmatching exit status. Local suite: 46/46 PASS;
+a 1 MiB reproduction returns 141 before the fix, 0 after it, and 1 for a missing
+marker. This does not disable pipefail or alter product validation. Native macOS
+confirmation and final-source CI remain pending.

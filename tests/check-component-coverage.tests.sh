@@ -166,7 +166,7 @@ f6=$(printf '%s' "$out" | jqf -r '.fail_conditions[] | select(.id=="Fail-6") | .
 out=$(run_gate "${FIXTURES}/config-advisory.yaml" "${FIXTURES}/facet-manifest-full.json" "${FIXTURES}/changed-paths-fail6.txt" "${FIXTURES}/provider-bindings-no-adapter.json")
 f6=$(printf '%s' "$out" | jqf -r '.fail_conditions[] | select(.id=="Fail-6") | .triggered')
 warn=$(printf '%s' "$out" | jqf -r '.warnings[0] // ""')
-if [ "$f6" = "false" ] && printf '%s' "$warn" | grep -q "evaluation not possible"; then
+if [ "$f6" = "false" ] && printf '%s' "$warn" | grep "evaluation not possible" > /dev/null; then
   ok "TEST-033.2: a binding lacking adapter_paths is WARN 'evaluation not possible', never silently passing"
 else
   fail "TEST-033.2: expected Fail-6=false + WARN, got f6=$f6 warn=$warn"
@@ -273,17 +273,17 @@ out_stdout=$("$SCRIPT" --config "${FIXTURES}/config-parse-error.yaml" --facet-ma
 code=$?
 out_all=$("$SCRIPT" --config "${FIXTURES}/config-parse-error.yaml" --facet-manifest "${FIXTURES}/facet-manifest-full.json" --changed-paths-file "${FIXTURES}/changed-paths-clean.txt" 2>&1)
 set -e
-if [ "$code" -eq 2 ] && ! printf '%s' "$out_all" | grep -q "not-applicable (disabled-legacy)"; then
+if [ "$code" -eq 2 ] && ! printf '%s' "$out_all" | grep "not-applicable (disabled-legacy)" > /dev/null; then
   ok "TEST-035d.1: a config file that exists but fails to parse is a hard error (exit 2), never silently downgraded to disabled-legacy"
 else
   fail "TEST-035d.1: expected exit 2 and no disabled-legacy downgrade, got exit=$code out=$out_all"
 fi
-if printf '%s' "$out_all" | grep -q "could not be parsed"; then
+if printf '%s' "$out_all" | grep "could not be parsed" > /dev/null; then
   ok "TEST-035d.2: the diagnostic names the parse failure"
 else
   fail "TEST-035d.2: expected a diagnostic naming the parse failure, got: $out_all"
 fi
-if [ -z "$out_stdout" ] && ! printf '%s' "$out_all" | grep -q "check-component-coverage-verdict/v1"; then
+if [ -z "$out_stdout" ] && ! printf '%s' "$out_all" | grep "check-component-coverage-verdict/v1" > /dev/null; then
   ok "TEST-035d.3: NO evidence record is emitted (empty stdout, no verdict schema tag anywhere) — nothing exists for an activated tier minimum to accept"
 else
   fail "TEST-035d.3: expected a recordless crash, got stdout=[$out_stdout]"
@@ -366,15 +366,16 @@ fi
 DRAFTS="${REPO_ROOT}/reports/implementation/epic-191-a3-path-ownership/drafts"
 HC_MANIFEST_191="${REPO_ROOT}/specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256"
 
+# Drain piped text: grep -q can SIGPIPE printf under pipefail on small OS pipes.
 echo "=== TEST-036: protected-suffix registration + generator inventory ==="
 matrix_block=$(sed -n '/^low      = /,/^critical = /p' "${REPO_ROOT}/plugins/sdd-quality-loop/references/risk-gate-matrix.md")
-if printf '%s' "$matrix_block" | grep -Eq '^high[[:space:]]+=.*check-component-coverage'; then
+if printf '%s' "$matrix_block" | grep -E '^high[[:space:]]+=.*check-component-coverage' > /dev/null; then
   ok "TEST-036.1: risk-gate-matrix.md's machine-form 'high =' required-check-set line itself (not just anywhere in the file) names check-component-coverage (live, unprotected, direct edit)"
 else
   fail "TEST-036.1: expected check-component-coverage inside the machine-form 'high =' line"
 fi
 process_block=$(sed -n '/^## Process/,/^## Done Decision/p' "${REPO_ROOT}/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md")
-if printf '%s' "$process_block" | grep -q "check-component-coverage"; then
+if printf '%s' "$process_block" | grep "check-component-coverage" > /dev/null; then
   ok "TEST-036.2: quality-gate/SKILL.md's ## Process section itself (not just anywhere in the file) documents check-component-coverage"
 else
   fail "TEST-036.2: expected check-component-coverage inside SKILL.md's ## Process section"
@@ -550,7 +551,7 @@ set +e
 out035=$(python3 "$LIVE_CONTRACT_PY" "${WORK035}/TEST-035.contract.json" "${WORK035}" 2>&1)
 code035=$?
 set -e
-if [ "$code035" -ne 0 ] && printf '%s' "$out035" | grep -q "check-component-coverage"; then
+if [ "$code035" -ne 0 ] && printf '%s' "$out035" | grep "check-component-coverage" > /dev/null; then
   ok "TEST-035.1: with a present, schema-valid project-context.yaml, the LIVE check-contract.py fails a high contract that omits check-component-coverage, naming the check (applied conditional registration, behavioral)"
 else
   fail "TEST-035.1: expected the live check-contract.py to fail the fixture naming check-component-coverage, got exit=$code035 out=$out035"
@@ -589,7 +590,7 @@ set +e
 out035c1=$(python3 "$LIVE_CONTRACT_PY" "${WORK035C}/unparseable/TEST-035c.contract.json" "${WORK035C}/unparseable" 2>&1)
 code035c1=$?
 set -e
-if [ "$code035c1" -ne 0 ] && printf '%s' "$out035c1" | grep -q "check-component-coverage"; then
+if [ "$code035c1" -ne 0 ] && printf '%s' "$out035c1" | grep "check-component-coverage" > /dev/null; then
   ok "TEST-035c.2: a present-but-UNPARSEABLE project-context.yaml (tab indentation) still activates the requirement — the contract lacking the entry fails naming check-component-coverage"
 else
   fail "TEST-035c.2: expected fail-closed activation under an unparseable config, got exit=$code035c1 out=$out035c1"
@@ -602,7 +603,7 @@ set +e
 out035c2=$(python3 "$LIVE_CONTRACT_PY" "${WORK035C}/divergent/TEST-035c.contract.json" "${WORK035C}/divergent" 2>&1)
 code035c2=$?
 set -e
-if [ "$code035c2" -ne 0 ] && printf '%s' "$out035c2" | grep -q "check-component-coverage"; then
+if [ "$code035c2" -ne 0 ] && printf '%s' "$out035c2" | grep "check-component-coverage" > /dev/null; then
   ok "TEST-035c.3: a present-but-SCHEMA-DIVERGENT project-context.yaml still activates the requirement — the contract lacking the entry fails naming check-component-coverage"
 else
   fail "TEST-035c.3: expected fail-closed activation under a schema-divergent config, got exit=$code035c2 out=$out035c2"
@@ -650,7 +651,7 @@ set +e
 live_bad_out=$(python3 "$LIVE_CONTRACT_PY" "${WORK055}/tampered.contract.json" "${WORK055}" 2>&1)
 live_bad_code=$?
 set -e
-if [ "$live_bad_code" -ne 0 ] && printf '%s' "$live_bad_out" | grep -q "does not match the live on-disk"; then
+if [ "$live_bad_code" -ne 0 ] && printf '%s' "$live_bad_out" | grep "does not match the live on-disk" > /dev/null; then
   ok "TEST-055.1: the LIVE, applied check-contract.py REJECTS a tampered check-component-coverage producer.sha256, naming the mismatch (AC-054 negative clause / AC-055 — the delivered tamper-evidence rejection, proven against real check-component-coverage.py bytes)"
 else
   fail "TEST-055.1: expected the live check-contract.py to reject the tampered evidence, got exit=$live_bad_code out=$live_bad_out"
