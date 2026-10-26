@@ -23,7 +23,7 @@
 
 **issue 系の書き込みコマンドは必ず `GH_TOKEN="$DEFAULT_WORKFLOW_TOKEN"` を前置して実行すること**
 (例: `GH_TOKEN="$DEFAULT_WORKFLOW_TOKEN" gh issue create ...`)。`DEFAULT_WORKFLOW_TOKEN` は
-claude-code-action(ピン留めした v1.0.178, action.yml)がセッションに公開する
+claude-code-action(ピン留めした v1.0.248, action.yml)がセッションに公開する
 `${{ github.token }}` そのもので、ワークフロー冒頭の `permissions:` ブロック通りの
 `issues: write` を持つ。この変数が未定義の場合のみ既定の `GH_TOKEN` にフォールバックする。
 `gh pr create` や `git push` は CI トリガーのため引き続き既定の `GH_TOKEN`
