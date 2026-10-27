@@ -3,6 +3,9 @@
 import copy
 import importlib.util
 import json
+import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -27,6 +30,22 @@ class GoldenTests(unittest.TestCase):
         for rel, value in data['expected'].items():
             (target / rel).write_bytes(M.encoded(value))
         return prepared
+
+    def test_retained_native_replay_and_snapshot_pin(self):
+        source = Path(__file__).resolve().parents[1] / 'reports/verification/actions-executor-20261027'
+        copy_dir = self.root / 'native-replay'
+        shutil.copytree(source, copy_dir)
+        replay = copy_dir / 'replay.py'
+        retained = (copy_dir / 'replay-result.json').read_bytes()
+        result = subprocess.run([sys.executable, '-B', str(replay)], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout), json.loads(retained))
+        self.assertEqual((copy_dir / 'replay-result.json').read_bytes(), retained)
+        helper = copy_dir / 'reconciler/tests/verification-ci.py'
+        helper.write_bytes(helper.read_bytes() + b'\n# modified\n')
+        result = subprocess.run([sys.executable, '-B', str(replay)], capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('reconciler snapshot digest mismatch', result.stderr)
 
     def test_all_registered_controls_and_bad_outputs(self):
         self.assertEqual(set(NAMES), {'unrun-pass', 'wrong-routing', 'weak-cleanup',
