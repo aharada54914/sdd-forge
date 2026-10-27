@@ -25,6 +25,7 @@ from research_evidence import (  # noqa: E402 - sibling runtime path is explicit
     validate_document,
     record_digest,
     timestamp,
+    shared_snapshot,
 )
 from research_consumers import impact, closed, relative_file, current_access  # noqa: E402 - sibling runtime path is explicit.
 
@@ -127,6 +128,8 @@ def source_snapshot(document, manifest, root, source_id, now):
         require(bool(selected), "snapshot-missing")
         require(source["retrieval_status"] == "retrieved" and source["extraction"] is not None,
                 "source-unavailable")
+        if source["storage_mode"] == "licensed_shared":
+            shared_snapshot(root, selected[0], source)
         for field, limit in (("original", 32 * 1024 * 1024), ("extracted", 8 * 1024 * 1024)):
             with relative_file(root, selected[0][field]).open("rb") as stream:
                 raw = stream.read(limit + 1)
