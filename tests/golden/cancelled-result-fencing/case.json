@@ -1,0 +1,76 @@
+{
+  "split": "held-out",
+  "origin": "reports/verification/actions-executor-20261027/README.md",
+  "files": {
+    "current-run.json": {
+      "run_id": "40424313355",
+      "current_attempt": 3,
+      "head": "a6b082cc72a3ba308d5e7eadda85cd80c12173dc",
+      "jobs": [
+        {
+          "attempt": 2,
+          "job_id": 121926991947,
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "attempt": 3,
+          "job_id": 121928013214,
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    "observations.json": {
+      "run_id": "40424313355",
+      "attempt": 2,
+      "head": "a6b082cc72a3ba308d5e7eadda85cd80c12173dc",
+      "slot": "1",
+      "child_exit": 0,
+      "seconds": 30.060060335000003,
+      "root": "/home/runner/work/_temp/work-order-1",
+      "budget": "2 jobs, 2 minutes/job; monetary cost unknown",
+      "scope": "native job restart/isolation proof only; no production work-order admission"
+    },
+    "restarted.json": {
+      "run_id": "40424313355",
+      "attempt": 3,
+      "head": "a6b082cc72a3ba308d5e7eadda85cd80c12173dc",
+      "slot": "1",
+      "child_exit": 0,
+      "seconds": 30.036701618999984,
+      "root": "/home/runner/work/_temp/work-order-1",
+      "budget": "2 jobs, 2 minutes/job; monetary cost unknown",
+      "scope": "native job restart/isolation proof only; no production work-order admission"
+    },
+    "output-contract.schema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accepted_attempt",
+        "reason"
+      ],
+      "properties": {
+        "accepted_attempt": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "reason": {
+          "enum": [
+            "matching-successful-attempt",
+            "no-admissible-attempt"
+          ]
+        }
+      }
+    }
+  },
+  "expected": {
+    "selection.json": {
+      "accepted_attempt": 3,
+      "reason": "matching-successful-attempt"
+    }
+  }
+}

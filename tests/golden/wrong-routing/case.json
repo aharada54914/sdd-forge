@@ -1,0 +1,32 @@
+{
+  "split": "tuning",
+  "origin": "docs/workflow-improvements/WFI-025-attempt-1-auditor-a.json",
+  "files": {
+    "policy.json": {
+      "first_match": [
+        {
+          "touches": "grader",
+          "category": "measurement",
+          "meta_change": true
+        },
+        {
+          "touches": "plugin",
+          "category": "plugin-improvement",
+          "meta_change": false
+        }
+      ]
+    },
+    "proposal.json": {
+      "touches": [
+        "grader",
+        "plugin"
+      ]
+    }
+  },
+  "expected": {
+    "route.json": {
+      "category": "measurement",
+      "meta_change": true
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "split": "tuning",
+  "origin": "docs/workflow-improvements/WFI-043.md",
+  "files": {
+    "current/SKILL.md": "current branch second edit\n",
+    "pending/SKILL.md": "reviewed branch first edit\n",
+    "main/SKILL.md": "published main\n",
+    "output-contract.schema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "action"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "consistent",
+            "ambiguous"
+          ]
+        },
+        "action": {
+          "enum": [
+            "none",
+            "apply-pending",
+            "retain-current",
+            "human-reconciliation"
+          ]
+        }
+      }
+    }
+  },
+  "expected": {
+    "assessment.json": {
+      "state": "ambiguous",
+      "action": "human-reconciliation"
+    }
+  }
+}

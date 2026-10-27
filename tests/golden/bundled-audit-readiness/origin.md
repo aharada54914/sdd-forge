@@ -1,0 +1,1 @@
+Source: reports/verification/actions-executor-20261027/README.md; actual observations from 2026-10-27. This reduced control is not a full replay. Frozen as a fresh held-out case before any candidate output was collected; do not tune prompts from its outcomes.

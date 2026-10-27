@@ -1,0 +1,11 @@
+{
+  "run_id": "40424313355",
+  "attempt": 2,
+  "head": "a6b082cc72a3ba308d5e7eadda85cd80c12173dc",
+  "slot": "1",
+  "child_exit": 0,
+  "seconds": 30.060060335000003,
+  "root": "/home/runner/work/_temp/work-order-1",
+  "budget": "2 jobs, 2 minutes/job; monetary cost unknown",
+  "scope": "native job restart/isolation proof only; no production work-order admission"
+}
