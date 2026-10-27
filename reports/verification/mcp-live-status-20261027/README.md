@@ -9,3 +9,5 @@ Security checks exercise token-path rejection, loopback-only binding, Host/Origi
 The new view is development work in PR #652; it has not been merged or released. Issue #624 retains its other human decision-record, workflow handoff, independent review and full-quality acceptance conditions.
 
 A subsequent browser test used an actual temporary project with approved requirements and a missing design. It verified that an indeterminate next step leaves known spec status and later unknown phases visible, hides command copying, and does not invent a next command. The MCP suite now includes a VM regression over the actual served page and passes 309 tests.
+
+Independent PR #657 review reproduced a crash on a malformed HTTP request target. The previous bundle was independently reproduced exiting with code 1; the corrected bundle returns HTTP 400 and remains running. A real socket regression is included in the MCP suite (309 passed on the integrated branch).
