@@ -143,7 +143,7 @@ def verify_originals(
             if matching == "whitespace":
                 excerpt = " ".join(excerpt.split())
                 quote = " ".join(quote.split())
-            require(quote in excerpt, "quote-mismatch")
+            require(bool(quote) and quote in excerpt, "quote-mismatch")
             results.append(
                 dict(
                     claim_id=c["claim_id"],

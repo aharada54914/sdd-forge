@@ -149,6 +149,13 @@ class Consumers(unittest.TestCase):
             with self.subTest(case=case), self.assertRaises(Invalid):
                 verify_originals(d, self.snapshots, self.root, now=self.now)
 
+    def test_whitespace_only_quote_is_never_reverified(self):
+        anchor = self.doc["claims"][0]["citations"][0]["anchor"]
+        anchor["quote"] = "\t\t"
+        anchor["quote_sha256"] = digest(anchor["quote"].encode())
+        with self.assertRaisesRegex(Invalid, "quote-mismatch"):
+            verify_originals(self.doc, self.snapshots, self.root, matching="whitespace", now=self.now)
+
     def test_whitespace_is_explicit_not_exact_pass(self):
         raw = b"original  text"
         (self.root / "original").write_bytes(raw)
