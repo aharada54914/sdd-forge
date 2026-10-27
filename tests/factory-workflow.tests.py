@@ -524,6 +524,10 @@ class FactoryContracts(unittest.TestCase):
             / "decision-choice.approval.json",
             folder / "decision-choice.approval.json",
         )
+        shutil.copyfile(
+            destination / "specs/pilot/decisions" / identifier / "decision-choice.approved.json",
+            folder / "decision-choice.approved.json",
+        )
         return (
             record,
             reference(self.root, path.relative_to(self.root).as_posix()),
@@ -636,6 +640,26 @@ class FactoryContracts(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.choice(first["decision_id"], first_ref["sha256"], env)
 
+    def test_deleted_successor_signature_or_snapshot_cannot_restore_old_choice(self):
+        first, first_ref, _, env = self.sign_choice("first", "adopt")
+        previous = {
+            "record": first_ref,
+            "approval": reference(self.root, "specs/pilot/decisions/first/decision-choice.approval.json"),
+        }
+        self.sign_choice("second", "reject", previous)
+        with self.assertRaises(ValueError):
+            self.choice(first["decision_id"], first_ref["sha256"], env)
+        folder = self.root / "specs/pilot/decisions/second"
+        signature = folder / "decision-choice.approval.json"
+        saved = signature.read_bytes()
+        signature.unlink()
+        with self.assertRaises(ValueError):
+            self.choice(first["decision_id"], first_ref["sha256"], env)
+        signature.write_bytes(saved)
+        (folder / "decision-choice.approved.json").unlink()
+        with self.assertRaises(ValueError):
+            self.choice(first["decision_id"], first_ref["sha256"], env)
+
     def test_issuer_rejects_disconnected_successor(self):
         record, _, command, env = self.sign_choice("first")
         record.update(decision_id="second", choice="reject", previous=None)
@@ -691,6 +715,16 @@ class FactoryContracts(unittest.TestCase):
                     for c in result["candidates"]
                 )
             )
+
+    def test_adapter_readiness_cli_uses_requested_root(self):
+        script = ROOT / "plugins/sdd-bootstrap/scripts/factory-adapter-readiness.py"
+        result = subprocess.run(
+            [sys.executable, str(script), "--root", str(self.root)],
+            capture_output=True, text=True, check=True,
+        )
+        inventory = json.loads(result.stdout)
+        self.assertFalse(inventory["admissible"])
+        self.assertTrue(all(not row["reviewed_symbol_present"] for row in inventory["candidates"]))
 
     def test_pilot_protocol_retains_all_runs_and_refuses_overwrite(self):
         pilot = load("factory_pilot_check", "tests/factory-pilot.py")

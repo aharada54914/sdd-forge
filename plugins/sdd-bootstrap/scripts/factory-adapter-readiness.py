@@ -77,5 +77,7 @@ def inspect(root=ROOT):
 
 
 if __name__ == "__main__":
-    argparse.ArgumentParser(description=__doc__, allow_abbrev=False).parse_args()
-    print(json.dumps(inspect(), indent=2))
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
+    parser.add_argument("--root", type=Path, default=ROOT)
+    args = parser.parse_args()
+    print(json.dumps(inspect(args.root.resolve()), indent=2))

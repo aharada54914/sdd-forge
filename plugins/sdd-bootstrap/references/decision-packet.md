@@ -58,6 +58,10 @@ must pin the sole current signed head for the same feature/task. Disconnected
 successors, changed history and replay of a superseded choice fail. Live publication
 journals block reading choices until publication completes. Keys remain under the existing human authority;
 never invoke the issuer or fabricate human input from an agent product flow.
+Each retained signed choice requires its content, approval and byte-identical
+approved snapshot; missing companions block selection. Removing both signed
+companions leaves no local evidence that a draft was once signed, so repository
+retention and access controls remain necessary.
 
 The packet reader optionally accepts the caller-selected ID and byte SHA-256 of
 that choice. It reuses existing HMAC/schema/registered-approver validation, checks

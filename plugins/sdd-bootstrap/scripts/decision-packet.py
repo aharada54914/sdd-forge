@@ -208,6 +208,9 @@ def signed_choice(root, relative, expected=None):
     if relative != prefix + ".json":
         raise ValueError("choice file identity mismatch")
     approval_raw = inputs.read_safe(root, prefix + ".approval.json")
+    snapshot_raw = inputs.read_safe(root, prefix + ".approved.json")
+    if snapshot_raw != raw:
+        raise ValueError("approved choice snapshot changed")
     approval = json.loads(approval_raw, object_pairs_hook=inputs.unique_object)
     if (
         not isinstance(approval, dict)
@@ -234,8 +237,9 @@ def signed_choice(root, relative, expected=None):
     if (
         inputs.read_safe(root, relative),
         inputs.read_safe(root, prefix + ".approval.json"),
+        inputs.read_safe(root, prefix + ".approved.json"),
         inputs.read_safe(root, "sdd/approver-registry.yaml"),
-    ) != (raw, approval_raw, registry_raw):
+    ) != (raw, approval_raw, snapshot_raw, registry_raw):
         raise ValueError("human choice changed during validation")
     return record, approval["primary_approval"]["approver"], raw, approval_raw
 
@@ -243,6 +247,9 @@ def signed_choice(root, relative, expected=None):
 def choice_heads(root, feature, task):
     directory = root / "specs" / feature / "decisions"
     signed_paths = sorted(directory.glob("*/decision-choice.approval.json"))
+    snapshot_paths = sorted(directory.glob("*/decision-choice.approved.json"))
+    if {p.parent for p in signed_paths} != {p.parent for p in snapshot_paths}:
+        raise ValueError("signed choice history has missing companions")
     paths = [p.with_name("decision-choice.json") for p in signed_paths]
     if len(paths) > 128:
         raise ValueError("choice directory exceeds bounded validation")
@@ -283,6 +290,8 @@ def choice_heads(root, feature, task):
         )
     if sorted(directory.glob("*/decision-choice.approval.json")) != signed_paths:
         raise ValueError("signed choice roster changed during validation")
+    if sorted(directory.glob("*/decision-choice.approved.json")) != snapshot_paths:
+        raise ValueError("approved choice roster changed during validation")
     return heads
 
 
