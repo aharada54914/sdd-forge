@@ -34,7 +34,7 @@ def reservation_tail():
     return tail
 
 
-def real_race(mutated=False):
+def real_race(mutated=False, *, barrier_timeout=10):
     if not shutil.which("bash") or not shutil.which("jq"):
         raise ValueError("bash and jq required")
     tail = reservation_tail()
@@ -62,14 +62,14 @@ scratch_binding=""
 input_binding=""
 fail() { echo "$*" >&2; exit 1; }
 sha256_file() { sha256sum "$1" | cut -d ' ' -f 1; }
-check_feature_scratch_history() {
-  touch "${ledger}.${run_id}.ready"
-  for n in {1..30}; do
-    if [ -f "${ledger}.a.ready" ] && [ -f "${ledger}.b.ready" ]; then break; fi
-    sleep 0.01
-  done
-}
 """
+        setup += (
+            'check_feature_scratch_history() {\n'
+            '  touch "${ledger}.${run_id}.ready"\n'
+            '  while [ ! -f "${ledger}.release" ]; do sleep 0.01; done\n'
+            '}\n'
+            if mutated else 'check_feature_scratch_history() { :; }\n'
+        )
         script = root / "race.sh"
         script.write_text(setup + tail)
         processes = [
@@ -81,15 +81,31 @@ check_feature_scratch_history() {
             for actor in ("a", "b")
         ]
         results = []
-        for p in processes:
-            out, err = p.communicate(timeout=10)
-            results.append(
-                {
-                    "exit_code": p.returncode,
-                    "stdout": out.decode(),
-                    "stderr": err.decode(),
-                }
-            )
+        try:
+            if mutated:
+                deadline = time.monotonic() + barrier_timeout
+                ready = [root / (ledger.name + "." + actor + ".ready") for actor in ("a", "b")]
+                while not all(path.exists() for path in ready):
+                    if any(p.poll() is not None for p in processes):
+                        raise RuntimeError("negative replay contender exited before synchronization")
+                    if time.monotonic() >= deadline:
+                        raise TimeoutError("negative replay synchronization timeout")
+                    time.sleep(0.01)
+                (root / (ledger.name + ".release")).touch()
+            for p in processes:
+                out, err = p.communicate(timeout=10)
+                results.append(
+                    {
+                        "exit_code": p.returncode,
+                        "stdout": out.decode(),
+                        "stderr": err.decode(),
+                    }
+                )
+        finally:
+            for p in processes:
+                if p.poll() is None:
+                    p.kill()
+                p.communicate()
         return {
             "accepted": sum(r["exit_code"] == 0 for r in results),
             "calls": results,

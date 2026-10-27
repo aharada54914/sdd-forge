@@ -51,6 +51,8 @@ isolated scratch state and invokes two competing processes. The negative mutates
 that extracted code's acquire/release guard; both calls must succeed. The intact
 code must accept only one. The fixture replaces unrelated input-validation setup,
 so this proves the reservation tail's observed behavior, not the whole review CLI.
+For the negative replay the parent releases both contenders only after both
+reach the post-hash-check barrier; timeout is a synchronization failure.
 
 ## Maintenance and cleanup
 

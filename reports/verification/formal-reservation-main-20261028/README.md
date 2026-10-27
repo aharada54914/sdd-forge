@@ -21,3 +21,11 @@ real-code lock-removal replay accepted two contenders. The intact model passed
 and its real-code replay accepted one. See `report.json` and the two TLC text logs.
 The command in the skill was also repeated independently in a fresh output
 directory with the same expected outcomes.
+
+The first two observations above used a short child-side barrier; under a slow
+start that barrier could time out and fail to reproduce the intended race.
+After review, the negative replay was changed to wait for explicit parent
+release only after both contenders pass the hash check. The
+`synchronized-report.json` and matching TLC text logs record a fresh run:
+the mutated replay accepted two contenders and the intact replay accepted one.
+Separate tests delay one contender and force a synchronization timeout.
