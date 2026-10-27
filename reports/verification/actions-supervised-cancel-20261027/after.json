@@ -1,0 +1,17 @@
+{
+  "run": "40544596926",
+  "attempt": "1",
+  "sha": "6a260358a62ed69302f958ea917fbdde0cd69189",
+  "fixture_source": "8a1f7de2cca27bb6374b43f2867cff756e44fe8d",
+  "pids": {
+    "parent": 2389,
+    "child": 2390
+  },
+  "supervisor": {
+    "cleanup": true,
+    "reason": "cancelled",
+    "exit_code": 125
+  },
+  "parent_active": false,
+  "child_active": false
+}

@@ -1,0 +1,54 @@
+{
+  "conclusion": "",
+  "headSha": "6a260358a62ed69302f958ea917fbdde0cd69189",
+  "jobs": [
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 122331674784,
+      "name": "cancellation",
+      "startedAt": "2026-10-27T16:49:43Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "",
+          "name": "Run supervised process tree",
+          "number": 3,
+          "status": "in_progress"
+        },
+        {
+          "conclusion": "",
+          "name": "Observe supervised cleanup",
+          "number": 4,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Publish observation",
+          "number": 5,
+          "status": "pending"
+        },
+        {
+          "conclusion": "",
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "number": 10,
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/aharada54914/sdd-forge/actions/runs/40544596926/job/122331674784"
+    }
+  ],
+  "status": "in_progress"
+}

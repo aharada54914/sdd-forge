@@ -2,6 +2,14 @@
 
 ## Active continuation — 2026-10-27 UTC
 
+A follow-up real Actions run (40544596926) used the existing Linux subreaper
+for a child and detached grandchild in the active step. After normal
+cancellation it reported cleanup complete, and neither process was active at
+the follow-up. This is one Linux observation, not proof for force-cancel, host
+loss or the still-unimplemented lease/resource/queue admission of #623.
+[Supervisor observation](../../reports/verification/actions-supervised-cancel-20261027/README.md).
+
+
 #623 has a new bounded real-host observation: Actions run 40539930555
 confirmed a detached parent and child alive, accepted cancellation while a
 subsequent step ran, and observed both still alive in the cancellation follow-up

@@ -1,0 +1,5 @@
+2026-10-27T16:49:52.4008363Z [36;1mprint('SUPERVISED_TREE_READY',flush=True)[0m
+2026-10-27T16:49:52.5293975Z SUPERVISED_TREE_READY
+2026-10-27T16:51:06.7235386Z ##[error]The operation was canceled.
+2026-10-27T16:51:06.7596223Z {"run": "40544596926", "attempt": "1", "sha": "6a260358a62ed69302f958ea917fbdde0cd69189", "fixture_source": "8a1f7de2cca27bb6374b43f2867cff756e44fe8d", "pids": {"parent": 2389, "child": 2390}, "supervisor": {"cleanup": true, "reason": "cancelled", "exit_code": 125}, "parent_active": false, "child_active": false}
+2026-10-27T16:51:08.2400845Z Artifact supervised-cancel-40544596926-1 successfully finalized. Artifact ID 12752805889
