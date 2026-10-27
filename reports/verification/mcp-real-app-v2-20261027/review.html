@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>仕様とタスクの現在地 | sdd-forge</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;color:#172c38;background:#f3f6f8;font-size:16px;line-height:1.75}*{box-sizing:border-box}body{margin:0}button,select,textarea{font:inherit}button,select{min-height:48px}button{cursor:pointer}button:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid #1269ce;outline-offset:4px}header{border-bottom:1px solid #dce4e9;background:white}header>div,main,footer{max-width:850px;margin:auto;padding:20px 24px}header>div{display:flex;justify-content:space-between;gap:12px;align-items:center}.brand{font-weight:750;letter-spacing:-.03em;font-size:21px}.edition{color:#526675;font-size:13px}main{padding-top:32px}h1{font-size:clamp(26px,5vw,36px);line-height:1.4;margin:0 0 10px;letter-spacing:-.03em}h2{font-size:21px;line-height:1.5;margin:0 0 12px}h3{font-size:17px;margin:20px 0 8px}p{margin:8px 0 16px}.muted{color:#526675}.intro{max-width:620px}.selector{display:block;font-weight:650;margin:28px 0 20px}select{display:block;width:100%;max-width:100%;margin-top:8px;padding:12px;border:1px solid #8b9da9;border-radius:9px;background:white;color:#172c38}section,.card{border:1px solid #dce4e9;border-radius:14px;padding:26px;background:white;margin-bottom:20px}.status{display:inline-block;border-radius:6px;font-size:14px;font-weight:700;padding:4px 10px;margin-bottom:14px;background:#fff0cf;color:#714900}.complete{background:#dff3e9;color:#165839}.headline{font-size:25px;line-height:1.5;margin:0 0 12px}.next{background:#eef5fc;border:1px solid #cedff2;border-radius:10px;padding:20px;margin-top:24px}.eyebrow{font-size:13px;font-weight:700;color:#355d86;margin:0 0 6px}.primary{border:0;background:#1859a5;color:white;font-weight:650;padding:12px 20px;border-radius:8px;width:100%}.secondary{border:1px solid #8b9da9;background:white;color:#234965;padding:10px 16px;border-radius:8px}.steps{list-style:none;padding:0;margin:16px 0 0}.steps li{padding:14px 0;border-bottom:1px solid #e7edf1;display:flex;justify-content:space-between;gap:14px}.steps li:last-child{border-bottom:0}.pill{font-size:14px;white-space:nowrap;color:#526675}.current{color:#8a5600;font-weight:700}.done{color:#176042}details{margin:16px 0 0}summary{cursor:pointer;padding:12px 0;min-height:48px;color:#234965;font-weight:650}code,pre{font-family:ui-monospace,monospace;font-size:13px;overflow-wrap:anywhere;white-space:pre-wrap;word-break:break-word}pre{padding:16px;background:#f3f6f8;border-radius:8px;max-height:360px;overflow:auto}ol{padding-left:24px}li{margin-bottom:8px}.note{font-size:14px;color:#526675}.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}.choice button[aria-pressed=true]{border:2px solid #1859a5;background:#eaf3fc}.choice button{font-size:15px}label.comment{display:block;margin-top:20px}textarea{display:block;width:100%;margin:8px 0 12px;padding:12px;border:1px solid #8b9da9;border-radius:8px;resize:vertical}.actions{display:flex;flex-wrap:wrap;gap:10px}.feedback-status{min-height:28px;font-size:14px;color:#355d86;margin:10px 0 0}footer{font-size:13px;color:#526675;padding-bottom:40px}footer a{color:#234965}footer details{margin:0}#procedure[hidden]{display:none}#procedure{scroll-margin-top:20px}button:disabled{cursor:default;opacity:.65}@media(max-width:540px){header>div,main,footer{padding-left:20px;padding-right:20px}main{padding-top:26px}section,.card{padding:20px}.headline{font-size:23px}.edition{font-size:12px}.choice{grid-template-columns:1fr}.steps li{font-size:15px}.actions>*{width:100%}}
+</style></head><body>
+<header><div><span class="brand">sdd-forge</span><span class="edition">操作確認用 · 改善版</span></div></header>
+<main><h1>仕様とタスクの現在地</h1><p class="intro muted">どこまで進んだか、次に何をすればよいかを確認できます。</p><p class="note">2026年10月27日取得の実サーバーデータを使った画面です。現在の最新状態とは異なる場合があります。</p>
+<label class="selector" for="feature">確認する機能<select id="feature"><option value="project-skill-observation">プロジェクトスキルの動作観測</option><option value="sdd-forge-mcp">MCPによる仕様・タスク確認</option></select></label>
+<section aria-labelledby="state-title"><span id="badge" class="status"></span><h2 id="state-title" class="headline"></h2><p id="reason"></p><div class="next"><p class="eyebrow">次にすること</p><h3 id="next-title" style="margin-top:0"></h3><p id="next-body"></p><button id="show-steps" class="primary" aria-expanded="false" aria-controls="procedure">レビューの進め方を見る</button><div id="procedure" hidden><ol><li>開発環境で対象の仕様を開き、要件と設計を確認します。</li><li>下のコマンドで仕様レビューを進めます。</li><li>指摘を解消し、レビュー結果を確認してから次の工程に進みます。</li></ol><pre id="command"></pre><button id="copy-command" class="secondary">レビューコマンドをコピー</button><p id="command-status" class="feedback-status" role="status"></p><p class="note">この画面からレビューは実行されません。コマンドは対応する開発環境で使用してください。</p></div></div></section>
+<section aria-labelledby="progress-title"><h2 id="progress-title">工程ごとの状態</h2><ul id="steps" class="steps"></ul><details><summary>判断の根拠を確認する</summary><p id="evidence-summary"></p><p id="blocker-note" class="note"></p><p class="note">対象: <code id="feature-id"></code> · 取得元: sdd-forge MCP<br>取得データのソース: <code>4271e1c5</code></p><details><summary>元の返却データを見る（JSON）</summary><pre id="raw"></pre></details></details></section>
+<section aria-labelledby="feedback-title"><h2 id="feedback-title">次にすることは分かりましたか？</h2><p class="note">この機能の表示について教えてください。回答はこの端末のブラウザ内に保存され、送信されません。</p><div class="choice" role="group" aria-label="分かりやすさ"><button type="button" class="secondary" data-choice="分かった" aria-pressed="false">次にすることが分かった</button><button type="button" class="secondary" data-choice="まだ迷う" aria-pressed="false">まだ迷う</button></div><label class="comment" for="comment">気になった点 <span class="muted">（任意）</span><textarea id="comment" rows="3" placeholder="例：どの仕様を開けばよいか分からない"></textarea></label><div class="actions"><button id="copy-feedback" class="secondary">回答をコピーして返信する</button><button id="download" class="secondary">JSONで保存</button></div><p id="feedback-status" class="feedback-status" role="status"></p><textarea id="copy-fallback" aria-label="コピーする回答" hidden readonly></textarea></section>
+</main><footer><p>操作確認用のスナップショットです。タスク・承認・署名は変更されません。MCP機能のタスク完了は、製品全体の完了やリリース可否を意味しません。</p><details><summary>今回の改善で参考にしたガイド</summary><p>2026年10月27日時点で確認した公開ガイドに基づき、重要な情報を先に、詳しい根拠を後に配置しています。</p><ul><li><a href="https://www.nngroup.com/articles/4-principles-reduce-cognitive-load/">NN/g：認知負荷を減らす4つの原則（2025年）</a></li><li><a href="https://design-system.service.gov.uk/components/task-list/">GOV.UK：工程と完了状態の表示</a></li><li><a href="https://design-system.service.gov.uk/components/details/">GOV.UK：補足情報の折りたたみ</a></li><li><a href="https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html">W3C：操作対象のサイズ</a></li></ul></details></footer>
+<script id="data" type="application/json">{
+  "get_spec_status:project-skill-observation": {
+    "ok": true,
+    "data": {
+      "kind": "spec-status",
+      "feature": "project-skill-observation",
+      "artifacts": [
+        {
+          "name": "requirements",
+          "exists": true,
+          "reviewStatus": "Pending"
+        },
+        {
+          "name": "acceptance-tests",
+          "exists": true
+        },
+        {
+          "name": "design",
+          "exists": true,
+          "reviewStatus": "Pending"
+        },
+        {
+          "name": "tasks",
+          "exists": false
+        },
+        {
+          "name": "traceability",
+          "exists": false
+        },
+        {
+          "name": "ux-spec",
+          "exists": true
+        },
+        {
+          "name": "frontend-spec",
+          "exists": true
+        },
+        {
+          "name": "infra-spec",
+          "exists": true
+        },
+        {
+          "name": "security-spec",
+          "exists": true
+        }
+      ]
+    }
+  },
+  "get_task_state:project-skill-observation": {
+    "ok": false,
+    "error": {
+      "code": "not-found",
+      "message": "Path does not exist: specs/project-skill-observation/tasks.md",
+      "details": {
+        "file": "specs/project-skill-observation/tasks.md",
+        "rule": "exists"
+      }
+    }
+  },
+  "get_next_sdd_command:project-skill-observation": {
+    "ok": true,
+    "data": {
+      "kind": "next-command",
+      "feature": "project-skill-observation",
+      "phase": "spec-review",
+      "nextCommand": "/sdd-review-loop:spec-review-loop --feature project-skill-observation",
+      "rationale": "specs/project-skill-observation/requirements.md's Spec-Review-Status is \"Pending\", not Passed (AGENTS.md Required Workflow step 2)."
+    }
+  },
+  "get_task_state:sdd-forge-mcp": {
+    "ok": true,
+    "data": {
+      "kind": "task-state",
+      "feature": "sdd-forge-mcp",
+      "tasksFile": "specs/sdd-forge-mcp/tasks.md",
+      "verdict": "pass",
+      "taskCount": 11,
+      "tasks": [
+        {
+          "id": "T-001",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": false,
+          "risk": "high"
+        },
+        {
+          "id": "T-002",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "high"
+        },
+        {
+          "id": "T-003",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "high"
+        },
+        {
+          "id": "T-011",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "high"
+        },
+        {
+          "id": "T-004",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "high"
+        },
+        {
+          "id": "T-009",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "high"
+        },
+        {
+          "id": "T-010",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "high"
+        },
+        {
+          "id": "T-005",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "high"
+        },
+        {
+          "id": "T-006",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "medium"
+        },
+        {
+          "id": "T-007",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "medium"
+        },
+        {
+          "id": "T-008",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "low"
+        }
+      ],
+      "failures": []
+    }
+  },
+  "get_next_sdd_command:sdd-forge-mcp": {
+    "ok": true,
+    "data": {
+      "kind": "next-command",
+      "feature": "sdd-forge-mcp",
+      "phase": "done",
+      "nextCommand": "feature complete",
+      "rationale": "Every Approved task in specs/sdd-forge-mcp/tasks.md has reached Done."
+    }
+  }
+}</script>
+<script>
+const data=JSON.parse(document.getElementById('data').textContent),$=id=>document.getElementById(id),storageKey='sdd-forge-mcp-feedback-v2';
+let feedback={};try{feedback=JSON.parse(localStorage.getItem(storageKey)||'{}');if(!feedback||typeof feedback!=='object'||Array.isArray(feedback))feedback={}}catch{}
+const feature=()=>$('feature').value;
+function current(){return feedback[feature()]||{choice:'',comment:''}}
+function save(){try{localStorage.setItem(storageKey,JSON.stringify(feedback));$('feedback-status').textContent='この端末に回答を保存しました。返信するには回答をコピーしてください。'}catch{$('feedback-status').textContent='このブラウザには保存できません。回答をコピーして保管してください。'}}
+function render(){const f=feature(),review=f==='project-skill-observation';$('badge').textContent=review?'仕様レビュー待ち':'この機能のタスクは完了';$('badge').className='status'+(review?'':' complete');$('state-title').textContent=review?'実装の前に、仕様レビューが必要です':'承認済みタスク11件が完了しています';$('reason').textContent=review?'要件と設計のレビューがまだ完了していません。まず仕様を確認し、実装に進める状態にします。':'この機能には、未完了の承認済みタスクはありません。';$('next-title').textContent=review?'要件と設計をレビューする':'追加の作業はありません';$('next-body').textContent=review?'レビューの手順と、開発環境で使うコマンドを確認してください。':'取得したデータ上、この機能の工程は完了しています。別の機能は上のメニューから確認できます。';$('show-steps').hidden=!review;$('show-steps').textContent='レビューの進め方を見る';$('show-steps').setAttribute('aria-expanded','false');$('procedure').hidden=true;$('command-status').textContent='';$('command').textContent=review?data['get_next_sdd_command:'+f].data.nextCommand:'';
+$('steps').replaceChildren();const rows=review?[['要件のレビュー','レビュー待ち','current'],['設計のレビュー','レビュー待ち','current'],['実装タスクの準備','タスクファイル未作成',''],['実装','開始前','']]:[['承認済みタスク','11 / 11件 完了','done'],['次の工程','なし','done']];for(const [name,state,cls] of rows){const li=document.createElement('li'),a=document.createElement('span'),b=document.createElement('span');a.textContent=name;b.textContent=state;b.className='pill '+cls;li.append(a,b);$('steps').append(li)}
+$('evidence-summary').textContent=review?'要件・設計のレビュー状態はどちらも「Pending（未完了）」です。tasks.md は存在しません。MCPの案内する次の工程は「仕様レビュー」です。':'tasks.md にある承認済み11件はすべて「Done（完了）」です。MCPの次の工程も「done（完了）」を返しています。';$('blocker-note').textContent=review?'タスクファイルがないため、実装タスクの件数や承認状況はまだ確認できません。':'注意：11件のうち10件にはブロッカー欄の記載があります。この返却データだけでは、その内容や解消状況は判断できません。';$('feature-id').textContent=f;$('raw').textContent=JSON.stringify(Object.fromEntries(Object.entries(data).filter(([k])=>k.endsWith(':'+f))),null,2);document.querySelectorAll('details').forEach(x=>x.open=false);$('comment').value=current().comment||'';document.querySelectorAll('[data-choice]').forEach(b=>b.setAttribute('aria-pressed',String(current().choice===b.dataset.choice)));$('feedback-status').textContent=current().choice?'この機能の回答を復元しました。':'';$('copy-fallback').hidden=true;}
+$('feature').onchange=render;$('show-steps').onclick=()=>{const open=$('procedure').hidden;$('procedure').hidden=!open;$('show-steps').setAttribute('aria-expanded',String(open));$('show-steps').textContent=open?'手順を閉じる':'レビューの進め方を見る'};
+async function copy(text,status){try{await navigator.clipboard.writeText(text);$(status).textContent='コピーしました。チャットに貼り付けて返信できます。'}catch{$('copy-fallback').hidden=false;$('copy-fallback').value=text;$('copy-fallback').focus();$('copy-fallback').select();$(status).textContent='自動コピーが使えません。表示したテキストを選択してコピーしてください。'}}
+$('copy-command').onclick=()=>copy($('command').textContent,'command-status');document.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>{feedback[feature()]={...current(),choice:b.dataset.choice};document.querySelectorAll('[data-choice]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));save()});$('comment').oninput=()=>{feedback[feature()]={...current(),comment:$('comment').value};save()};
+function result(){return{version:2,feature:feature(),...current(),dataSource:'4271e1c5',authority:'usability-feedback-only'}}
+$('copy-feedback').onclick=()=>copy('sdd-forge 改善版の感想\n機能：'+$('feature').selectedOptions[0].textContent+'\n分かりやすさ：'+(current().choice||'未回答')+'\n気になった点：'+(current().comment||'なし'),'feedback-status');$('download').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(result(),null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='sdd-forge-feedback-v2.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};render();
+</script></body></html>

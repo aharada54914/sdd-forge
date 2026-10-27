@@ -2,6 +2,23 @@
 
 ## Active continuation — 2026-10-27 UTC
 
+The owner has now operated the remotely deployed MCP comparison and **rejected
+both displays**: the supplied mobile screenshot showed 0/4 and described raw data
+as unfriendly. Individual answers/times were not supplied. An evidence-backed
+iteration 2 was implemented and deployed to the same owner-private Site, showing
+plain-language state, reason and next action, optional raw evidence and copyable
+feedback. Logic checks pass; direct browser QA awaits the required response, and
+iteration-2 human evaluation/adoption remains pending. The original result is
+preserved. [Feedback and deployment](../../reports/verification/mcp-real-app-v2-20261027/README.md).
+
+Dependency PR #655 now has genuinely successful final-source hosted CI
+40426135022 (41 successful jobs, one expected skip) at `4f602f7a`, and is
+MERGEABLE with REVIEW_REQUIRED. No merge bypass or self-approval was performed.
+Two separate actual configured-PAT probes returned HTTP 403 for PR writes and
+contents-ref writes; the successful weekly run did not repair this secret.
+The owner GitHub confirmation remains pending; no secret values were inspected.
+
+
 The fresh two-case cohort completed 12 native trials: 6/6 per side, including
 all repetitions of each real-incident control, without prompt/rubric changes.
 The source was frozen at `b45eb529` before collection. Earlier failed and
@@ -30,7 +47,7 @@ factory lease/admission implementation or proof of child termination.
 [Native Actions evidence](../../reports/verification/actions-executor-20261027/README.md).
 The reused dependency branch's lockfile-only source exposed missing bundle
 rebuilds; all three bundles were regenerated, audited clean and passed 498
-tests plus type checks. Final-source CI is pending on PR #655.
+tests plus type checks. Final-source CI subsequently passed on PR #655 as recorded above.
 
 Concrete release packaging was also performed at `4ac41d51`: source archive,
 101-component SBOM, checksums and 34+76 passing release loop prerequisites.
