@@ -99,6 +99,14 @@ Delegate entirely to `/sdd-bootstrap:investigate-codebase <mode> <source>`.
 Stop after investigation completes. Outputs: `specs/<feature>/investigation.md`,
 `specs/<feature>/codemap.md`, and `specs/<feature>/baseline-behavior.md`.
 
+### Explicit reusable project procedure
+
+When explicitly asked to create a reusable repository-specific procedure,
+delegate to the internal `create-project-skill` skill. When an existing
+procedure's inputs or implementation change, delegate to
+`maintain-project-skill`. These optional routes do not change specification
+track selection, approvals, required checks, or gate ownership.
+
 ### Track selection
 
 Choose the track once, before invoking the interviewer. This is a

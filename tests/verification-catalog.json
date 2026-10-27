@@ -1,6 +1,8 @@
 {
   "schema": "verification-catalog/v1",
   "suites": [
+    {"path": "tests/project-skill-lifecycle.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+    {"path": "tests/project-skill-observation.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/a9-advisory-evidence.tests.py", "runtime": "python", "delegated_to": "tests/a9-dogfood.tests.sh"},
     {"path": "tests/a9-dogfood.tests.ps1", "runtime": "powershell", "ci_jobs": ["test-windows-heavy", "version-gates"]},
     {"path": "tests/a9-dogfood.tests.py", "runtime": "python", "delegated_to": "tests/a9-dogfood.tests.sh"},
@@ -361,6 +363,8 @@
   ],
   "profiles": {
     "local-posix": [
+      "tests/project-skill-lifecycle.tests.py",
+      "tests/project-skill-observation.tests.py",
       "tests/ci-suite-wiring.tests.sh",
       "tests/ci-claude-install.tests.sh",
       "tests/wfi-034-scratch-metric.tests.sh",
@@ -553,6 +557,8 @@
       "tests/verification-impact.tests.py"
     ],
     "local-powershell": [
+      "tests/project-skill-lifecycle.tests.py",
+      "tests/project-skill-observation.tests.py",
       "tests/validate-repository.ps1",
       "tests/sdd-domain.tests.ps1",
       "tests/scripts.tests.ps1",
@@ -765,6 +771,8 @@
       "tests/upstream-concept-issue.tests.sh"
     ],
     "ci-shared-python": [
+      "tests/project-skill-lifecycle.tests.py",
+      "tests/project-skill-observation.tests.py",
       "tests/current-byte-capture.tests.py",
       "tests/concept-test.tests.py",
       "tests/concept-review-continuity.tests.py",

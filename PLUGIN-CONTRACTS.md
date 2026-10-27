@@ -3,6 +3,16 @@
 This document defines the inter-plugin interfaces for sdd-forge. These contracts
 govern how plugins communicate and hand off control at version boundaries.
 
+## Project skill observations
+
+`project-skill-manifest/v1` binds the declared executable entry and its skill
+file closure. `project-verification-observation/v1` binds execution results to
+their declared inputs and outputs. The bootstrap runner creates and executes the
+skill; the quality-loop validator checks those contracts. A trial observation is
+not task evidence, and neither validation nor generation grants task approval or
+changes the existing quality-gate owner. The owned process-tree runner currently
+supports Linux; unsupported hosts report not-run.
+
 ## Read-only inspection through protection hooks
 
 The protection hooks allow file inspection independently of write protection.
