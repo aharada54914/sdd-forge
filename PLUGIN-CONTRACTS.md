@@ -13,6 +13,11 @@ not task evidence, and neither validation nor generation grants task approval or
 changes the existing quality-gate owner. The owned process-tree runner currently
 supports Linux; unsupported hosts report not-run.
 
+The optional project-evidence collector maps a fresh admitted execution into
+existing contract/report formats. It does not import a claimed PASS or perform
+an independent review or task transition. High and critical work requires the
+existing separate review and signing process.
+
 ## Read-only inspection through protection hooks
 
 The protection hooks allow file inspection independently of write protection.
