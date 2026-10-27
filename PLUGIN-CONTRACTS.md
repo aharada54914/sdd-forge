@@ -3,6 +3,14 @@
 This document defines the inter-plugin interfaces for sdd-forge. These contracts
 govern how plugins communicate and hand off control at version boundaries.
 
+## Research evidence
+
+`research-evidence/v1` records source and claim metadata, references and storage
+conditions separately from existing code-investigation and gate records. The
+quality-loop validator checks the closed contract and supported local consistency
+rules; validation does not assert truth, rights, independent review or gate PASS.
+See [ADR-0041](docs/adr/0041-research-evidence-contract.md).
+
 ## Read-only inspection through protection hooks
 
 The protection hooks allow file inspection independently of write protection.
