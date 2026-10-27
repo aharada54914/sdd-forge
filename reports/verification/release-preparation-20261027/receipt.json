@@ -1,0 +1,12 @@
+{
+  "schema": "release-preparation-observation/v1",
+  "source_sha": "4ac41d514e30374c98b9465a03a967faad764e67",
+  "archive_path": "/workspace/scratch/issue-resolution-20261027/release-candidate/sdd-forge-candidate-4ac41d51.tar.gz",
+  "archive_sha256": "9e77d6a741839874723a7402de70323523bb053f249aa6aff0c5866a0af75e16",
+  "archive_bytes": 45817262,
+  "published": false,
+  "tag_created": false,
+  "attestation_issued": false,
+  "release_cycle_satisfied": false,
+  "reason": "Local packaging preflight only. Actual tag, exact-source CI, published final release, signed activation and a genuine advisory cycle remain separate requirements."
+}

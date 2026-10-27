@@ -1,0 +1,10 @@
+{
+  "schema": "native-actions-attempt-replay/v1",
+  "source_job_helper_sha256": "76dacec22dfa24d636ddcb2521e43d7cd2ba08a03d6928e5c4035ddd1a667c2f",
+  "cancelled_artifact_rejected_at_attempt2": true,
+  "cancelled_artifact_rejected_after_restart": true,
+  "current_successful_attempt_admitted": true,
+  "current_job_id": 121928013214,
+  "current_attempt": 3,
+  "scope": "existing origin reconciliation over genuine native observations; no task, approval or gate authority"
+}

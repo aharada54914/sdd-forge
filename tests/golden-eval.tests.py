@@ -28,8 +28,10 @@ class GoldenTests(unittest.TestCase):
             (target / rel).write_bytes(M.encoded(value))
         return prepared
 
-    def test_all_five_controls_and_bad_outputs(self):
-        self.assertEqual(len(NAMES), 5)
+    def test_all_registered_controls_and_bad_outputs(self):
+        self.assertEqual(set(NAMES), {'unrun-pass', 'wrong-routing', 'weak-cleanup',
+                                     'overbroad-validation', 'stale-skill',
+                                     'bundled-audit-readiness', 'cancelled-result-fencing'})
         for name in NAMES:
             with self.subTest(name=name):
                 out = self.root / name

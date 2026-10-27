@@ -2,6 +2,32 @@
 
 ## Active continuation — 2026-10-27 UTC
 
+The revised public-contract epoch completed another 30 native trials, with
+15/15 exact grades on each side. It remains diagnostic because those original
+cases were exposed, and does not override the frozen failed first epoch.
+[Revised-epoch evidence](../../reports/verification/golden-contract-20261027/README.md).
+Two additional real-incident-derived controls are being frozen as a separate
+fresh held-out cohort; their outcomes will not be used to tune the prompts.
+
+The dedicated Actions run actually created Draft PR #655 with the ordinary
+workflow token, and cancellation/restart observations passed the existing
+source-origin reconciler replay. An actual cancelled-attempt artifact had
+child exit zero, and is correctly rejected both before and after the genuine
+successful retry. This is positive bounded executor evidence, not a complete
+factory lease/admission implementation or proof of child termination.
+[Native Actions evidence](../../reports/verification/actions-executor-20261027/README.md).
+The reused dependency branch's lockfile-only source exposed missing bundle
+rebuilds; all three bundles were regenerated, audited clean and passed 498
+tests plus type checks. Final-source CI is pending on PR #655.
+
+Concrete release packaging was also performed at `4ac41d51`: source archive,
+101-component SBOM, checksums and 34+76 passing release loop prerequisites.
+No tag, release, signing or promotion was fabricated.
+[Packaging receipt](../../reports/verification/release-preparation-20261027/README.md).
+The pinned Action documentation drift found by the real audit (#654) is fixed
+with upstream source citations; executable permissions/token selection remain
+unchanged and 71 guard plus 10 credential-preflight tests pass.
+
 The owner explicitly instructed continued repair and selected sdd-forge MCP for
 real-app evaluation. Earlier deferred-app and authentication-blocked descriptions
 below are historical checkpoints, superseded by these observations:

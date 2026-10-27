@@ -42,9 +42,9 @@ on:
         default: false
 
 # 権限は実際に使うものだけに最小化する(REQ-005 / AC-010, security-spec.md B2)。
-# id-token: write は削除済み。ピン留めした
-# anthropics/claude-code-action@3f854a8fb5146b39d5cbf8b57f70d80810e1366f
-# (v1.0.165) の action.yml は id-token を、入力 anthropic_federation_rule_id を
+# id-token: write は削除済み。2026-10-27 に現行のピン
+# anthropics/claude-code-action@1d6de8cb0c237e7c15e9e1bdf973826ebae490cc
+# (v1.0.248) を再確認。action.yml は id-token を、入力 anthropic_federation_rule_id を
 # anthropic_organization_id と併用する workload identity federation 時のみ要求する
 # (action.yml 入力 anthropic_federation_rule_id の説明:
 #  "...the action authenticates to the Claude API by exchanging the workflow's
@@ -55,8 +55,9 @@ on:
 # OIDC 交換は発生しない。ただし action には第二の OIDC 経路がある: `github_token` 入力を
 # 渡さない場合、action は GitHub App トークン取得のため core.getIDToken() を実行し、
 # id-token: write が無いと "Could not fetch an OIDC token" で失敗する
-# (2026-07-13 の run 29262507406 で実証、issue #48)。そのため下の with: で
-# `github_token: secrets.GITHUB_TOKEN` を明示的に渡して App トークン交換自体をスキップ
+# (2026-07-13 の run 29262507406 で実証、issue #48)。現行 src/github/token.ts:158-168
+# でも OVERRIDE_GITHUB_TOKEN を OIDC 要求前に返すため、下の with.github_token を
+# 明示的に渡して App トークン交換自体をスキップ
 # させる。これで id-token: write は permissions から除外したまま
 # (AC-010 / tests/self-improvement-guard.tests.sh TEST-010 が不在を強制)、
 # セッション内 gh CLI と同一の最小権限 workflow トークンに統一される。

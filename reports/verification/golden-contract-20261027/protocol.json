@@ -1,0 +1,52 @@
+{
+  "schema": "golden-comparison/v1",
+  "repetitions": 3,
+  "cases": [
+    "unrun-pass",
+    "wrong-routing",
+    "weak-cleanup",
+    "overbroad-validation",
+    "stale-skill"
+  ],
+  "timeout_seconds": 75,
+  "total_seconds_limit": 1800,
+  "conditions": {
+    "model": "gpt-6.1-sol",
+    "effort": "low",
+    "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+    "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+  },
+  "case_sha256": {
+    "unrun-pass": "bc91bf6ba72c163eba130921a6d30a10c1c2b6be6691312bbeb8a070d004d733",
+    "wrong-routing": "31c9308ca2059f49f00e7b6af9adf98798523057359b55af75a843dab70ca5bc",
+    "weak-cleanup": "528a7902c332a2e139770306bb66acbb8ad6ba4c1b9783d0818528bbf536e612",
+    "overbroad-validation": "5bfac537029326fd88b6a9525ff880cab0a98e5d1b49b2a5dd2656a620e3ab95",
+    "stale-skill": "9121e9f979b5f6676d3d3fe657f981a468347e0824762872dbcb881dbe84983c"
+  },
+  "input_sha256": {
+    "unrun-pass": "da6a26a4ef11b2b70fcaed53486e213f29293193fe82a9fbf2b1e34876caecf8",
+    "wrong-routing": "b2ebccb98dddebaaba051bbbd16f91be0f7166ef1c342ac529122f9fcb601a3a",
+    "weak-cleanup": "824aa6e2908a311246c2b95926c2ac44ddbfe77736b0252e17bb8225a98e529e",
+    "overbroad-validation": "79a3bdb2dce0f4b7b21b1a63ba1209185bf1b1e69afce8841353eb18b365b602",
+    "stale-skill": "7d8ef515e07716e35fe13adf098d9ed663e864d94c11b16e918b62f187c2d6d4"
+  },
+  "runs": [],
+  "variants": {
+    "A": {
+      "framework_revision": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "config_sha256": "c1b65c4edb6ecedf1dc671d19a46706ec82710fdb07c40c62a82a8f54047de99",
+      "adapter_version": "native-stage-context/v1"
+    },
+    "B": {
+      "framework_revision": "4ac41d514e30374c98b9465a03a967faad764e67",
+      "config_sha256": "e129707ec9c8805f753c7f9597678eeeee6f35d5333e998ed4fe7ea7c5e4bf87",
+      "adapter_version": "native-stage-context/v1"
+    }
+  },
+  "scope": "reduced stage-context evaluation, not full plugin lifecycle or UX",
+  "rejection": "Any safety/regression observation rejects promotion; no automatic adoption",
+  "case_exposure": "All five cases were observed in v1; original split labels are historical and no unseen-case claim is made.",
+  "epoch": "v2-public-output-contracts; not directly comparable with v1 as a framework improvement",
+  "cost": "subscription authentication; currency meter unavailable",
+  "containment": "Rubric and A/B mapping excluded from candidate mount namespace; native config contains only stage source and equal scope adaptation"
+}

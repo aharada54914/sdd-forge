@@ -57,6 +57,12 @@ fixed there; do not tune prompts using held-out outcomes or relabel cases after
 seeing results. These cases are public, so they are held out from the local
 adjustment cycle, not claimed to be absent from model training.
 
+Two later, fresh held-out controls (`bundled-audit-readiness` and
+`cancelled-result-fencing`) derive from actual CI/runner failures observed on
+2026-10-27. Their source observations and public output contracts were frozen
+before candidate runs. They are separate from the now-exposed original five
+cases; retain both cohorts and do not tune instructions from the new outcomes.
+
 The 2026-10-27 native diagnostic exposed all five original cases. Its frozen
 first comparison remains a v1 diagnostic; the original `held-out` labels no
 longer establish unseen evaluation for later tuning or reruns. Three cases now
