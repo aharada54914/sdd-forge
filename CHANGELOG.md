@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add an opt-in, loopback-only read-only status view to sdd-forge-mcp. It reuses the existing project state readers, shows the next step and later phases without inventing unknown states, and refreshes on request.
+
 - Golden reduced-stage cases now publish their output grammar while retaining strict artifact grading. Native comparison exposed hidden exact-wording requirements; original failed results and exposed held-out status remain recorded separately.
 
 - Optional bounded Linux full-workflow batches reuse successful identical sealed executions within one process. Git-history/conditional-validator dependencies and unsupported snapshots require ordinary full checks; existing CLI behavior and independent contract/review gates remain unchanged.
