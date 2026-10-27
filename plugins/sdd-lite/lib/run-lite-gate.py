@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import importlib.util
 import os
 import re
 import shutil
@@ -183,7 +184,7 @@ def _run_one(root: Path, check_id: str, runtime: str, timeout: float, max_output
     }
 
 
-def execute(args: argparse.Namespace) -> tuple[int, dict]:
+def execute(args: argparse.Namespace, measurement=None) -> tuple[int, dict]:
     root = Path(args.repo_root).resolve()
     if not root.is_dir():
         raise RunnerError(f"repository root is not a directory: {root}")
@@ -209,9 +210,15 @@ def execute(args: argparse.Namespace) -> tuple[int, dict]:
         selected.append(item)
     checks = []
     for item in dict.fromkeys(selected):
+        span = measurement.start('gate', 'lite:' + item) if measurement else None
         try:
             checks.append(_run_one(root, item, args.runtime, args.timeout, args.max_output_bytes))
+            if measurement:
+                check = checks[-1]
+                measurement.finish(span, 'timeout' if check['timed_out'] else 'success' if check['exit_code'] == 0 else 'failure', check['exit_code'])
         except (RunnerError, OSError) as exc:
+            if measurement:
+                measurement.finish(span, 'failure')
             return 1, {"verdict": "FAIL", "reason": str(exc), "checks": checks,
                        "failed_check": item}
     failed = [check for check in checks if check["timed_out"] or check["exit_code"] != 0]
@@ -255,14 +262,29 @@ def main() -> int:
     parser.add_argument("--runtime", choices=("posix", "powershell"), required=True)
     parser.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT)
     parser.add_argument("--max-output-bytes", type=int, default=DEFAULT_MAX_OUTPUT)
+    parser.add_argument("--measure-dir", type=Path)
+    parser.add_argument("--measure-parent")
     args = parser.parse_args()
     if args.full_gate_promotion and args.enforcement == "none":
         parser.error("full-gate promotion requires active capability enforcement")
     if args.timeout <= 0 or args.max_output_bytes <= 0:
         parser.error("--timeout and --max-output-bytes must be positive")
     source_before = _source_snapshot(Path(args.repo_root).resolve())
+    measurement = None
+    if args.measure_parent and not args.measure_dir:
+        parser.error("--measure-parent requires --measure-dir")
+    if args.measure_dir:
+        location = Path(__file__).resolve().parents[2] / 'sdd-quality-loop/scripts/run_measurement.py'
+        spec = importlib.util.spec_from_file_location('run_measurement', location)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        try:
+            measurement = module.Observer(args.measure_dir, command_id='lite', parent_span_id=args.measure_parent,
+                                          head=source_before['revision'], dirty=source_before['dirty'])
+        except (module.MeasurementError, OSError):
+            parser.error("invalid measurement configuration")
     try:
-        code, payload = execute(args)
+        code, payload = execute(args, measurement)
     except RunnerError as exc:
         code, payload = 1, {"verdict": "FAIL", "reason": str(exc), "checks": []}
     source_after = _source_snapshot(Path(args.repo_root).resolve())
@@ -284,6 +306,8 @@ def main() -> int:
             print(f"execution evidence could not be written: {exc}", file=sys.stderr)
             return 1
     print(encoded)
+    if measurement:
+        measurement.close(code, [('lite-output', str(args.output), None)] if args.output else [])
     return code
 
 

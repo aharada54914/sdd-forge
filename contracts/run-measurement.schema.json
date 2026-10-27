@@ -1,0 +1,546 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdd-forge.local/contracts/run-measurement.schema.json",
+  "title": "Passive run observation records; never approval or gate authority",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "attempt",
+        "clock_domain",
+        "decision_ref",
+        "environment",
+        "experiment_ref",
+        "feature",
+        "kind",
+        "measurement_id",
+        "ns",
+        "parent_run_id",
+        "refs_missing_reason",
+        "rerun_detail",
+        "rerun_reason",
+        "run_id",
+        "scenario_id",
+        "schema",
+        "scope",
+        "task",
+        "trial_id",
+        "utc",
+        "variant_ref"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "clock_domain": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decision_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "environment": {
+          "type": "object",
+          "required": [
+            "head",
+            "dirty",
+            "os",
+            "arch",
+            "python",
+            "tools",
+            "target_count",
+            "input_manifest_sha256"
+          ],
+          "properties": {
+            "head": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "dirty": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "os": {
+              "type": "string"
+            },
+            "arch": {
+              "type": "string"
+            },
+            "python": {
+              "type": "string"
+            },
+            "tools": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "target_count": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "input_manifest_sha256": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "experiment_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "feature": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kind": {
+          "const": "measurement"
+        },
+        "measurement_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "parent_run_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "refs_missing_reason": {
+          "type": "object",
+          "additionalProperties": {
+            "const": "not-supplied"
+          }
+        },
+        "rerun_detail": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rerun_reason": {
+          "enum": [
+            "initial",
+            "fix",
+            "resume",
+            "repeat",
+            "other"
+          ]
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scenario_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "schema": {
+          "const": "sdd-run-measurement/v1"
+        },
+        "scope": {
+          "enum": [
+            "all",
+            "feature"
+          ]
+        },
+        "task": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "trial_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "utc": {
+          "type": "string",
+          "minLength": 1
+        },
+        "variant_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "clock_domain",
+        "command_id",
+        "inputs",
+        "kind",
+        "ns",
+        "parent_span_id",
+        "phase",
+        "schema",
+        "span_id",
+        "utc"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "clock_domain": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "path",
+              "sha256",
+              "missing"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sha256": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "missing": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "kind": {
+          "const": "span-start"
+        },
+        "ns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "parent_span_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "phase": {
+          "enum": [
+            "session",
+            "gate",
+            "command",
+            "review-preparation",
+            "model",
+            "human-wait",
+            "human-active"
+          ]
+        },
+        "schema": {
+          "const": "sdd-run-measurement/v1"
+        },
+        "span_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "utc": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "artifacts",
+        "clock_domain",
+        "cost",
+        "cost_missing_reason",
+        "exit_code",
+        "kind",
+        "logs",
+        "ns",
+        "outcome",
+        "schema",
+        "signal",
+        "span_id",
+        "token_usage",
+        "token_usage_missing_reason",
+        "utc"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "path",
+              "sha256",
+              "missing",
+              "kind",
+              "target_run_id"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sha256": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "missing": {
+                "type": "boolean"
+              },
+              "kind": {
+                "enum": [
+                  "run-record",
+                  "verification-receipt",
+                  "lite-output"
+                ]
+              },
+              "target_run_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "clock_domain": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cost": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "amount",
+            "currency",
+            "source_ref"
+          ],
+          "properties": {
+            "amount": {
+              "type": "string",
+              "pattern": "^[0-9]+(\\.[0-9]+)?$"
+            },
+            "currency": {
+              "type": "string",
+              "pattern": "^[A-Z]{3}$"
+            },
+            "source_ref": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "cost_missing_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "exit_code": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "kind": {
+          "const": "span-finish"
+        },
+        "logs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "path",
+              "sha256",
+              "missing",
+              "stream",
+              "truncated"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sha256": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "missing": {
+                "type": "boolean"
+              },
+              "stream": {
+                "enum": [
+                  "stdout",
+                  "stderr",
+                  "combined"
+                ]
+              },
+              "truncated": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "ns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "outcome": {
+          "enum": [
+            "success",
+            "failure",
+            "timeout",
+            "interrupted",
+            "rejected",
+            "abandoned",
+            "undecided"
+          ]
+        },
+        "schema": {
+          "const": "sdd-run-measurement/v1"
+        },
+        "signal": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "span_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "token_usage": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "input",
+            "output",
+            "source_ref"
+          ],
+          "properties": {
+            "input": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "output": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "source_ref": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "token_usage_missing_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "utc": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "clock_domain",
+        "kind",
+        "milestone",
+        "ns",
+        "ref",
+        "schema",
+        "utc"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "clock_domain": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "const": "mark"
+        },
+        "milestone": {
+          "enum": [
+            "idea-received",
+            "comparable-ready",
+            "human-decision",
+            "implementation-verified"
+          ]
+        },
+        "ns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "schema": {
+          "const": "sdd-run-measurement/v1"
+        },
+        "utc": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  ]
+}
