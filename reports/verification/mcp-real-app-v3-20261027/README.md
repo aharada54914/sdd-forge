@@ -1,0 +1,7 @@
+# MCP real-app feedback, iteration 3
+
+The owner first reported “まだ迷う” for project-skill-observation and asked why phases after implementation were absent. The deployed follow-up adds per-task quality gates, completion checks and conditional retrospective, labeling their statuses “状態未確認” because the snapshot does not provide them. The owner subsequently reported “分かった” and “なし” for this same feature. This is an individual understanding result, not an adoption decision, approval, measurement of completion time or evidence for other features or users. Original rejection and iteration 2 remain separately preserved.
+
+The owner authorized Chromium/Playwright. The local replica of the deployed source passed 57 assertions, including viewport widths 320/390/768/1280, visibility of later phases, feedback persistence, copy denial, keyboard and download. Screenshots were inspected; this is not an authenticated live-site audit or a WCAG conformance certification. `browser-results.json` records local test observations, not owner task outcomes. `review.html` is the exact deployed snapshot and contains no backend actions or live status updates. The source and private deployment IDs are in `deployment.json`.
+
+Issue #624 remains open: a human adoption/hold/reject choice and its existing WFI handoff, comparable measured human operation, and follow-through to the product's implementation/gate remain distinct from this one positive response.

@@ -2,6 +2,20 @@
 
 ## Active continuation — 2026-10-27 UTC
 
+Subsequent owner feedback for the selected real MCP app: the owner found the
+second display confusing because post-implementation phases were omitted. The
+third private Site iteration displays quality gates, completion and conditional
+retrospective as status unknown when unsupported by the snapshot. After this
+change the owner reported “分かった” and “なし” for project-skill-observation.
+57 browser checks pass on the local replica. No elapsed time, error count, other
+feature evaluation or formal adoption decision was supplied. #624 remains open.
+[Exact feedback and evidence](../../reports/verification/mcp-real-app-v3-20261027/README.md).
+
+#653 was closed following the owner-authorized delegated approval and normal
+merge of #655 at `45c203f0`: post-merge main CI 40432749136 passed 41 jobs
+with one expected skip and the six merged files match the tested source.
+
+
 The owner has now operated the remotely deployed MCP comparison and **rejected
 both displays**: the supplied mobile screenshot showed 0/4 and described raw data
 as unfriendly. Individual answers/times were not supplied. An evidence-backed
