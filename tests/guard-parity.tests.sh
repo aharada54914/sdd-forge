@@ -746,6 +746,11 @@ fi
 wfi037_target="plugins/sdd-quality-loop/scripts/kill-switch.sh"
 wfi037_payload() { printf '{"tool_name":"Bash","tool_input":{"command":"%s"}}' "$1"; }
 
+parity_check "research source helper writes are protected" 2 \
+    "$(wfi037_payload 'rm plugins/sdd-bootstrap/scripts/research-sources.py')"
+parity_check "research source helper reads remain allowed" 0 \
+    "$(wfi037_payload 'cat plugins/sdd-bootstrap/scripts/research-sources.py')"
+
 for wfi037_case in \
     "cp src ${wfi037_target}" \
     "tee ${wfi037_target}" \
