@@ -33,7 +33,7 @@ class Discovery(unittest.TestCase):
     def test_watch_rechecks_shared_store_receipt_and_permissions(self):
         acquire_tests = load("acquire_fixtures", ROOT / "tests/research-acquire.tests.py")
         acquire = acquire_tests.a
-        with tempfile.TemporaryDirectory(prefix="research-watch-shared-", dir=Path.home()) as directory:
+        with tempfile.TemporaryDirectory(prefix="research-watch-shared-", dir=os.environ.get("SDD_TEST_SHARED_STORE_PARENT", Path.home())) as directory:
             cache = Path(directory) / "store"
             cache.mkdir(mode=0o750)
             cache.chmod(0o750)
