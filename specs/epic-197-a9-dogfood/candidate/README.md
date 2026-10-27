@@ -3,6 +3,13 @@
 This directory is a reviewable candidate. It is not the live Context or evidence
 of approval, promotion, a release observation, or a completed rollback rehearsal.
 
+`project-context-formal-verification.yaml` is an unapproved successor of the
+retained `project-context.yaml`: it adds ownership for the repository's formal
+reservation verification skill. The candidate validator defaults to the
+successor. Historical observations remain bound to the original candidate;
+new promotion evidence and independent approval must bind the successor's
+actual bytes. This change does not activate the Context or authorize promotion.
+
 For a future approved `required` → `advisory` rollback, use the
 [bound rollback admission and application procedure](../../../../docs/adr/0035-a9-bound-rollback-admission.md).
 Its default mode validates the actual supplied HMAC approval and Ed25519 receipt

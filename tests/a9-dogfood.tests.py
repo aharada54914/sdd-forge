@@ -55,7 +55,7 @@ class OverrideTests(unittest.TestCase):
     def test_approval_admission_checks_scope_before_signatures(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "context.yaml"
-            candidate = (ROOT / "specs/epic-197-a9-dogfood/candidate/project-context.yaml").read_text()
+            candidate = (ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-formal-verification.yaml").read_text()
             path.write_text(candidate)
             info = {"schema_filename": "project-context.schema.json", "array_field": "components", "dup_category": "DUPLICATE_COMPONENT_ID"}
             APPROVAL._validate_content(path, info)
@@ -115,8 +115,24 @@ class OverrideTests(unittest.TestCase):
 
 
 class CandidatePackTests(unittest.TestCase):
+    def test_formal_skill_ownership_successor_preserves_historical_candidate(self):
+        folder = ROOT / 'specs/epic-197-a9-dogfood/candidate'
+        original = (folder / 'project-context.yaml').read_text()
+        successor = (folder / 'project-context-formal-verification.yaml').read_text()
+        addition = '  - pattern: ".agents/skills/verify-review-reservation/SKILL.md"\n    classification: "cross-cutting"\n'
+        self.assertEqual(successor.count(addition), 1)
+        self.assertEqual(successor.replace(addition, ''), original)
+        spec = importlib.util.spec_from_file_location('a9_candidate_successor', ROOT / 'scripts/validate-a9-candidate.py')
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        tracked = subprocess.check_output(['git', 'ls-files'], cwd=ROOT, text=True).splitlines()
+        old_errors, _ = checker.validate(OWNERSHIP.parse_minimal_yaml(original), tracked)
+        self.assertTrue(any('UNOWNED: .agents/skills/verify-review-reservation/SKILL.md' in e for e in old_errors))
+        new_errors, _ = checker.validate(OWNERSHIP.parse_minimal_yaml(successor), tracked)
+        self.assertEqual(new_errors, [])
+
     def test_candidate_has_complete_nonoverlapping_tracked_ownership(self):
-        candidate = ROOT / "specs/epic-197-a9-dogfood/candidate/project-context.yaml"
+        candidate = ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-formal-verification.yaml"
         doc = OWNERSHIP.parse_minimal_yaml(candidate.read_text())
         self.assertTrue(RESOLVER._project_context_valid(doc, ROOT))
         self.assertEqual(len(doc["components"]), 9)
@@ -128,7 +144,7 @@ class CandidatePackTests(unittest.TestCase):
         spec = importlib.util.spec_from_file_location("a9_candidate", ROOT / "scripts/validate-a9-candidate.py")
         checker = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(checker)
-        doc = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context.yaml").read_text())
+        doc = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-formal-verification.yaml").read_text())
         tracked = subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True).splitlines()
         for index in range(9):
             changed = copy.deepcopy(doc)
@@ -177,7 +193,7 @@ class ResolverIntegrationTests(unittest.TestCase):
                              "plugins/sdd-quality-loop/contracts", "plugins/sdd-quality-loop/references"):
                 shutil.copytree(ROOT / relative, root / relative, ignore=shutil.ignore_patterns("__pycache__"))
             shutil.copy2(ROOT / ".gitignore", root / ".gitignore")
-            config = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context.yaml").read_text())
+            config = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-formal-verification.yaml").read_text())
             if output_ownership_mutation:
                 config["shared_paths"] = [entry for entry in config["shared_paths"]
                                           if entry["pattern"] != "plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json"]
@@ -334,7 +350,7 @@ class PromotionPreflightTests(unittest.TestCase):
         spec = importlib.util.spec_from_file_location("a9_promotion", ROOT / "scripts/validate-a9-candidate.py")
         self.checker = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.checker)
-        self.baseline = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context.yaml").read_text())
+        self.baseline = OWNERSHIP.parse_minimal_yaml((ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-formal-verification.yaml").read_text())
         self.candidate = copy.deepcopy(self.baseline)
         self.candidate["workflow"].update(artifact_layout="facet-hybrid", capability_enforcement="required")
         self.tracked = subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True).splitlines()

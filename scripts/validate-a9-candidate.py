@@ -240,7 +240,7 @@ def release_commits(cycle):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--candidate", type=Path, default=ROOT / "specs/epic-197-a9-dogfood/candidate/project-context.yaml")
+    parser.add_argument("--candidate", type=Path, default=ROOT / "specs/epic-197-a9-dogfood/candidate/project-context-formal-verification.yaml")
     parser.add_argument("--phase", choices=("phase1", "phase2"), default="phase1")
     for name in ("baseline", "registry", "resolver-evidence", "manifest", "release-evidence"):
         parser.add_argument("--" + name, type=Path)
