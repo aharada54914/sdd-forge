@@ -16,6 +16,7 @@ jobs:
       - name: Verify the same credential selected by the weekly session
         env:
           GH_TOKEN: ${{ secrets.SDD_SESSION_PR_TOKEN || github.token }}
+          DEFAULT_WORKFLOW_TOKEN: ${{ github.token }}
           CREDENTIAL_SOURCE: ${{ secrets.SDD_SESSION_PR_TOKEN != '' && 'configured-session-token' || 'default-workflow-token' }}
         shell: bash
         run: |
@@ -30,8 +31,12 @@ jobs:
           assert pr['head']['sha'] == '4f602f7a4160009239b95a26e6b24c305ecc61dd'
           assert pr['title'] == 'fix(deps): repair MCP production dependency audit on main'
           PY
-          # An idempotent PATCH tests write authorization without changing the PR's content.
-          gh api --method PATCH repos/aharada54914/sdd-forge/pulls/655 \
+          # Prove content-write separately; no branch history or source bytes change.
+          gh api --method PATCH repos/aharada54914/sdd-forge/git/refs/heads/auto/improve-20261026 \
+            -f sha=4f602f7a4160009239b95a26e6b24c305ecc61dd -F force=false > "$RUNNER_TEMP/ref.json"
+          echo 'Selected session credential: content write accepted.'
+          # Default-token PR writes do not need the configured PAT's missing PR-write scope.
+          GH_TOKEN="$DEFAULT_WORKFLOW_TOKEN" gh api --method PATCH repos/aharada54914/sdd-forge/pulls/655 \
             -f title='fix(deps): repair MCP production dependency audit on main' > "$RUNNER_TEMP/after.json"
           python3 - <<'PY'
           import json, os
@@ -42,6 +47,7 @@ jobs:
           assert before['head']['sha'] == after['head']['sha']
           print(json.dumps({'credential_source': os.environ['CREDENTIAL_SOURCE'],
               'pull_request': after['number'], 'idempotent_write': 'accepted',
+              'pr_credential_source': 'default-workflow-token',
               'content_unchanged': True, 'head': after['head']['sha'],
               'token_values_read_or_printed': False}))
           PY
