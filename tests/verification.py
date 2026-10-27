@@ -231,6 +231,8 @@ def main():
         if args.measure_parent and not args.measure_dir:
             raise ValueError('measurement parent requires directory')
         if args.measure_dir:
+            if args.measure_dir.resolve().is_relative_to(ROOT.resolve()):
+                raise ValueError('measurement directory must be outside the checkout')
             spec = importlib.util.spec_from_file_location('run_measurement', ROOT / 'plugins/sdd-quality-loop/scripts/run_measurement.py')
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)

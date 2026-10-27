@@ -13,6 +13,7 @@ from pathlib import Path
 import platform
 import re
 import statistics as stats
+import subprocess
 import sys
 import tempfile
 import time
@@ -44,13 +45,38 @@ MARKS = (
     "human-decision",
     "implementation-verified",
 )
-CLOCK_DOMAIN = "process:" + uuid.uuid4().hex
-try:
-    CLOCK_DOMAIN = (
-        "linux-boot:" + Path("/proc/sys/kernel/random/boot_id").read_text().strip()
-    )
-except OSError:
-    pass
+def _clock_domain():
+    try:
+        if sys.platform == "linux":
+            boot = str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))
+            return "linux-boot:" + boot
+        elif sys.platform == "darwin":
+            result = subprocess.run(
+                ["sysctl", "-n", "kern.boottime"], capture_output=True,
+                text=True, check=True, timeout=2,
+            )
+            match = re.search(r"\bsec\s*=\s*(\d+).*\busec\s*=\s*(\d+)", result.stdout)
+            if not match or not platform.node():
+                raise ValueError("boot identity unavailable")
+            boot = platform.node() + ":" + ":".join(match.groups())
+        elif sys.platform == "win32":
+            import ctypes
+            data = (ctypes.c_ubyte * 64)()
+            size = ctypes.c_ulong()
+            query = ctypes.WinDLL("ntdll").NtQuerySystemInformation
+            if query(90, ctypes.byref(data), ctypes.sizeof(data), ctypes.byref(size)) != 0:
+                raise ValueError("boot identity unavailable")
+            boot = str(uuid.UUID(bytes_le=bytes(data[:16])))
+            if uuid.UUID(boot).int == 0:
+                raise ValueError("boot identity unavailable")
+        else:
+            raise ValueError("unsupported platform")
+        return "boot:" + hashlib.sha256((sys.platform + ":" + boot).encode()).hexdigest()
+    except (OSError, ValueError, AttributeError, subprocess.SubprocessError):
+        return "process:" + uuid.uuid4().hex
+
+
+CLOCK_DOMAIN = _clock_domain()
 KEYS = {
     "measurement": "measurement_id run_id parent_run_id scope feature task attempt rerun_reason rerun_detail scenario_id trial_id environment experiment_ref variant_ref decision_ref refs_missing_reason",
     "span-start": "span_id parent_span_id phase command_id inputs",

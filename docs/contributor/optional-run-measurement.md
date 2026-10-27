@@ -2,6 +2,8 @@
 
 The verification runner can record elapsed time and outcomes without changing a
 suite's verdict or receipt. Use a new output directory for each run:
+The output directory must be outside the checkout so the sidecar cannot change
+the source cleanliness reported in the receipt.
 
 ```sh
 python3 tests/verification.py --suite tests/run-measurement.tests.py --run \

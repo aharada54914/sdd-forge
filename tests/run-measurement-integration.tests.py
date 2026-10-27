@@ -105,6 +105,28 @@ class OwnerIntegration(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertFalse(marker.exists())
 
+    def test_in_tree_measurement_is_rejected_before_either_runner_executes(self):
+        marker = self.root / "marker"
+        (self.root / "tests/case.tests.py").write_text('from pathlib import Path\nPath("marker").touch()\n')
+        result = subprocess.run([
+            sys.executable, str(self.root / "tests/verification.py"),
+            "--suite", "tests/case.tests.py", "--run",
+            "--measure-dir", str(self.root / "measurements"),
+        ], cwd=self.root, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertFalse(marker.exists())
+        self.assertFalse((self.root / "measurements").exists())
+        result = subprocess.run([
+            sys.executable, str(ROOT / "plugins/sdd-lite/lib/run-lite-gate.py"),
+            "--repo-root", str(self.root), "--runtime", "posix",
+            "--enforcement", "none", "--check", "probe",
+            "--measure-dir", str(self.root / "measurements"),
+        ], cwd=self.root, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("outside the repository", result.stderr)
+        self.assertFalse(marker.exists())
+        self.assertFalse((self.root / "measurements").exists())
+
     def test_lite_measurement_requires_quality_plugin_before_running(self):
         installed = Path(self.tmp.name) / "installed/plugins/sdd-lite/lib"
         installed.mkdir(parents=True)

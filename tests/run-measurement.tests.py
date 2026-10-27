@@ -4,7 +4,10 @@
 import importlib.util
 import json
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -28,6 +31,49 @@ class MeasurementTests(unittest.TestCase):
             m, "_clock", return_value=(domain, ns, "2026-10-25T00:00:00Z")
         ):
             return func(*args, **kwargs)
+
+    def test_separate_processes_use_same_boot_clock(self):
+        helper = ROOT / "plugins/sdd-quality-loop/scripts/run_measurement.py"
+        common = [sys.executable, str(helper)]
+        subprocess.run(common + ["start", "--dir", str(self.d), "--phase", "gate",
+                                  "--command-id", "probe", "--span-id", "probe"],
+                       capture_output=True, check=True)
+        subprocess.run(common + ["finish", "--dir", str(self.d), "--span-id", "probe",
+                                  "--outcome", "success"], capture_output=True, check=True)
+        start = json.loads((self.d / "spans/probe.start.json").read_text())
+        end = json.loads((self.d / "spans/probe.finish.json").read_text())
+        self.assertEqual(start["clock_domain"], end["clock_domain"])
+        self.assertTrue(start["clock_domain"].startswith(("boot:", "linux-boot:")))
+        self.assertGreaterEqual(end["ns"], start["ns"])
+
+    def test_darwin_boot_identity_changes_with_boot(self):
+        with patch.object(m.sys, "platform", "darwin"), patch.object(
+            m.platform, "node", return_value="host"
+        ), patch.object(m.subprocess, "run") as run:
+            run.return_value = SimpleNamespace(stdout="{ sec = 123, usec = 456 }")
+            first = m._clock_domain()
+            self.assertEqual(first, m._clock_domain())
+            run.return_value = SimpleNamespace(stdout="{ sec = 124, usec = 456 }")
+            self.assertNotEqual(first, m._clock_domain())
+            self.assertTrue(first.startswith("boot:"))
+
+    def test_windows_boot_guid_is_checked(self):
+        import ctypes
+        import uuid
+
+        boot = uuid.UUID("11111111-2222-3333-4444-555555555555")
+        def query(_kind, target, _size, _returned):
+            ctypes.memmove(target, boot.bytes_le, 16)
+            return 0
+        with patch.object(m.sys, "platform", "win32"), patch.object(
+            ctypes, "WinDLL", return_value=SimpleNamespace(NtQuerySystemInformation=query),
+            create=True,
+        ):
+            first = m._clock_domain()
+            self.assertEqual(first, m._clock_domain())
+            self.assertTrue(first.startswith("boot:"))
+            boot = uuid.UUID(int=0)
+            self.assertTrue(m._clock_domain().startswith("process:"))
 
     def span(self, name, phase, start, end, parent=None, outcome="success", **kwargs):
         self.at(

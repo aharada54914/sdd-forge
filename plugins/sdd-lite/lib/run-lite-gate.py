@@ -274,6 +274,8 @@ def main() -> int:
     if args.measure_parent and not args.measure_dir:
         parser.error("--measure-parent requires --measure-dir")
     if args.measure_dir:
+        if args.measure_dir.resolve().is_relative_to(Path(args.repo_root).resolve()):
+            parser.error("measurement directory must be outside the repository")
         location = Path(__file__).resolve().parents[2] / 'sdd-quality-loop/scripts/run_measurement.py'
         try:
             spec = importlib.util.spec_from_file_location('run_measurement', location)
