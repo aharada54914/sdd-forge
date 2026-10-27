@@ -1,5 +1,54 @@
 # Open issue dependency and execution plan
 
+## Active continuation — 2026-10-27 UTC
+
+The owner explicitly instructed continued repair and selected sdd-forge MCP for
+real-app evaluation. Earlier deferred-app and authentication-blocked descriptions
+below are historical checkpoints, superseded by these observations:
+
+- Official device authentication succeeded. Both local CLI account probes now
+  verify, and an actual native model turn completed. The existing protected
+  runtime credential was not overwritten, copied or inspected.
+- #602's generated custom skill was actually invoked by authenticated Codex,
+  read its real fixture note, preserved fixture bytes and disappeared from
+  native discovery after cleanup. [Native evidence](../../reports/verification/native-skill-20261027/README.md).
+- #600's first actual 30-trial reduced-stage comparison completed: 6/15 exact
+  grades per side, with no all-success or adoption claim. Missing public output
+  grammars caused exact-wording failures despite several correct judgments.
+  The failed v1 result is retained; separate revised cases expose the grammar,
+  not the private expected verdict. Original held-out cases are now exposed.
+  [Protocol and raw evidence](../../reports/verification/golden-native-20261027/README.md).
+- #624's actual selected MCP app completed 36 native requests with exact
+  baseline/candidate response parity and unchanged tracked source. A local
+  interactive snapshot comparison is prepared for the owner; human operation,
+  choice and subsequent chosen-feature acceptance are still pending.
+  [Real-app pilot](../../reports/verification/mcp-real-app-20261027/README.md).
+- #620: authenticated owner browser inspection found repository Actions PR
+  creation/approval disabled. It was enabled and saved while retaining default
+  read-only permissions. A genuine weekly audit at `4271e1c5`, run
+  [40422211534](https://github.com/aharada54914/sdd-forge/actions/runs/40422211534),
+  passed all five required checks but correctly remained FAILED because its
+  completion record was `partial`. The original failure is preserved; settings
+  repair is not called weekly recovery. Existing session-token details require
+  owner GitHub confirmation; a setup handoff is pending. Token values were not
+  read or changed. A separate bounded native default-token PR-write/lifecycle
+  proof is being run on an isolated verification branch.
+- The actual native `userVerification/status` API exists in Codex 0.159.2 but
+  returns `providerUnavailable` on this build/account. No enrollment, token
+  issuance or agent-created human proof was attempted. #616 still needs an
+  available protected host issuer; local account repair does not provide it.
+- #197's existing Phase-1 candidate validator passes with
+  `promotion_authorized: false`, `signed_approval: not_issued`, and release
+  evidence not collected. There are no published repository releases. Genuine
+  signed activation, a full advisory release cycle and later authorized
+  promotion/real-feature completion cannot be replaced by a simulated cycle.
+
+The tested integration source `4271e1c5` passed hosted run 40350525560 attempt 2
+(45 successful jobs, one expected skip); the historical attempt-1 cancellation
+and failed aggregate remain intact. New fixture/report changes need their own
+verification. No merge, promotion, release publication or Issue closure is
+implied by this checkpoint.
+
 ## Development-session correction — 2026-10-25 (JST)
 
 The user explicitly clarified that this is development **of** sdd-forge, not a

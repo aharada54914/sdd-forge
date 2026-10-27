@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>sdd-forge MCP 操作比較</title>
+<style>
+body{font:16px/1.65 system-ui,sans-serif;max-width:840px;margin:32px auto;padding:0 20px;background:#f8fafc;color:#172234}h1{font-size:26px}h2{font-size:21px}button,select{font:inherit;padding:10px 16px;margin:5px;border:1px solid #758399;border-radius:6px;background:white;color:#172234}button{cursor:pointer}button:focus-visible,select:focus-visible{outline:3px solid #2563eb}button.primary{background:#153f76;color:white}main,section{background:white;padding:20px;border:1px solid #d2dbe7;border-radius:8px;margin:16px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:430px;overflow:auto;padding:14px;background:#f1f5f9;font-size:13px}summary{cursor:pointer;padding:10px}small{color:#475569}label{display:block;margin:12px 0}.hidden{display:none}#feedback{color:#8e290d}
+</style>
+<h1>sdd-forge MCP 操作比較</h1>
+<p>実サーバーから取得した同一の仕様・タスク情報を、2通りの表示で確認します。データは実走時点の固定スナップショットです。製品の状態や承認は変更しません。</p>
+<p>各表示で2問に回答し、最後に使いやすかった表示と理由を記録してください。操作時間と根拠を開いた回数はこのページ内だけに保持します。結果はJSONで保存できます。</p>
+<button id="start" class="primary">比較を始める</button>
+<main id="trial" class="hidden">
+ <h2 id="heading"></h2>
+ <label>確認する仕様 <select id="feature"><option value="project-skill-observation">project-skill-observation</option><option value="sdd-forge-mcp">sdd-forge-mcp</option></select></label>
+ <div id="display"></div>
+ <p id="question"></p>
+ <div id="choices"></div>
+ <p id="feedback" role="status"></p>
+</main>
+<section id="finish" class="hidden">
+ <h2>比較結果</h2><p id="outcome"></p>
+ <label>選択 <select id="choice"><option value="">選択してください</option><option value="X">表示Xを採用したい</option><option value="Y">表示Yを採用したい</option><option value="hold">追加検証したい</option><option value="reject">両方とも見送りたい</option></select></label>
+ <label>選んだ理由 <textarea id="reason" rows="3" style="width:100%;font:inherit"></textarea></label>
+ <button id="save">操作記録をJSONで保存</button>
+ <small>これは本人の評価記録です。タスク承認や署名済み判断記録の代わりにはなりません。同一人による繰返しから利用者一般への優劣は推定しません。</small>
+</section>
+<script id="data" type="application/json">{
+  "list_active_specs:": {
+    "ok": true,
+    "data": {
+      "kind": "active-specs",
+      "specs": [
+        {
+          "feature": "sdd-forge-refactor",
+          "path": "specs/sdd-forge-refactor/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "claude-workflow-compatibility",
+          "path": "specs/claude-workflow-compatibility/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "sdd-forge-mcp",
+          "path": "specs/sdd-forge-mcp/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "workflow-state-integrity",
+          "path": "specs/workflow-state-integrity/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "bootstrap-interviewer-enhancement",
+          "path": "specs/bootstrap-interviewer-enhancement/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "agent-cost-context-isolation",
+          "path": "specs/agent-cost-context-isolation/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "sdd-domain",
+          "path": "specs/sdd-domain/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "sdd-domain-multitarget",
+          "path": "specs/sdd-domain-multitarget/",
+          "hasApprovedPlannedOrInProgress": true
+        },
+        {
+          "feature": "local-env-mcp",
+          "path": "specs/local-env-mcp/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "ci-mcp",
+          "path": "specs/ci-mcp/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-136-phase2-gates",
+          "path": "specs/epic-136-phase2-gates/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-136-phase1-rce",
+          "path": "specs/epic-136-phase1-rce/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-136-phase1-guards",
+          "path": "specs/epic-136-phase1-guards/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-159-pillar-a",
+          "path": "specs/epic-159-pillar-a/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-159-pillar-a2",
+          "path": "specs/epic-159-pillar-a2/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-159-pillar-b",
+          "path": "specs/epic-159-pillar-b/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-159-pillar-c",
+          "path": "specs/epic-159-pillar-c/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-159-pillar-d",
+          "path": "specs/epic-159-pillar-d/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-189-a1-project-context",
+          "path": "specs/epic-189-a1-project-context/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-192-a4-facet-manifest",
+          "path": "specs/epic-192-a4-facet-manifest/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-136-phase3",
+          "path": "specs/epic-136-phase3/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-136-phase4-docs",
+          "path": "specs/epic-136-phase4-docs/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-136-phase4-mcp",
+          "path": "specs/epic-136-phase4-mcp/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "mcp-readonly-preflight",
+          "path": "specs/mcp-readonly-preflight/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "review-cross-critique",
+          "path": "specs/review-cross-critique/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "design-sync-consent",
+          "path": "specs/design-sync-consent/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-193-a5-capability-resolver",
+          "path": "specs/epic-193-a5-capability-resolver/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-194-a6-lite-integration",
+          "path": "specs/epic-194-a6-lite-integration/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-195-a7-compatibility",
+          "path": "specs/epic-195-a7-compatibility/",
+          "hasApprovedPlannedOrInProgress": true
+        },
+        {
+          "feature": "epic-196-a8-integration",
+          "path": "specs/epic-196-a8-integration/",
+          "hasApprovedPlannedOrInProgress": true
+        },
+        {
+          "feature": "design-sync-scan",
+          "path": "specs/design-sync-scan/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "design-sync-standing-consent",
+          "path": "specs/design-sync-standing-consent/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-190-a2-capability-registry",
+          "path": "specs/epic-190-a2-capability-registry/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-191-a3-path-ownership",
+          "path": "specs/epic-191-a3-path-ownership/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "cross-model-verification",
+          "path": "specs/cross-model-verification/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "evidence-deep-verify",
+          "path": "specs/evidence-deep-verify/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "p0-hardening",
+          "path": "specs/p0-hardening/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "quality-loop-fixes",
+          "path": "specs/quality-loop-fixes/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "risk-adaptive-layer",
+          "path": "specs/risk-adaptive-layer/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "sdd-diagnose",
+          "path": "specs/sdd-diagnose/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "sdd-lite",
+          "path": "specs/sdd-lite/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "second-approval-mask",
+          "path": "specs/second-approval-mask/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "uninstall-workflow",
+          "path": "specs/uninstall-workflow/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "sdd-domain-concept-contract",
+          "path": "specs/sdd-domain-concept-contract/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "epic-197-a9-dogfood",
+          "path": "specs/epic-197-a9-dogfood/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "a9-interrupted-review-recovery",
+          "path": "specs/a9-interrupted-review-recovery/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "sdd-domain-concept-test",
+          "path": "specs/sdd-domain-concept-test/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "shared-review-launch-repair",
+          "path": "specs/shared-review-launch-repair/",
+          "hasApprovedPlannedOrInProgress": true
+        },
+        {
+          "feature": "cloud-orchestration",
+          "path": "specs/cloud-orchestration/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "ci-model-modernization",
+          "path": "specs/ci-model-modernization/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "verification-measurement",
+          "path": "specs/verification-measurement/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "project-skill-observation",
+          "path": "specs/project-skill-observation/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "research-evidence",
+          "path": "specs/research-evidence/",
+          "hasApprovedPlannedOrInProgress": false
+        },
+        {
+          "feature": "structural-error-prevention",
+          "path": "specs/structural-error-prevention/",
+          "hasApprovedPlannedOrInProgress": false
+        }
+      ]
+    }
+  },
+  "get_spec_status:project-skill-observation": {
+    "ok": true,
+    "data": {
+      "kind": "spec-status",
+      "feature": "project-skill-observation",
+      "artifacts": [
+        {
+          "name": "requirements",
+          "exists": true,
+          "reviewStatus": "Pending"
+        },
+        {
+          "name": "acceptance-tests",
+          "exists": true
+        },
+        {
+          "name": "design",
+          "exists": true,
+          "reviewStatus": "Pending"
+        },
+        {
+          "name": "tasks",
+          "exists": false
+        },
+        {
+          "name": "traceability",
+          "exists": false
+        },
+        {
+          "name": "ux-spec",
+          "exists": true
+        },
+        {
+          "name": "frontend-spec",
+          "exists": true
+        },
+        {
+          "name": "infra-spec",
+          "exists": true
+        },
+        {
+          "name": "security-spec",
+          "exists": true
+        }
+      ]
+    }
+  },
+  "get_task_state:project-skill-observation": {
+    "ok": false,
+    "error": {
+      "code": "not-found",
+      "message": "Path does not exist: specs/project-skill-observation/tasks.md",
+      "details": {
+        "file": "specs/project-skill-observation/tasks.md",
+        "rule": "exists"
+      }
+    }
+  },
+  "get_next_sdd_command:project-skill-observation": {
+    "ok": true,
+    "data": {
+      "kind": "next-command",
+      "feature": "project-skill-observation",
+      "phase": "spec-review",
+      "nextCommand": "/sdd-review-loop:spec-review-loop --feature project-skill-observation",
+      "rationale": "specs/project-skill-observation/requirements.md's Spec-Review-Status is \"Pending\", not Passed (AGENTS.md Required Workflow step 2)."
+    }
+  },
+  "get_task_state:sdd-forge-mcp": {
+    "ok": true,
+    "data": {
+      "kind": "task-state",
+      "feature": "sdd-forge-mcp",
+      "tasksFile": "specs/sdd-forge-mcp/tasks.md",
+      "verdict": "pass",
+      "taskCount": 11,
+      "tasks": [
+        {
+          "id": "T-001",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": false,
+          "risk": "high"
+        },
+        {
+          "id": "T-002",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "high"
+        },
+        {
+          "id": "T-003",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "high"
+        },
+        {
+          "id": "T-011",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "high"
+        },
+        {
+          "id": "T-004",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "high"
+        },
+        {
+          "id": "T-009",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "high"
+        },
+        {
+          "id": "T-010",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "high"
+        },
+        {
+          "id": "T-005",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "high"
+        },
+        {
+          "id": "T-006",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "medium"
+        },
+        {
+          "id": "T-007",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "medium"
+        },
+        {
+          "id": "T-008",
+          "approval": "Approved",
+          "status": "Done",
+          "blockersNonEmpty": true,
+          "risk": "low"
+        }
+      ],
+      "failures": []
+    }
+  },
+  "get_next_sdd_command:sdd-forge-mcp": {
+    "ok": true,
+    "data": {
+      "kind": "next-command",
+      "feature": "sdd-forge-mcp",
+      "phase": "done",
+      "nextCommand": "feature complete",
+      "rationale": "Every Approved task in specs/sdd-forge-mcp/tasks.md has reached Done."
+    }
+  }
+}
+</script>
+<script>
+'use strict';
+const data=JSON.parse(document.getElementById('data').textContent);
+const $=id=>document.getElementById(id);
+const variants=[{label:'X',style:'summary'},{label:'Y',style:'raw'}];
+const questions=[{feature:'project-skill-observation',text:'この仕様について、次に進める工程を選んでください。',options:[['implement','実装を開始する'],['spec-review','仕様レビューに進む'],['unknown','この表示では判断できない']],correct:'spec-review'},
+{feature:'sdd-forge-mcp',text:'この仕様のタスク状態を確認してください。',options:[['active','未完了の承認済みタスクがある'],['done','承認済みタスクはすべて完了している'],['unknown','この表示では判断できない']],correct:'done'}];
+const record={schema:'mcp-human-interaction/v1',snapshot_revision:'4271e1c5d2b673d7f1a4fe2f593c8022cbc4a62f',actor:'unverified-browser-client',started_at:null,questions:[],choice:null,reason:null,source:'native MCP results embedded in this local page; no live backend',adoption_authority:'none'};
+let variant=0,question=0,started=0,opens=0,switches=0;
+function render(){
+ const v=variants[variant],f=$('feature').value;
+ $('heading').textContent='表示'+v.label;
+ $('display').replaceChildren();
+ if(v.style==='summary'){
+  const next=data['get_next_sdd_command:'+f];
+  const para=document.createElement('p');
+  para.textContent=next.ok?('次の工程：'+next.data.phase+'\n'+next.data.nextCommand):'未確認：次の工程を取得できませんでした。';
+  para.style.whiteSpace='pre-wrap';$('display').append(para);
+  const status=data['get_spec_status:'+f];
+  if(status){const p=document.createElement('p');p.textContent='仕様資料：'+(status.ok?status.data.artifacts.filter(a=>a.reviewStatus).map(a=>a.name+' '+a.reviewStatus).join(' / '):'取得失敗');$('display').append(p);}
+ }
+ for(const [key,value] of Object.entries(data).filter(([key])=>key.endsWith(':'+f))){
+  const details=document.createElement('details'),summary=document.createElement('summary'),pre=document.createElement('pre');
+  summary.textContent=key.split(':')[0]+' の元データ';pre.textContent=JSON.stringify(value,null,2);details.open=v.style==='raw';
+  details.addEventListener('toggle',()=>{if(details.open)opens++});details.append(summary,pre);$('display').append(details);
+ }
+ const q=questions[question];$('question').textContent=q.text;$('choices').replaceChildren();
+ for(const [value,label] of q.options){const b=document.createElement('button');b.textContent=label;b.onclick=()=>answer(value);$('choices').append(b);}
+}
+function begin(){const q=questions[question];$('feature').value=q.feature;started=performance.now();opens=0;switches=0;render();}
+function answer(value){
+ const q=questions[question];record.questions.push({display:variants[variant].label,question:question+1,feature:q.feature,answer:value,correct:value===q.correct,seconds:(performance.now()-started)/1000,evidence_opens:opens,feature_switches:switches});
+ question++;
+ if(question===questions.length){question=0;variant++;}
+ if(variant===variants.length){$('trial').classList.add('hidden');$('finish').classList.remove('hidden');$('outcome').textContent='課題達成 '+record.questions.filter(x=>x.correct).length+'/'+record.questions.length+'。表示X・Yのどちらを選ぶか、理由と一緒に記録してください。';}
+ else begin();
+}
+$('feature').onchange=()=>{switches++;render()};
+$('start').onclick=()=>{record.started_at=new Date().toISOString();$('start').classList.add('hidden');$('trial').classList.remove('hidden');begin()};
+$('save').onclick=()=>{
+ if(!$('choice').value||!$('reason').value.trim()){$('outcome').textContent='選択と理由を入力してください。';return;}
+ record.choice=$('choice').value;record.reason=$('reason').value.trim();record.finished_at=new Date().toISOString();
+ const url=URL.createObjectURL(new Blob([JSON.stringify(record,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='mcp-human-interaction.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+</script>
+</html>

@@ -1,0 +1,1240 @@
+{
+  "schema": "behavioral-comparison/v1",
+  "manifest_sha256": "b20236b9fca752218dcd1a7976fc2044d9d831295f9925eb598e96d8f72f2fd5",
+  "groups": {
+    "A": {
+      "n": 15,
+      "k": 6,
+      "all_success": false,
+      "median_seconds": 19.133036239000376,
+      "range_seconds": [
+        13.220334973999798,
+        34.99866297299968
+      ],
+      "p95": null,
+      "p95_unavailable_reason": "small fixed sample; no stable tail claim"
+    },
+    "B": {
+      "n": 15,
+      "k": 6,
+      "all_success": false,
+      "median_seconds": 17.027122141999826,
+      "range_seconds": [
+        10.354181229999995,
+        20.03186713299965
+      ],
+      "p95": null,
+      "p95_unavailable_reason": "small fixed sample; no stable tail claim"
+    }
+  },
+  "variants": {
+    "A": {
+      "framework_revision": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "config_sha256": "c1b65c4edb6ecedf1dc671d19a46706ec82710fdb07c40c62a82a8f54047de99",
+      "adapter_version": "native-stage-context/v1"
+    },
+    "B": {
+      "framework_revision": "4271e1c5d2b673d7f1a4fe2f593c8022cbc4a62f",
+      "config_sha256": "e129707ec9c8805f753c7f9597678eeeee6f35d5333e998ed4fe7ea7c5e4bf87",
+      "adapter_version": "native-stage-context/v1"
+    }
+  },
+  "conditions": {
+    "model": "gpt-6.1-sol",
+    "effort": "low",
+    "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+    "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+  },
+  "runs": [
+    {
+      "case": "unrun-pass",
+      "variant": "A",
+      "repetition": 1,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "39dd2ec4980d4c1830eba9f9f0a9282165a6223f855cf9c6aee3cf1e1c24a4cb",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 118747,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 19.330301351000116,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-01/trace.jsonl",
+      "trace_sha256": "d1ad632488b06042f6c5aea37a5acdfaa105b14e2e6372097771d21ca7545a9a",
+      "usage": {
+        "input_tokens": 118466,
+        "cached_input_tokens": 97920,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 281,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-01/project",
+      "output_sha256": "2976fff7db3ee8fe795053c86a54ea910d5e0743f215c02926edbb9d4352fec5",
+      "passed": false,
+      "grading": {
+        "case": "unrun-pass",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: assessment.json"
+        ]
+      }
+    },
+    {
+      "case": "unrun-pass",
+      "variant": "B",
+      "repetition": 1,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "39dd2ec4980d4c1830eba9f9f0a9282165a6223f855cf9c6aee3cf1e1c24a4cb",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 118734,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 18.2847335619997,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-02/trace.jsonl",
+      "trace_sha256": "2790dece523bf3195e759b7c38ea309c5782e542d3d9b66da7c35d9a2693b582",
+      "usage": {
+        "input_tokens": 118449,
+        "cached_input_tokens": 107264,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 285,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-02/project",
+      "output_sha256": "2976fff7db3ee8fe795053c86a54ea910d5e0743f215c02926edbb9d4352fec5",
+      "passed": false,
+      "grading": {
+        "case": "unrun-pass",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: assessment.json"
+        ]
+      }
+    },
+    {
+      "case": "unrun-pass",
+      "variant": "B",
+      "repetition": 2,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "39dd2ec4980d4c1830eba9f9f0a9282165a6223f855cf9c6aee3cf1e1c24a4cb",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 118746,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 19.65294340199989,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-03/trace.jsonl",
+      "trace_sha256": "adb02965098d631977d9749b57df4a11f61cbf0d1725e960e20f9403435c04d8",
+      "usage": {
+        "input_tokens": 118460,
+        "cached_input_tokens": 97792,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 286,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-03/project",
+      "output_sha256": "2976fff7db3ee8fe795053c86a54ea910d5e0743f215c02926edbb9d4352fec5",
+      "passed": false,
+      "grading": {
+        "case": "unrun-pass",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: assessment.json"
+        ]
+      }
+    },
+    {
+      "case": "unrun-pass",
+      "variant": "A",
+      "repetition": 2,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "39dd2ec4980d4c1830eba9f9f0a9282165a6223f855cf9c6aee3cf1e1c24a4cb",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 139199,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 28.119504027999938,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-04/trace.jsonl",
+      "trace_sha256": "9ab58437a79c259cfafbee6b051a6663785bb63c3194dfbb7aee0705eca7cc2e",
+      "usage": {
+        "input_tokens": 138675,
+        "cached_input_tokens": 127616,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 524,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-04/project",
+      "output_sha256": "2976fff7db3ee8fe795053c86a54ea910d5e0743f215c02926edbb9d4352fec5",
+      "passed": false,
+      "grading": {
+        "case": "unrun-pass",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: assessment.json"
+        ]
+      }
+    },
+    {
+      "case": "unrun-pass",
+      "variant": "A",
+      "repetition": 3,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "39dd2ec4980d4c1830eba9f9f0a9282165a6223f855cf9c6aee3cf1e1c24a4cb",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 118350,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 34.99866297299968,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-05/trace.jsonl",
+      "trace_sha256": "d68aac58240297162cdb371692f2fee279bce969be2f354d5f7b57d830e3f5ed",
+      "usage": {
+        "input_tokens": 118051,
+        "cached_input_tokens": 107008,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 299,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-05/project",
+      "output_sha256": "2976fff7db3ee8fe795053c86a54ea910d5e0743f215c02926edbb9d4352fec5",
+      "passed": false,
+      "grading": {
+        "case": "unrun-pass",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: assessment.json"
+        ]
+      }
+    },
+    {
+      "case": "unrun-pass",
+      "variant": "B",
+      "repetition": 3,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "39dd2ec4980d4c1830eba9f9f0a9282165a6223f855cf9c6aee3cf1e1c24a4cb",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 119176,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 19.743858993999766,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-06/trace.jsonl",
+      "trace_sha256": "a38d98053ba230afd1d7aeb67c34f163d1bcfb2a00c5cddab910e745ca5e77d5",
+      "usage": {
+        "input_tokens": 118796,
+        "cached_input_tokens": 97920,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 380,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-06/project",
+      "output_sha256": "2976fff7db3ee8fe795053c86a54ea910d5e0743f215c02926edbb9d4352fec5",
+      "passed": false,
+      "grading": {
+        "case": "unrun-pass",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: assessment.json"
+        ]
+      }
+    },
+    {
+      "case": "wrong-routing",
+      "variant": "A",
+      "repetition": 1,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "b2ebccb98dddebaaba051bbbd16f91be0f7166ef1c342ac529122f9fcb601a3a",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 118832,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 17.574475388999872,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-07/trace.jsonl",
+      "trace_sha256": "245ed3913ec16bcf6580bcbadd9cd730fd8fb40fd969f902bc132bc7f54842fe",
+      "usage": {
+        "input_tokens": 118563,
+        "cached_input_tokens": 98048,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 269,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-07/project",
+      "output_sha256": "9fafb36443f2f58ec7f6146eab0baaddcdc4fd9ac2a4e2de0a8626b86b661a78",
+      "passed": true,
+      "grading": {
+        "case": "wrong-routing",
+        "pass": true,
+        "failures": []
+      }
+    },
+    {
+      "case": "wrong-routing",
+      "variant": "B",
+      "repetition": 1,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "b2ebccb98dddebaaba051bbbd16f91be0f7166ef1c342ac529122f9fcb601a3a",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 139357,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 20.03186713299965,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-08/trace.jsonl",
+      "trace_sha256": "e4fa3e71db618d8b3ee324c9b7ce7dc9e804f058d7f7fb74959cf26266e260ac",
+      "usage": {
+        "input_tokens": 138957,
+        "cached_input_tokens": 136448,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 400,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-08/project",
+      "output_sha256": "9fafb36443f2f58ec7f6146eab0baaddcdc4fd9ac2a4e2de0a8626b86b661a78",
+      "passed": true,
+      "grading": {
+        "case": "wrong-routing",
+        "pass": true,
+        "failures": []
+      }
+    },
+    {
+      "case": "wrong-routing",
+      "variant": "B",
+      "repetition": 2,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "b2ebccb98dddebaaba051bbbd16f91be0f7166ef1c342ac529122f9fcb601a3a",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 98597,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 18.33091507900008,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-09/trace.jsonl",
+      "trace_sha256": "7356dca808508051c1d91ef74c2d4d0a86c64c3c2a853003f8d70fbe8427e274",
+      "usage": {
+        "input_tokens": 98406,
+        "cached_input_tokens": 87936,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 191,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-09/project",
+      "output_sha256": "9fafb36443f2f58ec7f6146eab0baaddcdc4fd9ac2a4e2de0a8626b86b661a78",
+      "passed": true,
+      "grading": {
+        "case": "wrong-routing",
+        "pass": true,
+        "failures": []
+      }
+    },
+    {
+      "case": "wrong-routing",
+      "variant": "A",
+      "repetition": 2,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "b2ebccb98dddebaaba051bbbd16f91be0f7166ef1c342ac529122f9fcb601a3a",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 118631,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 19.131685535000088,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-10/trace.jsonl",
+      "trace_sha256": "ffa4c802cfd950ee9c370de885ed3e3999ae38c38b4b962a4228e5fa108a3b4b",
+      "usage": {
+        "input_tokens": 118395,
+        "cached_input_tokens": 107648,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 236,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-10/project",
+      "output_sha256": "9fafb36443f2f58ec7f6146eab0baaddcdc4fd9ac2a4e2de0a8626b86b661a78",
+      "passed": true,
+      "grading": {
+        "case": "wrong-routing",
+        "pass": true,
+        "failures": []
+      }
+    },
+    {
+      "case": "wrong-routing",
+      "variant": "A",
+      "repetition": 3,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "b2ebccb98dddebaaba051bbbd16f91be0f7166ef1c342ac529122f9fcb601a3a",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 139233,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 22.102723372000128,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-11/trace.jsonl",
+      "trace_sha256": "3feb37beb1ab2822f30ab0fddc0f81cfd98861bc277a5354b6d752092b6c5b07",
+      "usage": {
+        "input_tokens": 138850,
+        "cached_input_tokens": 117760,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 383,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-11/project",
+      "output_sha256": "9fafb36443f2f58ec7f6146eab0baaddcdc4fd9ac2a4e2de0a8626b86b661a78",
+      "passed": true,
+      "grading": {
+        "case": "wrong-routing",
+        "pass": true,
+        "failures": []
+      }
+    },
+    {
+      "case": "wrong-routing",
+      "variant": "B",
+      "repetition": 3,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "b2ebccb98dddebaaba051bbbd16f91be0f7166ef1c342ac529122f9fcb601a3a",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 118720,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 18.22601322799983,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-12/trace.jsonl",
+      "trace_sha256": "7987f76dcedffe6a00ef6fee98e0147ccf82e68c7f5b886359545ee454a9e676",
+      "usage": {
+        "input_tokens": 118466,
+        "cached_input_tokens": 97792,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 254,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-12/project",
+      "output_sha256": "9fafb36443f2f58ec7f6146eab0baaddcdc4fd9ac2a4e2de0a8626b86b661a78",
+      "passed": true,
+      "grading": {
+        "case": "wrong-routing",
+        "pass": true,
+        "failures": []
+      }
+    },
+    {
+      "case": "weak-cleanup",
+      "variant": "A",
+      "repetition": 1,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "824aa6e2908a311246c2b95926c2ac44ddbfe77736b0252e17bb8225a98e529e",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 55203,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 14.564868474999912,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-13/trace.jsonl",
+      "trace_sha256": "252ff6a08c8db0a05746c769fb41752ee5ed34cf70f6a313a7fdf64984bb6a53",
+      "usage": {
+        "input_tokens": 54944,
+        "cached_input_tokens": 36864,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 259,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-13/project",
+      "output_sha256": "b238a5e7c8ed4b9133a40aca0565d40a724f42f51a979d9a9c4fb7081df9c3c3",
+      "passed": true,
+      "grading": {
+        "case": "weak-cleanup",
+        "pass": true,
+        "failures": []
+      }
+    },
+    {
+      "case": "weak-cleanup",
+      "variant": "B",
+      "repetition": 1,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "824aa6e2908a311246c2b95926c2ac44ddbfe77736b0252e17bb8225a98e529e",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 42374,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 10.520486532000177,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-14/trace.jsonl",
+      "trace_sha256": "13d2e4ccc25933369bbca2b67286dcc60dd29136e042ec871d70c34c4f39fbdb",
+      "usage": {
+        "input_tokens": 42220,
+        "cached_input_tokens": 37632,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 154,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-14/project",
+      "output_sha256": "b238a5e7c8ed4b9133a40aca0565d40a724f42f51a979d9a9c4fb7081df9c3c3",
+      "passed": true,
+      "grading": {
+        "case": "weak-cleanup",
+        "pass": true,
+        "failures": []
+      }
+    },
+    {
+      "case": "weak-cleanup",
+      "variant": "B",
+      "repetition": 2,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "824aa6e2908a311246c2b95926c2ac44ddbfe77736b0252e17bb8225a98e529e",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 42449,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 12.222271328999796,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-15/trace.jsonl",
+      "trace_sha256": "a5caf04bd135483c4eb340cdfd3dd3ae94c5deece997f203773a70b3d14891e3",
+      "usage": {
+        "input_tokens": 42220,
+        "cached_input_tokens": 33664,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 229,
+        "reasoning_output_tokens": 70
+      },
+      "output": "trial-15/project",
+      "output_sha256": "b238a5e7c8ed4b9133a40aca0565d40a724f42f51a979d9a9c4fb7081df9c3c3",
+      "passed": true,
+      "grading": {
+        "case": "weak-cleanup",
+        "pass": true,
+        "failures": []
+      }
+    },
+    {
+      "case": "weak-cleanup",
+      "variant": "A",
+      "repetition": 2,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "824aa6e2908a311246c2b95926c2ac44ddbfe77736b0252e17bb8225a98e529e",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 55173,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 13.220334973999798,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-16/trace.jsonl",
+      "trace_sha256": "3dc4ff0d57409706dd56e5ac2f18184dc85997c8ac6c1b76f4ae6397ca74d2bb",
+      "usage": {
+        "input_tokens": 54928,
+        "cached_input_tokens": 50560,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 245,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-16/project",
+      "output_sha256": "b238a5e7c8ed4b9133a40aca0565d40a724f42f51a979d9a9c4fb7081df9c3c3",
+      "passed": true,
+      "grading": {
+        "case": "weak-cleanup",
+        "pass": true,
+        "failures": []
+      }
+    },
+    {
+      "case": "weak-cleanup",
+      "variant": "A",
+      "repetition": 3,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "824aa6e2908a311246c2b95926c2ac44ddbfe77736b0252e17bb8225a98e529e",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 68955,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 14.362634420000177,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-17/trace.jsonl",
+      "trace_sha256": "b6ba70206212118b8d16b2c1a2c75051c41c6e80dfa504804607843f0fced32d",
+      "usage": {
+        "input_tokens": 68764,
+        "cached_input_tokens": 50560,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 191,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-17/project",
+      "output_sha256": "b238a5e7c8ed4b9133a40aca0565d40a724f42f51a979d9a9c4fb7081df9c3c3",
+      "passed": true,
+      "grading": {
+        "case": "weak-cleanup",
+        "pass": true,
+        "failures": []
+      }
+    },
+    {
+      "case": "weak-cleanup",
+      "variant": "B",
+      "repetition": 3,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "824aa6e2908a311246c2b95926c2ac44ddbfe77736b0252e17bb8225a98e529e",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 42255,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 10.354181229999995,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-18/trace.jsonl",
+      "trace_sha256": "7b45114f0721f6f2604f06e0246ad32d648627b7825d7539aa90032475cc3ae9",
+      "usage": {
+        "input_tokens": 42149,
+        "cached_input_tokens": 33536,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 106,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-18/project",
+      "output_sha256": "b238a5e7c8ed4b9133a40aca0565d40a724f42f51a979d9a9c4fb7081df9c3c3",
+      "passed": true,
+      "grading": {
+        "case": "weak-cleanup",
+        "pass": true,
+        "failures": []
+      }
+    },
+    {
+      "case": "overbroad-validation",
+      "variant": "A",
+      "repetition": 1,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "794b4c011fcbe6ab32fd8a2f63d432c7888bc320685a1513eb78ec877703e7b1",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 69962,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 19.234130638999886,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-19/trace.jsonl",
+      "trace_sha256": "ba39777817e9545899353814df3c2d5d61a1f27705aba52ff386e425bd29b259",
+      "usage": {
+        "input_tokens": 69429,
+        "cached_input_tokens": 64768,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 533,
+        "reasoning_output_tokens": 14
+      },
+      "output": "trial-19/project",
+      "output_sha256": "6816129a22139158eb781bca38cc16820b5a7fae00284fbbbe9dfa170a18d6c4",
+      "passed": false,
+      "grading": {
+        "case": "overbroad-validation",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: plan.json"
+        ]
+      }
+    },
+    {
+      "case": "overbroad-validation",
+      "variant": "B",
+      "repetition": 1,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "794b4c011fcbe6ab32fd8a2f63d432c7888bc320685a1513eb78ec877703e7b1",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 71430,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 17.58911643700003,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-20/trace.jsonl",
+      "trace_sha256": "fbedd1319f11039e8ff2333f9a8e952a809fc38752f30845466b7a2502ab80ff",
+      "usage": {
+        "input_tokens": 71053,
+        "cached_input_tokens": 61568,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 377,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-20/project",
+      "output_sha256": "6acb94f9b95904c979f5764e9d82531f9a5aeea97330db7a22ae818380127aec",
+      "passed": false,
+      "grading": {
+        "case": "overbroad-validation",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: plan.json"
+        ]
+      }
+    },
+    {
+      "case": "overbroad-validation",
+      "variant": "B",
+      "repetition": 2,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "794b4c011fcbe6ab32fd8a2f63d432c7888bc320685a1513eb78ec877703e7b1",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 57199,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 16.425809392000247,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-21/trace.jsonl",
+      "trace_sha256": "6af6e3143d3004717bfec484bac3639d9900bd8b73d656b2afba4f0d445115e7",
+      "usage": {
+        "input_tokens": 56784,
+        "cached_input_tokens": 51968,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 415,
+        "reasoning_output_tokens": 14
+      },
+      "output": "trial-21/project",
+      "output_sha256": "6816129a22139158eb781bca38cc16820b5a7fae00284fbbbe9dfa170a18d6c4",
+      "passed": false,
+      "grading": {
+        "case": "overbroad-validation",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: plan.json"
+        ]
+      }
+    },
+    {
+      "case": "overbroad-validation",
+      "variant": "A",
+      "repetition": 2,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "794b4c011fcbe6ab32fd8a2f63d432c7888bc320685a1513eb78ec877703e7b1",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 69985,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 19.54167801199992,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-22/trace.jsonl",
+      "trace_sha256": "2f122c22a0030aa4c8ca7cd8f623059874e1a590a242ace3fe958f02314958ca",
+      "usage": {
+        "input_tokens": 69471,
+        "cached_input_tokens": 60672,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 514,
+        "reasoning_output_tokens": 22
+      },
+      "output": "trial-22/project",
+      "output_sha256": "14ad7ed0d639b9ebc7d4a294afefa101a70fb4a3aad4668c88cd29408694efa2",
+      "passed": false,
+      "grading": {
+        "case": "overbroad-validation",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: plan.json"
+        ]
+      }
+    },
+    {
+      "case": "overbroad-validation",
+      "variant": "A",
+      "repetition": 3,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "794b4c011fcbe6ab32fd8a2f63d432c7888bc320685a1513eb78ec877703e7b1",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 69653,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 19.133036239000376,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-23/trace.jsonl",
+      "trace_sha256": "de65fdf1499bdf768664daa1fed23d1969c87d9f8598e46aa2a437ffc35be6ae",
+      "usage": {
+        "input_tokens": 69203,
+        "cached_input_tokens": 64512,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 450,
+        "reasoning_output_tokens": 29
+      },
+      "output": "trial-23/project",
+      "output_sha256": "6816129a22139158eb781bca38cc16820b5a7fae00284fbbbe9dfa170a18d6c4",
+      "passed": false,
+      "grading": {
+        "case": "overbroad-validation",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: plan.json"
+        ]
+      }
+    },
+    {
+      "case": "overbroad-validation",
+      "variant": "B",
+      "repetition": 3,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "794b4c011fcbe6ab32fd8a2f63d432c7888bc320685a1513eb78ec877703e7b1",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 56777,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 13.913595353000346,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-24/trace.jsonl",
+      "trace_sha256": "060526aff4e3a9dbb5da7d8a7367193c2582056e815361ed753ada3659969fd8",
+      "usage": {
+        "input_tokens": 56543,
+        "cached_input_tokens": 47488,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 234,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-24/project",
+      "output_sha256": "70b3ea8eeecd0ae4eb07e744b4c58320b20228fc6eefd659bb127a9824bdc8aa",
+      "passed": false,
+      "grading": {
+        "case": "overbroad-validation",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: plan.json"
+        ]
+      }
+    },
+    {
+      "case": "stale-skill",
+      "variant": "A",
+      "repetition": 1,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "5ae5044d3690b2d7e1c2a2b39fc1951ecf9c780a9b01d4a78af3d8b50a6331db",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 70047,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 19.332579338000414,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-25/trace.jsonl",
+      "trace_sha256": "214e3f91dc5fe0e02dfde3f3356153e080d0fdba1608551b4ae02797fa1548a1",
+      "usage": {
+        "input_tokens": 69448,
+        "cached_input_tokens": 66944,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 599,
+        "reasoning_output_tokens": 14
+      },
+      "output": "trial-25/project",
+      "output_sha256": "6e4b380b59a467d426d3ab9dc6566c73bf5d9d0f76a64fb46e11eb532ea7fe2a",
+      "passed": false,
+      "grading": {
+        "case": "stale-skill",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: assessment.json"
+        ]
+      }
+    },
+    {
+      "case": "stale-skill",
+      "variant": "B",
+      "repetition": 1,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "5ae5044d3690b2d7e1c2a2b39fc1951ecf9c780a9b01d4a78af3d8b50a6331db",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 57063,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 16.9934798889999,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-26/trace.jsonl",
+      "trace_sha256": "9ae995de72a7e92b185351cebde1fe7fbf7deefa5b63c6a93f9782671cec235b",
+      "usage": {
+        "input_tokens": 56720,
+        "cached_input_tokens": 51840,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 343,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-26/project",
+      "output_sha256": "54aa1520b5bd965c190a89c4baf272adcbfe1a1134b3838c0c5df00c60a646d8",
+      "passed": false,
+      "grading": {
+        "case": "stale-skill",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: assessment.json"
+        ]
+      }
+    },
+    {
+      "case": "stale-skill",
+      "variant": "B",
+      "repetition": 2,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "5ae5044d3690b2d7e1c2a2b39fc1951ecf9c780a9b01d4a78af3d8b50a6331db",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 57124,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 16.674495963000027,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-27/trace.jsonl",
+      "trace_sha256": "4cde4f542ee9e8999d8deb1564c09d4e340d269d0ab3d7847141929bdf7a1b54",
+      "usage": {
+        "input_tokens": 56719,
+        "cached_input_tokens": 47488,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 405,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-27/project",
+      "output_sha256": "af0600293a5d0b083afb8057629630d501fdfe2436568572682cfe1a0834437f",
+      "passed": false,
+      "grading": {
+        "case": "stale-skill",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: assessment.json"
+        ]
+      }
+    },
+    {
+      "case": "stale-skill",
+      "variant": "A",
+      "repetition": 2,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "5ae5044d3690b2d7e1c2a2b39fc1951ecf9c780a9b01d4a78af3d8b50a6331db",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 55100,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 15.076561245999983,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-28/trace.jsonl",
+      "trace_sha256": "2853b91e7186c72e9346d41f1a98104c22f259d286adc3be02f437c6f58cc898",
+      "usage": {
+        "input_tokens": 54856,
+        "cached_input_tokens": 46976,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 244,
+        "reasoning_output_tokens": 15
+      },
+      "output": "trial-28/project",
+      "output_sha256": "78e8bc7bd899ddc732da97753b0a730005a81aa49c26a5de51876b258847fe71",
+      "passed": false,
+      "grading": {
+        "case": "stale-skill",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: assessment.json"
+        ]
+      }
+    },
+    {
+      "case": "stale-skill",
+      "variant": "A",
+      "repetition": 3,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "5ae5044d3690b2d7e1c2a2b39fc1951ecf9c780a9b01d4a78af3d8b50a6331db",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 55071,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 16.026865327999985,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-29/trace.jsonl",
+      "trace_sha256": "0358d6142be09743c4922a967a582b8054d1333ea7fd8092f995ab7145019bcb",
+      "usage": {
+        "input_tokens": 54842,
+        "cached_input_tokens": 49408,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 229,
+        "reasoning_output_tokens": 0
+      },
+      "output": "trial-29/project",
+      "output_sha256": "62b3cb04808c3b1355b9b0bdf6fffcd2d60254166c8672966160ad8a674d2d55",
+      "passed": false,
+      "grading": {
+        "case": "stale-skill",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: assessment.json"
+        ]
+      }
+    },
+    {
+      "case": "stale-skill",
+      "variant": "B",
+      "repetition": 3,
+      "conditions": {
+        "model": "gpt-6.1-sol",
+        "effort": "low",
+        "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+        "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+      },
+      "input_sha256": "5ae5044d3690b2d7e1c2a2b39fc1951ecf9c780a9b01d4a78af3d8b50a6331db",
+      "safety_violation": false,
+      "required_regression": false,
+      "tokens": 57035,
+      "cost": null,
+      "tokens_unavailable_reason": "No completed turn usage observed",
+      "cost_unavailable_reason": "Native subscription exposes no monetary charge meter",
+      "seconds": 17.027122141999826,
+      "status": "completed",
+      "exit_code": 0,
+      "trace": "trial-30/trace.jsonl",
+      "trace_sha256": "9520684f558e04de67917e37527bf4cda87cfb53d287f49a0b5c4dd0fa4011b2",
+      "usage": {
+        "input_tokens": 56681,
+        "cached_input_tokens": 47488,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 354,
+        "reasoning_output_tokens": 13
+      },
+      "output": "trial-30/project",
+      "output_sha256": "f1a0d42e340eefa10c16daa7a5286accf8714234ef83ec4d89a858fbce2d5f50",
+      "passed": false,
+      "grading": {
+        "case": "stale-skill",
+        "pass": false,
+        "failures": [
+          "incorrect artifact: assessment.json"
+        ]
+      }
+    }
+  ],
+  "budget_exceeded": false,
+  "mechanical_criteria_satisfied": false,
+  "adoption_eligible": false,
+  "adoption_ineligible_reason": "external collection/trace authenticity and independent safety observations require review",
+  "adoption_decision": "pending-human",
+  "real_app_evaluation": "not-performed",
+  "collection_provenance": "externally supplied observations; not independently authenticated",
+  "split": {
+    "unrun-pass": "tuning",
+    "wrong-routing": "tuning",
+    "weak-cleanup": "held-out",
+    "overbroad-validation": "held-out",
+    "stale-skill": "tuning"
+  }
+}

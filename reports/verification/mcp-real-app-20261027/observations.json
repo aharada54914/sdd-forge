@@ -1,0 +1,752 @@
+[
+  {
+    "trial": 1,
+    "label": "A",
+    "status": "completed",
+    "calls": [
+      {
+        "request": {
+          "name": "list_active_specs",
+          "arguments": {}
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"active-specs\",\"specs\":[{\"feature\":\"sdd-forge-refactor\",\"path\":\"specs/sdd-forge-refactor/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"claude-workflow-compatibility\",\"path\":\"specs/claude-workflow-compatibility/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-forge-mcp\",\"path\":\"specs/sdd-forge-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"workflow-state-integrity\",\"path\":\"specs/workflow-state-integrity/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"bootstrap-interviewer-enhancement\",\"path\":\"specs/bootstrap-interviewer-enhancement/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"agent-cost-context-isolation\",\"path\":\"specs/agent-cost-context-isolation/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain\",\"path\":\"specs/sdd-domain/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-multitarget\",\"path\":\"specs/sdd-domain-multitarget/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"local-env-mcp\",\"path\":\"specs/local-env-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"ci-mcp\",\"path\":\"specs/ci-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase2-gates\",\"path\":\"specs/epic-136-phase2-gates/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase1-rce\",\"path\":\"specs/epic-136-phase1-rce/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase1-guards\",\"path\":\"specs/epic-136-phase1-guards/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-a\",\"path\":\"specs/epic-159-pillar-a/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-a2\",\"path\":\"specs/epic-159-pillar-a2/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-b\",\"path\":\"specs/epic-159-pillar-b/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-c\",\"path\":\"specs/epic-159-pillar-c/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-d\",\"path\":\"specs/epic-159-pillar-d/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-189-a1-project-context\",\"path\":\"specs/epic-189-a1-project-context/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-192-a4-facet-manifest\",\"path\":\"specs/epic-192-a4-facet-manifest/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase3\",\"path\":\"specs/epic-136-phase3/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase4-docs\",\"path\":\"specs/epic-136-phase4-docs/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase4-mcp\",\"path\":\"specs/epic-136-phase4-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"mcp-readonly-preflight\",\"path\":\"specs/mcp-readonly-preflight/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"review-cross-critique\",\"path\":\"specs/review-cross-critique/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"design-sync-consent\",\"path\":\"specs/design-sync-consent/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-193-a5-capability-resolver\",\"path\":\"specs/epic-193-a5-capability-resolver/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-194-a6-lite-integration\",\"path\":\"specs/epic-194-a6-lite-integration/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-195-a7-compatibility\",\"path\":\"specs/epic-195-a7-compatibility/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"epic-196-a8-integration\",\"path\":\"specs/epic-196-a8-integration/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"design-sync-scan\",\"path\":\"specs/design-sync-scan/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"design-sync-standing-consent\",\"path\":\"specs/design-sync-standing-consent/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-190-a2-capability-registry\",\"path\":\"specs/epic-190-a2-capability-registry/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-191-a3-path-ownership\",\"path\":\"specs/epic-191-a3-path-ownership/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"cross-model-verification\",\"path\":\"specs/cross-model-verification/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"evidence-deep-verify\",\"path\":\"specs/evidence-deep-verify/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"p0-hardening\",\"path\":\"specs/p0-hardening/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"quality-loop-fixes\",\"path\":\"specs/quality-loop-fixes/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"risk-adaptive-layer\",\"path\":\"specs/risk-adaptive-layer/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-diagnose\",\"path\":\"specs/sdd-diagnose/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-lite\",\"path\":\"specs/sdd-lite/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"second-approval-mask\",\"path\":\"specs/second-approval-mask/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"uninstall-workflow\",\"path\":\"specs/uninstall-workflow/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-concept-contract\",\"path\":\"specs/sdd-domain-concept-contract/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-197-a9-dogfood\",\"path\":\"specs/epic-197-a9-dogfood/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"a9-interrupted-review-recovery\",\"path\":\"specs/a9-interrupted-review-recovery/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-concept-test\",\"path\":\"specs/sdd-domain-concept-test/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"shared-review-launch-repair\",\"path\":\"specs/shared-review-launch-repair/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"cloud-orchestration\",\"path\":\"specs/cloud-orchestration/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"ci-model-modernization\",\"path\":\"specs/ci-model-modernization/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"verification-measurement\",\"path\":\"specs/verification-measurement/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"project-skill-observation\",\"path\":\"specs/project-skill-observation/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"research-evidence\",\"path\":\"specs/research-evidence/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"structural-error-prevention\",\"path\":\"specs/structural-error-prevention/\",\"hasApprovedPlannedOrInProgress\":false}]}}"
+            }
+          ]
+        },
+        "seconds": 11.885451337000001
+      },
+      {
+        "request": {
+          "name": "get_spec_status",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"spec-status\",\"feature\":\"project-skill-observation\",\"artifacts\":[{\"name\":\"requirements\",\"exists\":true,\"reviewStatus\":\"Pending\"},{\"name\":\"acceptance-tests\",\"exists\":true},{\"name\":\"design\",\"exists\":true,\"reviewStatus\":\"Pending\"},{\"name\":\"tasks\",\"exists\":false},{\"name\":\"traceability\",\"exists\":false},{\"name\":\"ux-spec\",\"exists\":true},{\"name\":\"frontend-spec\",\"exists\":true},{\"name\":\"infra-spec\",\"exists\":true},{\"name\":\"security-spec\",\"exists\":true}]}}"
+            }
+          ]
+        },
+        "seconds": 0.005323788000001514
+      },
+      {
+        "request": {
+          "name": "get_task_state",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":false,\"error\":{\"code\":\"not-found\",\"message\":\"Path does not exist: specs/project-skill-observation/tasks.md\",\"details\":{\"file\":\"specs/project-skill-observation/tasks.md\",\"rule\":\"exists\"}}}"
+            }
+          ]
+        },
+        "seconds": 0.0015997669999997016
+      },
+      {
+        "request": {
+          "name": "get_next_sdd_command",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"next-command\",\"feature\":\"project-skill-observation\",\"phase\":\"spec-review\",\"nextCommand\":\"/sdd-review-loop:spec-review-loop --feature project-skill-observation\",\"rationale\":\"specs/project-skill-observation/requirements.md's Spec-Review-Status is \\\"Pending\\\", not Passed (AGENTS.md Required Workflow step 2).\"}}"
+            }
+          ]
+        },
+        "seconds": 0.0035944319999998697
+      },
+      {
+        "request": {
+          "name": "get_task_state",
+          "arguments": {
+            "feature": "sdd-forge-mcp"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"task-state\",\"feature\":\"sdd-forge-mcp\",\"tasksFile\":\"specs/sdd-forge-mcp/tasks.md\",\"verdict\":\"pass\",\"taskCount\":11,\"tasks\":[{\"id\":\"T-001\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":false,\"risk\":\"high\"},{\"id\":\"T-002\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-003\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-011\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-004\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-009\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-010\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-005\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-006\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"medium\"},{\"id\":\"T-007\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"medium\"},{\"id\":\"T-008\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"low\"}],\"failures\":[]}}"
+            }
+          ]
+        },
+        "seconds": 0.4846409059999987
+      },
+      {
+        "request": {
+          "name": "get_next_sdd_command",
+          "arguments": {
+            "feature": "sdd-forge-mcp"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"next-command\",\"feature\":\"sdd-forge-mcp\",\"phase\":\"done\",\"nextCommand\":\"feature complete\",\"rationale\":\"Every Approved task in specs/sdd-forge-mcp/tasks.md has reached Done.\"}}"
+            }
+          ]
+        },
+        "seconds": 0.4698008919999993
+      }
+    ],
+    "seconds": 13.013762651999999,
+    "tools": [
+      "list_active_specs",
+      "get_spec_status",
+      "get_task_state",
+      "list_approved_tasks",
+      "list_blocked_tasks",
+      "list_review_tickets",
+      "get_quality_gate_summary",
+      "get_next_sdd_command",
+      "evidence_get_bundle",
+      "evidence_validate_paths",
+      "evidence_find_missing",
+      "evidence_summarize_contract_checks",
+      "evidence_compare_to_traceability",
+      "evidence_deep_verify"
+    ],
+    "stderr": "{\"ok\":true,\"data\":{\"root\":\"/source\",\"rootSource\":\"cli\",\"isSddRoot\":true}}\n"
+  },
+  {
+    "trial": 1,
+    "label": "B",
+    "status": "completed",
+    "calls": [
+      {
+        "request": {
+          "name": "list_active_specs",
+          "arguments": {}
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"active-specs\",\"specs\":[{\"feature\":\"sdd-forge-refactor\",\"path\":\"specs/sdd-forge-refactor/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"claude-workflow-compatibility\",\"path\":\"specs/claude-workflow-compatibility/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-forge-mcp\",\"path\":\"specs/sdd-forge-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"workflow-state-integrity\",\"path\":\"specs/workflow-state-integrity/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"bootstrap-interviewer-enhancement\",\"path\":\"specs/bootstrap-interviewer-enhancement/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"agent-cost-context-isolation\",\"path\":\"specs/agent-cost-context-isolation/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain\",\"path\":\"specs/sdd-domain/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-multitarget\",\"path\":\"specs/sdd-domain-multitarget/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"local-env-mcp\",\"path\":\"specs/local-env-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"ci-mcp\",\"path\":\"specs/ci-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase2-gates\",\"path\":\"specs/epic-136-phase2-gates/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase1-rce\",\"path\":\"specs/epic-136-phase1-rce/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase1-guards\",\"path\":\"specs/epic-136-phase1-guards/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-a\",\"path\":\"specs/epic-159-pillar-a/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-a2\",\"path\":\"specs/epic-159-pillar-a2/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-b\",\"path\":\"specs/epic-159-pillar-b/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-c\",\"path\":\"specs/epic-159-pillar-c/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-d\",\"path\":\"specs/epic-159-pillar-d/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-189-a1-project-context\",\"path\":\"specs/epic-189-a1-project-context/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-192-a4-facet-manifest\",\"path\":\"specs/epic-192-a4-facet-manifest/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase3\",\"path\":\"specs/epic-136-phase3/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase4-docs\",\"path\":\"specs/epic-136-phase4-docs/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase4-mcp\",\"path\":\"specs/epic-136-phase4-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"mcp-readonly-preflight\",\"path\":\"specs/mcp-readonly-preflight/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"review-cross-critique\",\"path\":\"specs/review-cross-critique/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"design-sync-consent\",\"path\":\"specs/design-sync-consent/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-193-a5-capability-resolver\",\"path\":\"specs/epic-193-a5-capability-resolver/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-194-a6-lite-integration\",\"path\":\"specs/epic-194-a6-lite-integration/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-195-a7-compatibility\",\"path\":\"specs/epic-195-a7-compatibility/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"epic-196-a8-integration\",\"path\":\"specs/epic-196-a8-integration/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"design-sync-scan\",\"path\":\"specs/design-sync-scan/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"design-sync-standing-consent\",\"path\":\"specs/design-sync-standing-consent/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-190-a2-capability-registry\",\"path\":\"specs/epic-190-a2-capability-registry/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-191-a3-path-ownership\",\"path\":\"specs/epic-191-a3-path-ownership/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"cross-model-verification\",\"path\":\"specs/cross-model-verification/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"evidence-deep-verify\",\"path\":\"specs/evidence-deep-verify/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"p0-hardening\",\"path\":\"specs/p0-hardening/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"quality-loop-fixes\",\"path\":\"specs/quality-loop-fixes/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"risk-adaptive-layer\",\"path\":\"specs/risk-adaptive-layer/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-diagnose\",\"path\":\"specs/sdd-diagnose/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-lite\",\"path\":\"specs/sdd-lite/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"second-approval-mask\",\"path\":\"specs/second-approval-mask/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"uninstall-workflow\",\"path\":\"specs/uninstall-workflow/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-concept-contract\",\"path\":\"specs/sdd-domain-concept-contract/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-197-a9-dogfood\",\"path\":\"specs/epic-197-a9-dogfood/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"a9-interrupted-review-recovery\",\"path\":\"specs/a9-interrupted-review-recovery/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-concept-test\",\"path\":\"specs/sdd-domain-concept-test/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"shared-review-launch-repair\",\"path\":\"specs/shared-review-launch-repair/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"cloud-orchestration\",\"path\":\"specs/cloud-orchestration/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"ci-model-modernization\",\"path\":\"specs/ci-model-modernization/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"verification-measurement\",\"path\":\"specs/verification-measurement/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"project-skill-observation\",\"path\":\"specs/project-skill-observation/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"research-evidence\",\"path\":\"specs/research-evidence/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"structural-error-prevention\",\"path\":\"specs/structural-error-prevention/\",\"hasApprovedPlannedOrInProgress\":false}]}}"
+            }
+          ]
+        },
+        "seconds": 0.7748606889999992
+      },
+      {
+        "request": {
+          "name": "get_spec_status",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"spec-status\",\"feature\":\"project-skill-observation\",\"artifacts\":[{\"name\":\"requirements\",\"exists\":true,\"reviewStatus\":\"Pending\"},{\"name\":\"acceptance-tests\",\"exists\":true},{\"name\":\"design\",\"exists\":true,\"reviewStatus\":\"Pending\"},{\"name\":\"tasks\",\"exists\":false},{\"name\":\"traceability\",\"exists\":false},{\"name\":\"ux-spec\",\"exists\":true},{\"name\":\"frontend-spec\",\"exists\":true},{\"name\":\"infra-spec\",\"exists\":true},{\"name\":\"security-spec\",\"exists\":true}]}}"
+            }
+          ]
+        },
+        "seconds": 0.001697243000000526
+      },
+      {
+        "request": {
+          "name": "get_task_state",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":false,\"error\":{\"code\":\"not-found\",\"message\":\"Path does not exist: specs/project-skill-observation/tasks.md\",\"details\":{\"file\":\"specs/project-skill-observation/tasks.md\",\"rule\":\"exists\"}}}"
+            }
+          ]
+        },
+        "seconds": 0.0006583599999994476
+      },
+      {
+        "request": {
+          "name": "get_next_sdd_command",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"next-command\",\"feature\":\"project-skill-observation\",\"phase\":\"spec-review\",\"nextCommand\":\"/sdd-review-loop:spec-review-loop --feature project-skill-observation\",\"rationale\":\"specs/project-skill-observation/requirements.md's Spec-Review-Status is \\\"Pending\\\", not Passed (AGENTS.md Required Workflow step 2).\"}}"
+            }
+          ]
+        },
+        "seconds": 0.0009077459999989514
+      },
+      {
+        "request": {
+          "name": "get_task_state",
+          "arguments": {
+            "feature": "sdd-forge-mcp"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"task-state\",\"feature\":\"sdd-forge-mcp\",\"tasksFile\":\"specs/sdd-forge-mcp/tasks.md\",\"verdict\":\"pass\",\"taskCount\":11,\"tasks\":[{\"id\":\"T-001\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":false,\"risk\":\"high\"},{\"id\":\"T-002\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-003\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-011\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-004\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-009\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-010\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-005\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-006\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"medium\"},{\"id\":\"T-007\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"medium\"},{\"id\":\"T-008\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"low\"}],\"failures\":[]}}"
+            }
+          ]
+        },
+        "seconds": 0.04711994099999901
+      },
+      {
+        "request": {
+          "name": "get_next_sdd_command",
+          "arguments": {
+            "feature": "sdd-forge-mcp"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"next-command\",\"feature\":\"sdd-forge-mcp\",\"phase\":\"done\",\"nextCommand\":\"feature complete\",\"rationale\":\"Every Approved task in specs/sdd-forge-mcp/tasks.md has reached Done.\"}}"
+            }
+          ]
+        },
+        "seconds": 0.04737397799999962
+      }
+    ],
+    "seconds": 0.9976120069999997,
+    "tools": [
+      "list_active_specs",
+      "get_spec_status",
+      "get_task_state",
+      "list_approved_tasks",
+      "list_blocked_tasks",
+      "list_review_tickets",
+      "get_quality_gate_summary",
+      "get_next_sdd_command",
+      "evidence_get_bundle",
+      "evidence_validate_paths",
+      "evidence_find_missing",
+      "evidence_summarize_contract_checks",
+      "evidence_compare_to_traceability",
+      "evidence_deep_verify"
+    ],
+    "stderr": "{\"ok\":true,\"data\":{\"root\":\"/source\",\"rootSource\":\"cli\",\"isSddRoot\":true}}\n"
+  },
+  {
+    "trial": 2,
+    "label": "B",
+    "status": "completed",
+    "calls": [
+      {
+        "request": {
+          "name": "list_active_specs",
+          "arguments": {}
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"active-specs\",\"specs\":[{\"feature\":\"sdd-forge-refactor\",\"path\":\"specs/sdd-forge-refactor/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"claude-workflow-compatibility\",\"path\":\"specs/claude-workflow-compatibility/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-forge-mcp\",\"path\":\"specs/sdd-forge-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"workflow-state-integrity\",\"path\":\"specs/workflow-state-integrity/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"bootstrap-interviewer-enhancement\",\"path\":\"specs/bootstrap-interviewer-enhancement/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"agent-cost-context-isolation\",\"path\":\"specs/agent-cost-context-isolation/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain\",\"path\":\"specs/sdd-domain/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-multitarget\",\"path\":\"specs/sdd-domain-multitarget/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"local-env-mcp\",\"path\":\"specs/local-env-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"ci-mcp\",\"path\":\"specs/ci-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase2-gates\",\"path\":\"specs/epic-136-phase2-gates/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase1-rce\",\"path\":\"specs/epic-136-phase1-rce/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase1-guards\",\"path\":\"specs/epic-136-phase1-guards/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-a\",\"path\":\"specs/epic-159-pillar-a/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-a2\",\"path\":\"specs/epic-159-pillar-a2/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-b\",\"path\":\"specs/epic-159-pillar-b/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-c\",\"path\":\"specs/epic-159-pillar-c/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-d\",\"path\":\"specs/epic-159-pillar-d/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-189-a1-project-context\",\"path\":\"specs/epic-189-a1-project-context/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-192-a4-facet-manifest\",\"path\":\"specs/epic-192-a4-facet-manifest/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase3\",\"path\":\"specs/epic-136-phase3/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase4-docs\",\"path\":\"specs/epic-136-phase4-docs/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase4-mcp\",\"path\":\"specs/epic-136-phase4-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"mcp-readonly-preflight\",\"path\":\"specs/mcp-readonly-preflight/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"review-cross-critique\",\"path\":\"specs/review-cross-critique/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"design-sync-consent\",\"path\":\"specs/design-sync-consent/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-193-a5-capability-resolver\",\"path\":\"specs/epic-193-a5-capability-resolver/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-194-a6-lite-integration\",\"path\":\"specs/epic-194-a6-lite-integration/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-195-a7-compatibility\",\"path\":\"specs/epic-195-a7-compatibility/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"epic-196-a8-integration\",\"path\":\"specs/epic-196-a8-integration/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"design-sync-scan\",\"path\":\"specs/design-sync-scan/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"design-sync-standing-consent\",\"path\":\"specs/design-sync-standing-consent/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-190-a2-capability-registry\",\"path\":\"specs/epic-190-a2-capability-registry/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-191-a3-path-ownership\",\"path\":\"specs/epic-191-a3-path-ownership/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"cross-model-verification\",\"path\":\"specs/cross-model-verification/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"evidence-deep-verify\",\"path\":\"specs/evidence-deep-verify/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"p0-hardening\",\"path\":\"specs/p0-hardening/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"quality-loop-fixes\",\"path\":\"specs/quality-loop-fixes/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"risk-adaptive-layer\",\"path\":\"specs/risk-adaptive-layer/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-diagnose\",\"path\":\"specs/sdd-diagnose/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-lite\",\"path\":\"specs/sdd-lite/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"second-approval-mask\",\"path\":\"specs/second-approval-mask/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"uninstall-workflow\",\"path\":\"specs/uninstall-workflow/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-concept-contract\",\"path\":\"specs/sdd-domain-concept-contract/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-197-a9-dogfood\",\"path\":\"specs/epic-197-a9-dogfood/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"a9-interrupted-review-recovery\",\"path\":\"specs/a9-interrupted-review-recovery/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-concept-test\",\"path\":\"specs/sdd-domain-concept-test/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"shared-review-launch-repair\",\"path\":\"specs/shared-review-launch-repair/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"cloud-orchestration\",\"path\":\"specs/cloud-orchestration/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"ci-model-modernization\",\"path\":\"specs/ci-model-modernization/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"verification-measurement\",\"path\":\"specs/verification-measurement/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"project-skill-observation\",\"path\":\"specs/project-skill-observation/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"research-evidence\",\"path\":\"specs/research-evidence/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"structural-error-prevention\",\"path\":\"specs/structural-error-prevention/\",\"hasApprovedPlannedOrInProgress\":false}]}}"
+            }
+          ]
+        },
+        "seconds": 0.7488556010000011
+      },
+      {
+        "request": {
+          "name": "get_spec_status",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"spec-status\",\"feature\":\"project-skill-observation\",\"artifacts\":[{\"name\":\"requirements\",\"exists\":true,\"reviewStatus\":\"Pending\"},{\"name\":\"acceptance-tests\",\"exists\":true},{\"name\":\"design\",\"exists\":true,\"reviewStatus\":\"Pending\"},{\"name\":\"tasks\",\"exists\":false},{\"name\":\"traceability\",\"exists\":false},{\"name\":\"ux-spec\",\"exists\":true},{\"name\":\"frontend-spec\",\"exists\":true},{\"name\":\"infra-spec\",\"exists\":true},{\"name\":\"security-spec\",\"exists\":true}]}}"
+            }
+          ]
+        },
+        "seconds": 0.002150304999999207
+      },
+      {
+        "request": {
+          "name": "get_task_state",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":false,\"error\":{\"code\":\"not-found\",\"message\":\"Path does not exist: specs/project-skill-observation/tasks.md\",\"details\":{\"file\":\"specs/project-skill-observation/tasks.md\",\"rule\":\"exists\"}}}"
+            }
+          ]
+        },
+        "seconds": 0.0006258710000001884
+      },
+      {
+        "request": {
+          "name": "get_next_sdd_command",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"next-command\",\"feature\":\"project-skill-observation\",\"phase\":\"spec-review\",\"nextCommand\":\"/sdd-review-loop:spec-review-loop --feature project-skill-observation\",\"rationale\":\"specs/project-skill-observation/requirements.md's Spec-Review-Status is \\\"Pending\\\", not Passed (AGENTS.md Required Workflow step 2).\"}}"
+            }
+          ]
+        },
+        "seconds": 0.00073794000000089
+      },
+      {
+        "request": {
+          "name": "get_task_state",
+          "arguments": {
+            "feature": "sdd-forge-mcp"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"task-state\",\"feature\":\"sdd-forge-mcp\",\"tasksFile\":\"specs/sdd-forge-mcp/tasks.md\",\"verdict\":\"pass\",\"taskCount\":11,\"tasks\":[{\"id\":\"T-001\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":false,\"risk\":\"high\"},{\"id\":\"T-002\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-003\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-011\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-004\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-009\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-010\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-005\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-006\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"medium\"},{\"id\":\"T-007\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"medium\"},{\"id\":\"T-008\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"low\"}],\"failures\":[]}}"
+            }
+          ]
+        },
+        "seconds": 0.052071179999999
+      },
+      {
+        "request": {
+          "name": "get_next_sdd_command",
+          "arguments": {
+            "feature": "sdd-forge-mcp"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"next-command\",\"feature\":\"sdd-forge-mcp\",\"phase\":\"done\",\"nextCommand\":\"feature complete\",\"rationale\":\"Every Approved task in specs/sdd-forge-mcp/tasks.md has reached Done.\"}}"
+            }
+          ]
+        },
+        "seconds": 0.049587913999999726
+      }
+    ],
+    "seconds": 1.0335023170000004,
+    "tools": [
+      "list_active_specs",
+      "get_spec_status",
+      "get_task_state",
+      "list_approved_tasks",
+      "list_blocked_tasks",
+      "list_review_tickets",
+      "get_quality_gate_summary",
+      "get_next_sdd_command",
+      "evidence_get_bundle",
+      "evidence_validate_paths",
+      "evidence_find_missing",
+      "evidence_summarize_contract_checks",
+      "evidence_compare_to_traceability",
+      "evidence_deep_verify"
+    ],
+    "stderr": "{\"ok\":true,\"data\":{\"root\":\"/source\",\"rootSource\":\"cli\",\"isSddRoot\":true}}\n"
+  },
+  {
+    "trial": 2,
+    "label": "A",
+    "status": "completed",
+    "calls": [
+      {
+        "request": {
+          "name": "list_active_specs",
+          "arguments": {}
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"active-specs\",\"specs\":[{\"feature\":\"sdd-forge-refactor\",\"path\":\"specs/sdd-forge-refactor/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"claude-workflow-compatibility\",\"path\":\"specs/claude-workflow-compatibility/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-forge-mcp\",\"path\":\"specs/sdd-forge-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"workflow-state-integrity\",\"path\":\"specs/workflow-state-integrity/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"bootstrap-interviewer-enhancement\",\"path\":\"specs/bootstrap-interviewer-enhancement/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"agent-cost-context-isolation\",\"path\":\"specs/agent-cost-context-isolation/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain\",\"path\":\"specs/sdd-domain/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-multitarget\",\"path\":\"specs/sdd-domain-multitarget/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"local-env-mcp\",\"path\":\"specs/local-env-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"ci-mcp\",\"path\":\"specs/ci-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase2-gates\",\"path\":\"specs/epic-136-phase2-gates/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase1-rce\",\"path\":\"specs/epic-136-phase1-rce/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase1-guards\",\"path\":\"specs/epic-136-phase1-guards/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-a\",\"path\":\"specs/epic-159-pillar-a/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-a2\",\"path\":\"specs/epic-159-pillar-a2/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-b\",\"path\":\"specs/epic-159-pillar-b/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-c\",\"path\":\"specs/epic-159-pillar-c/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-d\",\"path\":\"specs/epic-159-pillar-d/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-189-a1-project-context\",\"path\":\"specs/epic-189-a1-project-context/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-192-a4-facet-manifest\",\"path\":\"specs/epic-192-a4-facet-manifest/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase3\",\"path\":\"specs/epic-136-phase3/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase4-docs\",\"path\":\"specs/epic-136-phase4-docs/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase4-mcp\",\"path\":\"specs/epic-136-phase4-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"mcp-readonly-preflight\",\"path\":\"specs/mcp-readonly-preflight/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"review-cross-critique\",\"path\":\"specs/review-cross-critique/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"design-sync-consent\",\"path\":\"specs/design-sync-consent/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-193-a5-capability-resolver\",\"path\":\"specs/epic-193-a5-capability-resolver/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-194-a6-lite-integration\",\"path\":\"specs/epic-194-a6-lite-integration/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-195-a7-compatibility\",\"path\":\"specs/epic-195-a7-compatibility/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"epic-196-a8-integration\",\"path\":\"specs/epic-196-a8-integration/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"design-sync-scan\",\"path\":\"specs/design-sync-scan/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"design-sync-standing-consent\",\"path\":\"specs/design-sync-standing-consent/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-190-a2-capability-registry\",\"path\":\"specs/epic-190-a2-capability-registry/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-191-a3-path-ownership\",\"path\":\"specs/epic-191-a3-path-ownership/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"cross-model-verification\",\"path\":\"specs/cross-model-verification/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"evidence-deep-verify\",\"path\":\"specs/evidence-deep-verify/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"p0-hardening\",\"path\":\"specs/p0-hardening/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"quality-loop-fixes\",\"path\":\"specs/quality-loop-fixes/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"risk-adaptive-layer\",\"path\":\"specs/risk-adaptive-layer/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-diagnose\",\"path\":\"specs/sdd-diagnose/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-lite\",\"path\":\"specs/sdd-lite/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"second-approval-mask\",\"path\":\"specs/second-approval-mask/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"uninstall-workflow\",\"path\":\"specs/uninstall-workflow/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-concept-contract\",\"path\":\"specs/sdd-domain-concept-contract/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-197-a9-dogfood\",\"path\":\"specs/epic-197-a9-dogfood/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"a9-interrupted-review-recovery\",\"path\":\"specs/a9-interrupted-review-recovery/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-concept-test\",\"path\":\"specs/sdd-domain-concept-test/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"shared-review-launch-repair\",\"path\":\"specs/shared-review-launch-repair/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"cloud-orchestration\",\"path\":\"specs/cloud-orchestration/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"ci-model-modernization\",\"path\":\"specs/ci-model-modernization/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"verification-measurement\",\"path\":\"specs/verification-measurement/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"project-skill-observation\",\"path\":\"specs/project-skill-observation/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"research-evidence\",\"path\":\"specs/research-evidence/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"structural-error-prevention\",\"path\":\"specs/structural-error-prevention/\",\"hasApprovedPlannedOrInProgress\":false}]}}"
+            }
+          ]
+        },
+        "seconds": 10.731780493999999
+      },
+      {
+        "request": {
+          "name": "get_spec_status",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"spec-status\",\"feature\":\"project-skill-observation\",\"artifacts\":[{\"name\":\"requirements\",\"exists\":true,\"reviewStatus\":\"Pending\"},{\"name\":\"acceptance-tests\",\"exists\":true},{\"name\":\"design\",\"exists\":true,\"reviewStatus\":\"Pending\"},{\"name\":\"tasks\",\"exists\":false},{\"name\":\"traceability\",\"exists\":false},{\"name\":\"ux-spec\",\"exists\":true},{\"name\":\"frontend-spec\",\"exists\":true},{\"name\":\"infra-spec\",\"exists\":true},{\"name\":\"security-spec\",\"exists\":true}]}}"
+            }
+          ]
+        },
+        "seconds": 0.002240921000000526
+      },
+      {
+        "request": {
+          "name": "get_task_state",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":false,\"error\":{\"code\":\"not-found\",\"message\":\"Path does not exist: specs/project-skill-observation/tasks.md\",\"details\":{\"file\":\"specs/project-skill-observation/tasks.md\",\"rule\":\"exists\"}}}"
+            }
+          ]
+        },
+        "seconds": 0.0006654210000015155
+      },
+      {
+        "request": {
+          "name": "get_next_sdd_command",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"next-command\",\"feature\":\"project-skill-observation\",\"phase\":\"spec-review\",\"nextCommand\":\"/sdd-review-loop:spec-review-loop --feature project-skill-observation\",\"rationale\":\"specs/project-skill-observation/requirements.md's Spec-Review-Status is \\\"Pending\\\", not Passed (AGENTS.md Required Workflow step 2).\"}}"
+            }
+          ]
+        },
+        "seconds": 0.0009490780000014638
+      },
+      {
+        "request": {
+          "name": "get_task_state",
+          "arguments": {
+            "feature": "sdd-forge-mcp"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"task-state\",\"feature\":\"sdd-forge-mcp\",\"tasksFile\":\"specs/sdd-forge-mcp/tasks.md\",\"verdict\":\"pass\",\"taskCount\":11,\"tasks\":[{\"id\":\"T-001\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":false,\"risk\":\"high\"},{\"id\":\"T-002\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-003\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-011\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-004\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-009\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-010\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-005\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-006\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"medium\"},{\"id\":\"T-007\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"medium\"},{\"id\":\"T-008\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"low\"}],\"failures\":[]}}"
+            }
+          ]
+        },
+        "seconds": 0.5071433659999967
+      },
+      {
+        "request": {
+          "name": "get_next_sdd_command",
+          "arguments": {
+            "feature": "sdd-forge-mcp"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"next-command\",\"feature\":\"sdd-forge-mcp\",\"phase\":\"done\",\"nextCommand\":\"feature complete\",\"rationale\":\"Every Approved task in specs/sdd-forge-mcp/tasks.md has reached Done.\"}}"
+            }
+          ]
+        },
+        "seconds": 0.511143723000001
+      }
+    ],
+    "seconds": 11.895495230999998,
+    "tools": [
+      "list_active_specs",
+      "get_spec_status",
+      "get_task_state",
+      "list_approved_tasks",
+      "list_blocked_tasks",
+      "list_review_tickets",
+      "get_quality_gate_summary",
+      "get_next_sdd_command",
+      "evidence_get_bundle",
+      "evidence_validate_paths",
+      "evidence_find_missing",
+      "evidence_summarize_contract_checks",
+      "evidence_compare_to_traceability",
+      "evidence_deep_verify"
+    ],
+    "stderr": "{\"ok\":true,\"data\":{\"root\":\"/source\",\"rootSource\":\"cli\",\"isSddRoot\":true}}\n"
+  },
+  {
+    "trial": 3,
+    "label": "A",
+    "status": "completed",
+    "calls": [
+      {
+        "request": {
+          "name": "list_active_specs",
+          "arguments": {}
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"active-specs\",\"specs\":[{\"feature\":\"sdd-forge-refactor\",\"path\":\"specs/sdd-forge-refactor/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"claude-workflow-compatibility\",\"path\":\"specs/claude-workflow-compatibility/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-forge-mcp\",\"path\":\"specs/sdd-forge-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"workflow-state-integrity\",\"path\":\"specs/workflow-state-integrity/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"bootstrap-interviewer-enhancement\",\"path\":\"specs/bootstrap-interviewer-enhancement/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"agent-cost-context-isolation\",\"path\":\"specs/agent-cost-context-isolation/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain\",\"path\":\"specs/sdd-domain/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-multitarget\",\"path\":\"specs/sdd-domain-multitarget/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"local-env-mcp\",\"path\":\"specs/local-env-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"ci-mcp\",\"path\":\"specs/ci-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase2-gates\",\"path\":\"specs/epic-136-phase2-gates/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase1-rce\",\"path\":\"specs/epic-136-phase1-rce/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase1-guards\",\"path\":\"specs/epic-136-phase1-guards/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-a\",\"path\":\"specs/epic-159-pillar-a/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-a2\",\"path\":\"specs/epic-159-pillar-a2/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-b\",\"path\":\"specs/epic-159-pillar-b/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-c\",\"path\":\"specs/epic-159-pillar-c/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-d\",\"path\":\"specs/epic-159-pillar-d/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-189-a1-project-context\",\"path\":\"specs/epic-189-a1-project-context/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-192-a4-facet-manifest\",\"path\":\"specs/epic-192-a4-facet-manifest/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase3\",\"path\":\"specs/epic-136-phase3/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase4-docs\",\"path\":\"specs/epic-136-phase4-docs/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase4-mcp\",\"path\":\"specs/epic-136-phase4-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"mcp-readonly-preflight\",\"path\":\"specs/mcp-readonly-preflight/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"review-cross-critique\",\"path\":\"specs/review-cross-critique/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"design-sync-consent\",\"path\":\"specs/design-sync-consent/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-193-a5-capability-resolver\",\"path\":\"specs/epic-193-a5-capability-resolver/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-194-a6-lite-integration\",\"path\":\"specs/epic-194-a6-lite-integration/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-195-a7-compatibility\",\"path\":\"specs/epic-195-a7-compatibility/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"epic-196-a8-integration\",\"path\":\"specs/epic-196-a8-integration/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"design-sync-scan\",\"path\":\"specs/design-sync-scan/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"design-sync-standing-consent\",\"path\":\"specs/design-sync-standing-consent/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-190-a2-capability-registry\",\"path\":\"specs/epic-190-a2-capability-registry/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-191-a3-path-ownership\",\"path\":\"specs/epic-191-a3-path-ownership/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"cross-model-verification\",\"path\":\"specs/cross-model-verification/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"evidence-deep-verify\",\"path\":\"specs/evidence-deep-verify/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"p0-hardening\",\"path\":\"specs/p0-hardening/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"quality-loop-fixes\",\"path\":\"specs/quality-loop-fixes/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"risk-adaptive-layer\",\"path\":\"specs/risk-adaptive-layer/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-diagnose\",\"path\":\"specs/sdd-diagnose/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-lite\",\"path\":\"specs/sdd-lite/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"second-approval-mask\",\"path\":\"specs/second-approval-mask/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"uninstall-workflow\",\"path\":\"specs/uninstall-workflow/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-concept-contract\",\"path\":\"specs/sdd-domain-concept-contract/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-197-a9-dogfood\",\"path\":\"specs/epic-197-a9-dogfood/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"a9-interrupted-review-recovery\",\"path\":\"specs/a9-interrupted-review-recovery/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-concept-test\",\"path\":\"specs/sdd-domain-concept-test/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"shared-review-launch-repair\",\"path\":\"specs/shared-review-launch-repair/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"cloud-orchestration\",\"path\":\"specs/cloud-orchestration/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"ci-model-modernization\",\"path\":\"specs/ci-model-modernization/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"verification-measurement\",\"path\":\"specs/verification-measurement/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"project-skill-observation\",\"path\":\"specs/project-skill-observation/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"research-evidence\",\"path\":\"specs/research-evidence/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"structural-error-prevention\",\"path\":\"specs/structural-error-prevention/\",\"hasApprovedPlannedOrInProgress\":false}]}}"
+            }
+          ]
+        },
+        "seconds": 11.540817466999997
+      },
+      {
+        "request": {
+          "name": "get_spec_status",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"spec-status\",\"feature\":\"project-skill-observation\",\"artifacts\":[{\"name\":\"requirements\",\"exists\":true,\"reviewStatus\":\"Pending\"},{\"name\":\"acceptance-tests\",\"exists\":true},{\"name\":\"design\",\"exists\":true,\"reviewStatus\":\"Pending\"},{\"name\":\"tasks\",\"exists\":false},{\"name\":\"traceability\",\"exists\":false},{\"name\":\"ux-spec\",\"exists\":true},{\"name\":\"frontend-spec\",\"exists\":true},{\"name\":\"infra-spec\",\"exists\":true},{\"name\":\"security-spec\",\"exists\":true}]}}"
+            }
+          ]
+        },
+        "seconds": 0.002368193000002066
+      },
+      {
+        "request": {
+          "name": "get_task_state",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":false,\"error\":{\"code\":\"not-found\",\"message\":\"Path does not exist: specs/project-skill-observation/tasks.md\",\"details\":{\"file\":\"specs/project-skill-observation/tasks.md\",\"rule\":\"exists\"}}}"
+            }
+          ]
+        },
+        "seconds": 0.0007791419999994104
+      },
+      {
+        "request": {
+          "name": "get_next_sdd_command",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"next-command\",\"feature\":\"project-skill-observation\",\"phase\":\"spec-review\",\"nextCommand\":\"/sdd-review-loop:spec-review-loop --feature project-skill-observation\",\"rationale\":\"specs/project-skill-observation/requirements.md's Spec-Review-Status is \\\"Pending\\\", not Passed (AGENTS.md Required Workflow step 2).\"}}"
+            }
+          ]
+        },
+        "seconds": 0.0009383920000036596
+      },
+      {
+        "request": {
+          "name": "get_task_state",
+          "arguments": {
+            "feature": "sdd-forge-mcp"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"task-state\",\"feature\":\"sdd-forge-mcp\",\"tasksFile\":\"specs/sdd-forge-mcp/tasks.md\",\"verdict\":\"pass\",\"taskCount\":11,\"tasks\":[{\"id\":\"T-001\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":false,\"risk\":\"high\"},{\"id\":\"T-002\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-003\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-011\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-004\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-009\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-010\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-005\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-006\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"medium\"},{\"id\":\"T-007\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"medium\"},{\"id\":\"T-008\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"low\"}],\"failures\":[]}}"
+            }
+          ]
+        },
+        "seconds": 0.5160452240000013
+      },
+      {
+        "request": {
+          "name": "get_next_sdd_command",
+          "arguments": {
+            "feature": "sdd-forge-mcp"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"next-command\",\"feature\":\"sdd-forge-mcp\",\"phase\":\"done\",\"nextCommand\":\"feature complete\",\"rationale\":\"Every Approved task in specs/sdd-forge-mcp/tasks.md has reached Done.\"}}"
+            }
+          ]
+        },
+        "seconds": 0.48112976299999716
+      }
+    ],
+    "seconds": 12.672032004,
+    "tools": [
+      "list_active_specs",
+      "get_spec_status",
+      "get_task_state",
+      "list_approved_tasks",
+      "list_blocked_tasks",
+      "list_review_tickets",
+      "get_quality_gate_summary",
+      "get_next_sdd_command",
+      "evidence_get_bundle",
+      "evidence_validate_paths",
+      "evidence_find_missing",
+      "evidence_summarize_contract_checks",
+      "evidence_compare_to_traceability",
+      "evidence_deep_verify"
+    ],
+    "stderr": "{\"ok\":true,\"data\":{\"root\":\"/source\",\"rootSource\":\"cli\",\"isSddRoot\":true}}\n"
+  },
+  {
+    "trial": 3,
+    "label": "B",
+    "status": "completed",
+    "calls": [
+      {
+        "request": {
+          "name": "list_active_specs",
+          "arguments": {}
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"active-specs\",\"specs\":[{\"feature\":\"sdd-forge-refactor\",\"path\":\"specs/sdd-forge-refactor/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"claude-workflow-compatibility\",\"path\":\"specs/claude-workflow-compatibility/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-forge-mcp\",\"path\":\"specs/sdd-forge-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"workflow-state-integrity\",\"path\":\"specs/workflow-state-integrity/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"bootstrap-interviewer-enhancement\",\"path\":\"specs/bootstrap-interviewer-enhancement/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"agent-cost-context-isolation\",\"path\":\"specs/agent-cost-context-isolation/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain\",\"path\":\"specs/sdd-domain/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-multitarget\",\"path\":\"specs/sdd-domain-multitarget/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"local-env-mcp\",\"path\":\"specs/local-env-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"ci-mcp\",\"path\":\"specs/ci-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase2-gates\",\"path\":\"specs/epic-136-phase2-gates/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase1-rce\",\"path\":\"specs/epic-136-phase1-rce/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase1-guards\",\"path\":\"specs/epic-136-phase1-guards/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-a\",\"path\":\"specs/epic-159-pillar-a/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-a2\",\"path\":\"specs/epic-159-pillar-a2/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-b\",\"path\":\"specs/epic-159-pillar-b/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-c\",\"path\":\"specs/epic-159-pillar-c/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-159-pillar-d\",\"path\":\"specs/epic-159-pillar-d/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-189-a1-project-context\",\"path\":\"specs/epic-189-a1-project-context/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-192-a4-facet-manifest\",\"path\":\"specs/epic-192-a4-facet-manifest/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase3\",\"path\":\"specs/epic-136-phase3/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase4-docs\",\"path\":\"specs/epic-136-phase4-docs/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-136-phase4-mcp\",\"path\":\"specs/epic-136-phase4-mcp/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"mcp-readonly-preflight\",\"path\":\"specs/mcp-readonly-preflight/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"review-cross-critique\",\"path\":\"specs/review-cross-critique/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"design-sync-consent\",\"path\":\"specs/design-sync-consent/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-193-a5-capability-resolver\",\"path\":\"specs/epic-193-a5-capability-resolver/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-194-a6-lite-integration\",\"path\":\"specs/epic-194-a6-lite-integration/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-195-a7-compatibility\",\"path\":\"specs/epic-195-a7-compatibility/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"epic-196-a8-integration\",\"path\":\"specs/epic-196-a8-integration/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"design-sync-scan\",\"path\":\"specs/design-sync-scan/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"design-sync-standing-consent\",\"path\":\"specs/design-sync-standing-consent/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-190-a2-capability-registry\",\"path\":\"specs/epic-190-a2-capability-registry/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-191-a3-path-ownership\",\"path\":\"specs/epic-191-a3-path-ownership/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"cross-model-verification\",\"path\":\"specs/cross-model-verification/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"evidence-deep-verify\",\"path\":\"specs/evidence-deep-verify/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"p0-hardening\",\"path\":\"specs/p0-hardening/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"quality-loop-fixes\",\"path\":\"specs/quality-loop-fixes/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"risk-adaptive-layer\",\"path\":\"specs/risk-adaptive-layer/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-diagnose\",\"path\":\"specs/sdd-diagnose/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-lite\",\"path\":\"specs/sdd-lite/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"second-approval-mask\",\"path\":\"specs/second-approval-mask/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"uninstall-workflow\",\"path\":\"specs/uninstall-workflow/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-concept-contract\",\"path\":\"specs/sdd-domain-concept-contract/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"epic-197-a9-dogfood\",\"path\":\"specs/epic-197-a9-dogfood/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"a9-interrupted-review-recovery\",\"path\":\"specs/a9-interrupted-review-recovery/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"sdd-domain-concept-test\",\"path\":\"specs/sdd-domain-concept-test/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"shared-review-launch-repair\",\"path\":\"specs/shared-review-launch-repair/\",\"hasApprovedPlannedOrInProgress\":true},{\"feature\":\"cloud-orchestration\",\"path\":\"specs/cloud-orchestration/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"ci-model-modernization\",\"path\":\"specs/ci-model-modernization/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"verification-measurement\",\"path\":\"specs/verification-measurement/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"project-skill-observation\",\"path\":\"specs/project-skill-observation/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"research-evidence\",\"path\":\"specs/research-evidence/\",\"hasApprovedPlannedOrInProgress\":false},{\"feature\":\"structural-error-prevention\",\"path\":\"specs/structural-error-prevention/\",\"hasApprovedPlannedOrInProgress\":false}]}}"
+            }
+          ]
+        },
+        "seconds": 0.8478450949999969
+      },
+      {
+        "request": {
+          "name": "get_spec_status",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"spec-status\",\"feature\":\"project-skill-observation\",\"artifacts\":[{\"name\":\"requirements\",\"exists\":true,\"reviewStatus\":\"Pending\"},{\"name\":\"acceptance-tests\",\"exists\":true},{\"name\":\"design\",\"exists\":true,\"reviewStatus\":\"Pending\"},{\"name\":\"tasks\",\"exists\":false},{\"name\":\"traceability\",\"exists\":false},{\"name\":\"ux-spec\",\"exists\":true},{\"name\":\"frontend-spec\",\"exists\":true},{\"name\":\"infra-spec\",\"exists\":true},{\"name\":\"security-spec\",\"exists\":true}]}}"
+            }
+          ]
+        },
+        "seconds": 0.0019260679999933928
+      },
+      {
+        "request": {
+          "name": "get_task_state",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":false,\"error\":{\"code\":\"not-found\",\"message\":\"Path does not exist: specs/project-skill-observation/tasks.md\",\"details\":{\"file\":\"specs/project-skill-observation/tasks.md\",\"rule\":\"exists\"}}}"
+            }
+          ]
+        },
+        "seconds": 0.0006958369999993011
+      },
+      {
+        "request": {
+          "name": "get_next_sdd_command",
+          "arguments": {
+            "feature": "project-skill-observation"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"next-command\",\"feature\":\"project-skill-observation\",\"phase\":\"spec-review\",\"nextCommand\":\"/sdd-review-loop:spec-review-loop --feature project-skill-observation\",\"rationale\":\"specs/project-skill-observation/requirements.md's Spec-Review-Status is \\\"Pending\\\", not Passed (AGENTS.md Required Workflow step 2).\"}}"
+            }
+          ]
+        },
+        "seconds": 0.0010823479999962729
+      },
+      {
+        "request": {
+          "name": "get_task_state",
+          "arguments": {
+            "feature": "sdd-forge-mcp"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"task-state\",\"feature\":\"sdd-forge-mcp\",\"tasksFile\":\"specs/sdd-forge-mcp/tasks.md\",\"verdict\":\"pass\",\"taskCount\":11,\"tasks\":[{\"id\":\"T-001\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":false,\"risk\":\"high\"},{\"id\":\"T-002\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-003\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-011\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-004\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-009\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-010\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-005\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"high\"},{\"id\":\"T-006\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"medium\"},{\"id\":\"T-007\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"medium\"},{\"id\":\"T-008\",\"approval\":\"Approved\",\"status\":\"Done\",\"blockersNonEmpty\":true,\"risk\":\"low\"}],\"failures\":[]}}"
+            }
+          ]
+        },
+        "seconds": 0.04847376300000178
+      },
+      {
+        "request": {
+          "name": "get_next_sdd_command",
+          "arguments": {
+            "feature": "sdd-forge-mcp"
+          }
+        },
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"ok\":true,\"data\":{\"kind\":\"next-command\",\"feature\":\"sdd-forge-mcp\",\"phase\":\"done\",\"nextCommand\":\"feature complete\",\"rationale\":\"Every Approved task in specs/sdd-forge-mcp/tasks.md has reached Done.\"}}"
+            }
+          ]
+        },
+        "seconds": 0.05221063900000445
+      }
+    ],
+    "seconds": 1.0816663889999982,
+    "tools": [
+      "list_active_specs",
+      "get_spec_status",
+      "get_task_state",
+      "list_approved_tasks",
+      "list_blocked_tasks",
+      "list_review_tickets",
+      "get_quality_gate_summary",
+      "get_next_sdd_command",
+      "evidence_get_bundle",
+      "evidence_validate_paths",
+      "evidence_find_missing",
+      "evidence_summarize_contract_checks",
+      "evidence_compare_to_traceability",
+      "evidence_deep_verify"
+    ],
+    "stderr": "{\"ok\":true,\"data\":{\"root\":\"/source\",\"rootSource\":\"cli\",\"isSddRoot\":true}}\n"
+  }
+]

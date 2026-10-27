@@ -86,7 +86,10 @@ class GoldenTests(unittest.TestCase):
     def test_no_metadata_or_rubric_in_candidate(self):
         out = self.root / 'out'
         M.prepare('unrun-pass', out)
-        self.assertEqual({p.name for p in out.iterdir()}, {'input.md', 'audit.json'})
+        self.assertEqual({p.name for p in out.iterdir()}, {'input.md', 'audit.json', 'output-contract.schema.json'})
+        contract = json.loads((out / 'output-contract.schema.json').read_text())
+        self.assertEqual(contract['properties']['process_status']['enum'], ['complete', 'incomplete'])
+        self.assertNotIn('invalid JSON detected', json.dumps(contract))
         self.assertNotIn('tuning', (out / 'input.md').read_text())
         with self.assertRaises(ValueError):
             M.prepare('unrun-pass', out)

@@ -1,0 +1,31 @@
+{
+  "schema": "mcp-real-app-observation/v1",
+  "sessions": 6,
+  "completed": 6,
+  "actual_calls": 36,
+  "structured_parity": true,
+  "tracked_tree_unchanged": true,
+  "variants": {
+    "A": {
+      "seconds": [
+        11.895495230999998,
+        12.672032004,
+        13.013762651999999
+      ],
+      "median_seconds": 12.672032004
+    },
+    "B": {
+      "seconds": [
+        0.9976120069999997,
+        1.0335023170000004,
+        1.0816663889999982
+      ],
+      "median_seconds": 1.0335023170000004
+    }
+  },
+  "human_task_success": null,
+  "human_time": null,
+  "human_errors": null,
+  "human_choice": null,
+  "decision": "Human interaction remains required; machine parity alone does not establish UX benefit."
+}

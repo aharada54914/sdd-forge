@@ -57,6 +57,19 @@ fixed there; do not tune prompts using held-out outcomes or relabel cases after
 seeing results. These cases are public, so they are held out from the local
 adjustment cycle, not claimed to be absent from model training.
 
+The 2026-10-27 native diagnostic exposed all five original cases. Its frozen
+first comparison remains a v1 diagnostic; the original `held-out` labels no
+longer establish unseen evaluation for later tuning or reruns. Three cases now
+provide a public `output-contract.schema.json` alongside their natural input.
+It declares the output grammar and alternative values, not the expected verdict,
+incident origin, A/B label or grading metadata. This corrects hidden exact-wording
+requirements: a model previously had no way to infer that `partial` must be
+spelled `incomplete`, or that a free-text human-reconciliation action needed a
+specific enum value. Grader expectations, source preservation and negative tests
+remain strict. New case hashes define a separate experiment; do not compare its
+success count directly with v1 as a framework improvement or call its exposed
+cases held out. Establish a fresh unseen set before making a generalization.
+
 Prepare only natural input and project-shaped fixture files for an independently
 isolated executor (use neutral workspace names):
 

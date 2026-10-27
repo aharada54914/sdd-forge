@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Golden reduced-stage cases now publish their output grammar while retaining strict artifact grading. Native comparison exposed hidden exact-wording requirements; original failed results and exposed held-out status remain recorded separately.
+
 - Optional bounded Linux full-workflow batches reuse successful identical sealed executions within one process. Git-history/conditional-validator dependencies and unsupported snapshots require ordinary full checks; existing CLI behavior and independent contract/review gates remain unchanged.
 
 - Optional licensed shared originals reuse the existing cache lifecycle for preconfigured Linux group stores. Fresh reads recheck owner/group/modes, ACL exclusion, permission receipt and expiry before original-byte verification; remote storage remains unsupported.

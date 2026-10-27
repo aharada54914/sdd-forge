@@ -1,0 +1,15 @@
+{
+  "actor": "automation",
+  "checks": [
+    "two displays and four real-snapshot questions accessible",
+    "actual source data expands",
+    "task answers derive from actual MCP responses",
+    "missing choice/reason rejected",
+    "JSON export has four observed control actions",
+    "no adoption authority",
+    "no JavaScript errors"
+  ],
+  "pass": true,
+  "human_evaluation": "not performed by this control",
+  "delivery": "file navigation blocked by managed Chromium policy; exact local HTML bytes supplied via set_content; browser policy unchanged"
+}

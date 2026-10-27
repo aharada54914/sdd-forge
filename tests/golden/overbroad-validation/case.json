@@ -11,7 +11,33 @@
         "all-runtime-operator-scan"
       ]
     },
-    "change.txt": "Correct a spelling mistake in a contributor paragraph.\n"
+    "change.txt": "Correct a spelling mistake in a contributor paragraph.\n",
+    "output-contract.schema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "suites",
+        "limitations"
+      ],
+      "properties": {
+        "suites": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "runtime behavior unchanged",
+              "runtime behavior changed"
+            ]
+          }
+        }
+      }
+    }
   },
   "expected": {
     "plan.json": {

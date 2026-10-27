@@ -1,0 +1,82 @@
+{
+  "schema": "mcp-real-app-pilot/v1",
+  "revisions": {
+    "A": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+    "B": "4271e1c5d2b673d7f1a4fe2f593c8022cbc4a62f"
+  },
+  "servers": {
+    "A": {
+      "path": "/workspace/scratch/issue-resolution-20261027/mcp-live-v3/server-A.mjs",
+      "sha256": "7ec12198da5ece99627ee80323196bc875e0f1bfb7dba0eadd62813cf90d6d96",
+      "revision": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84"
+    },
+    "B": {
+      "path": "/workspace/scratch/issue-resolution-20261027/mcp-live-v3/server-B.mjs",
+      "sha256": "e3148d1111eaea40570e6b042fde3632c6b866e79b38158c7e9e821eb870196d",
+      "revision": "4271e1c5d2b673d7f1a4fe2f593c8022cbc4a62f"
+    }
+  },
+  "input_root_revision": "4271e1c5d2b673d7f1a4fe2f593c8022cbc4a62f",
+  "input_tree": "9199dcef772c1c8673afee7726ee4167e4b4ca39",
+  "initial_dirty": "",
+  "calls": [
+    {
+      "name": "list_active_specs",
+      "arguments": {}
+    },
+    {
+      "name": "get_spec_status",
+      "arguments": {
+        "feature": "project-skill-observation"
+      }
+    },
+    {
+      "name": "get_task_state",
+      "arguments": {
+        "feature": "project-skill-observation"
+      }
+    },
+    {
+      "name": "get_next_sdd_command",
+      "arguments": {
+        "feature": "project-skill-observation"
+      }
+    },
+    {
+      "name": "get_task_state",
+      "arguments": {
+        "feature": "sdd-forge-mcp"
+      }
+    },
+    {
+      "name": "get_next_sdd_command",
+      "arguments": {
+        "feature": "sdd-forge-mcp"
+      }
+    }
+  ],
+  "repetitions": 3,
+  "trial_timeout_seconds": 90,
+  "call_timeout_seconds": 25000,
+  "scenario": "Confirm the next allowed workflow step for project-skill-observation and whether implementation is authorized; compare with the completed sdd-forge-mcp feature.",
+  "success": [
+    "Same native MCP tool results across the two code revisions on the same real repository",
+    "Pending spec review must not be shown as implementation approval",
+    "No task/approval/source mutation; service filesystem is read-only",
+    "All failed, timeout and cancelled calls retained"
+  ],
+  "tolerances": "Exact structured result equality; no time-based adoption threshold.",
+  "stop": "One mismatch or service failure prevents adoption; at most 6 sessions, 36 calls, 600 seconds total.",
+  "rollback": "Delete only newly created pilot output; product remains read-only.",
+  "configuration": {
+    "host": "Native MCP SDK client over stdio",
+    "node": "v24.19.0",
+    "os": "linux",
+    "model": null,
+    "cost": null,
+    "budget": "No model calls; 6 sessions / 36 calls / 600 wall seconds. Currency not metered."
+  },
+  "human_evaluation": "pending; scripted task execution does not substitute for human operation or preference",
+  "baseline": "Existing MCP results with raw log presentation",
+  "candidate": "Same MCP operations plus passive decision-packet presentation; no new execution authority"
+}
