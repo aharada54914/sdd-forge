@@ -78,11 +78,17 @@ file and returns revalidation candidates; it never invalidates approvals itself.
 
 `research-evidence-tools.py bind` additionally takes `--snapshots`,
 `--snapshot-root`, and `--output specs/<feature>/research/review-input.json`.
-The packet contains no original bytes or private cache path. Automatic admission
-of this packet to spec/implementation reviewers and the contract gate is not
-included in this change. Supply the fixed inputs to reviewers through the existing
-review process and explicitly record that integration as pending. A copied
-verification result is never a fresh gate PASS or approval.
+The packet contains no original bytes or private cache path. The existing
+specification and implementation review input resolver admits its fixed metadata,
+relations and requirement/ADR pins to reviewers. Reviewers assess support and
+uncertainty independently. A copied verification result is never a fresh gate
+PASS or approval.
+
+To opt into the existing contract gate, add a `source-evidence` check whose
+`evidence` points to a `source-evidence-check/v1` envelope with `file`,
+`records_sha256`, `snapshots`, `snapshots_sha256` and `matching`. Set
+`SDD_RESEARCH_SNAPSHOT_ROOT` to the private original root at runtime. A passing
+claim triggers fresh original verification; missing originals fail closed.
 
 For a readable, escaped static HTML report use `research-evidence-tools.py report`
 with records, snapshots, private root and `--output`. This reruns verification;

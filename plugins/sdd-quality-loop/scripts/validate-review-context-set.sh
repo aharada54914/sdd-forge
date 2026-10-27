@@ -351,6 +351,17 @@ implementation_input_is_declared() {
 conditional_inputs_json=''
 path_is_authorized() {
   local stage=$1 role=$2 feature=$3 path=$4 expected_hash=$5
+  if [[ "$stage:$role" =~ ^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab])$ ]] &&
+      [[ "$path" =~ ^specs/"$feature"/research/(review-input\.json|relations\.json|records/research-evidence\.json)$ || "$path" =~ ^docs/adr/[0-9]{4}-[a-z0-9-]+\.md$ ]] &&
+      jq -e --arg p "specs/$feature/research/review-input.json" 'any(.allowed_input_manifest[]; .path == $p)' "$manifest" >/dev/null; then
+    if [[ -n "$persisted_match" ]]; then
+      [[ -n "$persisted_input_binding" ]]
+      return
+    fi
+    jq -e --arg path "$path" --arg sha "$expected_hash" \
+      'any(.inputs[]; .path == $path and .sha256 == $sha)' <<<"$conditional_inputs_json" >/dev/null
+    return
+  fi
   if [[ "$stage:$role" =~ ^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab]|task:task-reviewer-[ab]|quality:sdd-evaluator)$ ]] &&
       [[ "$path" == domain/* || "$path" == design-system/* || "$path" =~ ^specs/"$feature"/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$ ]]; then
     case "$stage:$path" in

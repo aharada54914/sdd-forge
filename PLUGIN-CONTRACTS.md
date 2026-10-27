@@ -15,6 +15,10 @@ The bootstrap acquisition adapter returns bounded, source-pinned observations;
 quality-loop consumers compare supplied originals and excerpts. Retrieval,
 storage permission and semantic support remain separate decisions. The direct
 adapter refuses an inherited proxy instead of asserting its peer boundary.
+An explicit research review packet may be admitted through existing
+specification and implementation review input owners. An optional
+`source-evidence` contract check re-verifies the current originals; neither
+mechanism changes reviewer identity or approval authority.
 
 ## Read-only inspection through protection hooks
 

@@ -66,8 +66,8 @@ state engine. The coordinator owns research output; search readers are read-only
    CLM→CLM/REQ/ADR relations through the existing graph/impact tools; pin record
    revisions and document hashes. `INV-NNN` findings remain repository
    investigation IDs, never substitutes for SRC/CLM identity. Bind optional
-   fixed research inputs for existing reviewers only after validation. Automatic
-   admission to reviewer and contract-gate owners is pending; do not claim it ran.
+   fixed research inputs for existing reviewers only after validation. Recheck
+   actual admission and gate outcomes; a generated packet is not an approval.
 8. Hand off the canonical file paths, adopted SRC/CLM IDs and revisions,
    verification limits, actual stop reason, map/log, unresolved questions and
    typed relation inputs to the interviewer. Do not mark a claim semantically

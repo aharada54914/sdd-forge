@@ -1,6 +1,7 @@
 {
   "schema": "verification-catalog/v1",
   "suites": [
+    {"path": "tests/research-owner-integration.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/research-discovery.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/research-consumers.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/research-acquire.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
@@ -365,6 +366,7 @@
   ],
   "profiles": {
     "local-posix": [
+      "tests/research-owner-integration.tests.py",
       "tests/research-discovery.tests.py",
       "tests/research-consumers.tests.py",
       "tests/research-acquire.tests.py",
@@ -561,6 +563,7 @@
       "tests/verification-impact.tests.py"
     ],
     "local-powershell": [
+      "tests/research-owner-integration.tests.py",
       "tests/research-discovery.tests.py",
       "tests/research-consumers.tests.py",
       "tests/research-acquire.tests.py",
@@ -777,6 +780,7 @@
       "tests/upstream-concept-issue.tests.sh"
     ],
     "ci-shared-python": [
+      "tests/research-owner-integration.tests.py",
       "tests/research-discovery.tests.py",
       "tests/research-consumers.tests.py",
       "tests/research-acquire.tests.py",
