@@ -39,6 +39,12 @@ snapshots. It rejects the cancelled artifact both before and after restart,
 and admits only the matching successful attempt-3 observation. No second gate
 or imported PASS mechanism was added.
 
+The replay loads a SHA-256-pinned snapshot of the actual reconciler and its
+three Python dependencies under `reconciler/tests/`, copied from candidate
+commit `f6f2e220caa00e4d109381e7f0ce27cb0756068c`. Run it with
+`python3 -B reports/verification/actions-executor-20261027/replay.py`.
+It prints the result without modifying the retained historical result file.
+
 The actual artifact archives and decoded records, job/API snapshots, cancel
 result, exact workflow and replay helper digest are retained. Run/attempt/head
 bindings are original. These are development observations, not signed factory

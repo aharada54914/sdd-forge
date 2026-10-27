@@ -5,8 +5,17 @@ import json
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[2]
-spec = importlib.util.spec_from_file_location('native_ci_replay', ROOT / 'tests/verification-ci.py')
+SNAPSHOT = HERE / 'reconciler/tests'
+PINS = {
+    'verification-ci.py': '76dacec22dfa24d636ddcb2521e43d7cd2ba08a03d6928e5c4035ddd1a667c2f',
+    'verification-impact.py': '3cc48436b3c211398c037e1d0c9178286eb14e26485f3e22c9130fb4b904c502',
+    'verification-workflow.py': 'de0b24319f0138bc3d7136e003634a94be837f39ee7cf3607a78ae5756b124cb',
+    'verification.py': '968dd3e4ac08cc37efd78e669c97b63186a3deb995a21452e38828ff51b64a7e',
+}
+for name, expected in PINS.items():
+    if hashlib.sha256((SNAPSHOT / name).read_bytes()).hexdigest() != expected:
+        raise ValueError(f'reconciler snapshot digest mismatch: {name}')
+spec = importlib.util.spec_from_file_location('native_ci_replay', SNAPSHOT / 'verification-ci.py')
 ci = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ci)
 history = []
@@ -34,11 +43,10 @@ assert not admissible(history, cancelled)
 assert admissible(history, restarted)
 latest, origin = ci.source_job(history)
 result = {'schema': 'native-actions-attempt-replay/v1',
-          'source_job_helper_sha256': hashlib.sha256((ROOT / 'tests/verification-ci.py').read_bytes()).hexdigest(),
+          'source_job_helper_sha256': PINS['verification-ci.py'],
           'cancelled_artifact_rejected_at_attempt2': True,
           'cancelled_artifact_rejected_after_restart': True,
           'current_successful_attempt_admitted': True,
           'current_job_id': origin['id'], 'current_attempt': origin['run_attempt'],
           'scope': 'existing origin reconciliation over genuine native observations; no task, approval or gate authority'}
-(HERE / 'replay-result.json').write_text(json.dumps(result, indent=2) + '\n')
 print(json.dumps(result))
