@@ -78,11 +78,18 @@ class Lifecycle(unittest.TestCase):
         )
 
     def run_skill(self, **kwargs):
-        if os.name != "posix":
+        if sys.platform != "linux":
             self.skipTest(
                 "runner explicitly reports unsupported owned process backend on this platform"
             )
         return A.run(self.root, "verify-app", "smoke", **kwargs)
+
+    def test_unsupported_process_backend_does_not_start_a_child(self):
+        for platform in ("darwin", "win32"):
+            with self.subTest(platform=platform), patch.object(A.sys, "platform", platform), patch.object(A.subprocess, "Popen") as start:
+                result = A.execute(["fixture"], str(self.root), 1, 128)
+                self.assertEqual(result, (None, b"", b"", "platform-process-ownership-unverified", False))
+                start.assert_not_called()
 
     def test_generation_is_draft(self):
         self.assertEqual(self.seal('print("ok")')["status"], "draft")
