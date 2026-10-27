@@ -1055,13 +1055,21 @@ try {
         }
         $syncLiveHash = (Get-FileHash -LiteralPath $syncLive -Algorithm SHA256).Hash
         $syncStagedHash = (Get-FileHash -LiteralPath $syncStaged -Algorithm SHA256).Hash
+        if ($syncTarget -ceq 'plugins/sdd-ship/skills/ship/SKILL.md') {
+            $fixture = Get-Content -Raw -LiteralPath (Join-Path $root 'tests/fixtures/ship-track-selection-current-publication.json') | ConvertFrom-Json
+            $entries = @($fixture.successors | Where-Object { $_.live -ceq $syncTarget -and $_.staged -ceq "specs/epic-136-phase2-gates/human-copy/$syncTarget" })
+            if ($fixture.schema -ceq 'ship-track-selection-current-publication/v1' -and $entries.Count -eq 1 -and
+                $entries[0].live_sha256 -ceq $syncLiveHash.ToLowerInvariant() -and
+                $entries[0].staged_sha256 -ceq $syncStagedHash.ToLowerInvariant() -and
+                $entries[0].intentional_changes -is [string] -and $entries[0].intentional_changes.Length -gt 0) { continue }
+        }
         if ($syncLiveHash -cne $syncStagedHash) {
             Write-Host "  out of sync: $syncTarget"
             $syncOk = $false
         }
     }
 } catch { $syncOk = $false }
-if ($syncOk) { Ok 'WFI-016 staged targets are byte-identical to live (no stale staging)' } else { Bad 'WFI-016 staged targets are byte-identical to live (no stale staging)' }
+if ($syncOk) { Ok 'WFI-016 staged targets match live bytes or an exact pinned successor' } else { Bad 'WFI-016 staged targets match live bytes or an exact pinned successor' }
 
 Write-Host "phase2-guard-invariants.tests.ps1: $passCount passed, $failCount failed, $skipCount skipped"
 if ($failCount -gt 0) { exit 1 }
