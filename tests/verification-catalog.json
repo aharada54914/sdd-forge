@@ -79,6 +79,7 @@
     {"path": "tests/criterion-freeze.tests.sh", "runtime": "bash", "ci_jobs": ["loops-routing"]},
     {"path": "tests/crlf-parity.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
     {"path": "tests/cross-model-empty-phase.tests.ps1", "runtime": "powershell", "delegated_to": "tests/cross-model.tests.ps1"},
+    {"path": "tests/cross-model-encoding.tests.ps1", "runtime": "powershell", "delegated_to": "tests/cross-model.tests.ps1"},
     {"path": "tests/cross-model-process-state.tests.py", "runtime": "python", "delegated_to": "tests/cross-model.tests.sh"},
     {"path": "tests/cross-model.tests.ps1", "runtime": "powershell", "ci_jobs": ["test", "test-windows-heavy"]},
     {"path": "tests/cross-model.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
