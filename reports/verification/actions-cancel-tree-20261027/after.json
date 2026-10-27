@@ -1,0 +1,12 @@
+{
+  "run": "40539930555",
+  "attempt": "1",
+  "sha": "34fdb13b7437d469bbaca03af98edc78546f57db",
+  "pids": {
+    "parent": 1957,
+    "child": 1958
+  },
+  "parent_alive_before_manual_cleanup": true,
+  "child_alive_before_manual_cleanup": true,
+  "scope": "pre-cleanup observation, not proof of post-job cleanup"
+}

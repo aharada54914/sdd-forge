@@ -2,6 +2,16 @@
 
 ## Active continuation — 2026-10-27 UTC
 
+#623 has a new bounded real-host observation: Actions run 40539930555
+confirmed a detached parent and child alive, accepted cancellation while a
+subsequent step ran, and observed both still alive in the cancellation follow-up
+before sending a manual termination signal. Exit after that signal and native
+post-job cleanup were not observed. This rules out assuming cancellation itself
+stopped that process layout at the observation point; it is not a complete
+executor comparison or a general claim about all runners.
+[Artifacts and source](../../reports/verification/actions-cancel-tree-20261027/README.md).
+
+
 The owner subsequently selected “改善版を採用する” for the third-iteration MCP
 display proposal. The choice and bounded WFI handoff are preserved in
 [owner choice](../../reports/verification/mcp-real-app-v3-20261027/owner-choice.json)

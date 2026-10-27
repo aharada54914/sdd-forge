@@ -1,0 +1,6 @@
+2026-10-27T16:24:56.1421856Z Artifact cancel-start-40539930555-1 successfully finalized. Artifact ID 12749274238
+2026-10-27T16:24:56.1576492Z [36;1mprint('Both observed alive; waiting for cancellation',flush=True)[0m
+2026-10-27T16:24:56.1875625Z Both observed alive; waiting for cancellation
+2026-10-27T16:26:20.4076095Z ##[error]The operation was canceled.
+2026-10-27T16:26:20.4395003Z {"run": "40539930555", "attempt": "1", "sha": "34fdb13b7437d469bbaca03af98edc78546f57db", "pids": {"parent": 1957, "child": 1958}, "parent_alive_before_manual_cleanup": true, "child_alive_before_manual_cleanup": true, "scope": "pre-cleanup observation, not proof of post-job cleanup"}
+2026-10-27T16:26:21.8458094Z Artifact cancel-after-40539930555-1 successfully finalized. Artifact ID 12750262881
