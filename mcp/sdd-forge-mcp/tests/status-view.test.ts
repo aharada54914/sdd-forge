@@ -11,6 +11,9 @@ test('local status view exposes fresh guarded state and rejects untrusted reques
   writeFile(fixture.dir,'specs/example/design.md','# Design\nImpl-Review-Status: Pending\n');
   const {server,url}=await startStatusView(fixture.root);
   try {
+    const address=server.address();
+    assert.ok(address && typeof address !== 'string');
+    assert.equal(address.address,'127.0.0.1');
     const page=await fetch(url);assert.equal(page.status,200);
     assert.match(page.headers.get('content-security-policy') ?? '',/frame-ancestors 'none'/);
     assert.match(await page.text(),/品質ゲート/);
