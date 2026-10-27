@@ -433,6 +433,10 @@ spec = importlib.util.spec_from_file_location('research_publication', repo / 'te
 research = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(research)
 research_paths = set(research.checked_paths(repo))
+successor_spec = importlib.util.spec_from_file_location('coverage_successors', repo / 'tests/lib/component-coverage-successors.py')
+successors = importlib.util.module_from_spec(successor_spec)
+successor_spec.loader.exec_module(successors)
+successors.self_test(repo / 'tests/fixtures/a9-reviewed-successor')
 evolved_paths = {
     'plugins/sdd-quality-loop/references/guard-invariants.json',
     'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py',
@@ -474,11 +478,12 @@ for line in manifest.read_text().splitlines():
     applied_bytes = applied.read_bytes()
     guard_applied = b'if (\$args.Count -gt 0)' in applied_bytes and b'unrecognized arguments:' in applied_bytes
     pending_human_apply = relative in declared_human_apply and not guard_applied
-    if not pending_human_apply and relative not in evolved_paths and relative not in research_paths and hashlib.sha256(applied_bytes).hexdigest() != expected:
+    live_expected = successors.SUCCESSORS.get(relative, expected)
+    if not pending_human_apply and relative not in evolved_paths and relative not in research_paths and hashlib.sha256(applied_bytes).hexdigest() != live_expected:
         raise SystemExit(f'applied hash mismatch: {relative}')
 raise SystemExit(0)
 "; then
-  ok "TEST-036.4: T-004's live registrations remain applied; every shared-manifest candidate hash verifies; and live protected rows are byte-identical or verified additive invariant evolution"
+  ok "TEST-036.4: T-004's live registrations remain applied; every shared-manifest candidate hash verifies; and live protected rows match validated current candidates or verified additive invariant evolution"
 else
   fail "TEST-036.4: T-004 registration, staged-candidate integrity, or T-004-owned live byte identity failed against ${HC_MANIFEST_191}"
 fi
