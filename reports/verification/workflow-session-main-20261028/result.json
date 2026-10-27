@@ -1,0 +1,49 @@
+{
+  "scope": "synthetic one-feature pending fixture; not a full lifecycle measurement",
+  "gate_sha256": "b8944ffe8612e32b8d85db8c4c0aca2cc741acdc1b43124c001a0571c2e823aa",
+  "helper_sha256": "d50fd1a82bd5334f6b03accf99b5e8fe6862241ee0e5639143eb9568776f11f6",
+  "results": [
+    {
+      "requests": 2,
+      "repeat": 1,
+      "ordinary_seconds": 0.1099,
+      "batch_seconds": 1.128,
+      "executions": 1
+    },
+    {
+      "requests": 2,
+      "repeat": 2,
+      "ordinary_seconds": 0.0995,
+      "batch_seconds": 1.3078,
+      "executions": 1
+    },
+    {
+      "requests": 2,
+      "repeat": 3,
+      "ordinary_seconds": 0.0972,
+      "batch_seconds": 1.053,
+      "executions": 1
+    },
+    {
+      "requests": 5,
+      "repeat": 1,
+      "ordinary_seconds": 0.2268,
+      "batch_seconds": 1.8727,
+      "executions": 1
+    },
+    {
+      "requests": 5,
+      "repeat": 2,
+      "ordinary_seconds": 0.234,
+      "batch_seconds": 1.7378,
+      "executions": 1
+    },
+    {
+      "requests": 5,
+      "repeat": 3,
+      "ordinary_seconds": 0.2099,
+      "batch_seconds": 1.7438,
+      "executions": 1
+    }
+  ]
+}

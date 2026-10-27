@@ -8,6 +8,15 @@ FEATURE_FILTER=""
 OPENING_STAGE=""
 OPENING_ATTEMPT=""
 OPENING_ROUND=""
+BATCH=""
+SNAPSHOT_MARKER="${TMPDIR:-/tmp}/.sdd-workflow-ineligible.$$"
+
+snapshot_dependency() {
+  [[ "${SDD_WORKFLOW_SNAPSHOT:-}" == 1 ]] || return 0
+  (set -C; : > "$SNAPSHOT_MARKER") 2>/dev/null || true
+  diagnostic_line repository snapshot-ineligible "$1"
+  return 1
+}
 
 diagnostic_line() {
   printf 'workflow-state: %s: %s: %s\n' "$1" "$2" "$3" >&2
@@ -580,6 +589,7 @@ plugins_hash_matches() {
   local plugins_file="$1" expected="$2" evidence_file="$3" plugins_relative pin historical
   [[ -f "$plugins_file" && ! -L "$plugins_file" ]] || return 1
   [[ "$(sha256_file "$plugins_file")" == "$expected" ]] && return 0
+  snapshot_dependency git-history || return 1
   plugins_git_history_available || return 0
   case "$plugins_file" in
     "$REPO_ROOT"/*) plugins_relative="${plugins_file#"$REPO_ROOT/"}" ;;
@@ -744,6 +754,7 @@ resolve_verified_investigation_pin() {
 # pin went stale, and the same calibration-governed section is what makes
 # it safe for all three alike.
 investigation_amendment_reconciles() {
+  snapshot_dependency git-history || return 1
   local manifest_file="$1" expected="$2" contract="$3" relative tmp_pinned result
   case "$manifest_file" in
     "$REPO_ROOT"/*) relative="${manifest_file#"$REPO_ROOT/"}" ;;
@@ -778,6 +789,10 @@ print_investigation_amendment_notice() {
 
 while (($#)); do
   case "$1" in
+    --batch)
+      (($# >= 2)) || diagnostic repository cli-usage "--batch requires a request file"
+      [[ -n "$2" ]] || diagnostic repository cli-usage "--batch requires a nonempty request file"
+      BATCH="$2"; shift 2 ;;
     --feature)
       (($# >= 2)) || diagnostic repository cli-usage "--feature requires a value"
       FEATURE_FILTER="$2"; shift 2 ;;
@@ -795,6 +810,10 @@ while (($#)); do
     *) diagnostic repository cli-usage "unknown argument: $1" ;;
   esac
 done
+if [[ -n "$BATCH" ]]; then
+  [[ -z "$FEATURE_FILTER" && -z "$OPENING_STAGE" ]] || diagnostic repository cli-usage "--batch requires full scope"
+  exec python3 "$SCRIPT_ROOT/plugins/sdd-quality-loop/scripts/workflow-state-session.py" --requests "$BATCH" --registry "$REGISTRY"
+fi
 [[ -z "$FEATURE_FILTER" || "$FEATURE_FILTER" =~ ^[a-z0-9][a-z0-9-]*$ ]] ||
   diagnostic "$FEATURE_FILTER" cli-usage "invalid feature slug"
 # --opening names the single round a review-loop precheck is about to open; it
@@ -1025,6 +1044,7 @@ manifest_has_hash_for_file() {
   # reviewer-calibration.md) fails closed under no-git even though the
   # identical drift on risk-gate-matrix.md is correctly tolerated by
   # plugins_hash_matches -- the two functions must agree on this class.
+  snapshot_dependency git-history || return 1
   plugins_git_history_available || return 0
   pin="$(plugins_pin_commit "$evidence_identity")" || return 1
   plugins_relative="${suffix#/}"
@@ -1087,6 +1107,7 @@ workflow_conditional_paths() {
       elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
       else . end | test("^(domain|design-system)/|^specs/" + $feature + "/concept-test"))
   ' "$contract" >/dev/null; then printf '[]\n'; return; fi
+  snapshot_dependency conditional-validator || return 1
   selected=$(python3 "$REPO_ROOT/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py" \
     --root "$REPO_ROOT" --feature "$feature" --stage "$stage") || return 1
   jq -ce '[.inputs[].path]' <<< "$selected"
@@ -1944,5 +1965,6 @@ while IFS= read -r entry; do
   [[ "$feature_status" -eq 0 ]] || workflow_state_failed=$((workflow_state_failed + 1))
 done < <(jq -c '.entries[]' "$REGISTRY")
 
+if [[ "${SDD_WORKFLOW_SNAPSHOT:-}" == 1 && -f "$SNAPSHOT_MARKER" ]]; then exit 75; fi
 [[ "$workflow_state_failed" -eq 0 ]] || exit 1
 printf 'workflow-state: ok\n'

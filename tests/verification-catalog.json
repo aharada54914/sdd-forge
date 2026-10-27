@@ -353,6 +353,7 @@
     {"path": "tests/workflow-documentation.tests.sh", "runtime": "bash"},
     {"path": "tests/workflow-scenarios/workflow-scenarios.tests.sh", "runtime": "bash", "ci_jobs": ["posix-regression"]},
     {"path": "tests/workflow-state-ci-integration.tests.sh", "runtime": "bash"},
+    {"path": "tests/workflow-state-session.tests.py", "runtime": "python"},
     {"path": "tests/workflow-state-parity.tests.sh", "runtime": "bash"},
     {"path": "tests/workflow-state-registry-parity.tests.sh", "runtime": "bash"},
     {"path": "tests/workflow-state-registry.tests.ps1", "runtime": "powershell"},
@@ -771,6 +772,7 @@
       "tests/upstream-concept-issue.tests.sh"
     ],
     "ci-shared-python": [
+      "tests/workflow-state-session.tests.py",
       "tests/project-skill-lifecycle.tests.py",
       "tests/project-skill-observation.tests.py",
       "tests/current-byte-capture.tests.py",

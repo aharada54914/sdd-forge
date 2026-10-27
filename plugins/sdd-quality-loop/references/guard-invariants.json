@@ -112,6 +112,7 @@
     "plugins/sdd-quality-loop/references/readonly-input-contracts.json",
     "tests/guard-readonly-inputs.tests.py",
     "plugins/sdd-bootstrap/scripts/project-skill.py",
+    "plugins/sdd-quality-loop/scripts/workflow-state-session.py",
     "plugins/sdd-lite/references/risk-upgrade-policy.md",
     "plugins/sdd-lite/scripts/check-risk-upgrade.sh",
     "plugins/sdd-lite/scripts/check-risk-upgrade.ps1",
