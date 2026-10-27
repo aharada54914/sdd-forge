@@ -2,6 +2,14 @@
 
 ## Active continuation — 2026-10-27 UTC
 
+The owner subsequently selected “改善版を採用する” for the third-iteration MCP
+display proposal. The choice and bounded WFI handoff are preserved in
+[owner choice](../../reports/verification/mcp-real-app-v3-20261027/owner-choice.json)
+and [handoff](../../reports/verification/mcp-real-app-v3-20261027/handoff.md).
+This is not task/release approval or a signed decision sidecar. #624 remains open
+until its remaining implementation and acceptance conditions are met.
+
+
 Subsequent owner feedback for the selected real MCP app: the owner found the
 second display confusing because post-implementation phases were omitted. The
 third private Site iteration displays quality gates, completion and conditional
