@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { request } from 'node:http';
+import { connect } from 'node:net';
 import { startStatusView } from '../src/status-view.js';
 import { makeTempSddRoot, writeFile } from './test-helpers.js';
 
@@ -14,6 +15,13 @@ test('local status view exposes fresh guarded state and rejects untrusted reques
     const address=server.address();
     assert.ok(address && typeof address !== 'string');
     assert.equal(address.address,'127.0.0.1');
+    const malformed = await new Promise<string>((resolve,reject)=>{
+      const socket=connect(address.port,'127.0.0.1');let response='';
+      socket.setEncoding('utf8');socket.setTimeout(3000,()=>socket.destroy(new Error('request timed out')));
+      socket.on('connect',()=>socket.write(`GET http://[ HTTP/1.1\r\nHost: 127.0.0.1:${address.port}\r\nConnection: close\r\n\r\n`));
+      socket.on('data',chunk=>{response+=chunk});socket.on('end',()=>resolve(response));socket.on('error',reject);
+    });
+    assert.match(malformed,/^HTTP\/1\.1 400 /);
     const page=await fetch(url);assert.equal(page.status,200);
     assert.match(page.headers.get('content-security-policy') ?? '',/frame-ancestors 'none'/);
     assert.match(await page.text(),/品質ゲート/);

@@ -22,7 +22,9 @@ export async function startStatusView(root: SddRoot): Promise<{server: Server; u
     const headers = { 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', 'Referrer-Policy':'no-referrer', 'Content-Security-Policy':"default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'" };
     const send = (status: number, contentType: string, body: string) => {res.writeHead(status, {...headers,'Content-Type':contentType});res.end(body)};
     if (req.method !== 'GET' || req.headers.host !== host || (req.headers.origin && req.headers.origin !== `http://${host}`)) return send(403,'text/plain; charset=utf-8','Forbidden');
-    const url = new URL(req.url ?? '/', `http://${host}`);
+    let url: URL;
+    try { url = new URL(req.url ?? '/', `http://${host}`); }
+    catch { return send(400,'text/plain; charset=utf-8','Invalid request'); }
     const parts = url.pathname.split('/');
     const given = Buffer.from(parts[1] ?? ''); const expected = Buffer.from(token);
     if (given.length !== expected.length || !timingSafeEqual(given,expected)) return send(404,'text/plain; charset=utf-8','Not found');

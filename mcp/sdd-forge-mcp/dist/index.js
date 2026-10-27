@@ -41872,7 +41872,12 @@ async function startStatusView(root) {
       res.end(body);
     };
     if (req.method !== "GET" || req.headers.host !== host || req.headers.origin && req.headers.origin !== `http://${host}`) return send(403, "text/plain; charset=utf-8", "Forbidden");
-    const url2 = new URL(req.url ?? "/", `http://${host}`);
+    let url2;
+    try {
+      url2 = new URL(req.url ?? "/", `http://${host}`);
+    } catch {
+      return send(400, "text/plain; charset=utf-8", "Invalid request");
+    }
     const parts = url2.pathname.split("/");
     const given = Buffer.from(parts[1] ?? "");
     const expected = Buffer.from(token);
