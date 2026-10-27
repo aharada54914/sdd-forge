@@ -1,5 +1,16 @@
 # Genuine GitHub Actions PR-write and lifecycle observations
 
+## Actual weekly recovery
+
+Subsequent real weekly run
+[40426096944](https://github.com/aharada54914/sdd-forge/actions/runs/40426096944)
+at `4ac41d51` completed successfully in both `improve` and `finalize-recovery`.
+The workflow itself verified completion and closed Issue #620 at
+2026-10-27T00:30:26Z. `weekly-recovered.json` retains the actual run/job and Issue
+state snapshot. The previous failed audit remains historical. This is recovery
+of that candidate-branch execution, not proof that unmerged main or the separate
+configured PAT has changed. The default-token PR-write proof below is distinct.
+
 The owner-browser repair enabled repository Actions PR creation/approval while
 preserving the existing read-only default permissions. A dedicated verification
 branch (`verify/issue620-factory-adapter-20261027`, source `a6b082cc`) then used

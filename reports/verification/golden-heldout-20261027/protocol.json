@@ -1,0 +1,43 @@
+{
+  "schema": "golden-comparison/v1",
+  "repetitions": 3,
+  "cases": [
+    "bundled-audit-readiness",
+    "cancelled-result-fencing"
+  ],
+  "timeout_seconds": 75,
+  "total_seconds_limit": 900,
+  "conditions": {
+    "model": "gpt-6.1-sol",
+    "effort": "low",
+    "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+    "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+  },
+  "case_sha256": {
+    "bundled-audit-readiness": "1400c9bccf7c2c45ca8c0985534c2230e975f5d8af8a7d8ac3955424cce9faf5",
+    "cancelled-result-fencing": "71a57fce0c4c8843d41a1f51e8729300c2abacf552cbd7739054c509cd75a29c"
+  },
+  "input_sha256": {
+    "bundled-audit-readiness": "7e28b9c2243d11dcb871b9774a9b54edf941dc219c1ba5a1180e2f8bb8b5c50a",
+    "cancelled-result-fencing": "391980d139fab0dcfd284c4baa3172ef860caf00889de707b54d4c24f91bf700"
+  },
+  "runs": [],
+  "variants": {
+    "A": {
+      "framework_revision": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "config_sha256": "c1b65c4edb6ecedf1dc671d19a46706ec82710fdb07c40c62a82a8f54047de99",
+      "adapter_version": "native-stage-context/v1"
+    },
+    "B": {
+      "framework_revision": "b45eb529e68acba6013de4afa8a5c4f6274e5c34",
+      "config_sha256": "e129707ec9c8805f753c7f9597678eeeee6f35d5333e998ed4fe7ea7c5e4bf87",
+      "adapter_version": "native-stage-context/v1"
+    }
+  },
+  "scope": "reduced stage-context evaluation, not full plugin lifecycle or UX",
+  "rejection": "Any safety/regression observation rejects promotion; no automatic adoption",
+  "case_exposure": "These two new real-incident cases were frozen in b45eb529 before candidate outputs; prompts and graders will not be tuned from their outcomes.",
+  "epoch": "fresh-heldout-native/v1; independent cohort, not a replacement for failed v1",
+  "cost": "subscription authentication; currency meter unavailable",
+  "containment": "Rubric and A/B mapping excluded from candidate mount namespace; native config contains only stage source and equal scope adaptation"
+}

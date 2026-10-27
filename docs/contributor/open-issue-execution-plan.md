@@ -2,12 +2,24 @@
 
 ## Active continuation — 2026-10-27 UTC
 
+The fresh two-case cohort completed 12 native trials: 6/6 per side, including
+all repetitions of each real-incident control, without prompt/rubric changes.
+The source was frozen at `b45eb529` before collection. Earlier failed and
+public-contract epochs are retained separately; no automatic adoption or
+framework superiority is inferred. [Fresh held-out evidence](../../reports/verification/golden-heldout-20261027/README.md).
+
+Actual weekly run 40426096944 at `4ac41d51` subsequently passed both audit and
+final recovery jobs. The workflow verified completion and closed **#620** at
+2026-10-27T00:30:26Z; the run/Issue snapshot is in the native Actions packet.
+This supersedes the earlier failed-audit checkpoint below. The production main
+integration and separate configured PAT are not inferred changed by that run.
+
 The revised public-contract epoch completed another 30 native trials, with
 15/15 exact grades on each side. It remains diagnostic because those original
 cases were exposed, and does not override the frozen failed first epoch.
 [Revised-epoch evidence](../../reports/verification/golden-contract-20261027/README.md).
-Two additional real-incident-derived controls are being frozen as a separate
-fresh held-out cohort; their outcomes will not be used to tune the prompts.
+Two additional real-incident-derived controls were frozen as the separate
+fresh held-out cohort reported above; no prompts were tuned from their outcomes.
 
 The dedicated Actions run actually created Draft PR #655 with the ordinary
 workflow token, and cancellation/restart observations passed the existing
@@ -54,11 +66,11 @@ below are historical checkpoints, superseded by these observations:
   read-only permissions. A genuine weekly audit at `4271e1c5`, run
   [40422211534](https://github.com/aharada54914/sdd-forge/actions/runs/40422211534),
   passed all five required checks but correctly remained FAILED because its
-  completion record was `partial`. The original failure is preserved; settings
-  repair is not called weekly recovery. Existing session-token details require
+  completion record was `partial`. The original failure is preserved; the
+  subsequent real recovery is recorded above. Existing session-token details require
   owner GitHub confirmation; a setup handoff is pending. Token values were not
-  read or changed. A separate bounded native default-token PR-write/lifecycle
-  proof is being run on an isolated verification branch.
+  read or changed. The separate bounded native default-token PR-write/lifecycle
+  proof completed on the isolated verification branch.
 - The actual native `userVerification/status` API exists in Codex 0.159.2 but
   returns `providerUnavailable` on this build/account. No enrollment, token
   issuance or agent-created human proof was attempted. #616 still needs an
@@ -72,8 +84,8 @@ below are historical checkpoints, superseded by these observations:
 The tested integration source `4271e1c5` passed hosted run 40350525560 attempt 2
 (45 successful jobs, one expected skip); the historical attempt-1 cancellation
 and failed aggregate remain intact. New fixture/report changes need their own
-verification. No merge, promotion, release publication or Issue closure is
-implied by this checkpoint.
+verification. No merge, promotion or release publication is implied; the only
+recorded Issue closure is #620's actual workflow-driven recovery above.
 
 ## Development-session correction — 2026-10-25 (JST)
 

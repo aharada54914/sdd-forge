@@ -42,9 +42,9 @@ tests/golden/
 
 ## 状態
 
-スキャフォールドのみ。fixture は今後、実失敗（review ticket / BLOCKED /
-Regressed WFI）が発生するたびに 1 件ずつ追加する。retrospective の friction
-pattern が fixture 候補の供給源である。
+実失敗に由来する元の5ケースと、新たな2件の保留用ケースを登録済み。
+追加時は review ticket / BLOCKED / Regressed WFI や実走ログへ出典を結び付ける。
+retrospective の friction pattern も fixture 候補の供給源になる。
 
 ## Source-backed deterministic cases (#600/#601)
 
@@ -126,6 +126,8 @@ null p95 for the small fixed sample, unknown metrics and the split. Any observed
 collection authenticity, actual tool traces and independent safety observations
 are reviewed outside this passive helper. `adoption_decision` always stays
 `pending-human`; this tool does not approve or change task state. Freeze the result before revealing the A/B identities. Human
-UX judgments and real-app evaluation remain separate and unperformed. No paid
-model, held-out native run, comparative superiority, or retention success has
-been demonstrated by the deterministic suite.
+UX judgments and real-app evaluation remain separate. The deterministic suite
+alone does not demonstrate native model behavior, comparative superiority or
+retention. Actual native diagnostic epochs and a separately frozen held-out
+cohort are recorded in `reports/verification/golden-{native,contract,heldout}-20261027/`.
+No automatic adoption or broad superiority claim follows from those results.
