@@ -38,12 +38,20 @@ CLI: ``human_copy_mirrors.py <repo-root>`` prints one TSV row per mirror,
 """
 import glob
 import hashlib
+import json
 import os
 import subprocess
 import sys
 
 CANDIDATE_SUFFIX = ".candidate"
 CANDIDATE_MARKER = os.path.join("drafts", "human-copy-candidate") + os.sep
+RESEARCH_STAGE = "specs/epic-191-a3-path-ownership/human-copy"
+RESEARCH_PINS = {
+    "plugins/sdd-quality-loop/scripts/check-contract.py",
+    "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+}
 
 
 def _sha_file(path):
@@ -142,6 +150,33 @@ def manifest_digest_mismatches(root):
                     yield bundle, rel, recorded.strip(), actual
 
 
+def research_candidate(root, bundle, rel, staged_digest, live_digest):
+    """Keep exact pending successors out of the automatic mirror sync."""
+    bundle = bundle.replace(os.sep, "/")
+    if rel not in RESEARCH_PINS or not (bundle == RESEARCH_STAGE or
+            (bundle == "specs/epic-136-phase2-gates/human-copy" and
+             rel == "plugins/sdd-quality-loop/scripts/check-contract.ps1")):
+        return None
+    try:
+        with open(os.path.join(root, "tests/fixtures/research-consumer-current-publication.json"), encoding="utf-8") as handle:
+            data = json.load(handle)
+        entries = [entry for entry in data["successors"] if entry["live"] == rel and
+                   entry["staged"] == f"{RESEARCH_STAGE}/{rel}"]
+        if data["schema"] != "research-consumer-current-publication/v1" or len(entries) != 1:
+            return "STALE"
+        pin = entries[0]
+        if not isinstance(pin["intentional_changes"], str) or not pin["intentional_changes"].strip():
+            return "STALE"
+        if staged_digest == pin["staged_sha256"]:
+            if live_digest == pin["live_sha256"] and live_digest != staged_digest:
+                return "PENDING"
+            if live_digest == staged_digest:
+                return "FRESH"
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    return "STALE"
+
+
 def classify(root, main_digests=None):
     """Yield (state, bundle, rel, staged_path, rule) for every mirror."""
     main_digests = main_digests or _MainDigests(root)
@@ -158,7 +193,10 @@ def classify(root, main_digests=None):
                 yield "MISSING", bundle, rel, staged, rule
             continue
         staged_digest, live_digest = _sha_file(staged), _sha_file(live)
-        if staged_digest == live_digest:
+        research_state = research_candidate(root, bundle, rel, staged_digest, live_digest) if rule == "manifest" else None
+        if research_state is not None:
+            yield research_state, bundle, rel, staged, rule
+        elif staged_digest == live_digest:
             yield "FRESH", bundle, rel, staged, rule
         elif staged_digest == main_digests.get(rel):
             yield "STALE", bundle, rel, staged, rule

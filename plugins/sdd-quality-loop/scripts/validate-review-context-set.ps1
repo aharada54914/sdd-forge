@@ -392,7 +392,7 @@ function Get-AdrDeclaredPaths {
 }
 
 # Consume only entries captured and hash-checked by the original input loop.
-function Get-CapturedAdrBinding($Invocation, $Prechecks, [byte[]]$DesignBytes) {
+function Get-CapturedAdrBinding($Invocation, $Prechecks, [byte[]]$DesignBytes, $ResearchInputs) {
     $verified = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
     $extended = @($Prechecks | Where-Object { $_.Value.psbase.Keys -ccontains 'adr_inputs' })
     if ($extended.Count -eq 0) { return ,$verified }
@@ -437,14 +437,23 @@ function Get-CapturedAdrBinding($Invocation, $Prechecks, [byte[]]$DesignBytes) {
     foreach ($path in $declared) {
         if (-not $verified.ContainsKey($path)) { throw 'ADR declaration set mismatch' }
     }
+    $expected = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+    foreach ($path in $verified.Keys) { $expected.Add($path, $verified[$path]) }
+    foreach ($research in $ResearchInputs) {
+        if (-not $research.path.StartsWith('docs/adr/',[StringComparison]::Ordinal)) { continue }
+        if ($expected.ContainsKey($research.path) -and $expected[$research.path] -cne $research.sha256) {
+            throw 'Research and design ADR hashes disagree'
+        }
+        $expected[$research.path] = $research.sha256
+    }
     $adrs = @($Invocation.allowed_input_manifest | Where-Object {
         $_.path.StartsWith('docs/adr/',[StringComparison]::Ordinal)
     })
-    if ($adrs.Count -ne $verified.Count) { throw 'Invocation ADR set mismatch' }
+    if ($adrs.Count -ne $expected.Count) { throw 'Invocation ADR set mismatch' }
     $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     foreach ($adr in $adrs) {
-        if (-not $seen.Add($adr.path) -or -not $verified.ContainsKey($adr.path) -or
-            $verified[$adr.path] -cne $adr.sha256) { throw 'Invocation ADR binding mismatch' }
+        if (-not $seen.Add($adr.path) -or -not $expected.ContainsKey($adr.path) -or
+            $expected[$adr.path] -cne $adr.sha256) { throw 'Invocation ADR binding mismatch' }
     }
     return ,$verified
 }
@@ -960,13 +969,16 @@ print("true" if result.stdout else "false")
     $implPrechecks = [Collections.Generic.List[object]]::new()
     $verifiedAdrInputs = $null
     $conditionalInputs = $null
+    $researchInputs = @()
     if ($null -eq $persistedMatch -and $document.stage -cin @('spec','impl','task','quality')) {
         $runtime = Get-Command python3 -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
         if ($null -eq $runtime) { $runtime = Get-Command python -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1 }
         if ($null -eq $runtime) { Fail-ReviewContext 'RUNTIME' 'deterministic-runtime-unavailable: Python 3' }
         $resolved = & $runtime.Source -B (Join-Path $PSScriptRoot 'review-conditional-inputs.py') --root $root --feature $document.feature --stage $document.stage @fixedRevisionArgs
         if ($LASTEXITCODE -ne 0) { Fail-ReviewContext 'INPUT' 'conditional review dependencies could not be resolved' }
-        $conditionalInputs = @((($resolved -join "`n") | ConvertFrom-Json -AsHashtable).inputs)
+        $resolvedInputs = ($resolved -join "`n") | ConvertFrom-Json -AsHashtable
+        $conditionalInputs = @($resolvedInputs.inputs)
+        $researchInputs = @($resolvedInputs.research_inputs)
         foreach ($required in $conditionalInputs) {
             $requiredPath = $required.path
             $requiredHash = $required.sha256
@@ -994,15 +1006,22 @@ print("true" if result.stdout else "false")
             ($input.path -cmatch '^(domain|design-system)/' -or
              $input.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$'))
         $researchPacketPath = "specs/$($document.feature)/research/review-input.json"
+        $researchPath = $input.path
+        $researchHash = $input.sha256
+        if ($null -ne $persistedMatch -and $persistedMatch.ContainsKey('allowed_inputs_sha256') -and
+            @($inputs | Where-Object { $_.path -ceq $researchPacketPath }).Count -eq 1) {
+            $researchInputs = @($inputs | Where-Object { $_.path.StartsWith('docs/adr/',[StringComparison]::Ordinal) })
+        }
         $isResearchInput = $document.stage -cin @('spec','impl') -and
             $document.role -cmatch '^(spec|impl)-reviewer-[ab]$' -and
             ($input.path -cmatch ('^specs/' + [Regex]::Escape($document.feature) + '/research/(review-input\.json|relations\.json|records/research-evidence\.json)$') -or
              $input.path -cmatch '^docs/adr/[0-9]{4}-[a-z0-9-]+\.md$') -and
-            @($inputs | Where-Object { $_.path -ceq $researchPacketPath }).Count -eq 1
+            @($inputs | Where-Object { $_.path -ceq $researchPacketPath }).Count -eq 1 -and
+            ($null -ne $persistedMatch -or @($researchInputs | Where-Object { $_.path -ceq $researchPath -and $_.sha256 -ceq $researchHash }).Count -eq 1)
         $isAdrInput = $document.stage -ceq 'impl' -and
             $input.path.StartsWith('docs/adr/',[StringComparison]::Ordinal)
         if ($isAdrInput -and -not $isResearchInput -and $null -eq $verifiedAdrInputs) {
-            $verifiedAdrInputs = Get-CapturedAdrBinding $document $implPrechecks $implDesignBytes
+            $verifiedAdrInputs = Get-CapturedAdrBinding $document $implPrechecks $implDesignBytes $researchInputs
         }
         $authorized = if (@($fixedReferences | Where-Object { $_.path -ceq $input.path -and $_.sha256 -ceq $input.sha256 }).Count -eq 1) {
             $true
@@ -1209,7 +1228,7 @@ print("true" if result.stdout else "false")
 
     if ($document.stage -ceq 'impl' -and $null -eq $verifiedAdrInputs) {
         # Validate explicit binding even when the caller omitted every ADR.
-        $verifiedAdrInputs = Get-CapturedAdrBinding $document $implPrechecks $implDesignBytes
+        $verifiedAdrInputs = Get-CapturedAdrBinding $document $implPrechecks $implDesignBytes $researchInputs
     }
     # Round consistency. A manifest freezes hashes at reservation time; the round's
     # precheck-result.json froze them when the round opened. If the two disagree, a

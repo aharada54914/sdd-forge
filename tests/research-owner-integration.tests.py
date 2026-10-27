@@ -112,6 +112,15 @@ class Owners(unittest.TestCase):
         pwsh = shutil.which("pwsh")
         if pwsh is None:
             self.skipTest("pwsh required for runtime parity")
+        adr_path = "docs/adr/0001-research.md"
+        adr = self.root / adr_path
+        adr.parent.mkdir(parents=True)
+        adr.write_text("# Research ADR\n")
+        self.relations["edges"].append(dict(
+            relation="justifies", **{"from": self.relations["edges"][0]["from"],
+            "to": dict(kind="ADR", id="ADR-0001", path=adr_path,
+                       document_sha256=digest(adr.read_bytes()))}))
+        self.relations_path.write_text(json.dumps(self.relations))
         self.assertEqual(0, self.bind())
         directory = self.root / "reports/review-context"
         directory.mkdir(parents=True)
@@ -141,6 +150,19 @@ class Owners(unittest.TestCase):
             inputs += [
                 dict(path=required, sha256=digest((self.root / required).read_bytes()))
             ]
+            if stage == "impl":
+                design_adr = self.root / "docs/adr/0002-design.md"
+                design_adr.write_text("# Design ADR\n")
+                design = self.root / "specs/sample/design.md"
+                design.write_text("# Design\n`docs/adr/0002-design.md`\n")
+                precheck = self.root / "reports/impl-review/sample/attempt-1/round-1/precheck-result.json"
+                precheck.parent.mkdir(parents=True)
+                precheck.write_text(json.dumps(dict(
+                    schema="impl-review-precheck/v1", feature="sample", attempt=1, round=1,
+                    design_sha256=digest(design.read_bytes()),
+                    adr_inputs=[dict(path="docs/adr/0002-design.md", sha256=digest(design_adr.read_bytes()))])))
+                inputs += [dict(path=p.relative_to(self.root).as_posix(), sha256=digest(p.read_bytes()))
+                           for p in (design, precheck, design_adr)]
             for role in (stage + "-reviewer-a", stage + "-reviewer-b"):
                 manifest = dict(
                     schema="review-context-invocation/v2",
@@ -159,8 +181,20 @@ class Owners(unittest.TestCase):
                     allowed_input_manifest=inputs,
                 )
                 path = self.root / "manifest.json"
-                for omit in (False, True):
-                    manifest["allowed_input_manifest"] = inputs[:-2] if omit else inputs
+                cases = ["complete", "missing-research"]
+                if stage == "impl":
+                    cases += ["missing-design", "unlisted-adr"]
+                for case in cases:
+                    selected = list(inputs)
+                    if case == "missing-research":
+                        selected = [entry for entry in selected if entry["path"] != adr_path]
+                    elif case == "missing-design":
+                        selected = [entry for entry in selected if entry["path"] != "docs/adr/0002-design.md"]
+                    elif case == "unlisted-adr":
+                        extra = self.root / "docs/adr/0003-unlisted.md"
+                        extra.write_text("# Unlisted\n")
+                        selected.append(dict(path="docs/adr/0003-unlisted.md", sha256=digest(extra.read_bytes())))
+                    manifest["allowed_input_manifest"] = selected
                     path.write_text(json.dumps(manifest))
                     commands = [
                         [
@@ -182,12 +216,12 @@ class Owners(unittest.TestCase):
                     ]
                     for command in commands:
                         with self.subTest(
-                            stage=stage, role=role, omit=omit, runtime=command[0]
+                            stage=stage, role=role, case=case, runtime=command[0]
                         ):
                             result = subprocess.run(
                                 command, text=True, capture_output=True
                             )
-                            if omit:
+                            if case != "complete":
                                 self.assertNotEqual(
                                     0, result.returncode, result.stdout + result.stderr
                                 )
