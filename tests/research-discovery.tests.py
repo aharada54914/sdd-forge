@@ -6,6 +6,7 @@ from pathlib import Path
 import unittest
 import tempfile
 import json
+import os
 import subprocess
 import sys
 
@@ -28,6 +29,51 @@ ATOM = b'<feed xmlns="http://www.w3.org/2005/Atom"><entry><title>New source</tit
 
 
 class Discovery(unittest.TestCase):
+    @unittest.skipUnless(sys.platform == "linux", "licensed shared store is Linux-only")
+    def test_watch_rechecks_shared_store_receipt_and_permissions(self):
+        acquire_tests = load("acquire_fixtures", ROOT / "tests/research-acquire.tests.py")
+        acquire = acquire_tests.a
+        with tempfile.TemporaryDirectory(prefix="research-watch-shared-", dir=Path.home()) as directory:
+            cache = Path(directory) / "store"
+            cache.mkdir(mode=0o750)
+            cache.chmod(0o750)
+            metadata, body, extracted = acquire._acquire(
+                "https://example.org/doc", ["example.org"],
+                resolver=acquire_tests.resolver, transport=acquire_tests.response,
+            )
+            saved = acquire.save_cache(
+                metadata, body, extracted, cache, repository=ROOT,
+                permission_basis="Synthetic group sharing", expires_at="2099-01-01T00:00:00Z",
+                shared_gid=os.getegid(),
+            )
+            source = acquire.source_record(saved, "SRC-001", "Synthetic", "Synthetic group sharing")
+            doc = dict(schema="research-evidence/v1", feature="sample", sources=[source], claims=[])
+            key = saved["cache_key"]
+            item = dict(source_id="SRC-001", record_revision=1, original=key + "/original", extracted=key + "/extracted.txt")
+            manifest = dict(schema="research-snapshots/v1", feature="sample", snapshots=[item])
+            now = "2090-01-01T00:00:00Z"
+            self.assertEqual(watch.source_snapshot(doc, manifest, cache, "SRC-001", now)["status"], "matching")
+            receipt = cache / key / "receipt.json"
+            raw = receipt.read_bytes()
+            receipt.write_text("{}")
+            drift = watch.source_snapshot(doc, manifest, cache, "SRC-001", now)
+            self.assertEqual((drift["status"], drift["reason"]), ("unavailable", "shared-receipt-mismatch"))
+            receipt.write_bytes(raw)
+            original = cache / key / "original"
+            original.chmod(0o644)
+            drift = watch.source_snapshot(doc, manifest, cache, "SRC-001", now)
+            self.assertEqual((drift["status"], drift["reason"]), ("unavailable", "shared-permissions"))
+            original.chmod(0o640)
+            receipt.unlink()
+            drift = watch.source_snapshot(doc, manifest, cache, "SRC-001", now)
+            self.assertEqual(drift["status"], "unavailable")
+            self.assertIsNone(drift["original_sha256"])
+            receipt.write_bytes(raw)
+            receipt.chmod(0o640)
+            item["original"] = "wrong/original"
+            drift = watch.source_snapshot(doc, manifest, cache, "SRC-001", now)
+            self.assertEqual((drift["status"], drift["reason"]), ("unavailable", "shared-snapshot-path-invalid"))
+
     def test_ordinary_terms_allowed_and_two_routes_explicit(self):
         plan = sources.search_plan("HTTP redirect DNS pinning")
         self.assertEqual(
