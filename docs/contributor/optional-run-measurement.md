@@ -10,7 +10,8 @@ python3 plugins/sdd-quality-loop/scripts/run_measurement.py summarize \
   --dir /tmp/sdd-measurement-example
 ```
 
-The Lite gate runner accepts the same `--measure-dir` option; an optional
+The Lite gate runner accepts the same `--measure-dir` option when the
+`sdd-quality-loop` plugin is installed alongside it; an optional
 `--measure-parent` links a run to an existing observation. The sidecar is an
 observation, not an approval, gate result, or replacement for the normal receipt.
 It includes input paths and hashes, so choose an appropriate storage location.

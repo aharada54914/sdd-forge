@@ -275,9 +275,12 @@ def main() -> int:
         parser.error("--measure-parent requires --measure-dir")
     if args.measure_dir:
         location = Path(__file__).resolve().parents[2] / 'sdd-quality-loop/scripts/run_measurement.py'
-        spec = importlib.util.spec_from_file_location('run_measurement', location)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        try:
+            spec = importlib.util.spec_from_file_location('run_measurement', location)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        except (OSError, ImportError, AttributeError):
+            parser.error("measurement requires the sdd-quality-loop plugin")
         try:
             measurement = module.Observer(args.measure_dir, command_id='lite', parent_span_id=args.measure_parent,
                                           head=source_before['revision'], dirty=source_before['dirty'])

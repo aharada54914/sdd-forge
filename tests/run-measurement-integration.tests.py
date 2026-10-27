@@ -105,6 +105,25 @@ class OwnerIntegration(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertFalse(marker.exists())
 
+    def test_lite_measurement_requires_quality_plugin_before_running(self):
+        installed = Path(self.tmp.name) / "installed/plugins/sdd-lite/lib"
+        installed.mkdir(parents=True)
+        runner = installed / "run-lite-gate.py"
+        shutil.copyfile(ROOT / "plugins/sdd-lite/lib/run-lite-gate.py", runner)
+        marker = self.root / "marker"
+        scripts = self.root / "scripts"
+        scripts.mkdir()
+        (scripts / "probe.sh").write_text("touch marker\n")
+        result = subprocess.run([
+            sys.executable, str(runner), "--repo-root", str(self.root),
+            "--runtime", "posix", "--enforcement", "none", "--check", "probe",
+            "--measure-dir", str(Path(self.tmp.name) / "measurement"),
+        ], cwd=self.root, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("measurement requires the sdd-quality-loop plugin", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+        self.assertFalse(marker.exists())
+
     def test_lite_pass_failure_and_timeout(self):
         scripts = self.root / "scripts"
         scripts.mkdir()
