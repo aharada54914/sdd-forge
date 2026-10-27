@@ -76,6 +76,11 @@ case, never the probe's.
 
 ## Step 1 — Target Selection
 
+An explicitly requested investigation, performance study, isolated prototype or
+handoff may return to bootstrap's optional purpose playbook. A decision packet
+can display pinned evidence; recheck its digest and inputs on resume. The packet
+does not replace this skill's target, track or approval checks and never sets Done.
+
 ### With a path argument
 
 Use the given `specs/<feature>/tasks.md` (with optional `#T-NNN` task selector).

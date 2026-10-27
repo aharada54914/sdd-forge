@@ -1,6 +1,7 @@
 {
   "schema": "verification-catalog/v1",
   "suites": [
+    {"path": "tests/factory-workflow.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/run-measurement.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/run-measurement-integration.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/a9-advisory-evidence.tests.py", "runtime": "python", "delegated_to": "tests/a9-dogfood.tests.sh"},
@@ -363,6 +364,7 @@
   ],
   "profiles": {
     "local-posix": [
+      "tests/factory-workflow.tests.py",
       "tests/run-measurement.tests.py",
       "tests/run-measurement-integration.tests.py",
       "tests/ci-suite-wiring.tests.sh",
@@ -557,6 +559,7 @@
       "tests/verification-impact.tests.py"
     ],
     "local-powershell": [
+      "tests/factory-workflow.tests.py",
       "tests/run-measurement.tests.py",
       "tests/run-measurement-integration.tests.py",
       "tests/validate-repository.ps1",
@@ -771,6 +774,7 @@
       "tests/upstream-concept-issue.tests.sh"
     ],
     "ci-shared-python": [
+      "tests/factory-workflow.tests.py",
       "tests/run-measurement.tests.py",
       "tests/run-measurement-integration.tests.py",
       "tests/current-byte-capture.tests.py",

@@ -107,6 +107,10 @@ flowchart LR
 プラグインのインストール手順は本ファイルの [インストール](#インストール) 節を、運用手順は [docs/workflow-guide.md](docs/workflow-guide.md) をご覧ください。
 **初めての方は workflow-guide.md の正常系フローからお読みください。**
 
+調査・性能確認・隔離試作・引き継ぎには、bootstrap の用途別プレイブックと
+[判断資料](plugins/sdd-bootstrap/references/decision-packet.md)を利用できます。
+比較案の選択と、通常のタスク承認・品質ゲートは別に扱います。
+
 `install.sh` / `install.ps1` には read-only の MCP サーバーが同梱されており、既定で配置・登録されます。
 
 ### MCP サーバー
