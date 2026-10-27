@@ -1,0 +1,28 @@
+{
+  "source": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+  "source_sha256": "47e7d8de3281e3b20b52a2c03ecde820167a20149bbdaac6022d7ebe4f7e9735",
+  "property": "At most one contender with the same pre-reservation ledger hash is accepted.",
+  "mapping": {
+    "Acquire": "atomic mkdir identity-ledger.json.lock; failure refuses reservation",
+    "Check": "sha256_file ledger equals bound_ledger_sha256 after acquisition",
+    "Publish": "jq staged append followed by mv temp_ledger ledger",
+    "Release": "rmdir lock and EXIT cleanup"
+  },
+  "assumptions": [
+    "mkdir and same-directory rename are atomic",
+    "every writer honors this same lock",
+    "hash collision excluded",
+    "no hostile filesystem changes",
+    "two contenders each uses the same initial hash and attempts once"
+  ],
+  "excluded": [
+    "crash recovery",
+    "lease expiry",
+    "network filesystems",
+    "Windows behavior",
+    "entire application correctness"
+  ],
+  "previous_source_sha256": "45fc5f8d221981ecbd04bcdd48a9eb0e4cd0c8bee45c4bb6e5cddc1cc190474a",
+  "reservation_tail_sha256": "099073aafef9082cab371bfab889a19afe4e40a3f9d791739ceb820052a4a92c",
+  "mapping_recheck": "The main-based source predates research input authorization changes outside the reservation transaction. The exact reservation tail is unchanged from the previously verified source."
+}
