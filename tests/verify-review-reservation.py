@@ -72,16 +72,17 @@ sha256_file() { sha256sum "$1" | cut -d ' ' -f 1; }
         )
         script = root / "race.sh"
         script.write_text(setup + tail)
-        processes = [
-            subprocess.Popen(
-                ["bash", str(script), str(ledger), actor, bound],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            for actor in ("a", "b")
-        ]
+        processes = []
         results = []
         try:
+            for actor in ("a", "b"):
+                processes.append(
+                    subprocess.Popen(
+                        ["bash", str(script), str(ledger), actor, bound],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                    )
+                )
             if mutated:
                 deadline = time.monotonic() + barrier_timeout
                 ready = [root / (ledger.name + "." + actor + ".ready") for actor in ("a", "b")]

@@ -29,3 +29,5 @@ release only after both contenders pass the hash check. The
 `synchronized-report.json` and matching TLC text logs record a fresh run:
 the mutated replay accepted two contenders and the intact replay accepted one.
 Separate tests delay one contender and force a synchronization timeout.
+The subsequent `cleanup-report.json` repeats the same checks after adding
+cleanup for a failure to start the second contender.

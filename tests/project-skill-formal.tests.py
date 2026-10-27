@@ -63,6 +63,29 @@ class Reservation(unittest.TestCase):
             with self.assertRaisesRegex(TimeoutError, "synchronization timeout"):
                 P.real_race(True, barrier_timeout=0.05)
 
+    @unittest.skipUnless(
+        os.name == "posix" and shutil.which("jq") and shutil.which("sha256sum"),
+        "POSIX jq/sha256sum replay only",
+    )
+    def test_spawn_failure_cleans_up_first_contender(self):
+        original = P.subprocess.Popen
+        started = []
+        def failing(*args, **kwargs):
+            if started:
+                raise OSError("synthetic spawn failure")
+            process = original(*args, **kwargs)
+            started.append(process)
+            return process
+        try:
+            with patch.object(P.subprocess, "Popen", side_effect=failing):
+                with self.assertRaisesRegex(OSError, "synthetic spawn failure"):
+                    P.real_race(True)
+            self.assertIsNotNone(started[0].poll())
+        finally:
+            if started and started[0].poll() is None:
+                started[0].kill()
+                started[0].communicate()
+
 
 if __name__ == "__main__":
     unittest.main()
