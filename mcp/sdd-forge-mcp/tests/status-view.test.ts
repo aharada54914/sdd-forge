@@ -54,5 +54,6 @@ test('indeterminate next step still shows known spec status and unknown later ph
     assert.equal(elements.get('copy').hidden,true);assert.equal(elements.get('command').textContent,'');
     assert.ok(elements.get('steps').children.some((row: any)=>row.children.some((span: any)=>span.textContent==='レビュー済み')));
     assert.ok(elements.get('steps').children.some((row: any)=>row.children.some((span: any)=>span.textContent==='状態未確認')));
+    for(const label of ['タスクのレビュー','タスクの承認','品質ゲート（タスクごと）']) assert.ok(elements.get('steps').children.some((row: any)=>row.children.some((span: any)=>span.textContent===label)));
   } finally { await new Promise<void>((resolve,reject)=>view.server.close(e=>e?reject(e):resolve()));fixture.cleanup(); }
 });
