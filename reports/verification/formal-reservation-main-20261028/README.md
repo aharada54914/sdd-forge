@@ -18,6 +18,6 @@ earlier asset's result.
 
 The negative model produced an invariant counterexample and the corresponding
 real-code lock-removal replay accepted two contenders. The intact model passed
-and its real-code replay accepted one. See `report.json` and the two TLC logs.
+and its real-code replay accepted one. See `report.json` and the two TLC text logs.
 The command in the skill was also repeated independently in a fresh output
 directory with the same expected outcomes.
