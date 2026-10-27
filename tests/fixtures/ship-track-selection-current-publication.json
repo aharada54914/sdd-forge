@@ -1,6 +1,6 @@
 {
   "schema": "ship-track-selection-current-publication/v1",
-  "note": "Explicit successor publication baseline. The epic-189 staged candidate stays pinned as the predecessor and whole-file byte equality stays the default; a live file differing from its staged candidate is admitted only when BOTH full SHA-256 values below match. Any other live edit, staged edit, or missing entry is drift.",
+  "note": "Explicit successor publication baseline. The epic-189 staged candidate stays pinned as the predecessor and whole-file byte equality stays the default; a live file differing from its staged candidate is admitted only when BOTH full SHA-256 values below match. Any other live edit, staged edit, or missing entry is drift. These are candidate byte pins only; independent review and approval remain pending.",
   "successors": [
     {
       "live": "plugins/sdd-ship/skills/ship/SKILL.md",
