@@ -20,14 +20,14 @@
       "live": "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
       "staged": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
       "staged_sha256": "73a547e30025ad4c54313aaf03a3bec31286e50f90d80c37340c22ffee0603d4",
-      "live_sha256": "a444e57325d822c5b2abac816ae3e554a70db9476b287f073929a32486f8105f",
+      "live_sha256": "3598c9cc6e2862fce712aedb9f763f7b1c7cf19ff50093f194c602920d1df726",
       "intentional_changes": "Composite candidate: optional research integration plus A9 recovery; prior separately reviewed bytes remain archived, composite review pending."
     },
     {
       "live": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
       "staged": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
       "staged_sha256": "08792df3be712917b9e771abec28e153a8d013624286ad221da1837f2d462b2e",
-      "live_sha256": "54c1e2083a8064710f74e62d05880f772619695c16a5090da53882409f8b3f80",
+      "live_sha256": "a0a501a9b650b44e7164a7e586b53cf6aa7ee3027d20684390a2249419bab998",
       "intentional_changes": "Composite candidate: optional research integration plus A9 recovery; prior separately reviewed bytes remain archived, composite review pending."
     }
   ]

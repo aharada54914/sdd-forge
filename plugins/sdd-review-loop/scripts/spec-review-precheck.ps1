@@ -958,6 +958,8 @@ function Test-InterruptedRecovery([string]$RecordPath) {
     }
     foreach ($other in $ledger.records) {
       if ($other.stage -cne 'spec' -or $other.run_id -ceq $a.run_id) { continue }
+      Assert-Recovery ($other.sequence -is [long] -or $other.sequence -is [int]) 'invalid spec reservation sequence'
+      if ($other.sequence -lt $a.sequence) { continue }
       $related = @($invocations | Where-Object { $_.run_id -ceq $other.run_id -and $_.host_session_id -ceq $other.host_session_id })
       Assert-Recovery ($related.Count -eq 1) 'ambiguous later spec reservation'
       $candidate = $related[0]

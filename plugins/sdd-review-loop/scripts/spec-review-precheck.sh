@@ -619,6 +619,8 @@ try:
             invocations.append(candidate)
     for persisted_other in records:
         if persisted_other.get('stage')!='spec' or persisted_other.get('run_id')==a['run_id']:continue
+        need(type(persisted_other.get('sequence')) is int,'invalid spec reservation sequence')
+        if persisted_other['sequence']<a['sequence']:continue
         related=[v for v in invocations if v.get('run_id')==persisted_other.get('run_id') and v.get('host_session_id')==persisted_other.get('host_session_id')]
         need(len(related)==1,'ambiguous later spec reservation')
         candidate=related[0];other_binding=sha('\n'.join(x['path']+'\t'+x['sha256'] for x in candidate['allowed_input_manifest']).encode())

@@ -25,7 +25,7 @@ def dump(root,path,value): put(root,path,json.dumps(value,indent=2)+'\n')
 def load(root,path): return json.loads((root/path).read_text())
 def ref(root,path): return {'path':path,'sha256':digest(root/path)}
 def snapshot(root):
- return [(str(p.relative_to(root)), 'link:'+os.readlink(p) if p.is_symlink() else digest(p)) for p in sorted(root.rglob('*')) if p.is_file() or p.is_symlink()]
+ return [(p.relative_to(root).as_posix(), 'link:'+os.readlink(p) if p.is_symlink() else digest(p)) for p in sorted(root.rglob('*')) if p.is_file() or p.is_symlink()]
 def chain_record(seq,stage,role,run,session,previous,binding=None):
  record=dict(sequence=seq,stage=stage,role=role,run_id=run,host_session_id=session,previous_record_sha256=previous)
  payload=f'{seq}|{stage}|{role}|{run}|{session}|{previous}'
@@ -264,6 +264,20 @@ def mutations(record):
  def later(root,rec):
   ledger=load(root,LEDGER);ledger['records'].append(chain_record(3,'host','orchestrator','synthetic-later','synthetic-later-session',ledger['records'][-1]['record_sha256']));dump(root,LEDGER,ledger)
  add('TEST-079::later-valid-record',later,False,True)
+ def earlier_legacy_spec(root,rec):
+  ledger=load(root,LEDGER)
+  old=ledger['records'][1]
+  prior=chain_record(1,'spec','spec-reviewer-a','legacy-review','legacy-session','')
+  dump(root,LEDGER,dict(schema=ledger['schema'],records=[prior]))
+  inv=load(root,INV);inv['previous_record_sha256']=prior['record_sha256'];inv['identity_ledger_sha256']=digest(root/LEDGER);dump(root,INV,inv)
+  current=chain_record(2,old['stage'],old['role'],old['run_id'],old['host_session_id'],prior['record_sha256'],old['allowed_inputs_sha256'])
+  dump(root,LEDGER,dict(schema=ledger['schema'],records=[prior,current]))
+  receipt=SOURCE+'/reviewer-a-reservation.txt'
+  put(root,receipt,f"REVIEW_CONTEXT_OK {current['record_sha256']} sequence=2 previous_record_sha256={prior['record_sha256']} pre_append_tip_sequence=1 identity_unique=yes\n")
+  rec['reviewer_a']['record_sha256']=current['record_sha256']
+  for pin in rec['interrupted_artifacts']+[rec['reviewer_a']['invocation']]:
+   if pin['path'] in (INV,receipt):pin['sha256']=digest(root/pin['path'])
+ add('TEST-079::earlier-legacy-spec',earlier_legacy_spec,True,True)
  def reorder(root,rec):put(root,RECORD,json.dumps(dict(reversed(list(rec.items()))),ensure_ascii=False,separators=(', ',': '))+'\n');return 'raw'
  add('CONTROL::canonical-binding-key-order-and-whitespace',reorder,False,True)
 
