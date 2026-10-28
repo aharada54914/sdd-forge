@@ -830,11 +830,42 @@ done
 # ===========================================================================
 printf -- '--- TEST-PUB: staged/live publication state ---\n'
 publication_state() {
-  # publication_state <live-rel> <staged-rel> -> published|unpublished|drift
-  ps_live="$ROOT/$1"; ps_staged="$ROOT/$2"
+  # publication_state <live-rel> <staged-rel> [root] -> published|unpublished|drift
+  # A live file that differs from its staged candidate is `published` only when
+  # the successor fixture pins BOTH full SHA-256 values; a pinned predecessor
+  # that no longer matches is drift even when live equals the altered staged file.
+  ps_root=${3:-$ROOT}
+  ps_live="$ps_root/$1"; ps_staged="$ps_root/$2"
   if [ ! -f "$ps_live" ]; then echo missing-live; return; fi
   if [ ! -f "$ps_staged" ]; then echo missing-staged; return; fi
+  ps_pin=$("$PY" -I - "$ps_root" "$1" "$2" <<'PYPIN'
+import hashlib, json, os, sys
+root, live, staged = sys.argv[1:4]
+fixture = os.path.join(root, "tests/fixtures/ship-track-selection-current-publication.json")
+digest = lambda rel: hashlib.sha256(open(os.path.join(root, rel), "rb").read()).hexdigest()
+try:
+    if not os.path.isfile(fixture):
+        print("none"); sys.exit()
+    data = json.load(open(fixture, encoding="utf-8"))
+    if data["schema"] != "ship-track-selection-current-publication/v1":
+        print("bad"); sys.exit()
+    entries = [e for e in data["successors"] if e["live"] == live and e["staged"] == staged]
+    if not entries:
+        print("none"); sys.exit()
+    if len(entries) > 1:
+        print("bad"); sys.exit()
+    e = entries[0]
+    if not str(e["intentional_changes"]).strip() or e["staged_sha256"] != digest(staged):
+        print("bad")
+    else:
+        print("ok" if e["live_sha256"] == digest(live) else "live-bad")
+except Exception:
+    print("bad")
+PYPIN
+)
+  if [ "$ps_pin" = bad ]; then echo drift; return; fi
   if cmp -s "$ps_live" "$ps_staged"; then echo published; return; fi
+  if [ "$ps_pin" = ok ]; then echo published; return; fi
   if grep -q 'sdd:track-selection-contract v1' "$ps_live"; then
     echo drift
   else
@@ -851,7 +882,7 @@ for pair in "$LIVE_SHIP=$DOC_SHIP" "$LIVE_LITESPEC=$DOC_LITESPEC"; do
     fail "TEST-PUB [$live] publication state is a valid terminal state (got $state)"
   fi
   if [ "$state" = drift ]; then
-    fail "TEST-PUB [$live] a published live file must be byte-identical to its staged candidate"
+    fail "TEST-PUB [$live] a published live file must be byte-identical to its staged candidate or match its pinned successor baseline"
   else
     pass "TEST-PUB [$live] no staged/live drift"
   fi
@@ -898,6 +929,62 @@ state_litespec=$(publication_state "$LIVE_LITESPEC" "$DOC_LITESPEC")
 printf -- '--- publication pair state: ship=%s lite-spec=%s\n' "$state_ship" "$state_litespec"
 assert_eq "$state_ship" "$state_litespec" \
   "TEST-PUB pair consistency: both protected consumers are in the SAME publication state (ADR-0023:59-62 forbids a partial migration where some skills honor the new precedence and others the old)"
+
+# --- TEST-PUB successor baseline: mutation and rollback ---------------------
+# Controls on a throwaway root: the pinned successor is admitted, and every
+# departure from it (unknown live edit, staged edit/replacement/deletion, stale
+# pins, absent or empty baseline, one consumer unpublished) must be rejected.
+SUCC="$WORK/succ"
+SUCC_FIXTURE=tests/fixtures/ship-track-selection-current-publication.json
+succ_reset() {
+  rm -rf "$SUCC"
+  for f in $LIVE_SHIP $DOC_SHIP $LIVE_LITESPEC $DOC_LITESPEC $SUCC_FIXTURE; do
+    mkdir -p "$SUCC/$(dirname "$f")"; cp "$ROOT/$f" "$SUCC/$f"
+  done
+}
+succ_fixture_edit() { "$PY" -I - "$SUCC/$SUCC_FIXTURE" "$1" <<'PYEDIT'
+import json, sys
+path, how = sys.argv[1:3]
+data = json.load(open(path, encoding="utf-8"))
+entry = data["successors"][0]
+if how == "stale-staged": entry["staged_sha256"] = "0" * 64
+elif how == "stale-live": entry["live_sha256"] = "0" * 64
+elif how == "no-explanation": entry["intentional_changes"] = " "
+elif how == "other-consumer": entry["live"] = "plugins/other/SKILL.md"
+elif how == "wrong-schema": data["schema"] = "ship-track-selection-current-publication/v2"
+elif how == "duplicate-pair": data["successors"].append(dict(entry))
+elif how == "path-case": entry["live"] = entry["live"].replace("sdd-ship", "SDD-Ship")
+elif how == "uppercase-sha": entry["live_sha256"] = entry["live_sha256"].upper()
+json.dump(data, open(path, "w", encoding="utf-8"))
+PYEDIT
+}
+succ_expect() { # succ_expect <label> <expected-ship-state>
+  assert_eq "$(publication_state "$LIVE_SHIP" "$DOC_SHIP" "$SUCC")" "$2" "TEST-PUB successor: $1"
+}
+succ_reset; succ_expect "pinned successor baseline is admitted" published
+assert_eq "$(publication_state "$LIVE_LITESPEC" "$DOC_LITESPEC" "$SUCC")" published "TEST-PUB successor: unchanged byte-equal consumer stays published"
+succ_reset; printf 'x\n' >> "$SUCC/$LIVE_SHIP"; succ_expect "unknown live edit is drift" drift
+succ_reset; printf 'x\n' >> "$SUCC/$DOC_SHIP"; succ_expect "altered staged predecessor is drift" drift
+succ_reset; cp "$SUCC/$LIVE_SHIP" "$SUCC/$DOC_SHIP"; succ_expect "staged replaced by live (equal bytes) is drift" drift
+succ_reset; rm "$SUCC/$DOC_SHIP"; succ_expect "deleted staged candidate is rejected" missing-staged
+succ_reset; sed 's/sdd:track-selection-contract v1/sdd:track-selection-contract v2/' "$SUCC/$LIVE_SHIP" > "$SUCC/x" && mv "$SUCC/x" "$SUCC/$LIVE_SHIP"
+succ_expect "altered contract marker is rejected" unpublished
+succ_reset; rm "$SUCC/$SUCC_FIXTURE"; succ_expect "absent baseline is drift" drift
+succ_reset; : > "$SUCC/$SUCC_FIXTURE"; succ_expect "unreadable baseline is drift" drift
+for how in stale-staged stale-live no-explanation other-consumer wrong-schema duplicate-pair path-case uppercase-sha; do
+  succ_reset; succ_fixture_edit "$how"; succ_expect "baseline $how is drift" drift
+done
+succ_reset; printf 'x\n' >> "$SUCC/$LIVE_LITESPEC"
+assert_ne "$(publication_state "$LIVE_LITESPEC" "$DOC_LITESPEC" "$SUCC")" "$(publication_state "$LIVE_SHIP" "$DOC_SHIP" "$SUCC")" \
+  "TEST-PUB successor: one drifted consumer breaks pair consistency"
+succ_reset; sed '/sdd:track-selection-contract/d' "$ROOT/$LIVE_LITESPEC" > "$SUCC/$LIVE_LITESPEC"
+assert_ne "$(publication_state "$LIVE_LITESPEC" "$DOC_LITESPEC" "$SUCC")" "$(publication_state "$LIVE_SHIP" "$DOC_SHIP" "$SUCC")" \
+  "TEST-PUB successor: one unpublished consumer breaks pair consistency"
+# Every fixture record (both predecessors) must verify against the real files.
+for rec in $("$PY" -I -c 'import json,sys;[print(e["live"]+"="+e["staged"]) for e in json.load(open(sys.argv[1]))["successors"]]' "$ROOT/$SUCC_FIXTURE"); do
+  assert_eq "$(publication_state "${rec%%=*}" "${rec#*=}")" published "TEST-PUB successor record [${rec#*=}] verifies against live and staged bytes"
+done
+succ_reset; succ_expect "rollback to pristine baseline re-admits the successor" published
 
 # ===========================================================================
 # TEST-MUT: detection power. Every assertion is a DELTA over a pristine copy,

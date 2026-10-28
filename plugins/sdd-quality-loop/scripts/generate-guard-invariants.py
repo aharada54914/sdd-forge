@@ -191,6 +191,8 @@ BASELINE_SUFFIXES = (
     "tests/guard-readonly-inputs.tests.py",
     "plugins/sdd-quality-loop/scripts/run_measurement.py",
     "plugins/sdd-bootstrap/scripts/project-skill.py",
+    "plugins/sdd-bootstrap/scripts/workflow-playbook.py",
+    "plugins/sdd-bootstrap/scripts/research-sources.py",
 )
 EPIC_A1_TARGETS = (
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",

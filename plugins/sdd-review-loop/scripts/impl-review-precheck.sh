@@ -427,7 +427,8 @@ if [[ "${ROUND}" -gt 1 ]]; then
       prior_precheck_hash=$(sha256 "$prior_precheck") || fail "cannot hash previous ADR precheck"
       prior_a_hash=$(sha256 "$prior_a") || fail "cannot hash previous ADR reviewer A"
       prior_b_hash=$(sha256 "$prior_b") || fail "cannot hash previous ADR reviewer B"
-      prior_adr_inputs=$(jq -nce --slurpfile cs "$prior_contract" --slurpfile ps "$prior_precheck" \
+      prior_conditional_inputs=$(persisted_conditional_inputs "$prior_contract" impl) || fail "previous conditional input validation failed"
+      prior_adr_inputs=$(jq -nce --argjson conditional_inputs "$prior_conditional_inputs" --slurpfile cs "$prior_contract" --slurpfile ps "$prior_precheck" \
         --slurpfile aa "$prior_a" --slurpfile bb "$prior_b" --arg feature "$FEATURE" \
         --argjson attempt "$ATTEMPT" --argjson round "$prior_round" \
         --arg pc "$prior_precheck" --arg pch "$prior_precheck_hash" --arg repo "$repo_root/" '
@@ -438,7 +439,7 @@ if [[ "${ROUND}" -gt 1 ]]; then
             (.sha256 | hash)) and ([.[].path] == ([.[].path] | sort | unique));
         def relative:
           if startswith($repo) then .[($repo | length):]
-          elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+          elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+|docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md)$") | .tail) // .)
           else . end;
         def pin($entries; $path; $hash):
           [$entries[] | select((.path | relative) == $path)] as $found |
@@ -471,7 +472,10 @@ if [[ "${ROUND}" -gt 1 ]]; then
             pin($entries; ("specs/" + $feature + "/requirements.md"); $p.requirements_sha256) and
             pin($entries; ("specs/" + $feature + "/acceptance-tests.md"); $p.acceptance_sha256) and
             all($p.layer_sha256 | to_entries[]; pin($entries; ("specs/" + $feature + "/" + .key); .value)) and
-            ([$entries[] | select(.path | relative | startswith("docs/adr/")) | {path,sha256}] | sort_by(.path)) == $p.adr_inputs
+            all($p.adr_inputs[]; . as $pin | [$entries[]|select(.path == $pin.path)|{path,sha256}] == [$pin]) and
+            all($entries[]|select(.path|relative|startswith("docs/adr/")); . as $entry | ($entry.path|relative) as $rel |
+              (if any($p.adr_inputs[]; .path == $rel) then $entry.path == $rel else true end) and
+              any(($p.adr_inputs + $conditional_inputs)[]; .path == $rel and .sha256 == $entry.sha256))
           ))) |
         $p.adr_inputs | map({path:.path,sha256:.sha256})
       ') || fail "previous ADR reviewer/contract binding mismatch"

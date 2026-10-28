@@ -270,8 +270,10 @@ ADDITIONAL_PROTECTIONS = (
     'plugins/sdd-domain/scripts/finalize-domain-review.sh',
     'plugins/sdd-domain/scripts/finalize-domain-review.ps1',
     'tests/lib/cross-runtime-consumer-evidence.py',
+    'plugins/sdd-bootstrap/scripts/workflow-playbook.py',
     'plugins/sdd-quality-loop/scripts/run_measurement.py',
     'plugins/sdd-bootstrap/scripts/project-skill.py',
+    'plugins/sdd-bootstrap/scripts/research-sources.py',
 )
 UNRELATED_SHA256 = 'ea6c2029371e9dada288c6d1b877ddb789ab2b6089e3d7783a6b3d29772290e9'
 TRANSPORT_RUN = re.compile(

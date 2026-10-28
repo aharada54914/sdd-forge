@@ -377,10 +377,12 @@ validate_contract() {
     expected_a="$(jq -cn --argjson manifest "$expected_a" --arg investigation "$(relative_to_repo "${spec_dir}/investigation.md")" --arg investigation_hash "$investigation_hash" '$manifest + [{path:$investigation,sha256:$investigation_hash}] | sort_by(.path)')"
   fi
   # Historical optional inputs remain bound to the sealed prior contract.
-  conditional_a="$(jq -ce --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+  conditional_a="$(jq -ce --arg feature "$feature" --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
     [.reviewers[] | select(.role == "spec-reviewer-a") | .allowed_input_manifest[] |
       {path:(.path | relative_path), sha256} |
-      select(.path == "domain/context-map.md" or .path == "domain/domain-contract.json")] as $entries |
+      select(.path == "domain/context-map.md" or .path == "domain/domain-contract.json" or
+        (.path | test("^specs/" + $feature + "/research/(review-input\\.json|relations\\.json|records/research-evidence\\.json)$")) or
+        (.path | test("^docs/adr/[0-9]{4}-[a-z0-9-]+\\.md$")))] as $entries |
     select(($entries | length) == ($entries | map(.path) | unique | length)) |
     select(all($entries[]; .sha256 | type == "string" and test("^[0-9a-f]{64}$"))) |
     $entries | sort_by(.path)' "$contract")" || return 1
