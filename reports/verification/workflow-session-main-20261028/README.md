@@ -51,3 +51,18 @@ measurements identify investigation targets, not safe cache keys: the same path
 may change between reads, and hash/history provenance, error behavior and
 independent review must still be enforced. A real change requires separate
 negative controls and a cold/warm comparison on the actual workload.
+
+## Narrow legacy membership experiment
+
+A disposable candidate against integration commit `9296b0ab` preloaded the
+legacy task approval and status arrays rather than starting `jq` for every
+field. Two real legacy-profile fixtures and 20 positive/negative differential
+cases had identical exit codes and output; malformed and unauthorized values
+were rejected. The protected checker was not changed.
+
+One normal full-repository baseline took 47.766 seconds; one candidate run
+took 47.467 seconds and had the same stdout/stderr hashes. The candidate run
+overlapped a separate fixture test, so this is not a controlled comparison and
+does not establish a speedup. An early `jq` failure with an empty task file may
+also alter error behavior. The candidate was discarded rather than promoted;
+`legacy-experiment.json` retains the observed results and limits.
