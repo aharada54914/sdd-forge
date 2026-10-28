@@ -375,6 +375,12 @@ def impact(doc, relations, root, source_id):
                     ),
                     "traceability-invalid",
                 )
+                require(
+                    all(link[k] and all(isinstance(v, str) and v.strip() for v in link[k])
+                        for k in ("acs", "tests"))
+                    and all(isinstance(v, str) and v.strip() for v in link["evidence"]),
+                    "traceability-invalid",
+                )
                 downstream.append(link)
         pins[trace] = digest(trace_raw)
     return dict(
