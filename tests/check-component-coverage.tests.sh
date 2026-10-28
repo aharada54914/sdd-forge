@@ -374,7 +374,7 @@ else
   fail "TEST-036.1: expected check-component-coverage inside the machine-form 'high =' line"
 fi
 process_block=$(sed -n '/^## Process/,/^## Done Decision/p' "${REPO_ROOT}/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md")
-if printf '%s' "$process_block" | grep -q "check-component-coverage"; then
+if [[ "$process_block" == *check-component-coverage* ]]; then
   ok "TEST-036.2: quality-gate/SKILL.md's ## Process section itself (not just anywhere in the file) documents check-component-coverage"
 else
   fail "TEST-036.2: expected check-component-coverage inside SKILL.md's ## Process section"
