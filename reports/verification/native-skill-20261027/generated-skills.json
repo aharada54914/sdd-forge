@@ -1,0 +1,279 @@
+{
+  "data": [
+    {
+      "cwd": "/workspace/.tools/sdd-forge-dev/verification-workspace/issue-602-discovery-nzv35zh6",
+      "skills": [
+        {
+          "name": "inspect-issue-602-fixture",
+          "description": "Read the synthetic project note without changing files.",
+          "path": "/workspace/.tools/sdd-forge-dev/verification-workspace/issue-602-discovery-nzv35zh6/.agents/skills/inspect-issue-602-fixture/SKILL.md",
+          "scope": "repo",
+          "enabled": true,
+          "pluginId": null
+        },
+        {
+          "name": "sdd-bootstrap:bootstrap",
+          "description": "Generate implementation-ready SDD specifications and approved task contracts from requirements. The first of the two-command workflow — run before /sdd-ship:ship.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/skills/bootstrap/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-bootstrap@sdd-plugins"
+        },
+        {
+          "name": "sdd-bootstrap:design-sync-loop",
+          "description": "Specification-phase design iteration loop for UI applications (ds_profile custom). Ensures the project-level design-system/ contract exists (seeding via ui-ux-pro-max, Figma DTCG import, or the D6 template interview), pulls design-system context from a claude.ai/design project via the DesignSync tool, generates token-driven disposable HTML mockups per view and state, and pushes them for browser review under a single per-feature egress consent covering this feature AND this session. Falls back to the manual Claude Design workflow when design tools are unavailable.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/skills/design-sync-loop/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-bootstrap@sdd-plugins"
+        },
+        {
+          "name": "sdd-bootstrap:investigate-codebase",
+          "description": "Read-only investigation of an existing codebase or problem domain. Produces investigation.md with INV-xxx findings and baseline-behavior.md with BL-xxx observable behaviors before any specification work.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/skills/investigate-codebase/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-bootstrap@sdd-plugins"
+        },
+        {
+          "name": "sdd-bootstrap:sdd-adopt",
+          "description": "Adopt SDD in an existing repository. Creates only what is missing — structure directories, AGENTS.md, CLAUDE.md, host-appropriate CI/issue/PR templates — without writing specifications or application code.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/skills/sdd-adopt/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-bootstrap@sdd-plugins"
+        },
+        {
+          "name": "sdd-bootstrap:sdd-bootstrap-interviewer",
+          "description": "Interview-driven SDD bootstrap for project, feature, bugfix, or refactor work. Creates approved implementation-ready specifications and tasks from GitHub/GitLab issues or supplied requirements.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-bootstrap/1.18.0/skills/sdd-bootstrap-interviewer/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-bootstrap@sdd-plugins"
+        },
+        {
+          "name": "sdd-implementation:diagnose",
+          "description": "Execution discipline for hard bugs, regressions, flaky tests, and performance issues. Build a tight red feedback loop first, then reproduce/minimize, rank falsifiable hypotheses, instrument one variable at a time, and fix behind a regression test. Use before spec-ing a bugfix, or when the user says something is broken/throwing/failing/flaky/slow. Supplies the evidence that task-reviewer-b's BUGFIX-DIAGNOSTIC-PATH check requires.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-implementation/1.18.0/skills/diagnose/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-implementation@sdd-plugins"
+        },
+        {
+          "name": "sdd-implementation:implement-task",
+          "description": "Restore the current SDD task state and implement exactly one approved task. Use after sdd-bootstrap-interviewer and before quality-gate.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-implementation/1.18.0/skills/implement-task/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-implementation@sdd-plugins"
+        },
+        {
+          "name": "sdd-implementation:implement-tasks",
+          "description": "Batch-implement all approved tasks in dependency order, then auto-transition to quality-gate when every task reaches Implementation Complete. Use after sdd-bootstrap-interviewer and before quality-gate.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-implementation/1.18.0/skills/implement-tasks/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-implementation@sdd-plugins"
+        },
+        {
+          "name": "sdd-implementation:visual-verify-loop",
+          "description": "Implementation-phase visual verification loop for UI tasks. Launches the app (Claude Preview MCP for web, wpf-visual-verify for WPF desktop), compares the rendered UI against approved mockups, ux-spec states, and — when the project carries one — the design-system contract (tokens and ui-patterns), iterates fixes up to five times, and saves final screenshots as evidence under reports/visual-evidence/. Non-blocking; verdicts stay with quality-gate and human review.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-implementation/1.18.0/skills/visual-verify-loop/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-implementation@sdd-plugins"
+        },
+        {
+          "name": "sdd-lite:lite-gate",
+          "description": "Lightweight deterministic quality gate for the sdd-lite flow. Runs placeholder-scan and the project's lint/typecheck/build/test commands, writes a lite quality report, moves the task to Done, then validates the final Done state with check-task-state-lite. Use after implement-task in the lite flow.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-lite/1.18.0/skills/lite-gate/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-lite@sdd-plugins"
+        },
+        {
+          "name": "sdd-lite:lite-spec",
+          "description": "Lightweight SDD specification for internal/departmental apps. Creates requirements, design, and tasks (single-approval, no traceability/ADR/evidence-bundle). Use for low-stakes internal app work; graduate to sdd-bootstrap-interviewer for higher rigor.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-lite/1.18.0/skills/lite-spec/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-lite@sdd-plugins"
+        },
+        {
+          "name": "sdd-quality-loop:cross-model-verify",
+          "description": "Orchestrate blind parallel cross-model panelist verification for a critical SDD task. Runs prepare-panelist-input (consent + sanitize), invokes panelists blind in parallel (Claude via Agent tool; GPT/Gemini via CLI runners), collects verdict JSONs, then prompts the user to run check-cross-model to gate the result.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/skills/cross-model-verify/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-quality-loop@sdd-plugins"
+        },
+        {
+          "name": "sdd-quality-loop:fix-by-review-ticket",
+          "description": "Apply only a human-approved repository review-ticket YAML fix, run scoped checks, and return the task to Implementation Complete for another quality gate.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/skills/fix-by-review-ticket/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-quality-loop@sdd-plugins"
+        },
+        {
+          "name": "sdd-quality-loop:quality-gate",
+          "description": "Independently verify an Implementation Complete task with a Default-FAIL verification contract, deterministic checks, and an isolated critical reviewer, then decide whether it is Done.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/skills/quality-gate/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-quality-loop@sdd-plugins"
+        },
+        {
+          "name": "sdd-quality-loop:sdd-sudo",
+          "description": "Human-invoked toggle that lets the agent pass all human approval checkpoints without waiting, respecting AGENT_STOP and deterministic gates.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/skills/sdd-sudo/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-quality-loop@sdd-plugins"
+        },
+        {
+          "name": "sdd-quality-loop:wfi-audit-cycle",
+          "description": "Orchestrator for the WFI proposal audit. Runs 2 sequential independent audit cycles on a WFI-NNN.md Draft before presenting it to a human for Approved. Cycle 1 (wfi-auditor-a) audits proposal quality. Cycle 2 (wfi-auditor-b) audits impact and risk. Each auditor runs as a fresh isolated agent. The orchestrator applies audit findings to revise the WFI between cycles, creates a GitHub Issue for plugin-improvement WFIs, and sets Audit-Status: Human-Pending when complete.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/skills/wfi-audit-cycle/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-quality-loop@sdd-plugins"
+        },
+        {
+          "name": "sdd-quality-loop:workflow-retrospective",
+          "description": "Measure how the SDD workflow itself performed (rework cycles, blocked tasks, review tickets, quality-gate failures) and propose human-approved improvements to project workflow files.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/skills/workflow-retrospective/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-quality-loop@sdd-plugins"
+        },
+        {
+          "name": "sdd-review-loop:impl-review-loop",
+          "description": "Orchestrator for the SDD implementation policy review loop. Runs up to three rounds of dual-reviewer checks on design.md. Coordinates impl-reviewer-a (structural soundness) and impl-reviewer-b (implementability/risk), merges verdicts, and manages round/attempt state. Human edits are required between rounds when findings exist.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-review-loop/1.18.0/skills/impl-review-loop/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-review-loop@sdd-plugins"
+        },
+        {
+          "name": "sdd-review-loop:spec-review-loop",
+          "description": "Independently review Phase 1 requirements and acceptance tests before implementation-policy review. Persists a validated specification review verdict.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-review-loop/1.18.0/skills/spec-review-loop/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-review-loop@sdd-plugins"
+        },
+        {
+          "name": "sdd-review-loop:task-review-loop",
+          "description": "Orchestrator for the SDD task decomposition review loop. Runs up to three rounds of dual-reviewer checks on tasks.md. Coordinates task-reviewer-a (structural coverage) and task-reviewer-b (quality/risk), merges verdicts, and manages round/attempt state. Human edits are required between rounds when findings exist.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-review-loop/1.18.0/skills/task-review-loop/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-review-loop@sdd-plugins"
+        },
+        {
+          "name": "sdd-ship:ship",
+          "description": "Implement approved SDD tasks through the quality gate to Done — the second of the two-command workflow. Run after /sdd-bootstrap:bootstrap and human task approval.",
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-ship/1.18.0/skills/ship/SKILL.md",
+          "scope": "user",
+          "enabled": true,
+          "pluginId": "sdd-ship@sdd-plugins"
+        },
+        {
+          "name": "imagegen",
+          "description": "Generate or edit raster images when the task benefits from AI-created bitmap visuals such as photos, illustrations, textures, sprites, mockups, or transparent-background cutouts. Use when Codex should create a brand-new image, transform an existing image, or derive visual variants from references, and the output should be a bitmap asset rather than repo-native code or vector. Do not use when the task is better handled by editing existing SVG/vector/code-native assets, extending an established icon or logo system, or building the visual directly in HTML/CSS/canvas.",
+          "interface": {
+            "displayName": "Image Gen",
+            "shortDescription": "Generate or edit images for websites, games, and more",
+            "iconSmall": "/workspace/.tools/sdd-forge-dev/codex-verify/skills/.system/imagegen/assets/imagegen-small.svg",
+            "iconLarge": "/workspace/.tools/sdd-forge-dev/codex-verify/skills/.system/imagegen/assets/imagegen.png",
+            "iconSmallUrl": null,
+            "iconLargeUrl": null,
+            "brandColor": null,
+            "defaultPrompt": "Use $imagegen to make or edit an image for this project."
+          },
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/skills/.system/imagegen/SKILL.md",
+          "scope": "system",
+          "enabled": true,
+          "pluginId": null
+        },
+        {
+          "name": "openai-docs",
+          "description": "Use for Codex models/pricing, scheduled tasks, skills, settings, setup, troubleshooting, customization, automations, and self-knowledge—including 'you,' 'your,' 'this app,' or 'this coding agent' when they refer to Codex—and for OpenAI APIs/products and ChatGPT Work. Also use for model choice/migration, prompting, SDKs, Responses, Realtime, agents, evals, and Chat/Work/Codex comparisons. Do not use for generic app/software tasks that merely mention Codex.",
+          "shortDescription": "Codex models/pricing, scheduled tasks, skills, settings, setup, troubleshooting, and self-knowledge; OpenAI APIs and ChatGPT Work. 'You'/'this app' means Codex only.",
+          "interface": {
+            "displayName": "OpenAI Docs",
+            "shortDescription": "OpenAI and Codex docs for models, skills, tasks, and setup",
+            "iconSmall": "/workspace/.tools/sdd-forge-dev/codex-verify/skills/.system/openai-docs/assets/openai-small.svg",
+            "iconLarge": "/workspace/.tools/sdd-forge-dev/codex-verify/skills/.system/openai-docs/assets/openai.png",
+            "iconSmallUrl": null,
+            "iconLargeUrl": null,
+            "brandColor": null,
+            "defaultPrompt": "Use OpenAI Docs for official docs lookup, questions about Codex itself or Codex surfaces, model selection, model migration, and prompt-upgrade work."
+          },
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/skills/.system/openai-docs/SKILL.md",
+          "scope": "system",
+          "enabled": true,
+          "pluginId": null
+        },
+        {
+          "name": "review-agent",
+          "description": "Perform a read-only, defect-first review of a specified code change and return every actionable finding. Use when another agent delegates review of uncommitted changes, a base-branch diff, a commit, or custom review instructions.",
+          "interface": {
+            "displayName": "Review Agent",
+            "shortDescription": "Find actionable bugs in code changes",
+            "iconSmall": null,
+            "iconLarge": null,
+            "iconSmallUrl": null,
+            "iconLargeUrl": null,
+            "brandColor": null,
+            "defaultPrompt": "Use $review-agent to review the requested code changes and return actionable findings."
+          },
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/skills/.system/review-agent/SKILL.md",
+          "scope": "system",
+          "enabled": true,
+          "pluginId": null
+        },
+        {
+          "name": "skill-creator",
+          "description": "Create or update a Codex skill with appropriately scoped instructions and any needed supporting resources.",
+          "shortDescription": "Create or update a skill",
+          "interface": {
+            "displayName": "Skill Creator",
+            "shortDescription": "Create or update a skill",
+            "iconSmall": "/workspace/.tools/sdd-forge-dev/codex-verify/skills/.system/skill-creator/assets/skill-creator-small.svg",
+            "iconLarge": "/workspace/.tools/sdd-forge-dev/codex-verify/skills/.system/skill-creator/assets/skill-creator.png",
+            "iconSmallUrl": null,
+            "iconLargeUrl": null,
+            "brandColor": null,
+            "defaultPrompt": null
+          },
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/skills/.system/skill-creator/SKILL.md",
+          "scope": "system",
+          "enabled": true,
+          "pluginId": null
+        },
+        {
+          "name": "skill-installer",
+          "description": "Install Codex skills into $CODEX_HOME/skills from a curated list or a GitHub repo path. Use when a user asks to list installable skills, install a curated skill, or install a skill from another repo (including private repos).",
+          "shortDescription": "Install curated skills from openai/skills or other repos",
+          "interface": {
+            "displayName": "Skill Installer",
+            "shortDescription": "Install curated skills from openai/skills or other repos",
+            "iconSmall": "/workspace/.tools/sdd-forge-dev/codex-verify/skills/.system/skill-installer/assets/skill-installer-small.svg",
+            "iconLarge": "/workspace/.tools/sdd-forge-dev/codex-verify/skills/.system/skill-installer/assets/skill-installer.png",
+            "iconSmallUrl": null,
+            "iconLargeUrl": null,
+            "brandColor": null,
+            "defaultPrompt": null
+          },
+          "path": "/workspace/.tools/sdd-forge-dev/codex-verify/skills/.system/skill-installer/SKILL.md",
+          "scope": "system",
+          "enabled": true,
+          "pluginId": null
+        }
+      ],
+      "errors": []
+    }
+  ]
+}
