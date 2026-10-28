@@ -21,3 +21,16 @@ Reproduce on a compatible Linux host with bubblewrap and the fixed system tools:
 `python3 -B reports/verification/workflow-session-main-20261028/measure.py`.
 It creates a temporary fixture outside the repository and prints results; it
 does not rewrite the retained `result.json`.
+
+`real-result.json` records one ordered run against the clean actual candidate
+checkout at commit `f325bf461082631a0e5a0e92aa2ec8cfe34de041`. The ordinary
+full check passed in 42.089 seconds. The batch returned `cold-required` in
+0.404 seconds because the captured tree exceeded its file limit; the subsequent
+ordinary fallback passed in 41.077 seconds with identical output hashes. This is
+one local comparison, not a claim of improvement, a controlled repeated timing,
+or the full #614 workload. No task or approval state was changed.
+
+`measure-real.py` runs against the current directory and requires a clean
+checkout; it prints results without replacing the retained record. To reproduce
+this particular source, run the script from an isolated checkout of the recorded
+commit. Host conditions, filesystem contents and timing may differ.

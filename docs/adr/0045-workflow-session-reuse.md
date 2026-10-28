@@ -45,5 +45,7 @@ all remaining checks and for repeating verification after edits.
 Current evidence is limited to local sealed-sandbox tests and existing workflow
 regressions. Hosted CI, Windows/macOS execution of the optional batch, a full
 lifecycle measurement and any half-time target remain unverified. A three-repeat local synthetic comparison found the batch slower despite
-fewer full executions; see `reports/verification/workflow-session-main-20261028/`.
+fewer full executions. One clean actual checkout exceeded the file cap and
+required a successful ordinary fallback. See
+`reports/verification/workflow-session-main-20261028/`.
 The batch is not a general command cache and makes no claim about faster Done evaluation.
