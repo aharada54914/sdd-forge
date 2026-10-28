@@ -34,3 +34,20 @@ or the full #614 workload. No task or approval state was changed.
 checkout; it prints results without replacing the retained record. To reproduce
 this particular source, run the script from an isolated checkout of the recorded
 commit. Host conditions, filesystem contents and timing may differ.
+
+## Process profile for the full repository
+
+On clean candidate commit `3cbfcca3d847292415eb27e51eb6ab596d726ee5`,
+we ran the ordinary Bash checker once under `strace -f -c -e trace=process,file`
+and once with Bash xtrace redirected to a private temporary file. Both exited 0
+and produced the same stdout hash as the prior uninstrumented baseline. The
+aggregate `process-profile.json` retains counts only; the raw xtrace, which can
+contain repository input, is not retained. Instrumentation perturbs timing.
+
+The syscall summary observed 12,832 `execve` and 18,376 `clone` calls. The
+xtrace showed 3,493 `jq`, 2,393 `sha256_file`, and 1,599 `git` command entries;
+854 distinct hash argument strings account for those 2,393 entries. These
+measurements identify investigation targets, not safe cache keys: the same path
+may change between reads, and hash/history provenance, error behavior and
+independent review must still be enforced. A real change requires separate
+negative controls and a cold/warm comparison on the actual workload.
