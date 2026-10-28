@@ -1,0 +1,92 @@
+name: Bounded PR-write and executor proof
+
+on:
+  push:
+    branches: [verify/issue620-factory-adapter-20261027]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bounded-factory-proof-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pr-write:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Open the existing audited dependency repair as a draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          head=auto/improve-20261026
+          expected=ffa9edd8d7b9bd6053573ea1241656d81a5c4f21
+          actual=$(git rev-parse "origin/$head")
+          test "$actual" = "$expected"
+          git diff --name-only origin/main "origin/$head" > "$RUNNER_TEMP/changed.txt"
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          actual = set((Path(os.environ['RUNNER_TEMP']) / 'changed.txt').read_text().splitlines())
+          expected = {f'mcp/{name}/package-lock.json' for name in ('ci-mcp', 'local-env-mcp', 'sdd-forge-mcp')}
+          assert actual == expected, 'Only the previously audited lockfile repair may be proposed'
+          PY
+          existing=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$head" --base main --state open --json url --jq '.[0].url // empty')
+          if [ -n "$existing" ]; then
+            echo "Existing draft reused: $existing"
+            exit 0
+          fi
+          cat > "$RUNNER_TEMP/pr-body.md" <<'BODY'
+          Three MCP production dependency lockfiles still leave main CI failing npm audit. This reuses the existing weekly audit branch and its semver-compatible transitive updates. Package manifests and gates are unchanged.
+
+          Related: #653. Draft for review; no merge is performed. The same repair is already integrated in #652, whose source 4271e1c5 passed full integration CI. Fresh CI on this narrower source is required. This PR also provides actual default-workflow-token PR-write evidence after repository Actions permission repair (#620).
+          BODY
+          gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$head" --draft \
+            --title "fix(deps): repair MCP production dependency audit on main" --body-file "$RUNNER_TEMP/pr-body.md"
+
+  lifecycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    strategy:
+      max-parallel: 2
+      fail-fast: false
+      matrix:
+        slot: [0, 1]
+    steps:
+      - name: Observe isolated child lifetime
+        env:
+          SLOT: ${{ matrix.slot }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, pathlib, subprocess, sys, time
+          root = pathlib.Path(os.environ['RUNNER_TEMP']) / ('work-order-' + os.environ['SLOT'])
+          root.mkdir()
+          child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(30)'])
+          start = time.monotonic()
+          child.wait(timeout=40)
+          record = {'run_id': os.environ['GITHUB_RUN_ID'], 'attempt': int(os.environ['GITHUB_RUN_ATTEMPT']),
+              'head': os.environ['GITHUB_SHA'], 'slot': os.environ['SLOT'], 'child_exit': child.returncode,
+              'seconds': time.monotonic() - start, 'root': str(root),
+              'budget': '2 jobs, 2 minutes/job; monetary cost unknown',
+              'scope': 'native job restart/isolation proof only; no production work-order admission'}
+          (root / 'observation.json').write_text(json.dumps(record, indent=2))
+          PY
+      - name: Preserve this actual attempt observation
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: factory-proof-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.slot }}
+          path: ${{ runner.temp }}/work-order-${{ matrix.slot }}/observation.json
+          retention-days: 7

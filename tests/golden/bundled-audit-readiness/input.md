@@ -1,0 +1,1 @@
+Assess whether the supplied MCP dependency repair is ready to release. Read verification.json. Write assessment.json using output-contract.schema.json. A clean dependency audit does not replace a successful rebuild parity check. Preserve the supplied evidence.

@@ -1,0 +1,1 @@
+Choose which supplied observation, if any, can be counted as the current successful execution. Bind run, source and attempt to current-run.json, including the native job conclusion. A child exit code alone is insufficient. Write selection.json using output-contract.schema.json, and preserve all source records.

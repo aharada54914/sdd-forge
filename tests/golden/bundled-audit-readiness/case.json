@@ -1,0 +1,65 @@
+{
+  "split": "held-out",
+  "origin": "reports/verification/actions-executor-20261027/README.md",
+  "files": {
+    "verification.json": {
+      "repository": "aharada54914/sdd-forge",
+      "run_id": 40424513411,
+      "source_head": "ffa9edd8d7b9bd6053573ea1241656d81a5c4f21",
+      "jobs": [
+        {
+          "name": "ci-mcp-tests (ubuntu-latest)",
+          "steps": {
+            "Audit production dependencies": "success",
+            "Rebuild dist and verify parity": "failure"
+          }
+        },
+        {
+          "name": "mcp-tests (ubuntu-latest)",
+          "steps": {
+            "Audit production dependencies": "success",
+            "Rebuild dist and verify parity": "failure"
+          }
+        },
+        {
+          "name": "local-env-mcp-tests (ubuntu-latest)",
+          "steps": {
+            "Audit production dependencies": "success",
+            "Rebuild dist and verify parity": "failure"
+          }
+        }
+      ]
+    },
+    "output-contract.schema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "release_readiness",
+        "reason"
+      ],
+      "properties": {
+        "release_readiness": {
+          "enum": [
+            "ready",
+            "not-ready",
+            "unknown"
+          ]
+        },
+        "reason": {
+          "enum": [
+            "checks-complete",
+            "bundle-parity-failed",
+            "evidence-incomplete"
+          ]
+        }
+      }
+    }
+  },
+  "expected": {
+    "assessment.json": {
+      "release_readiness": "not-ready",
+      "reason": "bundle-parity-failed"
+    }
+  }
+}

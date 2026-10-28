@@ -49,6 +49,19 @@ def main() -> None:
         assert states(root, hashlib.sha256(staged.read_bytes()).hexdigest()) == ["MISSING"], (
             "missing file that exists on main must remain a failure"
         )
+        live = root / "plugins" / "example.txt"
+        live.parent.mkdir(parents=True)
+        live.write_text("second branch edit\n", encoding="utf-8")
+        before = {p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+        main_digest = hashlib.sha256(b"main bytes\n").hexdigest()
+        assert states(root, main_digest) == ["PENDING"], "ambiguous second edit must stay pending"
+        assert before == {p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()}, (
+            "classification must not modify reviewed bytes"
+        )
+        assert states(root, hashlib.sha256(staged.read_bytes()).hexdigest()) == ["STALE"]
+        live.write_bytes(staged.read_bytes())
+        assert states(root, main_digest) == ["FRESH"]
+    print("human-copy mirror classification regression: 6 passed")
     for fixture_name in ('ship-track-selection-current-publication.json', 'decision-sidecar-current-publication.json'):
         fixture = json.loads((ROOT / 'tests/fixtures' / fixture_name).read_text())
         for entry in fixture['successors']:

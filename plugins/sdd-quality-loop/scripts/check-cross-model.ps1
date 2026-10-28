@@ -72,7 +72,11 @@ function Write-Aggregate {
     if (-not (Test-Path $dir)) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
     }
-    $agg | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 $aggregatePath
+    # PowerShell 5.1's Set-Content UTF8 adds a BOM; preserve PS-relative paths.
+    $aggregateFullPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($aggregatePath)
+    [System.IO.File]::WriteAllText($aggregateFullPath,
+        (($agg | ConvertTo-Json -Depth 5) + [Environment]::NewLine),
+        (New-Object System.Text.UTF8Encoding($false)))
 }
 
 # ── Step 0: discover verdict files ─────────────────────────────────────────

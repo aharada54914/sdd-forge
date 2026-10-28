@@ -1,0 +1,51 @@
+{
+  "split": "tuning",
+  "origin": "docs/contributor/issue-620-repository-syntax.md",
+  "files": {
+    "audit.json": {
+      "status": "partial",
+      "checks": {
+        "json_yaml": false
+      },
+      "finding": "invalid JSON detected",
+      "cause": null
+    },
+    "output-contract.schema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "process_status",
+        "findings",
+        "cause"
+      ],
+      "properties": {
+        "process_status": {
+          "enum": [
+            "complete",
+            "incomplete"
+          ]
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cause": {
+          "type": "string",
+          "description": "Use unknown when cause is not established."
+        }
+      }
+    }
+  },
+  "expected": {
+    "assessment.json": {
+      "process_status": "incomplete",
+      "findings": [
+        "invalid JSON detected"
+      ],
+      "cause": "unknown"
+    }
+  }
+}

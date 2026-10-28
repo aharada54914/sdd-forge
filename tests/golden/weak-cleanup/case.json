@@ -1,0 +1,12 @@
+{
+  "split": "held-out",
+  "origin": "docs/workflow-improvements/WFI-041.md",
+  "files": {
+    "scratch/owned.tmp": "temporary\n",
+    "retained/evidence.txt": "failed operation evidence\n"
+  },
+  "expected": {},
+  "absent": [
+    "scratch/owned.tmp"
+  ]
+}
