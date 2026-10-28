@@ -19,3 +19,10 @@ and subagents, and used a separate temporary Copilot state directory.
 paths and providing an authorized Copilot session are needed for a rerun. Its
 model output and credentials are not retained. The Codex observation remains a
 separate real authenticated model observation; Claude was not authenticated.
+
+A separate `discovery-cleanup.py` run used another synthetic fixture. Native
+Copilot discovery found its wrapper once, then found it zero times after that
+wrapper was removed. The canonical source was unchanged and the temporary
+fixture was removed. `discovery-cleanup.json` records this observation; no model
+call was made in that run. To rerun it in this development environment, provide
+an installed CLI in `SDD_COPILOT_CLI` or use the temporary path in the script.

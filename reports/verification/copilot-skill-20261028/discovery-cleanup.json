@@ -1,0 +1,11 @@
+{
+  "cli_version": "GitHub Copilot CLI 1.0.104.",
+  "source_sha256": "2e85f50513653a92b974feed7c52593e52158fd0c05eb48a45beb14cce5b4ed5",
+  "seal_status": "draft",
+  "wrapper_sha256": "3ecbb94d5a9e2f578c3c6fe791dc8f0aa81f2451363bfd67301e06d7aa579a6d",
+  "discovered_before": 1,
+  "discovered_after": 0,
+  "canonical_source_unchanged": true,
+  "model_run": "not-run",
+  "fixture_removed": true
+}
