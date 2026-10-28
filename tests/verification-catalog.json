@@ -2398,6 +2398,13 @@
       ]
     },
     {
+      "path": "tests/project-skill-profiles.tests.py",
+      "runtime": "python",
+      "ci_jobs": [
+        "posix-regression"
+      ]
+    },
+    {
       "path": "tests/research-acquire.tests.py",
       "runtime": "python",
       "ci_jobs": [
@@ -2672,6 +2679,7 @@
       "tests/factory-workflow.tests.py",
       "tests/workflow-state-session.tests.py",
       "tests/project-skill-lifecycle.tests.py",
+      "tests/project-skill-profiles.tests.py",
       "tests/research-acquire.tests.py",
       "tests/research-consumers.tests.py",
       "tests/project-evidence-collector.tests.py",
@@ -2937,6 +2945,7 @@
       "tests/factory-workflow.tests.py",
       "tests/workflow-state-session.tests.py",
       "tests/project-skill-lifecycle.tests.py",
+      "tests/project-skill-profiles.tests.py",
       "tests/research-acquire.tests.py",
       "tests/research-consumers.tests.py",
       "tests/project-evidence-collector.tests.py",
