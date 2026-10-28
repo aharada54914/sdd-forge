@@ -257,6 +257,18 @@ class Consumers(unittest.TestCase):
         self.assertFalse(result["changes_approval"])
         self.assertEqual(result, impact(self.doc, graph, self.root, "SRC-001"))
 
+    def test_impact_rejects_incomplete_traceability_entries(self):
+        graph = self.graph()
+        path = self.root / "specs/sample/traceability.json"
+        original = json.loads(path.read_text())
+        for field, value in (("acs", []), ("tests", []), ("acs", [" "]),
+                             ("tests", [None]), ("evidence", [42])):
+            data = copy.deepcopy(original)
+            data["links"][0][field] = value
+            path.write_text(json.dumps(data))
+            with self.subTest(field=field, value=value), self.assertRaisesRegex(Invalid, "traceability-invalid"):
+                impact(self.doc, graph, self.root, "SRC-001")
+
     def test_graph_rejects_stale_dangling_wrong_direction_duplicates(self):
         graph = self.graph()
         for mutation in [
