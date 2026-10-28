@@ -152,6 +152,14 @@ def manifest_digest_mismatches(root):
                     yield bundle, rel, recorded.strip(), actual
 
 
+RESEARCH_STAGE = "specs/epic-191-a3-path-ownership/human-copy"
+RESEARCH_PINS = {
+    "plugins/sdd-quality-loop/scripts/check-contract.py",
+    "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+}
+
 def pinned_candidate(root, bundle, rel, staged_digest, live_digest):
     """Preserve only exact candidate/predecessor pairs for independent review."""
     pair = (rel, f"{bundle.replace(os.sep, '/')}/{rel}")
@@ -163,6 +171,33 @@ def pinned_candidate(root, bundle, rel, staged_digest, live_digest):
             data = json.load(handle)
         entries = [entry for entry in data["successors"] if entry["live"] == pair[0] and entry["staged"] == pair[1]]
         if data["schema"] != schema or len(entries) != 1:
+            return "STALE"
+        pin = entries[0]
+        if not isinstance(pin["intentional_changes"], str) or not pin["intentional_changes"].strip():
+            return "STALE"
+        if staged_digest == pin["staged_sha256"]:
+            if live_digest == pin["live_sha256"] and live_digest != staged_digest:
+                return "PENDING"
+            if live_digest == staged_digest:
+                return "FRESH"
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    return "STALE"
+
+
+def research_candidate(root, bundle, rel, staged_digest, live_digest):
+    """Keep exact pending successors out of the automatic mirror sync."""
+    bundle = bundle.replace(os.sep, "/")
+    if rel not in RESEARCH_PINS or not (bundle == RESEARCH_STAGE or
+            (bundle == "specs/epic-136-phase2-gates/human-copy" and
+             rel == "plugins/sdd-quality-loop/scripts/check-contract.ps1")):
+        return None
+    try:
+        with open(os.path.join(root, "tests/fixtures/research-consumer-current-publication.json"), encoding="utf-8") as handle:
+            data = json.load(handle)
+        entries = [entry for entry in data["successors"] if entry["live"] == rel and
+                   entry["staged"] == f"{RESEARCH_STAGE}/{rel}"]
+        if data["schema"] != "research-consumer-current-publication/v1" or len(entries) != 1:
             return "STALE"
         pin = entries[0]
         if not isinstance(pin["intentional_changes"], str) or not pin["intentional_changes"].strip():
@@ -196,6 +231,8 @@ def classify(root, main_digests=None):
         candidate_state = pinned_candidate(root, bundle, rel, staged_digest, live_digest) if rule == "manifest" else None
         if candidate_state is not None:
             yield candidate_state, bundle, rel, staged, rule
+        elif rule == "manifest" and (research_state := research_candidate(root, bundle, rel, staged_digest, live_digest)) is not None:
+            yield research_state, bundle, rel, staged, rule
         elif staged_digest == live_digest:
             yield "FRESH", bundle, rel, staged, rule
         elif staged_digest == main_digests.get(rel):

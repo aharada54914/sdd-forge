@@ -11,6 +11,22 @@ evidence; a human choice uses the existing signed approval-sidecar machinery
 and `decision-choice/v1`. A choice is not task approval or a Done transition.
 The helper owns no executor or persistent scheduling state. See
 [ADR-0043](docs/adr/0043-workflow-exploration-decision-ownership.md).
+## Research evidence
+
+`research-evidence/v1` records source and claim metadata, references and storage
+conditions separately from existing code-investigation and gate records. The
+quality-loop validator checks the closed contract and supported local consistency
+rules; validation does not assert truth, rights, independent review or gate PASS.
+See [ADR-0041](docs/adr/0041-research-evidence-contract.md).
+
+The bootstrap acquisition adapter returns bounded, source-pinned observations;
+quality-loop consumers compare supplied originals and excerpts. Retrieval,
+storage permission and semantic support remain separate decisions. The direct
+adapter refuses an inherited proxy instead of asserting its peer boundary.
+An explicit research review packet may be admitted through existing
+specification and implementation review input owners. An optional
+`source-evidence` contract check re-verifies the current originals; neither
+mechanism changes reviewer identity or approval authority.
 
 ## Read-only inspection through protection hooks
 

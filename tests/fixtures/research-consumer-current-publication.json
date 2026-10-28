@@ -1,0 +1,34 @@
+{
+  "schema": "research-consumer-current-publication/v1",
+  "note": "Candidate byte bindings against frozen staged predecessors; independent review pending.",
+  "successors": [
+    {
+      "live": "plugins/sdd-quality-loop/scripts/check-contract.py",
+      "staged": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/check-contract.py",
+      "staged_sha256": "2b94c174a534309c6b8744451a34bc6124406df373c45be6deb63c8a311249d3",
+      "live_sha256": "3a28d582133a2256cdfee060fadf8898a0d1eb9fe226e58c632739d2b3d785c9",
+      "intentional_changes": "Optional source-evidence validation and fixed research review-input integration; historical staged consumer preserved."
+    },
+    {
+      "live": "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "staged": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/check-contract.ps1",
+      "staged_sha256": "1ce796d91352a488d479a335af08b663a430b0c1d9858dc2593382181d54344a",
+      "live_sha256": "0371deae4ff90edf3cc91bcaca0e93331a42c854d7ee53b699bf4d580221760c",
+      "intentional_changes": "Optional source-evidence validation and fixed research review-input integration; historical staged consumer preserved."
+    },
+    {
+      "live": "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "staged": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "staged_sha256": "73a547e30025ad4c54313aaf03a3bec31286e50f90d80c37340c22ffee0603d4",
+      "live_sha256": "21d8e4f4fb35a75e54f23e9d100302573b60933e6583b0472412c171f809e756",
+      "intentional_changes": "Optional source-evidence validation and fixed research review-input integration; historical staged consumer preserved."
+    },
+    {
+      "live": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "staged": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "staged_sha256": "08792df3be712917b9e771abec28e153a8d013624286ad221da1837f2d462b2e",
+      "live_sha256": "80c0def3f2b7157876935c394417b2418e3fca5c5966921d5769a22c7f85cd13",
+      "intentional_changes": "Optional source-evidence validation and fixed research review-input integration; historical staged consumer preserved."
+    }
+  ]
+}

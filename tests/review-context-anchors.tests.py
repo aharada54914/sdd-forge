@@ -113,6 +113,8 @@ ANCHORS = (
         'if jq -e --arg p "$path" --arg h "$expected_hash" \\',
         '\'any(.[]; .path == $p and .sha256 == $h)\' <<< "$fixed_references" >/dev/null; then',
         ': # Only references authenticated against this fixed inventory are admitted.',
+        'elif [[ "$stage" == impl && "$path" == docs/adr/* ]] && path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"; then',
+        ': # Research-selected ADRs are separately bound by the conditional resolver.',
         'elif [[ "$stage" == impl && "$path" == docs/adr/* ]]; then',
         'if [[ "$adr_binding_verified" != true ]]; then',
         "verify_captured_adr_binding || fail CONTRACT 'ADR declaration and input binding disagree'",
@@ -184,6 +186,7 @@ def controls(sources, document):
     group = ''.join(group_lines[start - 1:end])
     internal = next(line for line in group.splitlines(keepends=True) if '(keys | sort)' in line)
     mutants = [
+        ('unbound research ADR', sources['validator'].replace(' && path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"; then', '; then', 1)),
         ('missing grouped predicate', sources['validator'].replace(group, group.replace(internal, ''), 1)),
         ('duplicate grouped anchor', sources['validator'].replace(group, group + group, 1)),
         ('missing statement', sources['validator'].replace(statement, '', 1)),
@@ -208,7 +211,7 @@ def controls(sources, document):
         except ValueError:
             continue
         raise AssertionError(f'undetected document mutation: {label}')
-    print('ok: comment shifts accepted; 9 semantic/reference mutations rejected')
+    print('ok: comment shifts accepted; 10 semantic/reference mutations rejected')
 
 
 def main():

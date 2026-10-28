@@ -1043,6 +1043,10 @@ if ($runnerPredatesRefresh -and ($env:SDD_PHASE2_RUNNER_CHILD -ne '1')) {
 # stages in its own bundle are not this bundle's staging surface.
 $syncOk = $true
 try {
+    $python = Get-Command python3 -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($null -eq $python) { $python = Get-Command python -CommandType Application -ErrorAction Stop | Select-Object -First 1 }
+    $researchSuccessors = @((& $python.Source (Join-Path $root 'tests/lib/research-consumer-publication.py') $root | ConvertFrom-Json))
+    if ($LASTEXITCODE -ne 0) { throw 'Research successor validation failed' }
     $syncTargets = @($bootstrapTargets)
     if ($syncTargets.Count -eq 0) { $syncOk = $false }
     foreach ($syncTarget in $syncTargets) {
@@ -1062,6 +1066,11 @@ try {
                 $entries[0].live_sha256 -ceq $syncLiveHash.ToLowerInvariant() -and
                 $entries[0].staged_sha256 -ceq $syncStagedHash.ToLowerInvariant() -and
                 $entries[0].intentional_changes -is [string] -and $entries[0].intentional_changes.Length -gt 0) { continue }
+        }
+        if ($syncTarget -ceq 'plugins/sdd-quality-loop/scripts/check-contract.ps1' -and
+            $researchSuccessors -ccontains $syncTarget -and
+            $syncStagedHash -ceq (Get-FileHash -LiteralPath (Join-Path $root "specs/epic-191-a3-path-ownership/human-copy/$syncTarget") -Algorithm SHA256).Hash) {
+            continue
         }
         if ($syncLiveHash -cne $syncStagedHash) {
             Write-Host "  out of sync: $syncTarget"

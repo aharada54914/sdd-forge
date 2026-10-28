@@ -525,7 +525,15 @@ function Test-ValidateContract(
     if (-not [string]::IsNullOrEmpty($contractInvestigationHash) -and -not (Test-OrdinalEqual $contractInvestigationHash $investigationHash)) { return $false }
     $expectedAList.Add([pscustomobject]@{ path = $investigationPath; sha256 = $investigationHash })
   }
-  foreach ($relative in @('domain/context-map.md', 'domain/domain-contract.json')) {
+  $researchConditionals = @($reviewers | Where-Object { Test-OrdinalEqual $_.role 'spec-reviewer-a' } |
+    ForEach-Object { $_.allowed_input_manifest } | ForEach-Object {
+      $local = (Get-ManifestLocalPath ([string]$_.path) '').Replace('\', '/')
+      $prefix = $root.Replace('\', '/').TrimEnd('/') + '/'
+      $relative = if ($local.StartsWith($prefix, [StringComparison]::Ordinal)) { $local.Substring($prefix.Length) } else { '' }
+      if ($relative -cmatch ('^specs/' + [Regex]::Escape($Feature) + '/research/(review-input\.json|relations\.json|records/research-evidence\.json)$') -or
+          $relative -cmatch '^docs/adr/[0-9]{4}-[a-z0-9-]+\.md$') { $relative }
+    })
+  foreach ($relative in @('domain/context-map.md', 'domain/domain-contract.json') + $researchConditionals) {
     $conditionalPath = Get-ManifestLocalPath $relative ''
     $entries = @($reviewers | Where-Object { Test-OrdinalEqual $_.role 'spec-reviewer-a' } |
       ForEach-Object { $_.allowed_input_manifest } |
