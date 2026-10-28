@@ -2,6 +2,7 @@
   "schema": "verification-catalog/v1",
   "suites": [
     {"path": "tests/project-skill-lifecycle.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
+    {"path": "tests/project-skill-profiles.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/project-skill-observation.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/a9-advisory-evidence.tests.py", "runtime": "python", "delegated_to": "tests/a9-dogfood.tests.sh"},
     {"path": "tests/a9-dogfood.tests.ps1", "runtime": "powershell", "ci_jobs": ["test-windows-heavy", "version-gates"]},
@@ -772,6 +773,7 @@
     ],
     "ci-shared-python": [
       "tests/project-skill-lifecycle.tests.py",
+      "tests/project-skill-profiles.tests.py",
       "tests/project-skill-observation.tests.py",
       "tests/current-byte-capture.tests.py",
       "tests/concept-test.tests.py",
