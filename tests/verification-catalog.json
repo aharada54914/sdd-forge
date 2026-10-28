@@ -157,7 +157,7 @@
     {"path": "tests/host-review-preflight.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/human-copy-mirror-freshness.tests.ps1", "runtime": "powershell"},
     {"path": "tests/human-copy-mirror-freshness.tests.sh", "runtime": "bash"},
-    {"path": "tests/human-copy-mirrors-classification.tests.py", "runtime": "python", "excluded": "Focused mirror classification diagnostic; not registered by the previous runners."},
+    {"path": "tests/human-copy-mirrors-classification.tests.py", "runtime": "python"},
     {"path": "tests/human-copy-runner-contract.tests.ps1", "runtime": "powershell", "ci_jobs": ["version-gates"]},
     {"path": "tests/human-copy-runner-contract.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
     {"path": "tests/impl-layer-review-inputs.tests.ps1", "runtime": "powershell", "ci_jobs": ["test", "test-windows-heavy"]},
@@ -774,6 +774,7 @@
       "tests/upstream-concept-issue.tests.sh"
     ],
     "ci-shared-python": [
+      "tests/human-copy-mirrors-classification.tests.py",
       "tests/factory-workflow.tests.py",
       "tests/run-measurement.tests.py",
       "tests/run-measurement-integration.tests.py",
