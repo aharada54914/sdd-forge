@@ -1,0 +1,3 @@
+auth codex-dev: current
+auth codex-verify: current
+Reading additional input from stdin...
