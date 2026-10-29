@@ -20,6 +20,7 @@ evidence; a human choice uses the existing signed approval-sidecar machinery
 and `decision-choice/v1`. A choice is not task approval or a Done transition.
 The helper owns no executor or persistent scheduling state. See
 [ADR-0043](docs/adr/0043-workflow-exploration-decision-ownership.md).
+
 ## Research evidence
 
 `research-evidence/v1` records source and claim metadata, references and storage
