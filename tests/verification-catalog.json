@@ -1,6 +1,7 @@
 {
   "schema": "verification-catalog/v1",
   "suites": [
+    {"path": "tests/project-evidence-collector.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/project-skill-lifecycle.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/project-skill-observation.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/a9-advisory-evidence.tests.py", "runtime": "python", "delegated_to": "tests/a9-dogfood.tests.sh"},
@@ -364,6 +365,7 @@
   ],
   "profiles": {
     "local-posix": [
+      "tests/project-evidence-collector.tests.py",
       "tests/project-skill-lifecycle.tests.py",
       "tests/project-skill-observation.tests.py",
       "tests/ci-suite-wiring.tests.sh",
@@ -558,6 +560,7 @@
       "tests/verification-impact.tests.py"
     ],
     "local-powershell": [
+      "tests/project-evidence-collector.tests.py",
       "tests/project-skill-lifecycle.tests.py",
       "tests/project-skill-observation.tests.py",
       "tests/validate-repository.ps1",
@@ -773,6 +776,7 @@
     ],
     "ci-shared-python": [
       "tests/workflow-state-session.tests.py",
+      "tests/project-evidence-collector.tests.py",
       "tests/project-skill-lifecycle.tests.py",
       "tests/project-skill-observation.tests.py",
       "tests/current-byte-capture.tests.py",
