@@ -5,6 +5,7 @@
 ### Added
 - 明示された公開ホストからの制限付き取得と、ローカル原文の引用照合を追加（#606・#607 の一部）。
 - 外部資料・主張・引用・保存条件を区別する研究根拠契約と受動的な検証器を追加（#605 の一部）。
+- Add an opt-in loopback-only status view to sdd-forge-mcp. It displays current read-only project state, the next step and later phases without inventing unknown states.
 
 ## v1.18.0 (2026-10-01)
 

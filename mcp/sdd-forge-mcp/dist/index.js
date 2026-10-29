@@ -41850,6 +41850,61 @@ function buildServer(root) {
   return server;
 }
 
+// src/status-view.ts
+import { createServer } from "node:http";
+import { randomBytes, timingSafeEqual } from "node:crypto";
+var PAGE = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>\u4ED5\u69D8\u3068\u30BF\u30B9\u30AF\u306E\u73FE\u5728\u5730 | sdd-forge</title><style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#172c38;background:#f3f6f8;line-height:1.75}*{box-sizing:border-box}body{margin:0}header{background:white;border-bottom:1px solid #dce4e9}header div,main{max-width:850px;margin:auto;padding:20px 24px}h1{font-size:clamp(26px,5vw,36px)}h2{font-size:22px}section{background:white;border:1px solid #dce4e9;border-radius:14px;padding:24px;margin:20px 0}select,button{font:inherit;min-height:48px;border:1px solid #8b9da9;border-radius:8px;padding:10px;background:white;color:#172c38}select{width:100%;margin-top:8px}button{cursor:pointer}button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #1269ce;outline-offset:3px}.next{background:#eef5fc;border-radius:10px;padding:20px}.muted{color:#526675}ul{padding:0;list-style:none}li{border-bottom:1px solid #e7edf1;padding:12px 0;display:flex;justify-content:space-between;gap:12px}li span:last-child{text-align:right}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:20em;overflow:auto;background:#f3f6f8;padding:12px}summary{cursor:pointer;min-height:48px}code{overflow-wrap:anywhere}[hidden]{display:none!important}@media(max-width:540px){main,header div{padding-left:20px;padding-right:20px}section{padding:20px}}
+</style></head><body><header><div><strong>sdd-forge</strong> <span class="muted">\u30FB\u8AAD\u307F\u53D6\u308A\u5C02\u7528</span></div></header><main><h1>\u4ED5\u69D8\u3068\u30BF\u30B9\u30AF\u306E\u73FE\u5728\u5730</h1><p>\u3069\u3053\u307E\u3067\u9032\u3093\u3060\u304B\u3001\u6B21\u306B\u4F55\u3092\u3059\u308C\u3070\u3088\u3044\u304B\u3092\u78BA\u8A8D\u3067\u304D\u307E\u3059\u3002</p><p class="muted">\u73FE\u5728\u306E\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u304B\u3089\u53D6\u5F97\u3057\u307E\u3059\u3002\u66F4\u65B0\u30DC\u30BF\u30F3\u3067\u518D\u53D6\u5F97\u3067\u304D\u307E\u3059\u3002</p><label for="feature">\u78BA\u8A8D\u3059\u308B\u6A5F\u80FD</label><select id="feature" disabled><option>\u8AAD\u307F\u8FBC\u307F\u4E2D</option></select><p><button id="refresh" type="button">\u72B6\u614B\u3092\u66F4\u65B0</button></p><p id="error" role="alert"></p><section id="result" hidden><h2 id="headline"></h2><p id="reason"></p><div class="next"><strong>\u6B21\u306B\u3059\u308B\u3053\u3068</strong><p id="next"></p><p><code id="command"></code></p><button id="copy" type="button">\u30B3\u30DE\u30F3\u30C9\u3092\u30B3\u30D4\u30FC</button><p id="copy-result" role="status"></p><p class="muted">\u30B3\u30DE\u30F3\u30C9\u306F\u3053\u306E\u753B\u9762\u304B\u3089\u5B9F\u884C\u3055\u308C\u307E\u305B\u3093\u3002</p></div></section><section id="progress" hidden><h2>\u5DE5\u7A0B\u3054\u3068\u306E\u72B6\u614B</h2><p class="muted">\u72B6\u614B\u672A\u78BA\u8A8D\u306F\u3001\u53D6\u5F97\u30C7\u30FC\u30BF\u3060\u3051\u3067\u306F\u5B9F\u65BD\u72B6\u6CC1\u304C\u5206\u304B\u3089\u306A\u3044\u3053\u3068\u3092\u793A\u3057\u307E\u3059\u3002\u632F\u308A\u8FD4\u308A\u306F\u6761\u4EF6\u306B\u5FDC\u3058\u3066\u5B9F\u65BD\u3057\u307E\u3059\u3002</p><ul id="steps"></ul><details><summary>\u5224\u65AD\u306E\u6839\u62E0\u3092\u898B\u308B</summary><pre id="raw"></pre></details></section><p class="muted">\u8868\u793A\u306F\u8AAD\u307F\u53D6\u308A\u5C02\u7528\u3067\u3059\u3002\u30BF\u30B9\u30AF\u3084\u627F\u8A8D\u306F\u5909\u66F4\u3057\u307E\u305B\u3093\u3002</p></main><script>
+const $=id=>document.getElementById(id);let requestId=0;const api=(path)=>fetch(path,{cache:'no-store'}).then(async r=>{if(!r.ok)throw Error('\u72B6\u614B\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F');return r.json()});
+const explanations={'phase1-not-started':'\u8981\u4EF6\u30D5\u30A1\u30A4\u30EB\u3092\u307E\u3060\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002','spec-review':'\u8981\u4EF6\u306E\u30EC\u30D3\u30E5\u30FC\u304C\u5B8C\u4E86\u3057\u3066\u3044\u307E\u305B\u3093\u3002','impl-review':'\u8A2D\u8A08\u306E\u30EC\u30D3\u30E5\u30FC\u304C\u5B8C\u4E86\u3057\u3066\u3044\u307E\u305B\u3093\u3002','phase2-not-started':'\u5B9F\u88C5\u30BF\u30B9\u30AF\u3092\u307E\u3060\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002','task-review':'\u30BF\u30B9\u30AF\u306E\u30EC\u30D3\u30E5\u30FC\u304C\u5B8C\u4E86\u3057\u3066\u3044\u307E\u305B\u3093\u3002','approval-gate':'\u627F\u8A8D\u6E08\u307F\u306E\u30BF\u30B9\u30AF\u304C\u3042\u308A\u307E\u305B\u3093\u3002','implementation':'\u627F\u8A8D\u6E08\u307F\u306E\u4F5C\u696D\u4E2D\u307E\u305F\u306F\u4E88\u5B9A\u306E\u30BF\u30B9\u30AF\u304C\u3042\u308A\u307E\u3059\u3002','quality-gate':'\u5B9F\u88C5\u5B8C\u4E86\u306E\u30BF\u30B9\u30AF\u306B\u54C1\u8CEA\u78BA\u8A8D\u304C\u5FC5\u8981\u3067\u3059\u3002','done':'\u627F\u8A8D\u6E08\u307F\u306E\u30BF\u30B9\u30AF\u306F\u3059\u3079\u3066Done\u3067\u3059\u3002','blocked':'\u30D6\u30ED\u30C3\u30AF\u3055\u308C\u305F\u30BF\u30B9\u30AF\u304C\u3042\u308A\u307E\u3059\u3002'};
+const phases={'phase1-not-started':'\u4ED5\u69D8\u306E\u6E96\u5099\u304C\u5FC5\u8981\u3067\u3059','spec-review':'\u4ED5\u69D8\u30EC\u30D3\u30E5\u30FC\u304C\u5FC5\u8981\u3067\u3059','impl-review':'\u8A2D\u8A08\u30EC\u30D3\u30E5\u30FC\u304C\u5FC5\u8981\u3067\u3059','phase2-not-started':'\u30BF\u30B9\u30AF\u306E\u6E96\u5099\u304C\u5FC5\u8981\u3067\u3059','task-review':'\u30BF\u30B9\u30AF\u30EC\u30D3\u30E5\u30FC\u304C\u5FC5\u8981\u3067\u3059','approval-gate':'\u30BF\u30B9\u30AF\u306E\u627F\u8A8D\u5F85\u3061\u3067\u3059','implementation':'\u5B9F\u88C5\u3092\u9032\u3081\u3089\u308C\u307E\u3059','quality-gate':'\u54C1\u8CEA\u30B2\u30FC\u30C8\u304C\u5FC5\u8981\u3067\u3059','done':'\u627F\u8A8D\u6E08\u307F\u30BF\u30B9\u30AF\u304C\u5B8C\u4E86\u3057\u3066\u3044\u307E\u3059','blocked':'\u30D6\u30ED\u30C3\u30AB\u30FC\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044'};
+function row(name,value){const li=document.createElement('li');for(const text of [name,value]){const span=document.createElement('span');span.textContent=text;li.append(span)}$('steps').append(li)}
+async function show(){const f=$('feature').value;if(!f)return;const id=++requestId;$('error').textContent='';$('result').hidden=true;$('progress').hidden=true;try{const data=await api('api/status?feature='+encodeURIComponent(f));if(id!==requestId)return;const n=data.next;if(!n.ok)$('error').textContent='\u6B21\u306E\u5DE5\u7A0B\u3092\u5224\u65AD\u3067\u304D\u307E\u305B\u3093: '+n.error.message;const p=n.ok?n.data.phase:'cannot-determine';$('headline').textContent=phases[p]||'\u72B6\u614B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044';$('reason').textContent=explanations[p]||'MCP\u306E\u8FD4\u5374\u3057\u305F\u5DE5\u7A0B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002';$('copy').hidden=p==='done'||!n.ok;$('copy-result').textContent='';$('next').textContent=!n.ok?'\u5224\u65AD\u306E\u6839\u62E0\u3092\u78BA\u8A8D\u3057\u3001\u72B6\u614B\u3092\u66F4\u65B0\u3057\u3066\u304F\u3060\u3055\u3044\u3002':p==='done'?'MCP\u304C\u6848\u5185\u3059\u308B\u6B21\u306E\u5DE5\u7A0B\u306F\u3042\u308A\u307E\u305B\u3093\u3002':'\u8868\u793A\u3055\u308C\u305F\u624B\u9806\u3092\u958B\u767A\u74B0\u5883\u3067\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002';$('command').textContent=n.ok?n.data.nextCommand:'';const spec=data.spec.ok?data.spec.data.artifacts:[];const status=name=>{const x=spec.find(a=>a.name===name);return !x?'\u72B6\u614B\u672A\u78BA\u8A8D':!x.exists?'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF':({Passed:'\u30EC\u30D3\u30E5\u30FC\u6E08\u307F',Pending:'\u30EC\u30D3\u30E5\u30FC\u5F85\u3061'}[x.reviewStatus]||x.reviewStatus||'\u72B6\u614B\u672A\u78BA\u8A8D')};$('steps').replaceChildren();row('\u8981\u4EF6\u306E\u30EC\u30D3\u30E5\u30FC',status('requirements'));row('\u8A2D\u8A08\u306E\u30EC\u30D3\u30E5\u30FC',status('design'));const tasks=spec.find(a=>a.name==='tasks');row('\u5B9F\u88C5\u30BF\u30B9\u30AF\u306E\u6E96\u5099',!tasks?'\u72B6\u614B\u672A\u78BA\u8A8D':tasks.exists?'\u30D5\u30A1\u30A4\u30EB\u3042\u308A':'\u672A\u4F5C\u6210\u307E\u305F\u306F\u78BA\u8A8D\u4E0D\u53EF');row('\u30BF\u30B9\u30AF\u306E\u30EC\u30D3\u30E5\u30FC',status('tasks'));row('\u30BF\u30B9\u30AF\u306E\u627F\u8A8D',p==='approval-gate'?'\u627F\u8A8D\u5F85\u3061':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B9F\u88C5',p==='implementation'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u54C1\u8CEA\u30B2\u30FC\u30C8\uFF08\u30BF\u30B9\u30AF\u3054\u3068\uFF09',p==='quality-gate'?'\u73FE\u5728\u306E\u5DE5\u7A0B':'\u72B6\u614B\u672A\u78BA\u8A8D');row('\u5B8C\u4E86\u306E\u78BA\u8A8D','\u72B6\u614B\u672A\u78BA\u8A8D');row('\u632F\u308A\u8FD4\u308A\uFF08\u6761\u4EF6\u3042\u308A\uFF09','\u72B6\u614B\u672A\u78BA\u8A8D');$('raw').textContent=JSON.stringify(data,null,2);$('result').hidden=false;$('progress').hidden=false}catch(e){if(id===requestId)$('error').textContent='\u72B6\u614B\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u66F4\u65B0\u3092\u8A66\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}}
+async function start(){try{const r=await api('api/features');if(!r.ok)throw Error(r.error.message);const selected=$('feature').value;$('feature').replaceChildren();for(const item of r.data.specs){const option=document.createElement('option');option.value=item.feature;option.textContent=item.feature;$('feature').append(option)}if(r.data.specs.some(item=>item.feature===selected))$('feature').value=selected;$('feature').disabled=false;if(r.data.specs.length)await show();else $('error').textContent='\u8868\u793A\u3067\u304D\u308B\u6A5F\u80FD\u304C\u3042\u308A\u307E\u305B\u3093\u3002'}catch(e){$('error').textContent='\u6A5F\u80FD\u4E00\u89A7\u3092\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u8A2D\u5B9A\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}}$('feature').onchange=show;$('refresh').onclick=()=>start();$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('command').textContent);$('copy-result').textContent='\u30B3\u30D4\u30FC\u3057\u307E\u3057\u305F\u3002\u958B\u767A\u74B0\u5883\u306B\u8CBC\u308A\u4ED8\u3051\u3066\u304F\u3060\u3055\u3044\u3002'}catch{$('copy-result').textContent='\u81EA\u52D5\u30B3\u30D4\u30FC\u3067\u304D\u307E\u305B\u3093\u3002\u30B3\u30DE\u30F3\u30C9\u3092\u9078\u629E\u3057\u3066\u30B3\u30D4\u30FC\u3057\u3066\u304F\u3060\u3055\u3044\u3002'}};start();</script></body></html>`;
+async function startStatusView(root) {
+  const token = randomBytes(32).toString("hex");
+  let host = "";
+  const server = createServer((req, res) => {
+    const headers = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'" };
+    const send = (status, contentType, body) => {
+      res.writeHead(status, { ...headers, "Content-Type": contentType });
+      res.end(body);
+    };
+    if (req.method !== "GET" || req.headers.host !== host || req.headers.origin && req.headers.origin !== `http://${host}`) return send(403, "text/plain; charset=utf-8", "Forbidden");
+    let url2;
+    try {
+      url2 = new URL(req.url ?? "/", `http://${host}`);
+    } catch {
+      return send(400, "text/plain; charset=utf-8", "Invalid request");
+    }
+    const parts = url2.pathname.split("/");
+    const given = Buffer.from(parts[1] ?? "");
+    const expected = Buffer.from(token);
+    if (given.length !== expected.length || !timingSafeEqual(given, expected)) return send(404, "text/plain; charset=utf-8", "Not found");
+    const route = parts.slice(2).join("/");
+    if (route === "") return send(200, "text/html; charset=utf-8", PAGE);
+    if (route === "api/features") return send(200, "application/json; charset=utf-8", JSON.stringify(listActiveSpecs(root)));
+    if (route === "api/status") {
+      const feature = url2.searchParams.get("feature") ?? "";
+      if (!validateFeature(feature).ok) return send(400, "application/json; charset=utf-8", JSON.stringify({ error: "invalid feature" }));
+      return send(200, "application/json; charset=utf-8", JSON.stringify({ spec: getSpecStatus(root, feature), tasks: getTaskState(root, feature), next: getNextSddCommand2(root, feature) }));
+    }
+    return send(404, "text/plain; charset=utf-8", "Not found");
+  });
+  await new Promise((resolve3, reject) => {
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", () => {
+      server.off("error", reject);
+      resolve3();
+    });
+  });
+  const address = server.address();
+  if (!address || typeof address === "string") throw new Error("Unable to determine status view port");
+  host = `127.0.0.1:${address.port}`;
+  return { server, url: `http://${host}/${token}/` };
+}
+
 // src/index.ts
 async function main() {
   let root;
@@ -41874,6 +41929,12 @@ async function main() {
   };
   process.stderr.write(`${JSON.stringify(startupInfo)}
 `);
+  if (process.argv.slice(2).includes("--status-ui")) {
+    const view = await startStatusView(root);
+    process.stderr.write(`Read-only status view: ${view.url}
+`);
+    return;
+  }
   const server = buildServer(root);
   const transport = new StdioServerTransport();
   await server.connect(transport);
