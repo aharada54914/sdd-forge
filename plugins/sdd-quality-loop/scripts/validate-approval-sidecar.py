@@ -151,6 +151,12 @@ CATEGORY_EXIT_CODES = {
 # sidecar `schema` id -> the content schema this sidecar accompanies, per
 # design.md's Data Plan / API Contract Plan.
 CONTENT_SCHEMA_INFO = {
+    "sdd-decision-choice-approval/v1": {
+        "schema_filename": "decision-choice.v1.schema.json",
+        "input_format": "json",
+        "array_field": "inputs",
+        "dup_category": "CONTENT_SCHEMA_VIOLATION",
+    },
     "sdd-concept-test-approval/v1": {
         "schema_filename": "concept-test.v1.schema.json",
         "input_format": "json",
@@ -367,13 +373,16 @@ def _canonicalize_json_preimage(obj):
 # ---------------------------------------------------------------------------
 
 
-def _staging_transaction_journals():
-    return sorted(glob.glob(os.path.join("sdd", ".staging", "*", "TRANSACTION.json")))
+def _staging_transaction_journals(root=None):
+    return sorted(glob.glob(os.path.join(str(root) if root is not None else '', "sdd", ".staging", "*", "TRANSACTION.json")))
 
 
-def _check_no_publish_in_progress(*paths_being_read):
-    normalized_targets = {os.path.normpath(p) for p in paths_being_read if p}
-    for journal_path in _staging_transaction_journals():
+def _check_no_publish_in_progress(*paths_being_read, root=None):
+    def normalized(path):
+        return os.path.normpath(os.path.join(str(root), path) if root is not None else path)
+    normalized_targets = {normalized(p) for p in paths_being_read if p}
+    journals = _staging_transaction_journals() if root is None else _staging_transaction_journals(root)
+    for journal_path in journals:
         try:
             with open(journal_path, "r", encoding="utf-8") as f:
                 journal = json.load(f)
@@ -389,7 +398,7 @@ def _check_no_publish_in_progress(*paths_being_read):
             continue
         for target in targets:
             live_path = target.get("live_path") if isinstance(target, dict) else None
-            if isinstance(live_path, str) and os.path.normpath(live_path) in normalized_targets:
+            if isinstance(live_path, str) and normalized(live_path) in normalized_targets:
                 raise ValidateApprovalSidecarError(
                     "HUMAN_COPY_PUBLISH_IN_PROGRESS",
                     f"a live human-copy transaction journal at {journal_path!r} "

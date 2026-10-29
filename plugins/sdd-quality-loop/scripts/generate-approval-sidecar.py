@@ -87,6 +87,7 @@ CATEGORY_EXIT_CODES = {
 # enum) -> the basename every sibling artifact (live sidecar, approved-context
 # anchor, staged candidate/snapshot) shares, per design.md's Data Plan.
 SCHEMA_BASENAMES = {
+    "sdd-decision-choice-approval/v1": "decision-choice",
     "sdd-concept-test-approval/v1": "concept-test",
     "sdd-project-context-approval/v1": "project-context",
     "sdd-provider-bindings-approval/v1": "provider-bindings",
@@ -435,8 +436,13 @@ LIVE_SIDECAR_DIR = "sdd"
 LIVE_ANCHOR_DIR = "sdd/.approved-context"
 
 
-def _live_target_paths(schema_id, feature=None):
+def _live_target_paths(schema_id, feature=None, decision_id=None):
     """(sidecar, snapshot) repo-relative LIVE paths for this schema id."""
+    if schema_id == "sdd-decision-choice-approval/v1":
+        if not isinstance(feature, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]*", feature) or not isinstance(decision_id, str) or not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9-]{0,63}", decision_id):
+            raise GenerateApprovalSidecarError("USAGE_ERROR", "decision choice requires valid --feature and --decision-id")
+        prefix = f"specs/{feature}/decisions/{decision_id}/decision-choice"
+        return prefix + ".approval.json", prefix + ".approved.json"
     if schema_id == "sdd-concept-test-approval/v1":
         if not isinstance(feature, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]*", feature):
             raise GenerateApprovalSidecarError("USAGE_ERROR", "concept-test requires a valid --feature")
@@ -449,7 +455,7 @@ def _live_target_paths(schema_id, feature=None):
     )
 
 
-def _write_staged_outputs(stage_dir, schema_id, sidecar_obj, content_bytes, nonce, simulate_failure=None, feature=None):
+def _write_staged_outputs(stage_dir, schema_id, sidecar_obj, content_bytes, nonce, simulate_failure=None, feature=None, decision_id=None):
     """Writes the signed candidate, the byte-exact approved-context snapshot,
     and MANIFEST.sha256 to a TEMPORARY sibling directory, re-hashes every
     file from disk, then commits with ONE atomic directory rename into
@@ -496,7 +502,7 @@ def _write_staged_outputs(stage_dir, schema_id, sidecar_obj, content_bytes, nonc
     a permission error, etc.) is wrapped as `GenerateApprovalSidecarError`
     (`STAGING_IO_ERROR`), never left to propagate as a raw, undocumented
     traceback (quality-gate seq0350 Major remedy)."""
-    sidecar_live_path, snapshot_live_path = _live_target_paths(schema_id, feature)
+    sidecar_live_path, snapshot_live_path = _live_target_paths(schema_id, feature, decision_id)
     sidecar_bytes = (json.dumps(sidecar_obj, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
     stage_dir = stage_dir.rstrip("/").rstrip(os.sep)
@@ -602,6 +608,7 @@ def build_arg_parser():
     parser.add_argument("--repo", help="fixed-review repository containing sdd/approver-registry.yaml")
     parser.add_argument("--inventory", help="fixed-review input inventory JSON")
     parser.add_argument("--feature", help="fixed-review feature scope")
+    parser.add_argument("--decision-id", help="immutable decision-choice record identifier")
     parser.add_argument("--stage", help="fixed-review stage scope")
     parser.add_argument("--task-id", help="optional fixed-review task scope")
     parser.add_argument("--content", help="path to the live project-context.yaml/provider-bindings.yaml content file")
@@ -671,7 +678,7 @@ def _require(args, names):
 def _issue_fixed_approval(args):
     _require(args, ["repo", "inventory", "feature", "stage", "approver", "status"])
     if args.status != "Approved" or any(getattr(args, name) is not None for name in (
-        "content", "live_sidecar", "second_approver", "simulate_mid_write_failure",
+        "content", "live_sidecar", "second_approver", "simulate_mid_write_failure", "decision_id",
     )):
         raise GenerateApprovalSidecarError("USAGE_ERROR", "fixed review requires Approved and no legacy sidecar arguments")
     key = resolve_context_key()
@@ -744,9 +751,13 @@ def main(argv=None):
         if args.schema == FIXED_SCHEMA:
             return _issue_fixed_approval(args)
         concept = args.schema == "sdd-concept-test-approval/v1"
-        if any(getattr(args, name) is not None for name in ("repo", "inventory", "stage", "task_id")) or (args.feature is not None and not concept):
+        choice = args.schema == "sdd-decision-choice-approval/v1"
+        immutable = concept or choice
+        if any(getattr(args, name) is not None for name in ("inventory", "stage", "task_id")) or (args.repo is not None and not choice) or (args.feature is not None and not immutable) or (args.decision_id is not None and not choice):
             raise GenerateApprovalSidecarError("USAGE_ERROR", "fixed-review arguments require the fixed-review schema")
-        _require(args, ["schema", "content", "approver", "status"] + ([] if concept else ["live_sidecar"]))
+        _require(args, ["schema", "content", "approver", "status"] + ([] if immutable else ["live_sidecar"]))
+        if choice:
+            _require(args, ['repo', 'feature', 'decision_id'])
 
         if args.status != "Approved":
             raise GenerateApprovalSidecarError(
@@ -767,19 +778,53 @@ def main(argv=None):
         except OSError as exc:
             raise GenerateApprovalSidecarError("USAGE_ERROR", f"cannot read --content {args.content!r}: {exc}") from exc
 
-        if concept:
-            _live_target_paths(args.schema, args.feature)
+        if immutable:
+            _live_target_paths(args.schema, args.feature, args.decision_id)
             try:
                 record = json.loads(content_bytes)
-                if record.get("feature") != args.feature or record.get("schema") != "concept-test/v1":
+                expected = "decision-choice/v1" if choice else "concept-test/v1"
+                if record.get("feature") != args.feature or record.get("schema") != expected:
                     raise ValueError("wrong feature or record schema")
-            except (ValueError, AttributeError) as exc:
-                raise GenerateApprovalSidecarError("USAGE_ERROR", "invalid concept-test content") from exc
+                if choice:
+                    if record.get("decision_id") != args.decision_id:
+                        raise ValueError("wrong decision identifier")
+                    root = Path(args.repo).resolve(strict=True)
+                    source = Path(args.content).absolute()
+                    expected = root / 'specs' / args.feature / 'decisions' / args.decision_id / 'decision-choice.json'
+                    if source != expected or source.resolve() != expected or source.is_symlink():
+                        raise ValueError('choice content must use its canonical live path under --repo')
+                    live_sidecar, live_anchor = (root / p for p in _live_target_paths(args.schema, args.feature, args.decision_id))
+                    if any(p.exists() or p.is_symlink() for p in (live_sidecar, live_anchor)):
+                        raise ValueError("decision identifiers are immutable; use a new id and previous reference")
+                    validator_spec = importlib.util.spec_from_file_location("choice_issuer_validator", Path(__file__).with_name("validate-approval-sidecar.py"))
+                    validator = importlib.util.module_from_spec(validator_spec)
+                    validator_spec.loader.exec_module(validator)
+                    try:
+                        validator._validate_content(args.content, validator.CONTENT_SCHEMA_INFO[args.schema])
+                    except validator.ValidateApprovalSidecarError as exc:
+                        raise ValueError("invalid choice schema") from exc
+                    try:
+                        validator._check_no_publish_in_progress(str(source), str(live_sidecar), str(live_anchor), root=root)
+                    except validator.ValidateApprovalSidecarError as exc:
+                        raise ValueError('choice publication is in progress') from exc
+                    choice_spec = importlib.util.spec_from_file_location('choice_history_issuer', Path(__file__).resolve().parents[2] / 'sdd-bootstrap/scripts/decision-packet.py')
+                    choices = importlib.util.module_from_spec(choice_spec)
+                    choice_spec.loader.exec_module(choices)
+                    heads = choices.choice_heads(root, args.feature, record['task'])
+                    expected_previous = None
+                    if heads:
+                        path, (_, content_hash, approval_hash) = next(iter(heads.items()))
+                        expected_previous = {'record': {'path': path, 'sha256': content_hash},
+                                             'approval': {'path': path.removesuffix('.json') + '.approval.json', 'sha256': approval_hash}}
+                    if record['previous'] != expected_previous:
+                        raise ValueError('new choice must extend the current signed history')
+            except (ValueError, AttributeError, OSError, KeyError, TypeError) as exc:
+                raise GenerateApprovalSidecarError("USAGE_ERROR", "invalid immutable decision content") from exc
 
-        context_sha256 = _hash_content_file(content_bytes, "json" if concept else "yaml")
+        context_sha256 = _hash_content_file(content_bytes, "json" if immutable else "yaml")
 
         # Concept decisions approve an immutable evidence snapshot, not a policy transition.
-        if concept:
+        if immutable:
             predecessor_context_sha256, weakening_verdict, approval_epoch = None, None, 1
         else:
             predecessor_context_sha256, weakening_verdict, approval_epoch = _resolve_provenance(
@@ -823,7 +868,7 @@ def main(argv=None):
 
         _write_staged_outputs(
             stage_dir, args.schema, sidecar, content_bytes, nonce,
-            simulate_failure=args.simulate_mid_write_failure, feature=args.feature,
+            simulate_failure=args.simulate_mid_write_failure, feature=args.feature, decision_id=args.decision_id,
         )
 
         print(f"staged: {stage_dir}")

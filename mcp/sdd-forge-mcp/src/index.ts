@@ -11,6 +11,7 @@
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { isSddRoot, resolveRoot, type SddRoot } from "./root.js";
 import { buildServer } from "./server.js";
+import { startStatusView } from "./status-view.js";
 
 async function main(): Promise<void> {
   let root: SddRoot;
@@ -34,6 +35,12 @@ async function main(): Promise<void> {
     },
   };
   process.stderr.write(`${JSON.stringify(startupInfo)}\n`);
+
+  if (process.argv.slice(2).includes("--status-ui")) {
+    const view = await startStatusView(root);
+    process.stderr.write(`Read-only status view: ${view.url}\n`);
+    return;
+  }
 
   const server = buildServer(root);
   const transport = new StdioServerTransport();

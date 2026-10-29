@@ -107,6 +107,10 @@ flowchart LR
 プラグインのインストール手順は本ファイルの [インストール](#インストール) 節を、運用手順は [docs/workflow-guide.md](docs/workflow-guide.md) をご覧ください。
 **初めての方は workflow-guide.md の正常系フローからお読みください。**
 
+調査・性能確認・隔離試作・引き継ぎには、bootstrap の用途別プレイブックと
+[判断資料](plugins/sdd-bootstrap/references/decision-packet.md)を利用できます。
+比較案の選択と、通常のタスク承認・品質ゲートは別に扱います。
+
 `install.sh` / `install.ps1` には read-only の MCP サーバーが同梱されており、既定で配置・登録されます。
 
 ### MCP サーバー
@@ -118,6 +122,14 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 #### sdd-forge-mcp
 
 `sdd-forge-mcp` は、対象リポジトリの SDD 状態（spec / タスク / レビューチケット / 品質ゲート結果 / evidence）を構造化データとして読み取るための **read-only** MCP サーバーです。書き込み API は一切持たず、stdio 経由で MCP クライアント（Claude Code / Codex）から子プロセスとして起動されます。
+
+任意で、プロジェクトの現在状態をブラウザで確認できます。インストール先の `sdd-forge-mcp` を次のように起動し、表示されたURLを**同じマシンのブラウザ**で開きます。`--root` には対象プロジェクトを指定します。
+
+```bash
+node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root <プロジェクト>
+```
+
+画面は127.0.0.1のみに待ち受け、停止は Ctrl+C です。URLには実行ごとに変わるアクセス用の値が含まれるため共有しないでください。更新ボタンは同じ読取処理を再実行し、画面からコマンドや承認を実行しません。リモート端末への公開機能ではありません。通常のMCP起動に `--status-ui` は不要です。
 
 #### local-env-mcp
 

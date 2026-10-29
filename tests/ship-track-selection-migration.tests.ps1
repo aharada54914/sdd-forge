@@ -625,11 +625,35 @@ foreach ($doc in $StagedDocs) {
 # TEST-PUB: publication state of the two protected consumers.
 # ===========================================================================
 Write-Output '--- TEST-PUB: staged/live publication state ---'
-function Get-PublicationState([string]$LiveRel, [string]$StagedRel) {
-    $livePath = Join-Path $Root $LiveRel
-    $stagedPath = Join-Path $Root $StagedRel
+function Get-Sha256([string]$Path) {
+    (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+}
+# A live file that differs from its staged candidate is 'published' only when the
+# successor fixture pins BOTH full SHA-256 values; a pinned predecessor that no
+# longer matches is drift even when live equals the altered staged file.
+function Get-SuccessorPin([string]$BaseRoot, [string]$LiveRel, [string]$StagedRel) {
+    $fixture = Join-Path $BaseRoot 'tests/fixtures/ship-track-selection-current-publication.json'
+    if (-not (Test-Path -LiteralPath $fixture)) { return 'none' }
+    try {
+        $data = Get-Content -LiteralPath $fixture -Raw | ConvertFrom-Json
+        if ($data.schema -cne 'ship-track-selection-current-publication/v1') { return 'bad' }
+        $entries = @($data.successors | Where-Object { $_.live -ceq $LiveRel -and $_.staged -ceq $StagedRel })
+        if ($entries.Count -eq 0) { return 'none' }
+        if ($entries.Count -gt 1) { return 'bad' }
+        $e = $entries[0]
+        if (-not ([string]$e.intentional_changes).Trim() -or
+            $e.staged_sha256 -cne (Get-Sha256 (Join-Path $BaseRoot $StagedRel))) { return 'bad' }
+        if ($e.live_sha256 -ceq (Get-Sha256 (Join-Path $BaseRoot $LiveRel))) { return 'ok' }
+        return 'live-bad'
+    } catch { return 'bad' }
+}
+function Get-PublicationState([string]$LiveRel, [string]$StagedRel, [string]$BaseRoot = $Root) {
+    $livePath = Join-Path $BaseRoot $LiveRel
+    $stagedPath = Join-Path $BaseRoot $StagedRel
     if (-not (Test-Path -LiteralPath $livePath)) { return 'missing-live' }
     if (-not (Test-Path -LiteralPath $stagedPath)) { return 'missing-staged' }
+    $pin = Get-SuccessorPin $BaseRoot $LiveRel $StagedRel
+    if ($pin -eq 'bad') { return 'drift' }
     $liveBytes = [IO.File]::ReadAllBytes($livePath)
     $stagedBytes = [IO.File]::ReadAllBytes($stagedPath)
     $same = ($liveBytes.Length -eq $stagedBytes.Length)
@@ -638,7 +662,7 @@ function Get-PublicationState([string]$LiveRel, [string]$StagedRel) {
             if ($liveBytes[$i] -ne $stagedBytes[$i]) { $same = $false; break }
         }
     }
-    if ($same) { return 'published' }
+    if ($same -or $pin -eq 'ok') { return 'published' }
     $liveText = [IO.File]::ReadAllText($livePath)
     if ($liveText.Contains('sdd:track-selection-contract v1')) { return 'drift' }
     return 'unpublished'
@@ -651,7 +675,7 @@ foreach ($pair in @(@($LiveShip, $DocShip), @($LiveLiteSpec, $DocLiteSpec))) {
         "got $state"
     Assert-True ($state -ne 'drift') `
         "TEST-PUB [$($pair[0])] no staged/live drift" `
-        'a published live file must be byte-identical to its staged candidate'
+        'a published live file must be byte-identical to its staged candidate or match its pinned successor baseline'
 }
 
 # --- TEST-PUB pair consistency (ADR-0023:59-62) ----------------------------
@@ -689,6 +713,70 @@ $StateLiteSpec = Get-PublicationState $LiveLiteSpec $DocLiteSpec
 Write-Output "--- publication pair state: ship=$StateShip lite-spec=$StateLiteSpec"
 Assert-Eq $StateShip $StateLiteSpec `
     "TEST-PUB pair consistency: both protected consumers are in the SAME publication state (ADR-0023:59-62 forbids a partial migration where some skills honor the new precedence and others the old)"
+
+# --- TEST-PUB successor baseline: mutation and rollback ---------------------
+# Controls on a throwaway root: the pinned successor is admitted, and every
+# departure from it (unknown live edit, staged edit/replacement/deletion, stale
+# pins, absent or empty baseline, one consumer unpublished) must be rejected.
+$Succ = Join-Path $Work 'succ'
+$SuccFixture = 'tests/fixtures/ship-track-selection-current-publication.json'
+function Reset-Succ {
+    if (Test-Path -LiteralPath $Succ) { Remove-Item -LiteralPath $Succ -Recurse -Force }
+    foreach ($f in @($LiveShip, $DocShip, $LiveLiteSpec, $DocLiteSpec, $SuccFixture)) {
+        $dest = Join-Path $Succ $f
+        New-Item -ItemType Directory -Path (Split-Path -Parent $dest) -Force | Out-Null
+        Copy-Item -LiteralPath (Join-Path $Root $f) -Destination $dest
+    }
+}
+function Edit-SuccFixture([string]$How) {
+    $path = Join-Path $Succ $SuccFixture
+    $data = Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
+    $entry = $data.successors[0]
+    switch ($How) {
+        'stale-staged' { $entry.staged_sha256 = '0' * 64 }
+        'stale-live' { $entry.live_sha256 = '0' * 64 }
+        'no-explanation' { $entry.intentional_changes = ' ' }
+        'other-consumer' { $entry.live = 'plugins/other/SKILL.md' }
+        'wrong-schema' { $data.schema = 'ship-track-selection-current-publication/v2' }
+        'duplicate-pair' { $data.successors = @($data.successors) + @($entry) }
+        'path-case' { $entry.live = $entry.live.Replace('sdd-ship', 'SDD-Ship') }
+        'uppercase-sha' { $entry.live_sha256 = $entry.live_sha256.ToUpperInvariant() }
+    }
+    [IO.File]::WriteAllText($path, ($data | ConvertTo-Json -Depth 5))
+}
+function Add-Byte([string]$Rel) { [IO.File]::AppendAllText((Join-Path $Succ $Rel), "x`n") }
+function Assert-SuccShip([string]$Label, [string]$Expected) {
+    Assert-Eq (Get-PublicationState $LiveShip $DocShip $Succ) $Expected "TEST-PUB successor: $Label"
+}
+Reset-Succ; Assert-SuccShip 'pinned successor baseline is admitted' 'published'
+Assert-Eq (Get-PublicationState $LiveLiteSpec $DocLiteSpec $Succ) 'published' 'TEST-PUB successor: unchanged byte-equal consumer stays published'
+Reset-Succ; Add-Byte $LiveShip; Assert-SuccShip 'unknown live edit is drift' 'drift'
+Reset-Succ; Add-Byte $DocShip; Assert-SuccShip 'altered staged predecessor is drift' 'drift'
+Reset-Succ; Copy-Item -LiteralPath (Join-Path $Succ $LiveShip) -Destination (Join-Path $Succ $DocShip) -Force
+Assert-SuccShip 'staged replaced by live (equal bytes) is drift' 'drift'
+Reset-Succ; Remove-Item -LiteralPath (Join-Path $Succ $DocShip); Assert-SuccShip 'deleted staged candidate is rejected' 'missing-staged'
+Reset-Succ
+$markerPath = Join-Path $Succ $LiveShip
+[IO.File]::WriteAllText($markerPath, ([IO.File]::ReadAllText($markerPath) -replace 'sdd:track-selection-contract v1', 'sdd:track-selection-contract v2'))
+Assert-SuccShip 'altered contract marker is rejected' 'unpublished'
+Reset-Succ; Remove-Item -LiteralPath (Join-Path $Succ $SuccFixture); Assert-SuccShip 'absent baseline is drift' 'drift'
+Reset-Succ; [IO.File]::WriteAllText((Join-Path $Succ $SuccFixture), ''); Assert-SuccShip 'unreadable baseline is drift' 'drift'
+foreach ($how in @('stale-staged', 'stale-live', 'no-explanation', 'other-consumer', 'wrong-schema', 'duplicate-pair', 'path-case', 'uppercase-sha')) {
+    Reset-Succ; Edit-SuccFixture $how; Assert-SuccShip "baseline $how is drift" 'drift'
+}
+Reset-Succ; Add-Byte $LiveLiteSpec
+Assert-Ne (Get-PublicationState $LiveLiteSpec $DocLiteSpec $Succ) (Get-PublicationState $LiveShip $DocShip $Succ) `
+    'TEST-PUB successor: one drifted consumer breaks pair consistency'
+Reset-Succ
+$litePath = Join-Path $Succ $LiveLiteSpec
+[IO.File]::WriteAllText($litePath, (([IO.File]::ReadAllText($litePath) -split "`n" | Where-Object { $_ -notmatch 'sdd:track-selection-contract' }) -join "`n"))
+Assert-Ne (Get-PublicationState $LiveLiteSpec $DocLiteSpec $Succ) (Get-PublicationState $LiveShip $DocShip $Succ) `
+    'TEST-PUB successor: one unpublished consumer breaks pair consistency'
+# Every fixture record (both predecessors) must verify against the real files.
+foreach ($rec in (Get-Content -LiteralPath (Join-Path $Root $SuccFixture) -Raw | ConvertFrom-Json).successors) {
+    Assert-Eq (Get-PublicationState $rec.live $rec.staged) 'published' "TEST-PUB successor record [$($rec.staged)] verifies against live and staged bytes"
+}
+Reset-Succ; Assert-SuccShip 'rollback to pristine baseline re-admits the successor' 'published'
 
 # ===========================================================================
 # TEST-MUT: detection power. Every assertion is a DELTA over a pristine copy,

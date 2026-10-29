@@ -2,6 +2,7 @@
 """Focused regression checks for human-copy mirror classification."""
 import hashlib
 import importlib.util
+import json
 import tempfile
 from pathlib import Path
 
@@ -48,7 +49,37 @@ def main() -> None:
         assert states(root, hashlib.sha256(staged.read_bytes()).hexdigest()) == ["MISSING"], (
             "missing file that exists on main must remain a failure"
         )
-    print("human-copy mirror classification regression: 2 passed")
+    for fixture_name in ('ship-track-selection-current-publication.json', 'decision-sidecar-current-publication.json'):
+        fixture = json.loads((ROOT / 'tests/fixtures' / fixture_name).read_text())
+        for entry in fixture['successors']:
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                live, staged = root / entry['live'], root / entry['staged']
+                for target, original in ((staged, ROOT / entry['staged']), (live, ROOT / entry['live'])):
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes(original.read_bytes())
+                bundle = staged
+                for _ in Path(entry['live']).parts:
+                    bundle = bundle.parent
+                (bundle / 'MANIFEST.sha256').write_text(f"{entry['staged_sha256']}  {entry['live']}\n")
+                pin = root / 'tests/fixtures' / fixture_name
+                pin.parent.mkdir(parents=True)
+                pin.write_text(json.dumps(fixture))
+                assert states(root, entry['staged_sha256']) == ['PENDING']
+                live.write_bytes(live.read_bytes() + b'changed')
+                assert states(root, entry['staged_sha256']) == ['STALE']
+                live.write_bytes(staged.read_bytes())
+                assert states(root, entry['staged_sha256']) == ['FRESH']
+                duplicate = dict(fixture, successors=fixture['successors'] + [entry])
+                pin.write_text(json.dumps(duplicate))
+                assert states(root, entry['staged_sha256']) == ['STALE']
+                pin.write_text(json.dumps(fixture))
+                staged.write_bytes(b'changed staged')
+                live.write_bytes(staged.read_bytes())
+                assert states(root, entry['staged_sha256']) == ['STALE']
+                pin.unlink()
+                assert states(root, entry['staged_sha256']) == ['STALE']
+    print("human-copy mirror classification regression: 26 passed")
 
 
 if __name__ == "__main__":

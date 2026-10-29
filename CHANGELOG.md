@@ -3,8 +3,10 @@
 ## Unreleased
 
 ### Added
+- 用途別プレイブックと根拠を固定した判断資料を追加。選択は既存の署名経路を利用し、タスク承認や Done とは分ける（#599・#622 の一部）。
 - 検証ランナーと Lite ゲートに任意の実行時間・結果観測を追加。既存の合否と承認の判定は変更しない（#614 の一部）。
 - プロジェクト固有スキルの作成・保守と実行観測の契約を追加。生成や契約検証だけでは承認や実行成功としない（#594–#595 の一部）。
+- Add an opt-in loopback-only status view to sdd-forge-mcp. It displays current read-only project state, the next step and later phases without inventing unknown states.
 
 ## v1.18.0 (2026-10-01)
 

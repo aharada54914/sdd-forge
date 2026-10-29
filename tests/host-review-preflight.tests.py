@@ -270,6 +270,7 @@ ADDITIONAL_PROTECTIONS = (
     'plugins/sdd-domain/scripts/finalize-domain-review.sh',
     'plugins/sdd-domain/scripts/finalize-domain-review.ps1',
     'tests/lib/cross-runtime-consumer-evidence.py',
+    'plugins/sdd-bootstrap/scripts/workflow-playbook.py',
     'plugins/sdd-quality-loop/scripts/run_measurement.py',
     'plugins/sdd-bootstrap/scripts/project-skill.py',
 )

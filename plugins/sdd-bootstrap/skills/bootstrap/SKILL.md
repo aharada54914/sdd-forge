@@ -87,6 +87,14 @@ probe's.
 
 ## Routing
 
+### Optional purpose playbook
+
+For an explicit investigation, bug fix, performance investigation, isolated
+prototype or handoff request, read `references/decision-packet.md` and invoke the
+installed `scripts/workflow-playbook.py` with its bounded request. Read only the
+selected playbook. This chooses a work method, not a track or an approval; retain
+the routing and handoff rules below. A prototype requires real host isolation.
+
 ### `adopt` mode
 
 Delegate entirely to `/sdd-bootstrap:sdd-adopt [project-root]`.
