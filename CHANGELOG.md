@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add an opt-in loopback-only status view to sdd-forge-mcp. It displays current read-only project state, the next step and later phases without inventing unknown states.
+
 ## v1.18.0 (2026-10-01)
 
 ### Added
