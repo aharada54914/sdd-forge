@@ -4,6 +4,7 @@
 
 ### Added
 - 過去の失敗に基づく固定ケースと、生成成果物を比較するオフライン評価器を追加（#600 の一部）。この評価器はモデルを起動せず、採用判断を自動化しない。
+- Add an opt-in loopback-only status view to sdd-forge-mcp. It displays current read-only project state, the next step and later phases without inventing unknown states.
 
 ## v1.18.0 (2026-10-01)
 
