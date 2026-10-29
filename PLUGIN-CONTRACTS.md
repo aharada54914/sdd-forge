@@ -11,6 +11,11 @@ quality-loop validator checks the closed contract and supported local consistenc
 rules; validation does not assert truth, rights, independent review or gate PASS.
 See [ADR-0041](docs/adr/0041-research-evidence-contract.md).
 
+The bootstrap acquisition adapter returns bounded, source-pinned observations;
+quality-loop consumers compare supplied originals and excerpts. Retrieval,
+storage permission and semantic support remain separate decisions. The direct
+adapter refuses an inherited proxy instead of asserting its peer boundary.
+
 ## Read-only inspection through protection hooks
 
 The protection hooks allow file inspection independently of write protection.
