@@ -2,6 +2,7 @@
 """Focused regression checks for human-copy mirror classification."""
 import hashlib
 import importlib.util
+import json
 import tempfile
 from pathlib import Path
 
@@ -48,7 +49,29 @@ def main() -> None:
         assert states(root, hashlib.sha256(staged.read_bytes()).hexdigest()) == ["MISSING"], (
             "missing file that exists on main must remain a failure"
         )
-    print("human-copy mirror classification regression: 2 passed")
+    fixture = json.loads((ROOT / 'tests/fixtures/research-consumer-current-publication.json').read_text())
+    entry = next(e for e in fixture['successors'] if e['live'].endswith('/check-contract.ps1'))
+    for bundle in ('epic-136-phase2-gates', 'epic-191-a3-path-ownership'):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            staged = root / 'specs' / bundle / 'human-copy' / entry['live']
+            live = root / entry['live']
+            for target, original in ((staged, ROOT / entry['staged']), (live, ROOT / entry['live'])):
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(original.read_bytes())
+            manifest = root / 'specs' / bundle / 'human-copy' / 'MANIFEST.sha256'
+            manifest.write_text(f"{entry['staged_sha256']}  {entry['live']}\n")
+            pin = root / 'tests/fixtures/research-consumer-current-publication.json'
+            pin.parent.mkdir(parents=True)
+            pin.write_text(json.dumps(fixture))
+            assert states(root, entry['staged_sha256']) == ['PENDING']
+            live.write_bytes(live.read_bytes() + b'changed')
+            assert states(root, entry['staged_sha256']) == ['STALE']
+            live.write_bytes(staged.read_bytes())
+            assert states(root, entry['staged_sha256']) == ['FRESH']
+            pin.unlink()
+            assert states(root, entry['staged_sha256']) == ['STALE']
+    print("human-copy mirror classification regression: 10 passed")
 
 
 if __name__ == "__main__":

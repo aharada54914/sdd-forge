@@ -49,6 +49,14 @@ def retained(feature):
 
 class CompatibilityTests(unittest.TestCase):
     def assert_reviewed_consumer(self, path, content, expected):
+        if path == 'plugins/sdd-quality-loop/scripts/check-contract.py':
+            publication = load('research_publication', ROOT / 'tests/lib/research-consumer-publication.py')
+            publication.checked_paths(ROOT)
+            fixture = json.loads((ROOT / 'tests/fixtures/research-consumer-current-publication.json').read_text())
+            entry = next(e for e in fixture['successors'] if e['live'] == path)
+            self.assertEqual(expected, entry['staged_sha256'])
+            self.assertEqual(hashlib.sha256(content).hexdigest(), entry['live_sha256'])
+            return
         if path == REQUIREMENTS_TEMPLATE:
             self.assertEqual(hashlib.sha256(content).hexdigest(), REVIEWED_REQUIREMENTS_SHA256)
             self.assertTrue(content.startswith(REVIEWED_REQUIREMENTS_PREFIX))
@@ -84,6 +92,11 @@ class CompatibilityTests(unittest.TestCase):
         unrelated = 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md'
         with self.assertRaises(AssertionError):
             self.assert_reviewed_consumer(unrelated, (ROOT / unrelated).read_bytes() + b'changed', baseline[unrelated])
+        consumer = 'plugins/sdd-quality-loop/scripts/check-contract.py'
+        with self.assertRaises(AssertionError):
+            self.assert_reviewed_consumer(consumer, (ROOT / consumer).read_bytes() + b'changed', baseline[consumer])
+        with self.assertRaises(AssertionError):
+            self.assert_reviewed_consumer(consumer, (ROOT / consumer).read_bytes(), '0' * 64)
 
     def test_additive_override_contract_preserves_existing_context_boundaries(self):
         resolver = load('t004_resolver', SCRIPTS / 'resolve-project-context.py')

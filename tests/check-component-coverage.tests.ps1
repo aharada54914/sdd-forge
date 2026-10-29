@@ -391,6 +391,9 @@ $evolvedPaths = @(
     'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh'
 )
 $manifestOk = $invariantEvolutionOk
+$researchOut = & python3 (Join-Path $repoRoot 'tests/lib/research-consumer-publication.py') $repoRoot
+if ($LASTEXITCODE -ne 0) { throw 'Research candidate binding validation failed' }
+$researchPaths = @($researchOut | ConvertFrom-Json)
 $manifestChecked = 0
 $liveChecked = 0
 $tasksText = Get-Content -Raw -LiteralPath (Join-Path $repoRoot 'specs/epic-191-a3-path-ownership/tasks.md')
@@ -422,13 +425,13 @@ foreach ($line in (Get-Content -LiteralPath $hcManifest191)) {
     $pendingHumanApply = $declaredHumanApply -ccontains $relativePath -and -not $guardApplied
     $liveHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $livePath).Hash.ToLowerInvariant()
     if (-not $pendingHumanApply) {
-        if ($liveHash -cne $parts[0].Trim() -and -not ($invariantEvolutionOk -and $evolvedPaths -ccontains $relativePath)) { $manifestOk = $false }
+        if ($liveHash -cne $parts[0].Trim() -and -not ($invariantEvolutionOk -and $evolvedPaths -ccontains $relativePath) -and $researchPaths -cnotcontains $relativePath) { $manifestOk = $false }
         $liveChecked++
     }
     $manifestChecked++
 }
 if ($liveAddOk -and $manifestOk -and $manifestChecked -gt 0 -and $liveChecked -gt 0) {
-    Ok "TEST-036.4: T-004's live registrations remain applied; all $manifestChecked shared-manifest candidate hashes verify; and all $liveChecked live protected rows are byte-identical or verified additive invariant evolution"
+    Ok "TEST-036.4: T-004's registrations and $manifestChecked frozen candidates verify; $liveChecked live protected rows match their predecessor or an exactly bound current candidate"
 } else {
     Fail "TEST-036.4: T-004 registration, staged-candidate integrity, or T-004-owned live byte identity failed (addOk=$liveAddOk manifestOk=$manifestOk candidates=$manifestChecked live=$liveChecked)"
 }
