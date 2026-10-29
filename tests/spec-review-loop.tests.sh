@@ -435,3 +435,6 @@ grep -q 'allowed_input_manifest' "${agent_b}" || fail "reviewer B does not persi
 grep -q 'reviewer-a.json' "${agent_b}" || fail "reviewer B lacks raw-report denial"
 
 echo "ok: spec review precheck enforces state, hashes, replay, reset, and safe paths"
+
+# The catalog delegates interrupted-source coverage to this existing CI suite.
+bash "${ROOT}/tests/spec-review-interrupted-recovery.tests.sh"

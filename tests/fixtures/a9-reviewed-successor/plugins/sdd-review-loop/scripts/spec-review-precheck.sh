@@ -1,0 +1,764 @@
+#!/usr/bin/env bash
+# Validate a specification-review transition before any reviewer receives input
+# or evidence is written. The orchestrating skill owns reviewer invocation and
+# status mutation; this script owns deterministic preconditions and provenance.
+set -euo pipefail
+
+usage() {
+  echo "Usage: spec-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs | --edit-summary=<text> --reset | --recover-interrupted=<record>]" >&2
+  exit 1
+}
+
+fail() { echo "ERROR: spec-review-precheck: $*" >&2; exit 1; }
+sha256() {
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}';
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1" | awk '{print $1}';
+  else fail "neither sha256sum nor shasum is available"; fi
+}
+sha256_stream() {
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}';
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 | awk '{print $1}';
+  else fail "neither sha256sum nor shasum is available"; fi
+}
+canonical_dir() { (cd "$1" && pwd -P); }
+# Lowercase only: every producer in this tree emits lowercase hex, and a
+# case-insensitive class here would admit a digest its strict consumers reject.
+is_sha256() { [[ "$1" =~ ^[0-9a-f]{64}$ ]]; }
+
+[[ $# -ge 3 ]] || usage
+feature="$1"; attempt="$2"; round="$3"; shift 3
+edit_summary=""; reset=false; verify_inputs=false; recover_interrupted=""
+fixed_input_record=""; fixed_input_snapshot=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --edit-summary=*) edit_summary="${1#*=}" ;;
+    --reset) reset=true ;;
+    --recover-interrupted=*) [[ -z "$recover_interrupted" && -n "${1#*=}" ]] || fail "duplicate or empty recovery option"; recover_interrupted="${1#*=}" ;;
+    --verify-inputs) verify_inputs=true ;;
+    --fixed-input-record) fixed_input_record="${2:?missing fixed record}"; shift ;;
+    --fixed-input-snapshot) fixed_input_snapshot="${2:?missing fixed snapshot}"; shift ;;
+    *) usage ;;
+  esac
+  shift
+done
+
+[[ "$feature" =~ ^[a-z0-9][a-z0-9-]*$ ]] || fail "invalid feature slug"
+[[ "$attempt" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
+[[ "$round" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
+[[ "$round" -le 3 ]] || fail "round must be between 1 and 3"
+if [[ "$verify_inputs" == true && ( "$reset" == true || -n "$edit_summary" ) ]]; then
+  fail "--verify-inputs cannot be combined with transition options"
+fi
+if [[ -n "$recover_interrupted" ]]; then
+  [[ "$reset" == false && "$verify_inputs" == false && -z "$edit_summary" && -z "$fixed_input_record$fixed_input_snapshot" ]] || fail "recovery cannot be combined with other transition options"
+  [[ "$attempt" -gt 1 && "$round" -eq 1 ]] || fail "recovery starts only attempt N+1 round 1"
+fi
+[[ -z "$edit_summary" || "$round" -gt 1 ]] || fail "--edit-summary is valid only after round 1"
+if [[ "$verify_inputs" == false && "$round" -gt 1 ]]; then
+  [[ -n "${edit_summary//[[:space:]]/}" ]] || fail "rounds 2 and 3 require a non-empty --edit-summary"
+fi
+if [[ "$verify_inputs" == true ]]; then
+  :
+elif [[ -n "$recover_interrupted" ]]; then
+  :
+elif [[ "$reset" == true ]]; then
+  [[ "$attempt" -gt 1 && "$round" -eq 1 ]] || fail "--reset starts only attempt N+1 round 1"
+else
+  [[ "$attempt" -eq 1 || "$round" -gt 1 ]] || fail "a new attempt requires --reset"
+fi
+
+repo_root="$(cd "$(dirname "$0")/../../.." && pwd -P)"
+specs_root="${repo_root}/specs"
+reports_root="${repo_root}/reports"
+reports_base="${reports_root}/spec-review"
+spec_dir="${repo_root}/specs/${feature}"
+requirements="${spec_dir}/requirements.md"
+acceptance="${spec_dir}/acceptance-tests.md"
+calibration="${repo_root}/plugins/sdd-review-loop/references/spec-review-calibration.md"
+investigation="${spec_dir}/investigation.md"
+report_root="${repo_root}/reports/spec-review/${feature}"
+report_dir="${report_root}/attempt-${attempt}/round-${round}"
+. "$repo_root/plugins/sdd-review-loop/scripts/lib/fixed-input-source.sh"
+fixed_input_init "$verify_inputs"
+if [[ -n "$fixed_source_map" ]]; then
+  requirements=$(fixed_input_path "$requirements")
+  acceptance=$(fixed_input_path "$acceptance")
+  calibration=$(fixed_input_path "$calibration")
+  fixed_revision=$(jq -er '.commit' <<< "$fixed_source_map")
+  if git -C "$repo_root" cat-file -e "$fixed_revision:specs/$feature/investigation.md" 2>/dev/null; then
+    investigation=$(fixed_input_path "$investigation")
+  else
+    investigation="$fixed_input_snapshot/specs/$feature/investigation.md"
+  fi
+  spec_dir=$(dirname "$requirements")
+  specs_root=$(dirname "$spec_dir")
+fi
+
+# Manifests record absolute paths from whatever checkout produced the evidence.
+# A later run -- a git worktree, CI, a different machine -- has a different
+# repository root, so comparing recorded paths against locally built ones as
+# raw strings rejects valid evidence. The canonical gate already normalizes
+# (check-workflow-state.sh relative_path) and so does the PowerShell side
+# (Get-ManifestRelativePath, issue #61); this validator was the last one still
+# comparing absolute strings, which made a prior attempt unverifiable from any
+# checkout but the one that wrote it.
+#
+# Same semantics as the canonical gate, deliberately: strip the local root, its
+# /private/var alias, or the single root the contract itself recorded, and
+# reject anything still absolute afterwards. An unrelated absolute path
+# therefore normalizes to null rather than to a plausible-looking suffix, so
+# this does not widen what counts as a match -- it only stops the root from
+# being part of the comparison.
+repo_root_alias="$repo_root"
+case "$repo_root" in
+  /private/var/*) repo_root_alias="/var/${repo_root#/private/var/}" ;;
+  /var/*) repo_root_alias="/private/var/${repo_root#/var/}" ;;
+esac
+relative_to_repo() { printf '%s' "${1#"$repo_root/"}"; }
+
+jq_relative_path='
+  def relative_path:
+    gsub("\\\\"; "/") |
+    if startswith($repo) then .[($repo|length):]
+    elif startswith($alias) then .[($alias|length):]
+    elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
+    elif test("^(/|[A-Za-z]:/)") then null
+    else . end;'
+
+# The recorded root is derived from the contract rather than trusted from it:
+# every manifest entry must split into a root plus a suffix of a canonical
+# shape, and all entries must agree on one root. A feature slug that happens
+# to be named "specs" or "plugins" produces two candidate splits and is
+# rejected. A wrong split cannot weaken tamper detection -- the derived
+# relative path still has to match the expected manifest entry, and its
+# recorded sha256 still has to match.
+recorded_repo_root() {
+  jq -r --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" '
+    def normalized: gsub("\\\\"; "/");
+    def rooted: test("^(/|[A-Za-z]:/)");
+    def canonical_suffix:
+      test("^specs/[a-z0-9][a-z0-9-]*/[^/]+$") or
+      (. == "domain/context-map.md" or . == "domain/domain-contract.json") or
+      test("^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$") or
+      test("^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$");
+    [.reviewers[].allowed_input_manifest[].path |
+      normalized |
+      select(rooted and (startswith($repo) or startswith($alias) | not)) |
+      . as $path |
+      ([(($path | indices("/specs/")), ($path | indices("/reports/")), ($path | indices("/plugins/")), ($path | indices("/domain/")))[] |
+         . as $i | select($path[$i + 1:] | canonical_suffix) | $path[0:$i]]
+        | unique) as $candidates |
+      if ($candidates | length) == 1 then $candidates[0] else null end] as $roots |
+    if any($roots[]; . == null) or ($roots | map(select(. != null)) | unique | length) > 1
+    then "__INVALID__"
+    else ($roots | map(select(. != null)) | unique | .[0] // "")
+    end' "$1"
+}
+
+[[ -d "$specs_root" && ! -L "$specs_root" ]] || fail "specs root must be a real directory"
+[[ "$(canonical_dir "$specs_root")" == "$specs_root" ]] || fail "specs root escapes repository"
+[[ -d "$spec_dir" && ! -L "$spec_dir" ]] || fail "feature specification directory must not be a symlink"
+[[ "$(canonical_dir "$spec_dir")" == "$spec_dir" ]] || fail "feature specification directory escapes repository"
+[[ -f "$requirements" && ! -L "$requirements" ]] || fail "requirements.md must be a regular non-symlink file"
+[[ -f "$acceptance" && ! -L "$acceptance" ]] || fail "acceptance-tests.md must be a regular non-symlink file"
+if [[ -e "$investigation" || -L "$investigation" ]]; then
+  [[ -f "$investigation" && ! -L "$investigation" ]] || fail "investigation.md must be a regular non-symlink file"
+fi
+[[ -f "$calibration" && ! -L "$calibration" ]] || fail "spec review calibration reference must be a regular non-symlink file"
+[[ -d "$reports_root" && ! -L "$reports_root" ]] || fail "reports root must be a real directory"
+[[ "$(canonical_dir "$reports_root")" == "$reports_root" ]] || fail "reports root escapes repository"
+if [[ -e "$reports_base" ]]; then
+  [[ -d "$reports_base" && ! -L "$reports_base" ]] || fail "spec-review report base must not be a symlink"
+  [[ "$(canonical_dir "$reports_base")" == "$reports_base" ]] || fail "spec-review report base escapes reports root"
+fi
+command -v jq >/dev/null 2>&1 || fail "jq is required"
+# Fail closed when no SHA-256 tool exists: with the bare else-shasum shape a
+# host with neither tool captures an empty digest and empty == empty passes.
+command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 ||
+  fail "neither sha256sum nor shasum is available"
+status="$(sed -n 's/^Spec-Review-Status:[[:space:]]*//p' "$requirements" | head -n 1 | tr -d '[:space:]')"
+if [[ "$verify_inputs" == true ]]; then
+  :
+elif [[ "$reset" == true ]]; then
+  [[ "$status" == "Pending" || "$status" == "Passed" ]] || fail "requirements.md must declare a resettable Spec-Review-Status"
+else
+  [[ "$status" == "Pending" ]] || fail "requirements.md must declare Spec-Review-Status: Pending"
+fi
+[[ ! -L "$report_root" ]] || fail "report root must not be a symlink"
+if [[ "$verify_inputs" == false ]]; then
+  [[ ! -e "$report_dir" ]] || fail "round destination already exists (replay is forbidden)"
+fi
+
+requirements_sha="$(sha256 "$requirements")"
+acceptance_sha="$(sha256 "$acceptance")"
+calibration_sha="$(sha256 "$calibration")"
+investigation_sha=""
+if [[ -f "$investigation" ]]; then investigation_sha="$(sha256 "$investigation")"; fi
+if [[ -n "$investigation_sha" ]]; then
+  input_sha="$(printf '%s:%s:%s' "$requirements_sha" "$acceptance_sha" "$investigation_sha" | sha256_stream)"
+else
+  input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | sha256_stream)"
+fi
+
+# Validate saved provenance only; publication eligibility is deliberately not replayed.
+validate_saved_recovery_reference() {
+  python3 - "$1" "$2" <<'PY'
+import hashlib, json, os, pathlib, re, sys
+
+def pairs(items):
+    value = {}
+    for key, item in items:
+        if key in value: raise ValueError('duplicate JSON member')
+        value[key] = item
+    return value
+
+try:
+    root = pathlib.Path(sys.argv[1])
+    precheck = json.loads(pathlib.Path(sys.argv[2]).read_text(encoding='utf-8'), object_pairs_hook=pairs)
+    if type(precheck) is not dict: raise ValueError('precheck object required')
+    if any(key.lower() == 'recovery' and key != 'recovery' for key in precheck):
+        raise ValueError('mis-cased recovery member')
+    if 'recovery' in precheck:
+        if precheck.get('schema') != 'spec-review-precheck/v1': raise ValueError('invalid recovery precheck schema')
+        recovery = precheck['recovery']
+        if type(recovery) is not dict or set(recovery) != {'record_path', 'record_sha256'}:
+            raise ValueError('closed recovery reference required')
+        path, digest = recovery['record_path'], recovery['record_sha256']
+        if type(digest) is not str or re.fullmatch('[0-9a-f]{64}', digest) is None:
+            raise ValueError('invalid recovery digest')
+        if type(path) is not str or not path or re.search(r'[\\\x00-\x1f\x7f:]', path):
+            raise ValueError('invalid recovery path')
+        current = root
+        for part in path.split('/'):
+            if part in ('', '.', '..'): raise ValueError('noncanonical recovery path')
+            if part not in os.listdir(current): raise ValueError('missing or mis-cased recovery path')
+            current = current / part
+            if current.is_symlink(): raise ValueError('linked recovery path')
+        if not current.is_file(): raise ValueError('recovery record is not a regular file')
+        if hashlib.sha256(current.read_bytes()).hexdigest() != digest:
+            raise ValueError('saved recovery record changed')
+except (OSError, ValueError, TypeError) as error:
+    print('ERROR: saved recovery reference: ' + str(error), file=sys.stderr)
+    sys.exit(1)
+PY
+}
+
+if [[ "$verify_inputs" == true ]]; then
+  precheck="${report_dir}/precheck-result.json"
+  [[ -d "$report_root" && ! -L "$report_root" && "$(canonical_dir "$report_root")" == "$report_root" ]] || fail "report root is missing or substituted"
+  [[ -d "${report_root}/attempt-${attempt}" && ! -L "${report_root}/attempt-${attempt}" &&
+     "$(canonical_dir "${report_root}/attempt-${attempt}")" == "${report_root}/attempt-${attempt}" ]] || fail "attempt directory is missing or substituted"
+  [[ -d "$report_dir" && ! -L "$report_dir" && "$(canonical_dir "$report_dir")" == "$report_dir" ]] || fail "round directory is missing or substituted"
+  [[ -f "$precheck" && ! -L "$precheck" ]] || fail "precheck evidence is missing or substituted"
+  validate_saved_recovery_reference "$repo_root" "$precheck" || fail "invalid saved recovery provenance"
+  jq -se --arg feature "$feature" --argjson attempt "$attempt" --argjson round "$round" \
+    --arg status "$status" --arg requirements "$requirements_sha" --arg acceptance "$acceptance_sha" \
+    --arg calibration "$calibration_sha" --arg investigation "$investigation_sha" --arg input "$input_sha" '
+      length == 1 and (.[0] | type == "object" and
+        (del(.recovery) | keys) == ["acceptance_sha256","attempt","calibration_sha256","edit_summary","feature","generated_at","input_sha256","investigation_sha256","requirements_sha256","reset","round","schema","spec_review_status_field","stage"] and
+        .schema == "spec-review-precheck/v1" and .stage == "spec" and
+        .feature == $feature and .attempt == $attempt and .round == $round and
+        .spec_review_status_field == $status and
+        .requirements_sha256 == $requirements and .acceptance_sha256 == $acceptance and
+        .calibration_sha256 == $calibration and
+        .investigation_sha256 == (if $investigation == "" then null else $investigation end) and
+        .input_sha256 == $input and
+        (.edit_summary | type == "string") and (.reset | type == "boolean") and
+        (.generated_at | type == "string"))
+    ' "$precheck" >/dev/null || fail "review inputs or precheck identity changed after precheck"
+  echo "spec-review-precheck: inputs verified for reviewer invocation."
+  exit 0
+fi
+
+validate_reviewer_output() {
+  local output="$1" role="$2" manifest="$3" run_id="$4" host_session_id="$5" recorded_prefix="${6:-}"
+  local actual_manifest expected_ids actual_ids
+  [[ -f "$output" && ! -L "$output" ]] || return 1
+  jq -e --arg schema "${role}/v1" --arg role "$role" --arg run_id "$run_id" --arg host_session_id "$host_session_id" '
+    type == "object" and keys == ["allowed_input_manifest", "checks", "host_session_id", "role", "run_id", "schema", "stage", "verdict"] and
+    .schema == $schema and .stage == "spec" and .role == $role and .run_id == $run_id and .host_session_id == $host_session_id and
+    (.allowed_input_manifest | type == "array" and length > 0 and all(.[]; type == "object" and keys == ["path", "sha256"] and (.path | type == "string") and (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))) and
+    (.checks | type == "array" and length > 0 and all(.[]; type == "object" and keys == ["finding", "id", "result", "severity"] and
+      (.id | type == "string" and test("\\S")) and (.result == "PASS" or .result == "FAIL" or .result == "SKIP") and
+      (.severity == "Critical" or .severity == "Major" or .severity == "Minor") and (.finding | type == "string"))) and
+    (.verdict == "PASS" or .verdict == "NEEDS_WORK" or .verdict == "BLOCKED")' "$output" >/dev/null || return 1
+  actual_manifest="$(jq -c --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    [.allowed_input_manifest[] | {path: (.path | relative_path), sha256}] | sort_by(.path)' "$output")"
+  [[ "$actual_manifest" == "$manifest" ]] || return 1
+  case "$role" in
+    spec-reviewer-a)
+      expected_ids="REQ-TESTABILITY,GOAL-AC-TRACE,AC-OBSERVABLE,SCOPE-BOUNDARY,CONSTRAINTS-EXPLICIT,RISK-VALIDATION-SURFACE,DOMAIN-CONFORMANCE"
+      ;;
+    spec-reviewer-b)
+      expected_ids="AMBIGUITY,CONTRADICTION,EDGE-CASE-COVERAGE,ASSUMPTIONS-RESOLVABLE,APPROVAL-BOUNDARY,DOWNSTREAM-READINESS,DOMAIN-CONFORMANCE"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+  actual_ids="$(jq -r '[.checks[].id] | join(",")' "$output")"
+  # Evidence is held to the role as it was defined when the evidence was
+  # produced, not as it is defined today. Check ids are appended to a role's
+  # list -- never inserted, reordered or renamed -- so a review that ran before
+  # a check existed carries a prefix of today's list. epic-136-phase3's
+  # attempt 2 is exactly that: six ids, DOMAIN-CONFORMANCE added afterwards
+  # (95479bb2, d528cbed). Rejecting it would mean every feature reviewed before
+  # any future check is added can never open a new attempt again.
+  #
+  # A prefix and nothing looser. A run that skipped a middle check, reordered
+  # them, invented one, or carries more ids than the role defines does not form
+  # a prefix and still fails, so this does not weaken any current-version
+  # review: for those, prefix and equality coincide.
+  [[ "${expected_ids}," == "${actual_ids},"* ]] || return 1
+  # Verdict/finding coherence is checked, not derived. The role documents are
+  # authoritative on the verdict choice (epic-191-a3 a2r1 escalation,
+  # 2026-08-11): review-context-boundary.md defines BLOCKED as a launch or
+  # boundary failure -- the review could not be validly conducted -- and no
+  # role document states a severity-to-verdict formula. A reviewer that
+  # conducted its review and recorded at least one FAIL, of any severity, has
+  # earned the choice between NEEDS_WORK and BLOCKED; content severity and
+  # procedural blockage are different questions. The previous rule here
+  # mechanically forced FAIL/Critical to BLOCKED and rejected a persisted
+  # NEEDS_WORK verbatim record, deadlocking every subsequent round and reset
+  # of the same attempt chain.
+  #
+  # Narrowed, not removed. The two shapes that are incoherent on any reading
+  # are still rejected: a declared PASS carrying any FAIL, and a declared
+  # NEEDS_WORK or BLOCKED carrying none.
+  jq -e 'if ([.checks[] | select(.result == "FAIL")] | length) > 0
+         then .verdict == "NEEDS_WORK" or .verdict == "BLOCKED"
+         else .verdict == "PASS" end' "$output" >/dev/null
+}
+
+validate_contract() {
+  local contract="$1" expected_attempt="$2" expected_round="$3" expected_verdict="$4" precheck="$5"
+  local round_dir summary integrated_verdict expected_a expected_b actual_a actual_b conditional_a requirements_hash acceptance_hash calibration_hash investigation_hash contract_manifest_investigation_hash
+  local reviewer_a reviewer_b a_run a_session b_run b_session checks critical major minor expected_merged expected_warning
+  local recorded_root recorded_prefix prior_investigation_sha prior_recorded_root prior_recorded_prefix
+  [[ -f "$contract" && ! -L "$contract" && -f "$precheck" && ! -L "$precheck" ]] || return 1
+  prior_investigation_sha="$(jq -r '.investigation_sha256 // empty' "$precheck")" || return 1
+  recorded_root="$(recorded_repo_root "$contract")"
+  [[ "$recorded_root" != "__INVALID__" ]] || return 1
+  recorded_prefix="${recorded_root:+$recorded_root/}"
+  contract_manifest_investigation_hash="$(jq -r --arg investigation "$investigation" --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    ($investigation | relative_path) as $target |
+    [.reviewers[]?.allowed_input_manifest[]? | select((.path | relative_path) == $target) | .sha256] | unique |
+    if length == 1 then .[0] else "" end' "$contract")" || return 1
+  jq -e --arg feature "$feature" --arg current_investigation_sha "$prior_investigation_sha" --arg contract_manifest_investigation_sha "$contract_manifest_investigation_hash" --argjson attempt "$expected_attempt" --argjson round "$expected_round" --arg verdict "$expected_verdict" '
+    type == "object" and
+    (if $current_investigation_sha == "" then
+       (keys == ["acceptance_sha256", "attempt", "feature", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] or
+        (keys == ["acceptance_sha256", "attempt", "feature", "investigation_sha256", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] and .investigation_sha256 == null))
+     else
+       ((keys == ["acceptance_sha256", "attempt", "feature", "investigation_sha256", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] and .investigation_sha256 == $current_investigation_sha) or
+        (keys == ["acceptance_sha256", "attempt", "feature", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] and
+          ($contract_manifest_investigation_sha == "" or ($contract_manifest_investigation_sha == $current_investigation_sha and ($contract_manifest_investigation_sha | test("^[0-9a-f]{64}$"))))))
+     end) and
+    .schema == "spec-review-contract/v1" and .stage == "spec" and .feature == $feature and .attempt == $attempt and .round == $round and .verdict == $verdict and
+    (.requirements_sha256 | type == "string" and test("^[0-9a-f]{64}$")) and (.acceptance_sha256 | type == "string" and test("^[0-9a-f]{64}$")) and
+    (.investigation_sha256 == null or (.investigation_sha256 | type == "string" and test("^[0-9a-f]{64}$"))) and
+    (.run_id | type == "string" and test("\\S")) and (.warningCount | type == "number" and . >= 0) and
+    (.reviewers | type == "array" and length == 2 and ([.[].role] | sort) == ["spec-reviewer-a", "spec-reviewer-b"] and
+      (([.[] | .host_session_id] | all(type == "string" and test("\\S"))) and ([.[] | .host_session_id] | unique | length == 2)) and
+      all(.[]; (.run_id | type == "string" and test("\\S")) and (.allowed_input_manifest | type == "array" and length > 0 and all(.[]; (.path | type == "string") and (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))))))' "$contract" >/dev/null || return 1
+  jq -e --arg feature "$feature" --argjson attempt "$expected_attempt" --argjson round "$expected_round" --arg requirements_sha "$(jq -r .requirements_sha256 "$contract")" --arg acceptance_sha "$(jq -r .acceptance_sha256 "$contract")" '
+    .schema == "spec-review-precheck/v1" and .stage == "spec" and .feature == $feature and .attempt == $attempt and .round == $round and .requirements_sha256 == $requirements_sha and .acceptance_sha256 == $acceptance_sha and
+    (.calibration_sha256 == null or (.calibration_sha256 | type == "string" and test("^[0-9a-f]{64}$"))) and
+    (.investigation_sha256 == null or (.investigation_sha256 | type == "string" and test("^[0-9a-f]{64}$")))' "$precheck" >/dev/null || return 1
+  contract_investigation_hash="$(jq -r '.investigation_sha256 // empty' "$contract")"
+  [[ -n "$contract_investigation_hash" || -z "$contract_manifest_investigation_hash" ]] || contract_investigation_hash="$contract_manifest_investigation_hash"
+  precheck_investigation_hash="$(jq -r '.investigation_sha256 // empty' "$precheck")"
+  [[ -z "$precheck_investigation_hash" || -z "$contract_investigation_hash" || "$contract_investigation_hash" == "$precheck_investigation_hash" ]] || return 1
+
+  round_dir="$(dirname "$contract")"
+  summary="${round_dir}/integrated-summary.json"
+  [[ -f "$summary" && ! -L "$summary" ]] || return 1
+  jq -e --argjson attempt "$expected_attempt" --argjson round "$expected_round" '
+    type == "object" and keys == ["attempt", "generated_at", "reviewer_a_checks", "reviewer_a_fail_count", "reviewer_a_pass_count", "reviewer_a_skip_count", "round", "schema"] and
+    .schema == "integrated-summary/v1" and .attempt == $attempt and .round == $round and
+    (.reviewer_a_checks | type == "array" and all(.[]; type == "object" and keys == ["id", "result", "severity"] and
+      (.id | type == "string" and test("\\S")) and (.result == "PASS" or .result == "FAIL" or .result == "SKIP") and
+      (.severity == "Critical" or .severity == "Major" or .severity == "Minor"))) and
+    (.reviewer_a_fail_count | type == "number" and . >= 0) and (.reviewer_a_pass_count | type == "number" and . >= 0) and (.reviewer_a_skip_count | type == "number" and . >= 0) and
+    (.generated_at | type == "string")' "$summary" >/dev/null || return 1
+
+  requirements_hash="$(jq -r .requirements_sha256 "$contract")"
+  acceptance_hash="$(jq -r .acceptance_sha256 "$contract")"
+  calibration_hash="$(jq -r --arg calibration "$calibration" --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    ($calibration | relative_path) as $target |
+    [.reviewers[].allowed_input_manifest[] | select((.path | relative_path) == $target) | .sha256] | unique | if length == 1 then .[0] else "" end' "$contract")"
+  is_sha256 "$calibration_hash" || return 1
+  if jq -e '.calibration_sha256 != null' "$precheck" >/dev/null; then
+    [[ "$(jq -r .calibration_sha256 "$precheck")" == "$calibration_hash" ]] || return 1
+  fi
+  expected_a="$(jq -cn --arg requirements "$(relative_to_repo "$requirements")" --arg requirements_hash "$requirements_hash" --arg acceptance "$(relative_to_repo "$acceptance")" --arg acceptance_hash "$acceptance_hash" --arg precheck "$(relative_to_repo "$precheck")" --arg precheck_hash "$(sha256 "$precheck")" --arg calibration "$(relative_to_repo "$calibration")" --arg calibration_hash "$calibration_hash" '[{path:$requirements,sha256:$requirements_hash},{path:$acceptance,sha256:$acceptance_hash},{path:$precheck,sha256:$precheck_hash},{path:$calibration,sha256:$calibration_hash}] | sort_by(.path)')"
+  # investigation.md is derived from the contract, exactly like calibration_hash
+  # above -- never from the live working tree. Every other entry in this expected
+  # manifest already comes from an immutable source: requirements/acceptance from
+  # the contract's own top-level fields, precheck-result.json from a frozen round
+  # artifact, calibration from the manifest itself. investigation.md was the lone
+  # outlier, and it is the single worst file to read live: by design it is the
+  # document that accumulates the amendment record ACROSS stages, so it grows
+  # after a round is sealed as a matter of course. Reading it live compared
+  # today's bytes against the correctly-pinned ones, mismatched, and refused
+  # `--reset` with "previous terminal contract is invalid" -- permanently, since
+  # nothing can un-grow the file (reproduced on epic-195). A sealed contract is
+  # evidence about the past; validating it against the present is a category
+  # error. The live-vs-pinned question belongs to check-workflow-state.sh, which
+  # asks it deliberately and carries the amendment-record growth tolerance for
+  # exactly this file.
+  #
+  # Same discipline as calibration: every reviewer that pinned the file must have
+  # pinned the SAME bytes (`unique` must collapse to one value), and that value
+  # must be a well-formed digest. A contract in which reviewer A and reviewer B
+  # disagree about what they read is not a valid contract. Absent from the
+  # manifest entirely means the reviewers declared they did not read it, which is
+  # legal (check-workflow-state.sh's allowed() list permits investigation.md but
+  # never requires it), so nothing is expected. There is no cross-check against
+  # precheck-result.json here because the precheck schema records no
+  # investigation_sha256 field -- unlike calibration_sha256 -- so the "if the
+  # precheck records it" clause has nothing to compare against.
+  investigation_hash="$(jq -r --arg investigation "${spec_dir}/investigation.md" --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    ($investigation | relative_path) as $target |
+    [.reviewers[].allowed_input_manifest[] | select((.path | relative_path) == $target) | .sha256] | unique |
+    if length == 0 then "" elif length == 1 then .[0] else "__AMBIGUOUS__" end' "$contract")"
+  if [[ -n "$investigation_hash" ]]; then
+    is_sha256 "$investigation_hash" || return 1
+    [[ -z "$contract_investigation_hash" || "$contract_investigation_hash" == "$investigation_hash" ]] || return 1
+    expected_a="$(jq -cn --argjson manifest "$expected_a" --arg investigation "$(relative_to_repo "${spec_dir}/investigation.md")" --arg investigation_hash "$investigation_hash" '$manifest + [{path:$investigation,sha256:$investigation_hash}] | sort_by(.path)')"
+  fi
+  # Historical optional inputs remain bound to the sealed prior contract.
+  conditional_a="$(jq -ce --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    [.reviewers[] | select(.role == "spec-reviewer-a") | .allowed_input_manifest[] |
+      {path:(.path | relative_path), sha256} |
+      select(.path == "domain/context-map.md" or .path == "domain/domain-contract.json")] as $entries |
+    select(($entries | length) == ($entries | map(.path) | unique | length)) |
+    select(all($entries[]; .sha256 | type == "string" and test("^[0-9a-f]{64}$"))) |
+    $entries | sort_by(.path)' "$contract")" || return 1
+  expected_a="$(jq -cn --argjson manifest "$expected_a" --argjson conditional "$conditional_a" '$manifest + $conditional | sort_by(.path)')"
+  expected_b="$(jq -cn --argjson manifest "$expected_a" --arg summary "$(relative_to_repo "$summary")" --arg summary_hash "$(sha256 "$summary")" '$manifest + [{path:$summary,sha256:$summary_hash}] | sort_by(.path)')"
+  actual_a="$(jq -c --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    [.reviewers[] | select(.role == "spec-reviewer-a") | .allowed_input_manifest[] | {path: (.path | relative_path), sha256}] | sort_by(.path)' "$contract")"
+  actual_b="$(jq -c --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    [.reviewers[] | select(.role == "spec-reviewer-b") | .allowed_input_manifest[] | {path: (.path | relative_path), sha256}] | sort_by(.path)' "$contract")"
+  [[ "$actual_a" == "$expected_a" && "$actual_b" == "$expected_b" ]] || return 1
+
+  reviewer_a="${round_dir}/reviewer-a.json"
+  reviewer_b="${round_dir}/reviewer-b.json"
+  a_run="$(jq -r '.reviewers[] | select(.role == "spec-reviewer-a") | .run_id' "$contract")"
+  a_session="$(jq -r '.reviewers[] | select(.role == "spec-reviewer-a") | .host_session_id' "$contract")"
+  b_run="$(jq -r '.reviewers[] | select(.role == "spec-reviewer-b") | .run_id' "$contract")"
+  b_session="$(jq -r '.reviewers[] | select(.role == "spec-reviewer-b") | .host_session_id' "$contract")"
+  validate_reviewer_output "$reviewer_a" "spec-reviewer-a" "$expected_a" "$a_run" "$a_session" "$recorded_prefix" || return 1
+  validate_reviewer_output "$reviewer_b" "spec-reviewer-b" "$expected_b" "$b_run" "$b_session" "$recorded_prefix" || return 1
+  [[ "$(jq -c '[.checks[] | {id, result, severity}]' "$reviewer_a")" == "$(jq -c '.reviewer_a_checks' "$summary")" ]] || return 1
+  [[ "$(jq -r '.reviewer_a_fail_count' "$summary")" == "$(jq '[.checks[] | select(.result == "FAIL")] | length' "$reviewer_a")" ]] || return 1
+  [[ "$(jq -r '.reviewer_a_pass_count' "$summary")" == "$(jq '[.checks[] | select(.result == "PASS")] | length' "$reviewer_a")" ]] || return 1
+  [[ "$(jq -r '.reviewer_a_skip_count' "$summary")" == "$(jq '[.checks[] | select(.result == "SKIP")] | length' "$reviewer_a")" ]] || return 1
+
+  checks="$(jq -sc '[.[].checks[]]' "$reviewer_a" "$reviewer_b")"
+  critical="$(jq '[.[] | select(.result == "FAIL" and .severity == "Critical")] | length' <<<"$checks")"
+  major="$(jq '[.[] | select(.result == "FAIL" and .severity == "Major")] | length' <<<"$checks")"
+  minor="$(jq '[.[] | select(.result == "FAIL" and .severity == "Minor")] | length' <<<"$checks")"
+  if (( critical > 0 || major > 0 )); then
+    if (( expected_round == 3 )); then expected_merged="BLOCKED"; else expected_merged="NEEDS_WORK"; fi
+    expected_warning=0
+  elif (( minor > 0 )); then
+    if (( expected_round == 3 )); then expected_merged="PASS"; expected_warning="$minor"; else expected_merged="NEEDS_WORK"; expected_warning=0; fi
+  else
+    expected_merged="PASS"; expected_warning=0
+  fi
+  [[ "$expected_merged" == "$expected_verdict" ]] || return 1
+  integrated_verdict="${round_dir}/integrated-verdict.json"
+  [[ -f "$integrated_verdict" && ! -L "$integrated_verdict" ]] || return 1
+  jq -e --arg feature "$feature" --argjson attempt "$expected_attempt" --argjson round "$expected_round" --arg verdict "$expected_merged" --argjson warning "$expected_warning" --arg a_run "$a_run" --arg b_run "$b_run" --arg a_session "$a_session" --arg b_session "$b_session" --argjson critical "$critical" --argjson major "$major" --argjson minor "$minor" '
+    type == "object" and keys == ["attempt", "feature", "finding_counts", "reviewer_a_host_session_id", "reviewer_a_run_id", "reviewer_b_host_session_id", "reviewer_b_run_id", "round", "schema", "stage", "verdict", "warningCount"] and
+    .schema == "spec-review-integrated-verdict/v1" and .stage == "spec" and .feature == $feature and .attempt == $attempt and .round == $round and .verdict == $verdict and .warningCount == $warning and
+    .reviewer_a_run_id == $a_run and .reviewer_b_run_id == $b_run and .reviewer_a_host_session_id == $a_session and .reviewer_b_host_session_id == $b_session and
+    .finding_counts == {critical:$critical, major:$major, minor:$minor}' "$integrated_verdict" >/dev/null || return 1
+  [[ "$(jq -r .verdict "$contract")" == "$expected_merged" && "$(jq -r .warningCount "$contract")" == "$expected_warning" ]]
+}
+
+# Pure admission only. The caller owns human-origin verification and publication.
+validate_interrupted_recovery() {
+  local record=$1 metadata source_attempt source_round invocation previous expected_manifest
+  metadata=$(python3 - "$repo_root" "$feature" "$attempt" "$round" "$record" <<'PY'
+import hashlib, json, math, os, pathlib, re, sys
+root=pathlib.Path(sys.argv[1]); feature=sys.argv[2]; attempt=int(sys.argv[3]); round_number=int(sys.argv[4])
+def need(condition,reason):
+    if not condition: raise ValueError(reason)
+def sha(data): return hashlib.sha256(data).hexdigest()
+def canonical(obj): return json.dumps(obj,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode('utf-8')
+def pairs(items):
+    obj={}
+    for key,value in items:
+        need(key not in obj,'duplicate JSON member');obj[key]=value
+    return obj
+def invalid_constant(value): raise ValueError('nonstandard JSON number '+value)
+def finite_float(value):
+    number=float(value);need(math.isfinite(number),'JSON number overflow');return number
+def parse(path): return json.loads(path.read_text(encoding='utf-8'),object_pairs_hook=pairs,parse_constant=invalid_constant,parse_float=finite_float)
+def keys(obj,names): need(type(obj)is dict and set(obj)==set(names.split()),'closed record fields')
+def integer(value): return type(value)is int and value>0
+def digest(value): return type(value)is str and re.fullmatch('[0-9a-f]{64}',value) is not None
+def real(path,directory=False):
+    need(type(path)is str and path and not re.search(r'[\\\x00-\x1f\x7f:]',path),'invalid reference path')
+    parts=path.split('/');need(all(p not in ('','.','..') for p in parts),'noncanonical reference path')
+    current=root
+    for part in parts:
+        current=current/part;need(not current.is_symlink(),'linked reference component')
+        need(os.path.lexists(current),'missing reference component')
+        need(part in os.listdir(current.parent),'reference case differs from directory entry')
+    need(current.is_dir() if directory else current.is_file(),'reference type')
+    return current
+def reference(obj):
+    keys(obj,'path sha256');need(digest(obj['sha256']),'reference SHA256 format')
+    path=real(obj['path']);need(sha(path.read_bytes())==obj['sha256'],'reference SHA256 mismatch');return path
+def sorted_refs(items,count):
+    need(type(items)is list and len(items)==count,'reference inventory size')
+    for item in items:reference(item)
+    paths=[x['path'] for x in items];need(paths==sorted(set(paths)),'reference order or duplicate')
+def relative(path):
+    need(type(path)is str,'invocation path type')
+    value=path.replace('\\','/')
+    prefix=str(root).replace('\\','/')+'/'
+    if value.startswith(prefix):value=value[len(prefix):]
+    need(re.fullmatch(r'[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*',value) and all(part not in ('.','..') for part in value.split('/')),'ambiguous invocation path')
+    source_precheck=source_dir+'/precheck-result.json'
+    if value.lower()==source_precheck.lower() or value.lower().endswith('/'+source_precheck.lower()):
+        need(value==source_precheck,'ambiguous source invocation path')
+    return value
+try:
+    record_path=pathlib.Path(sys.argv[5])
+    if record_path.is_absolute():record_path=record_path.relative_to(root)
+    data=parse(real(str(record_path)))
+    keys(data,'schema feature source target authorization previous_contract interrupted_precheck pinned_inputs interrupted_artifacts reviewer_a')
+    need(data['schema']=='spec-review-interrupted-recovery/v1','recovery schema')
+    need(type(data['feature'])is str and re.fullmatch('[a-z0-9][a-z0-9-]*',data['feature']) and data['feature']==feature,'recovery feature')
+    for side in ('source','target'):
+        keys(data[side],'attempt round');need(all(integer(v) for v in data[side].values()),'recovery integer type')
+    source=data['source'];target=data['target'];n=source['attempt'];r=source['round']
+    need(r in (2,3) and target==dict(attempt=attempt,round=round_number) and attempt==n+1 and round_number==1,'source/target transition')
+    report=f'reports/spec-review/{feature}';source_dir=f'{report}/attempt-{n}/round-{r}';prior_dir=f'{report}/attempt-{n}/round-{r-1}'
+    attempt_dir=real(f'{report}/attempt-{n}',True)
+    rounds=[int(p.name[6:]) for p in attempt_dir.iterdir() if re.fullmatch(r'round-[1-3]',p.name)]
+    need(rounds and max(rounds)==r,'source is not latest round')
+    status=real(f'specs/{feature}/requirements.md').read_text(encoding='utf-8').splitlines()
+    need([line for line in status if line.startswith('Spec-Review-Status:')]==['Spec-Review-Status: Pending'],'source status is not exactly Pending')
+    reference(data['authorization']);reference(data['previous_contract']);reference(data['interrupted_precheck'])
+    need(data['previous_contract']['path']==prior_dir+'/spec-review-contract.json','prior contract canonical path')
+    need(data['interrupted_precheck']['path']==source_dir+'/precheck-result.json','source precheck canonical path')
+    sorted_refs(data['pinned_inputs'],4);sorted_refs(data['interrupted_artifacts'],6)
+    expected_inputs={f'specs/{feature}/{name}' for name in ('requirements.md','acceptance-tests.md','investigation.md')}
+    calibration='plugins/sdd-review-loop/references/spec-review-calibration.md';expected_inputs.add(calibration)
+    need({x['path'] for x in data['pinned_inputs']}==expected_inputs,'canonical input paths')
+    pins={x['path']:x['sha256'] for x in data['pinned_inputs']}
+    local_names={'precheck-result.json','reviewer-a.json','reviewer-a-reservation.txt','reviewer-a-host-receipt.json','spec-review-report.md'}
+    invocation_path=f'reports/review-context/{feature}-spec-a{n}r{r}-a-invocation.json'
+    expected_inventory={source_dir+'/'+name for name in local_names}|{invocation_path}
+    inventory={x['path']:x['sha256'] for x in data['interrupted_artifacts']}
+    need(set(inventory)==expected_inventory,'canonical interrupted inventory')
+    source_path=real(source_dir,True)
+    need({p.name for p in source_path.iterdir()}==local_names,'unexpected interrupted source entry')
+    need(data['interrupted_precheck']['sha256']==inventory[source_dir+'/precheck-result.json'],'repeated precheck pin')
+    a=data['reviewer_a'];keys(a,'invocation sequence stage role run_id host_session_id record_sha256')
+    need(integer(a['sequence']) and a['stage']=='spec' and a['role']=='spec-reviewer-a','reviewer identity shape')
+    need(all(type(a[k])is str and a[k].strip() for k in ('run_id','host_session_id')) and digest(a['record_sha256']),'reviewer identity values')
+    reference(a['invocation']);need(a['invocation']==dict(path=invocation_path,sha256=inventory[invocation_path]),'repeated invocation pin')
+    body={k:v for k,v in data.items() if k!='authorization'}
+    expected={'Feature':feature,'Source Attempt':str(n),'Source Round':str(r),'Target Attempt':str(attempt),'Target Round':'1','Maximum Rounds':'3','Decision':'Authorize interrupted A-before-B recovery','Recovery Binding SHA256':sha(canonical(body))}
+    lines=real(data['authorization']['path']).read_text(encoding='utf-8').splitlines()
+    for key,value in expected.items():need([line for line in lines if line.startswith(key+':')]==[key+': '+value],'authorization binding '+key)
+    pre=parse(real(source_dir+'/precheck-result.json'))
+    need(type(pre)is dict and pre.get('schema')=='spec-review-precheck/v1' and pre.get('stage')=='spec' and pre.get('feature')==feature and type(pre.get('attempt'))is int and pre['attempt']==n and type(pre.get('round'))is int and pre['round']==r and pre.get('spec_review_status_field')=='Pending','interrupted precheck identity')
+    hashes=[]
+    for name,key in [('requirements.md','requirements_sha256'),('acceptance-tests.md','acceptance_sha256'),('investigation.md','investigation_sha256')]:
+        pin=pins[f'specs/{feature}/{name}'];need(pre.get(key)==pin,'interrupted precheck input pin');hashes.append(pin)
+    need(pre.get('calibration_sha256')==pins[calibration] and pre.get('input_sha256')==sha(':'.join(hashes).encode()),'interrupted precheck composite/calibration pin')
+    inv=parse(real(invocation_path));need(type(inv)is dict and inv.get('feature')==feature,'invocation feature')
+    for key in ('sequence','stage','role','run_id','host_session_id'):need(type(inv.get(key))is type(a[key]) and inv[key]==a[key],'invocation identity mismatch')
+    expected_manifest=sorted(data['pinned_inputs']+[data['interrupted_precheck']],key=lambda x:x['path'])
+    need(type(inv.get('allowed_input_manifest'))is list,'invocation input manifest')
+    normalized=[dict(path=relative(x.get('path')),sha256=x.get('sha256')) for x in inv['allowed_input_manifest']]
+    need(sorted(normalized,key=lambda x:x['path'])==expected_manifest,'invocation repeated input pins')
+    raw=parse(real(source_dir+'/reviewer-a.json'));host=parse(real(source_dir+'/reviewer-a-host-receipt.json'))
+    need(type(host)is dict and host.get('review_execution_started')is False and host.get('sessionId')==a['host_session_id'] and host.get('threadId')==a['host_session_id'],'interruption host receipt')
+    need(type(raw)is dict and raw.get('schema')=='spec-reviewer-a/v1' and raw.get('stage')=='spec' and raw.get('role')=='spec-reviewer-a' and raw.get('run_id')==a['run_id'] and raw.get('host_session_id')==a['host_session_id'] and raw.get('verdict')=='BLOCKED','interruption raw identity/verdict')
+    need(raw.get('allowed_input_manifest')==inv['allowed_input_manifest'],'raw repeated input pins')
+    checks=raw.get('checks');need(type(checks)is list and checks,'interruption diagnostic checks')
+    for check in checks:
+        need(type(check)is dict and type(check.get('finding'))is str,'interruption diagnostic shape')
+        domain_skip=check.get('id')=='DOMAIN-CONFORMANCE' and check.get('result')=='SKIP' and check['finding'].startswith('Explicit skip condition supplied:')
+        need(domain_skip or (check.get('result')=='FAIL' and check['finding'].startswith('Review blocked before substantive reading') and ('denied' in check['finding'] or 'unreadable' in check['finding'])),'completed substantive reviewer output')
+    report_text=real(source_dir+'/spec-review-report.md').read_text(encoding='utf-8')
+    need('Execution: BLOCKED before substantive review' in report_text.splitlines() and 'Reviewer B was not launched' in report_text and not re.search(r'^(?:VERDICT|Verdict|Integrated Verdict):',report_text,re.M),'source diagnostic report')
+    ledger=parse(real('reports/review-context/identity-ledger.json'))
+    records=ledger.get('records');need(type(records)is list,'ledger records')
+    matches=[x for x in records if x.get('run_id')==a['run_id'] and x.get('host_session_id')==a['host_session_id']]
+    need(len(matches)==1,'persisted A identity missing or duplicated');persisted=matches[0]
+    for key in ('sequence','stage','role','run_id','host_session_id','record_sha256'):need(type(persisted.get(key))is type(a[key]) and persisted[key]==a[key],'persisted A identity mismatch')
+    binding=sha('\n'.join(x['path']+'\t'+x['sha256'] for x in inv['allowed_input_manifest']).encode())
+    need(persisted.get('allowed_inputs_sha256')==binding,'persisted A input binding missing or changed')
+    receipt=real(source_dir+'/reviewer-a-reservation.txt').read_text(encoding='utf-8').splitlines()
+    expected_receipt=f"REVIEW_CONTEXT_OK {a['record_sha256']} sequence={a['sequence']} previous_record_sha256={persisted.get('previous_record_sha256')} pre_append_tip_sequence={a['sequence']-1} identity_unique=yes"
+    need(receipt==[expected_receipt],'A reservation receipt facts')
+    # Every other spec reviewer needs a correlated invocation; orphan or legacy
+    # unbound identities cannot establish absence for this source.
+    invocations=[]
+    context=real('reports/review-context',True)
+    for path in context.iterdir():
+        if path.name.endswith('-invocation.json'):
+            if path.name.startswith(f'{feature}-spec-a{n}r{r}-'):
+                need(path.name==pathlib.PurePosixPath(invocation_path).name,'another canonical source launch')
+            candidate=parse(real('reports/review-context/'+path.name));need(type(candidate)is dict,'invocation correlation shape')
+            inputs=candidate.get('allowed_input_manifest');need(type(inputs)is list,'invocation correlation inputs')
+            if any(relative(x.get('path'))==source_dir+'/precheck-result.json' for x in inputs):
+                need(path.name==pathlib.PurePosixPath(invocation_path).name and candidate==inv,'another source invocation')
+            invocations.append(candidate)
+    for persisted_other in records:
+        if persisted_other.get('stage')!='spec' or persisted_other.get('run_id')==a['run_id']:continue
+        related=[v for v in invocations if v.get('run_id')==persisted_other.get('run_id') and v.get('host_session_id')==persisted_other.get('host_session_id')]
+        need(len(related)==1,'ambiguous later spec reservation')
+        candidate=related[0];other_binding=sha('\n'.join(x['path']+'\t'+x['sha256'] for x in candidate['allowed_input_manifest']).encode())
+        need(persisted_other.get('allowed_inputs_sha256')==other_binding,'uncorrelated later input binding')
+        other_paths=[relative(x['path']) for x in candidate['allowed_input_manifest']]
+        precheck_pattern=r'reports/spec-review/'+re.escape(candidate['feature'])+r'/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result\.json'
+        need(sum(bool(re.fullmatch(precheck_pattern,path)) for path in other_paths)==1,'ambiguous later spec precheck')
+        need(not any(relative(x['path'])==source_dir+'/precheck-result.json' for x in candidate['allowed_input_manifest']),'source reviewer already reserved')
+    print(n);print(r);print(invocation_path);print(prior_dir+'/spec-review-contract.json')
+except (OSError,ValueError,KeyError,TypeError,AttributeError,UnicodeError) as error:
+    print('ERROR: interrupted recovery: '+str(error),file=sys.stderr);sys.exit(1)
+PY
+  ) || return 1
+  source_attempt=$(sed -n '1p' <<<"$metadata")
+  source_round=$(sed -n '2p' <<<"$metadata")
+  invocation=$(sed -n '3p' <<<"$metadata")
+  previous=$(sed -n '4p' <<<"$metadata")
+  validate_contract "$repo_root/$previous" "$source_attempt" "$((source_round - 1))" NEEDS_WORK "$(dirname "$repo_root/$previous")/precheck-result.json" || return 1
+  expected_manifest=$(jq -c --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "" "$jq_relative_path"'
+    [.allowed_input_manifest[] | {path:(.path | relative_path),sha256}] | sort_by(.path)' "$repo_root/$invocation") || return 1
+  validate_reviewer_output "$report_root/attempt-${source_attempt}/round-${source_round}/reviewer-a.json" spec-reviewer-a "$expected_manifest" \
+    "$(jq -r .run_id "$repo_root/$invocation")" "$(jq -r .host_session_id "$repo_root/$invocation")" || return 1
+  bash "$repo_root/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh" "$repo_root/$invocation" "$repo_root" >/dev/null || return 1
+}
+
+if [[ "$round" -gt 1 ]]; then
+  prior_dir="${report_root}/attempt-${attempt}/round-$((round - 1))"
+  prior_contract="${prior_dir}/spec-review-contract.json"
+  [[ -f "$prior_contract" ]] || fail "prior round contract is required"
+  validate_contract "$prior_contract" "$attempt" "$((round - 1))" "NEEDS_WORK" "${prior_dir}/precheck-result.json" \
+    || fail "prior round contract is malformed or does not require work"
+  prior_requirements_sha="$(jq -r '.requirements_sha256' "$prior_contract")"
+  prior_acceptance_sha="$(jq -r '.acceptance_sha256' "$prior_contract")"
+  prior_investigation_sha="$(jq -r '.investigation_sha256 // empty' "$prior_contract")"
+  if [[ -z "$prior_investigation_sha" ]]; then
+    prior_recorded_root="$(recorded_repo_root "$prior_contract")"
+    [[ "$prior_recorded_root" != "__INVALID__" ]] || fail "prior round contract has an invalid recorded repository root"
+    prior_recorded_prefix="${prior_recorded_root:+$prior_recorded_root/}"
+    prior_investigation_sha="$(jq -r --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$prior_recorded_prefix" --arg target "$(relative_to_repo "$investigation")" "$jq_relative_path"'
+      [.reviewers[]?.allowed_input_manifest[]? | select((.path | relative_path) == $target) | .sha256] | unique |
+      if length == 1 then .[0] else "" end' "$prior_contract")"
+  fi
+  [[ "$requirements_sha" != "$prior_requirements_sha" || "$acceptance_sha" != "$prior_acceptance_sha" || "$investigation_sha" != "$prior_investigation_sha" ]] \
+    || fail "reviewed inputs are unchanged from the prior round"
+fi
+
+if [[ "$reset" == true ]]; then
+  previous_attempt="${report_root}/attempt-$((attempt - 1))"
+  [[ -d "$previous_attempt" && ! -L "$previous_attempt" ]] || fail "previous attempt is required before reset"
+  previous_round="$(find "$previous_attempt" -maxdepth 1 -type d -name 'round-*' -print | sed -n 's#.*/round-\([1-3]\)$#\1#p' | sort -n | tail -1)"
+  [[ -n "$previous_round" ]] || fail "previous attempt has no terminal round"
+  previous_dir="${previous_attempt}/round-${previous_round}"
+  previous_verdict="$(jq -r '.verdict // empty' "${previous_dir}/spec-review-contract.json" 2>/dev/null || true)"
+  [[ "$previous_verdict" == "PASS" || "$previous_verdict" == "BLOCKED" ]] || fail "reset requires a terminal PASS or BLOCKED contract"
+  validate_contract "${previous_dir}/spec-review-contract.json" "$((attempt - 1))" "$previous_round" "$previous_verdict" "${previous_dir}/precheck-result.json" \
+    || fail "previous terminal contract is invalid"
+fi
+
+# Recovery validates the existing immutable evidence, never reserves a reviewer.
+recovery_path=""; recovery_sha=""
+if [[ -n "$recover_interrupted" ]]; then
+  recovery_path="${recover_interrupted#"$repo_root/"}"
+  validate_interrupted_recovery "$recovery_path" || fail "interrupted recovery admission failed"
+  recovery_sha="$(sha256 "$repo_root/$recovery_path")"
+fi
+
+# Only after every pure validation succeeds may this script acquire a lock or
+# create an evidence path. mkdir makes concurrent writers fail deterministically.
+if [[ -n "$recovery_path" ]]; then
+  # Recovery's validated source already supplies these parents. Creating them
+  # before rechecking an exchanged ancestor could write outside the repository.
+  for ancestor in "$reports_root" "$reports_base" "$report_root"; do
+    [[ -d "$ancestor" && ! -L "$ancestor" && "$(canonical_dir "$ancestor")" == "$ancestor" ]] || fail "recovery report parent must remain a real contained directory"
+  done
+else
+mkdir -p "$reports_base"
+[[ ! -L "$reports_base" && "$(canonical_dir "$reports_base")" == "$reports_base" ]] || fail "spec-review report base escapes reports root"
+mkdir -p "$report_root"
+[[ ! -L "$report_root" ]] || fail "report root must not be a symlink"
+[[ "$(canonical_dir "$report_root")" == "$report_root" ]] || fail "report root escapes report base"
+fi
+lock_dir="${report_root}/.spec-review.lock"
+if ! mkdir "$lock_dir" 2>/dev/null; then
+  fail "another specification review transition holds the lock"
+fi
+trap 'rmdir "$lock_dir" 2>/dev/null || true' EXIT
+if [[ -n "$recovery_path" ]]; then
+  validate_interrupted_recovery "$recovery_path" || fail "interrupted recovery changed before locked publication"
+  [[ "$(sha256 "$repo_root/$recovery_path")" == "$recovery_sha" && "$(sha256 "$requirements")" == "$requirements_sha" && "$(sha256 "$acceptance")" == "$acceptance_sha" && "$(sha256 "$investigation")" == "$investigation_sha" && "$(sha256 "$calibration")" == "$calibration_sha" ]] || fail "recovery pins changed before locked publication"
+  for ancestor in "$reports_root" "$reports_base" "$report_root" "$(dirname "$report_dir")"; do
+    [[ ! -L "$ancestor" ]] || fail "recovery output ancestor is a symlink"
+    if [[ -e "$ancestor" ]]; then [[ -d "$ancestor" && "$(canonical_dir "$ancestor")" == "$ancestor" ]] || fail "recovery output ancestor escapes repository"; fi
+  done
+  [[ ! -e "$report_dir" && ! -L "$report_dir" ]] || fail "round destination already exists (replay is forbidden)"
+  mkdir -p "$(dirname "$report_dir")"
+  mkdir "$report_dir" || fail "round destination appeared during publication"
+else
+  [[ ! -e "$report_dir" ]] || fail "round destination already exists (replay is forbidden)"
+  mkdir -p "$report_dir"
+fi
+
+# Exercise the shared portable foundation against the canonical composite input
+# before persisting the gate-specific precheck evidence.
+foundation_contract="${report_root}/.review-contract-${attempt}-${round}-$$.json"
+trap 'rm -f "$foundation_contract"; rmdir "$lock_dir" 2>/dev/null || true' EXIT
+jq -n --arg feature "$feature" --argjson attempt "$attempt" --argjson round "$round" --arg input_sha256 "$input_sha" \
+  '{schema:"review-contract/v1",stage:"spec",feature:$feature,attempt:$attempt,round:$round,input_sha256:$input_sha256,run_id:"spec-precheck",verdict:"PASS"}' > "$foundation_contract"
+"${repo_root}/plugins/sdd-review-loop/scripts/review-contract-validate.sh" --feature "$feature" --attempt "$attempt" --round "$round" --stage spec --report-root "$report_root" --contract "$foundation_contract" >/dev/null
+rm -f "$foundation_contract"
+
+# Reset is the sole exceptional transition that restores Pending. It occurs only
+# after the old evidence and the new destination have both been validated.
+if [[ "$reset" == true && "$status" == "Passed" ]]; then
+  reset_tmp="${requirements}.spec-review-reset.$$"
+  sed 's/^Spec-Review-Status:[[:space:]]*Passed[[:space:]]*$/Spec-Review-Status: Pending/' "$requirements" > "$reset_tmp"
+  mv "$reset_tmp" "$requirements"
+  status="Pending"
+  # Recompute the requirements/input hashes against the post-reset file: any
+  # persisted precheck-result.json must record the bytes reviewers, contracts,
+  # and later validate_contract calls will actually see, never the pre-mutation
+  # (Passed) bytes this same invocation just rewrote.
+  requirements_sha="$(sha256 "$requirements")"
+  if [[ -n "$investigation_sha" ]]; then input_sha="$(printf '%s:%s:%s' "$requirements_sha" "$acceptance_sha" "$investigation_sha" | sha256_stream)"; else input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | sha256_stream)"; fi
+fi
+
+precheck_output="${report_dir}/precheck-result.json"
+[[ -z "$recovery_path" ]] || precheck_output="${report_dir}/.precheck-result.json.pending"
+generated_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+investigation_json='null'
+[[ -n "$investigation_sha" ]] && investigation_json="\"$investigation_sha\""
+jq -n \
+  --arg schema "spec-review-precheck/v1" --arg feature "$feature" \
+  --argjson attempt "$attempt" --argjson round "$round" \
+  --arg requirements_sha256 "$requirements_sha" --arg acceptance_sha256 "$acceptance_sha" --arg calibration_sha256 "$calibration_sha" --arg input_sha256 "$input_sha" \
+  --arg status "$status" --arg edit_summary "$edit_summary" --arg generated_at "$generated_at" \
+  --arg recovery_path "$recovery_path" --arg recovery_sha "$recovery_sha" \
+  --argjson reset "$reset" --argjson investigation_sha256 "$investigation_json" \
+  '{schema:$schema,stage:"spec",feature:$feature,attempt:$attempt,round:$round,spec_review_status_field:$status,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,investigation_sha256:$investigation_sha256,calibration_sha256:$calibration_sha256,input_sha256:$input_sha256,edit_summary:$edit_summary,reset:$reset,generated_at:$generated_at} + (if $recovery_path == "" then {} else {recovery:{record_path:$recovery_path,record_sha256:$recovery_sha}} end)' \
+  > "$precheck_output"
+if [[ -n "$recovery_path" ]]; then
+  : > "${report_dir}/spec-review-report.md"
+  mv "$precheck_output" "${report_dir}/precheck-result.json"
+fi
+
+echo "spec-review-precheck: complete. Output written to ${report_dir}/"
