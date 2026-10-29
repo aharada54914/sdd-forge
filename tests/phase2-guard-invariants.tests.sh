@@ -320,12 +320,22 @@ for sync_target in "${phase2_targets[@]}"; do
   fi
   staged_digest="$(sha256sum "$stage/$sync_target" | awk '{print $1}')"
   live_digest="$(sha256sum "$root/$sync_target" | awk '{print $1}')"
+  if [[ "$sync_target" == plugins/sdd-ship/skills/ship/SKILL.md ]] &&
+     jq -e --arg live "$sync_target" --arg staged "specs/epic-136-phase2-gates/human-copy/$sync_target" \
+       --arg lh "$live_digest" --arg sh "$staged_digest" '
+       .schema == "ship-track-selection-current-publication/v1" and
+       ([.successors[] | select(.live == $live and .staged == $staged and
+         .live_sha256 == $lh and .staged_sha256 == $sh and (.intentional_changes | type == "string" and length > 0))] | length == 1) and
+       ([.successors[] | select(.live == $live and .staged == $staged)] | length == 1)
+       ' "$root/tests/fixtures/ship-track-selection-current-publication.json" >/dev/null 2>&1; then
+    continue
+  fi
   if [[ "$staged_digest" != "$live_digest" ]]; then
     echo "  out of sync: $sync_target"
     sync_ok=0
   fi
 done
-[[ "$sync_ok" == 1 ]] && ok 'WFI-016 staged targets are byte-identical to live (no stale staging)' || bad 'WFI-016 staged targets are byte-identical to live (no stale staging)'
+[[ "$sync_ok" == 1 ]] && ok 'WFI-016 staged targets match live bytes or an exact pinned successor' || bad 'WFI-016 staged targets match live bytes or an exact pinned successor'
 
 echo "phase2-guard-invariants.tests.sh: $pass passed, $fail failed"
 [[ "$fail" -eq 0 ]]

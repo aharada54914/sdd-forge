@@ -3,6 +3,15 @@
 This document defines the inter-plugin interfaces for sdd-forge. These contracts
 govern how plugins communicate and hand off control at version boundaries.
 
+## Passive exploration and decisions
+
+`workflow-playbook-request/v1` selects an advisory method without changing a
+track, approval or effect. `decision-packet/v1` displays pinned inputs and
+evidence; a human choice uses the existing signed approval-sidecar machinery
+and `decision-choice/v1`. A choice is not task approval or a Done transition.
+The helper owns no executor or persistent scheduling state. See
+[ADR-0043](docs/adr/0043-workflow-exploration-decision-ownership.md).
+
 ## Read-only inspection through protection hooks
 
 The protection hooks allow file inspection independently of write protection.
