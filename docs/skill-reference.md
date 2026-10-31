@@ -49,7 +49,7 @@ Full/Lite選択、必須チェック、承認の正本を変更しません。
 
 | 用途 | 実装・使い方 | 結果の範囲 |
 |---|---|---|
-| 固有手順の作成・保守 | `plugins/sdd-bootstrap/scripts/project-skill.py --help`、`create-project-skill` / `maintain-project-skill` | manifestと実行観測。生成だけでは実走済みにならない |
+| 固有手順の作成・保守 | `plugins/sdd-bootstrap/scripts/project-skill.py --help`、`create-project-skill` / `maintain-project-skill` | manifestと実行観測。`seal --document-only` は文書手順をdraft/not-runとして保持し、生成だけでは実走済みにならない |
 | 用途別探索 | `plugins/sdd-bootstrap/scripts/workflow-playbook.py --request request.json` | 調査・不具合修正・性能・隔離試作・引継ぎの推奨。実行権限は付与しない |
 | 判断資料 | `plugins/sdd-bootstrap/scripts/decision-packet.py --help` | 入力・比較案・実測ログの束縛とMarkdown表示。推奨と人間の判断を区別 |
 | 原文根拠 | `plugins/sdd-quality-loop/scripts/research-evidence-tools.py --help` | 原文/引用照合、影響グラフ、抜き書き、レビュー参照。引用一致は主張の真実性の証明ではない |

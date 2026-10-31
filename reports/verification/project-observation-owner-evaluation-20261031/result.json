@@ -1,0 +1,726 @@
+{
+  "selected_plan": {
+    "before": {
+      "exit_code": 1,
+      "stdout": "selected-verification-plan: BLOCKED\n",
+      "stderr": "check 'cli-library' has invalid command: expected a non-empty string\nrequired check 'cli-library' has passes=false\n",
+      "plan": {
+        "schema": "selected-verification-plan/v1",
+        "feature": "example",
+        "task_id": "T-001",
+        "bindings": {
+          "registry_sha256": "3276aab94263fa3d7e54b469bcbc174236277111fee9a0a8c00242ef98204ce1",
+          "facet_manifest_sha256": "5ec34e5eed7c5895234376a72a73f9a4079f4cf5f36c3351cb6e83747cd93e13",
+          "verification_contract_sha256": "564791988201ae8807f2e4b543898437cec3c483171bdab887acbe085fd6bdde"
+        },
+        "checks": [
+          {
+            "id": "acceptance-tests",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "build",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "cli-library",
+            "sources": [
+              "legacy-contract",
+              "registry"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "not-run",
+            "reason": "migration-pending-required"
+          },
+          {
+            "id": "lint",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "placeholder-scan",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "regression",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "task-state-check",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "typecheck",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "unit-tests",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          }
+        ],
+        "verdict": "BLOCKED"
+      }
+    },
+    "after": {
+      "exit_code": 0,
+      "stdout": "selected-verification-plan: PASS\n",
+      "stderr": "",
+      "plan": {
+        "schema": "selected-verification-plan/v1",
+        "feature": "example",
+        "task_id": "T-001",
+        "bindings": {
+          "registry_sha256": "3276aab94263fa3d7e54b469bcbc174236277111fee9a0a8c00242ef98204ce1",
+          "facet_manifest_sha256": "5ec34e5eed7c5895234376a72a73f9a4079f4cf5f36c3351cb6e83747cd93e13",
+          "verification_contract_sha256": "ca0628dc2a9dd07a60d6414af7f558421ed50fb12c8265157216f5781bfe5897"
+        },
+        "checks": [
+          {
+            "id": "acceptance-tests",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "build",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "cli-library",
+            "sources": [
+              "legacy-contract",
+              "registry"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "reports/project-skill-observations/T-001/run1/cli-library.execution.log"
+          },
+          {
+            "id": "lint",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "placeholder-scan",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "regression",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "task-state-check",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "typecheck",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "unit-tests",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          }
+        ],
+        "verdict": "PASS"
+      }
+    },
+    "missing_required": {
+      "exit_code": 1,
+      "stdout": "selected-verification-plan: BLOCKED\n",
+      "stderr": "check removed from contract: 'unit-tests' is a required baseline check id\nrisk medium requires check 'unit-tests' present and required:true (missing)\n",
+      "plan": {
+        "schema": "selected-verification-plan/v1",
+        "feature": "example",
+        "task_id": "T-001",
+        "bindings": {
+          "registry_sha256": "3276aab94263fa3d7e54b469bcbc174236277111fee9a0a8c00242ef98204ce1",
+          "facet_manifest_sha256": "5ec34e5eed7c5895234376a72a73f9a4079f4cf5f36c3351cb6e83747cd93e13",
+          "verification_contract_sha256": "6013698da233ed5e541dcc13cf8d0d4f061acf65dd73ab897e3782704efbc3ce"
+        },
+        "checks": [
+          {
+            "id": "acceptance-tests",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "build",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "cli-library",
+            "sources": [
+              "legacy-contract",
+              "registry"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "reports/project-skill-observations/T-001/run1/cli-library.execution.log"
+          },
+          {
+            "id": "lint",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "placeholder-scan",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "regression",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "task-state-check",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "typecheck",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "passed",
+            "evidence_path": "evidence.log"
+          },
+          {
+            "id": "unit-tests",
+            "sources": [
+              "legacy-contract"
+            ],
+            "stage": "implementation",
+            "obligation": "required",
+            "blocking": true,
+            "applicability": "applicable",
+            "result": "unknown",
+            "reason": "migration-pending-required"
+          }
+        ],
+        "verdict": "BLOCKED"
+      }
+    },
+    "collector": {
+      "task_id": "T-001",
+      "run_id": "run1",
+      "check_id": "cli-library",
+      "execution_outcome": "passed",
+      "contract": "reports/project-skill-observations/T-001/run1/T-001.contract.json",
+      "report": "reports/project-skill-observations/T-001/run1/T-001.report.md",
+      "bundle": "reports/project-skill-observations/T-001/run1/T-001.evidence.json",
+      "contract_valid": true,
+      "bundle_valid": true,
+      "task_transition": null
+    },
+    "required_set_unchanged": true,
+    "original_contract_unchanged": true,
+    "observation": {
+      "schema": "project-verification-observation/v2",
+      "mode": "task",
+      "skill": "example",
+      "check_id": "cli-library",
+      "skill_manifest_sha256": "261faf14da2452bd9d29e34839d4e54d30f865b4414086f1ce889747888464cf",
+      "source": {
+        "commit": null,
+        "tree_sha256": "05a661e7f9b5b36cdfd459fcf169b917a4b41d39a370a73dc1d7c0bc0da9c774"
+      },
+      "environment": {
+        "os": "linux",
+        "host": "project-skill-local-runner",
+        "runtime_path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "toolchain": [
+          {
+            "name": "python3",
+            "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+            "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+            "identity_sha256": "482f5a6c283e8c7d82800aeb562b41fa40a42eff8085816a2a7e4834cc0ece6f"
+          },
+          {
+            "name": "@runner-python",
+            "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+            "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+            "identity_sha256": "482f5a6c283e8c7d82800aeb562b41fa40a42eff8085816a2a7e4834cc0ece6f"
+          },
+          {
+            "name": "@validator",
+            "path": "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/validate-project-skill.py",
+            "sha256": "b3590913633894d896fd5843df1e6017d46df03db81abbe1959041689cffd8bc",
+            "identity_sha256": "bbf52a62f904574ff9f5dfc029509e711941584ec3c2127a43c20e9df7b8b30a"
+          },
+          {
+            "name": "@schema-validator",
+            "path": "/workspace/sdd-forge/plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+            "sha256": "343895ffea39fe4459af667308d815bd75cc6d4f4eaad7ef4e51b5753994ce99",
+            "identity_sha256": "f987b618c05705ca3604063ad8395f08bca6f997bdf15c2e2cc93df6a0753f1d"
+          },
+          {
+            "name": "@runner",
+            "path": "/workspace/sdd-forge/plugins/sdd-bootstrap/scripts/project-skill.py",
+            "sha256": "4c40be46097fb928dfcee68df81beb8be78ac94722c62c158e0311942e8a7774",
+            "identity_sha256": "8631a9cae5ee4e8f6c05d535c7d70aacff8849fa79788fd51fb8b5d3e2f5ebf0"
+          },
+          {
+            "name": "@supervisor",
+            "path": "/workspace/sdd-forge/plugins/sdd-bootstrap/scripts/project-skill-process.py",
+            "sha256": "2311490d2503ccd270bb90795b8de4c98ad6bc4bc05acd250d689b62a7ec5efa",
+            "identity_sha256": "39b45f58755e310aa2904c60cb0e2eaaa1433f009bacbf14904b1f6922dfdb5b"
+          }
+        ],
+        "variables_sha256": "a8b27c898e4a5b2eb03e294902341d0d0b7ebb1eb792250b2fe693609186d1b5",
+        "missing": []
+      },
+      "outcome": "passed",
+      "task_id": "T-001",
+      "run_id": "run1",
+      "task_input_manifest_sha256": "f56699fa79c2b0b78d7e3549ac314ad239080742bc089e6472a804c893f7abac",
+      "exit_code": 0,
+      "started_at": "2026-10-31T01:34:58Z",
+      "finished_at": "2026-10-31T01:34:59Z"
+    },
+    "negative_observations": [
+      {
+        "case": "unknown-schema",
+        "rejected": "observation-invalid"
+      },
+      {
+        "case": "unknown-toolchain",
+        "rejected": "observation-invalid"
+      },
+      {
+        "case": "stale-toolchain",
+        "rejected": "runtime-changed"
+      },
+      {
+        "case": "stale-environment",
+        "rejected": "runtime-changed"
+      },
+      {
+        "case": "legacy-v1",
+        "status": "legacy-runtime-unbound",
+        "projects_pass": false
+      }
+    ],
+    "scope": "Existing synthetic Registry/Facet Manifest selected-plan fixture with real execution of cli-library only. Other baseline observations retain synthetic preexisting test evidence; not complete Full approval."
+  },
+  "lite": [
+    {
+      "case": "without-observation",
+      "exit_code": 0,
+      "result": {
+        "checks": [
+          {
+            "argv": [
+              "sh",
+              "/tmp/tmpot9j73l0/scripts/test.sh"
+            ],
+            "duration_ms": 1.176,
+            "exit_code": 0,
+            "id": "test",
+            "source": "scripts:test",
+            "stderr": "",
+            "stderr_truncated": false,
+            "stdout": "baseline-executedn",
+            "stdout_truncated": false,
+            "timed_out": false
+          },
+          {
+            "argv": [
+              "sh",
+              "/tmp/tmpot9j73l0/scripts/emit-proof.sh"
+            ],
+            "duration_ms": 251.785,
+            "exit_code": 0,
+            "id": "emit-proof",
+            "source": "scripts:emit-proof",
+            "stderr": "",
+            "stderr_truncated": false,
+            "stdout": "{\"check_id\": \"smoke\", \"cleanup\": true, \"directory_cleanup\": true, \"exit_code\": 0, \"inputs\": {\"sdd/skills/example/run.py\": \"fbe265e1d1716df44a17054681624b7454b72092f3f388eeef95625ff4f90094\", \"sdd/skills/example/skill-manifest.json\": \"60afc62f095de587f3ea58379c595e1333087c69397907aaa930fc44da16dcdd\"}, \"isolation\": \"temporary-data-directory; not an OS sandbox\", \"observation\": \"reports/project-skill-observations/T-001/run1/smoke.json\", \"observation_sha256\": \"14e8ff5787b1fd9cdd676298e3d8d20a58457f9280aacbc8e553b657d98e1a4c\", \"observation_written\": true, \"observed_outputs\": {}, \"outcome\": \"passed\", \"reason\": null, \"receipt\": \"reports/project-skill-observations/T-001/run1/smoke-05469813114b439496fa0f86379e06e4.receipt.json\", \"schema\": \"project-skill-trial/v1\", \"seconds\": 0.13053910700000415, \"skill\": \"example\", \"stderr\": {\"path\": \"reports/project-skill-observations/T-001/run1/smoke-05469813114b439496fa0f86379e06e4.stderr\", \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"}, \"stdout\": {\"path\": \"reports/project-skill-observations/T-001/run1/smoke-05469813114b439496fa0f86379e06e4.stdout\", \"sha256\": \"90c2f7a5e61f1048d8fee278aae5ad18596c9ed89d1b6dc3b121d0e3a5a83f42\"}}\n",
+            "stdout_truncated": false,
+            "timed_out": false
+          }
+        ],
+        "reason": "all required Lite checks passed",
+        "recorded_at": "2026-10-31T01:34:59.940405+00:00",
+        "runtime": "posix",
+        "source": {
+          "after": {
+            "dirty": true,
+            "revision": "e1a274f771548ff02ff5f1cf06906f562f86580b"
+          },
+          "before": {
+            "dirty": true,
+            "revision": "e1a274f771548ff02ff5f1cf06906f562f86580b"
+          },
+          "head_changed": false,
+          "reuse_allowed": false,
+          "scope": "command-execution-only"
+        },
+        "verdict": "PASS"
+      },
+      "observation_schema": "project-verification-observation/v2",
+      "scope": "Explicit fixture script adapter through the unchanged Lite owner; required baseline test also executes. Not automatic discovery of observations."
+    },
+    {
+      "case": "unrelated-observation",
+      "exit_code": 0,
+      "result": {
+        "checks": [
+          {
+            "argv": [
+              "sh",
+              "/tmp/tmpvxes9zzv/scripts/test.sh"
+            ],
+            "duration_ms": 1.284,
+            "exit_code": 0,
+            "id": "test",
+            "source": "scripts:test",
+            "stderr": "",
+            "stderr_truncated": false,
+            "stdout": "baseline-executedn",
+            "stdout_truncated": false,
+            "timed_out": false
+          },
+          {
+            "argv": [
+              "sh",
+              "/tmp/tmpvxes9zzv/scripts/emit-proof.sh"
+            ],
+            "duration_ms": 297.082,
+            "exit_code": 0,
+            "id": "emit-proof",
+            "source": "scripts:emit-proof",
+            "stderr": "",
+            "stderr_truncated": false,
+            "stdout": "{\"check_id\": \"smoke\", \"cleanup\": true, \"directory_cleanup\": true, \"exit_code\": 0, \"inputs\": {\"sdd/skills/example/run.py\": \"fbe265e1d1716df44a17054681624b7454b72092f3f388eeef95625ff4f90094\", \"sdd/skills/example/skill-manifest.json\": \"60afc62f095de587f3ea58379c595e1333087c69397907aaa930fc44da16dcdd\"}, \"isolation\": \"temporary-data-directory; not an OS sandbox\", \"observation\": \"reports/project-skill-observations/T-001/run1/smoke.json\", \"observation_sha256\": \"2a1a8f38711626cdc13023cce639f5be756dfab706fa1789c106be41bb674b8a\", \"observation_written\": true, \"observed_outputs\": {}, \"outcome\": \"passed\", \"reason\": null, \"receipt\": \"reports/project-skill-observations/T-001/run1/smoke-09c857cd56354102a560cae37a8c1ee6.receipt.json\", \"schema\": \"project-skill-trial/v1\", \"seconds\": 0.1562176059999274, \"skill\": \"example\", \"stderr\": {\"path\": \"reports/project-skill-observations/T-001/run1/smoke-09c857cd56354102a560cae37a8c1ee6.stderr\", \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"}, \"stdout\": {\"path\": \"reports/project-skill-observations/T-001/run1/smoke-09c857cd56354102a560cae37a8c1ee6.stdout\", \"sha256\": \"90c2f7a5e61f1048d8fee278aae5ad18596c9ed89d1b6dc3b121d0e3a5a83f42\"}}\n",
+            "stdout_truncated": false,
+            "timed_out": false
+          }
+        ],
+        "reason": "all required Lite checks passed",
+        "recorded_at": "2026-10-31T01:35:00.358138+00:00",
+        "runtime": "posix",
+        "source": {
+          "after": {
+            "dirty": true,
+            "revision": "e1a274f771548ff02ff5f1cf06906f562f86580b"
+          },
+          "before": {
+            "dirty": true,
+            "revision": "e1a274f771548ff02ff5f1cf06906f562f86580b"
+          },
+          "head_changed": false,
+          "reuse_allowed": false,
+          "scope": "command-execution-only"
+        },
+        "verdict": "PASS"
+      },
+      "observation_schema": "project-verification-observation/v2",
+      "scope": "Explicit fixture script adapter through the unchanged Lite owner; required baseline test also executes. Not automatic discovery of observations."
+    },
+    {
+      "case": "baseline-failure",
+      "exit_code": 1,
+      "result": {
+        "checks": [
+          {
+            "argv": [
+              "sh",
+              "/tmp/tmpxh0xk_nu/scripts/test.sh"
+            ],
+            "duration_ms": 1.381,
+            "exit_code": 7,
+            "id": "test",
+            "source": "scripts:test",
+            "stderr": "",
+            "stderr_truncated": false,
+            "stdout": "baseline-executedn",
+            "stdout_truncated": false,
+            "timed_out": false
+          },
+          {
+            "argv": [
+              "sh",
+              "/tmp/tmpxh0xk_nu/scripts/emit-proof.sh"
+            ],
+            "duration_ms": 281.371,
+            "exit_code": 0,
+            "id": "emit-proof",
+            "source": "scripts:emit-proof",
+            "stderr": "",
+            "stderr_truncated": false,
+            "stdout": "{\"check_id\": \"smoke\", \"cleanup\": true, \"directory_cleanup\": true, \"exit_code\": 0, \"inputs\": {\"sdd/skills/example/run.py\": \"fbe265e1d1716df44a17054681624b7454b72092f3f388eeef95625ff4f90094\", \"sdd/skills/example/skill-manifest.json\": \"60afc62f095de587f3ea58379c595e1333087c69397907aaa930fc44da16dcdd\"}, \"isolation\": \"temporary-data-directory; not an OS sandbox\", \"observation\": \"reports/project-skill-observations/T-001/run1/smoke.json\", \"observation_sha256\": \"2a1a8f38711626cdc13023cce639f5be756dfab706fa1789c106be41bb674b8a\", \"observation_written\": true, \"observed_outputs\": {}, \"outcome\": \"passed\", \"reason\": null, \"receipt\": \"reports/project-skill-observations/T-001/run1/smoke-f21ee84a26e94f2aaa275bf2820d1650.receipt.json\", \"schema\": \"project-skill-trial/v1\", \"seconds\": 0.1477810110000064, \"skill\": \"example\", \"stderr\": {\"path\": \"reports/project-skill-observations/T-001/run1/smoke-f21ee84a26e94f2aaa275bf2820d1650.stderr\", \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"}, \"stdout\": {\"path\": \"reports/project-skill-observations/T-001/run1/smoke-f21ee84a26e94f2aaa275bf2820d1650.stdout\", \"sha256\": \"90c2f7a5e61f1048d8fee278aae5ad18596c9ed89d1b6dc3b121d0e3a5a83f42\"}}\n",
+            "stdout_truncated": false,
+            "timed_out": false
+          }
+        ],
+        "reason": "one or more required Lite checks failed",
+        "recorded_at": "2026-10-31T01:35:00.758292+00:00",
+        "runtime": "posix",
+        "source": {
+          "after": {
+            "dirty": true,
+            "revision": "b9d06078a40d632b36bbbf310965147985b4e6f4"
+          },
+          "before": {
+            "dirty": true,
+            "revision": "b9d06078a40d632b36bbbf310965147985b4e6f4"
+          },
+          "head_changed": false,
+          "reuse_allowed": false,
+          "scope": "command-execution-only"
+        },
+        "verdict": "FAIL"
+      },
+      "observation_schema": "project-verification-observation/v2",
+      "scope": "Explicit fixture script adapter through the unchanged Lite owner; required baseline test also executes. Not automatic discovery of observations."
+    },
+    {
+      "case": "powershell-owner",
+      "exit_code": 0,
+      "result": {
+        "checks": [
+          {
+            "argv": [
+              "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+              "-NoProfile",
+              "-File",
+              "/tmp/tmpt22ikne3/scripts/test.ps1"
+            ],
+            "duration_ms": 213.915,
+            "exit_code": 0,
+            "id": "test",
+            "source": "scripts:test",
+            "stderr": "",
+            "stderr_truncated": false,
+            "stdout": "baseline-executed\n",
+            "stdout_truncated": false,
+            "timed_out": false
+          },
+          {
+            "argv": [
+              "/workspace/.tools/sdd-forge-dev/bin/pwsh",
+              "-NoProfile",
+              "-File",
+              "/tmp/tmpt22ikne3/scripts/emit-proof.ps1"
+            ],
+            "duration_ms": 439.924,
+            "exit_code": 0,
+            "id": "emit-proof",
+            "source": "scripts:emit-proof",
+            "stderr": "",
+            "stderr_truncated": false,
+            "stdout": "{\"check_id\": \"smoke\", \"cleanup\": true, \"directory_cleanup\": true, \"exit_code\": 0, \"inputs\": {\"sdd/skills/example/run.py\": \"fbe265e1d1716df44a17054681624b7454b72092f3f388eeef95625ff4f90094\", \"sdd/skills/example/skill-manifest.json\": \"60afc62f095de587f3ea58379c595e1333087c69397907aaa930fc44da16dcdd\"}, \"isolation\": \"temporary-data-directory; not an OS sandbox\", \"observation\": \"reports/project-skill-observations/T-001/run1/smoke.json\", \"observation_sha256\": \"88c23bc9fa4c334e17ab4095c63482dc2e5ffb57c9779edee5a037ee939bf8d9\", \"observation_written\": true, \"observed_outputs\": {}, \"outcome\": \"passed\", \"reason\": null, \"receipt\": \"reports/project-skill-observations/T-001/run1/smoke-e010956b6bfd404eb98ee742cf5a05ae.receipt.json\", \"schema\": \"project-skill-trial/v1\", \"seconds\": 0.14339601000006041, \"skill\": \"example\", \"stderr\": {\"path\": \"reports/project-skill-observations/T-001/run1/smoke-e010956b6bfd404eb98ee742cf5a05ae.stderr\", \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"}, \"stdout\": {\"path\": \"reports/project-skill-observations/T-001/run1/smoke-e010956b6bfd404eb98ee742cf5a05ae.stdout\", \"sha256\": \"90c2f7a5e61f1048d8fee278aae5ad18596c9ed89d1b6dc3b121d0e3a5a83f42\"}}\n",
+            "stdout_truncated": false,
+            "timed_out": false
+          }
+        ],
+        "reason": "all required Lite checks passed",
+        "recorded_at": "2026-10-31T01:35:01.527410+00:00",
+        "runtime": "powershell",
+        "source": {
+          "after": {
+            "dirty": true,
+            "revision": "b9d06078a40d632b36bbbf310965147985b4e6f4"
+          },
+          "before": {
+            "dirty": true,
+            "revision": "b9d06078a40d632b36bbbf310965147985b4e6f4"
+          },
+          "head_changed": false,
+          "reuse_allowed": false,
+          "scope": "command-execution-only"
+        },
+        "verdict": "PASS"
+      },
+      "observation_schema": "project-verification-observation/v2",
+      "scope": "Explicit fixture script adapter through the unchanged Lite owner; required baseline test also executes. Not automatic discovery of observations."
+    }
+  ],
+  "product_sha256": {
+    "plugins/sdd-quality-loop/scripts/validate-project-skill.py": "b3590913633894d896fd5843df1e6017d46df03db81abbe1959041689cffd8bc",
+    "plugins/sdd-quality-loop/scripts/collect-project-evidence.py": "847d4b33cdb79ed54570316a486405a3a9d52b7852e99b5afda5aa139223eee3",
+    "plugins/sdd-quality-loop/scripts/evaluate-selected-plan.py": "68b6ebecfb4996cae3e97e1723fa64d9e8d97ebbc2489058afddd442c7bd6e7c",
+    "plugins/sdd-lite/lib/run-lite-gate.py": "4253e44a3856e0f2bd32d438cc47666a215af1ec84210a3de4a74eafe6843651"
+  }
+}

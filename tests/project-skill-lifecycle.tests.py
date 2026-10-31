@@ -100,10 +100,16 @@ class Lifecycle(unittest.TestCase):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes((ROOT / relative).read_bytes())
             runner_path = installed / "plugins/sdd-bootstrap/scripts/project-skill.py"
-            copied_spec = importlib.util.spec_from_file_location("copied_runner", runner_path)
+            copied_spec = importlib.util.spec_from_file_location(
+                "copied_runner", runner_path
+            )
             copied = importlib.util.module_from_spec(copied_spec)
             copied_spec.loader.exec_module(copied)
-            for path in (runner_path, Path(copied.V.__file__), Path(copied.V._schema.__file__)):
+            for path in (
+                runner_path,
+                Path(copied.V.__file__),
+                Path(copied.V._schema.__file__),
+            ):
                 original = path.read_bytes()
                 path.write_bytes(original + b"\n# changed after import\n")
                 with patch.object(copied, "execute") as execute:
@@ -111,6 +117,99 @@ class Lifecycle(unittest.TestCase):
                         copied.run(self.root, "verify-app", "smoke")
                     execute.assert_not_called()
                 path.write_bytes(original)
+
+    def test_document_procedure_is_draft_and_never_executes(self):
+        features = self.skill / "features"
+        features.mkdir()
+        (features / "README.md").write_text("[Inspect](inspect.md)\n")
+        (features / "inspect.md").write_text(
+            "Check ID: smoke\nRead the application documentation.\n"
+        )
+        result = A.seal(
+            self.root, "verify-app", None, None, ["smoke"], [], document_only=True
+        )
+        self.assertEqual(
+            (result["status"], result["reason"]), ("draft", "procedure-not-executable")
+        )
+        self.assertEqual(A.V.validate(self.root, "verify-app")[0]["method"], "document")
+        for host in ("claude", "codex", "copilot"):
+            self.assertEqual(
+                A.project(self.root, "verify-app", host)["native_host_verification"],
+                "unverified",
+            )
+        with (
+            patch.object(A, "execute") as execute,
+            patch.object(A.shutil, "which") as which,
+        ):
+            run = A.run(self.root, "verify-app", "smoke")
+            self.assertEqual(
+                (run["outcome"], run["reason"], run["cleanup"]),
+                ("not-run", "procedure-not-executable", False),
+            )
+            maintained = A.maintain(
+                self.root, "verify-app", self.root / run["receipt"], 1
+            )
+            self.assertEqual(
+                (maintained["status"], maintained["classification"]),
+                ("blocked", "procedure-not-executable"),
+            )
+            self.assertEqual(maintained["unexecuted"], ["inspect.md"])
+            self.assertEqual(maintained["unexecuted_checks"], ["smoke"])
+            execute.assert_not_called()
+            which.assert_not_called()
+        observation = self.root / run["observation"]
+        forged = json.loads(observation.read_text())
+        forged.update(
+            outcome="passed",
+            exit_code=0,
+            started_at="2026-10-31T00:00:00Z",
+            finished_at="2026-10-31T00:00:00Z",
+        )
+        observation.write_text(json.dumps(forged))
+        with self.assertRaisesRegex(A.V.Invalid, "observation-invalid"):
+            A.V.validate(self.root, "verify-app", observation)
+        (self.skill / "SKILL.md").write_text("changed handwritten procedure")
+        with self.assertRaises(A.V.Invalid):
+            A.V.validate(self.root, "verify-app")
+        with self.assertRaisesRegex(ValueError, "manifest-exists"):
+            A.seal(
+                self.root, "verify-app", None, None, ["smoke"], [], document_only=True
+            )
+        self.assertEqual(
+            (self.skill / "SKILL.md").read_text(), "changed handwritten procedure"
+        )
+
+    def test_document_manifest_cannot_smuggle_execution(self):
+        A.seal(self.root, "verify-app", None, None, ["smoke"], [], document_only=True)
+        path = self.skill / "skill-manifest.json"
+        original = json.loads(path.read_text())
+        for change in (
+            {"runtime": "python3"},
+            {"entry": "SKILL.md"},
+            {"args": ["go"]},
+            {"requires": ["git"]},
+            {"schema": "project-skill-manifest/v1"},
+        ):
+            path.write_text(json.dumps(dict(original, **change)))
+            with self.assertRaisesRegex(A.V.Invalid, "manifest-invalid"):
+                A.V.validate(self.root, "verify-app")
+
+    def test_missing_runtime_lists_unexecuted_features(self):
+        features = self.skill / "features"
+        features.mkdir()
+        (features / "README.md").write_text("[Inspect](inspect.md)\n")
+        (features / "inspect.md").write_text(
+            "Check ID: smoke\nInspect the application.\n"
+        )
+        (self.skill / "run.py").write_text('print("not reached")\n')
+        A.seal(
+            self.root, "verify-app", "missing-fixture-runtime", "run.py", ["smoke"], []
+        )
+        run = A.run(self.root, "verify-app", "smoke")
+        result = A.maintain(self.root, "verify-app", self.root / run["receipt"], 1)
+        self.assertEqual(result["classification"], "environment-unavailable")
+        self.assertEqual(result["unexecuted"], ["inspect.md"])
+        self.assertEqual(result["unexecuted_checks"], ["smoke"])
 
     def test_generation_is_draft(self):
         self.assertEqual(self.seal('print("ok")')["status"], "draft")

@@ -55,6 +55,18 @@ checks or Done state.
    does not validate the entire map. Keep source/watch references and the rerun
    command with the skill. For a changed procedure use `maintain-project-skill`.
 
+Documentation-only procedures use the same sealing command with `--document-only`
+instead of `--runtime` / `--entry` (and without `--requires`). This emits
+`project-skill-manifest/v2` with `method: document`, null runtime/entry and empty
+args/requires. `SKILL.md` and references remain a closed, hashed source set.
+Generation is draft; `run` returns `not-run / procedure-not-executable`, starts no
+subprocess and grants no execution evidence. `maintain` stays blocked until the
+procedure has an actual executable demonstration. Native projection/discovery
+only proves access to the procedure, not performance of its steps. Handwritten
+files are preserved and closure changes require explicit resealing. Ordinary
+command sealing continues to emit compatible v1 manifests; v2 command manifests
+retain the same runtime/entry requirements.
+
 Task-mode execution uses an already admitted task-input manifest and declared
 output roots via `--task-input-manifest`; the passive validator does not establish
 that admission. The existing Full/Lite owners still consume and judge evidence.
