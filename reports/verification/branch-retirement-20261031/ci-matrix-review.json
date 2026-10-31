@@ -1,0 +1,37 @@
+{
+  "result": "PASS",
+  "old_jobs_unchanged_except_required_aggregation": [
+    "a9-advisory-inputs",
+    "a9-advisory",
+    "posix-regression",
+    "posix-unwired-sharded",
+    "test",
+    "installers",
+    "loops-routing",
+    "version-gates",
+    "version-gates-windows-bump",
+    "version-gates-windows-lanes",
+    "mcp-tests",
+    "local-env-mcp-tests",
+    "ci-mcp-tests",
+    "cli-hook-enforcement",
+    "test-windows-heavy"
+  ],
+  "native_powershell": [
+    "macos-latest",
+    "ubuntu-latest",
+    "windows-latest"
+  ],
+  "native_bash": [
+    "ubuntu-latest",
+    "macos-latest"
+  ],
+  "failure_propagation": "Actual required-checks shell body passes success and rejects every dependency failure/cancelled/skipped/empty via existing18test suite",
+  "required_checks_tests": {
+    "pass": 18,
+    "fail": 0,
+    "log": "required-checks-tests.log"
+  },
+  "timeout_minutes": 45,
+  "test_contracts_weakened": false
+}

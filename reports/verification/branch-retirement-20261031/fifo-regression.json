@@ -1,0 +1,6 @@
+{
+  "command": "PowerShell production AST function independent regular/FIFO probe",
+  "exit_code": 0,
+  "stdout": "{\"regular_accepted\":true,\"fifo_rejected\":true}\n",
+  "stderr": ""
+}

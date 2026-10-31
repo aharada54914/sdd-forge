@@ -1,0 +1,97 @@
+{
+  "outcome": "PASS for selected current integration checks; exact-head native3OS CI still required",
+  "donor": "55fb04ee2c1f6af182305eb85882b5719bc62cb6",
+  "recovery_cases_per_runtime": {
+    "admission": 731,
+    "transition_with_fifo": 63,
+    "consumption": 159,
+    "total_distinct": 953
+  },
+  "runtimes": [
+    "Linux Bash",
+    "Linux native PowerShell"
+  ],
+  "additional_regressions": {
+    "workflow_conditional_inputs": {
+      "passed": 20,
+      "skipped": 0,
+      "runtimes": [
+        "Bash",
+        "PowerShell"
+      ]
+    },
+    "spec_review_verify_inputs": {
+      "passed": 3,
+      "skipped": 0
+    },
+    "verification_catalog": {
+      "passed": 15,
+      "skipped": 0
+    },
+    "spec_review_loop": "PASS",
+    "downstream_precheck_serial": "PASS",
+    "ci_suite_wiring": "PASS (its nested unit test run reports one environment skip)",
+    "bash_and_powershell_parse": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "test_sequence": "Bash first full run passed admission731/transition61 but consumer negatives90 failed. Three additive consumer integrations fixed this; all159 consumption rerun PASS. Initial PowerShell full run passed all951 old cases. Both final transition reruns passed63 including2 addedFIFO regressions. FIFO guard was updated during ongoing older runs; these combined checks are not a single final-head full run. CI executes complete updated suites on exact head.",
+  "fifo_red_green": {
+    "before": "Get-RecoveryPath admitted real FIFO (expected-rejection probe exit1)",
+    "after": "Get-RecoveryPath rejected FIFO before reading (probe exit0)",
+    "new_cases": [
+      "TEST-104::fifo-record",
+      "TEST-104::fifo-authorization"
+    ],
+    "windows": "FIFO cases explicitly skipped where os.mkfifo unavailable; other951 cases run"
+  },
+  "initial_failures_retained": [
+    "adopted-bash-full.log",
+    "downstream-precheck.log",
+    "fifo-red.log"
+  ],
+  "cleanup": "Repository synthetic verification fixtures cleaned; workflow-state-registry matches HEAD; only intended new doc/test files remain untracked",
+  "log_sha256": {
+    "adopted-bash-full.log": "eed4cc87ba3b629eb217f3d533de7df4dfff77da1536ff3bb5cc415c22a50eb4",
+    "adopted-bash-consumption-fixed.log": "5e88ab9d1bc03bfb3d6d652d64ead99d20a0ded73db4e70902e4a20ad8f23217",
+    "adopted-bash-transition-fifo.log": "316abb11ba4beb228f8a647297006402058506d2ebe2ac4345688979864ef93e",
+    "adopted-powershell-full.log": "bbc2a55c38b3597564b14e86df570856ed18d7ce66c94c8d93249ae3a9492325",
+    "adopted-powershell-transition-fifo.log": "eb0237bc53d2faf54fcb04ed45a17711489739c066f127f9d9447aac756b058d",
+    "conditional-inputs-native.log": "66d39ab9f50feb43f030d5dd782eeecfd081d8ea115aca290ee4d50bfa6c2cfe",
+    "verify-inputs-native.log": "30ccc44f7c8a3270c4f4685606cf2c194d8f0989b190997e3a90696f4a8544c4",
+    "catalog-native.log": "9170a777bbee22f3b23fccc051defb2afe9c2669652a162c51a6848a96157a7a",
+    "spec-review-loop.log": "82a89e5131aebbfafbf8464ae3b6e5f4f88f2a71d19c88ba3ddb7879b6ab3f5d",
+    "downstream-precheck-serial.log": "f3b0d3d312002196b0a428a50984cee12bfb8d92b809a31ae922024f4cfe873e",
+    "ci-wiring.log": "0c14b7a6596e97becfc3ec5e50d3cdcc8d4801aa53b9584cff309cdf7f3bcdd4",
+    "fifo-red.log": "7f51a7bf94723a1c1fc2181e90d257f396f846f47a82941c1b29332208b35184",
+    "fifo-green.log": "c1ec63f9751a05f2c8522369ae227c3fd0ab42278c734eb2a003a0fd93083689",
+    "catalog-ci-matrix.log": "f735928522e2f31445f565a47a6e8523241dabefeceadbf73c153a5ea362eab8",
+    "ci-wiring-matrix.log": "1310a27e2ecf8c4f1d51776ce0a327ed665022ef679a5f3c6c962d56f1a475ac"
+  },
+  "files_index": "adopted-file-hashes.json",
+  "no_historical_authorization_or_task_edits": true,
+  "no_actual_recovery_or_publication_claim": true,
+  "local_runtime_for_ci_planning": {
+    "bash": {
+      "elapsed_seconds_approx": 117,
+      "basis": "log birth through last write; concurrent local execution, not a controlled benchmark"
+    },
+    "powershell": {
+      "elapsed_seconds_approx": 467,
+      "basis": "log birth through last write; concurrent local execution, not a controlled benchmark"
+    }
+  },
+  "ci_matrix": {
+    "job": "interrupted-recovery",
+    "platforms": [
+      "windows-latest",
+      "macos-latest",
+      "ubuntu-latest"
+    ],
+    "timeout_minutes": 45,
+    "required_aggregation": true,
+    "existing_job_budgets_unchanged": true,
+    "catalog_after_move": "15 PASS / 0 skip",
+    "ci_suite_wiring_after_move": "PASS (nested unit test reports1environment skip)",
+    "structural_yaml_checks": "PASS"
+  }
+}

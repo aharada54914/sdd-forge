@@ -197,5 +197,11 @@
       "critical": 0,
       "total": 0
     }
+  },
+  "repository_validation": {
+    "command": "PATH=/workspace/.tools/sdd-forge-dev/bin:$PATH bash tests/validate-repository.sh",
+    "exit_code": 0,
+    "result": "Repository validation passed",
+    "earlier_invocations": "Incorrect scripts/ path and then missing pwsh on PATH failed before checks; corrected invocation passed."
   }
 }
