@@ -99,7 +99,26 @@ monetary guarantee. Concurrent callers can produce identical proposals; the
 future host integration must reconcile live ownership and atomically reserve
 before any dispatch, and must use existing run/attempt origin checks for results.
 
-Actual dispatch, external-operation reconciliation, lease/resource ownership,
-approval integration and native 2/4/8 cost/arrival/queue/human-load comparison
-remain incomplete. The policy tests are deterministic simulations, not those
-host measurements. No new persistent state engine is introduced to fill the gap.
+The [finite native 2/4/8 observation](../../reports/verification/factory-parallel-native-20261031/README.md)
+subsequently completed 72 isolated fixture executions in Actions run 41158269796
+at workflow source 27b72a86 and product source 006e5a55. Nine measurements retain
+actual wrapper limits, batch durations, process outcomes and cleanup checks.
+Separate hosts, fixed order and small samples do not establish causal speedup.
+This evidence is distinct from the deterministic policy simulations and does
+not measure live decision queues, human effort, billing or real WorkOrder leases.
+
+Existing ownership remains divided as follows:
+
+| Existing owner | Available responsibility | Missing factory responsibility |
+|---|---|---|
+| Actions run/attempt/job and concurrency | Native identity, bounded execution and concurrency exclusion | Durable WorkOrder deduplication and resource leases |
+| Project-skill process supervisor | Finite timeout and Linux descendant cleanup | External ownership and restart reservations |
+| Verification CI reconciler | Origin matching and rejection of cancelled-attempt artifacts | Dispatch and resource acquisition |
+| Admission proposal evaluator | Snapshot conflicts, budgets and decision-queue suppression | Atomic live reservations or execution authority |
+
+Real WorkOrder dispatch remains stopped until an external owner supplies atomic
+claim/completed-ID lookup, owner-loss/expiry/resume reconciliation, shared-resource
+acquisition/release/residue checks, and reconciliation before retrying an operation
+with unknown outcome. Existing finite batches and pure proposals remain usable.
+Approval integration and real cost/arrival/queue/human-load comparison are still
+incomplete. No new persistent state engine is introduced to fill these gaps.
