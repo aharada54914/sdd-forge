@@ -1,0 +1,42 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "sdd-domain-concept-test",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "935f1735-4e5d-4fe5-ace4-32bf8c011f75",
+  "host_session_id": "77f8419b-30a7-4320-9a9a-dde74ceb798c",
+  "manifest": [
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/task-review/sdd-domain-concept-test/attempt-2/round-1/dependency-graph.json", "sha256": "502fd54c5d5e71e9efe6ce60bb5a2c543d31cbc22a5f714227a94b5c951f2d88"},
+    {"path": "reports/task-review/sdd-domain-concept-test/attempt-2/round-1/precheck-result.json", "sha256": "f1fe23ee7b9a10c15269572afb238a75bc062c4705ff5456bffa23f0a85c78d4"},
+    {"path": "specs/sdd-domain-concept-test/acceptance-tests.md", "sha256": "fb0414831b12b78a4c4f6ea32f6f25eb08fcfc9d4f33db9342750bac52eeb8d3"},
+    {"path": "specs/sdd-domain-concept-test/design.md", "sha256": "e473afc81ebdaaf545b25c7a7697258e9bd19eb7186a4d4f77ddb098cd356c03"},
+    {"path": "specs/sdd-domain-concept-test/frontend-spec.md", "sha256": "976de97ba398f7ae86c20f7dcb98965a347fb5ccde7cdc700b1d05e06377a7c7"},
+    {"path": "specs/sdd-domain-concept-test/infra-spec.md", "sha256": "7bc65e27fb40699dde9be6fd418a08ae2f7dfd1f5bc0ca564190d45b5064b211"},
+    {"path": "specs/sdd-domain-concept-test/requirements.md", "sha256": "36094c8c9a9f0bbe4d1f9ec21a01cc111a3c736fc81e28a19b34e26aed069053"},
+    {"path": "specs/sdd-domain-concept-test/security-spec.md", "sha256": "cb52e5e4b202cdeeb837c2dbcfe9876652518b02fece635848283c019a87cf44"},
+    {"path": "specs/sdd-domain-concept-test/tasks.md", "sha256": "fe97d46dba0721a61e2f15276c01b9faf8d1f1762261d17b7de11c9ec7dd4cc5"},
+    {"path": "specs/sdd-domain-concept-test/traceability.md", "sha256": "4b04451940333f2494aa82030c1adc083e39725bbfc2329455f97a0c50762db8"},
+    {"path": "specs/sdd-domain-concept-test/ux-spec.md", "sha256": "9ed375e9bf9cba444885cb4a53caa44346dad2cc962d454c8448951075e52020"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "PREREQ-AC-IDS", "status": "PASS", "severity": "Critical", "finding": "tasks.md T-001–T-006 Scope references AC-001–AC-018; each ID appears in acceptance-tests.md."},
+    {"id": "BLOCKERS-FORMAT", "status": "PASS", "severity": "Major", "finding": "tasks.md Blockers fields for T-001–T-006 are None or comma-separated canonical T-NNN IDs; blockers_format_valid=true."},
+    {"id": "REQ-COVERAGE", "status": "PASS", "severity": "Critical", "finding": "requirements.md REQ-001–REQ-006 all appear in tasks.md Requirements fields and traceability.md rows."},
+    {"id": "AC-COVERAGE", "status": "PASS", "severity": "Critical", "finding": "acceptance-tests.md AC-001–AC-018 are assigned in tasks.md Scope: T-001 covers 001–007 and 014–016, T-002 008–009, T-003 010–011 and 017, T-004 012 and 018, T-006 013."},
+    {"id": "ORPHAN-TASK", "status": "PASS", "severity": "Major", "finding": "Every tasks.md T-001–T-006 Requirements field names at least one of REQ-001–REQ-006."},
+    {"id": "ORPHAN-TEST", "status": "PASS", "severity": "Major", "finding": "T-001, T-002 and T-006 titles contain Test or verify and their Scope fields explicitly name AC-001–AC-016 or AC-013; no test-only task lacks an AC."},
+    {"id": "INITIAL-STATE", "status": "PASS", "severity": "Major", "finding": "In attempt 2 round 1, tasks.md T-001–T-006 each state Approval: Draft and Status: Planned."},
+    {"id": "RISK-WORKFLOW-FORMAT", "status": "PASS", "severity": "Critical", "finding": "tasks.md T-001, T-003 and T-004 pair high with tdd; T-002, T-005 and T-006 pair medium with acceptance-first; precheck workflow_match_precheck=PASS."},
+    {"id": "NO-DUPLICATE-AC", "status": "PASS", "severity": "Major", "finding": "tasks.md primary ownership is distinct. T-003 re-exercises AC-016 end-to-end after T-001 contract validation, and T-005 covers AC-010/011 at the domain-sync consumer level after T-003 bootstrap integration; these are explicitly differentiated scopes."},
+    {"id": "DEPENDENCY-COMPLETE", "status": "PASS", "severity": "Major", "finding": "All seven dependency-graph.json edges target existing nodes T-001–T-006 and match tasks.md Blockers fields."},
+    {"id": "DEPENDENCY-CYCLE", "status": "PASS", "severity": "Critical", "finding": "dependency-graph.json edges terminate at T-001 or T-002 through acyclic chains; no path revisits a node."},
+    {"id": "SINGLE-CONCERN", "status": "PASS", "severity": "Major", "finding": "tasks.md T-001–T-006 each have one scoped concern: signed evidence, proposal workflow, bootstrap gate, review-context binding, v2 consumer switch, and release registration respectively; associated tests directly verify each concern."},
+    {"id": "OBSERVABLE-DONE", "status": "PASS", "severity": "Major", "finding": "Every T-001–T-006 Done When item names concrete test IDs/results, inspectable state, or a verification/implementation report path. Non-documentation tasks all name verification evidence. precheck-result.json frozen_artifact_done_when is empty; the mapping finalization items target non-frozen verification addenda."},
+    {"id": "TRACEABILITY-SYNC", "status": "PASS", "severity": "Major", "finding": "traceability.md has T-001–T-006 entries and only REQ-001–REQ-006 from requirements.md. Every requirement row cites canonical anchors in the admitted ux-spec.md, frontend-spec.md, infra-spec.md, or security-spec.md documents."}
+  ],
+  "findings": []
+}

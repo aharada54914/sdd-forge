@@ -1,0 +1,8 @@
+diff --git a/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py b/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
+--- a/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
++++ b/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
+@@ -457,3 +457,3 @@
+-# `format` is deliberately NOT implemented. Draft-07 defines `format` as an
++# `format` is deliberately annotation-only. Draft-07 defines `format` as an
+ # annotation, not an assertion, and the T-003 reference harness omits it for
+ # the same reason; implementing it here would make this validator stricter

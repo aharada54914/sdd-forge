@@ -339,6 +339,14 @@ else
   bad "AC-004: v1 registry SHA-256 CHANGED during this suite's run (before=$V1_SHA_BEFORE after=$V1_SHA_AFTER)"
 fi
 
+# Exact live-catalog model registration must retain its role floor and
+# fail-closed selector behavior. This suite already runs in CI and run-all.
+if python3 "$ROOT/tests/sol-model-registration.tests.py"; then
+  ok "Sol registration and shell/available-PowerShell routing regression"
+else
+  bad "Sol registration or routing regression failed"
+fi
+
 printf -- '---- summary: pass=%d fail=%d ----\n' "$pass" "$fail"
 if [[ "$fail" -gt 0 ]]; then
   printf 'not ok: agent-capabilities-v2 suite FAILED (%d failures)\n' "$fail" >&2

@@ -1,0 +1,20 @@
+{
+  "id": 3,
+  "method": "turn/start",
+  "params": {
+    "threadId": "01a10072-e1fa-7702-8c4a-71a2fee21070",
+    "model": "gpt-5.6-sol",
+    "effort": "high",
+    "approvalPolicy": "never",
+    "sandboxPolicy": {
+      "type": "readOnly",
+      "networkAccess": false
+    },
+    "input": [
+      {
+        "type": "text",
+        "text": "Run the independent task-reviewer-a role supplied in your developer instructions. This is the authorized post-implementation provenance re-review of feature sdd-domain-concept-test, attempt 4, round 1. Read your own launch envelope first: reports/review-context/sdd-domain-concept-test-task-a4r1-a6-invocation.json.\nYour actual fresh native thread/session ID is 01a10072-e1fa-7702-8c4a-71a2fee21070; run ID fcb98fa3-61c2-464e-b5d1-5759a187c472.\nThe caller verified inputs immediately before reservation and ran the canonical validator --reserve exactly once. Actual receipt:\nREVIEW_CONTEXT_OK ae61f5a16f181bdc27db4156fc8deb20c64642a55524bffae7ff15007e598dcd sequence=1210 previous_record_sha256=2d31ab73e3d93d88430bf0f6b445f15ed5cf64887dbed9c9f4b488935fe83bcf pre_append_tip_sequence=1209 identity_unique=yes\nTask-stage input_binding and scratch_binding are absent/empty. Verify receipt and envelope yourself before substantive reads as your role requires. Never read the ledger or invoke validator/reservation. Read every allowed input, no unlisted paths, no raw peer/prior output, network, agents, writes, or fallback. Use rtk proxy for read-only shell commands.\nThe task hash is the precheck's normalized hash, not raw-byte hash. Use the existing role/precheck normalization contract without inventing another normalization. This is lifecycle-validity review, not resetting Approved/Done to Draft.\nIf any tool permission/hook denies access, stop immediately, do not retry via another tool/path, do not continue evaluation, and report the exact blocker rather than unperformed PASS/FAIL checks.\nReturn the complete role's canonical JSON as your final message; do not write reviewer-a.json yourself. The orchestrator will persist the exact JSON. Do not return a summary instead of JSON. Do not read any prior reviewer evidence to apply convergence; use only admitted evidence."
+      }
+    ]
+  }
+}

@@ -90,6 +90,32 @@ TESTKEY="test-context-key-epic189-t006"
 # run_val [env_prefix...] -- args... -- invokes the .sh dispatcher, capturing
 # stdout to $WORK/out, stderr to $WORK/err, and returning its exit code.
 run_val() {
+  if [ "${CT_CANONICAL_FIXTURES:-0}" = 1 ]; then
+    local fixture_root fixture_dir content_path sidecar_path i
+    local args=("$@")
+    fixture_root="$(mktemp -d "$WORK/concept-case.XXXXXX")" || return 1
+    fixture_dir="$fixture_root/specs/$CT_FEATURE"
+    mkdir -p "$fixture_dir" || return 1
+    for ((i=0; i<${#args[@]}; i++)); do
+      case "${args[i]}" in
+        --content)
+          content_path="${args[i+1]}"
+          if [ -f "$content_path" ]; then cp "$content_path" "$fixture_dir/concept-test.json"; fi
+          if [ -f "$(dirname "$content_path")/concept-test.md" ]; then
+            cp "$(dirname "$content_path")/concept-test.md" "$fixture_dir/concept-test.md"
+          fi
+          args[i+1]="$fixture_dir/concept-test.json"
+          ;;
+        --sidecar)
+          sidecar_path="${args[i+1]}"
+          if [ -f "$sidecar_path" ]; then cp "$sidecar_path" "$fixture_dir/concept-test.approval.json"; fi
+          args[i+1]="$fixture_dir/concept-test.approval.json"
+          ;;
+      esac
+    done
+    (cd "$fixture_root" && "$VAL_SH" "${args[@]}") >"$WORK/out" 2>"$WORK/err"
+    return $?
+  fi
   "$VAL_SH" "$@" >"$WORK/out" 2>"$WORK/err"
   return $?
 }
@@ -1144,6 +1170,530 @@ if [ "$rc" = 0 ]; then
 else
   fail "TEST-PR229-VAL --verify-provenance is NOT schema-gated (got exit $rc: $(cat "$WORK/err"))"
 fi
+
+# ---------------------------------------------------------------------------
+# T-001 (sdd-domain-concept-test, REQ-001/REQ-003): concept-test sidecar
+# type (schema `sdd-concept-test-approval/v1`) additive registration --
+# reuses this validator's standard content/hash/HMAC/registry pipeline
+# (contracts/concept-test.v1.schema.json) against the SAME genuine
+# temporary key + registered test approver pattern as every fixture above.
+# Every concept-test content file below is feature-local JSON (not a
+# sdd/*.yaml global singleton), hashed in `--input-format json` mode.
+#
+# Includes the owner-approved fixed sibling Markdown projection and
+# table-driven all-field agreement checks in this candidate revision.
+# ---------------------------------------------------------------------------
+
+MAKE_CONCEPT="$WORK/make_concept_content.py"
+cat > "$MAKE_CONCEPT" <<'PYEOF'
+import hashlib
+import json
+import os
+import sys
+sys.path.insert(0, os.path.join(sys.argv[-1], "plugins/sdd-quality-loop/scripts"))
+from concept_test_render import render_concept_test_md
+
+if sys.argv[1] in ("--json-unknown-key", "--empty-inputs"):
+    content_path = sys.argv[2]
+    with open(content_path, encoding="utf-8") as f: obj = json.load(f)
+    if sys.argv[1] == "--empty-inputs": obj["inputs"] = []
+    else: obj["unexpected"] = True
+    with open(content_path, "w", encoding="utf-8") as f: json.dump(obj, f)
+    with open(os.path.join(os.path.dirname(content_path), "concept-test.md"), "wb") as f:
+        f.write(render_concept_test_md(obj))
+    sys.exit(0)
+
+if sys.argv[1] == "--md-variant":
+    content_path, variant = sys.argv[2:4]
+    with open(content_path, encoding="utf-8") as f:
+        obj = json.load(f)
+    md_path = os.path.join(os.path.dirname(content_path), "concept-test.md")
+    if variant == "missing":
+        os.unlink(md_path)
+        sys.exit(0)
+    if variant == "crlf":
+        data = render_concept_test_md(obj).replace(b"\n", b"\r\n")
+    elif variant == "prose":
+        data = render_concept_test_md(obj) + b"extra prose\n"
+    else:
+        if variant == "feature": obj["feature"] += "-other"
+        elif variant == "schema": obj["schema"] = "other-schema"
+        elif variant == "proposal": obj["proposal"] = "RESPONSIBILITY_CONFLICT" if obj["proposal"] == "FITS_EXISTING_CONCEPTS" else "FITS_EXISTING_CONCEPTS"
+        elif variant == "rationale": obj["rationale"] += " other"
+        elif variant == "relation": obj["relation"] = "same" if obj["relation"] != "same" else "different"
+        elif variant == "input_path": obj["inputs"][0]["path"] += "-other"
+        elif variant == "input_hash": obj["inputs"][0]["sha256"] = "0" * 64
+        elif variant == "decision": obj["decision"] = "proceed" if obj["decision"] is None else "rejected" if obj["decision"] != "rejected" else "proceed"
+        elif variant == "second_path": obj["inputs"][1]["path"] += "-other"
+        elif variant == "second_hash": obj["inputs"][1]["sha256"] = "0" * 64
+        elif variant == "second_omit": obj["inputs"].pop()
+        elif variant == "second_reorder": obj["inputs"].reverse()
+        elif variant == "unknown_key": obj["unexpected"] = True
+        else: raise ValueError(variant)
+        data = render_concept_test_md(obj)
+    with open(md_path, "wb") as f: f.write(data)
+    sys.exit(0)
+
+output, feature, proposal, decision, relation, rationale, input_path = sys.argv[1:8]
+with open(input_path, "rb") as f:
+    digest = hashlib.sha256(f.read()).hexdigest()
+obj = {
+    "schema": "sdd-concept-test/v1",
+    "feature": feature,
+    "proposal": proposal,
+    "rationale": rationale,
+    "relation": relation,
+    "decision": None if decision == "NONE" else decision,
+    "inputs": [{"path": input_path, "sha256": digest}],
+}
+if len(sys.argv) == 10:
+    with open(sys.argv[8], "rb") as f:
+        second_digest = hashlib.sha256(f.read()).hexdigest()
+    obj["inputs"].append({"path": sys.argv[8], "sha256": second_digest})
+with open(output, "w", encoding="utf-8") as f:
+    json.dump(obj, f)
+with open(os.path.join(os.path.dirname(output), "concept-test.md"), "wb") as f:
+    f.write(render_concept_test_md(obj))
+PYEOF
+
+make_concept_content() {
+  # make_concept_content <output.json> <feature> <proposal> <decision|NONE> <relation> <rationale> <input_path>
+  "$PY" "$MAKE_CONCEPT" "$@" "$ROOT"
+}
+
+concept_hash() {
+  # concept_hash <content.json> -> sha256:<hex>, via canonicalize-sdd-yaml.py
+  # --input-format json --hash-only (the feature-local JSON content path,
+  # never the --input-format yaml path the two pre-existing schema ids use).
+  "$PY" "$CANON_PY" "$1" --input-format json --hash-only
+}
+
+# write_concept_template <out> <approver> <second_json> <effective_json> <predecessor_json> <verdict_json> <epoch>
+write_concept_template() {
+  wct_out=$1; wct_approver=$2; wct_second=$3; wct_effective=$4; wct_predecessor=$5; wct_verdict=$6; wct_epoch=$7
+  cat > "$wct_out" <<EOF
+{
+  "schema": "sdd-concept-test-approval/v1",
+  "context_sha256": "sha256:$(printf '0%.0s' $(seq 1 64) | head -c 64)",
+  "primary_approval": {"status": "Approved", "approver": "$wct_approver", "approved_at": "2026-01-01T00:00:00Z"},
+  "second_approval": $wct_second,
+  "effective_at": $wct_effective,
+  "predecessor_context_sha256": $wct_predecessor,
+  $wct_verdict,
+  "approval_epoch": $wct_epoch
+}
+EOF
+}
+
+CT_FEATURE="sdd-domain-concept-test"
+CT_CANONICAL_FIXTURES=1
+CT_INPUT="$WORK/ct-input.txt"
+printf 'concept test read input fixture\n' > "$CT_INPUT"
+
+# ---------------------------------------------------------------------------
+# TEST-006 (AC-006): FITS_EXISTING_CONCEPTS, decision null, valid signed
+# evidence -- gate passes (VALID).
+# ---------------------------------------------------------------------------
+
+make_concept_content "$WORK/ct_test006.json" "$CT_FEATURE" FITS_EXISTING_CONCEPTS NONE same \
+  "Existing Fulfillment concept already covers this responsibility." "$CT_INPUT"
+CT006_HASH="$(concept_hash "$WORK/ct_test006.json")"
+write_concept_template "$WORK/ct_test006_tpl.json" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+sign_fixture NONE "$KEYFILE" "$WORK/ct_test006_tpl.json" "$WORK/ct_test006_sidecar.json" "$CT006_HASH"
+
+(cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$WORK/ct_test006.json" --sidecar "$WORK/ct_test006_sidecar.json" --approver-registry "$REGISTRY_VALID")
+rc=$?
+if [ "$rc" = 0 ] && grep -q VALID "$WORK/out"; then
+  pass "TEST-001/006 concept-test FITS_EXISTING_CONCEPTS valid evidence and sibling Markdown validate PASS"
+else
+  fail "TEST-001/006 concept-test FITS_EXISTING_CONCEPTS valid evidence and sibling Markdown validate PASS (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-007/015-022 (AC-007): the 3 non-FITS proposals x the 3 decision
+# values, each a valid signed-evidence positive fixture -- the validator's
+# own scope is evidence VALIDITY, never continue/defer/stop ROUTING (that
+# is T-003's job per Governing Amendments), so every one of these 9 cases
+# must validate PASS regardless of which decision string it carries.
+# ---------------------------------------------------------------------------
+
+concept_positive_case() {
+  cpc_testid=$1; cpc_proposal=$2; cpc_decision=$3
+  cpc_content="$WORK/ct_${cpc_testid}.json"
+  cpc_tpl="$WORK/ct_${cpc_testid}_tpl.json"
+  cpc_sidecar="$WORK/ct_${cpc_testid}_sidecar.json"
+  make_concept_content "$cpc_content" "$CT_FEATURE" "$cpc_proposal" "$cpc_decision" different \
+    "Rationale for $cpc_proposal with decision=$cpc_decision." "$CT_INPUT"
+  cpc_hash="$(concept_hash "$cpc_content")"
+  write_concept_template "$cpc_tpl" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+  sign_fixture NONE "$KEYFILE" "$cpc_tpl" "$cpc_sidecar" "$cpc_hash"
+  (cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$cpc_content" --sidecar "$cpc_sidecar" --approver-registry "$REGISTRY_VALID")
+  cpc_rc=$?
+  if [ "$cpc_rc" = 0 ]; then
+    pass "$cpc_testid concept-test $cpc_proposal + decision=$cpc_decision valid signed evidence validates PASS"
+  else
+    fail "$cpc_testid concept-test $cpc_proposal + decision=$cpc_decision valid signed evidence validates PASS (exit $cpc_rc; stderr: $(cat "$WORK/err"))"
+  fi
+}
+
+concept_positive_case TEST-007 NEW_CONCEPT_CANDIDATE proceed
+concept_positive_case TEST-015 NEW_CONCEPT_CANDIDATE defer-to-domain-update
+concept_positive_case TEST-016 NEW_CONCEPT_CANDIDATE rejected
+concept_positive_case TEST-017 RESPONSIBILITY_CONFLICT proceed
+concept_positive_case TEST-018 RESPONSIBILITY_CONFLICT defer-to-domain-update
+concept_positive_case TEST-019 RESPONSIBILITY_CONFLICT rejected
+concept_positive_case TEST-020 REQUIRES_HUMAN_DECISION proceed
+concept_positive_case TEST-021 REQUIRES_HUMAN_DECISION defer-to-domain-update
+concept_positive_case TEST-022 REQUIRES_HUMAN_DECISION rejected
+
+# ---------------------------------------------------------------------------
+# TEST-002/003/004 (AC-002/003/004): each non-FITS proposal with decision
+# omitted (null) is BLOCKed (CONCEPT_TEST_DECISION_MISSING) -- an LLM
+# proposal classification alone never satisfies REQ-003's machine gate.
+# ---------------------------------------------------------------------------
+
+concept_decision_missing_case() {
+  cdm_testid=$1; cdm_proposal=$2
+  cdm_content="$WORK/ct_${cdm_testid}.json"
+  cdm_tpl="$WORK/ct_${cdm_testid}_tpl.json"
+  cdm_sidecar="$WORK/ct_${cdm_testid}_sidecar.json"
+  make_concept_content "$cdm_content" "$CT_FEATURE" "$cdm_proposal" NONE undecided \
+    "Rationale for $cdm_proposal with no decision recorded." "$CT_INPUT"
+  cdm_hash="$(concept_hash "$cdm_content")"
+  write_concept_template "$cdm_tpl" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+  sign_fixture NONE "$KEYFILE" "$cdm_tpl" "$cdm_sidecar" "$cdm_hash"
+  (cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$cdm_content" --sidecar "$cdm_sidecar" --approver-registry "$REGISTRY_VALID")
+  cdm_rc=$?
+  if [ "$cdm_rc" = 48 ] && grep -q CONCEPT_TEST_DECISION_MISSING "$WORK/err"; then
+    pass "$cdm_testid concept-test $cdm_proposal with decision=null is BLOCKed (CONCEPT_TEST_DECISION_MISSING)"
+  else
+    fail "$cdm_testid concept-test $cdm_proposal decision-missing BLOCK (exit $cdm_rc; stderr: $(cat "$WORK/err"))"
+  fi
+}
+
+concept_decision_missing_case TEST-002 NEW_CONCEPT_CANDIDATE
+concept_decision_missing_case TEST-003 RESPONSIBILITY_CONFLICT
+concept_decision_missing_case TEST-004 REQUIRES_HUMAN_DECISION
+
+# ---------------------------------------------------------------------------
+# TEST-005 (AC-005): v2-target evidence JSON file absent is BLOCKed.
+# ---------------------------------------------------------------------------
+
+write_concept_template "$WORK/ct_test005_tpl.json" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+sign_fixture NONE "$KEYFILE" "$WORK/ct_test005_tpl.json" "$WORK/ct_test005_sidecar.json" "sha256:$(printf '0%.0s' $(seq 1 64))"
+
+(cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$WORK/ct_test005_nonexistent.json" --sidecar "$WORK/ct_test005_sidecar.json" --approver-registry "$REGISTRY_VALID")
+rc=$?
+if [ "$rc" = 31 ] && grep -q CONTENT_CANONICALIZATION_FAILED "$WORK/err"; then
+  pass "TEST-005 concept-test evidence JSON file absent is BLOCKed (CONTENT_CANONICALIZATION_FAILED)"
+else
+  fail "TEST-005 concept-test evidence JSON file absent is BLOCKed (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-014 (AC-014): corrupt/malformed JSON evidence is rejected.
+# ---------------------------------------------------------------------------
+
+CT_MALFORMED="$WORK/ct_malformed.json"
+printf '{not valid json' > "$CT_MALFORMED"
+write_concept_template "$WORK/ct_malformed_tpl.json" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+sign_fixture NONE "$KEYFILE" "$WORK/ct_malformed_tpl.json" "$WORK/ct_malformed_sidecar.json" "sha256:$(printf '0%.0s' $(seq 1 64))"
+
+(cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$CT_MALFORMED" --sidecar "$WORK/ct_malformed_sidecar.json" --approver-registry "$REGISTRY_VALID")
+rc=$?
+if [ "$rc" = 31 ] && grep -q CONTENT_CANONICALIZATION_FAILED "$WORK/err"; then
+  pass "TEST-014 concept-test corrupt JSON evidence is rejected (CONTENT_CANONICALIZATION_FAILED)"
+else
+  fail "TEST-014 concept-test corrupt JSON evidence rejected (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-028/029 (AC-014): an unknown proposal / unknown decision enum value
+# is rejected by schema conformance (CONTENT_SCHEMA_VIOLATION).
+# ---------------------------------------------------------------------------
+
+make_concept_content "$WORK/ct_test028.json" "$CT_FEATURE" UNKNOWN_PROPOSAL_VALUE proceed different \
+  "Unknown proposal value." "$CT_INPUT"
+CT028_HASH="$(concept_hash "$WORK/ct_test028.json")"
+write_concept_template "$WORK/ct_test028_tpl.json" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+sign_fixture NONE "$KEYFILE" "$WORK/ct_test028_tpl.json" "$WORK/ct_test028_sidecar.json" "$CT028_HASH"
+
+(cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$WORK/ct_test028.json" --sidecar "$WORK/ct_test028_sidecar.json" --approver-registry "$REGISTRY_VALID")
+rc=$?
+if [ "$rc" = 32 ] && grep -q CONTENT_SCHEMA_VIOLATION "$WORK/err"; then
+  pass "TEST-028 concept-test unknown proposal value is rejected (CONTENT_SCHEMA_VIOLATION)"
+else
+  fail "TEST-028 concept-test unknown proposal value rejected (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+make_concept_content "$WORK/ct_test029.json" "$CT_FEATURE" NEW_CONCEPT_CANDIDATE not-a-real-decision different \
+  "Unknown decision value." "$CT_INPUT"
+CT029_HASH="$(concept_hash "$WORK/ct_test029.json")"
+write_concept_template "$WORK/ct_test029_tpl.json" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+sign_fixture NONE "$KEYFILE" "$WORK/ct_test029_tpl.json" "$WORK/ct_test029_sidecar.json" "$CT029_HASH"
+
+(cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$WORK/ct_test029.json" --sidecar "$WORK/ct_test029_sidecar.json" --approver-registry "$REGISTRY_VALID")
+rc=$?
+if [ "$rc" = 32 ] && grep -q CONTENT_SCHEMA_VIOLATION "$WORK/err"; then
+  pass "TEST-029 concept-test unknown decision value is rejected (CONTENT_SCHEMA_VIOLATION)"
+else
+  fail "TEST-029 concept-test unknown decision value rejected (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-030 (AC-015): sidecar file absent is BLOCKed.
+# ---------------------------------------------------------------------------
+
+make_concept_content "$WORK/ct_test030.json" "$CT_FEATURE" FITS_EXISTING_CONCEPTS NONE same \
+  "Valid evidence; sidecar is absent." "$CT_INPUT"
+
+(cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$WORK/ct_test030.json" --sidecar "$WORK/ct_test030_nonexistent_sidecar.json" --approver-registry "$REGISTRY_VALID")
+rc=$?
+if [ "$rc" = 37 ] && grep -q SIDECAR_UNREADABLE "$WORK/err"; then
+  pass "TEST-030 concept-test absent sidecar is BLOCKed (SIDECAR_UNREADABLE)"
+else
+  fail "TEST-030 concept-test absent sidecar is BLOCKed (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-031 (AC-015): tampered signature is BLOCKed.
+# ---------------------------------------------------------------------------
+
+make_concept_content "$WORK/ct_test031.json" "$CT_FEATURE" FITS_EXISTING_CONCEPTS NONE same \
+  "Valid evidence; hmac byte is flipped after signing." "$CT_INPUT"
+CT031_HASH="$(concept_hash "$WORK/ct_test031.json")"
+write_concept_template "$WORK/ct_test031_tpl.json" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+sign_fixture NONE "$KEYFILE" "$WORK/ct_test031_tpl.json" "$WORK/ct_test031_sidecar.json" "$CT031_HASH"
+"$PY" -c "
+import json
+p = '$WORK/ct_test031_sidecar.json'
+d = json.load(open(p))
+d['hmac'] = ('1' if d['hmac'][0] == '0' else '0') + d['hmac'][1:]
+json.dump(d, open(p, 'w'))
+"
+
+(cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$WORK/ct_test031.json" --sidecar "$WORK/ct_test031_sidecar.json" --approver-registry "$REGISTRY_VALID")
+rc=$?
+if [ "$rc" = 40 ] && grep -q HMAC_MISMATCH "$WORK/err"; then
+  pass "TEST-031 concept-test tampered signature is BLOCKed (HMAC_MISMATCH)"
+else
+  fail "TEST-031 concept-test tampered signature is BLOCKed (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-032 (AC-015): no resolvable SDD_CONTEXT_KEY is BLOCKed, never a skip.
+# ---------------------------------------------------------------------------
+
+make_concept_content "$WORK/ct_test032.json" "$CT_FEATURE" FITS_EXISTING_CONCEPTS NONE same \
+  "Valid evidence; validated with no resolvable key." "$CT_INPUT"
+CT032_HASH="$(concept_hash "$WORK/ct_test032.json")"
+write_concept_template "$WORK/ct_test032_tpl.json" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+sign_fixture NONE "$KEYFILE" "$WORK/ct_test032_tpl.json" "$WORK/ct_test032_sidecar.json" "$CT032_HASH"
+
+FAKE_HOME_T032="$WORK/fake-home-t032"
+mkdir -p "$FAKE_HOME_T032"
+mkdir -p "$WORK/specs/$CT_FEATURE"
+cp "$WORK/ct_test032.json" "$WORK/specs/$CT_FEATURE/concept-test.json"
+cp "$WORK/concept-test.md" "$WORK/specs/$CT_FEATURE/concept-test.md"
+cp "$WORK/ct_test032_sidecar.json" "$WORK/specs/$CT_FEATURE/concept-test.approval.json"
+(cd "$WORK" && env -u SDD_CONTEXT_KEY -u SDD_CONTEXT_KEY_FILE HOME="$FAKE_HOME_T032" \
+  "$VAL_SH" --content "$WORK/specs/$CT_FEATURE/concept-test.json" --sidecar "$WORK/specs/$CT_FEATURE/concept-test.approval.json" --approver-registry "$REGISTRY_VALID" >"$WORK/out" 2>"$WORK/err")
+rc=$?
+if [ "$rc" = 11 ] && grep -q NO_CONTEXT_KEY "$WORK/err"; then
+  pass "TEST-032 concept-test no resolvable key is BLOCKed (NO_CONTEXT_KEY), never a skip"
+else
+  fail "TEST-032 concept-test no resolvable key is BLOCKed (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-033 (AC-015): a correctly-signed sidecar for an UNREGISTERED approver
+# is BLOCKed.
+# ---------------------------------------------------------------------------
+
+make_concept_content "$WORK/ct_test033.json" "$CT_FEATURE" FITS_EXISTING_CONCEPTS NONE same \
+  "Valid evidence; approver is not in the registry." "$CT_INPUT"
+CT033_HASH="$(concept_hash "$WORK/ct_test033.json")"
+write_concept_template "$WORK/ct_test033_tpl.json" mallory 'null' 'null' 'null' '"weakening_verdict": null' 1
+sign_fixture NONE "$KEYFILE" "$WORK/ct_test033_tpl.json" "$WORK/ct_test033_sidecar.json" "$CT033_HASH"
+
+(cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$WORK/ct_test033.json" --sidecar "$WORK/ct_test033_sidecar.json" --approver-registry "$REGISTRY_VALID")
+rc=$?
+if [ "$rc" = 41 ] && grep -q UNREGISTERED_APPROVER "$WORK/err"; then
+  pass "TEST-033 concept-test unregistered approver (correct signature) is BLOCKed (UNREGISTERED_APPROVER)"
+else
+  fail "TEST-033 concept-test unregistered approver is BLOCKed (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-034 (AC-015): a decision VALUE alone, with no signed sidecar at all,
+# is BLOCKed -- a decision string is never itself human-approval evidence.
+# ---------------------------------------------------------------------------
+
+make_concept_content "$WORK/ct_test034.json" "$CT_FEATURE" NEW_CONCEPT_CANDIDATE proceed different \
+  "A decision string is present, but no sidecar accompanies it." "$CT_INPUT"
+
+(cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$WORK/ct_test034.json" --sidecar "$WORK/ct_test034_no_sidecar.json" --approver-registry "$REGISTRY_VALID")
+rc=$?
+if [ "$rc" = 37 ] && grep -q SIDECAR_UNREADABLE "$WORK/err"; then
+  pass "TEST-034 concept-test decision-string-only evidence with no signed sidecar is BLOCKed (SIDECAR_UNREADABLE)"
+else
+  fail "TEST-034 concept-test decision-only evidence is BLOCKed (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-035 (AC-016): a read input mutated by 1 byte AFTER signing is
+# BLOCKed -- the recorded inputs[].sha256 no longer matches the live file,
+# even though context_sha256/hmac (computed over the unchanged JSON
+# content) still verify.
+# ---------------------------------------------------------------------------
+
+CT_INPUT_035="$WORK/ct-input-test035.txt"
+printf 'concept test read input for TEST-035\n' > "$CT_INPUT_035"
+make_concept_content "$WORK/ct_test035.json" "$CT_FEATURE" FITS_EXISTING_CONCEPTS NONE same \
+  "Valid evidence; the referenced input file is mutated after signing." "$CT_INPUT_035"
+CT035_HASH="$(concept_hash "$WORK/ct_test035.json")"
+write_concept_template "$WORK/ct_test035_tpl.json" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+sign_fixture NONE "$KEYFILE" "$WORK/ct_test035_tpl.json" "$WORK/ct_test035_sidecar.json" "$CT035_HASH"
+printf 'X' >> "$CT_INPUT_035"
+
+(cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$WORK/ct_test035.json" --sidecar "$WORK/ct_test035_sidecar.json" --approver-registry "$REGISTRY_VALID")
+rc=$?
+if [ "$rc" = 50 ] && grep -q CONCEPT_TEST_INPUT_HASH_MISMATCH "$WORK/err"; then
+  pass "TEST-035 concept-test a 1-byte-changed read input is BLOCKed (CONCEPT_TEST_INPUT_HASH_MISMATCH)"
+else
+  fail "TEST-035 concept-test a changed read input is BLOCKed (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-036 (AC-016): a read input absent at validation time is BLOCKed.
+# ---------------------------------------------------------------------------
+
+CT_INPUT_036="$WORK/ct-input-test036.txt"
+printf 'concept test read input for TEST-036 (will be removed)\n' > "$CT_INPUT_036"
+make_concept_content "$WORK/ct_test036.json" "$CT_FEATURE" FITS_EXISTING_CONCEPTS NONE same \
+  "Valid evidence; the referenced input file is removed after signing." "$CT_INPUT_036"
+CT036_HASH="$(concept_hash "$WORK/ct_test036.json")"
+write_concept_template "$WORK/ct_test036_tpl.json" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+sign_fixture NONE "$KEYFILE" "$WORK/ct_test036_tpl.json" "$WORK/ct_test036_sidecar.json" "$CT036_HASH"
+rm -f "$CT_INPUT_036"
+
+(cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$WORK/ct_test036.json" --sidecar "$WORK/ct_test036_sidecar.json" --approver-registry "$REGISTRY_VALID")
+rc=$?
+if [ "$rc" = 49 ] && grep -q CONCEPT_TEST_INPUT_UNREADABLE "$WORK/err"; then
+  pass "TEST-036 concept-test an absent read input is BLOCKed (CONCEPT_TEST_INPUT_UNREADABLE)"
+else
+  fail "TEST-036 concept-test an absent read input is BLOCKed (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# Bad HMAC with an absent content-named path must stop at HMAC, before
+# attempting to open that path (the valid-HMAC counterpart is TEST-036).
+"$PY" -c 'import json,sys; d=json.load(open(sys.argv[1])); d["hmac"]=("1" if d["hmac"][0]=="0" else "0")+d["hmac"][1:]; json.dump(d,open(sys.argv[2],"w"))' \
+  "$WORK/ct_test036_sidecar.json" "$WORK/ct_test036_bad_hmac.json"
+(cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$WORK/ct_test036.json" --sidecar "$WORK/ct_test036_bad_hmac.json" --approver-registry "$REGISTRY_VALID")
+rc=$?
+if [ "$rc" = 40 ] && grep -q HMAC_MISMATCH "$WORK/err"; then
+  pass "concept-test bad HMAC stops before absent input read"
+else
+  fail "concept-test bad HMAC input-read ordering (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# Unknown signed JSON property is rejected even when Markdown agrees.
+make_concept_content "$WORK/ct_unknown_json.json" "$CT_FEATURE" FITS_EXISTING_CONCEPTS NONE same "Unknown-key fixture." "$CT_INPUT"
+"$PY" "$MAKE_CONCEPT" --json-unknown-key "$WORK/ct_unknown_json.json" "$ROOT"
+CT_UNKNOWN_HASH="$(concept_hash "$WORK/ct_unknown_json.json")"
+write_concept_template "$WORK/ct_unknown_json_tpl.json" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+sign_fixture NONE "$KEYFILE" "$WORK/ct_unknown_json_tpl.json" "$WORK/ct_unknown_json_sidecar.json" "$CT_UNKNOWN_HASH"
+(cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$WORK/ct_unknown_json.json" --sidecar "$WORK/ct_unknown_json_sidecar.json" --approver-registry "$REGISTRY_VALID")
+rc=$?
+if [ "$rc" = 32 ] && grep -q CONTENT_SCHEMA_VIOLATION "$WORK/err"; then
+  pass "concept-test signed JSON unknown key is BLOCKed by schema"
+else
+  fail "concept-test signed JSON unknown key schema rejection (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# Standard CLI cardinality controls; mutate before hashing and signing.
+for ct_count in 1 0; do
+  ct_content="$WORK/ct_cardinality_${ct_count}.json"
+  ct_tpl="$WORK/ct_cardinality_${ct_count}_tpl.json"
+  ct_sidecar="$WORK/ct_cardinality_${ct_count}_sidecar.json"
+  make_concept_content "$ct_content" "$CT_FEATURE" NEW_CONCEPT_CANDIDATE proceed different "Cardinality fixture." "$CT_INPUT" || exit 1
+  if [ "$ct_count" = 0 ]; then
+    "$PY" "$MAKE_CONCEPT" --empty-inputs "$ct_content" "$ROOT" || exit 1
+  fi
+  ct_hash="$(concept_hash "$ct_content")" || exit 1
+  write_concept_template "$ct_tpl" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+  sign_fixture NONE "$KEYFILE" "$ct_tpl" "$ct_sidecar" "$ct_hash" || exit 1
+  (cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$ct_content" --sidecar "$ct_sidecar" --approver-registry "$REGISTRY_VALID")
+  ct_rc=$?
+  if [ "$ct_count" = 1 ] && [ "$ct_rc" = 0 ] && grep -qx VALID "$WORK/out"; then
+    pass "concept-test minItems one input accepted by standard CLI"
+  elif [ "$ct_count" = 0 ] && [ "$ct_rc" = 32 ] && grep -Fq 'CONTENT_SCHEMA_VIOLATION: /inputs: fewer than minItems 1' "$WORK/err"; then
+    pass "concept-test minItems empty inputs rejected by standard CLI"
+  else
+    fail "concept-test minItems inputs=$ct_count (exit $ct_rc; stderr: $(cat "$WORK/err"))"
+  fi
+done
+
+# Every schema field is compared for every proposal. The signed JSON and
+# live input stay valid; only the sibling Markdown changes.
+ct_md_mismatch_case() {
+  cmm_id=$1; cmm_proposal=$2; cmm_decision=$3; cmm_field=$4
+  cmm_label=$cmm_id
+  case "$cmm_id" in
+    TEST-075) cmm_label=TEST-037/078 ;;
+    TEST-076) cmm_label=TEST-075 ;;
+    TEST-077) cmm_label=TEST-076 ;;
+    TEST-078) cmm_label=TEST-077 ;;
+  esac
+  cmm_content="$WORK/ct_${cmm_id}.json"
+  cmm_tpl="$WORK/ct_${cmm_id}_tpl.json"
+  cmm_sidecar="$WORK/ct_${cmm_id}_sidecar.json"
+  make_concept_content "$cmm_content" "$CT_FEATURE" "$cmm_proposal" "$cmm_decision" same "Markdown mismatch fixture." "$CT_INPUT"
+  cmm_hash="$(concept_hash "$cmm_content")"
+  write_concept_template "$cmm_tpl" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+  sign_fixture NONE "$KEYFILE" "$cmm_tpl" "$cmm_sidecar" "$cmm_hash"
+  "$PY" "$MAKE_CONCEPT" --md-variant "$cmm_content" "$cmm_field" "$ROOT"
+  (cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$cmm_content" --sidecar "$cmm_sidecar" --approver-registry "$REGISTRY_VALID")
+  cmm_rc=$?
+  if [ "$cmm_rc" = 51 ] && grep -q CONCEPT_TEST_MD_MISMATCH "$WORK/err"; then
+    pass "$cmm_label $cmm_proposal $cmm_field Markdown mismatch BLOCK"
+  else
+    fail "$cmm_label $cmm_proposal $cmm_field Markdown mismatch (exit $cmm_rc; stderr: $(cat "$WORK/err"))"
+  fi
+}
+
+cmm_base=51
+for cmm_class in FITS_EXISTING_CONCEPTS NEW_CONCEPT_CANDIDATE RESPONSIBILITY_CONFLICT REQUIRES_HUMAN_DECISION; do
+  cmm_decision=proceed
+  [ "$cmm_class" = FITS_EXISTING_CONCEPTS ] && cmm_decision=NONE
+  for cmm_field in feature proposal rationale relation input_path input_hash; do
+    cmm_id=$(printf 'TEST-%03d' "$cmm_base")
+    ct_md_mismatch_case "$cmm_id" "$cmm_class" "$cmm_decision" "$cmm_field"
+    cmm_base=$((cmm_base + 1))
+  done
+  cmm_id=$(printf 'TEST-%03d' "$((75 + (cmm_base - 57) / 6))")
+  ct_md_mismatch_case "$cmm_id" "$cmm_class" "$cmm_decision" decision
+done
+
+CT_INPUT_SECOND="$WORK/ct-input-second.txt"
+printf 'second read input\n' > "$CT_INPUT_SECOND"
+for cmm_field in schema second_path second_hash second_omit second_reorder unknown_key missing crlf prose; do
+  cmm_content="$WORK/ct_extra_${cmm_field}.json"
+  make_concept_content "$cmm_content" "$CT_FEATURE" FITS_EXISTING_CONCEPTS NONE same "Two-input fixture." "$CT_INPUT" "$CT_INPUT_SECOND"
+  cmm_hash="$(concept_hash "$cmm_content")"
+  cmm_tpl="$WORK/ct_extra_${cmm_field}_tpl.json"
+  cmm_sidecar="$WORK/ct_extra_${cmm_field}_sidecar.json"
+  write_concept_template "$cmm_tpl" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+  sign_fixture NONE "$KEYFILE" "$cmm_tpl" "$cmm_sidecar" "$cmm_hash"
+  "$PY" "$MAKE_CONCEPT" --md-variant "$cmm_content" "$cmm_field" "$ROOT"
+  (cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$cmm_content" --sidecar "$cmm_sidecar" --approver-registry "$REGISTRY_VALID")
+  cmm_rc=$?
+  if [ "$cmm_rc" = 51 ] && grep -q CONCEPT_TEST_MD_MISMATCH "$WORK/err"; then
+    pass "two-input $cmm_field Markdown mismatch BLOCK"
+  else
+    fail "two-input $cmm_field Markdown mismatch (exit $cmm_rc; stderr: $(cat "$WORK/err"))"
+  fi
+done
 
 # ---------------------------------------------------------------------------
 # Self-registration.

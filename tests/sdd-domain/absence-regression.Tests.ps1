@@ -1,27 +1,14 @@
 #
-# T-007 absence-regression -- AC-010 byte-identical-output regression guard
+# T-007 absence-regression -- AC-010 absent-domain regression guard
 #
 # AC-010: "With no domain/ directory, all sdd-domain hooks, sync steps, and
 # gates are skipped, recording a single skip line; existing workflows
 # produce byte-identical artifacts."
 #
-# sdd-bootstrap-interviewer/SKILL.md is a large, already-working instruction
-# document, not an executable script -- there is no way to literally run it
-# in a unit test and diff its two output runs. Per this task's brief, the
-# meaningful, REAL, executable regression check available here is: prove the
-# edit made to plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md
-# for this task is STRUCTURALLY ADDITIVE-ONLY -- i.e. `git diff --numstat`
-# against the pre-change committed version shows zero deleted/modified lines
-# and only new, clearly-scoped inserted lines. An additive-only change to an
-# instruction document is real, verifiable evidence that every pre-existing
-# instruction (and therefore every pre-existing generated artifact for a
-# domain/-absent project) is untouched -- the new step is a no-op branch for
-# such a project (per domain-sync's own single-skip-line contract, verified
-# separately in domain-sync.Tests.ps1).
-#
-# This file requires a git-tracked working copy (it shells out to `git
-# diff --numstat` against HEAD). It is a regression guard specific to this
-# task's own edit, not a general-purpose tool.
+# The bootstrap skill is an instruction document, not an executable program.
+# Its absent-domain contract is checked below, while both executable domain
+# conformance gates are run against real temporary input files. The tests do
+# not infer runtime behavior from the shape of a historical Git diff.
 #
 # ASCII-only: no non-ASCII literal characters appear anywhere in this file
 # (BOM-less .ps1 is read as ANSI on this Windows environment).
@@ -33,123 +20,8 @@ $repositoryRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $bootstrapSkillRelativePath = "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
 $bootstrapSkillPath = Join-Path $repositoryRoot $bootstrapSkillRelativePath
 $domainSyncSkillPath = Join-Path $repositoryRoot "plugins/sdd-domain/skills/domain-sync/SKILL.md"
-
-# The pre-sdd-domain baseline commit: the last commit before this feature's
-# T-007 touched the bootstrap interviewer. Anchoring the additive-only diff
-# to this fixed baseline (instead of the uncommitted working tree) keeps the
-# regression guard valid after the feature's edits are committed.
-$baselineCommit = "7fc0534"
-
-function Test-GitCommitReachable {
-    param([string]$RepoRoot, [string]$Commit)
-
-    Push-Location $RepoRoot
-    try {
-        & git rev-parse --verify --quiet ("{0}^{{commit}}" -f $Commit) 2>&1 | Out-Null
-        return ($LASTEXITCODE -eq 0)
-    } finally {
-        Pop-Location
-    }
-}
-
-function Invoke-GitNumstat {
-    param([string]$RepoRoot, [string]$Baseline, [string]$RelativePath)
-
-    Push-Location $RepoRoot
-    try {
-        $output = & git diff --numstat $Baseline -- $RelativePath 2>&1
-        return ,$output
-    } finally {
-        Pop-Location
-    }
-}
-
-function Invoke-GitDiffText {
-    param([string]$RepoRoot, [string]$Baseline, [string]$RelativePath)
-
-    Push-Location $RepoRoot
-    try {
-        $output = & git diff $Baseline -- $RelativePath 2>&1
-        return ($output -join "`n")
-    } finally {
-        Pop-Location
-    }
-}
-
-Describe "AC-010: sdd-bootstrap-interviewer edit is additive-only vs pre-feature baseline (git diff --numstat)" {
-
-    BeforeAll {
-        $script:baselineReachable = Test-GitCommitReachable -RepoRoot $repositoryRoot -Commit $baselineCommit
-        if ($script:baselineReachable) {
-            $script:numstatRaw = Invoke-GitNumstat -RepoRoot $repositoryRoot -Baseline $baselineCommit -RelativePath $bootstrapSkillRelativePath
-            $script:diffText = Invoke-GitDiffText -RepoRoot $repositoryRoot -Baseline $baselineCommit -RelativePath $bootstrapSkillRelativePath
-        } else {
-            # Baseline commit unreachable (e.g. squash-merged history). The
-            # additive-only property cannot be recomputed here; skip rather
-            # than fail, since the guard's purpose is tied to that baseline.
-            $script:numstatRaw = @()
-            $script:diffText = ""
-        }
-    }
-
-    It "the pre-feature baseline commit is reachable (guard anchor present)" {
-        if (-not $script:baselineReachable) {
-            Set-TestInconclusive "baseline commit $baselineCommit not reachable in this clone; additive-only guard skipped"
-        }
-        $script:baselineReachable | Should Be $true
-    }
-
-    It "git diff --numstat vs baseline reports exactly one changed-file line for the bootstrap SKILL.md" {
-        if (-not $script:baselineReachable) { Set-TestInconclusive "baseline unreachable" }
-        $nonEmptyLines = @($script:numstatRaw | Where-Object { $_ -and $_.Trim() -ne "" })
-        $nonEmptyLines.Count | Should Be 1
-    }
-
-    It "the numstat line reports zero deleted lines (additive-only)" {
-        if (-not $script:baselineReachable) { Set-TestInconclusive "baseline unreachable" }
-        $line = @($script:numstatRaw | Where-Object { $_ -and $_.Trim() -ne "" })[0]
-        # numstat format: "<added>\t<deleted>\t<path>"
-        $parts = $line -split "`t"
-        $parts.Count | Should Be 3
-        [int]$parts[1] | Should Be 0
-    }
-
-    It "the numstat line reports at least one added line (the new step was actually inserted)" {
-        if (-not $script:baselineReachable) { Set-TestInconclusive "baseline unreachable" }
-        $line = @($script:numstatRaw | Where-Object { $_ -and $_.Trim() -ne "" })[0]
-        $parts = $line -split "`t"
-        [int]$parts[0] | Should BeGreaterThan 0
-    }
-
-    It "the unified diff vs baseline contains no removed content lines (lines starting with a single '-')" {
-        if (-not $script:baselineReachable) { Set-TestInconclusive "baseline unreachable" }
-        # A line starting with exactly one '-' (not '---' file-header marker)
-        # represents a deleted/modified source line. Only the file-header
-        # '--- a/<path>' line is allowed to start with '-'.
-        $diffLines = $script:diffText -split "`n"
-        $removedContentLines = @($diffLines | Where-Object {
-            $_ -match '^-' -and $_ -notmatch '^---\s'
-        })
-        $removedContentLines.Count | Should Be 0
-    }
-
-    It "the unified diff's added lines are contiguous and scoped to the Intake And Investigation section" {
-        if (-not $script:baselineReachable) { Set-TestInconclusive "baseline unreachable" }
-        # Every added line ('+' prefix, excluding the '+++' file-header marker)
-        # must appear within a hunk whose context includes
-        # '## Intake And Investigation' or the new step's own numbered-item
-        # text -- i.e. the change is scoped to one section, not scattered
-        # across the file.
-        $diffLines = $script:diffText -split "`n"
-        $addedLines = @($diffLines | Where-Object { $_ -match '^\+' -and $_ -notmatch '^\+\+\+\s' })
-        $addedLines.Count | Should BeGreaterThan 0
-
-        $hunkHeaders = @($diffLines | Where-Object { $_ -match '^@@' })
-        # A single contiguous hunk is the strongest possible evidence of a
-        # scoped, non-scattered change.
-        $hunkHeaders.Count | Should Be 1
-    }
-}
+$shellGatePath = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/check-domain-conformance.sh"
+$powerShellGatePath = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/check-domain-conformance.ps1"
 
 Describe "AC-010: domain-sync single-skip-line contract (documented, cross-checked against the bootstrap edit)" {
 
@@ -179,12 +51,23 @@ Describe "AC-010: domain-sync single-skip-line contract (documented, cross-check
     }
 }
 
-Describe "Worked fixture: absence of domain/ produces the documented single skip line and no injection" {
+Describe "AC-010: executable domain gates preserve absent-domain inputs" {
 
     BeforeAll {
+        $script:shellCommand = Get-Command sh -ErrorAction SilentlyContinue
+        if ($null -eq $script:shellCommand) {
+            $script:shellCommand = Get-Command bash -ErrorAction SilentlyContinue
+        }
+        $script:powerShellCommand = if ($PSVersionTable.PSEdition -eq "Core") { "pwsh" } else { "powershell" }
         $script:fixtureDir = Join-Path ([IO.Path]::GetTempPath()) ("sdd-domain-t007-absence-" + [Guid]::NewGuid().ToString("N"))
         New-Item -ItemType Directory -Path $script:fixtureDir -Force | Out-Null
-        # Deliberately no domain/ subdirectory created.
+        $script:requirementsPath = Join-Path $script:fixtureDir "requirements.md"
+        $script:designPath = Join-Path $script:fixtureDir "design.md"
+        [IO.File]::WriteAllText($script:requirementsPath, "# Requirements`nBounded-Context: absent-context`n")
+        [IO.File]::WriteAllText($script:designPath, "# Design`n[Missing](domain/aggregates/Missing.md)`n")
+        $script:requirementsHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $script:requirementsPath).Hash
+        $script:designHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $script:designPath).Hash
+        $script:expectedFiles = @($script:requirementsPath, $script:designPath | Sort-Object)
     }
 
     AfterAll {
@@ -193,37 +76,48 @@ Describe "Worked fixture: absence of domain/ produces the documented single skip
         }
     }
 
-    # Simulates domain-sync's documented step-1 detection check: does
-    # domain/ exist at the project root? This is the only branch this test
-    # can execute deterministically (a filesystem existence check); the
-    # remaining detection steps (Domain-Model-Status, contract validation)
-    # are exercised in domain-sync.Tests.ps1's Approved-model fixture.
-    function Get-DomainSyncOutcome {
-        param([string]$ProjectRoot)
-
-        $domainDir = Join-Path $ProjectRoot "domain"
-        if (-not (Test-Path -LiteralPath $domainDir)) {
-            return [PSCustomObject]@{
-                Outcome = "skipped"
-                Line = "domain-sync skipped: no domain/ directory"
-                Injected = $false
-            }
-        }
-        throw "test double only implements the absent-domain/ branch"
-    }
-
-    It "reports exactly the documented skip line when domain/ is absent" {
-        $result = Get-DomainSyncOutcome -ProjectRoot $script:fixtureDir
-        $result.Outcome | Should Be "skipped"
-        $result.Line | Should Be "domain-sync skipped: no domain/ directory"
-    }
-
-    It "performs no injection when domain/ is absent" {
-        $result = Get-DomainSyncOutcome -ProjectRoot $script:fixtureDir
-        $result.Injected | Should Be $false
-    }
-
-    It "the fixture project genuinely has no domain/ directory (sanity check on the test setup)" {
+    It "the fixture project genuinely has no domain/ directory" {
         Test-Path -LiteralPath (Join-Path $script:fixtureDir "domain") | Should Be $false
+    }
+
+    It "the shell gate emits one skip line, exits zero, and preserves artifact bytes" {
+        if ($null -eq $script:shellCommand) {
+            Set-TestInconclusive "shell gate not executable: neither sh nor bash is available"
+        }
+        $output = @(& $script:shellCommand.Source $shellGatePath $script:fixtureDir $script:requirementsPath $script:designPath 2>&1)
+        $LASTEXITCODE | Should Be 0
+        $output.Count | Should Be 1
+        $output[0] | Should Be "check-domain-conformance skipped: no domain/ directory."
+        (Get-FileHash -Algorithm SHA256 -LiteralPath $script:requirementsPath).Hash | Should Be $script:requirementsHash
+        (Get-FileHash -Algorithm SHA256 -LiteralPath $script:designPath).Hash | Should Be $script:designHash
+        @(Get-ChildItem -LiteralPath $script:fixtureDir -Recurse -File -Force | ForEach-Object FullName | Sort-Object) | Should Be $script:expectedFiles
+    }
+
+    It "the PowerShell gate emits one skip line, exits zero, and preserves artifact bytes" {
+        $output = @(& $script:powerShellCommand -NoProfile -File $powerShellGatePath -ProjectRoot $script:fixtureDir -RequirementsMd $script:requirementsPath -DesignMd $script:designPath 2>&1)
+        $LASTEXITCODE | Should Be 0
+        $output.Count | Should Be 1
+        $output[0] | Should Be "check-domain-conformance skipped: no domain/ directory."
+        (Get-FileHash -Algorithm SHA256 -LiteralPath $script:requirementsPath).Hash | Should Be $script:requirementsHash
+        (Get-FileHash -Algorithm SHA256 -LiteralPath $script:designPath).Hash | Should Be $script:designHash
+        @(Get-ChildItem -LiteralPath $script:fixtureDir -Recurse -File -Force | ForEach-Object FullName | Sort-Object) | Should Be $script:expectedFiles
+    }
+
+    It "rejects a hidden unexpected artifact in the output inventory" {
+        $hiddenPath = Join-Path $script:fixtureDir ".unexpected-artifact"
+        try {
+            [IO.File]::WriteAllText($hiddenPath, "unexpected")
+            if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
+                [IO.File]::SetAttributes($hiddenPath, [IO.FileAttributes]::Hidden)
+            }
+            @(Get-ChildItem -LiteralPath $script:fixtureDir -Recurse -File -Force |
+                ForEach-Object FullName) | Should Contain $hiddenPath
+            {
+                @(Get-ChildItem -LiteralPath $script:fixtureDir -Recurse -File -Force |
+                    ForEach-Object FullName | Sort-Object) | Should Be $script:expectedFiles
+            } | Should Throw
+        } finally {
+            Remove-Item -LiteralPath $hiddenPath -Force -ErrorAction SilentlyContinue
+        }
     }
 }

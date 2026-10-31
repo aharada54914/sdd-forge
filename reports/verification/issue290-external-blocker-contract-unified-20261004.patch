@@ -1,0 +1,160 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-task-state.sh b/plugins/sdd-quality-loop/scripts/check-task-state.sh
+--- a/plugins/sdd-quality-loop/scripts/check-task-state.sh
++++ b/plugins/sdd-quality-loop/scripts/check-task-state.sh
+@@ -14,7 +14,7 @@
+ #  - Done additionally requires the evidence bundle's declared quality-gate
+ #    report to mention the task id and contain VERDICT: PASS.
+ #  - Implementation Complete requires an implementation report mentioning the task id.
+-#  - Blocked requires non-empty ### Blockers content (not None/whitespace/bare list markers).
++#  - Blocked requires non-empty task Blockers or a non-empty external Blocked Reason.
+ #  - Duplicate task ids (## T-NNN repeated) → fail.
+ tasks="$1"
+ reports="${2:-reports/quality-gate}"
+@@ -33,7 +33,7 @@
+ TASKS="$tasks" REPORTS="$reports" IMPL_REPORTS="$impl_reports" SCRIPT_DIR="$script_dir" REPO_ROOT="$repo_root" awk '
+ BEGIN {
+   task = ""; failures = 0; count = 0
+-  in_blockers = 0; blockers_content = ""
++  in_blockers = 0; blockers_content = ""; blocked_reason = ""
+   # Detect available Python 3 interpreter (35.2: Windows ships a python3 stub)
+   if (system("python3 -c \"import sys\" >/dev/null 2>&1") == 0) {
+     PYTHON_CMD = "python3"
+@@ -63,13 +63,15 @@
+   }
+   seen[newid] = 1
+   task = newid; approval = ""; status = ""; risk = ""; second = ""; count++
+-  in_blockers = 0; blockers_content = ""
++  in_blockers = 0; blockers_content = ""; blocked_reason = ""
+ }
+ /^Approval:/ { if (task != "") { approval = $0; sub(/^Approval:[ \t]*/, "", approval); in_blockers = 0 } }
+ /^Status:/ { if (task != "") { status = $0; sub(/^Status:[ \t]*/, "", status); in_blockers = 0 } }
+ /^Risk:/ { if (task != "") { risk = $0; sub(/^Risk:[ \t]*/, "", risk); risk = tolower(risk); sub(/[ \t]+$/, "", risk); in_blockers = 0 } }
+ /^Second Approval:/ { if (task != "") { second = $0; sub(/^Second Approval:[ \t]*/, "", second); in_blockers = 0 } }
++/^Blocked Reason:/ { if (task != "") { blocked_reason = $0; sub(/^Blocked Reason:[ \t]*/, "", blocked_reason); in_blockers = 0 } }
+ /^### Blockers/ { if (task != "") { in_blockers = 1 } }
++/^### / { if ($0 !~ /^### Blockers[ \t]*$/) in_blockers = 0 }
+ /^## [^#]/ { if ($0 !~ /^## T-[0-9]+/) { in_blockers = 0 } }
+ {
+   if (in_blockers && $0 !~ /^### Blockers/) {
+@@ -178,7 +180,10 @@
+     impl_report = ""
+   }
+   if (status == "Blocked") {
+-    if (blockers_content == "") fail(task " is Blocked but ### Blockers section has no content (not None or empty)")
++    reason = blocked_reason
++    gsub(/^[ \t]+|[ \t]+$/, "", reason)
++    if (tolower(reason) == "none" || reason ~ /^[-*#]+$/) reason = ""
++    if (blockers_content == "" && reason == "") fail(task " is Blocked but has neither task Blockers nor Blocked Reason")
+   }
+   # Effective risk for Done tasks: use contract_risk if non-empty, else tasks.md risk
+   effective_risk = (status == "Done" && contract_risk != "") ? contract_risk : risk
+diff --git a/plugins/sdd-quality-loop/scripts/check-task-state.ps1 b/plugins/sdd-quality-loop/scripts/check-task-state.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-task-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-task-state.ps1
+@@ -12,7 +12,7 @@
+ #  - Done additionally requires the evidence bundle's declared quality-gate
+ #    report to mention the task id and contain VERDICT: PASS.
+ #  - Implementation Complete requires an implementation report mentioning the task id.
+-#  - Blocked requires non-empty ### Blockers content (not None/whitespace/bare list markers).
++#  - Blocked requires non-empty task Blockers or a non-empty external Blocked Reason.
+ #  - Duplicate task ids (## T-NNN repeated) → fail.
+ param(
+     [Parameter(Mandatory)][string]$TasksPath,
+@@ -42,6 +42,7 @@
+ $risk = @{}
+ $second = @{}
+ $blockers = @{}
++$blockedReason = @{}
+ $seenIds = @{}
+ 
+ $lines = Get-Content -Encoding Utf8 $TasksPath
+@@ -72,8 +73,13 @@
+     } elseif ($currentTask -and $line -cmatch '^Second Approval:\s*(.+)$') {
+         $second[$currentTask] = $Matches[1].Trim()
+         $inBlockers = $false
++    } elseif ($currentTask -and $line -cmatch '^Blocked Reason:\s*(.*)$') {
++        $blockedReason[$currentTask] = $Matches[1].Trim()
++        $inBlockers = $false
+     } elseif ($currentTask -and $line -cmatch '^###\s+Blockers') {
+         $inBlockers = $true
++    } elseif ($line -cmatch '^###\s+') {
++        $inBlockers = $false
+     } elseif ($line -cmatch '^##') {
+         $inBlockers = $false
+     } elseif ($currentTask -and $inBlockers) {
+@@ -210,8 +216,10 @@
+     }
+     if ($s -ceq "Blocked") {
+         $blockersContent = $blockers[$task]
+-        if ([string]::IsNullOrWhiteSpace($blockersContent)) {
+-            $failures += "$task is Blocked but ### Blockers section has no content (not None or empty)"
++        $reason = $blockedReason[$task]
++        if ([string]::IsNullOrWhiteSpace($blockersContent) -and
++            ([string]::IsNullOrWhiteSpace($reason) -or $reason -cieq "None" -or $reason -cmatch '^[-*#]+$')) {
++            $failures += "$task is Blocked but has neither task Blockers nor Blocked Reason"
+         }
+     }
+ }
+diff --git a/mcp/sdd-forge-mcp/src/parsers/task-types.ts b/mcp/sdd-forge-mcp/src/parsers/task-types.ts
+--- a/mcp/sdd-forge-mcp/src/parsers/task-types.ts
++++ b/mcp/sdd-forge-mcp/src/parsers/task-types.ts
+@@ -59,6 +59,7 @@
+   risk: string;
+   second: string;
+   blockersContent: string;
++  blockedReason: string;
+   inBlockers: boolean;
+ }
+ 
+@@ -70,6 +71,7 @@
+     risk: "",
+     second: "",
+     blockersContent: "",
++    blockedReason: "",
+     inBlockers: false,
+   };
+ }
+diff --git a/mcp/sdd-forge-mcp/src/parsers/tasks.ts b/mcp/sdd-forge-mcp/src/parsers/tasks.ts
+--- a/mcp/sdd-forge-mcp/src/parsers/tasks.ts
++++ b/mcp/sdd-forge-mcp/src/parsers/tasks.ts
+@@ -133,10 +133,19 @@
+       draft.inBlockers = false;
+       continue;
+     }
++    if (line.startsWith("Blocked Reason:")) {
++      draft.blockedReason = line.slice("Blocked Reason:".length).trim();
++      draft.inBlockers = false;
++      continue;
++    }
+     if (/^### Blockers/.test(line)) {
+       draft.inBlockers = true;
+       continue;
+     }
++    if (/^### /.test(line)) {
++      draft.inBlockers = false;
++      continue;
++    }
+     if (/^## [^#]/.test(line) && !TASK_HEADER_PATTERN.test(line)) {
+       draft.inBlockers = false;
+       continue;
+diff --git a/mcp/sdd-forge-mcp/src/parsers/task-validation.ts b/mcp/sdd-forge-mcp/src/parsers/task-validation.ts
+--- a/mcp/sdd-forge-mcp/src/parsers/task-validation.ts
++++ b/mcp/sdd-forge-mcp/src/parsers/task-validation.ts
+@@ -91,13 +91,14 @@
+ 
+   let blockersNonEmpty = false;
+   if (status === "Blocked") {
+-    if (draft.blockersContent === "") {
++    const reason = draft.blockedReason;
++    if (draft.blockersContent === "" && (reason === "" || reason.toLowerCase() === "none" || /^[-*#]+$/.test(reason))) {
+       fail(
+         "blocked-no-blockers",
+-        `${taskId} is Blocked but ### Blockers section has no content (not None or empty)`,
++        `${taskId} is Blocked but has neither task Blockers nor Blocked Reason`,
+       );
+     } else {
+-      blockersNonEmpty = true;
++      blockersNonEmpty = draft.blockersContent !== "";
+     }
+   } else {
+     blockersNonEmpty = draft.blockersContent !== "";

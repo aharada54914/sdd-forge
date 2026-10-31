@@ -1,0 +1,18 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "sdd-domain-concept-test",
+  "attempt": 1,
+  "round": 1,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "8b5afe5751ebe06a52182271e4926db03d06296d7f97095a6eae8eba2441427a",
+  "tasks_sha256_form": "raw",
+  "requirements_sha256": "36094c8c9a9f0bbe4d1f9ec21a01cc111a3c736fc81e28a19b34e26aed069053",
+  "acceptance_sha256": "fb0414831b12b78a4c4f6ea32f6f25eb08fcfc9d4f33db9342750bac52eeb8d3",
+  "design_sha256": "e473afc81ebdaaf545b25c7a7697258e9bd19eb7186a4d4f77ddb098cd356c03",
+  "traceability_sha256": "4b04451940333f2494aa82030c1adc083e39725bbfc2329455f97a0c50762db8",
+  "frozen_artifact_done_when": [],
+  "layer_sha256": {"ux-spec.md":"9ed375e9bf9cba444885cb4a53caa44346dad2cc962d454c8448951075e52020","frontend-spec.md":"976de97ba398f7ae86c20f7dcb98965a347fb5ccde7cdc700b1d05e06377a7c7","infra-spec.md":"7bc65e27fb40699dde9be6fd418a08ae2f7dfd1f5bc0ca564190d45b5064b211","security-spec.md":"cb52e5e4b202cdeeb837c2dbcfe9876652518b02fece635848283c019a87cf44"},
+  "input_sha256": "16b269be8634a7cf0bbd4ec48cf52694347816d6e85a135e5b1273fbeecc50b0",
+  "generated_at": "2026-09-30T14:17:48Z"
+}

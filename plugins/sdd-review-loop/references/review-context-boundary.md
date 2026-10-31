@@ -15,6 +15,12 @@ re-verification can and cannot establish.
 describes that script; it does not add rules. Where the two disagree, the script
 wins and this document is the defect.
 
+For A/B reviewers, “distinct” means each reviewer's run ID is unique against
+the other reviewer's and prior reservations, and likewise for host-session IDs.
+The validator does not require `run_id != host_session_id` within one record;
+a host-issued root thread ID may be used for both. This does not relax the
+cross-reviewer or ledger-wide uniqueness checks or authorize fabricated IDs.
+
 ## The ordering that makes one field stale
 
 `--reserve` runs in this order:

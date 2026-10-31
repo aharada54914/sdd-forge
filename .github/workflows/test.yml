@@ -690,6 +690,11 @@ jobs:
         shell: pwsh
         run: ./tests/validate-approval-sidecar.tests.ps1
 
+      - name: Test Concept Test signer, publisher, and validator integration
+        if: runner.os != 'Windows'
+        shell: bash
+        run: python3 ./tests/generate-concept-test-approval.tests.py
+
       # These suites use isolated temporary trees. Run both POSIX variants
       # concurrently; Windows keeps the existing skip behavior.
       - name: Test apply-human-copy publisher suites (POSIX parallel)

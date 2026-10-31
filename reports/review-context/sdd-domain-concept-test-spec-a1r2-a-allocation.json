@@ -1,0 +1,18 @@
+{
+  "schema": "host-allocation-observation/v1",
+  "host": "native app-server",
+  "thread_id": "01a0e400-60d5-7e80-b244-777a91cff50d",
+  "session_id": "01a0e400-60d5-7e80-b244-777a91cff50d",
+  "createdAt": 1790531625,
+  "observed_preview": "",
+  "observed_turns": [],
+  "observed_status": "idle",
+  "parentThreadId": null,
+  "forkedFromId": null,
+  "observed_model": "gpt-6-sol",
+  "observed_read_only": true,
+  "observed_network_access": false,
+  "source": "Root relayed actual thread/start request20 response; first turn not executed.",
+  "observation_kind": "selected fields relayed by root; not raw host response",
+  "review_execution_started": false
+}

@@ -124,6 +124,21 @@
         "claude-code": "none",
         "codex-cli": "flag"
       }
+    },
+    {
+      "name": "openai/gpt-5.6-sol",
+      "canonical_tier": "standard",
+      "supported_efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "default_effort": "low",
+      "effort_control": {
+        "claude-code": "none",
+        "codex-cli": "flag"
+      }
     }
   ],
   "risk_effort_matrix": {

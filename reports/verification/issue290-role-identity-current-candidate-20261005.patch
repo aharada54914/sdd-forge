@@ -1,0 +1,50 @@
+diff --git a/plugins/sdd-review-loop/agents/task-reviewer-a.md b/plugins/sdd-review-loop/agents/task-reviewer-a.md
+--- a/plugins/sdd-review-loop/agents/task-reviewer-a.md
++++ b/plugins/sdd-review-loop/agents/task-reviewer-a.md
+@@ -27,7 +27,13 @@
+ The orchestrator provides a fresh run ID, distinct nonblank host-session ID,
+ and an allowed-input manifest, as well as feature slug, attempt number, round
+ number, and the path to precheck-result.json. Reject any invocation with a
+ wrong stage/role, a raw reviewer report in the manifest, or a path outside this
+ allowlist. Read the following yourself:
++
++Here “distinct” means distinct from prior reservations and from the other
++reviewer's corresponding ID: A/B run IDs differ, and A/B host-session IDs
++differ. It does not require `run_id` and `host_session_id` to differ within
++one invocation when both identify the same host-issued root thread. Do not
++invent either ID or reuse a prior reservation.
+ 
+ - `specs/<feature>/requirements.md`
+diff --git a/plugins/sdd-review-loop/agents/task-reviewer-b.md b/plugins/sdd-review-loop/agents/task-reviewer-b.md
+--- a/plugins/sdd-review-loop/agents/task-reviewer-b.md
++++ b/plugins/sdd-review-loop/agents/task-reviewer-b.md
+@@ -28,7 +28,13 @@
+ The orchestrator provides a fresh run ID, distinct nonblank host-session ID,
+ and an allowed-input manifest, as well as feature slug, attempt number, round
+ number, and the path to precheck-result.json. Reject any invocation with a
+ wrong stage/role, a raw reviewer report in the manifest, or a path outside this
+ allowlist. Read the following yourself:
++
++Here “distinct” means distinct from prior reservations and from the other
++reviewer's corresponding ID: A/B run IDs differ, and A/B host-session IDs
++differ. It does not require `run_id` and `host_session_id` to differ within
++one invocation when both identify the same host-issued root thread. Do not
++invent either ID or reuse a prior reservation.
+ 
+ - `specs/<feature>/requirements.md`
+diff --git a/plugins/sdd-review-loop/references/review-context-boundary.md b/plugins/sdd-review-loop/references/review-context-boundary.md
+--- a/plugins/sdd-review-loop/references/review-context-boundary.md
++++ b/plugins/sdd-review-loop/references/review-context-boundary.md
+@@ -12,6 +12,12 @@
+ **Authority.** `plugins/sdd-quality-loop/scripts/validate-review-context-set.sh`
+ (and its `.ps1` twin) is the authority on manifest validity. This document
+ describes that script; it does not add rules. Where the two disagree, the script
+ wins and this document is the defect.
++
++For A/B reviewers, “distinct” means each reviewer's run ID is unique against
++the other reviewer's and prior reservations, and likewise for host-session IDs.
++The validator does not require `run_id != host_session_id` within one record;
++a host-issued root thread ID may be used for both. This does not relax the
++cross-reviewer or ledger-wide uniqueness checks or authorize fabricated IDs.
+ 
+ ## The ordering that makes one field stale

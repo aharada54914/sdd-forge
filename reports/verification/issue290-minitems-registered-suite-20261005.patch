@@ -1,0 +1,92 @@
+--- a/tests/validate-approval-sidecar.tests.sh
++++ b/tests/validate-approval-sidecar.tests.sh
+@@ -1167,10 +1167,11 @@
+ sys.path.insert(0, os.path.join(sys.argv[-1], "plugins/sdd-quality-loop/scripts"))
+ from concept_test_render import render_concept_test_md
+ 
+-if sys.argv[1] == "--json-unknown-key":
++if sys.argv[1] in ("--json-unknown-key", "--empty-inputs"):
+     content_path = sys.argv[2]
+     with open(content_path, encoding="utf-8") as f: obj = json.load(f)
+-    obj["unexpected"] = True
++    if sys.argv[1] == "--empty-inputs": obj["inputs"] = []
++    else: obj["unexpected"] = True
+     with open(content_path, "w", encoding="utf-8") as f: json.dump(obj, f)
+     with open(os.path.join(os.path.dirname(content_path), "concept-test.md"), "wb") as f:
+         f.write(render_concept_test_md(obj))
+@@ -1578,6 +1579,29 @@
+ else
+   fail "concept-test signed JSON unknown key schema rejection (exit $rc; stderr: $(cat "$WORK/err"))"
+ fi
++
++# Standard CLI cardinality controls; mutate before hashing and signing.
++for ct_count in 1 0; do
++  ct_content="$WORK/ct_cardinality_${ct_count}.json"
++  ct_tpl="$WORK/ct_cardinality_${ct_count}_tpl.json"
++  ct_sidecar="$WORK/ct_cardinality_${ct_count}_sidecar.json"
++  make_concept_content "$ct_content" "$CT_FEATURE" NEW_CONCEPT_CANDIDATE proceed different "Cardinality fixture." "$CT_INPUT" || exit 1
++  if [ "$ct_count" = 0 ]; then
++    "$PY" "$MAKE_CONCEPT" --empty-inputs "$ct_content" "$ROOT" || exit 1
++  fi
++  ct_hash="$(concept_hash "$ct_content")" || exit 1
++  write_concept_template "$ct_tpl" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
++  sign_fixture NONE "$KEYFILE" "$ct_tpl" "$ct_sidecar" "$ct_hash" || exit 1
++  (cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$ct_content" --sidecar "$ct_sidecar" --approver-registry "$REGISTRY_VALID")
++  ct_rc=$?
++  if [ "$ct_count" = 1 ] && [ "$ct_rc" = 0 ] && grep -qx VALID "$WORK/out"; then
++    pass "concept-test minItems one input accepted by standard CLI"
++  elif [ "$ct_count" = 0 ] && [ "$ct_rc" = 32 ] && grep -Fq 'CONTENT_SCHEMA_VIOLATION: /inputs: fewer than minItems 1' "$WORK/err"; then
++    pass "concept-test minItems empty inputs rejected by standard CLI"
++  else
++    fail "concept-test minItems inputs=$ct_count (exit $ct_rc; stderr: $(cat "$WORK/err"))"
++  fi
++done
+ 
+ # Every schema field is compared for every proposal. The signed JSON and
+ # live input stay valid; only the sibling Markdown changes.
+--- a/tests/validate-approval-sidecar.tests.ps1
++++ b/tests/validate-approval-sidecar.tests.ps1
+@@ -1031,10 +1031,11 @@
+ sys.path.insert(0, os.path.join(sys.argv[-1], "plugins/sdd-quality-loop/scripts"))
+ from concept_test_render import render_concept_test_md
+ 
+-if sys.argv[1] == "--json-unknown-key":
++if sys.argv[1] in ("--json-unknown-key", "--empty-inputs"):
+     content_path = sys.argv[2]
+     with open(content_path, encoding="utf-8") as f: obj = json.load(f)
+-    obj["unexpected"] = True
++    if sys.argv[1] == "--empty-inputs": obj["inputs"] = []
++    else: obj["unexpected"] = True
+     with open(content_path, "w", encoding="utf-8") as f: json.dump(obj, f)
+     with open(os.path.join(os.path.dirname(content_path), "concept-test.md"), "wb") as f:
+         f.write(render_concept_test_md(obj))
+@@ -1387,6 +1388,29 @@
+   Test-Pass 'concept-test signed JSON unknown key is BLOCKed by schema'
+ } else {
+   Test-Fail 'concept-test signed JSON unknown key schema rejection' "exit $($r.ExitCode): $(Get-ErrText $r)"
++}
++
++# Standard CLI cardinality controls; mutate before hashing and signing.
++foreach ($ctCount in @(1, 0)) {
++  $content = Join-Path $Work "ct_cardinality_${ctCount}.json"
++  $tpl = Join-Path $Work "ct_cardinality_${ctCount}_tpl.json"
++  $sidecar = Join-Path $Work "ct_cardinality_${ctCount}_sidecar.json"
++  New-ConceptContent $content $CtFeature 'NEW_CONCEPT_CANDIDATE' 'proceed' 'different' 'Cardinality fixture.' $CtInput
++  if ($ctCount -eq 0) {
++    $mutation = Invoke-Py -ArgList @($MakeConceptContent, '--empty-inputs', $content, $Root)
++    if ($mutation.ExitCode -ne 0) { throw "Cardinality mutation failed: $(Get-ErrText $mutation)" }
++  }
++  $hash = Get-ConceptHash $content
++  New-ConceptTemplate $tpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
++  New-SignedFixture 'NONE' $KeyFile $tpl $sidecar $hash
++  $r = Invoke-Val -ArgList @('--content', $content, '--sidecar', $sidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
++  if ($ctCount -eq 1 -and $r.ExitCode -eq 0 -and (Get-OutText $r).Trim() -ceq 'VALID') {
++    Test-Pass 'concept-test minItems one input accepted by standard CLI'
++  } elseif ($ctCount -eq 0 -and $r.ExitCode -eq 32 -and (Get-ErrText $r).Contains('CONTENT_SCHEMA_VIOLATION: /inputs: fewer than minItems 1')) {
++    Test-Pass 'concept-test minItems empty inputs rejected by standard CLI'
++  } else {
++    Test-Fail "concept-test minItems inputs=$ctCount" "exit $($r.ExitCode): $(Get-ErrText $r)"
++  }
+ }
+ 
+ function Test-ConceptMdMismatch([string]$TestId, [string]$Proposal, [string]$Decision, [string]$Field, [string]$SecondInputPath = '') {

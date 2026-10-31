@@ -1,0 +1,49 @@
+{
+  "id": 29,
+  "result": {
+    "thread": {
+      "id": "01a0e41b-c693-7dc0-9fce-25ae9032dba7",
+      "environments": [
+        {
+          "environmentId": "local",
+          "cwd": "/Users/jrmag/.codex/worktrees/issue290-concept-phase1/sdd-forge",
+          "runtimeWorkspaceRoots": [
+            "/Users/jrmag/.codex/worktrees/issue290-concept-phase1/sdd-forge"
+          ]
+        }
+      ],
+      "extra": null,
+      "sessionId": "01a0e41b-c693-7dc0-9fce-25ae9032dba7",
+      "forkedFromId": null,
+      "parentThreadId": null,
+      "preview": "",
+      "ephemeral": false,
+      "section": null,
+      "sectionEnteredAt": null,
+      "projectId": null,
+      "historyMode": "paginated",
+      "modelProvider": "openai",
+      "model": "gpt-6-sol",
+      "reasoningEffort": "high",
+      "createdAt": 1790533437,
+      "updatedAt": 1790533437,
+      "recencyAt": 1790533437,
+      "status": {
+        "type": "idle"
+      },
+      "path": "/Users/jrmag/.codex/sessions/2026/09/28/rollout-2026-09-28T03-23-40-01a0e41b-c693-7dc0-9fce-25ae9032dba7.jsonl",
+      "cwd": "/Users/jrmag/.codex/worktrees/issue290-concept-phase1/sdd-forge",
+      "cliVersion": "0.158.0-alpha.2.1",
+      "originator": "Codex Desktop",
+      "source": "vscode",
+      "canAcceptDirectInput": true,
+      "threadSource": null,
+      "agentNickname": null,
+      "agentRole": null,
+      "gitInfo": null,
+      "name": null,
+      "daybreakEnabled": null,
+      "turns": []
+    }
+  }
+}

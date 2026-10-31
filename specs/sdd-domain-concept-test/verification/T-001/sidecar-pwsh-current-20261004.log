@@ -1,0 +1,114 @@
+PASS: TEST-015 positive fixture (correct hash/HMAC/registered approver/null effective_at) validates PASS
+PASS: TEST-015 positive fixture (two distinct registered approvers, elapsed effective_at) validates PASS
+PASS: TEST-014 (1) content-schema violation (duplicate components[].id) rejected (DUPLICATE_COMPONENT_ID)
+PASS: TEST-014 (2) hash mismatch rejected (HASH_MISMATCH)
+PASS: TEST-014 (3) HMAC mismatch (context_sha256 matches; hmac signed under a different key) rejected (HMAC_MISMATCH)
+PASS: TEST-014 (4) unregistered approver id rejected (UNREGISTERED_APPROVER)
+PASS: TEST-014 (5) duplicate approver identity (primary == second) rejected (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-014 (6) future effective_at rejected (EFFECTIVE_AT_NOT_YET_REACHED)
+PASS: TEST-020 validator rejects applying a cooldown sidecar before its effective_at
+PASS: TEST-020 validator accepts applying a cooldown sidecar after its effective_at has elapsed
+PASS: TEST-019 (a) [discharge note] generate-approval-sidecar.py currently SIGNS a solo-approved two-person-required transition (documented T-003 gap, not this task's to fix)
+PASS: TEST-019 (a) the signed solo sidecar carries a two_person_required:true verdict with second_approval: null (the exact underapproved shape)
+PASS: TEST-019 (a) validate-approval-sidecar.py REJECTS the solo-approved two-person-required sidecar (WEAKENING_PROVENANCE_UNDERAPPROVED) -- the canonical enforcement point (obligation 4b)
+PASS: TEST-019 (b) generate-approval-sidecar.py signs successfully with two DISTINCT registered approver ids
+PASS: TEST-019 (b) validate-approval-sidecar.py accepts the two-distinct-approver sidecar
+PASS: TEST-019 (c) generate-approval-sidecar.py refuses to sign when second_approval.approver == primary_approval.approver (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-019 (c) same-identity refusal writes NO staged artifact
+PASS: TEST-046 validate-approval-sidecar.py refuses to validate against a zero-entry approvers:[] registry (no id can ever resolve, UNREGISTERED_APPROVER)
+PASS: AC-045 PRODUCTION discharge: validate-approval-sidecar.py rejects a duplicate-id approver-registry.yaml (DUPLICATE_APPROVER_REGISTRY_ID)
+PASS: OBLIGATION 2 a non-bootstrap sidecar (predecessor_context_sha256 present) with weakening_verdict: null is rejected (WEAKENING_VERDICT_MISSING)
+PASS: OBLIGATION 2 --verify-provenance also rejects a non-bootstrap null-verdict sidecar (WEAKENING_VERDICT_MISSING)
+PASS: TEST-043 --verify-provenance PASSES a correctly-two-person-approved weakening sidecar after its predecessor anchor is gone
+PASS: TEST-043 --verify-provenance FAILS an underapproved (solo) weakening sidecar after its predecessor anchor is gone (WEAKENING_PROVENANCE_UNDERAPPROVED)
+PASS: TEST-043 --verify-provenance PASSES the bootstrap case (approval_epoch:1, weakening_verdict: null) with no second-approval requirement implied
+PASS: TEST-043 a live TRANSACTION.json naming the sidecar path fails closed (HUMAN_COPY_PUBLISH_IN_PROGRESS)
+PASS: TEST-043 standard validation path: a live TRANSACTION.json naming the content path fails closed (HUMAN_COPY_PUBLISH_IN_PROGRESS)
+PASS: SEQ0355 REMEDY (a) --verify-provenance rejects a two-person-required sidecar whose second_approval.approver duplicates primary_approval.approver (WEAKENING_PROVENANCE_UNDERAPPROVED, gate 5's duplicate clause)
+PASS: SEQ0355 REMEDY (b) the SAME fixture on the standard path is intercepted by gate 3 (DUPLICATE_APPROVER_IDENTITY), never reaching gate 5 -- the two-path split is pinned
+PASS: TEST-HARDEN a malformed (non-array approvers) registry is rejected (APPROVER_REGISTRY_SCHEMA_VIOLATION)
+PASS: TEST-HARDEN no resolvable SDD_CONTEXT_KEY: exit 11/NO_CONTEXT_KEY, never a skip
+PASS: TEST-HARDEN missing --content (without --verify-provenance) is a clean usage error, never a traceback
+PASS: TEST-HARDEN --content combined with --verify-provenance is a clean usage error
+PASS: TEST-HARDEN a missing --sidecar file is rejected cleanly (SIDECAR_UNREADABLE), never a traceback
+PASS: OBLIGATION 1 (TEST-013-style) case 1/4 (env var): validate-approval-sidecar.py's resolve_context_key() matches generate-approval-sidecar.py's AND sdd-hook-guard.py's _resolve_sudo_key byte-for-byte
+PASS: OBLIGATION 1 (TEST-013-style) case 2/4 (env-file, BOM+whitespace-stripped): identical key bytes across all three resolvers
+PASS: OBLIGATION 1 (TEST-013-style) case 3/4 (home-path, BOM+whitespace-stripped): identical key bytes across all three resolvers
+PASS: OBLIGATION 1 (TEST-013-style) case 4/4 (none resolvable): all three resolvers return None
+PASS: TEST-PR229-VAL staged validate-approval-sidecar.py candidate exists
+PASS: TEST-PR229-VAL positive control: a conformant, correctly-signed sidecar still validates (no false positive introduced)
+PASS: TEST-PR229-VAL primary_approval.status = 'Rejected' is rejected (SIDECAR_SCHEMA_VIOLATION, exit 47)
+PASS: TEST-PR229-VAL a smuggled extra top-level property is rejected (SIDECAR_SCHEMA_VIOLATION, exit 47)
+PASS: TEST-PR229-VAL an extra property inside primary_approval ($ref'd definition) is rejected (SIDECAR_SCHEMA_VIOLATION, exit 47)
+PASS: TEST-PR229-VAL approval_epoch = 0 (schema minimum 1) is rejected (SIDECAR_SCHEMA_VIOLATION, exit 47)
+PASS: TEST-PR229-VAL approval_epoch = '1' (schema type integer) is rejected (SIDECAR_SCHEMA_VIOLATION, exit 47)
+PASS: TEST-PR229-VAL an all-uppercase hmac (the registered carryover) is rejected (SIDECAR_SCHEMA_VIOLATION, exit 47)
+PASS: TEST-PR229-VAL DOCUMENTED LIMIT: a malformed approved_at is schema-CONFORMANT (draft-07 'format' is an annotation) and is still accepted -- no date-time gate exists for approved_at
+PASS: TEST-PR229-VAL --verify-provenance is NOT schema-gated (historical re-provability must not expire when the schema is extended)
+PASS: TEST-001/006 concept-test FITS_EXISTING_CONCEPTS valid evidence and sibling Markdown validate PASS
+PASS: TEST-007 concept-test NEW_CONCEPT_CANDIDATE + decision=proceed valid signed evidence validates PASS
+PASS: TEST-015 concept-test NEW_CONCEPT_CANDIDATE + decision=defer-to-domain-update valid signed evidence validates PASS
+PASS: TEST-016 concept-test NEW_CONCEPT_CANDIDATE + decision=rejected valid signed evidence validates PASS
+PASS: TEST-017 concept-test RESPONSIBILITY_CONFLICT + decision=proceed valid signed evidence validates PASS
+PASS: TEST-018 concept-test RESPONSIBILITY_CONFLICT + decision=defer-to-domain-update valid signed evidence validates PASS
+PASS: TEST-019 concept-test RESPONSIBILITY_CONFLICT + decision=rejected valid signed evidence validates PASS
+PASS: TEST-020 concept-test REQUIRES_HUMAN_DECISION + decision=proceed valid signed evidence validates PASS
+PASS: TEST-021 concept-test REQUIRES_HUMAN_DECISION + decision=defer-to-domain-update valid signed evidence validates PASS
+PASS: TEST-022 concept-test REQUIRES_HUMAN_DECISION + decision=rejected valid signed evidence validates PASS
+PASS: TEST-002 concept-test NEW_CONCEPT_CANDIDATE with decision=null is BLOCKed (CONCEPT_TEST_DECISION_MISSING)
+PASS: TEST-003 concept-test RESPONSIBILITY_CONFLICT with decision=null is BLOCKed (CONCEPT_TEST_DECISION_MISSING)
+PASS: TEST-004 concept-test REQUIRES_HUMAN_DECISION with decision=null is BLOCKed (CONCEPT_TEST_DECISION_MISSING)
+PASS: TEST-005 concept-test evidence JSON file absent is BLOCKed (CONTENT_CANONICALIZATION_FAILED)
+PASS: TEST-014 concept-test corrupt JSON evidence is rejected (CONTENT_CANONICALIZATION_FAILED)
+PASS: TEST-028 concept-test unknown proposal value is rejected (CONTENT_SCHEMA_VIOLATION)
+PASS: TEST-029 concept-test unknown decision value is rejected (CONTENT_SCHEMA_VIOLATION)
+PASS: TEST-030 concept-test absent sidecar is BLOCKed (SIDECAR_UNREADABLE)
+PASS: TEST-031 concept-test tampered signature is BLOCKed (HMAC_MISMATCH)
+PASS: TEST-032 concept-test no resolvable key is BLOCKed (NO_CONTEXT_KEY), never a skip
+PASS: TEST-033 concept-test unregistered approver (correct signature) is BLOCKed (UNREGISTERED_APPROVER)
+PASS: TEST-034 concept-test decision-string-only evidence with no signed sidecar is BLOCKed (SIDECAR_UNREADABLE)
+PASS: TEST-035 concept-test a 1-byte-changed read input is BLOCKed (CONCEPT_TEST_INPUT_HASH_MISMATCH)
+PASS: TEST-036 concept-test an absent read input is BLOCKed (CONCEPT_TEST_INPUT_UNREADABLE)
+PASS: concept-test bad HMAC stops before absent input read
+PASS: concept-test signed JSON unknown key is BLOCKed by schema
+PASS: TEST-051 FITS_EXISTING_CONCEPTS feature Markdown mismatch BLOCK
+PASS: TEST-052 FITS_EXISTING_CONCEPTS proposal Markdown mismatch BLOCK
+PASS: TEST-053 FITS_EXISTING_CONCEPTS rationale Markdown mismatch BLOCK
+PASS: TEST-054 FITS_EXISTING_CONCEPTS relation Markdown mismatch BLOCK
+PASS: TEST-055 FITS_EXISTING_CONCEPTS input_path Markdown mismatch BLOCK
+PASS: TEST-056 FITS_EXISTING_CONCEPTS input_hash Markdown mismatch BLOCK
+PASS: TEST-037/078 FITS_EXISTING_CONCEPTS decision Markdown mismatch BLOCK
+PASS: TEST-057 NEW_CONCEPT_CANDIDATE feature Markdown mismatch BLOCK
+PASS: TEST-058 NEW_CONCEPT_CANDIDATE proposal Markdown mismatch BLOCK
+PASS: TEST-059 NEW_CONCEPT_CANDIDATE rationale Markdown mismatch BLOCK
+PASS: TEST-060 NEW_CONCEPT_CANDIDATE relation Markdown mismatch BLOCK
+PASS: TEST-061 NEW_CONCEPT_CANDIDATE input_path Markdown mismatch BLOCK
+PASS: TEST-062 NEW_CONCEPT_CANDIDATE input_hash Markdown mismatch BLOCK
+PASS: TEST-075 NEW_CONCEPT_CANDIDATE decision Markdown mismatch BLOCK
+PASS: TEST-063 RESPONSIBILITY_CONFLICT feature Markdown mismatch BLOCK
+PASS: TEST-064 RESPONSIBILITY_CONFLICT proposal Markdown mismatch BLOCK
+PASS: TEST-065 RESPONSIBILITY_CONFLICT rationale Markdown mismatch BLOCK
+PASS: TEST-066 RESPONSIBILITY_CONFLICT relation Markdown mismatch BLOCK
+PASS: TEST-067 RESPONSIBILITY_CONFLICT input_path Markdown mismatch BLOCK
+PASS: TEST-068 RESPONSIBILITY_CONFLICT input_hash Markdown mismatch BLOCK
+PASS: TEST-076 RESPONSIBILITY_CONFLICT decision Markdown mismatch BLOCK
+PASS: TEST-069 REQUIRES_HUMAN_DECISION feature Markdown mismatch BLOCK
+PASS: TEST-070 REQUIRES_HUMAN_DECISION proposal Markdown mismatch BLOCK
+PASS: TEST-071 REQUIRES_HUMAN_DECISION rationale Markdown mismatch BLOCK
+PASS: TEST-072 REQUIRES_HUMAN_DECISION relation Markdown mismatch BLOCK
+PASS: TEST-073 REQUIRES_HUMAN_DECISION input_path Markdown mismatch BLOCK
+PASS: TEST-074 REQUIRES_HUMAN_DECISION input_hash Markdown mismatch BLOCK
+PASS: TEST-077 REQUIRES_HUMAN_DECISION decision Markdown mismatch BLOCK
+PASS: extra_schema FITS_EXISTING_CONCEPTS schema Markdown mismatch BLOCK
+PASS: extra_second_path FITS_EXISTING_CONCEPTS second_path Markdown mismatch BLOCK
+PASS: extra_second_hash FITS_EXISTING_CONCEPTS second_hash Markdown mismatch BLOCK
+PASS: extra_second_omit FITS_EXISTING_CONCEPTS second_omit Markdown mismatch BLOCK
+PASS: extra_second_reorder FITS_EXISTING_CONCEPTS second_reorder Markdown mismatch BLOCK
+PASS: extra_unknown_key FITS_EXISTING_CONCEPTS unknown_key Markdown mismatch BLOCK
+PASS: extra_missing FITS_EXISTING_CONCEPTS missing Markdown mismatch BLOCK
+PASS: extra_crlf FITS_EXISTING_CONCEPTS crlf Markdown mismatch BLOCK
+PASS: extra_prose FITS_EXISTING_CONCEPTS prose Markdown mismatch BLOCK
+PASS: self-registration: tests/validate-approval-sidecar.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/validate-approval-sidecar.tests.ps1 registered in tests/run-all.ps1
+PASS: 112
+FAIL: 0

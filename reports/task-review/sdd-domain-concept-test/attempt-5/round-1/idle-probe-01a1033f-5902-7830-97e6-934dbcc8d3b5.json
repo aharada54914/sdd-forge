@@ -1,0 +1,18 @@
+{
+  "schema": "issue290-idle-allocation/v1",
+  "feature": "sdd-domain-concept-test",
+  "attempt": 5,
+  "round": 1,
+  "role": "task-reviewer-a",
+  "host_thread_id": "01a1033f-5902-7830-97e6-934dbcc8d3b5",
+  "host_session_id": "01a1033f-5902-7830-97e6-934dbcc8d3b5",
+  "status": "idle",
+  "forked": false,
+  "model": "gpt-5.6-sol",
+  "sandbox": {
+    "type": "readOnly",
+    "networkAccess": false
+  },
+  "reservation": false,
+  "turn_started": false
+}

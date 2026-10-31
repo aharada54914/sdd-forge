@@ -1,0 +1,25 @@
+{
+  "schema": "issue290-idle-allocation/v1",
+  "feature": "sdd-domain-concept-test",
+  "attempt": 6,
+  "round": 1,
+  "role": "task-reviewer-a",
+  "host_thread_id": "01a10356-29d4-7fa1-acea-3ec413104e0b",
+  "host_session_id": "01a10356-29d4-7fa1-acea-3ec413104e0b",
+  "status": "idle",
+  "forked": false,
+  "model": "gpt-5.6-sol",
+  "sandbox": {
+    "type": "readOnly",
+    "networkAccess": false
+  },
+  "reservation": true,
+  "turn_started": false,
+  "validator_receipt": {
+    "record_sha256": "bd8d90c8333e11fc36fac9168105c543e4f8f98d12c5dde0439187f5b6d2df47",
+    "sequence": 1213,
+    "previous_record_sha256": "6335f3c5a71d60a22aa0a677bd3dd8b589f5e29e4f448cb4e672f740eec4495a",
+    "identity_unique": true
+  },
+  "manifest_path": "/Users/jrmag/.codex/worktrees/issue290-concept-phase1/sdd-forge/reports/review-context/sdd-domain-concept-test-task-a6r1-a-01a10356-29d4-7fa1-acea-3ec413104e0b-invocation.json"
+}

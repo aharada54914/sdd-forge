@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "sdd-domain-concept-test",
+  "attempt": 4,
+  "round": 1,
+  "run_id": "fcb98fa3-61c2-464e-b5d1-5759a187c472",
+  "host_session_id": "01a10072-e1fa-7702-8c4a-71a2fee21070",
+  "manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-concept-test/attempt-4/round-1/dependency-graph.json",
+      "sha256": "2db49cd6929847d60a3d960e782deea0ef83f37dce7b4b15ac195b8fd2984e03"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-concept-test/attempt-4/round-1/precheck-result.json",
+      "sha256": "3b435028ca189d42dfc7dabae674f7ba65e1070a536bac2b7dae350e38c1a426"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/acceptance-tests.md",
+      "sha256": "fb0414831b12b78a4c4f6ea32f6f25eb08fcfc9d4f33db9342750bac52eeb8d3"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/design.md",
+      "sha256": "e473afc81ebdaaf545b25c7a7697258e9bd19eb7186a4d4f77ddb098cd356c03"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/frontend-spec.md",
+      "sha256": "976de97ba398f7ae86c20f7dcb98965a347fb5ccde7cdc700b1d05e06377a7c7"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/infra-spec.md",
+      "sha256": "7bc65e27fb40699dde9be6fd418a08ae2f7dfd1f5bc0ca564190d45b5064b211"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/requirements.md",
+      "sha256": "36094c8c9a9f0bbe4d1f9ec21a01cc111a3c736fc81e28a19b34e26aed069053"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/security-spec.md",
+      "sha256": "cb52e5e4b202cdeeb837c2dbcfe9876652518b02fece635848283c019a87cf44"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/tasks.md",
+      "sha256": "4cedf3755cb0bf8068d840d866b5e22adf9df52cea1933840980338464599ec2"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/traceability.md",
+      "sha256": "f751b5d5282f01e37b196f0668a40152e1e7a6d78a5456c6753b485fc320588d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/ux-spec.md",
+      "sha256": "9ed375e9bf9cba444885cb4a53caa44346dad2cc962d454c8448951075e52020"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All AC identifiers referenced by T-001 through T-006 resolve to AC-001 through AC-018 in acceptance-tests.md."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All six tasks declare Blockers using either None or comma-separated T-NNN identifiers; precheck-result.json also records blockers_format_valid=true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-006 from requirements.md are covered by the Requirements fields of T-001 through T-006."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001 through AC-018 are assigned across the explicit primary acceptance ownership scopes of T-001 through T-006."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task T-001 through T-006 references at least one valid REQ-NNN in its Requirements field."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each task whose title includes Test or Verify explicitly references acceptance criteria in its Scope, including T-001, T-002, T-004, and T-006."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Under the authorized post-implementation provenance re-review rule, all tasks have lifecycle-valid Approval: Approved and Status values of Planned or In Progress."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001, T-003, and T-004 pair high risk with tdd; T-002, T-005, and T-006 pair medium risk with acceptance-first. Precheck records workflow_match_precheck=PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Shared AC references have differentiated scopes: T-001 owns AC-016 contract validation while T-003 exercises it end-to-end, and T-005 covers AC-010/011 at the domain-sync consumer level while T-003 covers bootstrap integration."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every blocker reference resolves to one of dependency-graph.json nodes T-001 through T-006."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "The dependency graph is acyclic: T-002 waits for T-001; T-003 waits for T-001, T-002, and T-005; T-004 waits for T-001 and T-003; T-006 waits for T-002."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each task addresses one coherent concern: evidence contract, proposal workflow, bootstrap gate, review-context binding, v2 consumer switch, or release registration."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every Done When item names concrete TEST identifiers, test outcomes, hashes, invocation counts, rollback evidence, verification directories, implementation reports, or quality-gate reports. Each task includes inspectable evidence artifacts, and precheck-result.json reports frozen_artifact_done_when as an empty array."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md maps every valid requirement REQ-001 through REQ-006 to all task IDs T-001 through T-006, and every requirement row cites canonical anchors in the hash-bound layer specifications."
+    }
+  ],
+  "findings": []
+}

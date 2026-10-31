@@ -1,0 +1,73 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "feature": "sdd-domain-concept-test",
+  "role": "task-reviewer-b",
+  "run_id": "01a1035c-813b-7522-9e9d-cd6e40898fa9",
+  "host_session_id": "01a1035c-813b-7522-9e9d-cd6e40898fa9",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "a403d725863f2f88c197b2bae172148e37385798f530672e6edf2abf3279d4be",
+  "previous_record_sha256": "bd8d90c8333e11fc36fac9168105c543e4f8f98d12c5dde0439187f5b6d2df47",
+  "sequence": 1214,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-concept-test/attempt-6/round-1/integrated-summary.json",
+      "sha256": "6f679e5e33c4b0d987859ea34ee8185cb78077d136caac3bc8a96c8334c1d30f"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-concept-test/attempt-6/round-1/precheck-result.json",
+      "sha256": "d24c198d1ee088a57138794b4c6ec7d04effbf5dafaec29d0a2488b684a0c074"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/acceptance-tests.md",
+      "sha256": "fb0414831b12b78a4c4f6ea32f6f25eb08fcfc9d4f33db9342750bac52eeb8d3"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/design.md",
+      "sha256": "e473afc81ebdaaf545b25c7a7697258e9bd19eb7186a4d4f77ddb098cd356c03"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/frontend-spec.md",
+      "sha256": "976de97ba398f7ae86c20f7dcb98965a347fb5ccde7cdc700b1d05e06377a7c7"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/infra-spec.md",
+      "sha256": "7bc65e27fb40699dde9be6fd418a08ae2f7dfd1f5bc0ca564190d45b5064b211"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/requirements.md",
+      "sha256": "36094c8c9a9f0bbe4d1f9ec21a01cc111a3c736fc81e28a19b34e26aed069053"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/security-spec.md",
+      "sha256": "cb52e5e4b202cdeeb837c2dbcfe9876652518b02fece635848283c019a87cf44"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/tasks.md",
+      "sha256": "63e4db01e19c91a5aef323d32b9b56048226d517fb01e9a577ee2cd734bb233f"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/traceability.md",
+      "sha256": "f751b5d5282f01e37b196f0668a40152e1e7a6d78a5456c6753b485fc320588d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/ux-spec.md",
+      "sha256": "9ed375e9bf9cba444885cb4a53caa44346dad2cc962d454c8448951075e52020"
+    }
+  ]
+}

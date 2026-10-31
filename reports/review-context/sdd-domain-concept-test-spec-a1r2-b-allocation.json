@@ -1,0 +1,12 @@
+{
+  "schema": "host-allocation-observation/v1",
+  "host": "native app-server",
+  "thread_id": "01a0e406-0da1-7190-bf05-6ae936d7f9ee",
+  "session_id": "01a0e406-0da1-7190-bf05-6ae936d7f9ee",
+  "observed_turns": [],
+  "observed_status": "idle",
+  "forkedFromId": null,
+  "parentThreadId": null,
+  "source": "reports/review-context/issue290-r2b-native-allocation.json; actual host transport response saved by root",
+  "review_execution_started": false
+}

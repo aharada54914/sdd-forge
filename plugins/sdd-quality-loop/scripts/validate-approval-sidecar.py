@@ -106,6 +106,14 @@ import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+import importlib.util
+
+_render_spec = importlib.util.spec_from_file_location(
+    "concept_test_render", Path(__file__).resolve().parent / "concept_test_render.py"
+)
+_render_module = importlib.util.module_from_spec(_render_spec)
+_render_spec.loader.exec_module(_render_module)
+render_concept_test_md = _render_module.render_concept_test_md
 
 EXIT_USAGE_ERROR = 2
 
@@ -143,6 +151,15 @@ CATEGORY_EXIT_CODES = {
     # conformance to contracts/approval-sidecar.schema.json, which the
     # standard path never checked at all before.
     "SIDECAR_SCHEMA_VIOLATION": 47,
+    # T-001 (sdd-domain-concept-test), additive: concept-test evidence
+    # semantic checks -- gated on schema id == "sdd-concept-test-approval/v1"
+    # in run_standard_validation; never applied to the two pre-existing
+    # schema ids, so their behavior is unchanged.
+    "CONCEPT_TEST_DECISION_MISSING": 48,
+    "CONCEPT_TEST_INPUT_UNREADABLE": 49,
+    "CONCEPT_TEST_INPUT_HASH_MISMATCH": 50,
+    "CONCEPT_TEST_MD_MISMATCH": 51,
+    "CONCEPT_TEST_FEATURE_MISMATCH": 52,
     # Last-resort classification: never a raw, uncaught traceback.
     "INTERNAL_ERROR": 90,
 }
@@ -159,6 +176,17 @@ CONTENT_SCHEMA_INFO = {
         "schema_filename": "provider-bindings.schema.json",
         "array_field": "bindings",
         "dup_category": "DUPLICATE_BINDING_ID",
+    },
+    # T-001 (sdd-domain-concept-test), additive: the concept-test content
+    # file is feature-local JSON (specs/<feature>/concept-test.json), not a
+    # global sdd/*.yaml singleton, so it carries its own `input_format` and
+    # has no components/bindings-shaped array needing a duplicate-id check
+    # (`array_field`/`dup_category` omitted -- `_validate_content` treats a
+    # missing `array_field` as "skip the duplicate-id check", preserving
+    # the two pre-existing entries' always-required behavior unchanged).
+    "sdd-concept-test-approval/v1": {
+        "schema_filename": "concept-test.v1.schema.json",
+        "input_format": "json",
     },
 }
 
@@ -253,15 +281,18 @@ def _canonicalizer_path():
     return Path(__file__).resolve().parent / "canonicalize-sdd-yaml.py"
 
 
-def _canonicalize_file_to_json(path, failure_category):
-    """Dispatches `path` (YAML input mode) to canonicalize-sdd-yaml.py and
+def _canonicalize_file_to_json(path, failure_category, input_format="yaml"):
+    """Dispatches `path` to canonicalize-sdd-yaml.py (`--input-format
+    input_format`, additive T-001 parameter -- defaults to "yaml",
+    preserving every pre-existing call site's behavior unchanged; the
+    concept-test content schema is the first caller to pass "json") and
     returns the parsed canonical JSON object. Any non-zero exit (missing
-    file, hostile/out-of-subset YAML, a document that canonicalizes to a
+    file, hostile/out-of-subset input, a document that canonicalizes to a
     non-object) is wrapped as `ValidateApprovalSidecarError`."""
     canon_path = _canonicalizer_path()
     try:
         proc = subprocess.run(
-            [sys.executable, str(canon_path), str(path), "--input-format", "yaml"],
+            [sys.executable, str(canon_path), str(path), "--input-format", input_format],
             capture_output=True,
         )
     except OSError as exc:
@@ -288,13 +319,15 @@ def _canonicalize_file_to_json(path, failure_category):
     return obj
 
 
-def _hash_file_via_canonicalizer(path, failure_category):
+def _hash_file_via_canonicalizer(path, failure_category, input_format="yaml"):
     """context_sha256 recomputation: `--hash-only` dispatch, returning the
-    full `sha256:<hex>` string REQ-003 emits."""
+    full `sha256:<hex>` string REQ-003 emits. `input_format` is an additive
+    T-001 parameter (default "yaml", preserving every pre-existing call
+    site's behavior unchanged)."""
     canon_path = _canonicalizer_path()
     try:
         proc = subprocess.run(
-            [sys.executable, str(canon_path), str(path), "--input-format", "yaml", "--hash-only"],
+            [sys.executable, str(canon_path), str(path), "--input-format", input_format, "--hash-only"],
             capture_output=True,
         )
     except OSError as exc:
@@ -422,7 +455,7 @@ def _check_no_publish_in_progress(*paths_being_read):
 # PROPERTY NAME, `"required": ["pattern"]`, never the keyword), so no newly
 # supported keyword can fire against them.
 #
-# `format` is deliberately NOT implemented. Draft-07 defines `format` as an
+# `format` is deliberately annotation-only. Draft-07 defines `format` as an
 # annotation, not an assertion, and the T-003 reference harness omits it for
 # the same reason; implementing it here would make this validator stricter
 # than the schema it claims to enforce and would silently diverge from that
@@ -565,6 +598,9 @@ def _schema_validate(schema, instance, path="/", root=None):
         if (not isinstance(instance, (int, float))) or isinstance(instance, bool) or instance < schema["minimum"]:
             errors.append("%s: %r is below minimum %r" % (path, instance, schema["minimum"]))
 
+    if isinstance(instance, list) and len(instance) < schema.get("minItems", 0):
+        errors.append("%s: fewer than minItems %d" % (path, schema["minItems"]))
+
     if isinstance(instance, dict):
         for req in schema.get("required", []):
             if req not in instance:
@@ -648,17 +684,25 @@ def _resolve_content_schema_info(sidecar_obj):
 
 
 def _validate_content(content_path, info):
-    content_obj = _canonicalize_file_to_json(content_path, "CONTENT_CANONICALIZATION_FAILED")
+    content_obj = _canonicalize_file_to_json(
+        content_path, "CONTENT_CANONICALIZATION_FAILED", info.get("input_format", "yaml"),
+    )
     schema = _load_json_schema_file(_repo_root() / "contracts" / info["schema_filename"])
     errors = _schema_validate(schema, content_obj)
     if errors:
         raise ValidateApprovalSidecarError("CONTENT_SCHEMA_VIOLATION", "; ".join(errors))
-    array_field = info["array_field"]
-    dup_id = _find_duplicate_id(content_obj.get(array_field))
-    if dup_id is not None:
-        raise ValidateApprovalSidecarError(
-            info["dup_category"], f"duplicate {array_field}[].id {dup_id!r} in {str(content_path)!r}",
-        )
+    # T-001 (sdd-domain-concept-test), additive: `array_field` is optional.
+    # The two pre-existing entries always set it (unchanged, always-required
+    # duplicate-id check); the concept-test entry omits it because its
+    # content has no components/bindings-shaped array needing one.
+    array_field = info.get("array_field")
+    if array_field is not None:
+        dup_id = _find_duplicate_id(content_obj.get(array_field))
+        if dup_id is not None:
+            raise ValidateApprovalSidecarError(
+                info["dup_category"], f"duplicate {array_field}[].id {dup_id!r} in {str(content_path)!r}",
+            )
+    return content_obj
 
 
 def _validate_registry(registry_path):
@@ -767,8 +811,8 @@ def _validate_sidecar_schema(sidecar_obj, sidecar_path):
         )
 
 
-def _check_hash_match(content_path, sidecar_obj):
-    recomputed = _hash_file_via_canonicalizer(content_path, "CONTENT_CANONICALIZATION_FAILED")
+def _check_hash_match(content_path, sidecar_obj, input_format="yaml"):
+    recomputed = _hash_file_via_canonicalizer(content_path, "CONTENT_CANONICALIZATION_FAILED", input_format)
     stored = sidecar_obj.get("context_sha256")
     if not isinstance(stored, str) or recomputed != stored:
         raise ValidateApprovalSidecarError(
@@ -898,6 +942,102 @@ def _check_weakening_provenance_consistency(sidecar_obj):
 
 
 # ---------------------------------------------------------------------------
+# Concept Test evidence checks, gated on the new sidecar schema id.
+# Existing approval routes never invoke these checks.
+# ---------------------------------------------------------------------------
+
+_CONCEPT_TEST_SCHEMA_ID = "sdd-concept-test-approval/v1"
+_CONCEPT_TEST_NON_FITS_PROPOSALS = {
+    "NEW_CONCEPT_CANDIDATE", "RESPONSIBILITY_CONFLICT", "REQUIRES_HUMAN_DECISION",
+}
+
+
+def _check_concept_test_decision_required(content_obj):
+    """REQ-003/AC-002/AC-003/AC-004: a non-FITS proposal (any of the three
+    classifications other than FITS_EXISTING_CONCEPTS) with a null
+    `decision` is a machine-gate BLOCK -- an LLM proposal classification
+    alone never satisfies the gate. AC-006: FITS_EXISTING_CONCEPTS passes
+    with `decision: null` (no non-FITS decision is required)."""
+    proposal = content_obj.get("proposal")
+    decision = content_obj.get("decision")
+    if proposal in _CONCEPT_TEST_NON_FITS_PROPOSALS and decision is None:
+        raise ValidateApprovalSidecarError(
+            "CONCEPT_TEST_DECISION_MISSING",
+            f"proposal {proposal!r} is non-FITS and requires a non-null "
+            "decision (proceed/defer-to-domain-update/rejected); decision "
+            "is null",
+        )
+
+
+def _check_concept_test_inputs(content_obj):
+    """REQ-003 Governing Amendments: every entry in `inputs[]` records the
+    path and sha256 of a file the proposal process read. This independently
+    re-hashes each LIVE file from disk and compares it to the recorded
+    sha256 -- an absent file or a changed byte is a hard BLOCK, exactly
+    like `_check_hash_match` does for the evidence JSON's own
+    context_sha256. A relative `path` is resolved against the current
+    working directory (this script's existing convention for every other
+    default-relative path, e.g. `_default_registry_path`)."""
+    for entry in content_obj.get("inputs", []):
+        path = entry.get("path")
+        recorded = entry.get("sha256")
+        try:
+            with open(path, "rb") as f:
+                actual = hashlib.sha256(f.read()).hexdigest()
+        except OSError as exc:
+            raise ValidateApprovalSidecarError(
+                "CONCEPT_TEST_INPUT_UNREADABLE",
+                f"read input {path!r} listed in concept-test evidence "
+                f"could not be read: {exc}",
+            ) from exc
+        if actual != recorded:
+            raise ValidateApprovalSidecarError(
+                "CONCEPT_TEST_INPUT_HASH_MISMATCH",
+                f"read input {path!r} sha256 {recorded!r} does not match "
+                f"the live file's recomputed hash {actual!r}",
+            )
+
+
+def _check_concept_test_md_agreement(content_path, content_obj):
+    """Compare complete sibling Markdown bytes with the shared renderer."""
+    md_path = os.path.join(os.path.dirname(content_path), "concept-test.md")
+    try:
+        with open(md_path, "rb") as f:
+            actual = f.read()
+    except OSError as exc:
+        raise ValidateApprovalSidecarError(
+            "CONCEPT_TEST_MD_MISMATCH", f"concept-test Markdown unreadable: {exc}",
+        ) from exc
+    if actual != render_concept_test_md(content_obj):
+        raise ValidateApprovalSidecarError(
+            "CONCEPT_TEST_MD_MISMATCH", "concept-test.md differs from signed concept-test.json",
+        )
+
+
+def _check_concept_test_feature_path(content_path, sidecar_path, content_obj, expected_feature):
+    """Always bind signed evidence to its feature-local paths; optionally bind caller state."""
+    feature = content_obj.get("feature")
+    if not feature or feature in (".", "..") or "/" in feature or "\\" in feature:
+        raise ValidateApprovalSidecarError("CONCEPT_TEST_FEATURE_MISMATCH", "signed feature is not one directory name")
+    if expected_feature is not None and (
+            not expected_feature or expected_feature in (".", "..")
+            or "/" in expected_feature or "\\" in expected_feature):
+        raise ValidateApprovalSidecarError("USAGE_ERROR", "--expected-feature must be one feature directory name")
+    expected = os.path.abspath(os.path.join("specs", feature, "concept-test.json"))
+    expected_sidecar = os.path.abspath(os.path.join("specs", feature, "concept-test.approval.json"))
+    if (os.path.realpath(content_path) != os.path.realpath(expected)
+            or os.path.realpath(sidecar_path) != os.path.realpath(expected_sidecar)
+            or os.path.islink("specs")
+            or os.path.islink(content_path) or os.path.islink(sidecar_path)
+            or os.path.islink(os.path.dirname(content_path))
+            or (expected_feature is not None and feature != expected_feature)):
+        raise ValidateApprovalSidecarError(
+            "CONCEPT_TEST_FEATURE_MISMATCH",
+            "signed feature, feature-local path, or caller's expected feature differs",
+        )
+
+
+# ---------------------------------------------------------------------------
 # Top-level validation flows.
 # ---------------------------------------------------------------------------
 
@@ -906,20 +1046,29 @@ def _default_registry_path():
     return os.path.join("sdd", "approver-registry.yaml")
 
 
-def run_standard_validation(content_path, sidecar_path, registry_path):
+def run_standard_validation(content_path, sidecar_path, registry_path, expected_feature=None):
     _check_no_publish_in_progress(content_path, sidecar_path)
     sidecar_obj = _load_sidecar(sidecar_path)
     _validate_sidecar_schema(sidecar_obj, sidecar_path)
     _check_bootstrap_invariant(sidecar_obj)
     content_info = _resolve_content_schema_info(sidecar_obj)
-    _validate_content(content_path, content_info)
+    content_obj = _validate_content(content_path, content_info)
+    is_concept_test = sidecar_obj.get("schema") == _CONCEPT_TEST_SCHEMA_ID
+    if expected_feature is not None and not is_concept_test:
+        raise ValidateApprovalSidecarError("USAGE_ERROR", "--expected-feature requires Concept Test evidence")
+    if is_concept_test:
+        _check_concept_test_feature_path(content_path, sidecar_path, content_obj, expected_feature)
+        _check_concept_test_decision_required(content_obj)
     registry_ids = _validate_registry(registry_path)
-    _check_hash_match(content_path, sidecar_obj)
+    _check_hash_match(content_path, sidecar_obj, content_info.get("input_format", "yaml"))
     key_bytes = _resolve_key_or_raise()
     _check_hmac(sidecar_obj, key_bytes)
     _check_approver_identity(sidecar_obj, registry_ids)
     _check_effective_at(sidecar_obj)
     _check_weakening_provenance_consistency(sidecar_obj)
+    if is_concept_test:
+        _check_concept_test_md_agreement(content_path, content_obj)
+        _check_concept_test_inputs(content_obj)
 
 
 def run_verify_provenance(sidecar_path):
@@ -958,6 +1107,7 @@ def build_arg_parser():
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--content", default=None, help="path to the live project-context.yaml/provider-bindings.yaml content file")
+    parser.add_argument("--expected-feature", default=None, help="active Concept Test feature slug; binds content path and signed feature")
     parser.add_argument("--sidecar", required=True, help="path to the approval sidecar JSON file")
     parser.add_argument(
         "--approver-registry", default=None,
@@ -977,7 +1127,7 @@ def main(argv=None):
 
     try:
         if args.verify_provenance:
-            if args.content is not None or args.approver_registry is not None:
+            if args.content is not None or args.approver_registry is not None or args.expected_feature is not None:
                 raise ValidateApprovalSidecarError(
                     "USAGE_ERROR",
                     "--content/--approver-registry must not be combined with "
@@ -991,7 +1141,7 @@ def main(argv=None):
                     "USAGE_ERROR", "--content is required unless --verify-provenance is given",
                 )
             registry_path = args.approver_registry or _default_registry_path()
-            run_standard_validation(args.content, args.sidecar, registry_path)
+            run_standard_validation(args.content, args.sidecar, registry_path, args.expected_feature)
         print("VALID")
         return 0
     except ValidateApprovalSidecarError as exc:

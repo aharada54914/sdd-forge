@@ -1,0 +1,65 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "feature": "sdd-domain-concept-test",
+  "run_id": "935f1735-4e5d-4fe5-ace4-32bf8c011f75",
+  "host_session_id": "77f8419b-30a7-4320-9a9a-dde74ceb798c",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "12f84da56086748ef1811c10b2ba69a19ed82ebd01d2a674d5de966ea78518f7",
+  "previous_record_sha256": "94ffdbbe4b76e46b52aa80344773a5bb9b5f1cc35fbb8a40be9db3b2804d3397",
+  "sequence": 1198,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-concept-test/attempt-2/round-1/dependency-graph.json",
+      "sha256": "502fd54c5d5e71e9efe6ce60bb5a2c543d31cbc22a5f714227a94b5c951f2d88"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-concept-test/attempt-2/round-1/precheck-result.json",
+      "sha256": "f1fe23ee7b9a10c15269572afb238a75bc062c4705ff5456bffa23f0a85c78d4"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/acceptance-tests.md",
+      "sha256": "fb0414831b12b78a4c4f6ea32f6f25eb08fcfc9d4f33db9342750bac52eeb8d3"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/design.md",
+      "sha256": "e473afc81ebdaaf545b25c7a7697258e9bd19eb7186a4d4f77ddb098cd356c03"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/frontend-spec.md",
+      "sha256": "976de97ba398f7ae86c20f7dcb98965a347fb5ccde7cdc700b1d05e06377a7c7"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/infra-spec.md",
+      "sha256": "7bc65e27fb40699dde9be6fd418a08ae2f7dfd1f5bc0ca564190d45b5064b211"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/requirements.md",
+      "sha256": "36094c8c9a9f0bbe4d1f9ec21a01cc111a3c736fc81e28a19b34e26aed069053"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/security-spec.md",
+      "sha256": "cb52e5e4b202cdeeb837c2dbcfe9876652518b02fece635848283c019a87cf44"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/tasks.md",
+      "sha256": "fe97d46dba0721a61e2f15276c01b9faf8d1f1762261d17b7de11c9ec7dd4cc5"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/traceability.md",
+      "sha256": "4b04451940333f2494aa82030c1adc083e39725bbfc2329455f97a0c50762db8"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/ux-spec.md",
+      "sha256": "9ed375e9bf9cba444885cb4a53caa44346dad2cc962d454c8448951075e52020"
+    }
+  ]
+}

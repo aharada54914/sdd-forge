@@ -1,0 +1,35 @@
+diff --git a/tests/validate-approval-sidecar.tests.sh b/tests/validate-approval-sidecar.tests.sh
+--- a/tests/validate-approval-sidecar.tests.sh
++++ b/tests/validate-approval-sidecar.tests.sh
+@@ -1584,7 +1584,12 @@
+ ct_md_mismatch_case() {
+   cmm_id=$1; cmm_proposal=$2; cmm_decision=$3; cmm_field=$4
+   cmm_label=$cmm_id
+-  [ "$cmm_id" = TEST-075 ] && cmm_label=TEST-037/075
++  case "$cmm_id" in
++    TEST-075) cmm_label=TEST-037/078 ;;
++    TEST-076) cmm_label=TEST-075 ;;
++    TEST-077) cmm_label=TEST-076 ;;
++    TEST-078) cmm_label=TEST-077 ;;
++  esac
+   cmm_content="$WORK/ct_${cmm_id}.json"
+   cmm_tpl="$WORK/ct_${cmm_id}_tpl.json"
+   cmm_sidecar="$WORK/ct_${cmm_id}_sidecar.json"
+diff --git a/tests/validate-approval-sidecar.tests.ps1 b/tests/validate-approval-sidecar.tests.ps1
+--- a/tests/validate-approval-sidecar.tests.ps1
++++ b/tests/validate-approval-sidecar.tests.ps1
+@@ -1390,7 +1390,13 @@
+ }
+ 
+ function Test-ConceptMdMismatch([string]$TestId, [string]$Proposal, [string]$Decision, [string]$Field, [string]$SecondInputPath = '') {
+-  $displayId = if ($TestId -eq 'TEST-075') { 'TEST-037/075' } else { $TestId }
++  $displayId = switch ($TestId) {
++    'TEST-075' { 'TEST-037/078' }
++    'TEST-076' { 'TEST-075' }
++    'TEST-077' { 'TEST-076' }
++    'TEST-078' { 'TEST-077' }
++    default { $TestId }
++  }
+   $content = Join-Path $Work "ct_${TestId}.json"
+   $tpl = Join-Path $Work "ct_${TestId}_tpl.json"
+   $sidecar = Join-Path $Work "ct_${TestId}_sidecar.json"

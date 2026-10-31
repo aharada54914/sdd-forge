@@ -89,6 +89,40 @@ function Invoke-ChildProcess {
 
 function Invoke-Val {
   param([string[]]$ArgList = @(), [hashtable]$EnvSet = @{}, [string[]]$EnvUnset = @())
+  if ($script:ConceptCanonicalFixtures) {
+    $fixtureRoot = Join-Path $Work ('concept-case-' + [Guid]::NewGuid().ToString('N'))
+    $fixtureDir = Join-Path $fixtureRoot ('specs/' + $CtFeature)
+    New-Item -ItemType Directory -Path $fixtureDir -Force | Out-Null
+    $argsCopy = [string[]]$ArgList.Clone()
+    $contentIndex = [array]::IndexOf($argsCopy, '--content')
+    $sidecarIndex = [array]::IndexOf($argsCopy, '--sidecar')
+    if ($contentIndex -ge 0) {
+      $source = $argsCopy[$contentIndex + 1]
+      if (Test-Path -LiteralPath $source -PathType Leaf) {
+        Copy-Item -LiteralPath $source -Destination (Join-Path $fixtureDir 'concept-test.json')
+      }
+      $mdSource = Join-Path (Split-Path -Parent $source) 'concept-test.md'
+      if (Test-Path -LiteralPath $mdSource -PathType Leaf) {
+        Copy-Item -LiteralPath $mdSource -Destination (Join-Path $fixtureDir 'concept-test.md')
+      }
+      $argsCopy[$contentIndex + 1] = Join-Path $fixtureDir 'concept-test.json'
+    }
+    if ($sidecarIndex -ge 0) {
+      $source = $argsCopy[$sidecarIndex + 1]
+      if (Test-Path -LiteralPath $source -PathType Leaf) {
+        Copy-Item -LiteralPath $source -Destination (Join-Path $fixtureDir 'concept-test.approval.json')
+      }
+      $argsCopy[$sidecarIndex + 1] = Join-Path $fixtureDir 'concept-test.approval.json'
+    }
+    Push-Location $fixtureRoot
+    try {
+      return Invoke-ChildProcess -Exe $PowerShellExe `
+        -ArgList (@('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $ValPs1) + $argsCopy) `
+        -EnvSet $EnvSet -EnvUnset $EnvUnset
+    } finally {
+      Pop-Location
+    }
+  }
   return Invoke-ChildProcess -Exe $PowerShellExe `
     -ArgList (@('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $ValPs1) + $ArgList) `
     -EnvSet $EnvSet -EnvUnset $EnvUnset
@@ -1012,6 +1046,448 @@ if ($r.ExitCode -eq 0) {
   Test-Pass 'TEST-PR229-VAL --verify-provenance is NOT schema-gated (historical re-provability must not expire when the schema is extended)'
 } else {
   Test-Fail 'TEST-PR229-VAL --verify-provenance is NOT schema-gated' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# ---------------------------------------------------------------------------
+# T-001 (sdd-domain-concept-test, REQ-001/REQ-003): concept-test sidecar
+# type (schema `sdd-concept-test-approval/v1`) additive registration --
+# PowerShell parity of the .sh twin's own concept-test block (TEST-002..
+# 007/014/015..022/028/029/030..036 and the owner-approved fixed sibling
+# Markdown projection with table-driven all-field agreement checks.
+# ---------------------------------------------------------------------------
+
+$MakeConceptContent = Join-Path $Work 'make_concept_content.py'
+Set-Content -LiteralPath $MakeConceptContent -NoNewline -Encoding utf8 -Value @'
+import hashlib
+import json
+import os
+import sys
+sys.path.insert(0, os.path.join(sys.argv[-1], "plugins/sdd-quality-loop/scripts"))
+from concept_test_render import render_concept_test_md
+
+if sys.argv[1] in ("--json-unknown-key", "--empty-inputs"):
+    content_path = sys.argv[2]
+    with open(content_path, encoding="utf-8") as f: obj = json.load(f)
+    if sys.argv[1] == "--empty-inputs": obj["inputs"] = []
+    else: obj["unexpected"] = True
+    with open(content_path, "w", encoding="utf-8") as f: json.dump(obj, f)
+    with open(os.path.join(os.path.dirname(content_path), "concept-test.md"), "wb") as f:
+        f.write(render_concept_test_md(obj))
+    sys.exit(0)
+
+if sys.argv[1] == "--md-variant":
+    content_path, variant = sys.argv[2:4]
+    with open(content_path, encoding="utf-8") as f:
+        obj = json.load(f)
+    md_path = os.path.join(os.path.dirname(content_path), "concept-test.md")
+    if variant == "missing":
+        os.unlink(md_path)
+        sys.exit(0)
+    if variant == "crlf":
+        data = render_concept_test_md(obj).replace(b"\n", b"\r\n")
+    elif variant == "prose":
+        data = render_concept_test_md(obj) + b"extra prose\n"
+    else:
+        if variant == "feature": obj["feature"] += "-other"
+        elif variant == "schema": obj["schema"] = "other-schema"
+        elif variant == "proposal": obj["proposal"] = "RESPONSIBILITY_CONFLICT" if obj["proposal"] == "FITS_EXISTING_CONCEPTS" else "FITS_EXISTING_CONCEPTS"
+        elif variant == "rationale": obj["rationale"] += " other"
+        elif variant == "relation": obj["relation"] = "same" if obj["relation"] != "same" else "different"
+        elif variant == "input_path": obj["inputs"][0]["path"] += "-other"
+        elif variant == "input_hash": obj["inputs"][0]["sha256"] = "0" * 64
+        elif variant == "decision": obj["decision"] = "proceed" if obj["decision"] is None else "rejected" if obj["decision"] != "rejected" else "proceed"
+        elif variant == "second_path": obj["inputs"][1]["path"] += "-other"
+        elif variant == "second_hash": obj["inputs"][1]["sha256"] = "0" * 64
+        elif variant == "second_omit": obj["inputs"].pop()
+        elif variant == "second_reorder": obj["inputs"].reverse()
+        elif variant == "unknown_key": obj["unexpected"] = True
+        else: raise ValueError(variant)
+        data = render_concept_test_md(obj)
+    with open(md_path, "wb") as f: f.write(data)
+    sys.exit(0)
+
+output, feature, proposal, decision, relation, rationale, input_path = sys.argv[1:8]
+with open(input_path, "rb") as f:
+    digest = hashlib.sha256(f.read()).hexdigest()
+obj = {
+    "schema": "sdd-concept-test/v1",
+    "feature": feature,
+    "proposal": proposal,
+    "rationale": rationale,
+    "relation": relation,
+    "decision": None if decision == "NONE" else decision,
+    "inputs": [{"path": input_path, "sha256": digest}],
+}
+if len(sys.argv) == 10:
+    with open(sys.argv[8], "rb") as f:
+        second_digest = hashlib.sha256(f.read()).hexdigest()
+    obj["inputs"].append({"path": sys.argv[8], "sha256": second_digest})
+with open(output, "w", encoding="utf-8") as f:
+    json.dump(obj, f)
+with open(os.path.join(os.path.dirname(output), "concept-test.md"), "wb") as f:
+    f.write(render_concept_test_md(obj))
+'@
+
+function New-ConceptContent([string]$OutPath, [string]$Feature, [string]$Proposal, [string]$Decision, [string]$Relation, [string]$Rationale, [string]$InputPath, [string]$SecondInputPath = '') {
+  $fixtureArgs = @($MakeConceptContent, $OutPath, $Feature, $Proposal, $Decision, $Relation, $Rationale, $InputPath)
+  if ($SecondInputPath) { $fixtureArgs += $SecondInputPath }
+  $fixtureArgs += $Root
+  $r = Invoke-Py -ArgList $fixtureArgs
+  if ($r.ExitCode -ne 0) {
+    throw "make_concept_content.py failed (exit $($r.ExitCode)): $(Get-ErrText $r)"
+  }
+}
+
+function Get-ConceptHash([string]$ContentPath) {
+  $r = Invoke-Py -ArgList @($CanonPy, $ContentPath, '--input-format', 'json', '--hash-only')
+  if ($r.ExitCode -ne 0) {
+    throw "canonicalize-sdd-yaml.py --hash-only failed (exit $($r.ExitCode)): $(Get-ErrText $r)"
+  }
+  return (Get-OutText $r).Trim()
+}
+
+function New-ConceptTemplate([string]$OutPath, [string]$Approver, [string]$SecondJson, [string]$EffectiveJson, [string]$PredecessorJson, [string]$VerdictJson, [int]$Epoch) {
+  $body = @"
+{
+  "schema": "sdd-concept-test-approval/v1",
+  "context_sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "primary_approval": {"status": "Approved", "approver": "$Approver", "approved_at": "2026-01-01T00:00:00Z"},
+  "second_approval": $SecondJson,
+  "effective_at": $EffectiveJson,
+  "predecessor_context_sha256": $PredecessorJson,
+  $VerdictJson,
+  "approval_epoch": $Epoch
+}
+"@
+  Set-Content -LiteralPath $OutPath -NoNewline -Encoding utf8 -Value $body
+}
+
+$CtFeature = 'sdd-domain-concept-test'
+$script:ConceptCanonicalFixtures = $true
+$CtInput = Join-Path $Work 'ct-input.txt'
+Set-Content -LiteralPath $CtInput -NoNewline -Encoding utf8 -Value "concept test read input fixture`n"
+
+# TEST-006 (AC-006): FITS_EXISTING_CONCEPTS, decision null -- validates PASS.
+$Ct006Content = Join-Path $Work 'ct_test006.json'
+New-ConceptContent $Ct006Content $CtFeature 'FITS_EXISTING_CONCEPTS' 'NONE' 'same' 'Existing Fulfillment concept already covers this responsibility.' $CtInput
+$Ct006Hash = Get-ConceptHash $Ct006Content
+$Ct006Tpl = Join-Path $Work 'ct_test006_tpl.json'
+New-ConceptTemplate $Ct006Tpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
+$Ct006Sidecar = Join-Path $Work 'ct_test006_sidecar.json'
+New-SignedFixture 'NONE' $KeyFile $Ct006Tpl $Ct006Sidecar $Ct006Hash
+
+$r = Invoke-Val -ArgList @('--content', $Ct006Content, '--sidecar', $Ct006Sidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+if ($r.ExitCode -eq 0) {
+  Test-Pass 'TEST-001/006 concept-test FITS_EXISTING_CONCEPTS valid evidence and sibling Markdown validate PASS'
+} else {
+  Test-Fail 'TEST-001/006 concept-test FITS_EXISTING_CONCEPTS valid evidence and sibling Markdown validate PASS' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# TEST-007/015-022 (AC-007): 3 non-FITS proposals x 3 decisions, all valid.
+function Test-ConceptPositiveCase([string]$TestId, [string]$Proposal, [string]$Decision) {
+  $content = Join-Path $Work "ct_${TestId}.json"
+  $tpl = Join-Path $Work "ct_${TestId}_tpl.json"
+  $sidecar = Join-Path $Work "ct_${TestId}_sidecar.json"
+  New-ConceptContent $content $CtFeature $Proposal $Decision 'different' "Rationale for $Proposal with decision=$Decision." $CtInput
+  $hash = Get-ConceptHash $content
+  New-ConceptTemplate $tpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
+  New-SignedFixture 'NONE' $KeyFile $tpl $sidecar $hash
+  $r = Invoke-Val -ArgList @('--content', $content, '--sidecar', $sidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+  if ($r.ExitCode -eq 0) {
+    Test-Pass "$TestId concept-test $Proposal + decision=$Decision valid signed evidence validates PASS"
+  } else {
+    Test-Fail "$TestId concept-test $Proposal + decision=$Decision valid signed evidence validates PASS" "exit $($r.ExitCode): $(Get-ErrText $r)"
+  }
+}
+
+Test-ConceptPositiveCase 'TEST-007' 'NEW_CONCEPT_CANDIDATE' 'proceed'
+Test-ConceptPositiveCase 'TEST-015' 'NEW_CONCEPT_CANDIDATE' 'defer-to-domain-update'
+Test-ConceptPositiveCase 'TEST-016' 'NEW_CONCEPT_CANDIDATE' 'rejected'
+Test-ConceptPositiveCase 'TEST-017' 'RESPONSIBILITY_CONFLICT' 'proceed'
+Test-ConceptPositiveCase 'TEST-018' 'RESPONSIBILITY_CONFLICT' 'defer-to-domain-update'
+Test-ConceptPositiveCase 'TEST-019' 'RESPONSIBILITY_CONFLICT' 'rejected'
+Test-ConceptPositiveCase 'TEST-020' 'REQUIRES_HUMAN_DECISION' 'proceed'
+Test-ConceptPositiveCase 'TEST-021' 'REQUIRES_HUMAN_DECISION' 'defer-to-domain-update'
+Test-ConceptPositiveCase 'TEST-022' 'REQUIRES_HUMAN_DECISION' 'rejected'
+
+# TEST-002/003/004 (AC-002/003/004): decision omitted for each non-FITS
+# proposal is BLOCKed (CONCEPT_TEST_DECISION_MISSING).
+function Test-ConceptDecisionMissingCase([string]$TestId, [string]$Proposal) {
+  $content = Join-Path $Work "ct_${TestId}.json"
+  $tpl = Join-Path $Work "ct_${TestId}_tpl.json"
+  $sidecar = Join-Path $Work "ct_${TestId}_sidecar.json"
+  New-ConceptContent $content $CtFeature $Proposal 'NONE' 'undecided' "Rationale for $Proposal with no decision recorded." $CtInput
+  $hash = Get-ConceptHash $content
+  New-ConceptTemplate $tpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
+  New-SignedFixture 'NONE' $KeyFile $tpl $sidecar $hash
+  $r = Invoke-Val -ArgList @('--content', $content, '--sidecar', $sidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+  if ($r.ExitCode -eq 48 -and (Get-ErrText $r) -match 'CONCEPT_TEST_DECISION_MISSING') {
+    Test-Pass "$TestId concept-test $Proposal with decision=null is BLOCKed (CONCEPT_TEST_DECISION_MISSING)"
+  } else {
+    Test-Fail "$TestId concept-test $Proposal decision-missing BLOCK" "exit $($r.ExitCode): $(Get-ErrText $r)"
+  }
+}
+
+Test-ConceptDecisionMissingCase 'TEST-002' 'NEW_CONCEPT_CANDIDATE'
+Test-ConceptDecisionMissingCase 'TEST-003' 'RESPONSIBILITY_CONFLICT'
+Test-ConceptDecisionMissingCase 'TEST-004' 'REQUIRES_HUMAN_DECISION'
+
+# TEST-005 (AC-005): evidence JSON file absent is BLOCKed.
+$Ct005Tpl = Join-Path $Work 'ct_test005_tpl.json'
+New-ConceptTemplate $Ct005Tpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
+$Ct005Sidecar = Join-Path $Work 'ct_test005_sidecar.json'
+New-SignedFixture 'NONE' $KeyFile $Ct005Tpl $Ct005Sidecar ('sha256:' + ('0' * 64))
+$r = Invoke-Val -ArgList @('--content', (Join-Path $Work 'ct_test005_nonexistent.json'), '--sidecar', $Ct005Sidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+if ($r.ExitCode -eq 31 -and (Get-ErrText $r) -match 'CONTENT_CANONICALIZATION_FAILED') {
+  Test-Pass 'TEST-005 concept-test evidence JSON file absent is BLOCKed (CONTENT_CANONICALIZATION_FAILED)'
+} else {
+  Test-Fail 'TEST-005 concept-test evidence JSON file absent is BLOCKed' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# TEST-014 (AC-014): corrupt/malformed JSON evidence is rejected.
+$CtMalformed = Join-Path $Work 'ct_malformed.json'
+Set-Content -LiteralPath $CtMalformed -NoNewline -Encoding utf8 -Value '{not valid json'
+$CtMalformedTpl = Join-Path $Work 'ct_malformed_tpl.json'
+New-ConceptTemplate $CtMalformedTpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
+$CtMalformedSidecar = Join-Path $Work 'ct_malformed_sidecar.json'
+New-SignedFixture 'NONE' $KeyFile $CtMalformedTpl $CtMalformedSidecar ('sha256:' + ('0' * 64))
+$r = Invoke-Val -ArgList @('--content', $CtMalformed, '--sidecar', $CtMalformedSidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+if ($r.ExitCode -eq 31 -and (Get-ErrText $r) -match 'CONTENT_CANONICALIZATION_FAILED') {
+  Test-Pass 'TEST-014 concept-test corrupt JSON evidence is rejected (CONTENT_CANONICALIZATION_FAILED)'
+} else {
+  Test-Fail 'TEST-014 concept-test corrupt JSON evidence rejected' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# TEST-028/029 (AC-014): unknown proposal / unknown decision enum value.
+$Ct028Content = Join-Path $Work 'ct_test028.json'
+New-ConceptContent $Ct028Content $CtFeature 'UNKNOWN_PROPOSAL_VALUE' 'proceed' 'different' 'Unknown proposal value.' $CtInput
+$Ct028Hash = Get-ConceptHash $Ct028Content
+$Ct028Tpl = Join-Path $Work 'ct_test028_tpl.json'
+New-ConceptTemplate $Ct028Tpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
+$Ct028Sidecar = Join-Path $Work 'ct_test028_sidecar.json'
+New-SignedFixture 'NONE' $KeyFile $Ct028Tpl $Ct028Sidecar $Ct028Hash
+$r = Invoke-Val -ArgList @('--content', $Ct028Content, '--sidecar', $Ct028Sidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+if ($r.ExitCode -eq 32 -and (Get-ErrText $r) -match 'CONTENT_SCHEMA_VIOLATION') {
+  Test-Pass 'TEST-028 concept-test unknown proposal value is rejected (CONTENT_SCHEMA_VIOLATION)'
+} else {
+  Test-Fail 'TEST-028 concept-test unknown proposal value rejected' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+$Ct029Content = Join-Path $Work 'ct_test029.json'
+New-ConceptContent $Ct029Content $CtFeature 'NEW_CONCEPT_CANDIDATE' 'not-a-real-decision' 'different' 'Unknown decision value.' $CtInput
+$Ct029Hash = Get-ConceptHash $Ct029Content
+$Ct029Tpl = Join-Path $Work 'ct_test029_tpl.json'
+New-ConceptTemplate $Ct029Tpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
+$Ct029Sidecar = Join-Path $Work 'ct_test029_sidecar.json'
+New-SignedFixture 'NONE' $KeyFile $Ct029Tpl $Ct029Sidecar $Ct029Hash
+$r = Invoke-Val -ArgList @('--content', $Ct029Content, '--sidecar', $Ct029Sidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+if ($r.ExitCode -eq 32 -and (Get-ErrText $r) -match 'CONTENT_SCHEMA_VIOLATION') {
+  Test-Pass 'TEST-029 concept-test unknown decision value is rejected (CONTENT_SCHEMA_VIOLATION)'
+} else {
+  Test-Fail 'TEST-029 concept-test unknown decision value rejected' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# TEST-030 (AC-015): sidecar file absent is BLOCKed.
+$Ct030Content = Join-Path $Work 'ct_test030.json'
+New-ConceptContent $Ct030Content $CtFeature 'FITS_EXISTING_CONCEPTS' 'NONE' 'same' 'Valid evidence; sidecar is absent.' $CtInput
+$r = Invoke-Val -ArgList @('--content', $Ct030Content, '--sidecar', (Join-Path $Work 'ct_test030_nonexistent_sidecar.json'), '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+if ($r.ExitCode -eq 37 -and (Get-ErrText $r) -match 'SIDECAR_UNREADABLE') {
+  Test-Pass 'TEST-030 concept-test absent sidecar is BLOCKed (SIDECAR_UNREADABLE)'
+} else {
+  Test-Fail 'TEST-030 concept-test absent sidecar is BLOCKed' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# TEST-031 (AC-015): tampered signature is BLOCKed.
+$Ct031Content = Join-Path $Work 'ct_test031.json'
+New-ConceptContent $Ct031Content $CtFeature 'FITS_EXISTING_CONCEPTS' 'NONE' 'same' 'Valid evidence; hmac byte is flipped after signing.' $CtInput
+$Ct031Hash = Get-ConceptHash $Ct031Content
+$Ct031Tpl = Join-Path $Work 'ct_test031_tpl.json'
+New-ConceptTemplate $Ct031Tpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
+$Ct031Sidecar = Join-Path $Work 'ct_test031_sidecar.json'
+New-SignedFixture 'NONE' $KeyFile $Ct031Tpl $Ct031Sidecar $Ct031Hash
+$tamperedObj = Get-Content -Raw -LiteralPath $Ct031Sidecar | ConvertFrom-Json
+$firstChar = $tamperedObj.hmac.Substring(0, 1)
+$flipped = if ($firstChar -eq '0') { '1' } else { '0' }
+$tamperedObj.hmac = $flipped + $tamperedObj.hmac.Substring(1)
+Set-Content -LiteralPath $Ct031Sidecar -NoNewline -Encoding utf8 -Value ($tamperedObj | ConvertTo-Json -Depth 20)
+$r = Invoke-Val -ArgList @('--content', $Ct031Content, '--sidecar', $Ct031Sidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+if ($r.ExitCode -eq 40 -and (Get-ErrText $r) -match 'HMAC_MISMATCH') {
+  Test-Pass 'TEST-031 concept-test tampered signature is BLOCKed (HMAC_MISMATCH)'
+} else {
+  Test-Fail 'TEST-031 concept-test tampered signature is BLOCKed' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# TEST-032 (AC-015): no resolvable SDD_CONTEXT_KEY is BLOCKed, never a skip.
+$Ct032Content = Join-Path $Work 'ct_test032.json'
+New-ConceptContent $Ct032Content $CtFeature 'FITS_EXISTING_CONCEPTS' 'NONE' 'same' 'Valid evidence; validated with no resolvable key.' $CtInput
+$Ct032Hash = Get-ConceptHash $Ct032Content
+$Ct032Tpl = Join-Path $Work 'ct_test032_tpl.json'
+New-ConceptTemplate $Ct032Tpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
+$Ct032Sidecar = Join-Path $Work 'ct_test032_sidecar.json'
+New-SignedFixture 'NONE' $KeyFile $Ct032Tpl $Ct032Sidecar $Ct032Hash
+$FakeHomeT032 = Join-Path $Work 'fake-home-t032'
+New-Item -ItemType Directory -Path $FakeHomeT032 -Force | Out-Null
+$r = Invoke-Val -ArgList @('--content', $Ct032Content, '--sidecar', $Ct032Sidecar, '--approver-registry', $RegistryValid) `
+  -EnvSet @{ HOME = $FakeHomeT032; USERPROFILE = $FakeHomeT032 } -EnvUnset @('SDD_CONTEXT_KEY', 'SDD_CONTEXT_KEY_FILE')
+if ($r.ExitCode -eq 11 -and (Get-ErrText $r) -match 'NO_CONTEXT_KEY') {
+  Test-Pass 'TEST-032 concept-test no resolvable key is BLOCKed (NO_CONTEXT_KEY), never a skip'
+} else {
+  Test-Fail 'TEST-032 concept-test no resolvable key is BLOCKed' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# TEST-033 (AC-015): a correctly-signed sidecar for an UNREGISTERED approver.
+$Ct033Content = Join-Path $Work 'ct_test033.json'
+New-ConceptContent $Ct033Content $CtFeature 'FITS_EXISTING_CONCEPTS' 'NONE' 'same' 'Valid evidence; approver is not in the registry.' $CtInput
+$Ct033Hash = Get-ConceptHash $Ct033Content
+$Ct033Tpl = Join-Path $Work 'ct_test033_tpl.json'
+New-ConceptTemplate $Ct033Tpl 'mallory' 'null' 'null' 'null' '"weakening_verdict": null' 1
+$Ct033Sidecar = Join-Path $Work 'ct_test033_sidecar.json'
+New-SignedFixture 'NONE' $KeyFile $Ct033Tpl $Ct033Sidecar $Ct033Hash
+$r = Invoke-Val -ArgList @('--content', $Ct033Content, '--sidecar', $Ct033Sidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+if ($r.ExitCode -eq 41 -and (Get-ErrText $r) -match 'UNREGISTERED_APPROVER') {
+  Test-Pass 'TEST-033 concept-test unregistered approver (correct signature) is BLOCKed (UNREGISTERED_APPROVER)'
+} else {
+  Test-Fail 'TEST-033 concept-test unregistered approver is BLOCKed' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# TEST-034 (AC-015): a decision VALUE alone with no signed sidecar is BLOCKed.
+$Ct034Content = Join-Path $Work 'ct_test034.json'
+New-ConceptContent $Ct034Content $CtFeature 'NEW_CONCEPT_CANDIDATE' 'proceed' 'different' 'A decision string is present, but no sidecar accompanies it.' $CtInput
+$r = Invoke-Val -ArgList @('--content', $Ct034Content, '--sidecar', (Join-Path $Work 'ct_test034_no_sidecar.json'), '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+if ($r.ExitCode -eq 37 -and (Get-ErrText $r) -match 'SIDECAR_UNREADABLE') {
+  Test-Pass 'TEST-034 concept-test decision-string-only evidence with no signed sidecar is BLOCKed (SIDECAR_UNREADABLE)'
+} else {
+  Test-Fail 'TEST-034 concept-test decision-only evidence is BLOCKed' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# TEST-035 (AC-016): a read input mutated by 1 byte after signing is BLOCKed.
+$CtInput035 = Join-Path $Work 'ct-input-test035.txt'
+Set-Content -LiteralPath $CtInput035 -NoNewline -Encoding utf8 -Value "concept test read input for TEST-035`n"
+$Ct035Content = Join-Path $Work 'ct_test035.json'
+New-ConceptContent $Ct035Content $CtFeature 'FITS_EXISTING_CONCEPTS' 'NONE' 'same' 'Valid evidence; the referenced input file is mutated after signing.' $CtInput035
+$Ct035Hash = Get-ConceptHash $Ct035Content
+$Ct035Tpl = Join-Path $Work 'ct_test035_tpl.json'
+New-ConceptTemplate $Ct035Tpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
+$Ct035Sidecar = Join-Path $Work 'ct_test035_sidecar.json'
+New-SignedFixture 'NONE' $KeyFile $Ct035Tpl $Ct035Sidecar $Ct035Hash
+Add-Content -LiteralPath $CtInput035 -NoNewline -Encoding utf8 -Value 'X'
+$r = Invoke-Val -ArgList @('--content', $Ct035Content, '--sidecar', $Ct035Sidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+if ($r.ExitCode -eq 50 -and (Get-ErrText $r) -match 'CONCEPT_TEST_INPUT_HASH_MISMATCH') {
+  Test-Pass 'TEST-035 concept-test a 1-byte-changed read input is BLOCKed (CONCEPT_TEST_INPUT_HASH_MISMATCH)'
+} else {
+  Test-Fail 'TEST-035 concept-test a changed read input is BLOCKed' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# TEST-036 (AC-016): a read input absent at validation time is BLOCKed.
+$CtInput036 = Join-Path $Work 'ct-input-test036.txt'
+Set-Content -LiteralPath $CtInput036 -NoNewline -Encoding utf8 -Value "concept test read input for TEST-036 (will be removed)`n"
+$Ct036Content = Join-Path $Work 'ct_test036.json'
+New-ConceptContent $Ct036Content $CtFeature 'FITS_EXISTING_CONCEPTS' 'NONE' 'same' 'Valid evidence; the referenced input file is removed after signing.' $CtInput036
+$Ct036Hash = Get-ConceptHash $Ct036Content
+$Ct036Tpl = Join-Path $Work 'ct_test036_tpl.json'
+New-ConceptTemplate $Ct036Tpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
+$Ct036Sidecar = Join-Path $Work 'ct_test036_sidecar.json'
+New-SignedFixture 'NONE' $KeyFile $Ct036Tpl $Ct036Sidecar $Ct036Hash
+Remove-Item -LiteralPath $CtInput036 -Force
+$r = Invoke-Val -ArgList @('--content', $Ct036Content, '--sidecar', $Ct036Sidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+if ($r.ExitCode -eq 49 -and (Get-ErrText $r) -match 'CONCEPT_TEST_INPUT_UNREADABLE') {
+  Test-Pass 'TEST-036 concept-test an absent read input is BLOCKed (CONCEPT_TEST_INPUT_UNREADABLE)'
+} else {
+  Test-Fail 'TEST-036 concept-test an absent read input is BLOCKed' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# Bad HMAC and absent signed input: the HMAC error must take precedence.
+$Ct036BadHmac = Join-Path $Work 'ct_test036_bad_hmac.json'
+$bad = Get-Content -Raw -LiteralPath $Ct036Sidecar | ConvertFrom-Json
+$bad.hmac = $(if ($bad.hmac[0] -eq '0') { '1' } else { '0' }) + $bad.hmac.Substring(1)
+Set-Content -LiteralPath $Ct036BadHmac -NoNewline -Encoding utf8 -Value ($bad | ConvertTo-Json -Depth 20)
+$r = Invoke-Val -ArgList @('--content', $Ct036Content, '--sidecar', $Ct036BadHmac, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+if ($r.ExitCode -eq 40 -and (Get-ErrText $r) -match 'HMAC_MISMATCH') {
+  Test-Pass 'concept-test bad HMAC stops before absent input read'
+} else {
+  Test-Fail 'concept-test bad HMAC input-read ordering' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# Unknown signed JSON property is rejected even when Markdown agrees.
+$unknownContent = Join-Path $Work 'ct_unknown_json.json'
+New-ConceptContent $unknownContent $CtFeature 'FITS_EXISTING_CONCEPTS' 'NONE' 'same' 'Unknown-key fixture.' $CtInput
+$mutation = Invoke-Py -ArgList @($MakeConceptContent, '--json-unknown-key', $unknownContent, $Root)
+if ($mutation.ExitCode -ne 0) { throw "JSON mutation failed: $(Get-ErrText $mutation)" }
+$unknownHash = Get-ConceptHash $unknownContent
+$unknownTpl = Join-Path $Work 'ct_unknown_json_tpl.json'
+New-ConceptTemplate $unknownTpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
+$unknownSidecar = Join-Path $Work 'ct_unknown_json_sidecar.json'
+New-SignedFixture 'NONE' $KeyFile $unknownTpl $unknownSidecar $unknownHash
+$r = Invoke-Val -ArgList @('--content', $unknownContent, '--sidecar', $unknownSidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+if ($r.ExitCode -eq 32 -and (Get-ErrText $r) -match 'CONTENT_SCHEMA_VIOLATION') {
+  Test-Pass 'concept-test signed JSON unknown key is BLOCKed by schema'
+} else {
+  Test-Fail 'concept-test signed JSON unknown key schema rejection' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# Standard CLI cardinality controls; mutate before hashing and signing.
+foreach ($ctCount in @(1, 0)) {
+  $content = Join-Path $Work "ct_cardinality_${ctCount}.json"
+  $tpl = Join-Path $Work "ct_cardinality_${ctCount}_tpl.json"
+  $sidecar = Join-Path $Work "ct_cardinality_${ctCount}_sidecar.json"
+  New-ConceptContent $content $CtFeature 'NEW_CONCEPT_CANDIDATE' 'proceed' 'different' 'Cardinality fixture.' $CtInput
+  if ($ctCount -eq 0) {
+    $mutation = Invoke-Py -ArgList @($MakeConceptContent, '--empty-inputs', $content, $Root)
+    if ($mutation.ExitCode -ne 0) { throw "Cardinality mutation failed: $(Get-ErrText $mutation)" }
+  }
+  $hash = Get-ConceptHash $content
+  New-ConceptTemplate $tpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
+  New-SignedFixture 'NONE' $KeyFile $tpl $sidecar $hash
+  $r = Invoke-Val -ArgList @('--content', $content, '--sidecar', $sidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+  if ($ctCount -eq 1 -and $r.ExitCode -eq 0 -and (Get-OutText $r).Trim() -ceq 'VALID') {
+    Test-Pass 'concept-test minItems one input accepted by standard CLI'
+  } elseif ($ctCount -eq 0 -and $r.ExitCode -eq 32 -and (Get-ErrText $r).Contains('CONTENT_SCHEMA_VIOLATION: /inputs: fewer than minItems 1')) {
+    Test-Pass 'concept-test minItems empty inputs rejected by standard CLI'
+  } else {
+    Test-Fail "concept-test minItems inputs=$ctCount" "exit $($r.ExitCode): $(Get-ErrText $r)"
+  }
+}
+
+function Test-ConceptMdMismatch([string]$TestId, [string]$Proposal, [string]$Decision, [string]$Field, [string]$SecondInputPath = '') {
+  $displayId = switch ($TestId) {
+    'TEST-075' { 'TEST-037/078' }
+    'TEST-076' { 'TEST-075' }
+    'TEST-077' { 'TEST-076' }
+    'TEST-078' { 'TEST-077' }
+    default { $TestId }
+  }
+  $content = Join-Path $Work "ct_${TestId}.json"
+  $tpl = Join-Path $Work "ct_${TestId}_tpl.json"
+  $sidecar = Join-Path $Work "ct_${TestId}_sidecar.json"
+  New-ConceptContent $content $CtFeature $Proposal $Decision 'same' 'Markdown mismatch fixture.' $CtInput $SecondInputPath
+  $hash = Get-ConceptHash $content
+  New-ConceptTemplate $tpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
+  New-SignedFixture 'NONE' $KeyFile $tpl $sidecar $hash
+  $mutation = Invoke-Py -ArgList @($MakeConceptContent, '--md-variant', $content, $Field, $Root)
+  if ($mutation.ExitCode -ne 0) { throw "Markdown mutation failed: $(Get-ErrText $mutation)" }
+  $r = Invoke-Val -ArgList @('--content', $content, '--sidecar', $sidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+  if ($r.ExitCode -eq 51 -and (Get-ErrText $r) -match 'CONCEPT_TEST_MD_MISMATCH') {
+    Test-Pass "$displayId $Proposal $Field Markdown mismatch BLOCK"
+  } else {
+    Test-Fail "$displayId $Proposal $Field Markdown mismatch" "exit $($r.ExitCode): $(Get-ErrText $r)"
+  }
+}
+
+$cmmBase = 51
+foreach ($class in @('FITS_EXISTING_CONCEPTS', 'NEW_CONCEPT_CANDIDATE', 'RESPONSIBILITY_CONFLICT', 'REQUIRES_HUMAN_DECISION')) {
+  $decision = if ($class -eq 'FITS_EXISTING_CONCEPTS') { 'NONE' } else { 'proceed' }
+  foreach ($field in @('feature', 'proposal', 'rationale', 'relation', 'input_path', 'input_hash')) {
+    Test-ConceptMdMismatch ('TEST-{0:D3}' -f $cmmBase) $class $decision $field
+    $cmmBase++
+  }
+  $decisionTestId = 'TEST-{0:D3}' -f (75 + [int](($cmmBase - 57) / 6))
+  Test-ConceptMdMismatch $decisionTestId $class $decision 'decision'
+}
+
+$CtInputSecond = Join-Path $Work 'ct-input-second.txt'
+Set-Content -LiteralPath $CtInputSecond -NoNewline -Encoding utf8 -Value "second read input`n"
+foreach ($field in @('schema', 'second_path', 'second_hash', 'second_omit', 'second_reorder', 'unknown_key', 'missing', 'crlf', 'prose')) {
+  Test-ConceptMdMismatch "extra_$field" 'FITS_EXISTING_CONCEPTS' 'NONE' $field $CtInputSecond
 }
 
 # ---------------------------------------------------------------------------

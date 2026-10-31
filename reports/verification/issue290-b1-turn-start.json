@@ -1,0 +1,20 @@
+{
+  "id": 3,
+  "method": "turn/start",
+  "params": {
+    "threadId": "01a10077-0a83-74c3-b217-06569e9b22b5",
+    "model": "gpt-5.6-sol",
+    "effort": "high",
+    "approvalPolicy": "never",
+    "sandboxPolicy": {
+      "type": "readOnly",
+      "networkAccess": false
+    },
+    "input": [
+      {
+        "type": "text",
+        "text": "Run the independent task-reviewer-b role supplied in your developer instructions. This is the authorized post-implementation provenance re-review of feature sdd-domain-concept-test, attempt 4, round 1. Read your own launch envelope first: reports/review-context/sdd-domain-concept-test-task-a4r1-b1-invocation.json.\nActual fresh native thread/session ID: 01a10077-0a83-74c3-b217-06569e9b22b5. Run ID: eb568e44-cb66-4b88-986e-185456c9b020.\nThe caller verified inputs immediately before reservation and ran the canonical validator --reserve exactly once. Actual receipt:\nREVIEW_CONTEXT_OK 7b8279acce884a639e014f7693a425ee1b76a3dcb25f6444ef2a9de4a65583c3 sequence=1211 previous_record_sha256=ae61f5a16f181bdc27db4156fc8deb20c64642a55524bffae7ff15007e598dcd pre_append_tip_sequence=1210 identity_unique=yes\nTask-stage input_binding and scratch_binding are absent/empty. Verify receipt and envelope yourself before substantive reads as your role requires. Never read the ledger or invoke validator/reservation. Read every allowed input, no unlisted paths, no raw peer/prior output, network, agents, writes, or fallback. Use rtk proxy for read-only shell commands.\nThe task hash is the precheck's normalized hash, not raw-byte hash. Use the existing role/precheck normalization contract without inventing another normalization. Lifecycle-validity review does not reset Approved/Done to Draft.\nThe counts-only integrated-summary.json is available in this round and admitted by your manifest; read it. It is the only bridge from the structural reviewer. No qualitative verdict or raw output is provided.\nIf any tool permission/hook denies access, stop immediately, do not retry via another tool/path, do not continue evaluation, and report the exact blocker rather than unperformed PASS/FAIL checks.\nReturn the complete role's canonical JSON as your final message; do not write reviewer-b.json yourself. The orchestrator persists the exact JSON. Do not return a summary instead of JSON. Do not read prior reviewer evidence to apply convergence; use only admitted evidence."
+      }
+    ]
+  }
+}

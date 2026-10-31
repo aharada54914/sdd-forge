@@ -1,0 +1,277 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-task-state.sh b/plugins/sdd-quality-loop/scripts/check-task-state.sh
+--- a/plugins/sdd-quality-loop/scripts/check-task-state.sh
++++ b/plugins/sdd-quality-loop/scripts/check-task-state.sh
+@@ -14,7 +14,7 @@
+ #  - Done additionally requires the evidence bundle's declared quality-gate
+ #    report to mention the task id and contain VERDICT: PASS.
+ #  - Implementation Complete requires an implementation report mentioning the task id.
+-#  - Blocked requires non-empty ### Blockers content (not None/whitespace/bare list markers).
++#  - Blocked requires non-empty task Blockers or a non-empty external Blocked Reason.
+ #  - Duplicate task ids (## T-NNN repeated) → fail.
+ tasks="$1"
+ reports="${2:-reports/quality-gate}"
+@@ -33,7 +33,7 @@
+ TASKS="$tasks" REPORTS="$reports" IMPL_REPORTS="$impl_reports" SCRIPT_DIR="$script_dir" REPO_ROOT="$repo_root" awk '
+ BEGIN {
+   task = ""; failures = 0; count = 0
+-  in_blockers = 0; blockers_content = ""
++  in_blockers = 0; blockers_content = ""; blocked_reason = ""
+   # Detect available Python 3 interpreter (35.2: Windows ships a python3 stub)
+   if (system("python3 -c \"import sys\" >/dev/null 2>&1") == 0) {
+     PYTHON_CMD = "python3"
+@@ -63,13 +63,15 @@
+   }
+   seen[newid] = 1
+   task = newid; approval = ""; status = ""; risk = ""; second = ""; count++
+-  in_blockers = 0; blockers_content = ""
++  in_blockers = 0; blockers_content = ""; blocked_reason = ""
+ }
+ /^Approval:/ { if (task != "") { approval = $0; sub(/^Approval:[ \t]*/, "", approval); in_blockers = 0 } }
+ /^Status:/ { if (task != "") { status = $0; sub(/^Status:[ \t]*/, "", status); in_blockers = 0 } }
+ /^Risk:/ { if (task != "") { risk = $0; sub(/^Risk:[ \t]*/, "", risk); risk = tolower(risk); sub(/[ \t]+$/, "", risk); in_blockers = 0 } }
+ /^Second Approval:/ { if (task != "") { second = $0; sub(/^Second Approval:[ \t]*/, "", second); in_blockers = 0 } }
++/^Blocked Reason:/ { if (task != "") { blocked_reason = $0; sub(/^Blocked Reason:[ \t]*/, "", blocked_reason); in_blockers = 0 } }
+ /^### Blockers/ { if (task != "") { in_blockers = 1 } }
++/^### / { if ($0 !~ /^### Blockers[ \t]*$/) in_blockers = 0 }
+ /^## [^#]/ { if ($0 !~ /^## T-[0-9]+/) { in_blockers = 0 } }
+ {
+   if (in_blockers && $0 !~ /^### Blockers/) {
+@@ -178,7 +180,10 @@
+     impl_report = ""
+   }
+   if (status == "Blocked") {
+-    if (blockers_content == "") fail(task " is Blocked but ### Blockers section has no content (not None or empty)")
++    reason = blocked_reason
++    gsub(/^[ \t]+|[ \t]+$/, "", reason)
++    if (tolower(reason) == "none" || reason ~ /^[-*#]+$/) reason = ""
++    if (blockers_content == "" && reason == "") fail(task " is Blocked but has neither task Blockers nor Blocked Reason")
+   }
+   # Effective risk for Done tasks: use contract_risk if non-empty, else tasks.md risk
+   effective_risk = (status == "Done" && contract_risk != "") ? contract_risk : risk
+diff --git a/plugins/sdd-quality-loop/scripts/check-task-state.ps1 b/plugins/sdd-quality-loop/scripts/check-task-state.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-task-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-task-state.ps1
+@@ -12,7 +12,7 @@
+ #  - Done additionally requires the evidence bundle's declared quality-gate
+ #    report to mention the task id and contain VERDICT: PASS.
+ #  - Implementation Complete requires an implementation report mentioning the task id.
+-#  - Blocked requires non-empty ### Blockers content (not None/whitespace/bare list markers).
++#  - Blocked requires non-empty task Blockers or a non-empty external Blocked Reason.
+ #  - Duplicate task ids (## T-NNN repeated) → fail.
+ param(
+     [Parameter(Mandatory)][string]$TasksPath,
+@@ -42,6 +42,7 @@
+ $risk = @{}
+ $second = @{}
+ $blockers = @{}
++$blockedReason = @{}
+ $seenIds = @{}
+ 
+ $lines = Get-Content -Encoding Utf8 $TasksPath
+@@ -72,8 +73,13 @@
+     } elseif ($currentTask -and $line -cmatch '^Second Approval:\s*(.+)$') {
+         $second[$currentTask] = $Matches[1].Trim()
+         $inBlockers = $false
++    } elseif ($currentTask -and $line -cmatch '^Blocked Reason:\s*(.*)$') {
++        $blockedReason[$currentTask] = $Matches[1].Trim()
++        $inBlockers = $false
+     } elseif ($currentTask -and $line -cmatch '^###\s+Blockers') {
+         $inBlockers = $true
++    } elseif ($line -cmatch '^###\s+') {
++        $inBlockers = $false
+     } elseif ($line -cmatch '^##') {
+         $inBlockers = $false
+     } elseif ($currentTask -and $inBlockers) {
+@@ -210,8 +216,10 @@
+     }
+     if ($s -ceq "Blocked") {
+         $blockersContent = $blockers[$task]
+-        if ([string]::IsNullOrWhiteSpace($blockersContent)) {
+-            $failures += "$task is Blocked but ### Blockers section has no content (not None or empty)"
++        $reason = $blockedReason[$task]
++        if ([string]::IsNullOrWhiteSpace($blockersContent) -and
++            ([string]::IsNullOrWhiteSpace($reason) -or $reason -cieq "None" -or $reason -cmatch '^[-*#]+$')) {
++            $failures += "$task is Blocked but has neither task Blockers nor Blocked Reason"
+         }
+     }
+ }
+diff --git a/mcp/sdd-forge-mcp/src/parsers/task-types.ts b/mcp/sdd-forge-mcp/src/parsers/task-types.ts
+--- a/mcp/sdd-forge-mcp/src/parsers/task-types.ts
++++ b/mcp/sdd-forge-mcp/src/parsers/task-types.ts
+@@ -59,6 +59,7 @@
+   risk: string;
+   second: string;
+   blockersContent: string;
++  blockedReason: string;
+   inBlockers: boolean;
+ }
+ 
+@@ -70,6 +71,7 @@
+     risk: "",
+     second: "",
+     blockersContent: "",
++    blockedReason: "",
+     inBlockers: false,
+   };
+ }
+diff --git a/mcp/sdd-forge-mcp/src/parsers/tasks.ts b/mcp/sdd-forge-mcp/src/parsers/tasks.ts
+--- a/mcp/sdd-forge-mcp/src/parsers/tasks.ts
++++ b/mcp/sdd-forge-mcp/src/parsers/tasks.ts
+@@ -133,10 +133,19 @@
+       draft.inBlockers = false;
+       continue;
+     }
++    if (line.startsWith("Blocked Reason:")) {
++      draft.blockedReason = line.slice("Blocked Reason:".length).trim();
++      draft.inBlockers = false;
++      continue;
++    }
+     if (/^### Blockers/.test(line)) {
+       draft.inBlockers = true;
+       continue;
+     }
++    if (/^### /.test(line)) {
++      draft.inBlockers = false;
++      continue;
++    }
+     if (/^## [^#]/.test(line) && !TASK_HEADER_PATTERN.test(line)) {
+       draft.inBlockers = false;
+       continue;
+diff --git a/mcp/sdd-forge-mcp/src/parsers/task-validation.ts b/mcp/sdd-forge-mcp/src/parsers/task-validation.ts
+--- a/mcp/sdd-forge-mcp/src/parsers/task-validation.ts
++++ b/mcp/sdd-forge-mcp/src/parsers/task-validation.ts
+@@ -91,13 +91,14 @@
+ 
+   let blockersNonEmpty = false;
+   if (status === "Blocked") {
+-    if (draft.blockersContent === "") {
++    const reason = draft.blockedReason;
++    if (draft.blockersContent === "" && (reason === "" || reason.toLowerCase() === "none" || /^[-*#]+$/.test(reason))) {
+       fail(
+         "blocked-no-blockers",
+-        `${taskId} is Blocked but ### Blockers section has no content (not None or empty)`,
++        `${taskId} is Blocked but has neither task Blockers nor Blocked Reason`,
+       );
+     } else {
+-      blockersNonEmpty = true;
++      blockersNonEmpty = draft.blockersContent !== "";
+     }
+   } else {
+     blockersNonEmpty = draft.blockersContent !== "";
+diff --git a/tests/scripts.tests.ps1 b/tests/scripts.tests.ps1
+--- a/tests/scripts.tests.ps1
++++ b/tests/scripts.tests.ps1
+@@ -942,16 +942,28 @@
+ "@ | Set-Content -Encoding Utf8 "tasks-blocked-empty.md"
+     Assert-ExitCode "check-task-state blocked empty section fails" (Invoke-Gate "check-task-state.ps1" @("tasks-blocked-empty.md")) 1
+ 
+-    # -- Blocked with real text → exit 0 --
++    # -- Blocked with external reason and no task dependency → exit 0 --
+     @"
+ ## T-032 Blocked
+ Approval: Approved
+ Status: Blocked
+ ### Blockers
+-Waiting for API credentials from vendor.
++None
++Blocked Reason: Waiting for API credentials from vendor.
+ "@ | Set-Content -Encoding Utf8 "tasks-blocked-real.md"
+-    Assert-ExitCode "check-task-state blocked with real text passes" (Invoke-Gate "check-task-state.ps1" @("tasks-blocked-real.md")) 0
++    Assert-ExitCode "check-task-state blocked with external reason passes" (Invoke-Gate "check-task-state.ps1" @("tasks-blocked-real.md")) 0
+ 
++    # A marker is not an external stop reason.
++    @"
++## T-033 Blocked
++Approval: Approved
++Status: Blocked
++### Blockers
++None
++Blocked Reason: -
++"@ | Set-Content -Encoding Utf8 "tasks-blocked-marker.md"
++    Assert-ExitCode "check-task-state blocked marker reason fails" (Invoke-Gate "check-task-state.ps1" @("tasks-blocked-marker.md")) 1
++
+     # -- Done without evidence bundle json → exit 1 --
+     New-Item -ItemType Directory -Path "spec-dir/verification" -Force | Out-Null
+     @"
+@@ -1189,9 +1201,11 @@
+         & bash (Join-Path $scriptsDir "check-task-state.sh") "tasks-blocked-none.md" *> $null
+         Assert-ExitCode "check-task-state.sh blocked None fails" $LASTEXITCODE 1
+ 
+-        # Blocked with real text
++        # External reason with no task dependency; marker-only reason is rejected.
+         & bash (Join-Path $scriptsDir "check-task-state.sh") "tasks-blocked-real.md" *> $null
+-        Assert-ExitCode "check-task-state.sh blocked real text passes" $LASTEXITCODE 0
++        Assert-ExitCode "check-task-state.sh blocked external reason passes" $LASTEXITCODE 0
++        & bash (Join-Path $scriptsDir "check-task-state.sh") "tasks-blocked-marker.md" *> $null
++        Assert-ExitCode "check-task-state.sh blocked marker reason fails" $LASTEXITCODE 1
+ 
+         # Done without bundle (use fresh task id T-041 not yet covered)
+         New-Item -ItemType Directory -Path "spec-dir2/verification" -Force | Out-Null
+diff --git a/mcp/sdd-forge-mcp/tests/parser/field-validation.test.ts b/mcp/sdd-forge-mcp/tests/parser/field-validation.test.ts
+--- a/mcp/sdd-forge-mcp/tests/parser/field-validation.test.ts
++++ b/mcp/sdd-forge-mcp/tests/parser/field-validation.test.ts
+@@ -161,7 +161,7 @@
+   }
+ });
+ 
+-test("Blocked with real blocker content passes the Blocked-specific rule", () => {
++test("Blocked with external reason and no task dependency passes", () => {
+   const { root, cleanup } = makeTempSddRoot("sdd-parser-blocked-content");
+   try {
+     const tasksMd = [
+@@ -171,7 +171,8 @@
+       "Status: Blocked",
+       "",
+       "### Blockers",
+-      "T-000 must land first",
++      "None",
++      "Blocked Reason: External host refused execution.",
+       "",
+     ].join("\n");
+     writeFile(root.path, "specs/demo/tasks.md", tasksMd);
+@@ -181,8 +182,32 @@
+     if (!result.ok) return;
+     assert.equal(result.data.verdict, "pass");
+     const task = result.data.tasks.find((t) => t.id === "T-001");
+-    assert.equal(task?.blockersNonEmpty, true);
++    assert.equal(task?.blockersNonEmpty, false);
+   } finally {
+     cleanup();
+   }
+ });
++
++test("Blocked with a marker-only external reason fails", () => {
++  const { root, cleanup } = makeTempSddRoot("sdd-parser-blocked-marker-reason");
++  try {
++    const tasksMd = [
++      "## T-001 Foo",
++      "",
++      `${APPROVAL_APPROVED}`,
++      "Status: Blocked",
++      "### Blockers",
++      "None",
++      "Blocked Reason: -",
++      "",
++    ].join("\n");
++    writeFile(root.path, "specs/demo/tasks.md", tasksMd);
++    const result = parseTaskState(root, "demo", "specs/demo/tasks.md");
++    assert.equal(result.ok, true);
++    if (!result.ok) return;
++    assert.equal(result.data.verdict, "fail");
++    assert.ok(findFailure(result.data.failures, "blocked-no-blockers"));
++  } finally {
++    cleanup();
++  }
++});
+diff --git a/tests/task-review-precheck.tests.sh b/tests/task-review-precheck.tests.sh
+--- a/tests/task-review-precheck.tests.sh
++++ b/tests/task-review-precheck.tests.sh
+@@ -100,6 +100,8 @@
+ # Tasks
+ 
+ ## T-001 First
++Status: Blocked
++Blocked Reason: External host refused execution.
+ Risk: low
+ Risk Rationale: Fixture coverage for dependency graph parsing.
+ Required Workflow: test-after

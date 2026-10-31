@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "sdd-domain-concept-test",
+  "attempt": 3,
+  "round": 1,
+  "run_id": "c7b138df-cfab-4449-8a35-69e493106a35",
+  "host_session_id": "5a0f149b-a34e-4536-bf4e-c39f80aab210",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+      },
+      {
+        "path": "reports/task-review/sdd-domain-concept-test/attempt-3/round-1/integrated-summary.json",
+        "sha256": "42fb2fa2e461d573d72281b6001f57d77cfdd440ef460bfb959669a435829081"
+      },
+      {
+        "path": "reports/task-review/sdd-domain-concept-test/attempt-3/round-1/precheck-result.json",
+        "sha256": "6bbfdef5bcda0495c5607ee5d963220e5692c6eeb7a372e355fcbbefa16a19c7"
+      },
+      {
+        "path": "specs/sdd-domain-concept-test/acceptance-tests.md",
+        "sha256": "fb0414831b12b78a4c4f6ea32f6f25eb08fcfc9d4f33db9342750bac52eeb8d3"
+      },
+      {
+        "path": "specs/sdd-domain-concept-test/design.md",
+        "sha256": "e473afc81ebdaaf545b25c7a7697258e9bd19eb7186a4d4f77ddb098cd356c03"
+      },
+      {
+        "path": "specs/sdd-domain-concept-test/frontend-spec.md",
+        "sha256": "976de97ba398f7ae86c20f7dcb98965a347fb5ccde7cdc700b1d05e06377a7c7"
+      },
+      {
+        "path": "specs/sdd-domain-concept-test/infra-spec.md",
+        "sha256": "7bc65e27fb40699dde9be6fd418a08ae2f7dfd1f5bc0ca564190d45b5064b211"
+      },
+      {
+        "path": "specs/sdd-domain-concept-test/requirements.md",
+        "sha256": "36094c8c9a9f0bbe4d1f9ec21a01cc111a3c736fc81e28a19b34e26aed069053"
+      },
+      {
+        "path": "specs/sdd-domain-concept-test/security-spec.md",
+        "sha256": "cb52e5e4b202cdeeb837c2dbcfe9876652518b02fece635848283c019a87cf44"
+      },
+      {
+        "path": "specs/sdd-domain-concept-test/tasks.md",
+        "sha256": "e008b03d2420cac5f981c2057e261f61caf94ce25f907bc4fa157c9dee8bbd50"
+      },
+      {
+        "path": "specs/sdd-domain-concept-test/traceability.md",
+        "sha256": "f751b5d5282f01e37b196f0668a40152e1e7a6d78a5456c6753b485fc320588d"
+      },
+      {
+        "path": "specs/sdd-domain-concept-test/ux-spec.md",
+        "sha256": "9ed375e9bf9cba444885cb4a53caa44346dad2cc962d454c8448951075e52020"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.mdのT-001は署名付き承認境界と公開JSON契約、T-003は承認に基づく生成制御、T-004は証跡入力の許可・hash境界を変更するためhighが適切。T-002は非承認の提案作成、T-005は既存内部consumerのv2切替、T-006は公開可視性の登録でありmediumが適切。全入力hash、正規化tasks hash、precheckの対応pin、予約receiptの再計算一致を確認した。過去のPassedを今回の証明として使用していない。"
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.md T-001/T-003/T-004はRequired Workflow: tddとDone When内のRed→Green証拠を要求し、実装者と別の名前付きquality-gate evaluatorによるRun ID付きPASSを明記する。各Scopeには実装前のpersisted field/counterpart/failing mismatch test preflightがある。criticalタスクはない。"
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.mdは契約・署名binding(T-001)、提案workflow(T-002)、bootstrap制御(T-003)、review-context binding(T-004)、consumer切替(T-005)、release登録(T-006)に分離され、各Done Whenは2〜7項目。T-001の多数のnegativeケースは同一契約検査のfixture展開であり、T-004のtwins/callersは同一入力クラスの整合更新である。単一編集だけの断片化もない。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.mdのAC-002〜005/014〜016がT-001の欠落・署名不正・不一致を、AC-008/009がT-002の未確認・未来のみの候補を、AC-010/016/017がT-003/T-005のdomain不在・非続行を、AC-012/018がT-004の入力欠落・差替えを扱う。T-006はAC-013で三manifestとrelease surfaceの一致を検証する。変更されたrollback負例はT-001のvalidator側とT-003のbootstrap呼出0に分担され、両方に検証義務が残る。"
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Test Strategyは構造・列挙値・md/json/hash照合を単体境界、実鍵・登録承認者と標準approval validatorを統合境界、bootstrapからdomain-sync/生成への呼出順と回数をworkflow境界として区別する。tasks.md T-001/T-003はこの分担に従い、各タスクのacceptance evidenceは具体的AC/TEST番号に対応する。署名検証をmockに置換しない制約も明示されている。"
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md T-001 Done Whenは新sidecar routeを無効化し既存approval型を保持するvalidator rollbackとunsigned/legacy拒否を要求する。T-003は署名gate必須を維持したv2生成停止またはguarded入口復元と全非続行ケースの呼出0を要求する。T-004は完全な入力クラス復元まで新規review起動を止め、欠落/hash差を拒否し旧frozen roundを保持するrollbackを要求する。いずれも文書化と実行検証が完了条件である。"
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.mdのprimary変更先は契約/approval validator、concept-test skill、bootstrap skill、review-context twins/callers、domain-sync skill、plugin manifestsに分離される。AC-010/011の共有はT-005 consumerとT-003 bootstrap統合という目的別でT-003がT-005をblockerに持つ。T-001の契約negativeとT-003のworkflow negativeも依存順で分離され、今回のrollback移管先はbootstrap所有者T-003と一致する。"
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.mdのT-002はT-001の証跡契約、T-003はT-001の検証器・T-002の提案workflow・T-005のv2 consumerを利用する。T-004はT-001契約とT-003入口証跡を後続manifestに結び、T-006はT-002のskillを登録する。T-001とT-005は独立して開始可能であり、traceability.md Dependency orderとも一致する。論理的に不要なblockerや統合に必要な順序の欠落は認めない。"
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": []
+}

@@ -30,6 +30,12 @@ number, and the path to precheck-result.json. Reject any invocation with a
 wrong stage/role, a raw reviewer report in the manifest, or a path outside this
 allowlist. Read the following yourself:
 
+Here “distinct” means distinct from prior reservations and from the other
+reviewer's corresponding ID: A/B run IDs differ, and A/B host-session IDs
+differ. It does not require `run_id` and `host_session_id` to differ within
+one invocation when both identify the same host-issued root thread. Do not
+invent either ID or reuse a prior reservation.
+
 - `specs/<feature>/requirements.md`
 - `specs/<feature>/acceptance-tests.md`
 - `specs/<feature>/design.md`
@@ -63,17 +69,25 @@ Never run `validate-review-context-set` against your own manifest after the
 caller's `--reserve` (`-Reserve`) step: the reserve append changes the ledger
 the manifest's `identity_ledger_sha256` pinned, and it marks this identity
 persisted, so a self-run is structurally guaranteed to fail without proving
-anything (WFI-037). The caller's quoted `REVIEW_CONTEXT_OK` line -- the record
-hash plus `sequence`, `previous_record_sha256`, `pre_append_tip_sequence`,
-and `identity_unique` -- is the required launch-identity evidence; verify it
-per `review-context-boundary.md` from that line and your manifest alone.
-
-`plugins/sdd-review-loop/references/review-context-boundary.md` states which
-manifest fields to re-verify and which the validator consumes before the
-reservation is appended. Read it before rejecting on a hash mismatch:
-`identity_ledger_sha256` is stale by construction once your reservation exists,
-so re-checking it always fails and is not evidence of tampering. Verify the
-ledger record chain instead — that is the guarantee that survives the append.
+anything (WFI-037). The caller must verify the complete manifest, every
+allowed input path/hash, and the canonical ledger chain before reservation.
+Require the caller's actual quoted `REVIEW_CONTEXT_OK` line and your own
+invocation manifest; read no unlisted reference or ledger file. Verify that
+the manifest has schema `review-context-invocation/v2`, stage `task`, this
+role and feature, `input_mode: file-manifest`, `fallback_mode: none`,
+`read_only: true`, and the canonical ledger-path string. Match the receipt's
+`sequence` and `previous_record_sha256` to the manifest, require
+`pre_append_tip_sequence` to be an integer one less than `sequence`, and
+require `identity_unique=yes`. Recompute the receipt's record hash as SHA-256
+of the UTF-8 text `<sequence>|task|<role>|<run_id>|<host_session_id>|<previous_record_sha256>`
+with no terminal newline; require an exact match. The task-stage record has
+no input-binding or scratch-declaration suffix. The quoted receipt is the
+validator's evidence that the complete pre-append ledger chain and identity
+uniqueness were checked; do not open the ledger yourself. Its
+`identity_ledger_sha256` manifest field binds the pre-append ledger and is
+validator-owned: do not compare it with the post-reservation ledger. Reject
+a missing, mismatched, or unverified receipt or manifest before reading any
+substantive input; never substitute chat-only data or a second reservation.
 
 # Finding Calibration
 

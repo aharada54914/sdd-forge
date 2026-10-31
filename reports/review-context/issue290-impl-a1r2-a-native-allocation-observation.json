@@ -1,0 +1,20 @@
+{
+  "schema": "native-review-allocation-observation/v1",
+  "thread_id": "01a0e5fd-b6c3-7340-bc4a-326e0d453aa6",
+  "host_session_id": "01a0e5fd-b6c3-7340-bc4a-326e0d453aa6",
+  "cli_version": "0.158.0-alpha.2.1",
+  "model": "gpt-6-sol",
+  "reasoning_effort": "high",
+  "forked_from_id": null,
+  "parent_thread_id": null,
+  "turns_observed": 0,
+  "sandbox": "read-only",
+  "network_access": false,
+  "approval_policy": "never",
+  "source": "observed thread/start RPC id=2; no turn/start before reservation",
+  "abandoned_allocation": {
+    "thread_id": "01a0e5fc-a2d6-7ad3-90bc-bf1af3f7a930",
+    "cli_version": "0.147.0",
+    "reason": "hook manifest compatibility warnings; stopped without turn/start or reservation"
+  }
+}

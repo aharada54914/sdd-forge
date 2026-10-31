@@ -1,0 +1,11 @@
+Command: rtk proxy python3 specs/sdd-domain-concept-test/verification/T-001/check-validator-rollback.py
+Exit: 0
+baseline_commit=badbb7aa5d16114be542c33018967c58770d1a41
+validator_sha256=b7311b30a9b4224a60a251facbcf0d4ca71db563df06f62a301a7e698b88cf13
+PASS: project-context: VALID
+PASS: provider-bindings: VALID
+PASS: unsigned concept: SIDECAR_UNREADABLE
+PASS: signed concept route disabled: SIDECAR_SCHEMA_VIOLATION
+PASS: concept cannot use legacy project-context route: CONTENT_SCHEMA_VIOLATION
+PASS: concept cannot use legacy provider-bindings route: CONTENT_SCHEMA_VIOLATION
+PASS: 6; FAIL: 0. Disposable rollback only; production unchanged.

@@ -131,6 +131,20 @@ try {
             $failed += $testFile
         }
     }
+    $python = Get-Command python3 -ErrorAction SilentlyContinue
+    if ($null -eq $python) { $python = Get-Command python -ErrorAction SilentlyContinue }
+    $conceptSuite = 'tests/generate-concept-test-approval.tests.py'
+    Write-Host "==> $conceptSuite"
+    if ($null -eq $python) {
+        Write-Host "FAILED: $conceptSuite (Python unavailable)"
+        $failed += $conceptSuite
+    } else {
+        & $python.Source (Join-Path $root $conceptSuite)
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "FAILED: $conceptSuite (exit code $LASTEXITCODE)"
+            $failed += $conceptSuite
+        }
+    }
 } finally {
     Pop-Location
 }

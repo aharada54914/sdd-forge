@@ -1,0 +1,16 @@
+{
+  "schema": "host-allocation-observation/v1",
+  "host": "native app-server",
+  "thread_id": "01a0e41b-c693-7dc0-9fce-25ae9032dba7",
+  "session_id": "01a0e41b-c693-7dc0-9fce-25ae9032dba7",
+  "createdAt": 1790533437,
+  "observed_preview": "",
+  "observed_turns": [],
+  "observed_status": "idle",
+  "parentThreadId": null,
+  "forkedFromId": null,
+  "observed_model": "gpt-6-sol",
+  "source": "reports/review-context/issue290-impl-a-native-allocation.json; actual thread/read request29 response",
+  "observation_kind": "selected observed host fields; sandbox settings are root-relayed separately, not present in this transport response",
+  "review_execution_started": false
+}

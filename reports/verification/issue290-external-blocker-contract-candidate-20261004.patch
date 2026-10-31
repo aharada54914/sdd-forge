@@ -1,0 +1,172 @@
+# Review-only diff sketch. Hunk ranges are intentionally omitted: do not apply
+# directly to protected gate files or treat this as an approved implementation.
+diff --git a/plugins/sdd-quality-loop/scripts/check-task-state.sh b/plugins/sdd-quality-loop/scripts/check-task-state.sh
+--- a/plugins/sdd-quality-loop/scripts/check-task-state.sh
++++ b/plugins/sdd-quality-loop/scripts/check-task-state.sh
+@@
+-#  - Blocked requires non-empty ### Blockers content (not None/whitespace/bare list markers).
++#  - Blocked requires a task dependency in ### Blockers or a non-empty Blocked Reason.
+@@
+-  in_blockers = 0; blockers_content = ""
++  in_blockers = 0; blockers_content = ""; blocked_reason = ""
+@@
+-  in_blockers = 0; blockers_content = ""
++  in_blockers = 0; blockers_content = ""; blocked_reason = ""
+@@
+ /^Second Approval:/ { if (task != "") { second = $0; sub(/^Second Approval:[ \t]*/, "", second); in_blockers = 0 } }
++/^Blocked Reason:/ { if (task != "") { blocked_reason = $0; sub(/^Blocked Reason:[ \t]*/, "", blocked_reason); in_blockers = 0 } }
+ /^### Blockers/ { if (task != "") { in_blockers = 1 } }
++/^### / { if ($0 !~ /^### Blockers[ \t]*$/) in_blockers = 0 }
+ /^## [^#]/ { if ($0 !~ /^## T-[0-9]+/) { in_blockers = 0 } }
+@@
+   if (status == "Blocked") {
+-    if (blockers_content == "") fail(task " is Blocked but ### Blockers section has no content (not None or empty)")
++    reason = blocked_reason
++    gsub(/^[ \t]+|[ \t]+$/, "", reason)
++    if (tolower(reason) == "none" || reason ~ /^[-*#]+$/) reason = ""
++    if (blockers_content == "" && reason == "") fail(task " is Blocked but has neither task Blockers nor Blocked Reason")
+   }
+diff --git a/plugins/sdd-quality-loop/scripts/check-task-state.ps1 b/plugins/sdd-quality-loop/scripts/check-task-state.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-task-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-task-state.ps1
+@@
+-#  - Blocked requires non-empty ### Blockers content (not None/whitespace/bare list markers).
++#  - Blocked requires a task dependency in ### Blockers or a non-empty Blocked Reason.
+@@
+ $blockers = @{}
++$blockedReason = @{}
+ $seenIds = @{}
+@@
+     } elseif ($currentTask -and $line -cmatch '^Second Approval:\s*(.+)$') {
+         $second[$currentTask] = $Matches[1].Trim()
+         $inBlockers = $false
++    } elseif ($currentTask -and $line -cmatch '^Blocked Reason:\s*(.*)$') {
++        $blockedReason[$currentTask] = $Matches[1].Trim()
++        $inBlockers = $false
+     } elseif ($currentTask -and $line -cmatch '^###\s+Blockers') {
+         $inBlockers = $true
++    } elseif ($line -cmatch '^###\s+') {
++        $inBlockers = $false
+     } elseif ($line -cmatch '^##') {
+         $inBlockers = $false
+@@
+     if ($s -ceq "Blocked") {
+         $blockersContent = $blockers[$task]
+-        if ([string]::IsNullOrWhiteSpace($blockersContent)) {
+-            $failures += "$task is Blocked but ### Blockers section has no content (not None or empty)"
++        $reason = $blockedReason[$task]
++        if ([string]::IsNullOrWhiteSpace($blockersContent) -and
++            ([string]::IsNullOrWhiteSpace($reason) -or $reason -cieq "None" -or $reason -cmatch '^[-*#]+$')) {
++            $failures += "$task is Blocked but has neither task Blockers nor Blocked Reason"
+         }
+     }
+diff --git a/plugins/sdd-lite/scripts/check-task-state-lite.sh b/plugins/sdd-lite/scripts/check-task-state-lite.sh
+--- a/plugins/sdd-lite/scripts/check-task-state-lite.sh
++++ b/plugins/sdd-lite/scripts/check-task-state-lite.sh
+@@
+-#  - Blocked requires non-empty ### Blockers content.
++#  - Blocked requires a task dependency in ### Blockers or a non-empty Blocked Reason.
+@@
+-BEGIN { task=""; failures=0; count=0; in_blockers=0; blockers_content="" }
++BEGIN { task=""; failures=0; count=0; in_blockers=0; blockers_content=""; blocked_reason="" }
+@@
+-  in_blockers=0; blockers_content=""
++  in_blockers=0; blockers_content=""; blocked_reason=""
+@@
+ /^Status:/   { if (task != "") { status=$0;   sub(/^Status:[ \t]*/, "", status);   in_blockers=0 } }
++/^Blocked Reason:/ { if (task != "") { blocked_reason=$0; sub(/^Blocked Reason:[ \t]*/, "", blocked_reason); in_blockers=0 } }
+ /^### Blockers/ { if (task != "") { in_blockers=1 } }
++/^### / { if ($0 !~ /^### Blockers[ \t]*$/) in_blockers=0 }
+ /^## [^#]/ { if ($0 !~ /^## T-[0-9]+/) { in_blockers=0 } }
+@@
+   if (status == "Blocked") {
+-    if (blockers_content == "") fail(task " is Blocked but ### Blockers section has no content (not None or empty)")
++    reason = blocked_reason
++    gsub(/^[ \t]+|[ \t]+$/, "", reason)
++    if (tolower(reason) == "none" || reason ~ /^[-*#]+$/) reason = ""
++    if (blockers_content == "" && reason == "") fail(task " is Blocked but has neither task Blockers nor Blocked Reason")
+   }
+diff --git a/plugins/sdd-lite/scripts/check-task-state-lite.ps1 b/plugins/sdd-lite/scripts/check-task-state-lite.ps1
+--- a/plugins/sdd-lite/scripts/check-task-state-lite.ps1
++++ b/plugins/sdd-lite/scripts/check-task-state-lite.ps1
+@@
+-#  - Blocked requires non-empty ### Blockers content.
++#  - Blocked requires a task dependency in ### Blockers or a non-empty Blocked Reason.
+@@
+ $blockers = @{}
++$blockedReason = @{}
+ $seenIds = @{}
+@@
+     } elseif ($currentTask -and $line -cmatch '^Status:\s*(.+)$') {
+         $status[$currentTask] = $Matches[1].Trim()
+         $inBlockers = $false
++    } elseif ($currentTask -and $line -cmatch '^Blocked Reason:\s*(.*)$') {
++        $blockedReason[$currentTask] = $Matches[1].Trim()
++        $inBlockers = $false
+     } elseif ($currentTask -and $line -cmatch '^###\s+Blockers') {
+         $inBlockers = $true
++    } elseif ($line -cmatch '^###\s+') {
++        $inBlockers = $false
+     } elseif ($line -cmatch '^##') {
+         $inBlockers = $false
+@@
+     if ($s -ceq "Blocked") {
+         $blockersContent = $blockers[$task]
+-        if ([string]::IsNullOrWhiteSpace($blockersContent)) {
+-            $failures += "$task is Blocked but ### Blockers section has no content (not None or empty)"
++        $reason = $blockedReason[$task]
++        if ([string]::IsNullOrWhiteSpace($blockersContent) -and
++            ([string]::IsNullOrWhiteSpace($reason) -or $reason -cieq "None" -or $reason -cmatch '^[-*#]+$')) {
++            $failures += "$task is Blocked but has neither task Blockers nor Blocked Reason"
+         }
+     }
+diff --git a/mcp/sdd-forge-mcp/src/parsers/task-types.ts b/mcp/sdd-forge-mcp/src/parsers/task-types.ts
+--- a/mcp/sdd-forge-mcp/src/parsers/task-types.ts
++++ b/mcp/sdd-forge-mcp/src/parsers/task-types.ts
+@@
+   blockersContent: string;
++  blockedReason: string;
+   inBlockers: boolean;
+@@
+     blockersContent: "",
++    blockedReason: "",
+     inBlockers: false,
+diff --git a/mcp/sdd-forge-mcp/src/parsers/tasks.ts b/mcp/sdd-forge-mcp/src/parsers/tasks.ts
+--- a/mcp/sdd-forge-mcp/src/parsers/tasks.ts
++++ b/mcp/sdd-forge-mcp/src/parsers/tasks.ts
+@@
+     if (line.startsWith("Second Approval:")) {
+       draft.second = line.slice("Second Approval:".length).trim();
+       draft.inBlockers = false;
+       continue;
+     }
++    if (line.startsWith("Blocked Reason:")) {
++      draft.blockedReason = line.slice("Blocked Reason:".length).trim();
++      draft.inBlockers = false;
++      continue;
++    }
+     if (/^### Blockers/.test(line)) {
+       draft.inBlockers = true;
+       continue;
+     }
++    if (/^### /.test(line)) {
++      draft.inBlockers = false;
++      continue;
++    }
+diff --git a/mcp/sdd-forge-mcp/src/parsers/task-validation.ts b/mcp/sdd-forge-mcp/src/parsers/task-validation.ts
+--- a/mcp/sdd-forge-mcp/src/parsers/task-validation.ts
++++ b/mcp/sdd-forge-mcp/src/parsers/task-validation.ts
+@@
+   let blockersNonEmpty = false;
+   if (status === "Blocked") {
+-    if (draft.blockersContent === "") {
++    if (draft.blockersContent === "" && (draft.blockedReason === "" || draft.blockedReason.toLowerCase() === "none" || /^[-*#]+$/.test(draft.blockedReason))) {
+       fail(
+         "blocked-no-blockers",
+-        `${taskId} is Blocked but ### Blockers section has no content (not None or empty)`,
++        `${taskId} is Blocked but has neither task Blockers nor Blocked Reason`,
+       );
+     } else {
+-      blockersNonEmpty = true;
++      blockersNonEmpty = draft.blockersContent !== "";
+     }

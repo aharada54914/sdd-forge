@@ -1,0 +1,8 @@
+diff --git a/specs/sdd-domain-concept-test/tasks.md b/specs/sdd-domain-concept-test/tasks.md
+--- a/specs/sdd-domain-concept-test/tasks.md
++++ b/specs/sdd-domain-concept-test/tasks.md
+@@ -53,3 +53,3 @@
+ - [ ] Exact field mismatch and missing/changed input tests fail closed, including all four proposal classes (TEST-035–037, TEST-051–078); md/json and sidecar agree.
+-- [ ] Existing approval types and Phase 0 contract suites remain green; Red→Green, independent review, and spec_revision/environment provenance are recorded under `specs/sdd-domain-concept-test/verification/T-001/` and `reports/implementation/T-001.md`.
++- [ ] Existing approval types and Phase 0 contract suites remain green; Red→Green, independent review, and spec_revision/environment provenance are recorded under `specs/sdd-domain-concept-test/verification/T-001/` and `reports/implementation/sdd-domain-concept-test/T-001.md`.
+ - [ ] A named independent quality-gate evaluator, distinct from the implementer, records a PASS verdict with Run ID in the T-001 quality-gate report; self-review is not completion evidence.

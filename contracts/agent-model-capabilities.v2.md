@@ -104,6 +104,32 @@ every other OpenAI entry).
 
 ## Follow-up
 
+### 2026-10-03: native Codex Sol registration
+
+The native Codex `model/list` response confirmed exact ID `gpt-5.6-sol`,
+description `Older generation workhorse model.`, default reasoning effort
+`low`, and supported efforts `low`, `medium`, `high`, `xhigh`, `max`, `ultra`.
+The registry records only the existing schema's supported vocabulary
+intersection (`low` through `xhigh`); no schema expansion is made.
+The local query created no thread or model turn. Its launch investigation is
+recorded in `reports/task-review/sdd-domain-concept-test/attempt-4/round-1/reviewer-launch-compatibility-diagnostic-20261003.md`.
+
+`openai/gpt-5.6-sol` is registered as **standard by an explicit operational
+policy decision**, made by the primary orchestrator on 2026-10-03 under the
+user's Sol delegation and limited-repair authorization. The catalog does not
+report SDD tiers and does not prove equivalence to another model. Neither the
+model name nor support for high effort establishes strong capability.
+Independent task-review criteria and the existing standard role floor remain
+unchanged; this registration does not qualify Sol for the strong Done evaluator.
+
+Review invocations must explicitly select medium or high effort, rather than
+inherit this model's low default. The existing xhigh reason gate still applies.
+`codex-cli: flag` records controllable host effort under the existing contract,
+not a claim that a literal `--effort` switch exists: the inspected native
+`turn/start` schema supplies an `effort` field. Native launches must disable
+provider model fallback, recheck the exact live catalog ID, and explicitly use
+the v2 registry. Old entries, v1, role defaults and generated roles are retained.
+
 A future capability-refresh pass (`docs/contributor/workflow-detail.md`'s
 WFI lifecycle checklist, T-001/#156) or a weekly `model-freshness-check`
 run (T-003/#157, once landed) should re-confirm these specific model IDs

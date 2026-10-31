@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "sdd-domain-concept-test",
+  "run_id": "1a61f916-ef55-48b6-818d-60be858b031c",
+  "verdict": "BLOCKED",
+  "round": 1,
+  "attempt": 2,
+  "findings_critical": 1,
+  "findings_major": 2,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "BLOCKED"
+}

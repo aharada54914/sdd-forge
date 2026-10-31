@@ -42,6 +42,12 @@ for test_file in "${tests[@]}"; do
   fi
 done
 
+printf '==> %s\n' "tests/generate-concept-test-approval.tests.py"
+if ! python3 tests/generate-concept-test-approval.tests.py; then
+  printf 'FAILED: %s\n' "tests/generate-concept-test-approval.tests.py"
+  failed+=("tests/generate-concept-test-approval.tests.py")
+fi
+
 # Cross-runtime guard parity (PowerShell host suite; itself self-skips when
 # python3 or node is absent). Skip only when pwsh is not installed.
 printf '==> %s\n' "tests/guard-r10-port.tests.ps1"

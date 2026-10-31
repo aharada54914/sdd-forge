@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "sdd-domain-concept-test",
+  "attempt": 7,
+  "round": 1,
+  "run_id": "01a110f7-f10d-77b0-9809-3e245108c63d",
+  "host_session_id": "01a110f7-f10d-77b0-9809-3e245108c63d",
+  "manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-concept-test/attempt-7/round-1/dependency-graph.json",
+      "sha256": "abf64a11c4214016568667ee2a054327efb4648ec865a77fb718f6ce811b8342"
+    },
+    {
+      "path": "reports/task-review/sdd-domain-concept-test/attempt-7/round-1/precheck-result.json",
+      "sha256": "e529518613a4468bc3479e2652f1059fdf5fbdeface2bc7ea7f7a270b3b43c09"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/acceptance-tests.md",
+      "sha256": "fb0414831b12b78a4c4f6ea32f6f25eb08fcfc9d4f33db9342750bac52eeb8d3"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/design.md",
+      "sha256": "e473afc81ebdaaf545b25c7a7697258e9bd19eb7186a4d4f77ddb098cd356c03"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/frontend-spec.md",
+      "sha256": "976de97ba398f7ae86c20f7dcb98965a347fb5ccde7cdc700b1d05e06377a7c7"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/infra-spec.md",
+      "sha256": "7bc65e27fb40699dde9be6fd418a08ae2f7dfd1f5bc0ca564190d45b5064b211"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/requirements.md",
+      "sha256": "36094c8c9a9f0bbe4d1f9ec21a01cc111a3c736fc81e28a19b34e26aed069053"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/security-spec.md",
+      "sha256": "cb52e5e4b202cdeeb837c2dbcfe9876652518b02fece635848283c019a87cf44"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/tasks.md",
+      "sha256": "63e4db01e19c91a5aef323d32b9b56048226d517fb01e9a577ee2cd734bb233f"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/traceability.md",
+      "sha256": "f751b5d5282f01e37b196f0668a40152e1e7a6d78a5456c6753b485fc320588d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-test/ux-spec.md",
+      "sha256": "9ed375e9bf9cba444885cb4a53caa44346dad2cc962d454c8448951075e52020"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.mdのT-001〜T-006が参照するAC-001〜AC-018は、すべてacceptance-tests.mdの実在する識別子として解決する。"
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.mdの全6タスクにBlockersフィールドがあり、T-001/T-005はNone、その他は有効なT-NNNのカンマ区切りである。blockers_format_valid=true。"
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.mdのREQ-001〜REQ-006は、tasks.mdのRequirementsフィールドでそれぞれT-001/T-002、T-001/T-002、T-001/T-003、T-003/T-005、T-004、T-006に割り当てられている。"
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "acceptance-tests.mdのAC-001〜AC-018は、tasks.mdの各Primary acceptance ownershipまたは明示的なエンドツーエンド範囲でT-001〜T-006へ追跡できる。"
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001〜T-006の各Requirementsフィールドは少なくとも1件のREQ-NNNを参照している。"
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Concept Testまたは検証を扱う全タスクはScopeで具体的なAC-NNNを参照している。"
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "post-implementation provenance re-reviewのライフサイクル規則に対し、全タスクのApprovalはApproved、StatusはT-001がIn Progress、T-002〜T-006がPlannedで、いずれも許容値である。"
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001/T-003/T-004はhigh→tdd、T-002/T-005/T-006はmedium→acceptance-firstで一致し、precheck-result.jsonのworkflow_match_precheckもPASSである。"
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "共有されるAC-010/011はT-003のbootstrap統合とT-005のdomain-sync consumer、AC-016はT-001のvalidator境界とT-003のend-to-endとして明示的にスコープが分離されている。"
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "tasks.mdの全Blockers参照はdependency-graph.jsonのnodesに存在するT-001〜T-006だけを指している。"
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "dependency-graph.jsonの依存辺を追跡してもノードへの再訪はなく、循環は存在しない。"
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001〜T-006はそれぞれ契約、提案workflow、bootstrap gate、review-context、v2 consumer、release surfaceという単一の一貫した関心事に限定されている。"
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "各Done WhenはTEST-ID、回帰結果、呼出回数、manifest一致、またはverification/implementation/quality-gate証跡を指定する。precheck-result.jsonのfrozen_artifact_done_whenは空配列で、凍結成果物の編集を要求する項目はない。"
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.mdはT-001〜T-006をすべて収録し、REQ-001〜REQ-006はrequirements.mdに実在する。各要件行は実在するux/frontend/infra/security layer-specの正規セクションアンカーを持つ。"
+    }
+  ],
+  "findings": []
+}

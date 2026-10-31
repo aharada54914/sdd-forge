@@ -1,0 +1,41 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-002",
+  "run_id": "issue290-concept-t002-20261006-01",
+  "session_id": "462DC0DD-86E9-47D0-82C9-AB81499AFA29",
+  "agent_instance_id": "codex-462DC0DD-86E9-47D0-82C9-AB81499AFA29",
+  "model_tier": "standard",
+  "provider": "openai",
+  "model": "gpt-6.1-sol",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "host-invocation-no-price",
+  "cost_estimate_timestamp": "2026-10-06T12:36:02Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {"path":"AGENTS.md","sha256":"19783d5d547f620a8015e2e7be82f98b6c43c8d685c9f69b11011376ebda59dc"},
+    {"path":"specs/sdd-domain-concept-test/requirements.md","sha256":"36094c8c9a9f0bbe4d1f9ec21a01cc111a3c736fc81e28a19b34e26aed069053"},
+    {"path":"specs/sdd-domain-concept-test/design.md","sha256":"e473afc81ebdaaf545b25c7a7697258e9bd19eb7186a4d4f77ddb098cd356c03"},
+    {"path":"specs/sdd-domain-concept-test/tasks.md","sha256":"56c0c3f6ae9e49f0e3260c1cae0d09e1d9b216d8cdc7afcfd7824fc6753616f3"},
+    {"path":"specs/sdd-domain-concept-test/acceptance-tests.md","sha256":"fb0414831b12b78a4c4f6ea32f6f25eb08fcfc9d4f33db9342750bac52eeb8d3"},
+    {"path":"specs/sdd-domain-concept-test/traceability.md","sha256":"f751b5d5282f01e37b196f0668a40152e1e7a6d78a5456c6753b485fc320588d"},
+    {"path":"specs/sdd-domain-concept-test/ux-spec.md","sha256":"9ed375e9bf9cba444885cb4a53caa44346dad2cc962d454c8448951075e52020"},
+    {"path":"specs/sdd-domain-concept-contract/design.md","sha256":"56578415d7cf7074f86b8c117d24213eb6d02ff6a655c5c193b433c38e4a6ee6"},
+    {"path":"contracts/concept-test.v1.schema.json","sha256":"e9345fb3e07a57ec695a11531cac4b61989ad5b619993b3745b5f206cf090674"},
+    {"path":"contracts/domain-contract.v2.schema.json","sha256":"ad69c28f323e5c2f83e07b78c4f14461b4f7152193a9021c0a12c3e0285aba16"},
+    {"path":"plugins/sdd-domain/skills/domain-sync/SKILL.md","sha256":"a453b32a703c9ac8f664454e1c641371edb9f6806d883b373a43d04f13c28f62"},
+    {"path":"plugins/sdd-domain/scripts/validate-domain-contract.sh","sha256":"4613aacd33ed9c30956f218374a300503e25ddfa936e478759ca2a1253e152e4"},
+    {"path":"plugins/sdd-quality-loop/scripts/concept_test_render.py","sha256":"5961db64004d32a4c58eef5945dd5b113510164a7dd312f4a347dcc071c459d4"},
+    {"path":"plugins/sdd-implementation/skills/implement-task/SKILL.md","sha256":"6a3bdc2efd1e8338a961c23e69240e27e5c7a366580d6fc3a1a532461a1b507c"},
+    {"path":"plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md","sha256":"739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"},
+    {"path":"plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md","sha256":"5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff"},
+    {"path":"plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md","sha256":"d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c"}
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-domain/skills/concept-test/SKILL.md",
+    "tests/sdd-domain/concept-test.tests.py",
+    "reports/implementation/sdd-domain-concept-test/T-002.md",
+    "specs/sdd-domain-concept-test/verification/T-002/"
+  ]
+}

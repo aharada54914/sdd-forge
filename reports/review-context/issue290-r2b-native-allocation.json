@@ -1,0 +1,67 @@
+{
+  "thread": {
+    "id": "01a0e406-0da1-7190-bf05-6ae936d7f9ee",
+    "environments": [
+      {
+        "environmentId": "local",
+        "cwd": "/Users/jrmag/.codex/worktrees/issue290-concept-phase1/sdd-forge",
+        "runtimeWorkspaceRoots": [
+          "/Users/jrmag/.codex/worktrees/issue290-concept-phase1/sdd-forge"
+        ]
+      }
+    ],
+    "extra": null,
+    "sessionId": "01a0e406-0da1-7190-bf05-6ae936d7f9ee",
+    "forkedFromId": null,
+    "parentThreadId": null,
+    "preview": "",
+    "ephemeral": false,
+    "section": null,
+    "sectionEnteredAt": null,
+    "projectId": null,
+    "historyMode": "paginated",
+    "modelProvider": "openai",
+    "model": "gpt-6-sol",
+    "reasoningEffort": "high",
+    "createdAt": 1790531997,
+    "updatedAt": 1790531997,
+    "recencyAt": 1790531997,
+    "status": {
+      "type": "idle"
+    },
+    "path": "/Users/jrmag/.codex/sessions/2026/09/28/rollout-2026-09-28T02-59-57-01a0e406-0da1-7190-bf05-6ae936d7f9ee.jsonl",
+    "cwd": "/Users/jrmag/.codex/worktrees/issue290-concept-phase1/sdd-forge",
+    "cliVersion": "0.158.0-alpha.2.1",
+    "originator": "Codex Desktop",
+    "source": "vscode",
+    "canAcceptDirectInput": true,
+    "threadSource": null,
+    "agentNickname": null,
+    "agentRole": null,
+    "gitInfo": null,
+    "name": null,
+    "daybreakEnabled": null,
+    "turns": []
+  },
+  "model": "gpt-6-sol",
+  "modelProvider": "openai",
+  "serviceTier": "default",
+  "disabledPluginIds": [],
+  "cwd": "/Users/jrmag/.codex/worktrees/issue290-concept-phase1/sdd-forge",
+  "runtimeWorkspaceRoots": [
+    "/Users/jrmag/.codex/worktrees/issue290-concept-phase1/sdd-forge"
+  ],
+  "instructionSources": [
+    "/Users/jrmag/.codex/AGENTS.md",
+    "/Users/jrmag/.codex/worktrees/issue290-concept-phase1/sdd-forge/AGENTS.md"
+  ],
+  "approvalPolicy": "never",
+  "approvalsReviewer": "user",
+  "sandbox": {
+    "type": "readOnly",
+    "networkAccess": false
+  },
+  "activePermissionProfile": null,
+  "reasoningEffort": "high",
+  "multiAgentMode": "explicitRequestOnly"
+}

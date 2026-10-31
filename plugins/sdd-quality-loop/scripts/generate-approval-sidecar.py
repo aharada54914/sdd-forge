@@ -9,6 +9,11 @@ object, and writes ONLY a staged candidate to `sdd/.staging/<schema-id>/
 the live `sdd/.approved-context/*.approved.yaml` anchor path, for writing
 under any invocation (design.md "HMAC preimage and signing", B7).
 
+The additive Concept Test route signs feature-local JSON and stages one
+`specs/<feature>/concept-test.approval.json` target. The caller supplies the
+feature and a matching canonical content path; it does not use the global
+approved-context snapshot or policy-weakening transition fields.
+
 Operational constraint (documented, not technically enforced by this script):
 an agent may author and test this script, but the actual SIGNING invocation
 always requires a human or CI principal holding `SDD_CONTEXT_KEY` -- this
@@ -77,6 +82,7 @@ CATEGORY_EXIT_CODES = {
     "HUMAN_COPY_PUBLISH_IN_PROGRESS": 21,
     "APPROVED_CONTEXT_ANCHOR_UNREADABLE": 22,
     "APPROVER_REGISTRY_UNREADABLE": 23,
+    "CONCEPT_TEST_CONTENT_INVALID": 24,
     # Test-only hook (AC-034/TEST-034); never produced by a real signing run.
     "SIMULATED_MID_WRITE_FAILURE": 90,
 }
@@ -88,6 +94,8 @@ SCHEMA_BASENAMES = {
     "sdd-project-context-approval/v1": "project-context",
     "sdd-provider-bindings-approval/v1": "provider-bindings",
 }
+CONCEPT_TEST_SCHEMA = "sdd-concept-test-approval/v1"
+SIGNABLE_SCHEMAS = (*SCHEMA_BASENAMES, CONCEPT_TEST_SCHEMA)
 
 
 class GenerateApprovalSidecarError(Exception):
@@ -194,10 +202,10 @@ def _run_canonicalizer(data_bytes, input_format, hash_only, failure_category):
     return proc.stdout
 
 
-def _hash_content_file(content_bytes):
+def _hash_content_file(content_bytes, input_format="yaml"):
     """context_sha256 (REQ-003 against the live content file's bytes)."""
     stdout = _run_canonicalizer(
-        content_bytes, input_format="yaml", hash_only=True,
+        content_bytes, input_format=input_format, hash_only=True,
         failure_category="CONTENT_CANONICALIZATION_FAILED",
     )
     return stdout.decode("ascii").strip()
@@ -563,6 +571,68 @@ def _write_staged_outputs(stage_dir, schema_id, sidecar_obj, content_bytes, nonc
         raise
 
 
+def _validate_concept_candidate(content_path, feature, approver):
+    """Bind a Concept Test approval to its feature-local destination before signing."""
+    if not feature or feature in (".", "..") or "/" in feature or "\\" in feature:
+        raise GenerateApprovalSidecarError("USAGE_ERROR", "--feature must be one feature directory name")
+    expected = Path.cwd() / "specs" / feature / "concept-test.json"
+    if (Path(content_path).resolve() != expected.resolve()
+            or expected.is_symlink() or expected.parent.is_symlink()):
+        raise GenerateApprovalSidecarError(
+            "CONCEPT_TEST_CONTENT_INVALID",
+            f"--content must name {expected} for --feature {feature!r}",
+        )
+    # The standard validator owns the schema, Markdown, input-hash and registry
+    # rules. Reuse those rules before signing; do not create a second parser.
+    validator_path = Path(__file__).resolve().parent / "validate-approval-sidecar.py"
+    spec = importlib.util.spec_from_file_location("_sdd_approval_validator", validator_path)
+    if spec is None or spec.loader is None:
+        raise GenerateApprovalSidecarError("CONCEPT_TEST_CONTENT_INVALID", "validator unavailable")
+    validator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(validator)
+    try:
+        obj = validator._validate_content(content_path, validator.CONTENT_SCHEMA_INFO[CONCEPT_TEST_SCHEMA])
+        if obj["feature"] != feature:
+            raise GenerateApprovalSidecarError(
+                "CONCEPT_TEST_CONTENT_INVALID", "signed feature differs from --feature and destination",
+            )
+        validator._check_concept_test_decision_required(obj)
+        validator._check_concept_test_md_agreement(content_path, obj)
+        validator._check_concept_test_inputs(obj)
+        if approver not in validator._validate_registry(validator._default_registry_path()):
+            raise GenerateApprovalSidecarError(
+                "CONCEPT_TEST_CONTENT_INVALID", "approver is not registered",
+            )
+    except validator.ValidateApprovalSidecarError as exc:
+        raise GenerateApprovalSidecarError(
+            "CONCEPT_TEST_CONTENT_INVALID", f"{exc.category}: {exc.message}",
+        ) from exc
+
+
+def _write_staged_concept_output(stage_dir, feature, sidecar_obj, nonce):
+    """Stage only the feature-local approval; the evidence twins stay live."""
+    live_path = f"specs/{feature}/concept-test.approval.json"
+    parent = os.path.dirname(stage_dir.rstrip(os.sep)) or "."
+    try:
+        os.makedirs(parent, exist_ok=True)
+        tmp_dir = tempfile.mkdtemp(prefix=".tmp-concept-", dir=parent)
+        target = os.path.join(tmp_dir, *live_path.split("/"))
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        with open(target, "wb") as f:
+            f.write((json.dumps(sidecar_obj, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+        with open(target, "rb") as f:
+            digest = hashlib.sha256(f.read()).hexdigest()
+        with open(os.path.join(tmp_dir, "MANIFEST.sha256"), "w", encoding="utf-8", newline="\n") as f:
+            f.write(f"{digest}  {live_path}\n")
+        with open(os.path.join(tmp_dir, "NONCE"), "w", encoding="utf-8", newline="\n") as f:
+            f.write(f"nonce: {nonce}\n")
+        os.rename(tmp_dir, stage_dir)
+    except OSError as exc:
+        if "tmp_dir" in locals():
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+        raise GenerateApprovalSidecarError("STAGING_IO_ERROR", f"concept-test staging failed: {exc}") from exc
+
+
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
@@ -588,8 +658,9 @@ def build_arg_parser():
         f"{_EXIT_CODE_HELP}\n",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--schema", choices=sorted(SCHEMA_BASENAMES), help="approval schema id")
-    parser.add_argument("--content", help="path to the live project-context.yaml/provider-bindings.yaml content file")
+    parser.add_argument("--schema", choices=sorted(SIGNABLE_SCHEMAS), help="approval schema id")
+    parser.add_argument("--feature", help="Concept Test feature directory name (required for its schema)")
+    parser.add_argument("--content", help="path to the live YAML or feature-local concept-test.json content file")
     parser.add_argument("--approver", help="primary approver's approver-registry id")
     parser.add_argument("--status", help='primary/second approval status; must be exactly "Approved"')
     parser.add_argument("--second-approver", default=None, help="second approver's approver-registry id (two-person review)")
@@ -661,7 +732,9 @@ def main(argv=None):
         return _run_dump_preimage(args.dump_preimage)
 
     try:
-        _require(args, ["schema", "content", "approver", "status", "live_sidecar"])
+        _require(args, ["schema", "content", "approver", "status"])
+        if args.schema != CONCEPT_TEST_SCHEMA:
+            _require(args, ["live_sidecar"])
 
         if args.status != "Approved":
             raise GenerateApprovalSidecarError(
@@ -682,11 +755,30 @@ def main(argv=None):
         except OSError as exc:
             raise GenerateApprovalSidecarError("USAGE_ERROR", f"cannot read --content {args.content!r}: {exc}") from exc
 
-        context_sha256 = _hash_content_file(content_bytes)
-
-        predecessor_context_sha256, weakening_verdict, approval_epoch = _resolve_provenance(
-            args.live_sidecar, args.content,
-        )
+        if args.schema == CONCEPT_TEST_SCHEMA:
+            _validate_concept_candidate(args.content, args.feature, args.approver)
+            try:
+                if Path(args.content).read_bytes() != content_bytes:
+                    raise GenerateApprovalSidecarError(
+                        "CONCEPT_TEST_CONTENT_INVALID", "concept-test.json changed during signing preflight",
+                    )
+            except OSError as exc:
+                raise GenerateApprovalSidecarError(
+                    "CONCEPT_TEST_CONTENT_INVALID", f"concept-test.json became unreadable: {exc}",
+                ) from exc
+            if args.second_approver is not None or args.effective_at is not None:
+                raise GenerateApprovalSidecarError("USAGE_ERROR", "Concept Test does not use second/effective approval")
+            if args.live_sidecar is not None:
+                raise GenerateApprovalSidecarError("USAGE_ERROR", "Concept Test does not use --live-sidecar")
+            context_sha256 = _hash_content_file(content_bytes, input_format="json")
+            predecessor_context_sha256, weakening_verdict, approval_epoch = None, None, 1
+        else:
+            if args.feature is not None:
+                raise GenerateApprovalSidecarError("USAGE_ERROR", "--feature is only for Concept Test")
+            context_sha256 = _hash_content_file(content_bytes)
+            predecessor_context_sha256, weakening_verdict, approval_epoch = _resolve_provenance(
+                args.live_sidecar, args.content,
+            )
 
         key_bytes = resolve_context_key()
         if key_bytes is None:
@@ -723,10 +815,13 @@ def main(argv=None):
         nonce = secrets.token_hex(32)
         stage_dir = args.stage_dir or _default_stage_dir(args.schema, nonce)
 
-        _write_staged_outputs(
-            stage_dir, args.schema, sidecar, content_bytes, nonce,
-            simulate_failure=args.simulate_mid_write_failure,
-        )
+        if args.schema == CONCEPT_TEST_SCHEMA:
+            _write_staged_concept_output(stage_dir, args.feature, sidecar, nonce)
+        else:
+            _write_staged_outputs(
+                stage_dir, args.schema, sidecar, content_bytes, nonce,
+                simulate_failure=args.simulate_mid_write_failure,
+            )
 
         print(f"staged: {stage_dir}")
         print(f"nonce: {nonce}")
