@@ -1,0 +1,41 @@
+{
+  "base_commit": "555bfb5f15265f622a353a946e3fd6b04ab575de",
+  "historical_source": "75b169feb5e0f4a7c7fdfa95bf66f1ba86ca1740",
+  "files": [
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/report-lookup.ts",
+      "sha256": "9ec77e3088ce9653a2433456a7deb89ac107b6abc2640900910f7775b492580d",
+      "matches_historical": true
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/task-validation.ts",
+      "sha256": "7997a80a1d5265696ac318d4052958f926c30ca103c080726d11be2adc681250",
+      "matches_historical": true
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/tasks.ts",
+      "sha256": "42101146441847522e20c8d4533735486123be78268f72aa673f351c42e992a1",
+      "matches_historical": true
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/tools/core.ts",
+      "sha256": "6147f7db3c83733c2a5369fa70379ebf8413c82ec88849dddb21956c3949c6eb",
+      "matches_historical": true
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/parsers-state/report-reuse.test.ts",
+      "sha256": "229538fd54b8adbed6b616387f19df0bf71ca645efa63ebd2a70201d3aef5351",
+      "matches_historical": true
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/package-lock.json",
+      "sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b",
+      "matches_historical": true
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/dist/index.js",
+      "status": "historical generated build output; not regenerated or claimed current"
+    }
+  ],
+  "meaning": "Byte comparison only; no new fullsuite execution claimed."
+}

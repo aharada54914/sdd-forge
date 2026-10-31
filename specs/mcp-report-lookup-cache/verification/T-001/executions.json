@@ -1,0 +1,77 @@
+[
+  {
+    "label": "install",
+    "argv": [
+      "npm",
+      "ci",
+      "--ignore-scripts"
+    ],
+    "cwd": "/workspace/scratch/sdd-forge-main-integration/mcp/sdd-forge-mcp",
+    "started_at": "2026-10-31T14:30:32.175848+00:00",
+    "completed_at": "2026-10-31T14:30:40.096774+00:00",
+    "exit_code": 0,
+    "stdout_path": "install.stdout",
+    "stderr_path": "install.stderr",
+    "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b"
+  },
+  {
+    "label": "typecheck",
+    "argv": [
+      "npm",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "/workspace/scratch/sdd-forge-main-integration/mcp/sdd-forge-mcp",
+    "started_at": "2026-10-31T14:30:40.105776+00:00",
+    "completed_at": "2026-10-31T14:30:40.867903+00:00",
+    "exit_code": 0,
+    "stdout_path": "typecheck.stdout",
+    "stderr_path": "typecheck.stderr",
+    "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b"
+  },
+  {
+    "label": "build",
+    "argv": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "cwd": "/workspace/scratch/sdd-forge-main-integration/mcp/sdd-forge-mcp",
+    "started_at": "2026-10-31T14:30:40.868489+00:00",
+    "completed_at": "2026-10-31T14:30:41.337951+00:00",
+    "exit_code": 0,
+    "stdout_path": "build.stdout",
+    "stderr_path": "build.stderr",
+    "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b"
+  },
+  {
+    "label": "fullsuite",
+    "argv": [
+      "npm",
+      "test"
+    ],
+    "cwd": "/workspace/scratch/sdd-forge-main-integration/mcp/sdd-forge-mcp",
+    "started_at": "2026-10-31T14:30:41.338632+00:00",
+    "completed_at": "2026-10-31T14:31:24.255623+00:00",
+    "exit_code": 0,
+    "stdout_path": "fullsuite.stdout",
+    "stderr_path": "fullsuite.stderr",
+    "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b"
+  },
+  {
+    "label": "production-audit",
+    "argv": [
+      "npm",
+      "audit",
+      "--omit=dev",
+      "--json"
+    ],
+    "cwd": "/workspace/scratch/sdd-forge-main-integration/mcp/sdd-forge-mcp",
+    "started_at": "2026-10-31T14:31:24.256339+00:00",
+    "completed_at": "2026-10-31T14:31:25.296781+00:00",
+    "exit_code": 0,
+    "stdout_path": "production-audit.stdout",
+    "stderr_path": "production-audit.stderr",
+    "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b"
+  }
+]

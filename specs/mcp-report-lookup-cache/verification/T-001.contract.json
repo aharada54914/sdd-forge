@@ -1,0 +1,99 @@
+{
+  "schema": "verification-contract/v2",
+  "task_id": "T-001",
+  "feature": "mcp-report-lookup-cache",
+  "risk": "medium",
+  "stack": "code",
+  "spec_revision": "11a013f2bf186a6b2732ef54f8a06a57a38135ef82d541bacb52f611f4c1a405",
+  "comment": "Technical observations only. Owner-approved task remains Planned. Historical raw typecheck/build/fullsuite evidence is unchanged; source comparison is in current-source-comparison.json. Task-state check was freshly executed for Approved/Planned. Whitespace lint is not ESLint. One historical fullsuite supports unit/acceptance/regression views. No TDD chronology, live Context, advisory execution or completed REQ-005 is claimed.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/lint.execution.json",
+      "waiver_reason": "",
+      "command": "git diff --check 5328aee7 75b169fe -- mcp/sdd-forge-mcp",
+      "exit_code": 0,
+      "started_at": "2026-10-31T14:42:02.758060Z",
+      "finished_at": "2026-10-31T14:42:02.779105Z"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/typecheck.execution.json",
+      "waiver_reason": "",
+      "command": "npm run typecheck",
+      "exit_code": 0,
+      "started_at": "2026-10-31T14:30:40.105776Z",
+      "finished_at": "2026-10-31T14:30:40.867903Z"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/build.execution.json",
+      "waiver_reason": "",
+      "command": "npm run build",
+      "exit_code": 0,
+      "started_at": "2026-10-31T14:30:40.868489Z",
+      "finished_at": "2026-10-31T14:30:41.337951Z"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/placeholder-scan.execution.json",
+      "waiver_reason": "",
+      "command": "sh /workspace/scratch/sdd-forge-main-integration/plugins/sdd-quality-loop/scripts/check-placeholders.sh mcp/sdd-forge-mcp/src/parsers/report-lookup.ts mcp/sdd-forge-mcp/src/parsers/task-validation.ts mcp/sdd-forge-mcp/src/parsers/tasks.ts mcp/sdd-forge-mcp/src/tools/core.ts",
+      "exit_code": 0,
+      "started_at": "2026-10-31T14:42:02.779448Z",
+      "finished_at": "2026-10-31T14:42:02.785830Z"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/current-task-state.execution.json",
+      "waiver_reason": "",
+      "command": "sh plugins/sdd-quality-loop/scripts/check-task-state.sh /workspace/scratch/678-preparation/specs/mcp-report-lookup-cache/tasks.md /workspace/scratch/678-preparation/reports/quality-gate /workspace/scratch/678-preparation/reports/implementation /workspace/scratch/678-preparation",
+      "exit_code": 0,
+      "started_at": "2026-10-31T23:19:06.646288Z",
+      "finished_at": "2026-10-31T23:19:06.665082Z"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/fullsuite.execution.json",
+      "waiver_reason": "",
+      "command": "npm test",
+      "exit_code": 0,
+      "started_at": "2026-10-31T14:30:41.338632Z",
+      "finished_at": "2026-10-31T14:31:24.255623Z"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/fullsuite.execution.json",
+      "waiver_reason": "",
+      "command": "npm test",
+      "exit_code": 0,
+      "started_at": "2026-10-31T14:30:41.338632Z",
+      "finished_at": "2026-10-31T14:31:24.255623Z"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/fullsuite.execution.json",
+      "waiver_reason": "",
+      "command": "npm test",
+      "exit_code": 0,
+      "started_at": "2026-10-31T14:30:41.338632Z",
+      "finished_at": "2026-10-31T14:31:24.255623Z"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+[
+  {
+    "label": "lint",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "5328aee7",
+      "75b169fe",
+      "--",
+      "mcp/sdd-forge-mcp"
+    ],
+    "cwd": "/workspace/scratch/sdd-forge-main-integration",
+    "started_at": "2026-10-31T14:42:02.758060+00:00",
+    "completed_at": "2026-10-31T14:42:02.779105+00:00",
+    "exit_code": 0,
+    "stdout_path": "lint.stdout",
+    "stderr_path": "lint.stderr"
+  },
+  {
+    "label": "placeholder-scan",
+    "argv": [
+      "sh",
+      "/workspace/scratch/sdd-forge-main-integration/plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+      "mcp/sdd-forge-mcp/src/parsers/report-lookup.ts",
+      "mcp/sdd-forge-mcp/src/parsers/task-validation.ts",
+      "mcp/sdd-forge-mcp/src/parsers/tasks.ts",
+      "mcp/sdd-forge-mcp/src/tools/core.ts"
+    ],
+    "cwd": "/workspace/scratch/sdd-forge-main-integration",
+    "started_at": "2026-10-31T14:42:02.779448+00:00",
+    "completed_at": "2026-10-31T14:42:02.785830+00:00",
+    "exit_code": 0,
+    "stdout_path": "placeholder-scan.stdout",
+    "stderr_path": "placeholder-scan.stderr"
+  },
+  {
+    "label": "task-state-check",
+    "argv": [
+      "sh",
+      "/workspace/scratch/sdd-forge-main-integration/plugins/sdd-quality-loop/scripts/check-task-state.sh",
+      "/workspace/scratch/issue678-operational-readiness-20261031/review-tree/specs/mcp-report-lookup-cache/tasks.md",
+      "/workspace/scratch/issue678-operational-readiness-20261031/review-tree/reports/quality-gate",
+      "/workspace/scratch/issue678-operational-readiness-20261031/review-tree/reports/implementation",
+      "/workspace/scratch/issue678-operational-readiness-20261031/review-tree"
+    ],
+    "cwd": "/workspace/scratch/issue678-operational-readiness-20261031/review-tree",
+    "started_at": "2026-10-31T14:42:02.786104+00:00",
+    "completed_at": "2026-10-31T14:42:02.804938+00:00",
+    "exit_code": 0,
+    "stdout_path": "task-state-check.stdout",
+    "stderr_path": "task-state-check.stderr"
+  }
+]

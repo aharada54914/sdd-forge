@@ -1,0 +1,16 @@
+{
+  "label": "fullsuite",
+  "argv": [
+    "npm",
+    "test"
+  ],
+  "cwd": "/workspace/scratch/sdd-forge-main-integration/mcp/sdd-forge-mcp",
+  "started_at": "2026-10-31T14:30:41.338632+00:00",
+  "completed_at": "2026-10-31T14:31:24.255623+00:00",
+  "exit_code": 0,
+  "stdout_path": "fullsuite.stdout",
+  "stderr_path": "fullsuite.stderr",
+  "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b",
+  "stdout_sha256": "f3575e0aa82d4a55f464600b97df577bfcb13ad99ce2b4c2a0a8c5786aa5b08d",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
