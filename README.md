@@ -283,7 +283,7 @@ node <インストール先>/mcp/sdd-forge-mcp/dist/index.js --status-ui --root 
 - **責務の明確な分離**: 仕様化・実装・品質保証を別々のスキルが担当し、実装者が自分の成果物を甘く採点する構造を排除します。
 - **人間承認ゲート**: エージェントはタスク承認も WFI 承認も自己承認できず、フック + 決定論的スクリプトの二重防衛により不正な承認を防止します。critical タスクは二者承認（`Approval:` + 別名義の `Second Approval:`）が必須で、sudo でもバイパスできません。
 - **独立した批判レビュー**: 実装者とは別の `sdd-evaluator` エージェント (またはセッション) が新しい視点で検証します。
-- **sudoモード**: *承認待ち*（タスク承認・`accepted` 差分・定型サインオフ）を期限付きで自動通過させ、ソロワークの効率を向上。判断フォーク（`requires_human_decision`・アーキ/認証/セキュリティ決定・WFI 承認）と AGENT_STOP・決定論的ゲートは常時人間/有効。入り方は [`/sdd-sudo` スキル](plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md) を参照。
+- **sudoモード**: 有効な署名付きトークンにより、*承認待ち*（タスク承認・`accepted` 差分・定型サインオフ）を期限付きで自動通過。判断フォーク・critical 二者承認・AGENT_STOP・決定論的ゲートは維持する。現行ホストのチャット／slash 自動発行は未対応で、agent は明示呼出後もトークンを操作できない。人間による手順と対応範囲は [`/sdd-sudo` スキル](plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md) を参照。
 - **リスク適応ゲート**: タスクごとに `Risk:` 階層 (`low / medium / high / critical`) を設定し、階層に比例した決定論的ゲートセットを強制します。新ゲート `check-risk`（階層と `Risk Rationale` を検証）・`check-traceability`（REQ→AC→TEST→証跡チェーンを検証）を追加。`check-contract` は階層最小セットの superset 強制（Pass 4）と TDD Red→Green 証跡（Pass 5）を実施。高/critical はプロベナンス付き evidence bundle を必須とし、critical は HMAC-SHA256 署名 + クリーンツリー強制。非コード (`stack: shell/docs/spec`) リポジトリでは compile 系チェックを理由付きで waive 可能。正準対応表: [`risk-gate-matrix.md`](plugins/sdd-quality-loop/references/risk-gate-matrix.md)。
 - **3環境に対応**: Claude Code、Codex CLI、Copilot CLI の環境でスキル・エージェント・フック・スクリプトがリポジトリ内ファイルを通じて相互ハンドオフし、環境を超えて作業を継続できます。
 - **バグ修正トラック (`diagnose`)**: ハードなバグ・リグレッション・フレーキーテスト・性能退行に対し、フル SDD を通す前に再現→計装→根本原因→最小修正の5フェーズ診断規律を回し、軽量トラックへの入口を兼ねます。詳細は [docs/workflow-guide.md の「バグ修正トラック（diagnose）」](docs/workflow-guide.md#バグ修正トラックdiagnose)をご覧ください。

@@ -127,7 +127,9 @@ sdd-ship is a thin orchestrator. It does not re-implement logic from its depende
 
 ### Security Invariants
 
-- sdd-ship must never invoke `sdd-sudo` or create/modify `SDD_SUDO`.
+- sdd-ship must never invoke `sdd-sudo` or create/modify/extend/delete `SDD_SUDO`.
+  Explicit human invocation does not grant agent tools token-issuance authority;
+  an unavailable protected host issuer remains unavailable after account login.
 - sdd-ship must never set `Approval: Approved` on any task.
 - sdd-ship must never modify files under `plugins/sdd-quality-loop/hooks/` or any `sdd-hook-guard.*` script.
 - sdd-ship must never push to remote or create pull requests without explicit user instruction.

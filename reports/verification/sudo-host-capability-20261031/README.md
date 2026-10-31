@@ -1,0 +1,9 @@
+# Authenticated Codex human-verification availability
+
+On 2026-10-31, after official device login and a successful native Codex project-skill invocation on product source b3b997ed, the installed Codex 0.159.2 app-server was queried through the existing verify-codex launcher. The JSON-RPC sequence was initialize (experimentalApi enabled), initialized, and userVerification/status with empty params. No model call was made by this capability probe.
+
+The actual response in status.json is credentialId null, unavailableReason providerUnavailable, and “User verification is not available in this build or account.” Successful account authentication does not supply the protected human-input issuer required by #616. This read-only probe did not enroll a credential, request human verification, issue a token, read signing keys or change an approval.
+
+The accompanying documentation repair removes an explicit-invocation exception that contradicted the existing unconditional agent-tool token-mutation guard. The manual external procedure remains available. Its Python HMAC example now sends the exact canonical bytes without the extra newline formerly added by a here-string; the example is explicitly limited to the default key path. No production guard or signing implementation changed, and direct chat/slash enable/status/off acceptance remains incomplete.
+
+Validation: existing sudo mutation checks 5 passed; existing PowerShell signature static check passed; repository validation passed using the configured PowerShell wrapper. A nonsecret synthetic message had matching OpenSSL/Python HMACs, while adding a trailing newline changed the signature. No real key or token file was used. Independent review confirmed the issuer wording, retained manual fallback and critical two-person requirements against existing task-state checks.

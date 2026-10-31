@@ -30,7 +30,7 @@
 | quality-gate | sdd-quality-loop | 実装完了タスクの独立検証・Done判定 | implement-task, implement-tasks | fix-by-review-ticket (条件付き), workflow-retrospective |
 | fix-by-review-ticket | sdd-quality-loop | レビューチケットの修正を実装 | quality-gate | quality-gate |
 | workflow-retrospective | sdd-quality-loop | SDD ワークフロー自体の改善提案（friction をなぜなぜ分析で根本原因まで掘り下げて WFI を起草） | quality-gate | — |
-| sdd-sudo | sdd-quality-loop | 人間承認ゲートを期限付きで自動通過 | — | implement-task, implement-tasks, quality-gate (オプション) |
+| sdd-sudo | sdd-quality-loop | 期限付き承認待ちの扱い・人間による発行手順（ホスト自動発行は未対応） | — | implement-task, implement-tasks, quality-gate (オプション) |
 | cross-model-verify | sdd-quality-loop | 複数ベンダーの独立 LLM パネリストを盲目並列実行し verdict JSON を収集 | quality-gate (critical タスク) | check-cross-model ゲート |
 | wfi-audit-cycle | sdd-quality-loop | WFI-NNN.md Draft を2サイクルの独立監査（品質→影響/リスク）で審査し Human-Pending に移行するオーケストレーター | workflow-retrospective | — (人間承認待ち) |
 | lite-spec | sdd-lite | 社内・部署内アプリ向けの軽量仕様生成（要件/設計/タスクの3ファイル、traceability/ADR/evidence-bundle 不要） | — | implement-task, implement-tasks |

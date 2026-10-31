@@ -1,0 +1,7 @@
+Executed the documented check once and read the generated observation and stdout.
+
+- Schema: `project-verification-observation/v3`
+- Outcome: `passed` (exit code `0`)
+- Stdout: `native-v3-owner-check-ok`
+
+This synthetic check does not constitute full product approval.

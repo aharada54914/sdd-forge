@@ -1,0 +1,41 @@
+{
+  "source_commit": "b3b997ed8af44d4d8f1fc94d07e94ee006f32f81",
+  "source_sha256": {
+    "plugins/sdd-bootstrap/scripts/project-skill.py": "f8480ee5745eafb30dbaa3ef982f7873accb861eaf53381625977c29efa33e54",
+    "plugins/sdd-quality-loop/scripts/validate-project-skill.py": "74f9d8bd8fdc444451923a5cfac34789417c76571c69a089c1b34e51710495dd"
+  },
+  "absent_before": true,
+  "native_discovered": true,
+  "timeout_seconds": 120,
+  "maximum_ai_credits": 30,
+  "maximum_model_invocations": 1,
+  "argv": [
+    "/workspace/.tools/sdd-forge-host-smoke/node_modules/.bin/copilot",
+    "--add-dir",
+    "/workspace/scratch/sdd-forge-main-integration/plugins/sdd-bootstrap/scripts",
+    "--trust-folder",
+    "--no-auto-update",
+    "--disable-client-telemetry",
+    "--disable-builtin-mcps",
+    "--sync-session=off",
+    "--no-ask-user",
+    "--max-ai-credits",
+    "30",
+    "--allow-tool=read",
+    "--allow-tool=skill",
+    "--allow-tool=shell(python3)",
+    "--deny-tool=write",
+    "--deny-tool=url",
+    "--log-dir",
+    "/workspace/scratch/issue-resolution-20261031/copilot-v3-native-scoped-path/native-logs",
+    "-p",
+    "Use the verify-app skill in this fixture now: execute its one documented check once, read the actual generated observation and stdout, and report schema/outcome/text. No other workflow, delegation, edits, git operations, network or model calls are requested."
+  ],
+  "removed_environment_keys": [
+    "GH_TOKEN",
+    "GITHUB_TOKEN",
+    "COPILOT_GITHUB_TOKEN"
+  ],
+  "permission_scope": "shell(python3) authorizes Python by command name, not an argv enforcement boundary; actual commands must be audited. write/url remain denied.",
+  "canonical_fixture": "Same verify-app procedure, runner/check/marker and task-input obligations as Codex success; host projection differs and absolute temporary paths are regenerated."
+}

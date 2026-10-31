@@ -1,0 +1,8 @@
+{
+  "id": 2,
+  "result": {
+    "credentialId": null,
+    "unavailableReason": "providerUnavailable",
+    "unavailableMessage": "User verification is not available in this build or account."
+  }
+}
