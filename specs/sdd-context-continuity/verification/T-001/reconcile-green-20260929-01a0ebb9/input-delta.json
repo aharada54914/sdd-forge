@@ -1,0 +1,58 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "slice": "ReconcileV1 production GREEN",
+  "head": "653678caaabe4397e4525617669fd6a4e38ee3ad",
+  "prior_input_manifest": {
+    "path": "specs/sdd-context-continuity/verification/T-001/reconcile-red-20260929-01a0ebb9/input-manifest.json",
+    "sha256": "2b8e135c037dcc0abf3b568a27e8130c03fa5910dbc0073f476463df422ee73d"
+  },
+  "prior_red_ready": {
+    "path": "specs/sdd-context-continuity/verification/T-001/reconcile-red-20260929-01a0ebb9/red-ready.json",
+    "sha256": "975aad43f0df0d37e71c09327d8e476f16428f889d290a5bf1d88693d8af71d3"
+  },
+  "verified_prior_snapshots": 20,
+  "unchanged_prior_live_inputs": 19,
+  "verified_protected_artifacts": 209,
+  "prior_baseline_delta": {
+    "index": {
+      "path": "/Users/jrmag/sdd-forge/.git/worktrees/issue137-continuity/index",
+      "sha256": "2e14533137fdc8c7cc7a0ed33cd71e6b3420cdc4b1bd1bfafe0dcaac530392c7",
+      "reason": "Main-agent RED checkpoint 653678ca"
+    },
+    "report": {
+      "path": "reports/implementation/sdd-context-continuity/T-001.md",
+      "sha256": "df96714b09e97cf26d2a3ba7acf855e53914a7024d96f9fe228cc442209fce85",
+      "bytes": 88770,
+      "reason": "Prior RED result appended after snapshot; this continuation may append only"
+    }
+  },
+  "source_before": {
+    "path": "plugins/sdd-context/validation.mjs",
+    "sha256": "ff9f7b869ebc439efb809924a5ae19f42476d036824715a2faad990b232c2678"
+  },
+  "fixed_test": {
+    "path": "tests/sdd-context/validation.test.mjs",
+    "sha256": "110387cc3c1f56b9995b6792e8c39282059b080445a7c0a7a64a6f1bf69e2a9f",
+    "original_sha256": "14a381d91b4776f99991b0047c33d7048ce577dc4b0226e6b0fc93e401219750",
+    "original_prefix_unchanged": true
+  },
+  "regression_inputs": [
+    {
+      "path": "tests/sdd-context/json-admission.test.mjs",
+      "sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663"
+    },
+    {
+      "path": "tests/sdd-context/privacy.test.mjs",
+      "sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636"
+    },
+    {
+      "path": "tests/sdd-context/privacy-grammar.test.mjs",
+      "sha256": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+    }
+  ],
+  "preflight": "Reuse T-001 report rows 32,33,42,43,52-57; no new persisted contract fields",
+  "boundary": "In-memory admission only; fixed tests unchanged; no project Git mutation, task/review status, native activation or quality-gate claims",
+  "production_fix_attempt_limit": 3
+}

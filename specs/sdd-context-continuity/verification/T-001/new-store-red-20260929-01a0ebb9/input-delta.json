@@ -1,0 +1,53 @@
+{
+  "checkpoint": "63e331ebbed5ae1aa7de0e43ffc51519157c316b",
+  "baseline_inputs": {
+    "plugins/sdd-context/validation.mjs": {
+      "bytes": 12423,
+      "sha256": "5e4aee1b887ec82be5bf44f9ee38eaf24d48bcb3a8c72c0c0f731ed4e03a0659"
+    },
+    "tests/sdd-context/validation.test.mjs": {
+      "bytes": 41608,
+      "sha256": "6014e026fc934628b1642cf7ee32a8e0235361d1899947b9f0e5d27dca2d8865"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 115391,
+      "sha256": "5e0e9466bb0194121cc829723e3cf69ace3988e2bcf568d84f26f5d788211486"
+    },
+    "reports/review-context/identity-ledger.json": {
+      "bytes": 517899,
+      "sha256": "f7762e87d657962dc8b141fb8359703aa590e8f46cd89587b2b75a3d91803e90"
+    },
+    "specs/workflow-state-registry.json": {
+      "bytes": 12044,
+      "sha256": "2e5d3467f97cec025f066d366cec242f08601d451d44418558071903de5e4210"
+    },
+    "specs/sdd-context-continuity/tasks.md": {
+      "bytes": 15074,
+      "sha256": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c"
+    }
+  },
+  "prior_snapshot_reference": "specs/sdd-context-continuity/verification/T-001/reconcile-red-20260929-01a0ebb9/input-manifest.json",
+  "selected_boundary": "empty new private store directory only; reuse validate(raw, trusted), same core-owned owner/plannedPaths/deadline; no file write or chmod",
+  "source_references": [
+    "specs/sdd-context-continuity/tasks.md:39",
+    "specs/sdd-context-continuity/security-spec.md:35-36,39-54",
+    "specs/sdd-context-continuity/design.md:118-119"
+  ],
+  "preparation_module_absent": true,
+  "expanded_test": {
+    "bytes": 45327,
+    "sha256": "4da707518036f61ef89890038eec8facb276d1833d519b28c6aef174d0ed665f",
+    "added_lines": 60,
+    "removed_lines": 0,
+    "added_cases": 5
+  },
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "--test-name-pattern=^NEW-STORE-",
+    "tests/sdd-context/validation.test.mjs"
+  ],
+  "test_only_diff_sha256": "f56aba2aadced5b459cbea39203c72c8109a93c2f71221b15890c48efef1c115"
+}

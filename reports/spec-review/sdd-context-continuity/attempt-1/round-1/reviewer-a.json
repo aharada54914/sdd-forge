@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0e0bd-6540-73c3-aede-a9647ce68de6",
+  "host_session_id": "01a0e0bd-6540-73c3-aede-a9647ce68de6",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "3b45c7d66f2c694206a7342772e937487e412aebab856b9d542455c08fc524fe"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/investigation.md",
+      "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+    },
+    {
+      "path": "reports/spec-review/sdd-context-continuity/attempt-1/round-1/precheck-result.json",
+      "sha256": "111e147421c589281cc0c554ce8e3127f54fc3d4637d881edc4af357361fc36c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001–REQ-012 は AC-001–AC-018 と TEST-001–TEST-066 により観測可能な結果へ展開されている。時間・入力・出力・redaction の上限も明示され、未検証の durability/host 契約は OQ-005–OQ-012 の解決対象として区別されている。"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "保存・判断保持・compaction reconciliation・権威状態・所有者分離・障害回復・host 独立性・保持期限・秘密除去・bounded recovery・既存 SDD 互換性の各目標に対応する AC と予定 TEST がある。"
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC は保存順序、source reference、非注入、破損検出、SAFE 表示禁止、compaction 継続、期限境界、削除対象、秘密の不在、重複処理、8,192-byte 出力など具体的な状態・出力を定義している。live-host 結果と fixture 結果も区別されている。"
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals、Target Users、Roles and Permissions に native compaction の置換、hidden reasoning、lossless recovery、完全な secret detection、network service、会話由来の承認変更を除外する境界がある。unsupported host と no-SDD の挙動も AC-012 で明示されている。"
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md は Spec-Review-Status: Pending、Phase 1 incomplete としながら、Open Questions の OQ-011 に「security-spec elaborates parsing」と後続 design-layer artifact を現在の説明根拠として引用している。investigation.md に「## Amendment Re-Review Context」はなく、校正規則の例外は成立しない。下流の designer/task author は、その elaboration が今後作成する予定なのか、既に許可された後続成果物なのかを判定できない。これは redaction 設計の完成を求める指摘ではなく、spec-review-calibration.md の既定 Phase-1 phase-sequencing 規則に属する承認境界の問題であり、Critical とする。将来の設計作業として明示するか、実際の承認済み amendment である場合は規定の証拠を備えた context が必要。"
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "capture loss、private-data exposure、stale authority、host support 過大主張、hook latency に対し、fault-injection、security、concurrency、clock-controlled、native-platform、live-host の予定検証がある。TEST-044a–i、TEST-045a–f、TEST-046a–c は scheduling/redaction の危険分岐を具体化している。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "許可された存在確認で project root の domain/ directory が存在しないため、適用条件を満たさない。"
+    }
+  ]
+}

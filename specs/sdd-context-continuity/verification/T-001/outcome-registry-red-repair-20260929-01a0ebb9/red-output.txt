@@ -1,0 +1,91 @@
+✖ OR-OUTCOME-VALID-captured: closed result encoding admits without claiming operation execution (1.073125ms)
+✖ OR-OUTCOME-VALID-uncaptured-warning: closed result encoding admits without claiming operation execution (0.117417ms)
+✖ OR-OUTCOME-VALID-safe: closed result encoding admits without claiming operation execution (0.120917ms)
+✖ OR-OUTCOME-VALID-unsafe: closed result encoding admits without claiming operation execution (0.095791ms)
+✖ OR-OUTCOME-VALID-unavailable: closed result encoding admits without claiming operation execution (0.105459ms)
+✖ OR-OUTCOME-VALID-recovered: closed result encoding admits without claiming operation execution (0.10625ms)
+✖ OR-OUTCOME-VALID-no-op: closed result encoding admits without claiming operation execution (0.095791ms)
+✖ OR-OUTCOME-VALID-cleaned: closed result encoding admits without claiming operation execution (0.083458ms)
+✖ OR-OUTCOME-VALID-cleanup-warning: closed result encoding admits without claiming operation execution (0.098791ms)
+✖ OR-OUTCOME-CODES: fixed reasons diagnostics and pointer reasons admit without extra compatibility rules (0.148958ms)
+✔ OR-OUTCOME-CLOSED: every per-kind field is required and foreign result fields reject (9.906375ms)
+✔ OR-OUTCOME-FIELDS: exact versions discriminants booleans and fixed vocabulary reject malformed values (3.045167ms)
+✔ OR-OUTCOME-EVIDENCE: required success flags are literal true and counters are safe nonnegative integers (5.206333ms)
+✖ OR-OUTCOME-RECOVERY: coverage source endpoints empty lists and opaque pointer byte limits admit (0.105667ms)
+✔ OR-OUTCOME-RECOVERY-SHAPE: nested entry and pointer closures scalars and arrays reject malformed values (3.923083ms)
+✖ OR-OUTCOME-RECOVERY-PRIVACY: shared redaction preserves prior omission and masks all six families (0.5555ms)
+✖ OR-OUTCOME-BUDGET: complete escaped UTF8 envelope admits 8192 bytes and rejects 8193 (0.128459ms)
+✖ OR-REGISTRY-VALID: independently confirmed local and foreign closed entries admit every scheduler state (0.158875ms)
+✔ OR-REGISTRY-CLOSED: registry and each nested locator require closed fields (1.697167ms)
+✔ OR-REGISTRY-FIELDS: root and foreign entry scalar bounds UTC states and array shapes reject (4.157417ms)
+✔ OR-REGISTRY-OWNER: foreign nested owner closure and every unconfirmed tuple component reject (1.666708ms)
+✔ OR-REGISTRY-TRUST: missing malformed or self-asserted confirmation cannot authorize a registry (1.076583ms)
+✔ OR-REGISTRY-UNIQUE: identical or conflicting canonical owner tuples and duplicate IDs reject (0.540833ms)
+✔ OR-REGISTRY-STORE: each locator binds exactly to its confirmed owner context store (1.002917ms)
+✔ OR-SHARED-GUARDS: both new types retain JSON deadline Git and planned-path rejection (1.228167ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 11
+ℹ fail 14
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 294.145375
+
+✖ failing tests:
+
+test at tests/sdd-context/validation.test.mjs:91:3
+✖ OR-OUTCOME-VALID-captured: closed result encoding admits without claiming operation execution (1.073125ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:91:3
+✖ OR-OUTCOME-VALID-uncaptured-warning: closed result encoding admits without claiming operation execution (0.117417ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:91:3
+✖ OR-OUTCOME-VALID-safe: closed result encoding admits without claiming operation execution (0.120917ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:91:3
+✖ OR-OUTCOME-VALID-unsafe: closed result encoding admits without claiming operation execution (0.095791ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:91:3
+✖ OR-OUTCOME-VALID-unavailable: closed result encoding admits without claiming operation execution (0.105459ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:91:3
+✖ OR-OUTCOME-VALID-recovered: closed result encoding admits without claiming operation execution (0.10625ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:91:3
+✖ OR-OUTCOME-VALID-no-op: closed result encoding admits without claiming operation execution (0.095791ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:91:3
+✖ OR-OUTCOME-VALID-cleaned: closed result encoding admits without claiming operation execution (0.083458ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:91:3
+✖ OR-OUTCOME-VALID-cleanup-warning: closed result encoding admits without claiming operation execution (0.098791ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:91:3
+✖ OR-OUTCOME-CODES: fixed reasons diagnostics and pointer reasons admit without extra compatibility rules (0.148958ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:91:3
+✖ OR-OUTCOME-RECOVERY: coverage source endpoints empty lists and opaque pointer byte limits admit (0.105667ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:91:3
+✖ OR-OUTCOME-RECOVERY-PRIVACY: shared redaction preserves prior omission and masks all six families (0.5555ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:91:3
+✖ OR-OUTCOME-BUDGET: complete escaped UTF8 envelope admits 8192 bytes and rejects 8193 (0.128459ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:91:3
+✖ OR-REGISTRY-VALID: independently confirmed local and foreign closed entries admit every scheduler state (0.158875ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }

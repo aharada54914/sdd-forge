@@ -1,0 +1,73 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "sdd-context-continuity",
+  "run_id": "a3b7b6f2-d531-4dae-a738-6e53cbd7f85a",
+  "host_session_id": "root.issue137_task_a2r2_b_corrected",
+  "sequence": 1220,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "808cf052c34884ca88de16c5615f77d18fb4d7aea9339b600229f8f6b11dc05b",
+  "previous_record_sha256": "f7bf2c670f55d6dfc6363a03c761d23aa8746ee0431007f4364e95322111db93",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "917184de1b262628b2540d53ae5737ed84f1adf18e3d04985185c61a128bc411"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "42e28844d507e7417fa1a58e8f74bb5aceec0ff0afadd911f03eebce2be9395c"
+    },
+    {
+      "path": "specs/sdd-context-continuity/tasks.md",
+      "sha256": "66ff479d2f42cee4218abc948bc27365b9dee804ad2b739d2854867359269fd5"
+    },
+    {
+      "path": "specs/sdd-context-continuity/traceability.md",
+      "sha256": "a7c953bda7baeabab400e9e5a872d79c7ba3d431acfbc6fdc140e58e2e6109a7"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "ca33a3a01faf54c9c1b5814a494f0ff4999cc6c89b3330ea7d5567189e928a59"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "a6ab7a2ff922c8eb62d8a70b875aede2d49b9d5e8fae282463087a472612e0b2"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/sdd-context-continuity/attempt-2/round-2/precheck-result.json",
+      "sha256": "376e52d22934b15e2cce08a950ae3208d3be5ad803bec79e61e85cf7e3c09a37"
+    },
+    {
+      "path": "reports/task-review/sdd-context-continuity/attempt-2/round-2/integrated-summary.json",
+      "sha256": "aec8e238f40bf3594b63aa6a2bbd5a9039439c5e4f06ea536de71b4ebb512699"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "checkpoint": "b266c2a18a4e510aace9b4c5a220d308e6806d3b",
+  "scope": "OutcomeV1 + OwnerRegistryV1 test-only preflight and one selected attempt; production fixed",
+  "result": "INVALID_RED_FIXTURE_LIFETIME",
+  "selected_execution_count": 1,
+  "actual_counts": {
+    "tests": 25,
+    "pass": 4,
+    "fail": 21,
+    "skipped": 0
+  },
+  "exit_code": 1,
+  "failure_analysis": {
+    "outcome_positive_content_free_rejections": 13,
+    "outcome_rejection_only_passes": 4,
+    "registry_and_shared_fixture_errors": 8,
+    "contract_red_established": false,
+    "evidence": "Raw registry errors at validation.test.mjs:631 show removed scratch. Cleanup at 15; top-level awaits at 714-715/884; appended registration at 939. Scheduling explanation is source-based, not confirmed by another run.",
+    "next_step": "Root reviews fixture lifetime and authorizes prefix repair plus a new selected run before GREEN; retain this attempt."
+  },
+  "preservation": {
+    "fixed_inputs_exact": 29,
+    "allowed_append_prefixes_exact": 2,
+    "original_validation_test_bodies": 125,
+    "prior_private_proof_identities_exact": 50,
+    "run_input_stability": {
+      "inputs_stable_during_run": true,
+      "input_count": 31,
+      "prior_proof_exact": true,
+      "prior_proof_count": 50,
+      "head_unchanged": true
+    },
+    "production_unchanged": true,
+    "frozen_tasks_state_ledger_registry_unchanged": true,
+    "head_unchanged": true
+  },
+  "production": {
+    "plugins/sdd-context/validation.mjs": {
+      "bytes": 13557,
+      "sha256": "a4e062c8d22d60e901ba152719ce960d0d6f5978d01e4c03ae8a0ae434c3a777"
+    },
+    "plugins/sdd-context/privacy.mjs": {
+      "bytes": 7234,
+      "sha256": "fdafb645a4dc881489442d9443c780b6836b5bb202b4fd1cd5b84bccb4ca57c6"
+    }
+  },
+  "artifacts": {
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-20260929-01a0ebb9/input-delta.json": {
+      "bytes": 16896,
+      "sha256": "bfab8670f09a35310125fef9af2e8ba15c78a7599e7e270029bdaeefdd1998eb"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-20260929-01a0ebb9/original-validation.test.mjs": {
+      "bytes": 54480,
+      "sha256": "58c6d8026163a3e7e223b81c2709fe46d420ad080eb41550e08bfb3c5e80984f"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-20260929-01a0ebb9/test-only.diff": {
+      "bytes": 16844,
+      "sha256": "af41df5205602b5cd31991d2ad05f69984e74ac0e4a99c2fc611b7200b6a51c2"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-20260929-01a0ebb9/red-run.json": {
+      "bytes": 4103,
+      "sha256": "6b0981a757aea0044a81a3c22a6d99679bb923c29f1261853fe81c8231be7557"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-20260929-01a0ebb9/red-output.txt": {
+      "bytes": 16347,
+      "sha256": "5019b68055c2ff5468738a5ac81646dad2dfda6b71724ab2d589c0fbb0c6477e"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-20260929-01a0ebb9/red-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "tests/sdd-context/validation.test.mjs": {
+      "bytes": 70859,
+      "sha256": "20a9dc53ee770df9fde33e8fba2c5343b11399292ed9f205ad78fe15ed962dd2"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 157060,
+      "sha256": "3b7634c2d2867bdeb903d06d7bfab86f0e30d0bf67f18eea7aca86e69a102692"
+    },
+    "reports/verification/issue137-outcome-registry-red-20260929.md": {
+      "bytes": 3076,
+      "sha256": "8da9bb06abfb716fbf51f7bb22c13dcf3a1e58dfe39d6c2df7a69199d15c4431"
+    }
+  },
+  "task_additional_corrections": 1,
+  "remaining_task_allowance": 2,
+  "task_complete": false,
+  "worker_git_mutation": false,
+  "quality_gate_verdict": null,
+  "limits": [
+    "No contract GREEN or implementation completion proof.",
+    "No actual installer integration or trusted-list provenance proof.",
+    "No persistence, sync/reconcile/publication, foreign-log reads, lock release, Git write authority.",
+    "No rerun or production repair after capture."
+  ]
+}

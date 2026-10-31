@@ -1,0 +1,62 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "checkpoint": "ea4f1a220261b1f7381d82f100d06ff617054f82",
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "tests/sdd-context/validation.test.mjs"
+  ],
+  "started_utc": "2026-09-29T11:55:34.261951+00:00",
+  "finished_utc": "2026-09-29T11:55:42.476426+00:00",
+  "elapsed_seconds": 8.214351541013457,
+  "exit_code": 0,
+  "counts": {
+    "tests": 100,
+    "pass": 100,
+    "fail": 0,
+    "skipped": 0
+  },
+  "stdout_sha256": "b5ab18ea4c2471c98e19e6f048b175b152391fe8195b2e7aceebadfba9be4706",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_sha256": "5e4aee1b887ec82be5bf44f9ee38eaf24d48bcb3a8c72c0c0f731ed4e03a0659",
+  "test_sha256": "6014e026fc934628b1642cf7ee32a8e0235361d1899947b9f0e5d27dca2d8865",
+  "input_delta_sha256": "7b11da44c509fb97ea50530e43fd828eb492b3705a19fc88e43d945a31e6cc7e",
+  "source_diff_sha256": "97eb521c5264f9a38a75490ffc83e34e54dc84e417faf02490a5b2b56fa7ea48",
+  "source_unchanged_during_run": true,
+  "guard_preservation": {
+    "tests/sdd-context/validation.test.mjs": true,
+    "reports/review-context/identity-ledger.json": true,
+    "specs/workflow-state-registry.json": true,
+    "specs/sdd-context-continuity/tasks.md": true,
+    "tests/sdd-context/json-admission.test.mjs": true,
+    "tests/sdd-context/privacy.test.mjs": true,
+    "tests/sdd-context/privacy-grammar.test.mjs": true
+  },
+  "checkpoint_unchanged": true,
+  "test_execution_count": 1,
+  "correction_count": 0,
+  "environment": {
+    "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+    "login": false,
+    "node": "v24.13.0",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O"
+  },
+  "limitation": "local standalone entry slice only; no persistence/native/CI/formal verdict",
+  "registry_entry_results": [
+    "\u2714 REGISTRY-ENTRY-VALID: exact owned entry admits every state and bounded opaque ID (799.673625ms)",
+    "\u2714 REGISTRY-ENTRY-CLOSED: five fields are required and object extensions reject (1.063667ms)",
+    "\u2714 REGISTRY-ENTRY-FIELDS: locator types, ID bounds, exact states and UTC dates are checked (119.194708ms)",
+    "\u2714 REGISTRY-ENTRY-OWNER: every foreign tuple component and malformed owner rejects (1.562709ms)",
+    "\u2714 REGISTRY-ENTRY-STORE: only the exact canonical owned context locator is admitted (184.640167ms)",
+    "\u2714 REGISTRY-ENTRY-REPLACED-STORE: a temporary context replaced by an escaping symlink rejects (38.388625ms)",
+    "\u2714 REGISTRY-ENTRY-JSON: malformed and decoded duplicate entry keys reject (0.1725ms)",
+    "\u2714 REGISTRY-ENTRY-DEADLINE: the existing exhausted trusted budget returns no entry (0.058541ms)",
+    "\u2714 REGISTRY-ENTRY-PATH: shared ignore/tracked/Git and escaping planned targets still reject (182.472417ms)"
+  ],
+  "registry_entry_count": 9,
+  "original_91_prefix_unchanged": true
+}

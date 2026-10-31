@@ -1,0 +1,36 @@
+✔ fixture control: real Git ignore and tracked states are distinct (27.022375ms)
+✔ VALIDATION-API: one real shared entrance exists (0.061166ms)
+✔ PROJECTION-VALID: approved empty-journal shape returns the validated object (96.970458ms)
+✔ ID-1024: ASCII and multibyte opaque IDs accept exactly 1024 UTF-8 bytes (187.759625ms)
+✔ ID-INVALID: empty, 1025-byte and malformed Unicode opaque IDs reject (1.324417ms)
+✔ HASH-VALID: distinct authority paths may share a hash (96.412084ms)
+✔ HASH-CLOSED: every authority entry requires path/sha256 and forbids extra fields (0.5745ms)
+✔ HASH-DUPLICATE: duplicate authority paths reject even with identical hashes (0.213959ms)
+✔ HASH-FORMAT: authority digests reject uppercase, wrong size and non-hex (0.473583ms)
+✔ TASK-VALID: existing taskEntry optional fields and lifecycle enums accept (465.3365ms)
+✔ TASK-CLOSED: required fields, field types and taskStateData-only extensions reject (1.785458ms)
+✔ TASK-ENUM: invalid approval/status/risk values reject (0.412042ms)
+✔ CURSOR-NULL: nonempty journal forbids a null cursor (0.157542ms)
+✔ CURSOR-VALID: closed owned cursor accepts for a nonempty journal (93.165125ms)
+✔ CURSOR-CLOSED: each required field, safe sequence, hash and content extensions are checked (1.67275ms)
+✔ OWNER-MISMATCH: repository/worktree/Git directory/feature/host/session cannot self-authorize (0.6905ms)
+✔ CURSOR-FOREIGN: foreign owner and unproven predecessor session reject (0.351917ms)
+✔ SCHEMA-CLOSED: projection/owner version, required fields and unknown keys reject (1.342375ms)
+✔ JSON-DUPLICATE: duplicate decoded fields reject through the same entrance (0.064625ms)
+✔ REQUEST-AUTHORITY: caller cannot supply receipt/sequence/expiry/path/budget/lifecycle (0.47375ms)
+✔ IGNORE-MISSING: non-ignored content target rejects (35.651ms)
+✔ IGNORE-NEGATED: effective negation rejects (35.258792ms)
+✔ TRACKED: ignored but tracked content target rejects (46.597417ms)
+✔ GIT-ERROR: unreadable Git ownership cannot be treated as safe (0.172291ms)
+✔ PATH-ESCAPE: direct foreign, traversal and symlink targets reject (69.901459ms)
+✔ HASH-PATH: authority membership cannot authorize foreign/escaping paths (0.313542ms)
+✔ REDACTION: admitted text is redacted before the in-memory result (107.790167ms)
+✔ DEADLINE: exhausted shared trusted budget rejects without a result (0.119625ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1440.146334

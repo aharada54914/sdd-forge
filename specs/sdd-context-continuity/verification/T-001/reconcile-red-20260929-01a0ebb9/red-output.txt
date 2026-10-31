@@ -1,0 +1,137 @@
+Git fixture OIDs: sha1=e1d9bf8f908cb6ce99aa8e9e9e6320022a5217e1; sha256=beec4d70c93b204ac851e188024ae1c9963a96f71b2a94a2712bbaa5f633f118
+✔ fixture control: real Git ignore and tracked states are distinct (21.0795ms)
+✔ VALIDATION-API: one real shared entrance exists (0.070792ms)
+✔ PROJECTION-VALID: approved empty-journal shape returns the validated object (89.811791ms)
+✔ ID-1024: ASCII and multibyte opaque IDs accept exactly 1024 UTF-8 bytes (177.537ms)
+✔ ID-INVALID: empty, 1025-byte and malformed Unicode opaque IDs reject (1.100709ms)
+✔ HASH-VALID: distinct authority paths may share a hash (88.246208ms)
+✔ HASH-CLOSED: every authority entry requires path/sha256 and forbids extra fields (0.666625ms)
+✔ HASH-DUPLICATE: duplicate authority paths reject even with identical hashes (0.17425ms)
+✔ HASH-FORMAT: authority digests reject uppercase, wrong size and non-hex (0.7325ms)
+✔ TASK-VALID: existing taskEntry optional fields and lifecycle enums accept (441.315125ms)
+✔ TASK-CLOSED: required fields, field types and taskStateData-only extensions reject (1.5725ms)
+✔ TASK-ENUM: invalid approval/status/risk values reject (0.379625ms)
+✔ CURSOR-NULL: nonempty journal forbids a null cursor (0.131083ms)
+✔ CURSOR-VALID: closed owned cursor accepts for a nonempty journal (87.221292ms)
+✔ CURSOR-CLOSED: each required field, safe sequence, hash and content extensions are checked (1.626ms)
+✔ OWNER-MISMATCH: repository/worktree/Git directory/feature/host/session cannot self-authorize (0.565292ms)
+✔ CURSOR-FOREIGN: foreign owner and unproven predecessor session reject (0.330458ms)
+✔ SCHEMA-CLOSED: projection/owner version, required fields and unknown keys reject (1.368209ms)
+✔ JSON-DUPLICATE: duplicate decoded fields reject through the same entrance (0.057375ms)
+✔ REQUEST-AUTHORITY: caller cannot supply receipt/sequence/expiry/path/budget/lifecycle (0.612375ms)
+✔ IGNORE-MISSING: non-ignored content target rejects (30.517333ms)
+✔ IGNORE-NEGATED: effective negation rejects (29.933041ms)
+✔ TRACKED: ignored but tracked content target rejects (39.000958ms)
+✔ GIT-ERROR: unreadable Git ownership cannot be treated as safe (0.165208ms)
+✔ PATH-ESCAPE: direct foreign, traversal and symlink targets reject (60.503208ms)
+✔ HASH-PATH: authority membership cannot authorize foreign/escaping paths (0.294125ms)
+✔ REDACTION: admitted text is redacted before the in-memory result (78.687666ms)
+✔ DEADLINE: exhausted shared trusted budget rejects without a result (0.126542ms)
+✔ HEAD-FIXTURE: real Git storage format and committed HEAD are observed (39.224458ms)
+✔ HEAD-VALID-sha1: real storage-format OID accepts despite a contradictory hint (88.27875ms)
+✔ HEAD-WRONG-FORMAT-sha1: another repository format cannot select the rule (49.083666ms)
+✔ HEAD-MALFORMED-sha1: abbreviated/overlong, uppercase and non-hex OIDs reject (195.688334ms)
+✔ HEAD-VALID-sha256: real storage-format OID accepts despite a contradictory hint (86.882084ms)
+✔ HEAD-WRONG-FORMAT-sha256: another repository format cannot select the rule (48.311875ms)
+✔ HEAD-MALFORMED-sha256: abbreviated/overlong, uppercase and non-hex OIDs reject (199.595708ms)
+✔ HEAD-CALLER-FORMAT: request cannot supply object-format authority (0.192291ms)
+✔ HEAD-UNSUPPORTED-GIT: real unsupported format configuration fails closed (10.104ms)
+✔ RECONCILE-FIXTURE: valid owner/observation reaches the shared Git/path boundary (328.701334ms)
+✖ RECONCILE-VALID-observable-transcript-complete: declared request and nested Observation enums accept (0.325333ms)
+✖ RECONCILE-VALID-observable-transcript-partial: declared request and nested Observation enums accept (0.144458ms)
+✖ RECONCILE-VALID-observable-transcript-unavailable: declared request and nested Observation enums accept (0.119584ms)
+✖ RECONCILE-VALID-compact-manual-complete: declared request and nested Observation enums accept (0.104834ms)
+✖ RECONCILE-VALID-compact-manual-partial: declared request and nested Observation enums accept (0.101125ms)
+✖ RECONCILE-VALID-compact-manual-unavailable: declared request and nested Observation enums accept (0.109459ms)
+✖ RECONCILE-VALID-compact-auto-complete: declared request and nested Observation enums accept (0.121417ms)
+✖ RECONCILE-VALID-compact-auto-partial: declared request and nested Observation enums accept (0.110417ms)
+✖ RECONCILE-VALID-compact-auto-unavailable: declared request and nested Observation enums accept (0.110417ms)
+✖ RECONCILE-EMPTY-complete: records has no invented nonempty requirement (0.076958ms)
+✖ RECONCILE-EMPTY-partial: records has no invented nonempty requirement (0.063041ms)
+✖ RECONCILE-EMPTY-unavailable: records has no invented nonempty requirement (0.061167ms)
+✖ RECONCILE-UNAVAILABLE: absent optional records accepts (0.069292ms)
+✔ RECONCILE-REQUIRED-complete: missing records rejects (0.071041ms)
+✔ RECONCILE-REQUIRED-partial: missing records rejects (0.060209ms)
+✔ RECONCILE-CLOSED: required fields, version, types and unknown keys reject (0.762291ms)
+✔ RECONCILE-ENUM: unrelated kinds and case variants reject (0.433042ms)
+✔ RECONCILE-RECORDS: present records is always an Observation array (1.029209ms)
+✔ RECONCILE-OBSERVATION-CLOSED: every nested required field, type and enum is checked (1.155417ms)
+✔ RECONCILE-OWNER: outer and nested owners cannot self-authorize (1.720709ms)
+✖ RECONCILE-ID-1024: outer and nested IDs accept the existing UTF-8 boundary (0.097542ms)
+✔ RECONCILE-ID-INVALID: outer and nested ID types/Unicode/byte limits reject (0.640041ms)
+✖ RECONCILE-REDACTION: every nested text is prepared before returning any output (0.120625ms)
+✔ RECONCILE-AUTHORITY: outer and nested receipt/path/budget/lifecycle fields reject (1.448833ms)
+✔ RECONCILE-JSON: malformed, decoded-duplicate and surrogate input rejects (0.379042ms)
+✔ RECONCILE-DEADLINE: exhausted original trusted budget returns no result (0.118583ms)
+✔ RECONCILE-PATH: missing/negated ignore, tracked target and Git error fail closed (0.698333ms)
+✔ RECONCILE-UNKNOWN-TYPE: request spelling cannot open an unknown trusted contract (0.447125ms)
+ℹ tests 66
+ℹ suites 0
+ℹ pass 51
+ℹ fail 15
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2469.164375
+
+✖ failing tests:
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RECONCILE-VALID-observable-transcript-complete: declared request and nested Observation enums accept (0.325333ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RECONCILE-VALID-observable-transcript-partial: declared request and nested Observation enums accept (0.144458ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RECONCILE-VALID-observable-transcript-unavailable: declared request and nested Observation enums accept (0.119584ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RECONCILE-VALID-compact-manual-complete: declared request and nested Observation enums accept (0.104834ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RECONCILE-VALID-compact-manual-partial: declared request and nested Observation enums accept (0.101125ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RECONCILE-VALID-compact-manual-unavailable: declared request and nested Observation enums accept (0.109459ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RECONCILE-VALID-compact-auto-complete: declared request and nested Observation enums accept (0.121417ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RECONCILE-VALID-compact-auto-partial: declared request and nested Observation enums accept (0.110417ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RECONCILE-VALID-compact-auto-unavailable: declared request and nested Observation enums accept (0.110417ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RECONCILE-EMPTY-complete: records has no invented nonempty requirement (0.076958ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RECONCILE-EMPTY-partial: records has no invented nonempty requirement (0.063041ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RECONCILE-EMPTY-unavailable: records has no invented nonempty requirement (0.061167ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RECONCILE-UNAVAILABLE: absent optional records accepts (0.069292ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RECONCILE-ID-1024: outer and nested IDs accept the existing UTF-8 boundary (0.097542ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RECONCILE-REDACTION: every nested text is prepared before returning any output (0.120625ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }

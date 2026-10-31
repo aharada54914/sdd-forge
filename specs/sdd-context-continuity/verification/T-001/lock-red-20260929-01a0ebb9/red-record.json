@@ -1,0 +1,57 @@
+{
+  "task_id": "T-001",
+  "checkpoint": "0e246666c23bd48b484fef5483aadb0fc76f2170",
+  "executions": 1,
+  "correction_loops": 0,
+  "counts": {
+    "tests": 8,
+    "pass": 6,
+    "fail": 2,
+    "skipped": 0
+  },
+  "node_exit_code": 1,
+  "artifacts": {
+    "specs/sdd-context-continuity/verification/T-001/lock-red-20260929-01a0ebb9/input-delta.json": {
+      "bytes": 2746,
+      "sha256": "0c2b38586ccdf81762a9b2b6740faa53e1cb623a4ce1bf6541fd4faf68a28252"
+    },
+    "specs/sdd-context-continuity/verification/T-001/lock-red-20260929-01a0ebb9/test-only.diff": {
+      "bytes": 3484,
+      "sha256": "eff46cd7c4b83610f8a06eb3bdb35626ac57a4d181bdcc442ed8795c92a7562a"
+    },
+    "specs/sdd-context-continuity/verification/T-001/lock-red-20260929-01a0ebb9/red-output.txt": {
+      "bytes": 1246,
+      "sha256": "84b3a9a9d59fcc773c6f4283fa52b569f7e7ee307cf00d7ddb8328461c39ad55"
+    },
+    "specs/sdd-context-continuity/verification/T-001/lock-red-20260929-01a0ebb9/red-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/lock-red-20260929-01a0ebb9/red-run.json": {
+      "bytes": 4737,
+      "sha256": "0e9af0181f2d4b27134575fb28a8c6bc9fab58f5dd314f8f4dde7bb4cc6572cc"
+    },
+    "tests/sdd-context/validation.test.mjs": {
+      "bytes": 47787,
+      "sha256": "1d4f267df42b80de82c89cda5d6176654633e8e82265f27a74c55d372e9f41d0"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 126790,
+      "sha256": "5da3e66c22a940b62a977db08b5b64f7387939f6ffa074fd3fd263d7751944cf"
+    },
+    "reports/verification/issue137-lock-validation-20260929.md": {
+      "bytes": 1760,
+      "sha256": "538477e615d65238662414ff6376f3d4e9630017f3bf9e219eb928a8951b2240"
+    }
+  },
+  "guards": {
+    "production_unchanged": true,
+    "approved_addendum_unchanged": true,
+    "ledger_registry_tasks_unchanged": true,
+    "head_unchanged": true,
+    "preflight_report_prefix_preserved": true,
+    "other_104_prior_test_bodies_preserved": true,
+    "old_suites_not_rerun": true
+  },
+  "handoff": "Stop for root RED checkpoint; no production or Git mutations; not a formal verdict."
+}

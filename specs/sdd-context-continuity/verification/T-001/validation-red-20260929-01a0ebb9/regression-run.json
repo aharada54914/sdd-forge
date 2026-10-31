@@ -1,0 +1,44 @@
+{
+  "schema": "validation-regression-run/v1",
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "tests/sdd-context/json-admission.test.mjs",
+    "tests/sdd-context/privacy.test.mjs",
+    "tests/sdd-context/privacy-grammar.test.mjs"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+  "login": false,
+  "started_at_utc": "2026-09-29T09:02:00.311938+00:00",
+  "finished_at_utc": "2026-09-29T09:02:00.391731+00:00",
+  "elapsed_seconds": 0.079694791988004,
+  "exit_code": 0,
+  "counts": {
+    "tests": 31,
+    "suites": 0,
+    "pass": 31,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "inputs_before": {
+    "tests/sdd-context/json-admission.test.mjs": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663",
+    "tests/sdd-context/privacy.test.mjs": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636",
+    "tests/sdd-context/privacy-grammar.test.mjs": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5",
+    "plugins/sdd-context/json-admission.mjs": "1627b6a24642faf1287daa705089633fb6c9046f63294449f2ed31d60d08be5b",
+    "plugins/sdd-context/privacy.mjs": "349fd8a55fe4c2609251927945b384c9383fd79b2a33ed69fe833da5c046eeb1",
+    "plugins/sdd-context/validation.mjs": "e8378d8f121f5b44f522ff1ef0e23a2e4b8de72e164f7538ce0ed6b157885bae"
+  },
+  "inputs_after": {
+    "tests/sdd-context/json-admission.test.mjs": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663",
+    "tests/sdd-context/privacy.test.mjs": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636",
+    "tests/sdd-context/privacy-grammar.test.mjs": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5",
+    "plugins/sdd-context/json-admission.mjs": "1627b6a24642faf1287daa705089633fb6c9046f63294449f2ed31d60d08be5b",
+    "plugins/sdd-context/privacy.mjs": "349fd8a55fe4c2609251927945b384c9383fd79b2a33ed69fe833da5c046eeb1",
+    "plugins/sdd-context/validation.mjs": "e8378d8f121f5b44f522ff1ef0e23a2e4b8de72e164f7538ce0ed6b157885bae"
+  },
+  "inputs_unchanged": true
+}

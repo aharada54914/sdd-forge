@@ -1,0 +1,55 @@
+✖ JOURNAL-VALID-prompt: exact kind and both safe sequence endpoints admit (0.655792ms)
+✖ JOURNAL-VALID-final-assistant: exact kind and both safe sequence endpoints admit (0.116ms)
+✖ JOURNAL-VALID-observable-transcript: exact kind and both safe sequence endpoints admit (0.460167ms)
+✖ JOURNAL-VALID-compact-manual: exact kind and both safe sequence endpoints admit (0.087459ms)
+✖ JOURNAL-VALID-compact-auto: exact kind and both safe sequence endpoints admit (0.107958ms)
+✖ JOURNAL-VALID-resume: exact kind and both safe sequence endpoints admit (0.0885ms)
+✖ JOURNAL-OPTIONAL: coverage variants and absent or bounded opaque ID admit (0.112875ms)
+✔ JOURNAL-CLOSED: every required field and object extension is checked (1.231125ms)
+✔ JOURNAL-FIELDS: independent scalar types enums ranges Unicode dates and digests reject (3.685792ms)
+✔ JOURNAL-OWNER: closed canonical owner independently rejects every foreign component (0.658833ms)
+✔ JOURNAL-TEXT-REJECT: six raw families and marker suffixes must reject without repair (0.385833ms)
+✖ JOURNAL-PRESERVE: actual six-family output hash and either omission value remain exact (0.636292ms)
+✔ JOURNAL-JSON-GUARDS: shared JSON deadline Git and planned-path checks remain required (0.460417ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 5
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 262.505042
+
+✖ failing tests:
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ JOURNAL-VALID-prompt: exact kind and both safe sequence endpoints admit (0.655792ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ JOURNAL-VALID-final-assistant: exact kind and both safe sequence endpoints admit (0.116ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ JOURNAL-VALID-observable-transcript: exact kind and both safe sequence endpoints admit (0.460167ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ JOURNAL-VALID-compact-manual: exact kind and both safe sequence endpoints admit (0.087459ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ JOURNAL-VALID-compact-auto: exact kind and both safe sequence endpoints admit (0.107958ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ JOURNAL-VALID-resume: exact kind and both safe sequence endpoints admit (0.0885ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ JOURNAL-OPTIONAL: coverage variants and absent or bounded opaque ID admit (0.112875ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ JOURNAL-PRESERVE: actual six-family output hash and either omission value remain exact (0.636292ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }

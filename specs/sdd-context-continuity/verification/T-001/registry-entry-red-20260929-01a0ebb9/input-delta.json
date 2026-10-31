@@ -1,0 +1,62 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "created_utc": "2026-09-29T11:41:31.959486+00:00",
+  "checkpoint": "9ccfe2197ae95cb7ebbd6213c5eaf47df677f1b0",
+  "source": {
+    "path": "plugins/sdd-context/validation.mjs",
+    "sha256": "5e083fe7165247b4716cf06dba2b87ac730e829830aa4b7b97362278bbd151f7"
+  },
+  "original_test_prefix": {
+    "bytes": 36646,
+    "cases": 91,
+    "sha256": "19567de75dba7197f3d968a905b49f5a71462d7628a9ab7899521578f05788cc"
+  },
+  "expanded_test": {
+    "path": "tests/sdd-context/validation.test.mjs",
+    "bytes": 41608,
+    "sha256": "6014e026fc934628b1642cf7ee32a8e0235361d1899947b9f0e5d27dca2d8865",
+    "added_cases": 9,
+    "added_lines": 83,
+    "removed_lines": 0
+  },
+  "selected_names": [
+    "REGISTRY-ENTRY-VALID: exact owned entry admits every state and bounded opaque ID",
+    "REGISTRY-ENTRY-CLOSED: five fields are required and object extensions reject",
+    "REGISTRY-ENTRY-FIELDS: locator types, ID bounds, exact states and UTC dates are checked",
+    "REGISTRY-ENTRY-OWNER: every foreign tuple component and malformed owner rejects",
+    "REGISTRY-ENTRY-STORE: only the exact canonical owned context locator is admitted",
+    "REGISTRY-ENTRY-REPLACED-STORE: a temporary context replaced by an escaping symlink rejects",
+    "REGISTRY-ENTRY-JSON: malformed and decoded duplicate entry keys reject",
+    "REGISTRY-ENTRY-DEADLINE: the existing exhausted trusted budget returns no entry",
+    "REGISTRY-ENTRY-PATH: shared ignore/tracked/Git and escaping planned targets still reject"
+  ],
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "--test-name-pattern=^REGISTRY-ENTRY-",
+    "tests/sdd-context/validation.test.mjs"
+  ],
+  "guard_hashes": {
+    "reports/review-context/identity-ledger.json": "f7762e87d657962dc8b141fb8359703aa590e8f46cd89587b2b75a3d91803e90",
+    "specs/workflow-state-registry.json": "2e5d3467f97cec025f066d366cec242f08601d451d44418558071903de5e4210",
+    "specs/sdd-context-continuity/tasks.md": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c"
+  },
+  "original_report_prefix": {
+    "bytes": 110709,
+    "sha256": "9aafe3ecd0a1465306f8109ea7da4e11cd6d4f1eb672d4d61c33ba40fd751099"
+  },
+  "pre_run_report_sha256": "f61592a41534802b2d96ca0cb3326d1e59f7ce520a2664ce9a8a57cc414870f8",
+  "test_only_diff_sha256": "a390051895bf50cee60bb199f0d1c6d5fad4c9bbf60d98d551d5be963b4e1f1a",
+  "preflight": "Existing WFI-001 row 40 plus appended field/counterpart/concrete mismatch table; no production or persistence changes.",
+  "source_references": [
+    "specs/sdd-context-continuity/design.md:77-94,118-119",
+    "specs/sdd-context-continuity/security-spec.md:40-41",
+    "reports/verification/issue137-contract-completion-addendum-20260929.md:14"
+  ],
+  "reused_snapshot_manifest": "specs/sdd-context-continuity/verification/T-001/reconcile-red-20260929-01a0ebb9/input-manifest.json",
+  "scope": "Standalone RegistryEntryV1 test-only; canonical exact owned locator; no OwnerRegistry scheduler updates/create/write/Lock/PID/JournalKind/Outcome/state/Git changes; prior 91 and 31 test bodies not rerun."
+}

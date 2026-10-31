@@ -1,0 +1,88 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "created_utc": "2026-09-29T10:49:23.352781+00:00",
+  "red_checkpoint_commit": "9673af8cfd8701d122964abe4dbe0ff5aee2931a",
+  "evidence_directory": "specs/sdd-context-continuity/verification/T-001/resume-cleanup-green-20260929-01a0ebb9",
+  "source_sha256": "5dccf1bf3d739a10b2fd565122771ce4e69c22e41562dd1ac4200f33aca7e9d6",
+  "fixed_validation_test_sha256": "2920de6f167bdc8af3aa4a2a94fa461c5aa5741e59e9a9fe0544cd33d582e20e",
+  "fixed_regression_tests": {
+    "tests/sdd-context/json-admission.test.mjs": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663",
+    "tests/sdd-context/privacy.test.mjs": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636",
+    "tests/sdd-context/privacy-grammar.test.mjs": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+  },
+  "production_diff": {
+    "added": 9,
+    "removed": 0,
+    "sha256": "e916de8920d5164b7f6182c4d4cd4073fefc09a2868267cce3b616a8811b1f02"
+  },
+  "actual_runs": [
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "node",
+        "--test",
+        "tests/sdd-context/validation.test.mjs"
+      ],
+      "started_utc": "2026-09-29T10:42:03.784045+00:00",
+      "finished_utc": "2026-09-29T10:42:08.450496+00:00",
+      "elapsed_seconds": 4.666429291974055,
+      "exit_code": 0,
+      "counts": {
+        "tests": 79,
+        "pass": 79,
+        "fail": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "node",
+        "--test",
+        "tests/sdd-context/json-admission.test.mjs",
+        "tests/sdd-context/privacy.test.mjs",
+        "tests/sdd-context/privacy-grammar.test.mjs"
+      ],
+      "started_utc": "2026-09-29T10:48:28.381501+00:00",
+      "finished_utc": "2026-09-29T10:48:28.462122+00:00",
+      "elapsed_seconds": 0.08049954200396314,
+      "exit_code": 0,
+      "counts": {
+        "tests": 31,
+        "pass": 31,
+        "fail": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "implementation_attempt": 1,
+  "validation_execution_count": 1,
+  "regression_execution_count": 1,
+  "artifacts": {
+    "input-delta.json": "2bfec73bbb43524ec5ec414e2eb0c6dceb1b9002c961ca7377c4e6c289aaf467",
+    "production.diff": "e916de8920d5164b7f6182c4d4cd4073fefc09a2868267cce3b616a8811b1f02",
+    "green-run.json": "d94baaef6acd73461382503ea273fdde47bed418a19741426197d904a1e26336",
+    "green-output.txt": "47f22bc4b428240a405a15195479ff54272cfc5bef26adcf503401b58b4b7a89",
+    "green-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "regression-run.json": "7b24a43fb9ed783f30e9ec35a05621bb5e893f7e2caed2937f793bfd66c1129f",
+    "regression-output.txt": "07a2f71829c4a36fac47f6ff4bce0b710a48704edc03066eb47fc17ec3377a36",
+    "regression-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "reused_snapshot_manifest": {
+    "path": "specs/sdd-context-continuity/verification/T-001/reconcile-red-20260929-01a0ebb9/input-manifest.json",
+    "sha256": "2b8e135c037dcc0abf3b568a27e8130c03fa5910dbc0073f476463df422ee73d",
+    "mode": "Reference only; snapshot set not copied or rehashed."
+  },
+  "scoped_self_review": "Inspected the nine added lines against existing closed/owner/opaque/require helpers: exact schema version/kind, required and extra keys, independent owner tuple, every present predecessor rejected, opaque UTF-8 limit; both branches break into existing shared deadline/Git/path checks and content-free catch. Current production diff equals the saved tested diff; no helper or downstream path changed.",
+  "pending": [
+    "Ordinary independent code review",
+    "Root Git decision and processing",
+    "Broader T-001 completion evidence, including native/persistence/current-head CI/formal quality gate"
+  ],
+  "task_state": "Approved / In Progress; unchanged and incomplete",
+  "limitation": "This record completes only the authorized local Resume/Cleanup GREEN slice and its existing regressions; it is not a review verdict or task completion."
+}

@@ -1,0 +1,73 @@
+{
+  "checkpoint": "7e75329c31d64dbc8e231d9b276f99dfb4edc376",
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "--test-reporter=spec",
+    "--test-name-pattern=^JOURNAL-",
+    "tests/sdd-context/validation.test.mjs"
+  ],
+  "started_at_utc": "2026-09-29T14:02:18.440400+00:00",
+  "ended_at_utc": "2026-09-29T14:02:18.729654+00:00",
+  "exit_code": 1,
+  "counts": {
+    "tests": 13,
+    "pass": 5,
+    "fail": 8,
+    "skipped": 0
+  },
+  "guards": {
+    "fixed_inputs_matched": 25,
+    "append_only_prefixes_matched": 2,
+    "prior_proof_identities_matched": 33,
+    "original_validation_prefix_bytes": 47787,
+    "original_validation_bodies": 112,
+    "production_unchanged": true,
+    "state_approval_ledger_registry_frozen_artifacts_unchanged": true,
+    "head_unchanged": true
+  },
+  "artifacts": {
+    "specs/sdd-context-continuity/verification/T-001/journal-record-red-20260929-01a0ebb9/input-delta.json": {
+      "bytes": 12975,
+      "sha256": "fd82e551c316194b7664b84c7827dfacbf32988f5b70c99574e949bfbd0ea90a"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-red-20260929-01a0ebb9/original-validation.test.mjs": {
+      "bytes": 47787,
+      "sha256": "1d4f267df42b80de82c89cda5d6176654633e8e82265f27a74c55d372e9f41d0"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-red-20260929-01a0ebb9/test-only.diff": {
+      "bytes": 7004,
+      "sha256": "b1b736eac2b4f6b19a27c4cc7b195a810303fadfa8faa612e7130e54211f8408"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-red-20260929-01a0ebb9/red-output.txt": {
+      "bytes": 3076,
+      "sha256": "56bdcfcb4a4e8d23881e7c9b1a4ef339576e4805f6107535c7140dd45b1ceabe"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-red-20260929-01a0ebb9/red-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-red-20260929-01a0ebb9/red-run.json": {
+      "bytes": 10659,
+      "sha256": "f8a8d51fa049ed66b78345a33475511623b63f4e4faedfbb7f0bcbfe10a8b248"
+    },
+    "tests/sdd-context/validation.test.mjs": {
+      "bytes": 54480,
+      "sha256": "58c6d8026163a3e7e223b81c2709fe46d420ad080eb41550e08bfb3c5e80984f"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 147301,
+      "sha256": "d04c0f599a9badd545eb87bf8365879f1c980d96b5efc798f774768bb9c04ff2"
+    },
+    "reports/verification/issue137-journal-record-red-20260929.md": {
+      "bytes": 1391,
+      "sha256": "659356cf6c077814d02bdd50cac75353852bd6fa696acdc22d8455e4952d3134"
+    }
+  },
+  "journal_production_corrections": 0,
+  "task_additional_corrections": 1,
+  "remaining_task_allowance": 2,
+  "handoff": "root RED review/checkpoint required before production; T-001 incomplete; no rerun or worker Git mutation"
+}

@@ -1,0 +1,26 @@
+{
+  "method": "thread/start",
+  "request_id": 1,
+  "transport_session": 31298,
+  "receipt_source": "actual native app-server response before any turn/start",
+  "result": {
+    "thread": {
+      "id": "01a0e0bd-6540-73c3-aede-a9647ce68de6",
+      "sessionId": "01a0e0bd-6540-73c3-aede-a9647ce68de6",
+      "forkedFromId": null,
+      "parentThreadId": null,
+      "preview": "",
+      "status": {"type": "idle"},
+      "turns": [],
+      "path": "/Users/jrmag/.codex/sessions/2026/09/27/rollout-2026-09-27T11-41-43-01a0e0bd-6540-73c3-aede-a9647ce68de6.jsonl",
+      "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+      "cliVersion": "0.158.0-alpha.2.1"
+    },
+    "model": "gpt-6-sol",
+    "modelProvider": "openai",
+    "serviceTier": "default",
+    "approvalPolicy": "never",
+    "sandbox": {"type": "dangerFullAccess"}
+  },
+  "first_turn_requirement": "Read-only sandbox and the reserved allowed-input manifest; allocation itself started no model turn."
+}

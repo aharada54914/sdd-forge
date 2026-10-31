@@ -1,0 +1,51 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "checkpoint": "ea4f1a220261b1f7381d82f100d06ff617054f82",
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "tests/sdd-context/json-admission.test.mjs",
+    "tests/sdd-context/privacy.test.mjs",
+    "tests/sdd-context/privacy-grammar.test.mjs"
+  ],
+  "started_utc": "2026-09-29T11:55:42.517982+00:00",
+  "finished_utc": "2026-09-29T11:55:42.602773+00:00",
+  "elapsed_seconds": 0.084842958021909,
+  "exit_code": 0,
+  "counts": {
+    "tests": 31,
+    "pass": 31,
+    "fail": 0,
+    "skipped": 0
+  },
+  "stdout_sha256": "e31b9a6d46c75bb38c172e4a042f00b02cf9db0d97b68147ff6148850459cf25",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_sha256": "5e4aee1b887ec82be5bf44f9ee38eaf24d48bcb3a8c72c0c0f731ed4e03a0659",
+  "test_sha256": "6014e026fc934628b1642cf7ee32a8e0235361d1899947b9f0e5d27dca2d8865",
+  "input_delta_sha256": "7b11da44c509fb97ea50530e43fd828eb492b3705a19fc88e43d945a31e6cc7e",
+  "source_diff_sha256": "97eb521c5264f9a38a75490ffc83e34e54dc84e417faf02490a5b2b56fa7ea48",
+  "source_unchanged_during_run": true,
+  "guard_preservation": {
+    "tests/sdd-context/validation.test.mjs": true,
+    "reports/review-context/identity-ledger.json": true,
+    "specs/workflow-state-registry.json": true,
+    "specs/sdd-context-continuity/tasks.md": true,
+    "tests/sdd-context/json-admission.test.mjs": true,
+    "tests/sdd-context/privacy.test.mjs": true,
+    "tests/sdd-context/privacy-grammar.test.mjs": true
+  },
+  "checkpoint_unchanged": true,
+  "test_execution_count": 1,
+  "correction_count": 0,
+  "environment": {
+    "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+    "login": false,
+    "node": "v24.13.0",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O"
+  },
+  "limitation": "local standalone entry slice only; no persistence/native/CI/formal verdict"
+}

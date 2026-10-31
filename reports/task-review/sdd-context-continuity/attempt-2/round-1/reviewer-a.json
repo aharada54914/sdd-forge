@@ -1,0 +1,44 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "sdd-context-continuity",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "bec4d10b-6dab-4225-8f98-e63e744d9e79",
+  "host_session_id": "root.issue137_task_a2r1_a",
+  "manifest": [
+    {"path":"specs/sdd-context-continuity/requirements.md","sha256":"917184de1b262628b2540d53ae5737ed84f1adf18e3d04985185c61a128bc411"},
+    {"path":"specs/sdd-context-continuity/acceptance-tests.md","sha256":"2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a"},
+    {"path":"specs/sdd-context-continuity/design.md","sha256":"42e28844d507e7417fa1a58e8f74bb5aceec0ff0afadd911f03eebce2be9395c"},
+    {"path":"specs/sdd-context-continuity/tasks.md","sha256":"491a868f5fea00ea2f709ee04be0bce7aeb66de83ce38c1f0d4b8fc1d6ae4e21"},
+    {"path":"specs/sdd-context-continuity/traceability.md","sha256":"221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b"},
+    {"path":"specs/sdd-context-continuity/ux-spec.md","sha256":"df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"},
+    {"path":"specs/sdd-context-continuity/frontend-spec.md","sha256":"ca33a3a01faf54c9c1b5814a494f0ff4999cc6c89b3330ea7d5567189e928a59"},
+    {"path":"specs/sdd-context-continuity/infra-spec.md","sha256":"59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"},
+    {"path":"specs/sdd-context-continuity/security-spec.md","sha256":"a6ab7a2ff922c8eb62d8a70b875aede2d49b9d5e8fae282463087a472612e0b2"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path":"reports/task-review/sdd-context-continuity/attempt-2/round-1/precheck-result.json","sha256":"d27571e37bdc8424d924332f07f986997c729942c7537ed7fe86207bfdf0c2f7"},
+    {"path":"reports/task-review/sdd-context-continuity/attempt-2/round-1/dependency-graph.json","sha256":"f696c902ce4c469274746c79d435105e3bc70f0c7d11cfac63a41b0a06685d12"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id":"PREREQ-AC-IDS","status":"PASS","severity":"Critical","finding":"All AC-001 through AC-018 referenced by tasks.md exist in acceptance-tests.md."},
+    {"id":"BLOCKERS-FORMAT","status":"PASS","severity":"Major","finding":"All six Blockers fields contain None or comma-separated task IDs; blockers_format_valid=true."},
+    {"id":"REQ-COVERAGE","status":"PASS","severity":"Critical","finding":"REQ-001 through REQ-012 each appear in at least one task Requirements field."},
+    {"id":"AC-COVERAGE","status":"PASS","severity":"Critical","finding":"AC-001 through AC-018 each appear in task Requirements fields; the distinct TEST-067 inventory gap is recorded under TRACEABILITY-SYNC."},
+    {"id":"ORPHAN-TASK","status":"PASS","severity":"Major","finding":"T-001 through T-006 each reference requirements."},
+    {"id":"ORPHAN-TEST","status":"PASS","severity":"Major","finding":"T-006, the acceptance verification task, explicitly references AC-001 through AC-018."},
+    {"id":"INITIAL-STATE","status":"PASS","severity":"Major","finding":"Post-implementation lifecycle fields are valid: T-001 is Approved/In Progress; T-002, T-003, T-004 and T-006 are Approved/Planned; T-005 is Draft/Planned."},
+    {"id":"RISK-WORKFLOW-FORMAT","status":"PASS","severity":"Critical","finding":"T-001 through T-004 and T-006 are high/tdd; T-005 is critical/tdd; precheck workflow_match_precheck=PASS."},
+    {"id":"NO-DUPLICATE-AC","status":"PASS","severity":"Major","finding":"T-006 identifies verification and inventory ownership rather than duplicate primary implementation; shared AC-013 and AC-015 references distinguish read/deletion and storage/Stop scopes."},
+    {"id":"DEPENDENCY-COMPLETE","status":"PASS","severity":"Major","finding":"Every blocker in tasks.md exists among dependency-graph.json nodes T-001 through T-006."},
+    {"id":"DEPENDENCY-CYCLE","status":"PASS","severity":"Critical","finding":"The dependency graph progresses T-001 to T-002 to T-003, branches to T-004/T-005, then joins at T-006; no cycle exists."},
+    {"id":"SINGLE-CONCERN","status":"PASS","severity":"Major","finding":"Each task has one coherent contract, journal, recovery, adapter, cleanup or delivery-and-acceptance scope."},
+    {"id":"OBSERVABLE-DONE","status":"PASS","severity":"Major","finding":"T-001 through T-006 name inspectable tests, native evidence, review results or verification addenda; precheck frozen_artifact_done_when is empty."},
+    {"id":"TRACEABILITY-SYNC","status":"FAIL","severity":"Major","finding":"acceptance-tests.md:78 defines TEST-067 for AC-004/REQ-003 manual compact before Stop, but T-004 Tests at tasks.md:100 omits it, T-006 Tests at tasks.md:140 ends at TEST-066, and the REQ-003 row at traceability.md:14 omits it. The required manual-before-Stop assertion has no explicit task test or traceability entry, so its evidence ownership can be missed."}
+  ],
+  "findings": [
+    {"check_id":"TRACEABILITY-SYNC","severity":"Major","task_id":"T-004","finding":"acceptance-tests.md:78 defines TEST-067 for AC-004/REQ-003 manual compact before Stop, but T-004 Tests at tasks.md:100 omits it, T-006 Tests at tasks.md:140 ends at TEST-066, and traceability.md:14 omits it from REQ-003. This leaves a required acceptance assertion without explicit task test and traceability ownership."}
+  ]
+}

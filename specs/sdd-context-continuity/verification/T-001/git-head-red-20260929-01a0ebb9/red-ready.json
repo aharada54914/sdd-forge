@@ -1,0 +1,50 @@
+{
+  "schema": "validation-red-ready/v1",
+  "run_id": "issue137-T001-git-head-red-20260929-01a0ebb9",
+  "head": "40f1c79cdede2a67abe7e5e2b28b1d38a5b3fe78",
+  "git_storage_format": "sha1",
+  "fixture_oids": {
+    "sha1": "bc6ba5398310f9961953022fd213799099495a54",
+    "sha256": "828c0615ccdb921fe63e9c137ea7b7b7a9f8ecd8e5e94766a133cb880285ebaa"
+  },
+  "fixture_formats_observed": true,
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "tests/sdd-context/validation.test.mjs"
+  ],
+  "exit_code": 1,
+  "counts": {
+    "tests": 37,
+    "suites": 0,
+    "pass": 35,
+    "fail": 2,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "inputs_unchanged": true,
+  "subject_absent": false,
+  "production_unchanged": true,
+  "original_cases_retained": 28,
+  "original_cases_passed": 28,
+  "observed_failures": [
+    "HEAD-VALID-sha1: valid 40-character native OID rejected with validation-rejected",
+    "HEAD-WRONG-FORMAT-sha1: 64-character OID returned an in-memory result"
+  ],
+  "deeper_assertions_executed": true,
+  "execution_count": 1,
+  "hashes": {
+    "manifest": "2d2819a2088c1cae2792e6cdb3c832142d200155c5c5fc0c44425f4e7ff82bec",
+    "run": "fe96409e67734d47d88d4ec83661ba9ff6273c46de5bba0bb1e9594ed0d74dec",
+    "stdout": "f1e5641f252e1c8fd86fe301fd55a84f174a1f8dc529664720b027da630ad613",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "addendum": "20e4dfce79f984c4837292694f6a868ab4d4c3bc00baeab1247a4f65d356ae1d",
+    "test": "14a381d91b4776f99991b0047c33d7048ce577dc4b0226e6b0fc93e401219750",
+    "production": "e8378d8f121f5b44f522ff1ef0e23a2e4b8de72e164f7538ce0ed6b157885bae"
+  },
+  "status": "RED_RECORD_FOR_ROOT_CONFIRMATION",
+  "limits": "Local fixed real-Git RED only; production held pending main-agent review; no formal gate/status/native/freshness claim."
+}

@@ -1,0 +1,188 @@
+# Implementation Report: T-001
+
+- Task ID: T-001
+- Model: gpt-6-astra
+- Effort: high
+
+Report Schema: implementation-report/v2
+Run ID: issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e
+Task Attempt Count: 1
+
+## Target
+
+Only approved T-001, closed contracts and pre-write privacy boundary.
+Input authority: reports/verification/issue137-fresh-host-launch-20260928/T-001-manifest.json and its immutable snapshot. All 24 listed input hashes matched before editing.
+spec_revision: requirements=718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35; design=0af1d884ad0c458ad59e0b5e172f444455fcf948c6b4eff6f6f62871a3f7d7f7; tasks=ebc299e095552b715cae76309555a33dcc2108bd4fc12bc26e3c2fbc6aa7b970. Remaining input revisions are the manifest SHA-256 pairs.
+Environment: Darwin 27.0.0 arm64; Node v24.13.0; local restricted worker, network disabled, five declared output roots only.
+
+## Summary
+
+2026-09-28 continuation: root RED receipt verified before production editing. Commit a89004fe54c68548259ce5d2dd465f05fec8713a is root-attested; no Git was invoked. Receipt task/run/test hash and normalized RED evidence hash match disk. User authorized only unambiguous privacy grammar and synthetic GREEN; unspecified entity/request/outcome schemas remain blocked. The expanded grammar suite ran before production: exit 1, 14 failing behavioral checks and one negative-control pass (grammar-red-output.txt).
+
+Privacy-only preflight refinement: the in-memory result has exactly text/omission/ruleVersion (PRIVACY-FAMILIES tests check keys, removal, marker and version). It is not an OutcomeV1 or a persisted store. All local rejection paths throw the same content-free internal error code, privacy-rejected, with no stack/cause/input; this is not a proposed public reasonCode vocabulary. The second redact argument is a trusted monotonic absolute deadline, not a host request field or adjustable budget; default is 1,000 ms from process time origin. Tests use a fresh per-invocation deadline or an expired deadline. No filesystem/output callbacks, persistence, host JSON parser, closed schemas or host diagnostics are introduced. Their guarantees stay pending.
+
+Preflight was prepared before tests and production code. Initial RED_READY recorded three intended behavioral assertion failures and one preservation control against a test-only unprotected baseline. After root's checkpoint, the in-memory privacy implementation now passes all 19 synthetic checks. This is partial T-001 evidence, not implementation completion or a reproduction against previously existing production code. Closed schemas and native/path/storage integration remain blocked or pending. Worker never runs Git; root owns shared task state and commits.
+
+## High-risk WFI-001 preflight
+
+This enumerates every planned T-001 contract field, including contracts whose consumers belong to later tasks. All referenced specifications are manifest-bound. Rows describe concrete mismatch checks; only checks listed in Test Evidence as executed are observed proof. Remaining checks must be made executable before their associated production slice. No journal, scheduler, adapter or recovery implementation is authorized here.
+
+| Persisted field or claim | Governing counterpart | Concrete failing mismatch check |
+|---|---|---|
+| All entities/requests/outcomes: schemaVersion, closed keys, duplicate keys, Unicode, types | design.md Data Entities and API / Contract Plan; TEST-046a | CONTRACT-CLOSED: mutate version to 2, add unknown key, repeat a key including escaped spelling, supply isolated surrogate/wrong type; each must reject, with valid v1 control. |
+| OwnerV1: sddRoot, worktreeRoot, gitDirectory, featureId, host, sessionId | design.md owner tuple; TEST-019–023 | OWNER-TUPLE: independently change each field from trusted owner; reject foreign owner; realpath alias must match; HEAD change must not alter owner. |
+| JournalHeaderV1: owner, segmentId, firstSequence, predecessorHash | design.md Data Entities; infra-spec.md mixed-segment rewrite | CONTRACT-HEADER: foreign owner, empty segment, negative/fractional/unsafe firstSequence and non-lowercase/non-64-hex digest must reject. |
+| JournalRecordV1: owner, sequence, kind, receivedAtUtc, text, ruleVersion, omission, coverage, previousHash, hash, stableEventId? | design.md JournalRecordV1; security-spec.md rule-v1; REQ-001/009 | CONTRACT-RECORD: independently corrupt tuple, sequence, kind, UTC date, text type, ruleVersion, omission, coverage, each digest, optional ID; schema rejects. PRIVACY-ASSIGNMENT and PRIVACY-HEADER: synthetic sensitive value cannot survive in text; omission must be true, ruleVersion 1. Actual chain/durability behavior belongs to T-002. |
+| DecisionV1: owner, id, status, text, doNotReopen, sourceSequences, originalReceipts, materialization?.path/.sha256 | design.md DecisionV1 and corresponding nonempty arrays; traceability REQ-002 | CONTRACT-DECISION: reject foreign owner, empty ID, unsupported status, wrong text/boolean, empty or unequal arrays, invalid sequences/dates, invalid materialization path/hash. Redacted text cannot contain synthetic secret. No extraction implemented in T-001. |
+| ProjectionV1: owner, head, authorityHashes, taskLifecycle, featurePresent, journalCursor, decisions | design.md ProjectionV1; frontend-spec.md State Shape | CONTRACT-PROJECTION: missing or wrong-type field and invalid nested cursor/decision reject; no arbitrary field may cross closed boundary. Freshness/invalidation belongs to T-003. |
+| CursorV1: owner, segmentId, sequence, hash, predecessorSessionId? | design.md CursorV1; TEST-022 | CONTRACT-CURSOR: reject text extension, foreign tuple, invalid segment/sequence/hash/predecessor ID; no content extension can bypass redaction. Replay authorization belongs to T-003. |
+| OwnerRegistryV1: entries, maxObservedUtc | design.md OwnerRegistryV1; infra-spec.md clock policy | CONTRACT-REGISTRY: reject non-array entries, conflicting owner duplicates, duplicate registration IDs, invalid UTC watermark; scheduling/watermark updates belong to T-005. |
+| RegistryEntryV1: owner, storeRoot, registrationId, schedulerState, checkedAtUtc | design.md RegistryEntryV1; security-spec.md B3 | CONTRACT-ENTRY: foreign owner, escaping root, invalid ID, unknown scheduler state, invalid date all reject. Native registration remains T-005/006. |
+| LockV1: owner, nonce, pid, processStartIdentity | design.md LockV1; infra-spec.md lock ownership | CONTRACT-LOCK: malformed tuple/nonce/PID/start identity reject; lock acquisition/death proof belongs to T-002. |
+| ObservationV1: owner, kind, text, coverage, stableEventId? | design.md ObservationV1; frontend-spec.md NativeObservation mapping | CONTRACT-OBSERVATION: reject native-only host/eventKind/transcript locator, caller receipt/budget, unsupported kind/coverage/ID, invalid Unicode, input >1 MiB; valid prompt/final-assistant controls. |
+| ReconcileV1: owner, kind, coverage, records?, stableEventId? | design.md ReconcileV1 | CONTRACT-RECONCILE: missing records with complete/partial coverage or invalid nested Observation rejects; unsupported kind and injected timestamp/path reject. |
+| ResumeV1: owner, kind, predecessorSessionId? | design.md ResumeV1; TEST-022 | CONTRACT-RESUME: kind other than resume, invalid optional predecessor or injected authority rejects; relationship proof belongs to T-003. |
+| CleanupV1: registrationId | design.md CleanupV1 | CONTRACT-CLEANUP: reject caller path, owner, time, budget, extra key or empty registration ID. No cleanup runs. |
+| OutcomeV1 common: kind, reasonCode, omission, diagnostic? | design.md OutcomeV1; security-spec.md B4 | CONTRACT-OUTCOME: unknown discriminant/reason, wrong omission type or free-form diagnostic reject; diagnostics contain no input, path, stack, cause or digest. Reason vocabulary still needs an explicit contract definition. |
+| captured: sequence, synced | design.md captured discriminant | CONTRACT-CAPTURED: missing/false synced or invalid sequence reject. Test never calls a pre-write result captured; sync proof remains T-002. |
+| safe: synced, reconciled, integrity, published | design.md safe discriminant | CONTRACT-SAFE: mutate each required true field independently to false/missing; reject each. No manual barrier claim. |
+| recovered: coverage, entries[].sourceSequences/.text/.omission, pointers[].opaqueId/.reasonCode | design.md recovered discriminant; frontend-spec.md 8,192 byte envelope | CONTRACT-RECOVERED: invalid coverage, source sequence, omission, raw path pointer or unknown reason rejects; body redaction checked before any serialization; final host serializer belongs to T-003/004. |
+| cleaned: expiredCount, removedCount, completed | design.md cleaned discriminant | CONTRACT-CLEANED: negative/fractional/unsafe counts or missing/false completed reject. Deletion proof belongs to T-005. |
+| uncaptured-warning, unsafe, unavailable, no-op, cleanup-warning: no content fields | design.md failure/no-op outcomes | CONTRACT-FAILURE: attach text/path/error/digest/success-only field independently and reject each. Native continue policy belongs to T-004. |
+| text, omission, ruleVersion on each content copy/output | security-spec.md Secrets Management; TEST-045a–f and parent TEST-045 | PRIVACY-FAMILIES: enumerate exact PEM/assignment/header/URL/prefix/JWT variants and bounds, overlap/Unicode/CRLF, and negative controls; assert absence of synthetic value/raw digest, family placeholder and omission. T-001 verifies common privacy boundary, not nonexistent later-task storage integrations. |
+| Failure: no writable payload/raw fallback; bounded processing | security-spec.md rule-v1; TEST-046a–c | PRIVACY-MALFORMED: unclosed identified quote must reject. Extend to every named malformed input, exact/+1 limits, 512/513 spans, scanner failure/deadline. Assert content-free failure and no writable payload. |
+| Canonical owned target, opened-file identity, effective ignore/not-tracked, new mode/ACL | security-spec.md Authorization; TEST-052–056; OQ-009 | PATH-NATIVE: each missing/negated ignore, tracked target, Git error, symlink/junction/traversal, replacement, foreign owner and insecure ACL must refuse without mutation; dedicated new file/directory positive controls. Native OS lanes reported separately. Git execution is not authorized in this worker brief. |
+| Report schema, Run ID, Task Attempt Count, model/effort, isolation fields | implementation-report.template.md; manifest identity; AGENTS.md evidence rules | EVIDENCE-IDENTITY: compare exact identity against manifest; wrong run/session/agent or missing bare lines fails; fresh-agent requires None fallback fields. |
+| Output paths/hashes, spec_revision, environment, command/exit/status, red-ready and future red-commit linkage | template Outputs; worker-brief.md; immutable manifest | EVIDENCE-PROVENANCE: recompute file SHA-256 and compare each row; mutate output/input hash or exit code and check mismatch; never label RED as GREEN/native proof. Root marker must identify this test/hash and real commit before production. Report excludes its own hash to avoid recursive self-hashing. |
+| REQ→AC→TEST coverage, native pending, completion/reviewer claims | traceability.md; T-001 Done When; worker-brief.md | EVIDENCE-COVERAGE: compare declared executed IDs to actual test output; reject complete/native PASS without corresponding evidence; TEST-045g–i remain undefined, not invented. Independent reviewer/run is pending, never worker verdict. |
+
+## Files Changed
+
+Added plugins/sdd-context/privacy.mjs and tests/sdd-context/privacy-grammar.test.mjs; updated this report and added grammar RED/GREEN verification evidence. The original committed privacy.test.mjs is unchanged. Outputs also inventory root-owned checkpoint artifacts, without implying worker authorship. No frozen specification, shared task state, Git, hook or dependency changes.
+
+## Tests Added Or Updated
+
+The original four tests cover TEST-045b assignment, TEST-045c header, TEST-046a malformed quote and a non-sensitive preservation control. Fifteen additional tests exercise all four PEM labels; nine keys with case, quote and delimiter variants; Bearer/Basic headers; URL userinfo and raw/one-pass decoded keys; all named prefixes and JWT bounds; overlap, escapes, Unicode and CRLF; malformed input and synthetic decoder failure; exact/+1 byte, span and deadline bounds; documented negative controls. Both suites explicitly used a test-only unprotected identity baseline for RED and now load the production module. Unexpected module import failures propagate. These are in-memory grammar checks, not host JSON/schema, output-copy or persistence integration proof.
+
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| `plugins/sdd-context/privacy.mjs` | `349fd8a55fe4c2609251927945b384c9383fd79b2a33ed69fe833da5c046eeb1` |
+| `tests/sdd-context/privacy.test.mjs` | `6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636` |
+| `tests/sdd-context/privacy-grammar.test.mjs` | `b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5` |
+| `specs/sdd-context-continuity/verification/T-001/grammar-green-attempt-1.txt` | `59b226eeccf7a93c720d45db586d5d1462d799e4ec4dc8fd79b860dc6a35b6f7` |
+| `specs/sdd-context-continuity/verification/T-001/grammar-green-attempt-2.txt` | `36b681bc416dbc751d2887aa5b84117c43b6d61bc0decd8813c3dffb931ff781` |
+| `specs/sdd-context-continuity/verification/T-001/grammar-red-output.txt` | `d72637f333df02b739e08a105ea0c7068ddca70349d76fa7b03b75d73d93140a` |
+| `specs/sdd-context-continuity/verification/T-001/privacy-result.json` | `069370ceb2883c3e753f52bf95e5ffb48a84e44461a38a2eaa2de1aed0e039e5` |
+| `specs/sdd-context-continuity/verification/T-001/red-commit.json` | `62524cb72517a0d9d83027ba4cd62e53afaee58eef4ea18ac026b1726800bf4f` |
+| `specs/sdd-context-continuity/verification/T-001/red-output.txt` | `9715ff492ebc27838f1472213f6d781d5674c9afa44094a41a062b7b128a60c9` |
+| `specs/sdd-context-continuity/verification/T-001/red-ready.json` | `a3db86c408892943374e2dbfe56b8fbe2853b587efeee0af22e8789cd8149f9c` |
+| `specs/sdd-context-continuity/verification/T-001/red-run.json` | `c8ee371fc323627d03b8ba7b6d24eaba522ce1c59feb8aba919c6863add620fc` |
+
+## Test Evidence
+
+- **Test Command**: rtk proxy node --test --test-reporter=tap tests/sdd-context/privacy.test.mjs tests/sdd-context/privacy-grammar.test.mjs
+- **Test Result**: PASS for the synthetic privacy slice, exit 0, 19 passed / 0 failed / 0 skipped. Observed 2026-09-28T06:00:56.335989+00:00.
+- **Test Evidence Path**: specs/sdd-context-continuity/verification/T-001/grammar-green-attempt-2.txt
+- Additional grammar RED: 14 failed / 1 passed against the explicit absent-production baseline, exit 1 (grammar-red-output.txt). Initial production run: 18 passed / 1 failed, exit 1 (grammar-green-attempt-1.txt). The test oracle correction is recorded below; production was not changed after that run.
+- Syntax only: rtk proxy node --check plugins/sdd-context/privacy.mjs and rtk proxy node --check tests/sdd-context/privacy-grammar.test.mjs both exited 0. These are not lint/typecheck/build evidence.
+
+Historical checkpoint:
+
+- **Test Command**: rtk proxy node --test --test-reporter=tap tests/sdd-context/privacy.test.mjs
+- **Test Result**: FAIL (expected RED), exit 1; TEST-045b/c and TEST-046a first cases failed behavior assertions; TEST-045f non-key/Unicode preservation control passed. No complete acceptance row is claimed passed.
+- **Test Evidence Path**: specs/sdd-context-continuity/verification/T-001/red-output.txt
+
+Observed at 2026-09-28T05:45:26.992598+00:00. Execution metadata and exact test/output hashes are in red-run.json. Workspace absolute-prefix strings in TAP locations/stacks were replaced with <workspace>; root additionally stripped trailing spaces from six blank lines for Git whitespace checks. Assertion values/results were preserved, and red-run.json records both log hashes. No runtime scratch or private conversation was created. RED proves the first test oracle distinguishes unsafe passthrough from the specified behavior; full contract, no-write integration and native safety checks remain unexecuted.
+
+## Iteration And Escalation
+
+- **Task Attempt Count**: 1
+- **Escalation Prior Tier**: None
+- **Escalation Next Tier**: None
+- **Escalation Failure Class**: None
+- **Escalation Attempt Number**: None
+- **Escalation Reason**: None; expected TDD RED is not a correction failure.
+
+Correction loops used: 1 of maximum 3. The initial URL assertion expected a closing angle bracket to survive even when a raw sensitive query key also matched the assignment grammar. The frozen security specification explicitly ends bare assignment values only at whitespace/comma/semicolon/closing brace/closing square bracket, then unions overlapping original spans. It grants precedence only to headers. Adding URL precedence would invent policy. Corrected the test to separately assert URL-only angle preservation (percent-encoded key), raw URL key coverage, and the wider raw-assignment overlap union. No production behavior, security bound or original committed RED assertion was weakened. All 19 tests then passed.
+
+## Isolation Evidence
+
+- **Scratch Root**: specs/sdd-context-continuity/verification/T-001
+- **Run ID**: issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e
+- **Session ID**: 01a0e682-61e2-7370-a241-7646661b372e
+- **Agent Instance ID**: 01a0e682-61e2-7370-a241-7646661b372e
+- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None
+
+## Regression Tests Run
+
+Reran the four committed RED checks together with the fifteen grammar checks against the production module: 19/19 passed. No repository-wide regression, native host, ACL, Windows or Ubuntu proof.
+
+## Specification Differences
+
+No frozen artifact edited. Per-task Approved field governs T-001 despite earlier draft prose. Worker brief overrides generic skill Git/state/precheck actions: no Git, shared task state edits, unrelated working-tree reads or non-manifest structure script execution.
+
+## Unresolved Items
+
+- Root commit prerequisite satisfied by the verified receipt and user attestation; worker did not independently inspect Git objects.
+- T-001 and traceability name TEST-045a–i; immutable acceptance defines only a–f. Do not invent g–i or claim full coverage.
+- Design requires bounded IDs but gives no numeric ID bound; reasonCode/diagnostic approved vocabulary is not enumerated. Projection inner authorityHashes/taskLifecycle/journalCursor shapes and some entity kind constraints need clarification before exact closed schemas can be completed. No new policy is chosen here.
+- OQ-009 actual owner/path/Git/ACL positive and negative evidence remains pending for each OS. Worker is expressly forbidden from running Git; root must supply/run that verification through an authorized lane.
+- OQ-011 in-memory rule-family synthetic tests passed; host JSON duplicate-key/schema validation, every storage/copy/output path, ordinary-work continuation, content-free host diagnostics, owner/path checks and independent review remain pending. Later-task integrations cannot be established by T-001 stubs. No persistence is implemented, so absence of a writable return on failure is not an all-copy no-write proof.
+- Lint/typecheck/build, full unit/acceptance/regression, placeholder/task-state/traceability/component checks, independent reviewer/run and quality gate remain pending. No Implementation Complete or Done claim.
+
+## Quality Gate Focus
+
+Check field correspondence, real versus synthetic evidence, missing branch definitions and native prerequisites. No evaluator verdict authored by this worker.
+
+## Working Notes
+
+All manifest-listed specifications, ADR, source anchors, contracts, policies, template and brief were read. Output roots were empty before changes. Existing diagnostics provides allowlist/no-stack principles only; do not import its environment-harvesting scrubber. Existing root/path source shows why read failure must not be treated as safe absence; parser reuse is T-003. No delegation was needed for the initial narrow slice.
+
+## Session Handoff
+
+- **Current Status**: In Progress
+- **Next Action**: Return the synthetic GREEN slice and report to root for its self-review. Keep unspecified closed schemas blocked until their exact shapes/vocabulary/bounds are supplied through authorized specification work. Root owns state, commits, CI and independent review dispatch. Do not mark T-001 Implementation Complete.
+- **Unresolved Items**: Schema clarification; remaining mismatch/integration tests; native and independent verification. One correction loop used; no other task implemented.
+
+### Restoration handoff — 2026-09-29
+
+- The delegated continuation requires returning current state to root if compaction occurs, without resuming production implementation in compacted context. Compaction occurred; this entry preserves the restoration work only. The task remains In Progress; this is not an implementation-complete or review verdict.
+- No production code or tests were edited in this continuation. No task approval/status, frozen input, manifest, identity ledger, commit, push or PR was changed. The report's existing Run ID identifies the earlier implementation run and is preserved.
+- Executed in the designated worktree: `rtk proxy bash scripts/check-sdd-structure.sh` exited 0 (`check-sdd-structure: OK`). `rtk proxy node --test --test-reporter=tap tests/sdd-context/privacy.test.mjs tests/sdd-context/privacy-grammar.test.mjs` exited 0: 19 passed, 0 failed, 0 skipped. This is synthetic privacy regression evidence only.
+- Restoration environment: Node v24.13.0, Darwin 27.0.0, arm64. The manifest/receipt check was observed at 2026-09-29T04:39:46.413Z.
+- The live launch-manifest check matched 23 of 24 inputs and exited 1 for the remaining raw-hash mismatch. For `specs/sdd-context-continuity/tasks.md`, manifest SHA-256 is `ebc299e095552b715cae76309555a33dcc2108bd4fc12bc26e3c2fbc6aa7b970`; current SHA-256 is `c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c`. The cause was not established. Root must compare against the immutable launch input and determine whether differences are limited to permitted normalized status/approval fields; do not rebind the manifest or edit frozen documents to conceal this mismatch.
+- Existing `verification/T-001/red-ready.json` and `red-commit.json` agree on task/run identity, test/evidence hashes and failing exit status. Disk test/evidence hashes match both receipts. The receipt's commit fields agree on `a89004fe54c68548259ce5d2dd465f05fec8713a`; commit existence was not independently checked in this continuation. Its scope permits only unambiguous privacy behavior and does not authorize inventing missing schemas.
+- A read of global Codex AGENTS was rejected by the deterministic hook with the agent-role `developer_instructions` diagnostic. That rejected read was not retried through an alternate executor/path. The designated worktree AGENTS was read successfully.
+- Proposed next slice, not implemented: the specified TEST-046a JSON admission behavior, rejecting duplicate decoded member names and invalid Unicode before persistence. No new RED tests or receipt for that slice exist. In a fresh context, first resolve the input mismatch and establish the slice's WFI-001 mismatch tests and applicable root RED receipt before any production edit.
+- Exact ID bounds, public reason-code/diagnostic vocabulary, nested Projection shapes and TEST-045g–i definitions remain unresolved. Native owner/path/ACL evidence, remaining copy/output-path validation, CI, independent review and quality-gate evidence remain pending. T-002 onward, deletion scheduling and Draft T-005 remain outside this continuation.
+
+### Root input comparison — 2026-09-29
+
+- Root executed a read-only Node SHA-256 comparison in this checkout. There is exactly one `Status: In Progress` line in `tasks.md`. Restoring that single line to `Status: Planned` in memory reproduces the original launch-manifest digest `ebc299e095552b715cae76309555a33dcc2108bd4fc12bc26e3c2fbc6aa7b970`; current raw digest remains `c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c`. Command exit was 0, `soleStatusDeltaMatches` was true. The historical unknown-cause entry above is retained, with its cause now resolved as the permitted T-001 lifecycle transition only.
+- No task bytes or original manifest were changed. A fresh continuation must bind its own current raw input hashes and run identity rather than treating the old raw manifest as matching. The old privacy RED receipt remains restricted to its original privacy slice; TEST-046a requires its own meaningful RED evidence and root checkpoint before production edits.
+
+### JSON admission continuation preflight — 2026-09-29
+
+Continuation Run ID: issue137-T001-json-admission-20260929-01a0eb88-0774-7e82-9e0b-6d70e1487aba
+Continuation Task Attempt Count: 1
+Session ID / Agent Instance ID: 01a0eb88-0774-7e82-9e0b-6d70e1487aba (observed CODEX_THREAD_ID)
+Isolation Mode: fresh-agent; scratch root: specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88
+
+Scope is TEST-046a JSON admission only: duplicate decoded member names and invalid Unicode must reject before returning an admitted value. A proposed internal `parseJson(source, deadline)` is not an entity schema, native adapter or persistence API. It accepts one JSON source string; caller schema/owner/path validation, byte decoding, redaction and durability are separate prerequisites. A test-only JSON.parse baseline will be used while that production module is absent, explicitly exercising the missing admission behavior rather than claiming an existing production parser. No ID bound, reasonCode enum, nested Projection shape or native payload is chosen here.
+
+| Field / claim for this slice | Governing counterpart | Executable failing mismatch check planned before production |
+|---|---|---|
+| Admitted object member identity at every nesting level | design.md:78–82 closed JSON rules; TEST-046a | JSON-DUPLICATE: reject identical and escape-equivalent decoded names, including nested arrays and prototype-like names; accept distinct keys and separate object scopes. |
+| All decoded key/value strings and source Unicode | design.md:78–82; security-spec.md:106–107; TEST-046a | JSON-UNICODE: reject lone/reversed surrogates in raw source and escaped keys/values, including nested values; preserve valid pairs, Unicode and literal backslash-u text. |
+| Ordinary JSON value/syntax preservation | security-spec.md:106–107 host JSON.parse; TEST-046a | JSON-SYNTAX: syntax/escape failures reject; valid values equal JSON.parse, with no key folding/normalization or string-content false positives. |
+| Rejection contains no source, stack/cause or admitted value | security-spec.md:130–134, B4; TEST-046a common no-output assertion | JSON-REJECTION: duplicate/Unicode/syntax rejection throws only a content-free internal code; a synthetic sink is never reached. This sink is a test probe, not all-copy or native persistence proof. |
+| Single-input/shared deadline limits | frontend-spec.md:75–78; requirements.md Bounded acceptance contract | JSON-BOUNDS: exact 1 MiB valid JSON input succeeds; +1 and expired/nonfinite trusted deadline reject before admission. No new limit is invented. |
+| RED and continuation input provenance | tasks.md Global constraints; WFI-001; historical launch manifest | JSON-EVIDENCE: fresh manifest binds current raw input hashes plus immutable snapshots; red-ready binds exact test/output/manifest hashes and exit code. Production requires the new root receipt for these exact RED artifacts. |
+
+This preflight precedes new test and production edits. The historical report Run ID and receipt are preserved. The resolved raw task delta is not reopened; current tasks hash is c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c. Native/core integration remains pending, and T-001 remains In Progress.
+
+Restoration checks: check-sdd-structure exited 0. Read-only git status/diff-stat/rev-parse were executed to identify existing changes and observed HEAD 52679e47375f31c88a80fde149bb25f07ca67223; no Git mutation was performed. The old brief forbade worker Git, so these read-only inspections are recorded explicitly and no further Git operation will be run by this worker. No rejected operation was retried. Existing user changes, frozen inputs, old manifest/receipts and other task state are preserved.

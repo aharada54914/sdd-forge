@@ -1,0 +1,72 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "created_utc": "2026-09-29T11:08:33.298149+00:00",
+  "current_checkpoint_commit": "21bc1b3244b4f5ba65c71062b2aa5c81d11b9b9d",
+  "baseline": {
+    "plugins/sdd-context/validation.mjs": {
+      "bytes": 11694,
+      "sha256": "5dccf1bf3d739a10b2fd565122771ce4e69c22e41562dd1ac4200f33aca7e9d6"
+    },
+    "tests/sdd-context/validation.test.mjs": {
+      "bytes": 29119,
+      "sha256": "2920de6f167bdc8af3aa4a2a94fa461c5aa5741e59e9a9fe0544cd33d582e20e"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 105820,
+      "sha256": "db591f5211c134f009eacb09fca497ee44e2cd5940e502892fdd1042d813f23d"
+    },
+    "reports/review-context/identity-ledger.json": {
+      "bytes": 517899,
+      "sha256": "f7762e87d657962dc8b141fb8359703aa590e8f46cd89587b2b75a3d91803e90"
+    },
+    "specs/workflow-state-registry.json": {
+      "bytes": 12044,
+      "sha256": "2e5d3467f97cec025f066d366cec242f08601d451d44418558071903de5e4210"
+    },
+    "specs/sdd-context-continuity/tasks.md": {
+      "bytes": 15074,
+      "sha256": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c"
+    }
+  },
+  "source_unchanged": true,
+  "original_validation_prefix": {
+    "bytes": 29119,
+    "cases": 79,
+    "sha256": "2920de6f167bdc8af3aa4a2a94fa461c5aa5741e59e9a9fe0544cd33d582e20e"
+  },
+  "expanded_test": {
+    "path": "tests/sdd-context/validation.test.mjs",
+    "bytes": 36646,
+    "sha256": "19567de75dba7197f3d968a905b49f5a71462d7628a9ab7899521578f05788cc",
+    "added_cases": 12,
+    "expected_total_cases": 91
+  },
+  "test_only_diff": {
+    "path": "specs/sdd-context-continuity/verification/T-001/journal-decision-lock-red-20260929-01a0ebb9/test-only.diff",
+    "added": 127,
+    "removed": 0,
+    "sha256": "f06c970f6236dc53ca841064f2008c3631c9fc4acf50a4d3840d65f4c91fb29a"
+  },
+  "report_append_only": {
+    "path": "reports/implementation/sdd-context-continuity/T-001.md",
+    "original_prefix_bytes": 105820,
+    "original_prefix_sha256": "db591f5211c134f009eacb09fca497ee44e2cd5940e502892fdd1042d813f23d",
+    "pre_run_sha256": "5c186a4c3c79f929c978da197297bad5598cb89e06afac42b5455f5388463ac8"
+  },
+  "reused_snapshot_manifest": {
+    "path": "specs/sdd-context-continuity/verification/T-001/reconcile-red-20260929-01a0ebb9/input-manifest.json",
+    "sha256": "2b8e135c037dcc0abf3b568a27e8130c03fa5910dbc0073f476463df422ee73d",
+    "mode": "Reference only; snapshot set not copied or rehashed."
+  },
+  "reused_preflight": "WFI-001 closed/owner/Header/Decision rows 32-36; Lock row 41 stays pending; no new persisted fields or production changes.",
+  "source_references": [
+    "specs/sdd-context-continuity/design.md:77-98",
+    "specs/sdd-context-continuity/infra-spec.md:38-42",
+    "reports/verification/issue137-contract-completion-addendum-20260929.md:14-21",
+    "plugins/sdd-context/validation.mjs:105-116",
+    "specs/sdd-context-continuity/verification/T-001/schema-definition-map.md"
+  ],
+  "unsupported": "LockV1 PID type/range is absent from governing definitions; no Lock admission/death proof/persistence is authorized or claimed.",
+  "scope": "Test-only Header non-null hash and standalone Decision admission through shared validator; retain Lock unsupported; no unknown outcomes, registry scope or null-chain convention."
+}

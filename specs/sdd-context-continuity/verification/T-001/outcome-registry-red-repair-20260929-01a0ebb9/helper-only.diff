@@ -1,0 +1,38 @@
+--- before/tests/sdd-context/validation.test.mjs
++++ after/tests/sdd-context/validation.test.mjs
+@@ -1,6 +1,6 @@
+ import assert from 'node:assert/strict';
+ import { spawnSync } from 'node:child_process';
+-import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
++import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+ import { tmpdir } from 'node:os';
+ import { join } from 'node:path';
+ import { performance } from 'node:perf_hooks';
+@@ -11,6 +11,9 @@
+ // trustedContext is core-owned, never copied from request fields.
+ const subject = new URL('../../plugins/sdd-context/validation.mjs', import.meta.url);
+ const validate = existsSync(subject) ? (await import(subject.href)).validate : undefined;
++const preparationSubject = new URL('../../plugins/sdd-context/store-preparation.mjs', import.meta.url);
++const prepareStore = existsSync(preparationSubject) ? (await import(preparationSubject.href)).prepareStore : undefined;
++const { redact: journalRedact } = await import(new URL('../../plugins/sdd-context/privacy.mjs', import.meta.url).href);
+ const scratch = realpathSync(mkdtempSync(join(tmpdir(), 'sdd-context-validation-')));
+ after(() => rmSync(scratch, { recursive: true, force: true }));
+ function git(root, ...args) {
+@@ -710,9 +713,6 @@
+   }
+ });
+ 
+-const preparationSubject = new URL('../../plugins/sdd-context/store-preparation.mjs', import.meta.url);
+-const prepareStore = existsSync(preparationSubject) ? (await import(preparationSubject.href)).prepareStore : undefined;
+-const { statSync, readFileSync } = await import('node:fs');
+ function rejectPreparation(value, f, extra = {}) {
+   assert.equal(typeof prepareStore, 'function', 'new private store preparation is not implemented');
+   let caught;
+@@ -881,7 +881,6 @@
+   }
+ });
+ 
+-const { redact: journalRedact } = await import(new URL('../../plugins/sdd-context/privacy.mjs', import.meta.url).href);
+ const journalSecret = ['synthetic', 'journal', 'credential'].join('-');
+ const journalKey = ['pass', 'word'].join('');
+ const journalSensitive = [

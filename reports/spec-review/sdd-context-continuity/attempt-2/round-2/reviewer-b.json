@@ -1,0 +1,25 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a0f228-4383-7603-9947-2f8faf9c916d",
+  "host_session_id": "01a0f228-4383-7603-9947-2f8faf9c916d",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-context-continuity/requirements.md", "sha256": "eafc8944e92b395101303d21a897dbecc725bd14808097f5e9d8cb3255bb968a"},
+    {"path": "specs/sdd-context-continuity/acceptance-tests.md", "sha256": "9ff624b573d6476ca0f33521afb920330064aa392bd99c37d240e81fd4d9bd53"},
+    {"path": "specs/sdd-context-continuity/investigation.md", "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"},
+    {"path": "reports/spec-review/sdd-context-continuity/attempt-2/round-2/precheck-result.json", "sha256": "e60b66fb3bffa0d782e20cd8975ae18edf7c033d4c8af950ac4fff43c9233a66"},
+    {"path": "reports/spec-review/sdd-context-continuity/attempt-2/round-2/integrated-summary.json", "sha256": "f1d1b12753b8ed8ec21b4c39a055b7b9c7f1eb74305c081731d562683784cf91"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id":"AMBIGUITY","result":"PASS","severity":"Major","finding":"REQ-001–012 and AC-001–018 identify the actors, authority, failure behavior and observable outcomes. The 3,000 ms core deadline, separate 5-second native candidate and REQ-010 overflow order are explicit."},
+    {"id":"CONTRADICTION","result":"PASS","severity":"Critical","finding":"AC-010 distinguishes a core timeout warning from a forced-kill host warning; TEST-034 and TEST-035 test them separately. No direct conflict was found among the reviewed requirements and acceptance criteria."},
+    {"id":"EDGE-CASE-COVERAGE","result":"PASS","severity":"Major","finding":"TEST-004–008, TEST-024–035, TEST-041–060 and TEST-063–066 cover unavailable inputs, corruption, failure, time and size boundaries, forced termination and ordered overflow."},
+    {"id":"ASSUMPTIONS-RESOLVABLE","result":"PASS","severity":"Major","finding":"Requirements OQ-005–012 assign owners and resolution paths; shared repository state requires rechecking, and installed-host behavior remains explicitly unproven."},
+    {"id":"APPROVAL-BOUNDARY","result":"PASS","severity":"Critical","finding":"The requirements prohibit conversation-derived approval or Done status. AC-009 requires a proven manual barrier; AC-010 and TEST-035 require an observable host warning or mark automatic activation unavailable."},
+    {"id":"DOWNSTREAM-READINESS","result":"PASS","severity":"Major","finding":"The requirements and planned tests define product behavior and verification surfaces while leaving mechanism and native support evidence to later phases."},
+    {"id":"DOMAIN-CONFORMANCE","result":"SKIP","severity":"Major","finding":"The allowed inputs contain no approved, valid domain model to assess."}
+  ]
+}

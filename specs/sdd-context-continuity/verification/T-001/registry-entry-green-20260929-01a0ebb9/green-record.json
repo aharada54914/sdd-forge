@@ -1,0 +1,33 @@
+{
+  "checkpoint": "ea4f1a220261b1f7381d82f100d06ff617054f82",
+  "source_sha256": "5e4aee1b887ec82be5bf44f9ee38eaf24d48bcb3a8c72c0c0f731ed4e03a0659",
+  "fixed_test_sha256": "6014e026fc934628b1642cf7ee32a8e0235361d1899947b9f0e5d27dca2d8865",
+  "evidence_sha256": {
+    "input-delta.json": "7b11da44c509fb97ea50530e43fd828eb492b3705a19fc88e43d945a31e6cc7e",
+    "source-only.diff": "97eb521c5264f9a38a75490ffc83e34e54dc84e417faf02490a5b2b56fa7ea48",
+    "green-run.json": "cea71636790cdd9a558231f1176332ac46840d3f6089572fc4c75afa2aab278f",
+    "green-output.txt": "b5ab18ea4c2471c98e19e6f048b175b152391fe8195b2e7aceebadfba9be4706",
+    "green-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "regression-run.json": "3ece8572e38a4e4ac5be71941ec8960a4106abd06530451a80b06aa6774f1a02",
+    "regression-output.txt": "e31b9a6d46c75bb38c172e4a042f00b02cf9db0d97b68147ff6148850459cf25",
+    "regression-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "guard_preservation": {
+    "tests/sdd-context/validation.test.mjs": true,
+    "reports/review-context/identity-ledger.json": true,
+    "specs/workflow-state-registry.json": true,
+    "specs/sdd-context-continuity/tasks.md": true,
+    "tests/sdd-context/json-admission.test.mjs": true,
+    "tests/sdd-context/privacy.test.mjs": true,
+    "tests/sdd-context/privacy-grammar.test.mjs": true
+  },
+  "original_report_prefix_preserved": true,
+  "public_note_sha256": "1c2f5f2b62190b8f62357f4f864746ef987c757f2f373c6a69dfd9b9085ebded",
+  "implementation_report_sha256": "5e0e9466bb0194121cc829723e3cf69ace3988e2bcf568d84f26f5d788211486",
+  "source_lines_added": 6,
+  "source_lines_removed": 0,
+  "validation_executions": 1,
+  "regression_executions": 1,
+  "correction_count": 0,
+  "formal_verdict": null
+}

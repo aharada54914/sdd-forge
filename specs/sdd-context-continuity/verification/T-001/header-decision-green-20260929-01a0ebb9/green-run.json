@@ -1,0 +1,54 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "tests/sdd-context/validation.test.mjs"
+  ],
+  "started_utc": "2026-09-29T11:23:53.363907+00:00",
+  "finished_utc": "2026-09-29T11:23:59.303640+00:00",
+  "elapsed_seconds": 5.939594042021781,
+  "exit_code": 0,
+  "counts": {
+    "tests": 91,
+    "pass": 91,
+    "fail": 0,
+    "skipped": 0
+  },
+  "stdout_sha256": "e7d9603843750b3847373c4c718552ecd31c9d745c9bdbbb73f791a6dd831e8a",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_sha256": "5e083fe7165247b4716cf06dba2b87ac730e829830aa4b7b97362278bbd151f7",
+  "fixed_test_sha256": "19567de75dba7197f3d968a905b49f5a71462d7628a9ab7899521578f05788cc",
+  "source_unchanged_during_run": true,
+  "baseline_unchanged": {
+    "tests/sdd-context/validation.test.mjs": true,
+    "reports/verification/issue137-header-decision-validation-20260929.md": true,
+    "reports/review-context/identity-ledger.json": true,
+    "specs/workflow-state-registry.json": true,
+    "specs/sdd-context-continuity/tasks.md": true,
+    "tests/sdd-context/json-admission.test.mjs": true,
+    "tests/sdd-context/privacy.test.mjs": true,
+    "tests/sdd-context/privacy-grammar.test.mjs": true,
+    "plugins/sdd-context/json-admission.mjs": true,
+    "plugins/sdd-context/privacy.mjs": true
+  },
+  "checkpoint": "98849cdd505d8ab9d09d334ea1ed4f46dcde1033",
+  "checkpoint_unchanged": true,
+  "environment": {
+    "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+    "login": false,
+    "node": "v24.13.0",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O"
+  },
+  "input_delta_sha256": "bebaeb3eb70bc93efa32331d30feb24d0d186ac8e65a2b27105b271913ad9e99",
+  "production_diff_sha256": "22beea619b47b9b4fb3011bef3876e96e91cd735b39379e26c5af8a149b28321",
+  "added_production_lines": 5,
+  "test_execution_count": 1,
+  "correction_count": 0,
+  "limitation": "Local in-memory Header/Decision slice only; Lock unsupported; no task completion or formal verdict."
+}

@@ -1,0 +1,87 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "--test-name-pattern=^REGISTRY-ENTRY-",
+    "tests/sdd-context/validation.test.mjs"
+  ],
+  "started_utc": "2026-09-29T11:42:13.046094+00:00",
+  "finished_utc": "2026-09-29T11:42:13.348663+00:00",
+  "elapsed_seconds": 0.30246491701109335,
+  "exit_code": 1,
+  "counts": {
+    "tests": 9,
+    "pass": 8,
+    "fail": 1,
+    "skipped": 0
+  },
+  "selected_case_results": [
+    {
+      "result": "fail",
+      "name": "REGISTRY-ENTRY-VALID: exact owned entry admits every state and bounded opaque ID"
+    },
+    {
+      "result": "pass",
+      "name": "REGISTRY-ENTRY-CLOSED: five fields are required and object extensions reject"
+    },
+    {
+      "result": "pass",
+      "name": "REGISTRY-ENTRY-FIELDS: locator types, ID bounds, exact states and UTC dates are checked"
+    },
+    {
+      "result": "pass",
+      "name": "REGISTRY-ENTRY-OWNER: every foreign tuple component and malformed owner rejects"
+    },
+    {
+      "result": "pass",
+      "name": "REGISTRY-ENTRY-STORE: only the exact canonical owned context locator is admitted"
+    },
+    {
+      "result": "pass",
+      "name": "REGISTRY-ENTRY-REPLACED-STORE: a temporary context replaced by an escaping symlink rejects"
+    },
+    {
+      "result": "pass",
+      "name": "REGISTRY-ENTRY-JSON: malformed and decoded duplicate entry keys reject"
+    },
+    {
+      "result": "pass",
+      "name": "REGISTRY-ENTRY-DEADLINE: the existing exhausted trusted budget returns no entry"
+    },
+    {
+      "result": "pass",
+      "name": "REGISTRY-ENTRY-PATH: shared ignore/tracked/Git and escaping planned targets still reject"
+    }
+  ],
+  "stdout_sha256": "86888b3a61ed27972cdac8d3701ea4bb002179d40774c6d8be8e4db133eafd4b",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_sha256": "5e083fe7165247b4716cf06dba2b87ac730e829830aa4b7b97362278bbd151f7",
+  "test_sha256": "6014e026fc934628b1642cf7ee32a8e0235361d1899947b9f0e5d27dca2d8865",
+  "source_unchanged": true,
+  "test_unchanged_during_run": true,
+  "original_91_prefix_unchanged": true,
+  "guard_preservation": {
+    "reports/review-context/identity-ledger.json": true,
+    "specs/workflow-state-registry.json": true,
+    "specs/sdd-context-continuity/tasks.md": true
+  },
+  "checkpoint": "9ccfe2197ae95cb7ebbd6213c5eaf47df677f1b0",
+  "checkpoint_unchanged": true,
+  "input_delta_sha256": "d1c0b4031a10e0fec7f66744b9f10efb7fdd14b130bbd831119c2aa7b1479eca",
+  "test_only_diff_sha256": "a390051895bf50cee60bb199f0d1c6d5fad4c9bbf60d98d551d5be963b4e1f1a",
+  "test_execution_count": 1,
+  "correction_count": 0,
+  "environment": {
+    "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+    "login": false,
+    "node": "v24.13.0",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O"
+  },
+  "limitation": "RegistryEntry standalone RED only; negative controls currently pass default rejection; prior 91/31 bodies excluded; no production or task completion."
+}

@@ -1,0 +1,87 @@
+{
+  "checkpoint": "6f7a737cb6160ae6c4ddcb4ae092d05d70876744",
+  "source": {
+    "bytes": 13557,
+    "sha256": "a4e062c8d22d60e901ba152719ce960d0d6f5978d01e4c03ae8a0ae434c3a777"
+  },
+  "validation": {
+    "counts": {
+      "tests": 125,
+      "pass": 125,
+      "fail": 0,
+      "skipped": 0
+    },
+    "exit_code": 0,
+    "runs": 1
+  },
+  "privacy_json": {
+    "counts": {
+      "tests": 34,
+      "pass": 34,
+      "fail": 0,
+      "skipped": 0
+    },
+    "exit_code": 0,
+    "runs": 1
+  },
+  "guards": {
+    "fixed_input_identities_matched": 25,
+    "implementation_report_prefix_preserved": true,
+    "public_red_note_prefix_preserved": true,
+    "prior_proof_identities_matched": 40,
+    "fixed_validation_125_tests_unchanged": true,
+    "fixed_privacy_json_34_tests_unchanged": true,
+    "frozen_state_approval_ledger_registry_unchanged": true,
+    "head_unchanged": true
+  },
+  "artifacts": {
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/input-delta.json": {
+      "bytes": 13830,
+      "sha256": "94ae61826cb015c1fd3cb9ddb2e2caec7e27adef8a5df587dfda8746448b1f81"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/original-validation.mjs": {
+      "bytes": 12723,
+      "sha256": "02d9cd243779d4f4139c13cd0541a62ee9c73ab301e9b0b0d70c9c5633612a57"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/source-only.diff": {
+      "bytes": 1382,
+      "sha256": "b392d8f7f760eecadedbb06d48bb05d56ba96cabcee49ffeb2563a27dc85d047"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/validation-run.json": {
+      "bytes": 2058,
+      "sha256": "fb64da75f3648891491250873ad488de5b804ed470e3e28786259352d7071dc4"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/validation-output.txt": {
+      "bytes": 12020,
+      "sha256": "091c9952fe4a6fa04276c3b481e44c0c06721166dcd7caf4791b929b1e8f5626"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/validation-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/privacy-run.json": {
+      "bytes": 2145,
+      "sha256": "fd1019ae6334516669afec01bb65f4fc7ce6cd66921a514e7dbc267d68bdf149"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/privacy-output.txt": {
+      "bytes": 3360,
+      "sha256": "9321fac0a35e27e27c5c0ec9fc6c20f8ba52ad319c11dd806e3cbfaa6d92bc4d"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/privacy-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 148949,
+      "sha256": "4f5eca572e01a2ff96d5c9e378452fde8d27c4f5d33f97203134115350f3242e"
+    },
+    "reports/verification/issue137-journal-record-red-20260929.md": {
+      "bytes": 2904,
+      "sha256": "9f79e456a8c0b803abe999ccee134b0a67cc7e46e46a450359e5cd01329c521e"
+    }
+  },
+  "journal_production_corrections": 0,
+  "task_additional_corrections": 1,
+  "remaining_task_allowance": 2,
+  "handoff": "root ordinary independent review; T-001 incomplete; no worker commit/push or quality-gate verdict"
+}

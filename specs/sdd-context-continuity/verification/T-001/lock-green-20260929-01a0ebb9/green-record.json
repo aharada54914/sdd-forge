@@ -1,0 +1,94 @@
+{
+  "task_id": "T-001",
+  "feature": "sdd-context-continuity",
+  "checkpoint": "c2f94111a9c87cd992ab0fd588c490eb5b3271a7",
+  "runs": {
+    "green": {
+      "counts": {
+        "tests": 112,
+        "pass": 112,
+        "fail": 0,
+        "skipped": 0
+      },
+      "exit_code": 0,
+      "executions": 1,
+      "started_utc": "2026-09-29T13:15:56.472570+00:00",
+      "ended_utc": "2026-09-29T13:16:05.349370+00:00"
+    },
+    "regression": {
+      "counts": {
+        "tests": 31,
+        "pass": 31,
+        "fail": 0,
+        "skipped": 0
+      },
+      "exit_code": 0,
+      "executions": 1,
+      "started_utc": "2026-09-29T13:16:05.401659+00:00",
+      "ended_utc": "2026-09-29T13:16:05.568325+00:00"
+    }
+  },
+  "correction_loops": 0,
+  "artifacts": {
+    "specs/sdd-context-continuity/verification/T-001/lock-green-20260929-01a0ebb9/input-delta.json": {
+      "bytes": 4810,
+      "sha256": "43324990ec2c1b13de154d1bb4cde36ef0216eb6bb4f18616b235099834c68cc"
+    },
+    "specs/sdd-context-continuity/verification/T-001/lock-green-20260929-01a0ebb9/source-only.diff": {
+      "bytes": 974,
+      "sha256": "dafc92c1419a9527b5cc33d9c54c2eeaf7c726289fb240f0923dc060718ed9b4"
+    },
+    "specs/sdd-context-continuity/verification/T-001/lock-green-20260929-01a0ebb9/green-run.json": {
+      "bytes": 6036,
+      "sha256": "7528b0b8f63b8586b3235f76962951179ee42a701caa3b12d71c9e0a7009c640"
+    },
+    "specs/sdd-context-continuity/verification/T-001/lock-green-20260929-01a0ebb9/green-output.txt": {
+      "bytes": 10753,
+      "sha256": "d3a4466de441daef47e07d641ed25f91d639975377a16596a0e5ffd6adf6c4b5"
+    },
+    "specs/sdd-context-continuity/verification/T-001/lock-green-20260929-01a0ebb9/green-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/lock-green-20260929-01a0ebb9/regression-run.json": {
+      "bytes": 6103,
+      "sha256": "8d9e72d0d976f18084ffbda1794e85a6be92222618ef6af4d3872953194e2050"
+    },
+    "specs/sdd-context-continuity/verification/T-001/lock-green-20260929-01a0ebb9/regression-output.txt": {
+      "bytes": 3059,
+      "sha256": "56c9b30e1f2aea21d31dc14d303aad7ac39ccd84ec6906ec95246fe98a5ad071"
+    },
+    "specs/sdd-context-continuity/verification/T-001/lock-green-20260929-01a0ebb9/regression-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "plugins/sdd-context/validation.mjs": {
+      "bytes": 12723,
+      "sha256": "02d9cd243779d4f4139c13cd0541a62ee9c73ab301e9b0b0d70c9c5633612a57"
+    },
+    "tests/sdd-context/validation.test.mjs": {
+      "bytes": 47787,
+      "sha256": "1d4f267df42b80de82c89cda5d6176654633e8e82265f27a74c55d372e9f41d0"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 129464,
+      "sha256": "007cb22278f8609cfc7b27f895dfbb738c365c15307272a8cb9c684921974993"
+    },
+    "reports/verification/issue137-lock-validation-20260929.md": {
+      "bytes": 3483,
+      "sha256": "8b143600092931099a897c9e4918a8c782aa51f5458fe391fbad71649a583a32"
+    }
+  },
+  "guards": {
+    "fixed_tests_unchanged": true,
+    "other_production_unchanged": true,
+    "approved_addendum_unchanged": true,
+    "ledger_registry_tasks_unchanged": true,
+    "head_unchanged": true,
+    "old_report_note_prefixes_preserved": true,
+    "red_evidence_preserved": true,
+    "source_diff_matches_saved": true
+  },
+  "scope": "Five-line LockV1 dispatch; local in-memory validation only; no native/process/lock/persistence/CI/formal verdict",
+  "handoff": "Stop for root independent review and Git processing."
+}

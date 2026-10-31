@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a0e0d4-7871-77a1-9629-bfb3738297d7",
+  "host_session_id": "01a0e0d4-7871-77a1-9629-bfb3738297d7",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "3b45c7d66f2c694206a7342772e937487e412aebab856b9d542455c08fc524fe"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/investigation.md",
+      "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+    },
+    {
+      "path": "reports/spec-review/sdd-context-continuity/attempt-1/round-1/precheck-result.json",
+      "sha256": "111e147421c589281cc0c554ce8e3127f54fc3d4637d881edc4af357361fc36c"
+    },
+    {
+      "path": "reports/spec-review/sdd-context-continuity/attempt-1/round-1/integrated-summary.json",
+      "sha256": "a898b7e3dab6bebb3840caf50134173c57701abc64341de679269a4128b41a8d"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:37-48,76-93,97-133 に保存成功、権威、所有者、失敗時動作、期限、秘匿化、容量上限の観測可能な意味が定義されている。未対応イベントと未取得情報を unavailable とし、完全復旧や exactly-once を推測しない。実装方式の未決定を製品動作の曖昧さとは判定しない。"
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md:76-93,124-133 と acceptance-tests.md:12-77,92-109 は整合する。保存失敗時の継続と成功主張禁止、手動圧縮の安全判定と自動圧縮の非阻止、30日での利用禁止と通常24時間以内の物理削除は区別されている。製品要件間の直接矛盾は認めない。Phase順序の問題は APPROVAL-BOUNDARY に記録する。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md:15-46,52-77 に欠落/null/未知形式/部分末尾、古い権威参照、所有者分離、内部破損、各圧縮失敗、保存失敗、Git/path拒否、重複配送、空/境界/超過出力、同時更新の具体的な予定アサーションがある。同:101-109,137-145 はスケジューラ障害と秘匿化の境界・負例を展開し、同:47-48,84-86 は両ホストの個別実行結果を要求する。予定テストを実行済みとは扱わない。"
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:177-201 は基準コミット、共有状態の再確認、OQ-005–OQ-012 の担当・解決経路・停止対象を示す。acceptance-tests.md:113-125 は設計/タスク承認前に対象契約を解決し、実装後に実ホスト・OS証拠を得る境界を明示する。investigation.md:78-83 の未検証能力を稼働保証として採用していない。後段の実行証拠が現時点でないこと自体は Phase 1 の不合格理由にしない。"
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md:3,6 は Spec-Review-Status: Pending／Phase 1 incomplete とする一方、同:200 の OQ-011 は現在形で「security-spec elaborates parsing」と後段のレイヤ仕様を参照する。investigation.md:1-121 に必須の「## Amendment Re-Review Context」はなく、完全な改訂コミット・文書ハッシュ・日付付き人間承認引用による例外宣言は存在しない。spec-review-calibration.md の Amendment Re-Review Context 規則では、Pending 中の後段成果物の引用も既定の phase-sequencing 違反となる。下流の設計レビュアーは、この解析契約が未承認の先行設計なのか、承認済み改訂の入力なのかを安全に扱えない。これは解析実装の良否ではなく Phase 1 が後段を開く承認境界の問題であり、このゲートで評価すべき Critical。後段ファイルそのものは許可入力外のため読んでおらず、その内容や実装実在は主張しない。"
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "製品動作の引継ぎ面では requirements.md:37-48,76-133,135-173 と acceptance-tests.md:12-77,101-145 が設計に必要な成功・失敗結果、権威、秘匿化、保持期限、上限を定義している。設計レビュアーに新たな製品選択を発明させる欠落は認めない。ただし APPROVAL-BOUNDARY の Critical FAIL により、この応答は後段開始を許可しない。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "許可された存在確認でプロジェクトルートに domain/ がないことを確認したため、明示された適用条件に従い SKIP。"
+    }
+  ]
+}

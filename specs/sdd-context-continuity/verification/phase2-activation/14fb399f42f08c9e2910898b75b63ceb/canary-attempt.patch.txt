@@ -1,0 +1,4 @@
+*** Begin Patch
+*** Add File: sdd/.hook-canary-sentinel
++
+*** End Patch

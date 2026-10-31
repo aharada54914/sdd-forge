@@ -1,0 +1,20 @@
+{
+  "run_id": "issue137-T001-json-admission-20260929-01a0eb88-0774-7e82-9e0b-6d70e1487aba",
+  "command": "rtk proxy node --test --test-reporter=tap tests/sdd-context/json-admission.test.mjs",
+  "exit_code": 1,
+  "started_at": "2026-09-29T05:05:39.227841+00:00",
+  "finished_at": "2026-09-29T05:05:39.297058+00:00",
+  "subject": "test-only JSON.parse baseline; production absent",
+  "evidence_path": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/red-output.txt",
+  "evidence_sha256": "af98abdedfdbde668a7b3ada712053c39a3369ac2d4a4afed9cd680c14427fee",
+  "raw_combined_output_sha256": "e7d83aac8637083900f0c797ffc591da3895f572afeb3d566e98a1da3e2cb1a6",
+  "sanitization": "workspace prefix replaced with <workspace>; trailing whitespace removed; assertion values/results unchanged",
+  "results": {
+    "tests": 11,
+    "pass": 1,
+    "fail": 10,
+    "skipped": 0
+  },
+  "test_hashes": [],
+  "manifest_sha256": "ce110f89d42c472c8cd07851c2b00fc81ad610bb35ec5c8f906d89bf58ed5006"
+}

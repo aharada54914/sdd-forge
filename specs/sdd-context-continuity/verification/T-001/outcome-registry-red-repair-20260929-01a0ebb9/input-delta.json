@@ -1,0 +1,183 @@
+{
+  "checkpoint": "b266c2a18a4e510aace9b4c5a220d308e6806d3b",
+  "inputs": {
+    "AGENTS.md": {
+      "bytes": 18400,
+      "sha256": "3cdd1df7b00b2635e26a1d10ee0650e342ceae84a22f21b76d8df7f69b843671"
+    },
+    "plugins/sdd-context/json-admission.mjs": {
+      "bytes": 2160,
+      "sha256": "1627b6a24642faf1287daa705089633fb6c9046f63294449f2ed31d60d08be5b"
+    },
+    "plugins/sdd-context/privacy.mjs": {
+      "bytes": 7234,
+      "sha256": "fdafb645a4dc881489442d9443c780b6836b5bb202b4fd1cd5b84bccb4ca57c6"
+    },
+    "plugins/sdd-context/store-preparation.mjs": {
+      "bytes": 2580,
+      "sha256": "4552abdd6b118800ded80476e6bf264163e2f1f2c033d3abb94361107034cabb"
+    },
+    "plugins/sdd-context/validation.mjs": {
+      "bytes": 13557,
+      "sha256": "a4e062c8d22d60e901ba152719ce960d0d6f5978d01e4c03ae8a0ae434c3a777"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 157060,
+      "sha256": "3b7634c2d2867bdeb903d06d7bfab86f0e30d0bf67f18eea7aca86e69a102692"
+    },
+    "reports/review-context/identity-ledger.json": {
+      "bytes": 517899,
+      "sha256": "f7762e87d657962dc8b141fb8359703aa590e8f46cd89587b2b75a3d91803e90"
+    },
+    "reports/verification/issue137-contract-completion-addendum-20260929.md": {
+      "bytes": 5830,
+      "sha256": "ff921c751ee0d99695f28200159119ec82fe7b99af5571140cf0d18af1f0c234"
+    },
+    "reports/verification/issue137-privacy-idempotence-20260929.md": {
+      "bytes": 6753,
+      "sha256": "7dea2e9b4c7488de1614011108a73cb4a627cc4899491cf29c0d23a5b2096213"
+    },
+    "specs/sdd-context-continuity/acceptance-tests.md": {
+      "bytes": 14600,
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    "specs/sdd-context-continuity/codemap.md": {
+      "bytes": 3099,
+      "sha256": "9a20dd27ffc5f17732c049960cff0df6ca85d1491100f54455b7adf8615b92f3"
+    },
+    "specs/sdd-context-continuity/design.md": {
+      "bytes": 20725,
+      "sha256": "0af1d884ad0c458ad59e0b5e172f444455fcf948c6b4eff6f6f62871a3f7d7f7"
+    },
+    "specs/sdd-context-continuity/frontend-spec.md": {
+      "bytes": 6674,
+      "sha256": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb"
+    },
+    "specs/sdd-context-continuity/infra-spec.md": {
+      "bytes": 8262,
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    "specs/sdd-context-continuity/investigation.md": {
+      "bytes": 11218,
+      "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+    },
+    "specs/sdd-context-continuity/requirements.md": {
+      "bytes": 17282,
+      "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+    },
+    "specs/sdd-context-continuity/security-spec.md": {
+      "bytes": 13679,
+      "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+    },
+    "specs/sdd-context-continuity/tasks.md": {
+      "bytes": 15074,
+      "sha256": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c"
+    },
+    "specs/sdd-context-continuity/traceability.md": {
+      "bytes": 5287,
+      "sha256": "221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b"
+    },
+    "specs/sdd-context-continuity/ux-spec.md": {
+      "bytes": 3636,
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    "specs/workflow-state-registry.json": {
+      "bytes": 12044,
+      "sha256": "2e5d3467f97cec025f066d366cec242f08601d451d44418558071903de5e4210"
+    },
+    "tests/sdd-context/json-admission.test.mjs": {
+      "bytes": 4826,
+      "sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663"
+    },
+    "tests/sdd-context/privacy-grammar.test.mjs": {
+      "bytes": 10326,
+      "sha256": "80f806a43c941f13de1a5c07c4a63df9df039d3e42af4f04a544009ece44c19e"
+    },
+    "tests/sdd-context/privacy.test.mjs": {
+      "bytes": 2882,
+      "sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636"
+    },
+    "tests/sdd-context/validation.test.mjs": {
+      "bytes": 70859,
+      "sha256": "20a9dc53ee770df9fde33e8fba2c5343b11399292ed9f205ad78fe15ed962dd2"
+    },
+    "specs/sdd-context-continuity/verification/T-001/schema-definition-map.md": {
+      "bytes": 6837,
+      "sha256": "fd4eaacc0e272c8f1b5a796762c85656bfdb034782ef8599ad00e333f8ff1ba4"
+    },
+    "contracts/sdd-forge-mcp-tools.v1.schema.json": {
+      "bytes": 19589,
+      "sha256": "055b04cf07b3a348880bcd253a54bddd0250fe86141550168469d812134e4b78"
+    },
+    "reports/verification/issue137-journal-record-red-20260929.md": {
+      "bytes": 2904,
+      "sha256": "9f79e456a8c0b803abe999ccee134b0a67cc7e46e46a450359e5cd01329c521e"
+    },
+    "reports/verification/issue137-reason-registry-addendum-20260929.md": {
+      "bytes": 1588,
+      "sha256": "543d36d02bfce3e1cb244b84f6c0f30ed3093f1025f06f97fe58b0a20f75096f"
+    },
+    "install.sh": {
+      "bytes": 45439,
+      "sha256": "9b43d5eaf93a9cefffc562a3108f43ab2bc2a64c675a710ec5c59250f7abe719"
+    },
+    "install.ps1": {
+      "bytes": 41877,
+      "sha256": "7dc0b742a29a18daf85809caf8a2e92be098608a6cc1b1a29612470c9b64e056"
+    }
+  },
+  "public_note_append_prefix": {
+    "bytes": 3076,
+    "sha256": "8da9bb06abfb716fbf51f7bb22c13dcf3a1e58dfe39d6c2df7a69199d15c4431"
+  },
+  "preserved_parent_manifest": {
+    "path": "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-20260929-01a0ebb9/input-delta.json",
+    "bytes": 16896,
+    "sha256": "bfab8670f09a35310125fef9af2e8ba15c78a7599e7e270029bdaeefdd1998eb",
+    "prior_private_proof_count": 50
+  },
+  "preserved_invalid_attempt_artifacts": {
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-20260929-01a0ebb9/input-delta.json": {
+      "bytes": 16896,
+      "sha256": "bfab8670f09a35310125fef9af2e8ba15c78a7599e7e270029bdaeefdd1998eb"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-20260929-01a0ebb9/original-validation.test.mjs": {
+      "bytes": 54480,
+      "sha256": "58c6d8026163a3e7e223b81c2709fe46d420ad080eb41550e08bfb3c5e80984f"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-20260929-01a0ebb9/test-only.diff": {
+      "bytes": 16844,
+      "sha256": "af41df5205602b5cd31991d2ad05f69984e74ac0e4a99c2fc611b7200b6a51c2"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-20260929-01a0ebb9/red-run.json": {
+      "bytes": 4103,
+      "sha256": "6b0981a757aea0044a81a3c22a6d99679bb923c29f1261853fe81c8231be7557"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-20260929-01a0ebb9/red-output.txt": {
+      "bytes": 16347,
+      "sha256": "5019b68055c2ff5468738a5ac81646dad2dfda6b71724ab2d589c0fbb0c6477e"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-20260929-01a0ebb9/red-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-20260929-01a0ebb9/red-record.json": {
+      "bytes": 4117,
+      "sha256": "1b9a98ee98607eca59b5cfd586dc256d95de3133f9a83c23d68c99d8c0d9493c"
+    }
+  },
+  "pre_repair_test_snapshot": {
+    "bytes": 70859,
+    "sha256": "20a9dc53ee770df9fde33e8fba2c5343b11399292ed9f205ad78fe15ed962dd2"
+  },
+  "authorization": "Root follow-up: approved helper repair; fs static import integration and prepareStore optional import/journalRedact import moved before first test/after registration. Preserve early validate import, 125 existing and 25 new bodies, cleanup and criteria. Production forbidden. One fresh selected RED then stop.",
+  "authorized_prefix_change": [
+    "Add readFileSync/statSync to existing node:fs static import; remove their late dynamic import.",
+    "Move unchanged preparationSubject/prepareStore declarations before scratch/after registration.",
+    "Move unchanged journalRedact dynamic import before scratch/after registration."
+  ],
+  "task_additional_corrections": 2,
+  "maximum_task_corrections": 3,
+  "remaining_task_allowance": 1,
+  "scope": "Test-helper lifetime repair only; report/public note append and private evidence generation; no production/Git/state changes or rerun loop."
+}

@@ -1,0 +1,61 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "feature": "sdd-context-continuity",
+  "run_id": "01a0e0fe-9fa8-7a63-8939-a5c5d49d46ac",
+  "host_session_id": "01a0e0fe-9fa8-7a63-8939-a5c5d49d46ac",
+  "sequence": 1198,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "a093a1978fbfab56bb7cc4dc704e95ae5e99f9daf5d00850fa81698665e12dcf",
+  "previous_record_sha256": "7542806475d1e4d68067e84224656b9c36a64d55328e287858f71fd0d1b83b87",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "0c9e8f192594416c311ad24941885a964746e1326b355a408d9d8a7ab1c0a9a1"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "fad4f28f9b4509490ea33e5a8838602551552e8b575f415bfbd2786eb291c0c9"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+    },
+    {
+      "path": "specs/sdd-context-continuity/investigation.md",
+      "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/sdd-context-continuity/attempt-2/round-1/precheck-result.json",
+      "sha256": "8cf9f8a2cf622824adf5400ea9a1de1b948533682aec24ff6e314823a3de77a7"
+    },
+    {
+      "path": "docs/adr/0033-worktree-local-context-continuity.md",
+      "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"
+    }
+  ]
+}

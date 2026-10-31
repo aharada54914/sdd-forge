@@ -1,0 +1,18 @@
+{
+  "evidence_sha256": {
+    "input-delta.json": "394b4f202c941b9c6f015f64e1fa76c8f16c02f9342e0fc378e518267b8c0897",
+    "test-only.diff": "f56aba2aadced5b459cbea39203c72c8109a93c2f71221b15890c48efef1c115",
+    "red-run.json": "1955d0d6ec22038ebe403cc0ae091860a13d823c6ce08ccfebbb3a2fd94b25cc",
+    "red-output.txt": "02f29e6bbf104bede67af1c9ca3cfbed0f4a1d44c28add343dab01fd495b2178",
+    "red-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_sha256": "5e4aee1b887ec82be5bf44f9ee38eaf24d48bcb3a8c72c0c0f731ed4e03a0659",
+  "test_sha256": "4da707518036f61ef89890038eec8facb276d1833d519b28c6aef174d0ed665f",
+  "public_note_sha256": "25348f76e8a7b2ecb0c8f830b6ad61c86a27c8f54e9a54f9bad2b651f2d969ce",
+  "report_sha256": "ef366f64bd5971efea8e0891c978258756d322570c78cc38e0bd088f4c2a1f6b",
+  "scoped_guards_preserved": true,
+  "original_100_prefix_preserved": true,
+  "original_report_prefix_preserved": true,
+  "production_unchanged": true,
+  "formal_verdict": null
+}

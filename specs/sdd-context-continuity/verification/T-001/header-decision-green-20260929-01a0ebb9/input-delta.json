@@ -1,0 +1,61 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "created_utc": "2026-09-29T11:22:40.465562+00:00",
+  "checkpoint": "98849cdd505d8ab9d09d334ea1ed4f46dcde1033",
+  "baseline": {
+    "plugins/sdd-context/validation.mjs": {
+      "bytes": 11694,
+      "sha256": "5dccf1bf3d739a10b2fd565122771ce4e69c22e41562dd1ac4200f33aca7e9d6"
+    },
+    "tests/sdd-context/validation.test.mjs": {
+      "bytes": 36646,
+      "sha256": "19567de75dba7197f3d968a905b49f5a71462d7628a9ab7899521578f05788cc"
+    },
+    "reports/verification/issue137-header-decision-validation-20260929.md": {
+      "bytes": 1109,
+      "sha256": "08fb8a85475124564b55207926bc2a040487a06e636682eabfe8949a4a0d13ef"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 109236,
+      "sha256": "1ec0d6d3adc41b97ab11a27a57909710863e5e91f13090775e6d5c40a8da29ae"
+    },
+    "reports/review-context/identity-ledger.json": {
+      "bytes": 517899,
+      "sha256": "f7762e87d657962dc8b141fb8359703aa590e8f46cd89587b2b75a3d91803e90"
+    },
+    "specs/workflow-state-registry.json": {
+      "bytes": 12044,
+      "sha256": "2e5d3467f97cec025f066d366cec242f08601d451d44418558071903de5e4210"
+    },
+    "specs/sdd-context-continuity/tasks.md": {
+      "bytes": 15074,
+      "sha256": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c"
+    },
+    "tests/sdd-context/json-admission.test.mjs": {
+      "bytes": 4826,
+      "sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663"
+    },
+    "tests/sdd-context/privacy.test.mjs": {
+      "bytes": 2882,
+      "sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636"
+    },
+    "tests/sdd-context/privacy-grammar.test.mjs": {
+      "bytes": 8442,
+      "sha256": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+    },
+    "plugins/sdd-context/json-admission.mjs": {
+      "bytes": 2160,
+      "sha256": "1627b6a24642faf1287daa705089633fb6c9046f63294449f2ed31d60d08be5b"
+    },
+    "plugins/sdd-context/privacy.mjs": {
+      "bytes": 6935,
+      "sha256": "349fd8a55fe4c2609251927945b384c9383fd79b2a33ed69fe833da5c046eeb1"
+    }
+  },
+  "red_reference": "specs/sdd-context-continuity/verification/T-001/journal-decision-lock-red-20260929-01a0ebb9/red-run.json",
+  "reused_snapshot_manifest": "specs/sdd-context-continuity/verification/T-001/reconcile-red-20260929-01a0ebb9/input-manifest.json",
+  "preflight": "Existing implementation report WFI-001 rows 32-34/36; no new persisted fields; Lock row 41 pending.",
+  "scope": "Only existing-helper Header non-null hash and standalone Decision dispatch; fixed tests; Lock unsupported; no persistence or state/Git mutation."
+}

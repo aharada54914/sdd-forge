@@ -1,0 +1,87 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "--test-reporter=spec",
+    "--test-name-pattern=^OR-",
+    "tests/sdd-context/validation.test.mjs"
+  ],
+  "execution_count": 1,
+  "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+  "login": false,
+  "environment": {
+    "node": "v24.13.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "started_utc": "2026-09-29T14:35:12.375801+00:00",
+  "ended_utc": "2026-09-29T14:35:12.696514+00:00",
+  "exit_code": 1,
+  "counts": {
+    "tests": 25,
+    "pass": 11,
+    "fail": 14,
+    "skipped": 0
+  },
+  "failed_selected_tests": [
+    "OR-OUTCOME-VALID-captured: closed result encoding admits without claiming operation execution",
+    "OR-OUTCOME-VALID-uncaptured-warning: closed result encoding admits without claiming operation execution",
+    "OR-OUTCOME-VALID-safe: closed result encoding admits without claiming operation execution",
+    "OR-OUTCOME-VALID-unsafe: closed result encoding admits without claiming operation execution",
+    "OR-OUTCOME-VALID-unavailable: closed result encoding admits without claiming operation execution",
+    "OR-OUTCOME-VALID-recovered: closed result encoding admits without claiming operation execution",
+    "OR-OUTCOME-VALID-no-op: closed result encoding admits without claiming operation execution",
+    "OR-OUTCOME-VALID-cleaned: closed result encoding admits without claiming operation execution",
+    "OR-OUTCOME-VALID-cleanup-warning: closed result encoding admits without claiming operation execution",
+    "OR-OUTCOME-CODES: fixed reasons diagnostics and pointer reasons admit without extra compatibility rules",
+    "OR-OUTCOME-RECOVERY: coverage source endpoints empty lists and opaque pointer byte limits admit",
+    "OR-OUTCOME-RECOVERY-PRIVACY: shared redaction preserves prior omission and masks all six families",
+    "OR-OUTCOME-BUDGET: complete escaped UTF8 envelope admits 8192 bytes and rejects 8193",
+    "OR-REGISTRY-VALID: independently confirmed local and foreign closed entries admit every scheduler state"
+  ],
+  "checkpoint": "b266c2a18a4e510aace9b4c5a220d308e6806d3b",
+  "baseline": {
+    "bytes": 8249,
+    "sha256": "75a63bd90fcad89397e3436ccfaf194b3ff1c5f2590587eb9d05202454ba5379"
+  },
+  "source": {
+    "bytes": 13557,
+    "sha256": "a4e062c8d22d60e901ba152719ce960d0d6f5978d01e4c03ae8a0ae434c3a777"
+  },
+  "privacy_source": {
+    "bytes": 7234,
+    "sha256": "fdafb645a4dc881489442d9443c780b6836b5bb202b4fd1cd5b84bccb4ca57c6"
+  },
+  "repaired_test_file": {
+    "bytes": 70823,
+    "sha256": "dd450fe66c69ed3aa3037a028d3a0ae0e239820785180e9a3ea0ac1b39f82ff7"
+  },
+  "helper_only_diff": {
+    "bytes": 2155,
+    "sha256": "70cc59416f9974536e934f60728cc06fe890ee0727badbe38b5f923248910bd7"
+  },
+  "stdout": {
+    "bytes": 6104,
+    "sha256": "f420e62f426eff51020880600e05dcff765247369a424812c815937be380fcf9"
+  },
+  "stderr": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "guards": {
+    "inputs_stable_during_run": true,
+    "input_count": 31,
+    "prior_50_proofs_exact": true,
+    "invalid_7_artifacts_exact": true,
+    "only_authorized_helper_delta": true,
+    "all_150_test_bodies_cleanup_assertions_preserved": true,
+    "no_top_level_await_after_first_after_registration": true,
+    "head_unchanged": true
+  },
+  "expected_positive_red_without_fixture_errors": true,
+  "task_additional_corrections": 2,
+  "remaining_task_allowance": 1,
+  "scope": "One authorized fresh selected RED after helper repair; default rejection passes are not implementation proof; positive loops stop at first failure."
+}

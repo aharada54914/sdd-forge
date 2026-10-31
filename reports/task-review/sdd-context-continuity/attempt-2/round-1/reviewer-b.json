@@ -1,0 +1,93 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "sdd-context-continuity",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "84964769-7606-4b7f-acb1-4b1bdf1c4885",
+  "host_session_id": "root.issue137_task_a2r1_b",
+  "manifest": {
+    "allowed_inputs": [
+      {"path":"specs/sdd-context-continuity/requirements.md","sha256":"917184de1b262628b2540d53ae5737ed84f1adf18e3d04985185c61a128bc411"},
+      {"path":"specs/sdd-context-continuity/acceptance-tests.md","sha256":"2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a"},
+      {"path":"specs/sdd-context-continuity/design.md","sha256":"42e28844d507e7417fa1a58e8f74bb5aceec0ff0afadd911f03eebce2be9395c"},
+      {"path":"specs/sdd-context-continuity/tasks.md","sha256":"491a868f5fea00ea2f709ee04be0bce7aeb66de83ce38c1f0d4b8fc1d6ae4e21"},
+      {"path":"specs/sdd-context-continuity/traceability.md","sha256":"221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b"},
+      {"path":"specs/sdd-context-continuity/ux-spec.md","sha256":"df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"},
+      {"path":"specs/sdd-context-continuity/frontend-spec.md","sha256":"ca33a3a01faf54c9c1b5814a494f0ff4999cc6c89b3330ea7d5567189e928a59"},
+      {"path":"specs/sdd-context-continuity/infra-spec.md","sha256":"59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"},
+      {"path":"specs/sdd-context-continuity/security-spec.md","sha256":"a6ab7a2ff922c8eb62d8a70b875aede2d49b9d5e8fae282463087a472612e0b2"},
+      {"path":"plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+      {"path":"plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"},
+      {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path":"reports/task-review/sdd-context-continuity/attempt-2/round-1/precheck-result.json","sha256":"d27571e37bdc8424d924332f07f986997c729942c7537ed7fe86207bfdf0c2f7"},
+      {"path":"reports/task-review/sdd-context-continuity/attempt-2/round-1/integrated-summary.json","sha256":"b550192c24588d4415ef2a3e896bcd8b87775b213909b0bb4fcda0c4cfbd367b"}
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md T-001–T-004 and T-006 classify secrets, private-data mutation, access control or installation as high; T-005 classifies irreversible deletion as critical, consistent with risk-classification-policy.md."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.md Global constraints require a named independent reviewer and Red→Green evidence for each high/critical task; every Done When repeats these controls, and T-005 additionally requires a signed evidence bundle and distinct named second approver."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "tasks.md T-006 Planned Files and Scope combine installer and build integration, protected CI inventory changes, plugin metadata, user documentation, and feature-wide verification addenda. Its Tests require all TEST-001–066 and suffixed cases, while Done When requires full live/native acceptance across the preceding tasks. These exceed three implementation areas and cannot reasonably be completed as one focused task; implementation ownership and completion evidence would be difficult to review as one unit."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The functional scopes in tasks.md T-001–T-005 map to error paths in acceptance-tests.md: AC-016 unsafe storage, AC-015 write failures, AC-005 stale materialization, AC-009/010 lifecycle failures, and AC-013 failed deletion."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: tasks.md has no standalone test task declaring a unit, integration, end-to-end or acceptance test type; T-006 includes delivery integration and verification rather than a single declared test type."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md T-001–T-006 each have a Rollback field identifying how capture, recovery, lifecycle registration or scheduling is disabled while expiry protections and owned cleanup are retained."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md assigns contract/privacy, journal, authority/recovery, adapters, cleanup/scheduler and delivery integration to T-001–T-006 respectively; shared plugin and installer work is ordered by Blockers."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md Blockers follow the required artifacts: T-001 contracts/privacy precede T-002 journal, T-002 journal precedes T-003 recovery, T-003 recovery/expiry reads precede T-004 adapters and T-005 cleanup, and both feed T-006 delivery integration."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no task in tasks.md is explicitly scoped as a bugfix, debugging or incident-remediation task."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-006",
+      "finding": "tasks.md T-006 combines installer/build integration, protected CI changes, plugin metadata, user documentation and feature-wide live/native verification of all acceptance tests. This exceeds the role's three-area and single-focused-session sizing criteria, making implementation ownership and completion evidence ambiguous."
+    }
+  ]
+}

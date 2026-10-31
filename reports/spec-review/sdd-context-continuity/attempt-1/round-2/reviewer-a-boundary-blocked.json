@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0e0de-ccf6-7dd3-8340-2e650437a43c",
+  "host_session_id": "01a0e0de-ccf6-7dd3-8340-2e650437a43c",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "381668532ecc95f925053588aee248fd0e0ad66842ec23b5e70b644bf7b0df66"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/investigation.md",
+      "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+    },
+    {
+      "path": "reports/spec-review/sdd-context-continuity/attempt-1/round-2/precheck-result.json",
+      "sha256": "f2de6d331213e95b3e07fc89cc807a5e457d6eda176590aa75d296111dce2257"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "起動境界違反。review-context-boundary.md のチェーン検証手順3に従い invocation の sequence|stage|role|run_id|host_session_id|previous_record_sha256 を SHA-256 で再計算すると 1dc3273e2a97409602714ed430c0e1ec3b27c3023beee82ea37e78a8dd11ecc3 となり、予約 receipt の 3fdc97fd3dba625d367740d92d302c5d14236860bd3f541e5c2ee14883ea0570 と不一致。予約された本人性を検証できず、仕様レビュー開始前の安全境界として Critical。仕様内容の評価は未実施。sequence=1194、pre_append_tip_sequence=1193、previous_record_sha256、identity_unique=yes は整合。全許可入力の実ファイルハッシュと precheck の対応ハッシュは一致。修正された invocation と対応する予約 receipt が必要。書き込み、ledger 読み取り、validator 再実行は行っていない。"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "起動境界の Critical FAIL により未評価。既定 FAIL を維持し、仕様内容の欠陥は認定していない。"
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "起動境界の Critical FAIL により未評価。既定 FAIL を維持し、仕様内容の欠陥は認定していない。"
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "起動境界の Critical FAIL により未評価。既定 FAIL を維持し、仕様内容の欠陥は認定していない。"
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "起動境界の Critical FAIL により未評価。既定 FAIL を維持し、仕様内容の欠陥は認定していない。"
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "起動境界の Critical FAIL により未評価。SKIP 条件を確認できないため既定 FAIL を維持し、仕様内容の欠陥は認定していない。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "許可された存在確認でプロジェクトルートの domain/ が存在しないため、明示された SKIP 条件に該当。"
+    }
+  ]
+}

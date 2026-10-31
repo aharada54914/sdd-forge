@@ -1,0 +1,18 @@
+{
+  "recorded_utc": "2026-09-29T15:15:17.439230+00:00",
+  "preflight_report": {
+    "bytes": 198352,
+    "sha256": "b94fa3e102296bba16da8b1dbf95385f80304b2ed900300d4d804ec50e22f4af"
+  },
+  "baseline": {
+    "bytes": 7851,
+    "sha256": "ee734063ba3392f5ef2baee94bcda2b331fa6a1cca8fc853c4e9301f59714fdd"
+  },
+  "schema_absent": true,
+  "test_absent": true,
+  "inputs_unchanged": true,
+  "prior_green_unchanged": true,
+  "report_append_only": true,
+  "property_rows": 142,
+  "correction_count": 2
+}

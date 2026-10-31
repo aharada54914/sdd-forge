@@ -1,0 +1,121 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "session_id": "01a0e682-61e2-7370-a241-7646661b372e",
+  "agent_instance_id": "01a0e682-61e2-7370-a241-7646661b372e",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "estimated_cost_per_attempt_usd": "48.22",
+  "cost_estimate_source": "Standard API-equivalent estimate from official GPT-6-Astra prices and the largest recorded native preflight workload; all input uncached and all requests long-context; nonregional, excluding tool charges. Not subscription billing or completed implementation cost.",
+  "cost_estimate_timestamp": "2026-09-28T05:01:53Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "3cdd1df7b00b2635e26a1d10ee0650e342ceae84a22f21b76d8df7f69b843671"
+    },
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "0af1d884ad0c458ad59e0b5e172f444455fcf948c6b4eff6f6f62871a3f7d7f7"
+    },
+    {
+      "path": "specs/sdd-context-continuity/tasks.md",
+      "sha256": "ebc299e095552b715cae76309555a33dcc2108bd4fc12bc26e3c2fbc6aa7b970"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/traceability.md",
+      "sha256": "221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+    },
+    {
+      "path": "docs/adr/0033-worktree-local-context-continuity.md",
+      "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"
+    },
+    {
+      "path": "mcp/local-env-mcp/src/diagnostics.ts",
+      "sha256": "70d5fae2fb2d3134bf04d7ae1d9d28e8e887f707f7a737543be8139fdce23a35"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/tasks.ts",
+      "sha256": "75da89565748dda07fc3f808e549793aad2ababe34a1ff4d5d2640083b505c7d"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/root.ts",
+      "sha256": "de472c935b26c3a83a9554e9755200517b3b3d13d1645abe946bbe66ef367d53"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/path-guard.ts",
+      "sha256": "6cc067c34027ff7b98d7114a230ca397e953da4bb18ca6a8ab83b1292121cc09"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/package.json",
+      "sha256": "4e37630c6645da3703eb4f8cedc2dacaaee013a05e1691fb941786ecb5540aea"
+    },
+    {
+      "path": "contracts/task-input-manifest.schema.json",
+      "sha256": "fdfadf87501edbe29e35f6b723ea002c16438e82e75ab7c9703635aba568acb9"
+    },
+    {
+      "path": "contracts/agent-model-capabilities.v2.json",
+      "sha256": "e048f55873c8963576ce14137f6b0be0d3a7e486edc342d02a9cef5175f9096b"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "sha256": "d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "784a0b471c143b5b044d63da1eaf7113727f99aa6dc79e0f9b95d8d689024fcd"
+    },
+    {
+      "path": "reports/verification/issue137-fresh-host-launch-20260928/worker-brief.md",
+      "sha256": "cf26f50bd7b30dadb78580f3cca888a9f73ad9a1f0adc842da131cff2ccc8ed7"
+    },
+    {
+      "path": "reports/verification/issue137-fresh-host-launch-20260928/host-decision.json",
+      "sha256": "2e789172e673c69de2bdf02684b67bf67cc5bcb297d65121fb3995ee98b04361"
+    }
+  ],
+  "allowed_outputs": [
+    "contracts/sdd-context/",
+    "plugins/sdd-context/",
+    "tests/sdd-context/",
+    "reports/implementation/sdd-context-continuity/",
+    "specs/sdd-context-continuity/verification/T-001/"
+  ]
+}

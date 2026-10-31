@@ -1,0 +1,51 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "created_utc": "2026-09-29T10:42:03.746679+00:00",
+  "red_checkpoint_commit": "9673af8cfd8701d122964abe4dbe0ff5aee2931a",
+  "prior_red": {
+    "path": "specs/sdd-context-continuity/verification/T-001/resume-cleanup-red-20260929-01a0ebb9/red-run.json",
+    "sha256": "a6fcb4a5a3dd49cbd46d8908b2af85760a86f7567c0567f8cae684a5e601e718",
+    "exit_code": 1,
+    "counts": {
+      "tests": 79,
+      "pass": 75,
+      "fail": 4,
+      "skipped": 0
+    }
+  },
+  "reused_snapshot_manifest": {
+    "path": "specs/sdd-context-continuity/verification/T-001/reconcile-red-20260929-01a0ebb9/input-manifest.json",
+    "sha256": "2b8e135c037dcc0abf3b568a27e8130c03fa5910dbc0073f476463df422ee73d",
+    "mode": "Reference only; snapshot set not copied or rehashed."
+  },
+  "source": {
+    "path": "plugins/sdd-context/validation.mjs",
+    "committed_sha256": "2eaa0ea4adb0ae972569aa7df896c61210da99bd267b98bba843d5c1a1e74f17",
+    "implementation_sha256": "5dccf1bf3d739a10b2fd565122771ce4e69c22e41562dd1ac4200f33aca7e9d6"
+  },
+  "fixed_test": {
+    "path": "tests/sdd-context/validation.test.mjs",
+    "sha256": "2920de6f167bdc8af3aa4a2a94fa461c5aa5741e59e9a9fe0544cd33d582e20e",
+    "bytes": 29119
+  },
+  "fixed_regression_tests": {
+    "tests/sdd-context/json-admission.test.mjs": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663",
+    "tests/sdd-context/privacy.test.mjs": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636",
+    "tests/sdd-context/privacy-grammar.test.mjs": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+  },
+  "report_delta": {
+    "path": "reports/implementation/sdd-context-continuity/T-001.md",
+    "original_prefix_bytes": 98083,
+    "original_prefix_sha256": "f2c19980003e11c17ac11489753f6d2069c822381f0db5b3f5184b1216baa9d4",
+    "pre_run_sha256": "90bb50cb02d7fef829148fbc56ec0b00f87e4a4010aa17f7f75d48392a1568a2",
+    "change": "Append-only authorized continuation; no snapshot copying."
+  },
+  "preflight": "Existing WFI-001 rows 32-33/44-45; structure and diff checks exited 0.",
+  "production_diff": {
+    "added": 9,
+    "removed": 0,
+    "sha256": "e916de8920d5164b7f6182c4d4cd4073fefc09a2868267cce3b616a8811b1f02"
+  },
+  "scope": "Two input admission branches only; no new contract fields, restoration/deletion, outcomes, persistence, native or state changes."
+}

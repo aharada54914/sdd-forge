@@ -1,0 +1,22 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "feature": "sdd-context-continuity",
+  "run_id": "01a0f213-b47b-78e1-82b8-13d3c69a30db",
+  "host_session_id": "01a0f213-b47b-78e1-82b8-13d3c69a30db",
+  "sequence": 1208,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "aa1d7ff5c67817bbb2b1f8b5b0d81ab985c559875e912d19309dc3ab79336250",
+  "previous_record_sha256": "4cd32b9635bfb19f01188e46bd1ebce8bba87c6f391d2af0d4f5477442aeba5b",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-context-continuity/requirements.md", "sha256": "eafc8944e92b395101303d21a897dbecc725bd14808097f5e9d8cb3255bb968a"},
+    {"path": "specs/sdd-context-continuity/acceptance-tests.md", "sha256": "9ff624b573d6476ca0f33521afb920330064aa392bd99c37d240e81fd4d9bd53"},
+    {"path": "specs/sdd-context-continuity/investigation.md", "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"},
+    {"path": "reports/spec-review/sdd-context-continuity/attempt-2/round-2/precheck-result.json", "sha256": "e60b66fb3bffa0d782e20cd8975ae18edf7c033d4c8af950ac4fff43c9233a66"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"}
+  ]
+}

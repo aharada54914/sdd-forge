@@ -1,0 +1,75 @@
+Git fixture OIDs: sha1=bc6ba5398310f9961953022fd213799099495a54; sha256=828c0615ccdb921fe63e9c137ea7b7b7a9f8ecd8e5e94766a133cb880285ebaa
+✔ fixture control: real Git ignore and tracked states are distinct (21.663417ms)
+✔ VALIDATION-API: one real shared entrance exists (0.055125ms)
+✔ PROJECTION-VALID: approved empty-journal shape returns the validated object (80.907584ms)
+✔ ID-1024: ASCII and multibyte opaque IDs accept exactly 1024 UTF-8 bytes (156.690125ms)
+✔ ID-INVALID: empty, 1025-byte and malformed Unicode opaque IDs reject (1.044625ms)
+✔ HASH-VALID: distinct authority paths may share a hash (79.407458ms)
+✔ HASH-CLOSED: every authority entry requires path/sha256 and forbids extra fields (0.576666ms)
+✔ HASH-DUPLICATE: duplicate authority paths reject even with identical hashes (0.204541ms)
+✔ HASH-FORMAT: authority digests reject uppercase, wrong size and non-hex (0.441375ms)
+✔ TASK-VALID: existing taskEntry optional fields and lifecycle enums accept (401.89525ms)
+✔ TASK-CLOSED: required fields, field types and taskStateData-only extensions reject (1.649ms)
+✔ TASK-ENUM: invalid approval/status/risk values reject (0.375833ms)
+✔ CURSOR-NULL: nonempty journal forbids a null cursor (0.161209ms)
+✔ CURSOR-VALID: closed owned cursor accepts for a nonempty journal (77.605125ms)
+✔ CURSOR-CLOSED: each required field, safe sequence, hash and content extensions are checked (1.765084ms)
+✔ OWNER-MISMATCH: repository/worktree/Git directory/feature/host/session cannot self-authorize (0.5665ms)
+✔ CURSOR-FOREIGN: foreign owner and unproven predecessor session reject (0.31775ms)
+✔ SCHEMA-CLOSED: projection/owner version, required fields and unknown keys reject (1.213916ms)
+✔ JSON-DUPLICATE: duplicate decoded fields reject through the same entrance (0.052666ms)
+✔ REQUEST-AUTHORITY: caller cannot supply receipt/sequence/expiry/path/budget/lifecycle (0.451291ms)
+✔ IGNORE-MISSING: non-ignored content target rejects (29.920666ms)
+✔ IGNORE-NEGATED: effective negation rejects (28.961625ms)
+✔ TRACKED: ignored but tracked content target rejects (38.689792ms)
+✔ GIT-ERROR: unreadable Git ownership cannot be treated as safe (0.167167ms)
+✔ PATH-ESCAPE: direct foreign, traversal and symlink targets reject (58.350542ms)
+✔ HASH-PATH: authority membership cannot authorize foreign/escaping paths (0.290541ms)
+✔ REDACTION: admitted text is redacted before the in-memory result (77.414958ms)
+✔ DEADLINE: exhausted shared trusted budget rejects without a result (0.118209ms)
+✔ HEAD-FIXTURE: real Git storage format and committed HEAD are observed (38.403ms)
+✖ HEAD-VALID-sha1: real storage-format OID accepts despite a contradictory hint (0.21475ms)
+✖ HEAD-WRONG-FORMAT-sha1: another repository format cannot select the rule (77.319542ms)
+✔ HEAD-MALFORMED-sha1: abbreviated/overlong, uppercase and non-hex OIDs reject (0.480209ms)
+✔ HEAD-VALID-sha256: real storage-format OID accepts despite a contradictory hint (76.598375ms)
+✔ HEAD-WRONG-FORMAT-sha256: another repository format cannot select the rule (0.189333ms)
+✔ HEAD-MALFORMED-sha256: abbreviated/overlong, uppercase and non-hex OIDs reject (0.381667ms)
+✔ HEAD-CALLER-FORMAT: request cannot supply object-format authority (0.118709ms)
+✔ HEAD-UNSUPPORTED-GIT: real unsupported format configuration fails closed (10.201084ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 35
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1519.322459
+
+✖ failing tests:
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ HEAD-VALID-sha1: real storage-format OID accepts despite a contradictory hint (0.21475ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ HEAD-WRONG-FORMAT-sha1: another repository format cannot select the rule (77.319542ms)
+  AssertionError [ERR_ASSERTION]: rejected input returned an in-memory writable result
+  
+  1 !== 0
+  
+      at rejected (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:79:10)
+      at file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:249:5
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:90:5)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

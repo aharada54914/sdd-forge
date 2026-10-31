@@ -1,0 +1,48 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "checkpoint": "63e331ebbed5ae1aa7de0e43ffc51519157c316b",
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "--test-name-pattern=^NEW-STORE-",
+    "tests/sdd-context/validation.test.mjs"
+  ],
+  "started_utc": "2026-09-29T12:18:30.322016+00:00",
+  "finished_utc": "2026-09-29T12:18:30.669595+00:00",
+  "elapsed_seconds": 0.3474605419905856,
+  "exit_code": 1,
+  "counts": {
+    "tests": 5,
+    "pass": 0,
+    "fail": 5,
+    "skipped": 0
+  },
+  "stdout_sha256": "02f29e6bbf104bede67af1c9ca3cfbed0f4a1d44c28add343dab01fd495b2178",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_sha256": "5e4aee1b887ec82be5bf44f9ee38eaf24d48bcb3a8c72c0c0f731ed4e03a0659",
+  "test_sha256": "4da707518036f61ef89890038eec8facb276d1833d519b28c6aef174d0ed665f",
+  "input_delta_sha256": "394b4f202c941b9c6f015f64e1fa76c8f16c02f9342e0fc378e518267b8c0897",
+  "test_only_diff_sha256": "f56aba2aadced5b459cbea39203c72c8109a93c2f71221b15890c48efef1c115",
+  "module_absent": true,
+  "guard_preservation": {
+    "plugins/sdd-context/validation.mjs": true,
+    "reports/review-context/identity-ledger.json": true,
+    "specs/workflow-state-registry.json": true,
+    "specs/sdd-context-continuity/tasks.md": true
+  },
+  "original_100_prefix_unchanged": true,
+  "test_unchanged_during_run": true,
+  "checkpoint_unchanged": true,
+  "test_execution_count": 1,
+  "correction_count": 0,
+  "environment": {
+    "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+    "login": false,
+    "node": "v24.13.0"
+  },
+  "limitation": "RED: internal preparation helper absent; five cases fail missing-function assertion before boundary admission. No mode/access/no-mutation success evidence. Old 100/31 bodies not rerun; no production or native Windows claim."
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "validation-root-confirmation/v1",
+  "source_thread_id": "01a06d01-11b5-7bd3-83a3-7e29bb3c96cd",
+  "authority_kind": "received-main-agent-message plus locally verified checkpoint",
+  "pre_fix_commit": "1d4f7cd34bef139cc3f5d357db6a37ee0905524f",
+  "verified_checkpoint_hashes": {
+    "plugins/sdd-context/validation.mjs": "e8378d8f121f5b44f522ff1ef0e23a2e4b8de72e164f7538ce0ed6b157885bae",
+    "tests/sdd-context/validation.test.mjs": "14a381d91b4776f99991b0047c33d7048ce577dc4b0226e6b0fc93e401219750",
+    "reports/verification/issue137-git-head-contract-addendum-20260929.md": "20e4dfce79f984c4837292694f6a868ab4d4c3bc00baeab1247a4f65d356ae1d"
+  },
+  "red_manifest_sha256": "2d2819a2088c1cae2792e6cdb3c832142d200155c5c5fc0c44425f4e7ff82bec",
+  "scope": "HEAD-only root-cause correction; same fixed 37 cases and existing 31 regression cases; no task completion/freshness/native claim",
+  "pre_fix_commit_limit": "HEAD bug checkpoint only; not retrospective fulfillment of the original entire T-001 pre-code commit",
+  "no_worker_git_mutation": true,
+  "no_formal_gate_or_ledger_receipt": true
+}

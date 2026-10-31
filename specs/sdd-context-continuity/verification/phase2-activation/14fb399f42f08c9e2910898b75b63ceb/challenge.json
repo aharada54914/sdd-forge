@@ -1,0 +1,27 @@
+{
+  "canary_target": "sdd/.hook-canary-sentinel",
+  "nonce": "14fb399f42f08c9e2910898b75b63ceb",
+  "schema": "sdd-hook-challenge/v1",
+  "tool_call_template": {
+    "claude-code": {
+      "tool_input": {
+        "content": "",
+        "file_path": "sdd/.hook-canary-sentinel"
+      },
+      "tool_name": "Write"
+    },
+    "codex-cli": {
+      "tool_input": {
+        "patch": "*** Begin Patch\n*** Add File: sdd/.hook-canary-sentinel\n+\n*** End Patch\n"
+      },
+      "tool_name": "apply_patch"
+    },
+    "copilot-cli": {
+      "tool_input": {
+        "content": "",
+        "file_path": "sdd/.hook-canary-sentinel"
+      },
+      "tool_name": "Write"
+    }
+  }
+}

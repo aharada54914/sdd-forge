@@ -1,0 +1,36 @@
+(node:12967) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✖ WINDOWS-DISPATCH: shared validation brackets fixed-leaf native creation (0.952917ms)
+✖ WINDOWS-ADAPTER: bounded fixed script invocation; failures never leak (1.366667ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 32.373625
+
+✖ failing tests:
+
+test at tests/sdd-context/windows-store.test.mjs:25:1
+✖ WINDOWS-DISPATCH: shared validation brackets fixed-leaf native creation (0.952917ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/windows-store.test.mjs:39:1
+✖ WINDOWS-ADAPTER: bounded fixed script invocation; failures never leak (1.366667ms)
+  AssertionError [ERR_ASSERTION]: Windows adapter is absent
+      at TestContext.<anonymous> (file://<workspace>/tests/sdd-context/windows-store.test.mjs:40:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

@@ -1,0 +1,62 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "tests/sdd-context/json-admission.test.mjs",
+    "tests/sdd-context/privacy.test.mjs",
+    "tests/sdd-context/privacy-grammar.test.mjs"
+  ],
+  "started_utc": "2026-09-29T10:48:28.381501+00:00",
+  "finished_utc": "2026-09-29T10:48:28.462122+00:00",
+  "elapsed_seconds": 0.08049954200396314,
+  "exit_code": 0,
+  "counts": {
+    "tests": 31,
+    "pass": 31,
+    "fail": 0,
+    "skipped": 0
+  },
+  "case_result_count": 31,
+  "failed_cases": [],
+  "environment": {
+    "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+    "login": false,
+    "node": "v24.13.0",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O"
+  },
+  "head": "9673af8cfd8701d122964abe4dbe0ff5aee2931a",
+  "head_after": "9673af8cfd8701d122964abe4dbe0ff5aee2931a",
+  "fixed_input_hashes": {
+    "tests/sdd-context/json-admission.test.mjs": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663",
+    "tests/sdd-context/privacy.test.mjs": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636",
+    "tests/sdd-context/privacy-grammar.test.mjs": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5",
+    "plugins/sdd-context/validation.mjs": "5dccf1bf3d739a10b2fd565122771ce4e69c22e41562dd1ac4200f33aca7e9d6",
+    "tests/sdd-context/validation.test.mjs": "2920de6f167bdc8af3aa4a2a94fa461c5aa5741e59e9a9fe0544cd33d582e20e"
+  },
+  "input_hashes_after": {
+    "tests/sdd-context/json-admission.test.mjs": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663",
+    "tests/sdd-context/privacy.test.mjs": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636",
+    "tests/sdd-context/privacy-grammar.test.mjs": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5",
+    "plugins/sdd-context/validation.mjs": "5dccf1bf3d739a10b2fd565122771ce4e69c22e41562dd1ac4200f33aca7e9d6",
+    "tests/sdd-context/validation.test.mjs": "2920de6f167bdc8af3aa4a2a94fa461c5aa5741e59e9a9fe0544cd33d582e20e"
+  },
+  "inputs_unchanged": true,
+  "head_unchanged": true,
+  "report_before": {
+    "bytes": 102806,
+    "sha256": "1ff59d324ed709f5ef4de098ac16b798c82171d30c304215dc0b2f30f9c7f100"
+  },
+  "input_delta_sha256": "2bfec73bbb43524ec5ec414e2eb0c6dceb1b9002c961ca7377c4e6c289aaf467",
+  "prior_79_green_run_sha256": "d94baaef6acd73461382503ea273fdde47bed418a19741426197d904a1e26336",
+  "stdout_sha256": "07a2f71829c4a36fac47f6ff4bce0b710a48704edc03066eb47fc17ec3377a36",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "regression_execution_count": 1,
+  "implementation_attempt": 1,
+  "limitations": "Local in-memory admission regression only; independent review, current-head CI, native/persistence and formal quality-gate completion not established."
+}

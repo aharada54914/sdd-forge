@@ -1,0 +1,57 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "slice": "Existing JSON admission and privacy regressions",
+  "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+  "login": false,
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "tests/sdd-context/json-admission.test.mjs",
+    "tests/sdd-context/privacy.test.mjs",
+    "tests/sdd-context/privacy-grammar.test.mjs"
+  ],
+  "started_at_utc": "2026-09-29T10:14:33.720021+00:00",
+  "finished_at_utc": "2026-09-29T10:14:33.801291+00:00",
+  "elapsed_seconds": 0.08117462499649264,
+  "node_version": "v24.13.0",
+  "git_version": "git version 2.54.0 (Apple Git-157)",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "head_after": "653678caaabe4397e4525617669fd6a4e38ee3ad",
+  "exit_code": 0,
+  "counts": {
+    "tests": 31,
+    "suites": 0,
+    "pass": 31,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "counts_source": "actual saved stdout",
+  "source_sha256": "2eaa0ea4adb0ae972569aa7df896c61210da99bd267b98bba843d5c1a1e74f17",
+  "fixed_test_sha256": "110387cc3c1f56b9995b6792e8c39282059b080445a7c0a7a64a6f1bf69e2a9f",
+  "regression_inputs": [
+    {
+      "path": "tests/sdd-context/json-admission.test.mjs",
+      "sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663"
+    },
+    {
+      "path": "tests/sdd-context/privacy.test.mjs",
+      "sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636"
+    },
+    {
+      "path": "tests/sdd-context/privacy-grammar.test.mjs",
+      "sha256": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+    }
+  ],
+  "regression_inputs_unchanged": true,
+  "input_delta_sha256": "040c8d1c6eb3ebd30a172332a8dd7ed721516f24c94271abcc62ff79bfdffce5",
+  "stdout_sha256": "716b7124e978b7c0e0f1ae8cddccf502286e6daedb8168678d45eb0b4aaa3550",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "execution_count_per_test_file": 1,
+  "production_fix_attempt_count": 1
+}

@@ -1,0 +1,88 @@
+{
+  "checkpoint": "b266c2a18a4e510aace9b4c5a220d308e6806d3b",
+  "result": "EXPECTED_POSITIVE_RED_CANDIDATE",
+  "selected_fresh_execution_count": 1,
+  "retained_invalid_execution_count": 1,
+  "actual_counts": {
+    "tests": 25,
+    "pass": 11,
+    "fail": 14,
+    "skipped": 0
+  },
+  "exit_code": 1,
+  "fixture_errors": false,
+  "positive_failure_codes": [
+    "validation-rejected"
+  ],
+  "production_unchanged": true,
+  "quality_gate_verdict": null,
+  "root_review_pending": true,
+  "task_complete": false,
+  "task_additional_corrections": 2,
+  "maximum_task_corrections": 3,
+  "remaining_task_allowance": 1,
+  "preservation": {
+    "fixed_29_inputs_exact": true,
+    "report_and_public_note_prefixes_exact": true,
+    "original_50_proofs_exact": true,
+    "invalid_7_artifacts_exact": true,
+    "all_150_test_bodies_cleanup_criteria_unchanged": true,
+    "only_authorized_import_transformation": true,
+    "run_inputs_stable": true,
+    "frozen_tasks_state_ledger_registry_exact": true,
+    "head_unchanged": true
+  },
+  "source": {
+    "bytes": 13557,
+    "sha256": "a4e062c8d22d60e901ba152719ce960d0d6f5978d01e4c03ae8a0ae434c3a777"
+  },
+  "privacy_source": {
+    "bytes": 7234,
+    "sha256": "fdafb645a4dc881489442d9443c780b6836b5bb202b4fd1cd5b84bccb4ca57c6"
+  },
+  "artifacts": {
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-repair-20260929-01a0ebb9/input-delta.json": {
+      "bytes": 8249,
+      "sha256": "75a63bd90fcad89397e3436ccfaf194b3ff1c5f2590587eb9d05202454ba5379"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-repair-20260929-01a0ebb9/pre-repair-validation.test.mjs": {
+      "bytes": 70859,
+      "sha256": "20a9dc53ee770df9fde33e8fba2c5343b11399292ed9f205ad78fe15ed962dd2"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-repair-20260929-01a0ebb9/helper-only.diff": {
+      "bytes": 2155,
+      "sha256": "70cc59416f9974536e934f60728cc06fe890ee0727badbe38b5f923248910bd7"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-repair-20260929-01a0ebb9/red-run.json": {
+      "bytes": 3616,
+      "sha256": "1c4e270d499f3b757915d00d764d0c12b72bba3305be133164ef5d1df8c473ed"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-repair-20260929-01a0ebb9/red-output.txt": {
+      "bytes": 6104,
+      "sha256": "f420e62f426eff51020880600e05dcff765247369a424812c815937be380fcf9"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-red-repair-20260929-01a0ebb9/red-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "tests/sdd-context/validation.test.mjs": {
+      "bytes": 70823,
+      "sha256": "dd450fe66c69ed3aa3037a028d3a0ae0e239820785180e9a3ea0ac1b39f82ff7"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 159482,
+      "sha256": "c93342fe4c07744e82356d1b47d8c0501431cad6a1fc9e5cb2ffff41ab55f292"
+    },
+    "reports/verification/issue137-outcome-registry-red-20260929.md": {
+      "bytes": 5114,
+      "sha256": "6c413f6058ff70bafb4166d338417558a52fdddf0f767536c5553966cb688558"
+    }
+  },
+  "scope": "Approved test-helper repair followed by one fresh selected RED; stop at root checkpoint.",
+  "limits": [
+    "Only selected 25 bodies executed; original 125 bodies were preserved but not rerun.",
+    "Rejection-only passes do not establish type implementation; later positive loop branches are not reached.",
+    "No production/Git/state mutation, installer integration, persistence, sync/reconcile/publication, foreign-log read or lock authority.",
+    "No further run or production GREEN before root checkpoint."
+  ]
+}

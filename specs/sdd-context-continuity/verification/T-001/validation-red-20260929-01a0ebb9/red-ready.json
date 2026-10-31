@@ -1,0 +1,34 @@
+{
+  "schema": "validation-red-ready/v1",
+  "run_id": "issue137-T001-validation-red-20260929-01a0ebb9",
+  "head": "40f1c79cdede2a67abe7e5e2b28b1d38a5b3fe78",
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "tests/sdd-context/validation.test.mjs"
+  ],
+  "exit_code": 1,
+  "counts": {
+    "tests": 28,
+    "suites": 0,
+    "pass": 1,
+    "fail": 27,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "inputs_unchanged": true,
+  "subject_absent": true,
+  "expected_failure": "shared validate API is not implemented",
+  "deeper_assertions_executed": false,
+  "hashes": {
+    "manifest": "d2dd62c7dfe5edabe53e9e4e9d863ad7007d6b8215440b890d93b0425d92ca99",
+    "run": "84a211fd4fc99d72991bdcf231b115b720256ca433a8089a5a8a54849271ed16",
+    "stdout": "45514328446f8f07c9818a18f9cc9416704c8d7f6d35ec9a260adf8d3b5d1ef8",
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "test": "3229a281ad5bd17cadfc196983a6cce2e7a63e718a881a7f46ab646cce9ab06e"
+  },
+  "status": "RED_RECORD_FOR_ROOT_CONFIRMATION"
+}

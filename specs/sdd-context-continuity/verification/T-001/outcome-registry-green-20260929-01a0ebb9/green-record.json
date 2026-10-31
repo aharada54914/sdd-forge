@@ -1,0 +1,103 @@
+{
+  "checkpoint": "87e710226799d207c2dafa5d93b401ec14d3c297",
+  "result": "LOCAL_GREEN_PENDING_ROOT_REVIEW",
+  "source": {
+    "bytes": 17299,
+    "sha256": "f00f37b79bb6c589ee91221b4117785e52977f1fa9f1adcd67d529dd36983a48"
+  },
+  "privacy_source": {
+    "bytes": 7234,
+    "sha256": "fdafb645a4dc881489442d9443c780b6836b5bb202b4fd1cd5b84bccb4ca57c6"
+  },
+  "validation": {
+    "execution_count": 1,
+    "exit_code": 0,
+    "counts": {
+      "tests": 150,
+      "pass": 150,
+      "fail": 0,
+      "skipped": 0
+    },
+    "started_at_utc": "2026-09-29T14:46:48.490822+00:00",
+    "finished_at_utc": "2026-09-29T14:47:10.898160+00:00"
+  },
+  "privacy_json": {
+    "execution_count": 1,
+    "exit_code": 0,
+    "counts": {
+      "tests": 34,
+      "pass": 34,
+      "fail": 0,
+      "skipped": 0
+    },
+    "started_at_utc": "2026-09-29T14:47:35.289716+00:00",
+    "finished_at_utc": "2026-09-29T14:47:35.370922+00:00"
+  },
+  "guards": {
+    "unchanged_30_inputs_except_source_report": true,
+    "report_append_prefix_exact": true,
+    "prior_64_proofs_exact": true,
+    "fixed_150_test_bodies_exact": true,
+    "immutable_journal_case_exact": true,
+    "source_equals_both_tested_sources": true,
+    "source_diff_exact": true,
+    "both_run_inputs_stable": true,
+    "head_unchanged": true,
+    "fixed_run_counts": true,
+    "stderr_empty": true
+  },
+  "artifacts": {
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-green-20260929-01a0ebb9/validation-output.txt": {
+      "bytes": 14819,
+      "sha256": "7e6ad75c383a75e09e64d765a19fab364665678cb135b60276e97dbd41d97192"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-green-20260929-01a0ebb9/privacy-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-green-20260929-01a0ebb9/privacy-run.json": {
+      "bytes": 11534,
+      "sha256": "619f3d530ea8227099c0425f2d44c26201c917697243680f8f148c44cec260ee"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-green-20260929-01a0ebb9/source-only.diff": {
+      "bytes": 6856,
+      "sha256": "f69e97f571bbec10c16550068d7458c4da1ac7f3fc2c76e926aef536a9c0233a"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-green-20260929-01a0ebb9/pre-green-validation.mjs": {
+      "bytes": 13557,
+      "sha256": "a4e062c8d22d60e901ba152719ce960d0d6f5978d01e4c03ae8a0ae434c3a777"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-green-20260929-01a0ebb9/validation-run.json": {
+      "bytes": 11455,
+      "sha256": "68a57a0dced53cd03570d4da236cc3774e743cae009bb761dc7829af81ccb967"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-green-20260929-01a0ebb9/validation-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-green-20260929-01a0ebb9/privacy-output.txt": {
+      "bytes": 3349,
+      "sha256": "1770afb30a0b9211138147f4a4c2358dc16fe788e6a40a7de7171001c50159ad"
+    },
+    "specs/sdd-context-continuity/verification/T-001/outcome-registry-green-20260929-01a0ebb9/input-delta.json": {
+      "bytes": 20799,
+      "sha256": "904551cba89b63e79998f2baa0ccf43177c1869b577ef8a6f2946a8c9f930d51"
+    }
+  },
+  "implementation_report": {
+    "bytes": 162530,
+    "sha256": "c64b136851bb7567e0204e9e817326130374d6522c1514253f0815a121f59e5c"
+  },
+  "new_public_note": {
+    "bytes": 2405,
+    "sha256": "505a781a7e003341bb0ea7ddc54129fbb2bdb59819ae5c10370a5dc5147f7989"
+  },
+  "task_additional_corrections": 2,
+  "maximum_task_corrections": 3,
+  "remaining_task_allowance": 1,
+  "green_repair_reruns": 0,
+  "quality_gate_verdict": null,
+  "root_review_pending": true,
+  "task_complete": false,
+  "scope": "Approved admission implementation only; no worker Git writes; no frozen/task/state/ledger mutations; synthetic independently supplied confirmation, no installer/native provenance, persistence or foreign log/unlock authority."
+}

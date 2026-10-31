@@ -1,0 +1,38 @@
+{
+  "schema": "integrated-summary/v1",
+  "attempt": 1,
+  "round": 1,
+  "reviewer_a_checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "severity": "Critical"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "severity": "Major"
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "severity": "Major"
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "severity": "Major"
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "severity": "Critical"
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "severity": "Major"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "severity": "Major"
+    }
+  ],
+  "reviewer_a_fail_count": 1,
+  "reviewer_a_pass_count": 5,
+  "reviewer_a_skip_count": 1
+}

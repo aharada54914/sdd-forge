@@ -1,0 +1,24 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0f21e-17ed-7a02-967d-7aef4ad3bf79",
+  "host_session_id": "01a0f21e-17ed-7a02-967d-7aef4ad3bf79",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-context-continuity/requirements.md", "sha256": "eafc8944e92b395101303d21a897dbecc725bd14808097f5e9d8cb3255bb968a"},
+    {"path": "specs/sdd-context-continuity/acceptance-tests.md", "sha256": "9ff624b573d6476ca0f33521afb920330064aa392bd99c37d240e81fd4d9bd53"},
+    {"path": "specs/sdd-context-continuity/investigation.md", "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"},
+    {"path": "reports/spec-review/sdd-context-continuity/attempt-2/round-2/precheck-result.json", "sha256": "e60b66fb3bffa0d782e20cd8975ae18edf7c033d4c8af950ac4fff43c9233a66"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id":"REQ-TESTABILITY","result":"PASS","severity":"Critical","finding":"REQ-001–REQ-012 state outcomes that can be observed through capture, recovery, isolation, expiry, host behavior, compatibility or installation checks. The 3,000 ms core deadline, separate 5-second native candidate and 8,192-byte serialized recovery limit provide measurable bounds."},
+    {"id":"GOAL-AC-TRACE","result":"FAIL","severity":"Major","finding":"REQ-003 requires reconciliation of observable transcript records before compaction, including automatic compaction before Stop. AC-004/TEST-004 covers successful automatic backfill, while AC-009 tests manual reconciliation failure; no planned case verifies successful manual transcript backfill when records were not previously captured. REQ-012 requires integration with existing installation and dependencies, but AC-011/TEST-036–037 test candidate-loaded host lanes without requiring the installed plugin path to work. An implementer or verifier could satisfy the listed tests while leaving either required behavior unproved. These are missing acceptance outcomes for stated Phase 1 requirements, so the gap belongs to specification review. Major severity reflects incomplete coverage of two required behaviors."},
+    {"id":"AC-OBSERVABLE","result":"PASS","severity":"Major","finding":"AC-001–AC-018 and their planned test rows specify observable records, warnings, host outcomes, file effects and byte or time limits. TEST-034 measures the 3,000 ms core deadline; TEST-035 separately requires a same-compaction host warning on forced termination; TEST-060 checks recovery ordering and serialized overflow."},
+    {"id":"SCOPE-BOUNDARY","result":"PASS","severity":"Major","finding":"The Non-goals and Target Users sections exclude native-compaction replacement, hidden reasoning, unsupported-host continuity guarantees and perfect secret detection. AC-012 and TEST-038–040 define no-hook, Copilot and non-SDD behavior."},
+    {"id":"CONSTRAINTS-EXPLICIT","result":"PASS","severity":"Major","finding":"REQ-004, REQ-005 and REQ-009, the Security Boundaries section, and AC-013–AC-017 state authority, ownership, retention, redaction, Git safety and approval limits. The bounded acceptance contract separates the 3,000 ms core deadline from the conditional 5-second native candidate."},
+    {"id":"RISK-VALIDATION-SURFACE","result":"PASS","severity":"Major","finding":"The Risks section identifies capture loss, private-data exposure, stale authority and host support. Planned fault-injection, security, platform and live-host cases include TEST-024–035, TEST-036–037 and TEST-041–059; fixture-only results cannot satisfy AC-011."},
+    {"id":"DOMAIN-CONFORMANCE","result":"SKIP","severity":"Major","finding":"The admitted inputs contain no approved valid domain model to apply."}
+  ]
+}

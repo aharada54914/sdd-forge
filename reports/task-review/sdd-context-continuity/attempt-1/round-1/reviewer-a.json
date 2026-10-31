@@ -1,0 +1,161 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "sdd-context-continuity",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "86ac1c55-aac9-4ddd-9807-13531f56fb4f",
+  "host_session_id": "9a8d2e7d-bfbb-4a1a-bfbc-5eb8806348e2",
+  "manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "0af1d884ad0c458ad59e0b5e172f444455fcf948c6b4eff6f6f62871a3f7d7f7"
+    },
+    {
+      "path": "specs/sdd-context-continuity/tasks.md",
+      "sha256": "94613916009a104d27851d5ecf624e89d4f890eb3db316d111edb160de507d15"
+    },
+    {
+      "path": "specs/sdd-context-continuity/traceability.md",
+      "sha256": "221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/sdd-context-continuity/attempt-1/round-1/precheck-result.json",
+      "sha256": "24673d64c1fa29231308d7e01abfd2cebe3a069f0bc2a59963def9e9d01b85e4"
+    },
+    {
+      "path": "reports/task-review/sdd-context-continuity/attempt-1/round-1/dependency-graph.json",
+      "sha256": "dce592af35c8bfc21e8c552c233f4f927d7d12104200e5a3d3c73597d5932e7d"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.md T-001–T-006 Requirements fields contain no AC identifiers, so no dangling AC reference exists. acceptance-tests.md defines AC-001–AC-018."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "blockers_format_valid=true. T-001 has Blockers: None; T-002–T-006 each has exactly one canonical T-NNN blocker. This agrees with precheck-result.json."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All REQ-001–REQ-012 are covered by explicit Requirements fields across T-001–T-005: REQ-008 is in T-004; REQ-011 is in T-003; remaining requirements also resolve without relying on T-006's range notation."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "FAIL",
+      "severity": "Critical",
+      "finding": "tasks.md T-001–T-006 Requirements fields reference only REQ identifiers, and the verification task T-006 never explicitly references an AC-NNN. Consequently AC-001–AC-018 have neither of the required task-level coverage forms. traceability.md supplies indirect AC→TEST→task mapping but no intentional deferrals; Tests fields list TEST IDs rather than explicit AC IDs. Add task-level AC references with differentiated implementation and verification ownership. This is Critical under the explicit AC-COVERAGE contract because acceptance ownership is absent in the required fields."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task T-001–T-006 references REQ identifiers in its Requirements field; none depends on an undeclared pseudo-requirement."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "FAIL",
+      "severity": "Major",
+      "finding": "tasks.md T-006 is titled 'Integrate existing delivery and full acceptance verification' and includes full acceptance verification in Scope/Tests, but Requirements: REQ-001–012 and the rest of this task contain no explicit AC-NNN reference. This test task is orphaned under the ORPHAN-TEST requirement; explicit AC references are needed so its verification ownership can be inspected without inferring it from TEST ranges. Major because the required task-level acceptance linkage is missing."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All six tasks declare Approval: Draft and Status: Planned, satisfying attempt 1 round 1 initial-state requirements."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001–T-004 and T-006 declare Risk: high / Required Workflow: tdd; T-005 declares Risk: critical / Required Workflow: tdd. These pairings agree with workflow_match_precheck: PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No task Requirements field claims an AC as its primary target, so there is no duplicate AC claim. Overlapping TEST references distinguish owning implementation tests from T-006's complete inventory/integration reconciliation."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every blocker resolves to an existing task in tasks.md and dependency-graph.json nodes: T-002→T-001, T-003→T-002, T-004→T-003, T-005→T-004, T-006→T-005."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT passed. dependency-graph.json is a descending linear chain from T-006 to T-001, with no edge returning to a visited node; no cycle exists."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each task has one coherent boundary: contracts/privacy, durable journal, authoritative recovery, native lifecycle adapters, owned expiry/scheduling, or delivery/acceptance integration. Associated verification and installer/scheduler housekeeping serve those same concerns."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001–T-006 name inspectable Red→Green test outcomes, native OS/host evidence and independent review/provenance records. Global constraints identify specs/sdd-context-continuity/verification/ as the non-frozen evidence destination. T-005 additionally names HMAC evidence, cross-model verification and distinct two-person approval. precheck-result.json frozen_artifact_done_when is empty; no flagged item requires adjudication. No Done When item requires editing a frozen artifact."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md includes all T-001–T-006 and only existing REQ-001–REQ-012. Every requirement row cites canonical anchors in the read hash-bound layer documents; cited scaling-strategy, trust-boundaries, interaction-sequence, state-shape, api-client-strategy, authorization, component-states, performance-budget, testing, data-residency-and-retention, secrets-management, navigation-map, component-tree and rollback sections exist."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "AC-COVERAGE",
+      "severity": "Critical",
+      "task_id": null,
+      "finding": "specs/sdd-context-continuity/tasks.md T-001–T-006 Requirements fields contain no AC identifiers; T-006 does not explicitly reference an AC either. AC-001–AC-018 in acceptance-tests.md therefore lack the task-level Requirements or explicit test-task AC coverage required by this check. traceability.md's indirect mapping does not declare deferrals. Add explicit, scope-differentiated task AC references; this Critical coverage gap blocks progression."
+    },
+    {
+      "check_id": "ORPHAN-TEST",
+      "severity": "Major",
+      "task_id": "T-006",
+      "finding": "specs/sdd-context-continuity/tasks.md T-006 explicitly owns full acceptance verification, but its Requirements field is REQ-001–012 and it contains no AC-NNN reference. TEST ranges alone do not meet the test-task AC-reference requirement. Add explicit AC ownership to prevent ambiguous verification linkage; this is a blocking Major structural gap."
+    }
+  ]
+}

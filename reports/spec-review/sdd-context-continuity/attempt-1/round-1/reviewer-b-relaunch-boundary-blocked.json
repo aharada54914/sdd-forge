@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a0e0d4-7871-77a1-9629-bfb3738297d7",
+  "host_session_id": "01a0e0d4-7871-77a1-9629-bfb3738297d7",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "3b45c7d66f2c694206a7342772e937487e412aebab856b9d542455c08fc524fe"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/investigation.md",
+      "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+    },
+    {
+      "path": "reports/spec-review/sdd-context-continuity/attempt-1/round-1/precheck-result.json",
+      "sha256": "111e147421c589281cc0c554ce8e3127f54fc3d4637d881edc4af357361fc36c"
+    },
+    {
+      "path": "reports/spec-review/sdd-context-continuity/attempt-1/round-1/integrated-summary.json",
+      "sha256": "a898b7e3dab6bebb3840caf50134173c57701abc64341de679269a4128b41a8d"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "起動境界で停止したため未評価。仕様欠陥の判定ではなく、既定の FAIL を保持する。"
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "起動境界で停止したため未評価。仕様内の矛盾を認定したものではない。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "起動境界で停止したため未評価。受入テスト本文は読んでいない。"
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "起動境界で停止したため未評価。調査本文は読んでいない。"
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "plugins/sdd-review-loop/references/review-context-boundary.md のチェーン検証手順1・2・4が要求する previous_record_sha256、pre_append_tip_sequence、identity_unique=yes が、呼出元の REVIEW_CONTEXT_OK 行に欠落している。6入力すべての SHA-256 と canonical/symlink 検証は成功し、sequence=1193 と入力集合を含む再計算レコードハッシュも一致した。しかし予約の tip 継続性と identity 一意性は確認できず、spec-reviewer-b.md の fail-closed 起動条件に従い本文レビューを開始できない。完全な validator receipt が必要。これは起動境界の Critical FAIL であり、仕様の承認境界についての実質判断ではない。"
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "起動境界で停止したため未評価。この応答は完了済み仕様レビューの証拠として使用できない。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "許可された存在確認で、プロジェクトルートの domain/ が存在しないことを確認した。"
+    }
+  ]
+}

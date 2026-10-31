@@ -1,0 +1,659 @@
+✔ fixture control: real Git ignore and tracked states are distinct (21.075208ms)
+✖ VALIDATION-API: one real shared entrance exists (0.3865ms)
+✖ PROJECTION-VALID: approved empty-journal shape returns the validated object (0.059125ms)
+✖ ID-1024: ASCII and multibyte opaque IDs accept exactly 1024 UTF-8 bytes (0.051208ms)
+✖ ID-INVALID: empty, 1025-byte and malformed Unicode opaque IDs reject (0.041333ms)
+✖ HASH-VALID: distinct authority paths may share a hash (0.037792ms)
+✖ HASH-CLOSED: every authority entry requires path/sha256 and forbids extra fields (0.0445ms)
+✖ HASH-DUPLICATE: duplicate authority paths reject even with identical hashes (0.036917ms)
+✖ HASH-FORMAT: authority digests reject uppercase, wrong size and non-hex (0.066375ms)
+✖ TASK-VALID: existing taskEntry optional fields and lifecycle enums accept (0.076917ms)
+✖ TASK-CLOSED: required fields, field types and taskStateData-only extensions reject (0.052792ms)
+✖ TASK-ENUM: invalid approval/status/risk values reject (0.035584ms)
+✖ CURSOR-NULL: nonempty journal forbids a null cursor (0.0275ms)
+✖ CURSOR-VALID: closed owned cursor accepts for a nonempty journal (0.024542ms)
+✖ CURSOR-CLOSED: each required field, safe sequence, hash and content extensions are checked (0.023958ms)
+✖ OWNER-MISMATCH: repository/worktree/Git directory/feature/host/session cannot self-authorize (0.021625ms)
+✖ CURSOR-FOREIGN: foreign owner and unproven predecessor session reject (0.022875ms)
+✖ SCHEMA-CLOSED: projection/owner version, required fields and unknown keys reject (0.022459ms)
+✖ JSON-DUPLICATE: duplicate decoded fields reject through the same entrance (0.030209ms)
+✖ REQUEST-AUTHORITY: caller cannot supply receipt/sequence/expiry/path/budget/lifecycle (0.039542ms)
+✖ IGNORE-MISSING: non-ignored content target rejects (0.040875ms)
+✖ IGNORE-NEGATED: effective negation rejects (0.036625ms)
+✖ TRACKED: ignored but tracked content target rejects (0.032792ms)
+✖ GIT-ERROR: unreadable Git ownership cannot be treated as safe (0.031542ms)
+✖ PATH-ESCAPE: direct foreign, traversal and symlink targets reject (0.0465ms)
+✖ HASH-PATH: authority membership cannot authorize foreign/escaping paths (0.031041ms)
+✖ REDACTION: admitted text is redacted before the in-memory result (0.030625ms)
+✖ DEADLINE: exhausted shared trusted budget rejects without a result (0.033125ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 1
+ℹ fail 27
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 154.500458
+
+✖ failing tests:
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ VALIDATION-API: one real shared entrance exists (0.3865ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ PROJECTION-VALID: approved empty-journal shape returns the validated object (0.059125ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ ID-1024: ASCII and multibyte opaque IDs accept exactly 1024 UTF-8 bytes (0.051208ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ ID-INVALID: empty, 1025-byte and malformed Unicode opaque IDs reject (0.041333ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ HASH-VALID: distinct authority paths may share a hash (0.037792ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ HASH-CLOSED: every authority entry requires path/sha256 and forbids extra fields (0.0445ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ HASH-DUPLICATE: duplicate authority paths reject even with identical hashes (0.036917ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ HASH-FORMAT: authority digests reject uppercase, wrong size and non-hex (0.066375ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ TASK-VALID: existing taskEntry optional fields and lifecycle enums accept (0.076917ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ TASK-CLOSED: required fields, field types and taskStateData-only extensions reject (0.052792ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ TASK-ENUM: invalid approval/status/risk values reject (0.035584ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ CURSOR-NULL: nonempty journal forbids a null cursor (0.0275ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ CURSOR-VALID: closed owned cursor accepts for a nonempty journal (0.024542ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ CURSOR-CLOSED: each required field, safe sequence, hash and content extensions are checked (0.023958ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ OWNER-MISMATCH: repository/worktree/Git directory/feature/host/session cannot self-authorize (0.021625ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ CURSOR-FOREIGN: foreign owner and unproven predecessor session reject (0.022875ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ SCHEMA-CLOSED: projection/owner version, required fields and unknown keys reject (0.022459ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ JSON-DUPLICATE: duplicate decoded fields reject through the same entrance (0.030209ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ REQUEST-AUTHORITY: caller cannot supply receipt/sequence/expiry/path/budget/lifecycle (0.039542ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ IGNORE-MISSING: non-ignored content target rejects (0.040875ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ IGNORE-NEGATED: effective negation rejects (0.036625ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ TRACKED: ignored but tracked content target rejects (0.032792ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ GIT-ERROR: unreadable Git ownership cannot be treated as safe (0.031542ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ PATH-ESCAPE: direct foreign, traversal and symlink targets reject (0.0465ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ HASH-PATH: authority membership cannot authorize foreign/escaping paths (0.031041ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ REDACTION: admitted text is redacted before the in-memory result (0.030625ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:73:3
+✖ DEADLINE: exhausted shared trusted budget rejects without a result (0.033125ms)
+  AssertionError [ERR_ASSERTION]: shared validate API is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

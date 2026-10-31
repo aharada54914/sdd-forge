@@ -1,0 +1,75 @@
+grammar subject: production module
+✖ PRIVACY-IDEMPOTENCE-TEXT: generated output preserves exact text for six families (2.133542ms)
+✖ PRIVACY-IDEMPOTENCE-PREFIX: complete, near and unfinished markers cannot hide a value (0.176417ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 36.474959
+
+✖ failing tests:
+
+test at tests/sdd-context/privacy-grammar.test.mjs:161:1
+✖ PRIVACY-IDEMPOTENCE-TEXT: generated output preserves exact text for six families (2.133542ms)
+  AssertionError [ERR_ASSERTION]: generated text changed on second scan
+  + actual - expected
+  
+  + [
+  +   {
+  +     family: 'assignment',
+  +     first: '🙂password=[REDACTED:assignment]\r\n終',
+  +     index: 1,
+  +     second: '🙂password=[REDACTED:assignment]]\r\n終'
+  +   },
+  +   {
+  +     family: 'assignment',
+  +     first: '🙂password=[REDACTED:assignment]\r\n終',
+  +     index: 2,
+  +     second: '🙂password=[REDACTED:assignment]]\r\n終'
+  +   },
+  +   {
+  +     family: 'assignment',
+  +     first: '🙂password=[REDACTED:assignment]\r\n終',
+  +     index: 3,
+  +     second: '🙂password=[REDACTED:assignment]]\r\n終'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/privacy-grammar.test.mjs:177:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { index: 1, family: 'assignment', first: '🙂password=[REDACTED:assignment]\r\n終', second: '🙂password=[REDACTED:assignment]]\r\n終' }, { index: 2, family: 'assignment', first: '🙂password=[REDACTED:assignment]\r\n終', second: '🙂password=[REDACTED:assignment]]\r\n終' }, { index: 3, family: 'assignment', first: '🙂password=[REDACTED:assignment]\r\n終', second: '🙂password=[REDACTED:assignment]]\r\n終' } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/privacy-grammar.test.mjs:180:1
+✖ PRIVACY-IDEMPOTENCE-PREFIX: complete, near and unfinished markers cannot hide a value (0.176417ms)
+  AssertionError [ERR_ASSERTION]: synthetic value survived
+  
+  true !== false
+  
+      at removed (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/privacy-grammar.test.mjs:18:10)
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/privacy-grammar.test.mjs:186:6)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

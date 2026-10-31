@@ -1,0 +1,60 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "checkpoint": "df356803015a81460699d653619001d474aa5248",
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "tests/sdd-context/validation.test.mjs"
+  ],
+  "started_utc": "2026-09-29T12:26:44.058428+00:00",
+  "finished_utc": "2026-09-29T12:26:51.570695+00:00",
+  "elapsed_seconds": 7.5121602499857545,
+  "exit_code": 0,
+  "counts": {
+    "tests": 105,
+    "pass": 105,
+    "fail": 0,
+    "skipped": 0
+  },
+  "stdout_sha256": "ea0a9e1cbf7c411111e2bfd1517d41fdec42206cfa76253e5f17d672b20ab7b1",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_path": "plugins/sdd-context/store-preparation.mjs",
+  "source_sha256": "4552abdd6b118800ded80476e6bf264163e2f1f2c033d3abb94361107034cabb",
+  "validation_source_sha256": "5e4aee1b887ec82be5bf44f9ee38eaf24d48bcb3a8c72c0c0f731ed4e03a0659",
+  "test_sha256": "4da707518036f61ef89890038eec8facb276d1833d519b28c6aef174d0ed665f",
+  "input_delta_sha256": "8c6a3d515199f74964a5b1fb52551140ea66b5638713ca4646f8063ec19a4e9a",
+  "source_diff_sha256": "11442203fd85699fcf33fceed853d6077907a59ece46cdb9a55ee7b32d22ffb7",
+  "source_unchanged_during_run": true,
+  "guard_preservation": {
+    "plugins/sdd-context/validation.mjs": true,
+    "tests/sdd-context/validation.test.mjs": true,
+    "reports/review-context/identity-ledger.json": true,
+    "specs/workflow-state-registry.json": true,
+    "specs/sdd-context-continuity/tasks.md": true,
+    "tests/sdd-context/json-admission.test.mjs": true,
+    "tests/sdd-context/privacy.test.mjs": true,
+    "tests/sdd-context/privacy-grammar.test.mjs": true
+  },
+  "checkpoint_unchanged": true,
+  "test_execution_count": 1,
+  "correction_count": 0,
+  "environment": {
+    "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+    "login": false,
+    "node": "v24.13.0",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O"
+  },
+  "limitation": "local Mac empty-new-directory preparation only; no ancestor-race immunity, Windows ACL/native adapter/CI/formal verdict; failure after mkdir may leave a private empty new directory without success",
+  "new_store_results": [
+    "\u2714 NEW-STORE-VALID: fresh empty directory is private even under permissive POSIX umask (169.4195ms)",
+    "\u2714 NEW-STORE-EXISTING: refusal preserves existing directory mode identity and contents (91.534667ms)",
+    "\u2714 NEW-STORE-INVALID: malformed or foreign owner cannot create a directory (14.283875ms)",
+    "\u2714 NEW-STORE-ESCAPE: escaping parent cannot create outside the owned worktree (34.343583ms)",
+    "\u2714 NEW-STORE-GUARDS: ignore Git and expired budget failures leave no new store (73.654833ms)"
+  ],
+  "new_store_count": 5
+}

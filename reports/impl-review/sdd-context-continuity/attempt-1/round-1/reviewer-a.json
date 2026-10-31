@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "01a0e0eb-c19d-7821-9157-317ad97b0dfb",
+  "host_session_id": "01a0e0eb-c19d-7821-9157-317ad97b0dfb",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "8c162c59e32f5ba861d8b9c912facfb400b271804054bad9975c520117faf7a9"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "fad4f28f9b4509490ea33e5a8838602551552e8b575f415bfbd2786eb291c0c9"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+    },
+    {
+      "path": "specs/sdd-context-continuity/investigation.md",
+      "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/sdd-context-continuity/attempt-1/round-1/precheck-result.json",
+      "sha256": "c78525a0da1fd4a3c0e544696e1e410af8c5f2bcef36d744ca0ae0429e1ac01e"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "internal local plugin",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:15–40 のArchitecture/Componentsは捕捉・復元・削除の境界と処理順、既存TypeScript readerのtransport-free再利用、Node・JSONL・OS schedulerを定義する。各層仕様がホスト応答、永続化、所有者検証を具体化している。input-bound receiptは提示値と再計算が一致し、1196=1195+1、previous_record_sha256、identity_unique=yesを確認。全10入力のraw hashとprecheck input digestも一致。ledger参照、validator再実行、実装テスト実行は行っていない。"
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: 明示的なコンポーネント依存リストはない。design.mdのArchitecture/Componentsおよびfrontend-spec.mdのComponent Treeの処理関係を確認し、循環するimportや相互依存の宣言は認めない。"
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md:71–99 のData Planに必須のData Entities、Existing Data Affected、Migration Strategy各フィールドがない。journal envelopeや新規ファイルは説明されるが、infra-spec.mdのDeployment Topologyで追加されるowner registryのスキーマと、既存データへの影響をまとめた宣言も欠ける。未知スキーマ拒否と旧実験からの移行なしだけでは、導入対象全体のデータ・移行契約を確定できず、実装の不一致を招く。各フィールドに新規スキーマ、既存データのread/write影響、移行不要の根拠を明示する必要がある。legacy_design=falseのためMajor。"
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md:101–111 のAPI / Contract Planはイベント名とoutcome discriminantを列挙するが、内部呼出しの入口、イベントごとのrequest/response schema、必須・任意フィールドと結果の対応を定義せず、契約作成を後日に送っている。frontend-spec.mdのState Shapeも概略であり、compact/resumeの入力とsafe/unsafe/recoveredの出力契約を確定しない。ネットワークAPIがなくても新規の内部イベント契約はこのチェックの対象であり、ホストadapterとcoreが異なる契約を実装する危険があるためMajor。既存MCP公開動作の維持方針は確認できる。"
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.mdのSecurity Boundariesが参照するsecurity-spec.mdはB1–B4の全境界、既存OS accountとnative sessionの位置付け、default-deny所有者/path/Git検証、private分類、OWASP access-control/injection/disclosure対策を定義する。Secrets Managementは認識範囲、上限、失敗前write拒否、未知形式やPIIの検出限界を明示する。"
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Typeはinternal local plugin。ux-spec.mdのScope and User Journeysとfrontend-spec.mdのRoutes and ComponentsがブラウザUI・network APIの不存在を明示しており、fullstackのfrontend/backend surfaceはない。"
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:113–121 と参照先acceptance-tests.mdはsynthetic unit/fault fixtures、捕捉から復元までのintegration、TEST-001–066の具体的assertion、既存MCP regression対象、独立した実ホストTEST-036/037と実OS scheduler TEST-044a–iを定義する。frontend/infra/security各層も対応TEST-IDを指定し、fixtureとnative実行証拠を区別する。これは計画の評価であり、テスト実行結果ではない。"
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.mdのComponentsがClaude/Codex adapters、continuity core、read-only SDD reader、installer integrationを定義する。Architecture/APIで参照されるjournal・projectionはData Plan、daily cleanupはinfra-spec.mdで定義される。既存reader/buildの再利用根拠はinvestigation.md INV-002–006/016–017に記載されている。"
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md:64–69 はlocal journal/OS scheduler/read-only boundaryという新規アーキテクチャ判断のADRが未作成であり、後日の実装承認前に作成すると明記する。precheckのadr_inputsも空で、対応ADRは今回のレビュー入力として提示されていない。将来作成するという約束では、現在の設計判断に対応ADRを要求する本チェックを満たさず、判断根拠を固定できないためMajor。未承認のADRパスは読んでおらず、既存ファイル不存在を推測した findingではない。"
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "適用除外: design.md:51–53 のDesign System Complianceに正確なN/A — ds_profile: noneがある。ux-spec.mdも新規rendered components/tokensなしと明示する。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "適用除外: 許可されたproject-root domain/ディレクトリ存在確認で不存在を確認した。domain model入力の追加参照は行っていない。"
+    }
+  ]
+}

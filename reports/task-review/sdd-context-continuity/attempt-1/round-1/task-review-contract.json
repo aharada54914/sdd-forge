@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "sdd-context-continuity",
+  "run_id": "59089035-c0ee-4258-980d-57a22c54a596",
+  "verdict": "BLOCKED",
+  "round": 1,
+  "attempt": 1,
+  "findings_critical": 2,
+  "findings_major": 3,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "BLOCKED",
+  "reviewer_b_verdict": "BLOCKED",
+  "pass_type": "clean",
+  "workflow_match_precheck": "PASS",
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35",
+  "acceptance_sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576",
+  "design_sha256": "0af1d884ad0c458ad59e0b5e172f444455fcf948c6b4eff6f6f62871a3f7d7f7",
+  "tasks_sha256": "94613916009a104d27851d5ecf624e89d4f890eb3db316d111edb160de507d15",
+  "traceability_sha256": "221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b",
+  "layer_sha256": {
+    "ux-spec.md": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343",
+    "frontend-spec.md": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb",
+    "infra-spec.md": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556",
+    "security-spec.md": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+  },
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "86ac1c55-aac9-4ddd-9807-13531f56fb4f",
+      "host_session_id": "9a8d2e7d-bfbb-4a1a-bfbc-5eb8806348e2",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-context-continuity/requirements.md",
+          "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+        },
+        {
+          "path": "specs/sdd-context-continuity/acceptance-tests.md",
+          "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+        },
+        {
+          "path": "specs/sdd-context-continuity/design.md",
+          "sha256": "0af1d884ad0c458ad59e0b5e172f444455fcf948c6b4eff6f6f62871a3f7d7f7"
+        },
+        {
+          "path": "specs/sdd-context-continuity/tasks.md",
+          "sha256": "94613916009a104d27851d5ecf624e89d4f890eb3db316d111edb160de507d15"
+        },
+        {
+          "path": "specs/sdd-context-continuity/traceability.md",
+          "sha256": "221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b"
+        },
+        {
+          "path": "specs/sdd-context-continuity/ux-spec.md",
+          "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+        },
+        {
+          "path": "specs/sdd-context-continuity/frontend-spec.md",
+          "sha256": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb"
+        },
+        {
+          "path": "specs/sdd-context-continuity/infra-spec.md",
+          "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+        },
+        {
+          "path": "specs/sdd-context-continuity/security-spec.md",
+          "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/task-review/sdd-context-continuity/attempt-1/round-1/precheck-result.json",
+          "sha256": "24673d64c1fa29231308d7e01abfd2cebe3a069f0bc2a59963def9e9d01b85e4"
+        },
+        {
+          "path": "reports/task-review/sdd-context-continuity/attempt-1/round-1/dependency-graph.json",
+          "sha256": "dce592af35c8bfc21e8c552c233f4f927d7d12104200e5a3d3c73597d5932e7d"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "c84f3710-d309-47fa-8351-7097999b8614",
+      "host_session_id": "734d688e-d093-4221-98d7-f47df692f015",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-context-continuity/requirements.md",
+          "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+        },
+        {
+          "path": "specs/sdd-context-continuity/acceptance-tests.md",
+          "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+        },
+        {
+          "path": "specs/sdd-context-continuity/design.md",
+          "sha256": "0af1d884ad0c458ad59e0b5e172f444455fcf948c6b4eff6f6f62871a3f7d7f7"
+        },
+        {
+          "path": "specs/sdd-context-continuity/tasks.md",
+          "sha256": "94613916009a104d27851d5ecf624e89d4f890eb3db316d111edb160de507d15"
+        },
+        {
+          "path": "specs/sdd-context-continuity/traceability.md",
+          "sha256": "221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b"
+        },
+        {
+          "path": "specs/sdd-context-continuity/ux-spec.md",
+          "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+        },
+        {
+          "path": "specs/sdd-context-continuity/frontend-spec.md",
+          "sha256": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb"
+        },
+        {
+          "path": "specs/sdd-context-continuity/infra-spec.md",
+          "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+        },
+        {
+          "path": "specs/sdd-context-continuity/security-spec.md",
+          "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/task-review/sdd-context-continuity/attempt-1/round-1/precheck-result.json",
+          "sha256": "24673d64c1fa29231308d7e01abfd2cebe3a069f0bc2a59963def9e9d01b85e4"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+        },
+        {
+          "path": "reports/task-review/sdd-context-continuity/attempt-1/round-1/integrated-summary.json",
+          "sha256": "f9e8928381fce933f833919eec6df0e4da0488c2a17d7270dbc95ce5de8b60f4"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "",
+  "timestamp": "2026-09-27T05:18:43Z"
+}

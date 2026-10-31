@@ -1,0 +1,25 @@
+{
+  "run_id": "issue137-T001-json-admission-20260929-01a0eb88-0774-7e82-9e0b-6d70e1487aba",
+  "command": "rtk proxy node --test --test-reporter=tap tests/sdd-context/privacy.test.mjs tests/sdd-context/privacy-grammar.test.mjs",
+  "exit_code": 0,
+  "started_at": "2026-09-29T05:05:39.297491+00:00",
+  "finished_at": "2026-09-29T05:05:39.380536+00:00",
+  "subject": "existing production privacy module; synthetic regression only",
+  "evidence_path": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/privacy-regression-output.txt",
+  "evidence_sha256": "c35162a4d7f2583faf56516fdb4c4985b557fcf061c1da8997896f5b717723cf",
+  "raw_combined_output_sha256": "c35162a4d7f2583faf56516fdb4c4985b557fcf061c1da8997896f5b717723cf",
+  "sanitization": "workspace prefix replaced with <workspace>; trailing whitespace removed; assertion values/results unchanged",
+  "results": {
+    "tests": 19,
+    "pass": 19,
+    "fail": 0,
+    "skipped": 0
+  },
+  "test_hashes": [
+    {
+      "path": "tests/sdd-context/privacy-grammar.test.mjs",
+      "sha256": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+    }
+  ],
+  "manifest_sha256": "ce110f89d42c472c8cd07851c2b00fc81ad610bb35ec5c8f906d89bf58ed5006"
+}

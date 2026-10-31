@@ -1,0 +1,239 @@
+✖ OR-OUTCOME-VALID-captured: closed result encoding admits without claiming operation execution (1.011542ms)
+✖ OR-OUTCOME-VALID-uncaptured-warning: closed result encoding admits without claiming operation execution (0.098666ms)
+✖ OR-OUTCOME-VALID-safe: closed result encoding admits without claiming operation execution (0.082375ms)
+✖ OR-OUTCOME-VALID-unsafe: closed result encoding admits without claiming operation execution (0.057084ms)
+✖ OR-OUTCOME-VALID-unavailable: closed result encoding admits without claiming operation execution (0.053625ms)
+✖ OR-OUTCOME-VALID-recovered: closed result encoding admits without claiming operation execution (0.077166ms)
+✖ OR-OUTCOME-VALID-no-op: closed result encoding admits without claiming operation execution (0.0655ms)
+✖ OR-OUTCOME-VALID-cleaned: closed result encoding admits without claiming operation execution (0.065167ms)
+✖ OR-OUTCOME-VALID-cleanup-warning: closed result encoding admits without claiming operation execution (0.058708ms)
+✖ OR-OUTCOME-CODES: fixed reasons diagnostics and pointer reasons admit without extra compatibility rules (0.104125ms)
+✔ OR-OUTCOME-CLOSED: every per-kind field is required and foreign result fields reject (6.370709ms)
+✔ OR-OUTCOME-FIELDS: exact versions discriminants booleans and fixed vocabulary reject malformed values (1.723125ms)
+✔ OR-OUTCOME-EVIDENCE: required success flags are literal true and counters are safe nonnegative integers (3.460083ms)
+✖ OR-OUTCOME-RECOVERY: coverage source endpoints empty lists and opaque pointer byte limits admit (0.085167ms)
+✔ OR-OUTCOME-RECOVERY-SHAPE: nested entry and pointer closures scalars and arrays reject malformed values (2.411792ms)
+✖ OR-OUTCOME-RECOVERY-PRIVACY: shared redaction preserves prior omission and masks all six families (0.506125ms)
+✖ OR-OUTCOME-BUDGET: complete escaped UTF8 envelope admits 8192 bytes and rejects 8193 (0.10275ms)
+✖ OR-REGISTRY-VALID: independently confirmed local and foreign closed entries admit every scheduler state (0.075166ms)
+✖ OR-REGISTRY-CLOSED: registry and each nested locator require closed fields (0.054583ms)
+✖ OR-REGISTRY-FIELDS: root and foreign entry scalar bounds UTC states and array shapes reject (0.058542ms)
+✖ OR-REGISTRY-OWNER: foreign nested owner closure and every unconfirmed tuple component reject (0.050917ms)
+✖ OR-REGISTRY-TRUST: missing malformed or self-asserted confirmation cannot authorize a registry (0.044208ms)
+✖ OR-REGISTRY-UNIQUE: identical or conflicting canonical owner tuples and duplicate IDs reject (0.051208ms)
+✖ OR-REGISTRY-STORE: each locator binds exactly to its confirmed owner context store (0.043833ms)
+✖ OR-SHARED-GUARDS: both new types retain JSON deadline Git and planned-path rejection (0.06275ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 4
+ℹ fail 21
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 274.179333
+
+✖ failing tests:
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-OUTCOME-VALID-captured: closed result encoding admits without claiming operation execution (1.011542ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-OUTCOME-VALID-uncaptured-warning: closed result encoding admits without claiming operation execution (0.098666ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-OUTCOME-VALID-safe: closed result encoding admits without claiming operation execution (0.082375ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-OUTCOME-VALID-unsafe: closed result encoding admits without claiming operation execution (0.057084ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-OUTCOME-VALID-unavailable: closed result encoding admits without claiming operation execution (0.053625ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-OUTCOME-VALID-recovered: closed result encoding admits without claiming operation execution (0.077166ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-OUTCOME-VALID-no-op: closed result encoding admits without claiming operation execution (0.0655ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-OUTCOME-VALID-cleaned: closed result encoding admits without claiming operation execution (0.065167ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-OUTCOME-VALID-cleanup-warning: closed result encoding admits without claiming operation execution (0.058708ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-OUTCOME-CODES: fixed reasons diagnostics and pointer reasons admit without extra compatibility rules (0.104125ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-OUTCOME-RECOVERY: coverage source endpoints empty lists and opaque pointer byte limits admit (0.085167ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-OUTCOME-RECOVERY-PRIVACY: shared redaction preserves prior omission and masks all six families (0.506125ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-OUTCOME-BUDGET: complete escaped UTF8 envelope admits 8192 bytes and rejects 8193 (0.10275ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-REGISTRY-VALID: independently confirmed local and foreign closed entries admit every scheduler state (0.075166ms)
+  Error: ENOENT: no such file or directory, lstat '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+      at realpathSync (node:fs:2788:29)
+      at registryEntry (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:631:14)
+      at ownerRegistry (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:1068:60)
+      at file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:1073:21
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:90:5)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'lstat',
+    path: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+  }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-REGISTRY-CLOSED: registry and each nested locator require closed fields (0.054583ms)
+  Error: ENOENT: no such file or directory, lstat '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+      at realpathSync (node:fs:2788:29)
+      at registryEntry (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:631:14)
+      at ownerRegistry (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:1068:60)
+      at file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:1085:35
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:90:5)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'lstat',
+    path: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+  }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-REGISTRY-FIELDS: root and foreign entry scalar bounds UTC states and array shapes reject (0.058542ms)
+  Error: ENOENT: no such file or directory, lstat '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+      at realpathSync (node:fs:2788:29)
+      at registryEntry (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:631:14)
+      at ownerRegistry (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:1068:60)
+      at file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:1102:47
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:90:5)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'lstat',
+    path: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+  }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-REGISTRY-OWNER: foreign nested owner closure and every unconfirmed tuple component reject (0.050917ms)
+  Error: ENOENT: no such file or directory, lstat '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+      at realpathSync (node:fs:2788:29)
+      at registryEntry (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:631:14)
+      at ownerRegistry (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:1068:60)
+      at file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:1117:19
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:90:5)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'lstat',
+    path: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+  }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-REGISTRY-TRUST: missing malformed or self-asserted confirmation cannot authorize a registry (0.044208ms)
+  Error: ENOENT: no such file or directory, lstat '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+      at realpathSync (node:fs:2788:29)
+      at registryEntry (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:631:14)
+      at ownerRegistry (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:1068:60)
+      at file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:1128:12
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:90:5)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'lstat',
+    path: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+  }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-REGISTRY-UNIQUE: identical or conflicting canonical owner tuples and duplicate IDs reject (0.051208ms)
+  Error: ENOENT: no such file or directory, lstat '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+      at realpathSync (node:fs:2788:29)
+      at registryEntry (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:631:14)
+      at ownerRegistry (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:1068:60)
+      at file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:1140:19
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:90:5)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'lstat',
+    path: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+  }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-REGISTRY-STORE: each locator binds exactly to its confirmed owner context store (0.043833ms)
+  Error: ENOENT: no such file or directory, lstat '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+      at realpathSync (node:fs:2788:29)
+      at registryEntry (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:631:14)
+      at file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:1151:50
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:90:5)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'lstat',
+    path: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+  }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ OR-SHARED-GUARDS: both new types retain JSON deadline Git and planned-path rejection (0.06275ms)
+  Error: ENOENT: no such file or directory, lstat '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+      at realpathSync (node:fs:2788:29)
+      at registryEntry (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:631:14)
+      at ownerRegistry (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:1068:60)
+      at file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:1158:89
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:90:5)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'lstat',
+    path: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-context-validation-rsaXDs'
+  }

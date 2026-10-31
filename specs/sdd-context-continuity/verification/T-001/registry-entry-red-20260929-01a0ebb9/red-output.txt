@@ -1,0 +1,23 @@
+✖ REGISTRY-ENTRY-VALID: exact owned entry admits every state and bounded opaque ID (0.895458ms)
+✔ REGISTRY-ENTRY-CLOSED: five fields are required and object extensions reject (1.845ms)
+✔ REGISTRY-ENTRY-FIELDS: locator types, ID bounds, exact states and UTC dates are checked (2.212458ms)
+✔ REGISTRY-ENTRY-OWNER: every foreign tuple component and malformed owner rejects (1.261708ms)
+✔ REGISTRY-ENTRY-STORE: only the exact canonical owned context locator is admitted (0.481333ms)
+✔ REGISTRY-ENTRY-REPLACED-STORE: a temporary context replaced by an escaping symlink rejects (15.747ms)
+✔ REGISTRY-ENTRY-JSON: malformed and decoded duplicate entry keys reject (0.163917ms)
+✔ REGISTRY-ENTRY-DEADLINE: the existing exhausted trusted budget returns no entry (0.067083ms)
+✔ REGISTRY-ENTRY-PATH: shared ignore/tracked/Git and escaping planned targets still reject (0.576375ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 8
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 276.659833
+
+✖ failing tests:
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ REGISTRY-ENTRY-VALID: exact owned entry admits every state and bounded opaque ID (0.895458ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }

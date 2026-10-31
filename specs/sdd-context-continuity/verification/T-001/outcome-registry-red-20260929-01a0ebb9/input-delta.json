@@ -1,0 +1,340 @@
+{
+  "checkpoint": "b266c2a18a4e510aace9b4c5a220d308e6806d3b",
+  "inputs": {
+    "AGENTS.md": {
+      "bytes": 18400,
+      "sha256": "3cdd1df7b00b2635e26a1d10ee0650e342ceae84a22f21b76d8df7f69b843671"
+    },
+    "plugins/sdd-context/json-admission.mjs": {
+      "bytes": 2160,
+      "sha256": "1627b6a24642faf1287daa705089633fb6c9046f63294449f2ed31d60d08be5b"
+    },
+    "plugins/sdd-context/privacy.mjs": {
+      "bytes": 7234,
+      "sha256": "fdafb645a4dc881489442d9443c780b6836b5bb202b4fd1cd5b84bccb4ca57c6"
+    },
+    "plugins/sdd-context/store-preparation.mjs": {
+      "bytes": 2580,
+      "sha256": "4552abdd6b118800ded80476e6bf264163e2f1f2c033d3abb94361107034cabb"
+    },
+    "plugins/sdd-context/validation.mjs": {
+      "bytes": 13557,
+      "sha256": "a4e062c8d22d60e901ba152719ce960d0d6f5978d01e4c03ae8a0ae434c3a777"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 148949,
+      "sha256": "4f5eca572e01a2ff96d5c9e378452fde8d27c4f5d33f97203134115350f3242e"
+    },
+    "reports/review-context/identity-ledger.json": {
+      "bytes": 517899,
+      "sha256": "f7762e87d657962dc8b141fb8359703aa590e8f46cd89587b2b75a3d91803e90"
+    },
+    "reports/verification/issue137-contract-completion-addendum-20260929.md": {
+      "bytes": 5830,
+      "sha256": "ff921c751ee0d99695f28200159119ec82fe7b99af5571140cf0d18af1f0c234"
+    },
+    "reports/verification/issue137-privacy-idempotence-20260929.md": {
+      "bytes": 6753,
+      "sha256": "7dea2e9b4c7488de1614011108a73cb4a627cc4899491cf29c0d23a5b2096213"
+    },
+    "specs/sdd-context-continuity/acceptance-tests.md": {
+      "bytes": 14600,
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    "specs/sdd-context-continuity/codemap.md": {
+      "bytes": 3099,
+      "sha256": "9a20dd27ffc5f17732c049960cff0df6ca85d1491100f54455b7adf8615b92f3"
+    },
+    "specs/sdd-context-continuity/design.md": {
+      "bytes": 20725,
+      "sha256": "0af1d884ad0c458ad59e0b5e172f444455fcf948c6b4eff6f6f62871a3f7d7f7"
+    },
+    "specs/sdd-context-continuity/frontend-spec.md": {
+      "bytes": 6674,
+      "sha256": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb"
+    },
+    "specs/sdd-context-continuity/infra-spec.md": {
+      "bytes": 8262,
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    "specs/sdd-context-continuity/investigation.md": {
+      "bytes": 11218,
+      "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+    },
+    "specs/sdd-context-continuity/requirements.md": {
+      "bytes": 17282,
+      "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+    },
+    "specs/sdd-context-continuity/security-spec.md": {
+      "bytes": 13679,
+      "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+    },
+    "specs/sdd-context-continuity/tasks.md": {
+      "bytes": 15074,
+      "sha256": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c"
+    },
+    "specs/sdd-context-continuity/traceability.md": {
+      "bytes": 5287,
+      "sha256": "221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b"
+    },
+    "specs/sdd-context-continuity/ux-spec.md": {
+      "bytes": 3636,
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    "specs/workflow-state-registry.json": {
+      "bytes": 12044,
+      "sha256": "2e5d3467f97cec025f066d366cec242f08601d451d44418558071903de5e4210"
+    },
+    "tests/sdd-context/json-admission.test.mjs": {
+      "bytes": 4826,
+      "sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663"
+    },
+    "tests/sdd-context/privacy-grammar.test.mjs": {
+      "bytes": 10326,
+      "sha256": "80f806a43c941f13de1a5c07c4a63df9df039d3e42af4f04a544009ece44c19e"
+    },
+    "tests/sdd-context/privacy.test.mjs": {
+      "bytes": 2882,
+      "sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636"
+    },
+    "tests/sdd-context/validation.test.mjs": {
+      "bytes": 54480,
+      "sha256": "58c6d8026163a3e7e223b81c2709fe46d420ad080eb41550e08bfb3c5e80984f"
+    },
+    "specs/sdd-context-continuity/verification/T-001/schema-definition-map.md": {
+      "bytes": 6837,
+      "sha256": "fd4eaacc0e272c8f1b5a796762c85656bfdb034782ef8599ad00e333f8ff1ba4"
+    },
+    "contracts/sdd-forge-mcp-tools.v1.schema.json": {
+      "bytes": 19589,
+      "sha256": "055b04cf07b3a348880bcd253a54bddd0250fe86141550168469d812134e4b78"
+    },
+    "reports/verification/issue137-journal-record-red-20260929.md": {
+      "bytes": 2904,
+      "sha256": "9f79e456a8c0b803abe999ccee134b0a67cc7e46e46a450359e5cd01329c521e"
+    },
+    "reports/verification/issue137-reason-registry-addendum-20260929.md": {
+      "bytes": 1588,
+      "sha256": "543d36d02bfce3e1cb244b84f6c0f30ed3093f1025f06f97fe58b0a20f75096f"
+    },
+    "install.sh": {
+      "bytes": 45439,
+      "sha256": "9b43d5eaf93a9cefffc562a3108f43ab2bc2a64c675a710ec5c59250f7abe719"
+    },
+    "install.ps1": {
+      "bytes": 41877,
+      "sha256": "7dc0b742a29a18daf85809caf8a2e92be098608a6cc1b1a29612470c9b64e056"
+    }
+  },
+  "preserved_private_evidence": {
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-green-20260929-01a0ebb9/green-record.json": {
+      "bytes": 8582,
+      "sha256": "eee84eff8d2acccfe61d483857a63c5e7829ddf783403fd777b257b1afdc1a46"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-green-20260929-01a0ebb9/green-output.txt": {
+      "bytes": 3355,
+      "sha256": "1a5055583b1ba101844f9d8d8944af055150f50e462f2e3d11857cd2d9a2cdb8"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-green-20260929-01a0ebb9/green-run.json": {
+      "bytes": 9110,
+      "sha256": "12996d8465a7b424c21c4ee0e9658e66eb59b26ce03f05c188515a3aff197cc1"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-green-20260929-01a0ebb9/green-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-green-20260929-01a0ebb9/input-delta.json": {
+      "bytes": 10185,
+      "sha256": "55498cbf9ab8307dae4fdeeff047e801e36d1ed4ff2ef82796bd52c4caa38653"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-green-20260929-01a0ebb9/original-privacy.mjs": {
+      "bytes": 7045,
+      "sha256": "3f70c35ffb3e3a936ac697a137473749fe04e51b66d8c3a24718b63bf1ba67ff"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-green-20260929-01a0ebb9/source-only.diff": {
+      "bytes": 1217,
+      "sha256": "ebd54524eb8980b397c6cb0871a1850bbff4f067ea6f81b7de8a37049b815b37"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-green-20260929-01a0ebb9/validation-output.txt": {
+      "bytes": 10755,
+      "sha256": "f2fa9865c0c1eae6d24d62f994f1c2d658de1417c75c8ba2b6ac1e915cbf66ba"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-green-20260929-01a0ebb9/validation-run.json": {
+      "bytes": 9017,
+      "sha256": "62b06a3c6f43fde657e21501d907e334c528b1861d6106c8aea85ec744a6c1bb"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-green-20260929-01a0ebb9/validation-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-red-20260929-01a0ebb9/red-record.json": {
+      "bytes": 7835,
+      "sha256": "26df7bdf7a9f805fae67d7e567957e789fd76a7ef4d7c1f11da18620530059ef"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-red-20260929-01a0ebb9/input-delta.json": {
+      "bytes": 8514,
+      "sha256": "14beebe5d3306e64ef5678d3e45aa803051879a64614c32d3361eca90c2587fe"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-red-20260929-01a0ebb9/original-privacy-grammar.test.mjs": {
+      "bytes": 9764,
+      "sha256": "6d59f363a1f267b24045449c900d1712dc56d908f4dc857af44663444952ab16"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-red-20260929-01a0ebb9/red-output.txt": {
+      "bytes": 1538,
+      "sha256": "c7500ce11cb8272344df78a041fac4be0453a485511abe685b24cca80055cf5a"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-red-20260929-01a0ebb9/red-run.json": {
+      "bytes": 9101,
+      "sha256": "bf662b19a26daabb2a6ea62d02bc3e235e8a8604c5062f4f6c429d3794e7709b"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-red-20260929-01a0ebb9/red-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-overlap-red-20260929-01a0ebb9/test-only.diff": {
+      "bytes": 789,
+      "sha256": "4d80416573a896892f37c4149f575cc9e92968b45890eadfecdceba3e9fdec6a"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-green-20260929-01a0ebb9/green-record.json": {
+      "bytes": 8280,
+      "sha256": "2e402b68707e9f52b57d8a7b71aad43506c80c5300f1e7897db94e350bd3d94c"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-green-20260929-01a0ebb9/green-output.txt": {
+      "bytes": 3260,
+      "sha256": "fe63a45ff2fd21de955e087119cb7fda6c20aca221ef74ea95b81cf37fd03d65"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-green-20260929-01a0ebb9/green-run.json": {
+      "bytes": 4453,
+      "sha256": "e4da9ed8e5d1688f55795506ed774aea3477db789630f4012f92b0de4e0411ad"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-green-20260929-01a0ebb9/green-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-green-20260929-01a0ebb9/input-delta.json": {
+      "bytes": 6852,
+      "sha256": "4b299362d5277b1b2b92b67197400dc2a20a12a5337c21c5dbd245e5ec2799e2"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-green-20260929-01a0ebb9/source-only.diff": {
+      "bytes": 481,
+      "sha256": "92faf31756a1d6854396259567b68ef90b6414b7c824ae6002f4b7c782f03320"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-green-20260929-01a0ebb9/validation-output.txt": {
+      "bytes": 10747,
+      "sha256": "e12d4e58da9d04f876499f1f0ec5dad6154f4b9b0ab24fe84058dedb7a3000ac"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-green-20260929-01a0ebb9/validation-run.json": {
+      "bytes": 4380,
+      "sha256": "b5b4690ca238f6963992bd4cde5eef16290a9f514a8fb7d7233acb8465f7dee2"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-green-20260929-01a0ebb9/validation-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-red-20260929-01a0ebb9/input-delta.json": {
+      "bytes": 4465,
+      "sha256": "43d47de993a5e3938e26ea35e67138898c4b58349affc1183f7e72fe9f08fee0"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-red-20260929-01a0ebb9/original-privacy-grammar.test.mjs": {
+      "bytes": 8442,
+      "sha256": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-red-20260929-01a0ebb9/red-output.txt": {
+      "bytes": 3229,
+      "sha256": "cde525dababe921942ce0e52eb2702fac49ae77afbfa6ec6e8e6d1f59b6f95c3"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-red-20260929-01a0ebb9/red-record.json": {
+      "bytes": 7503,
+      "sha256": "6c16a04a9dae3aad5e7f28114a1f947bcd0f77c741b819b93a8f4302f6ca29f6"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-red-20260929-01a0ebb9/red-run.json": {
+      "bytes": 4606,
+      "sha256": "a2d31a51946acb5ebe2097deebdb4d2cf7933feabbd640b528d97051f325c202"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-red-20260929-01a0ebb9/red-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/privacy-idempotence-red-20260929-01a0ebb9/test-only.diff": {
+      "bytes": 1550,
+      "sha256": "286ff1ff7f9e419fd0b4709551ce74a012b86209963827bcd06c96407f4b0d38"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-red-20260929-01a0ebb9/red-record.json": {
+      "bytes": 2904,
+      "sha256": "64826b4de3cb54573da115021064f439fba82adadd9a88b6a973af88779f7b72"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-red-20260929-01a0ebb9/original-validation.test.mjs": {
+      "bytes": 47787,
+      "sha256": "1d4f267df42b80de82c89cda5d6176654633e8e82265f27a74c55d372e9f41d0"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-red-20260929-01a0ebb9/test-only.diff": {
+      "bytes": 7004,
+      "sha256": "b1b736eac2b4f6b19a27c4cc7b195a810303fadfa8faa612e7130e54211f8408"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-red-20260929-01a0ebb9/red-run.json": {
+      "bytes": 10659,
+      "sha256": "f8a8d51fa049ed66b78345a33475511623b63f4e4faedfbb7f0bcbfe10a8b248"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-red-20260929-01a0ebb9/input-delta.json": {
+      "bytes": 12975,
+      "sha256": "fd82e551c316194b7664b84c7827dfacbf32988f5b70c99574e949bfbd0ea90a"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-red-20260929-01a0ebb9/red-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-red-20260929-01a0ebb9/red-output.txt": {
+      "bytes": 3076,
+      "sha256": "56bdcfcb4a4e8d23881e7c9b1a4ef339576e4805f6107535c7140dd45b1ceabe"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/validation-output.txt": {
+      "bytes": 12020,
+      "sha256": "091c9952fe4a6fa04276c3b481e44c0c06721166dcd7caf4791b929b1e8f5626"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/privacy-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/privacy-run.json": {
+      "bytes": 2145,
+      "sha256": "fd1019ae6334516669afec01bb65f4fc7ce6cd66921a514e7dbc267d68bdf149"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/source-only.diff": {
+      "bytes": 1382,
+      "sha256": "b392d8f7f760eecadedbb06d48bb05d56ba96cabcee49ffeb2563a27dc85d047"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/green-record.json": {
+      "bytes": 3521,
+      "sha256": "d2d85a210ad9eedcefedbc40298f42c482b2676613c2e3599f25754781d28117"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/validation-run.json": {
+      "bytes": 2058,
+      "sha256": "fb64da75f3648891491250873ad488de5b804ed470e3e28786259352d7071dc4"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/validation-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/privacy-output.txt": {
+      "bytes": 3360,
+      "sha256": "9321fac0a35e27e27c5c0ec9fc6c20f8ba52ad319c11dd806e3cbfaa6d92bc4d"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/input-delta.json": {
+      "bytes": 13830,
+      "sha256": "94ae61826cb015c1fd3cb9ddb2e2caec7e27adef8a5df587dfda8746448b1f81"
+    },
+    "specs/sdd-context-continuity/verification/T-001/journal-record-green-20260929-01a0ebb9/original-validation.mjs": {
+      "bytes": 12723,
+      "sha256": "02d9cd243779d4f4139c13cd0541a62ee9c73ab301e9b0b0d70c9c5633612a57"
+    }
+  },
+  "original_validation_tests": 125,
+  "validation_prefix_snapshot": {
+    "bytes": 54480,
+    "sha256": "58c6d8026163a3e7e223b81c2709fe46d420ad080eb41550e08bfb3c5e80984f"
+  },
+  "task_additional_corrections": 1,
+  "remaining_task_allowance": 2,
+  "maximum_task_corrections": 3,
+  "scope": "OutcomeV1 and OwnerRegistryV1 test-only WFI preflight plus selected RED once; production fixed until root checkpoint"
+}

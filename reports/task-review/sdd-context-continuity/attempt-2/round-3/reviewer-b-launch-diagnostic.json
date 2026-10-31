@@ -1,0 +1,15 @@
+{
+  "schema": "review-launch-diagnostic/v1",
+  "feature": "sdd-context-continuity",
+  "stage": "task",
+  "attempt": 2,
+  "round": 3,
+  "run_id": "e5d8c00c-f7f1-4e01-851a-fab7cf72b28d",
+  "host_session_id": "root.issue137_task_a2r3_b",
+  "reported_verdict": "BLOCKED",
+  "substantive_review_started": false,
+  "reported_reason": "Reviewer compared declared normalized tasks.md hash to raw file hash; original precheck and reservation succeeded.",
+  "pinned_normalized_tasks_sha256": "f099617a11742e4b656c60cd4f90a1c7d491d2162523cfe42c9aad5f57804119",
+  "observed_raw_tasks_sha256": "d7c5a818a6efd2e7960e887be5ee91070efd72c6dafe2ec085e4441cd8213d8c",
+  "followup": "Same reviewer asked to independently recheck WFI-025 launch normalization contract. No re-reservation, waiver, input change, or substantive verdict adopted."
+}

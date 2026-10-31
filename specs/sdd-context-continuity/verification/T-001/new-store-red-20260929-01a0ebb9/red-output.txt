@@ -1,0 +1,141 @@
+✖ NEW-STORE-VALID: fresh empty directory is private even under permissive POSIX umask (0.682292ms)
+✖ NEW-STORE-EXISTING: refusal preserves existing directory mode identity and contents (15.255458ms)
+✖ NEW-STORE-INVALID: malformed or foreign owner cannot create a directory (14.519917ms)
+✖ NEW-STORE-ESCAPE: escaping parent cannot create outside the owned worktree (14.83775ms)
+✖ NEW-STORE-GUARDS: ignore Git and expired budget failures leave no new store (37.083958ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 320.660166
+
+✖ failing tests:
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ NEW-STORE-VALID: fresh empty directory is private even under permissive POSIX umask (0.682292ms)
+  AssertionError [ERR_ASSERTION]: new private store preparation is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:727:10
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:90:5)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17)
+      at run (node:internal/test_runner/harness:369:12)
+      at test (node:internal/test_runner/harness:378:12)
+      at check (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:88:3)
+      at file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:726:1 {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ NEW-STORE-EXISTING: refusal preserves existing directory mode identity and contents (15.255458ms)
+  AssertionError [ERR_ASSERTION]: new private store preparation is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at rejectPreparation (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:717:10)
+      at file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:743:3
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:90:5)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ NEW-STORE-INVALID: malformed or foreign owner cannot create a directory (14.519917ms)
+  AssertionError [ERR_ASSERTION]: new private store preparation is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at rejectPreparation (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:717:10)
+      at file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:752:5
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:90:5)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ NEW-STORE-ESCAPE: escaping parent cannot create outside the owned worktree (14.83775ms)
+  AssertionError [ERR_ASSERTION]: new private store preparation is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at rejectPreparation (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:717:10)
+      at file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:759:3
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:90:5)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ NEW-STORE-GUARDS: ignore Git and expired budget failures leave no new store (37.083958ms)
+  AssertionError [ERR_ASSERTION]: new private store preparation is not implemented
+  + actual - expected
+  
+  + 'undefined'
+  - 'function'
+  
+      at rejectPreparation (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:717:10)
+      at file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:768:5
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/validation.test.mjs:90:5)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'undefined',
+    expected: 'function',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

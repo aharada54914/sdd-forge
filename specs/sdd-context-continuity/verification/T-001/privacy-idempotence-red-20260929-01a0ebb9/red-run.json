@@ -1,0 +1,102 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "--test-reporter=spec",
+    "--test-name-pattern=^PRIVACY-IDEMPOTENCE-",
+    "tests/sdd-context/privacy-grammar.test.mjs"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+  "login": false,
+  "node_version": "v24.13.0",
+  "platform": "Darwin",
+  "architecture": "arm64",
+  "started_utc": "2026-09-29T13:31:40.779437+00:00",
+  "ended_utc": "2026-09-29T13:31:40.843729+00:00",
+  "duration_seconds": 0.0641735420213081,
+  "exit_code": 1,
+  "stdout_sha256": "cde525dababe921942ce0e52eb2702fac49ae77afbfa6ec6e8e6d1f59b6f95c3",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "structure_precheck": {
+    "command": [
+      "rtk",
+      "proxy",
+      "bash",
+      "scripts/check-sdd-structure.sh",
+      ".",
+      "sdd-context-continuity"
+    ],
+    "exit_code": 0,
+    "stdout": "advisory: CLAUDE.md\nhost: github\ncheck-sdd-structure: OK\n",
+    "stderr": ""
+  },
+  "before_guards": {
+    "AGENTS.md": "unchanged",
+    "plugins/sdd-context/json-admission.mjs": "unchanged",
+    "plugins/sdd-context/privacy.mjs": "unchanged",
+    "plugins/sdd-context/store-preparation.mjs": "unchanged",
+    "plugins/sdd-context/validation.mjs": "unchanged",
+    "reports/implementation/sdd-context-continuity/T-001.md": "original prefix unchanged",
+    "reports/review-context/identity-ledger.json": "unchanged",
+    "reports/verification/issue137-contract-completion-addendum-20260929.md": "unchanged",
+    "specs/sdd-context-continuity/acceptance-tests.md": "unchanged",
+    "specs/sdd-context-continuity/codemap.md": "unchanged",
+    "specs/sdd-context-continuity/design.md": "unchanged",
+    "specs/sdd-context-continuity/frontend-spec.md": "unchanged",
+    "specs/sdd-context-continuity/infra-spec.md": "unchanged",
+    "specs/sdd-context-continuity/investigation.md": "unchanged",
+    "specs/sdd-context-continuity/requirements.md": "unchanged",
+    "specs/sdd-context-continuity/security-spec.md": "unchanged",
+    "specs/sdd-context-continuity/tasks.md": "unchanged",
+    "specs/sdd-context-continuity/traceability.md": "unchanged",
+    "specs/sdd-context-continuity/ux-spec.md": "unchanged",
+    "specs/workflow-state-registry.json": "unchanged",
+    "tests/sdd-context/json-admission.test.mjs": "unchanged",
+    "tests/sdd-context/privacy-grammar.test.mjs": "original prefix unchanged",
+    "tests/sdd-context/privacy.test.mjs": "unchanged",
+    "tests/sdd-context/validation.test.mjs": "unchanged"
+  },
+  "after_guards": {
+    "AGENTS.md": "unchanged",
+    "plugins/sdd-context/json-admission.mjs": "unchanged",
+    "plugins/sdd-context/privacy.mjs": "unchanged",
+    "plugins/sdd-context/store-preparation.mjs": "unchanged",
+    "plugins/sdd-context/validation.mjs": "unchanged",
+    "reports/implementation/sdd-context-continuity/T-001.md": "original prefix unchanged",
+    "reports/review-context/identity-ledger.json": "unchanged",
+    "reports/verification/issue137-contract-completion-addendum-20260929.md": "unchanged",
+    "specs/sdd-context-continuity/acceptance-tests.md": "unchanged",
+    "specs/sdd-context-continuity/codemap.md": "unchanged",
+    "specs/sdd-context-continuity/design.md": "unchanged",
+    "specs/sdd-context-continuity/frontend-spec.md": "unchanged",
+    "specs/sdd-context-continuity/infra-spec.md": "unchanged",
+    "specs/sdd-context-continuity/investigation.md": "unchanged",
+    "specs/sdd-context-continuity/requirements.md": "unchanged",
+    "specs/sdd-context-continuity/security-spec.md": "unchanged",
+    "specs/sdd-context-continuity/tasks.md": "unchanged",
+    "specs/sdd-context-continuity/traceability.md": "unchanged",
+    "specs/sdd-context-continuity/ux-spec.md": "unchanged",
+    "specs/workflow-state-registry.json": "unchanged",
+    "tests/sdd-context/json-admission.test.mjs": "unchanged",
+    "tests/sdd-context/privacy-grammar.test.mjs": "original prefix unchanged",
+    "tests/sdd-context/privacy.test.mjs": "unchanged",
+    "tests/sdd-context/validation.test.mjs": "unchanged"
+  },
+  "grammar_before": {
+    "bytes": 8442,
+    "sha256": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+  },
+  "grammar_after": {
+    "bytes": 9764,
+    "sha256": "6d59f363a1f267b24045449c900d1712dc56d908f4dc857af44663444952ab16"
+  },
+  "production_privacy": {
+    "bytes": 6935,
+    "sha256": "349fd8a55fe4c2609251927945b384c9383fd79b2a33ed69fe833da5c046eeb1"
+  },
+  "new_cases": 2,
+  "corrections": 0,
+  "scope": "only two new test bodies executed; unchanged prior 31 bodies excluded; no production or JournalRecord change"
+}

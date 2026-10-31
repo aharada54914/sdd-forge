@@ -1,0 +1,212 @@
+{
+  "schema": "validation-red-inputs/v1",
+  "run_id": "issue137-T001-git-head-red-20260929-01a0ebb9",
+  "head": "40f1c79cdede2a67abe7e5e2b28b1d38a5b3fe78",
+  "git_storage_format": "sha1",
+  "git_version": "git version 2.54.0 (Apple Git-157)",
+  "base_manifest_path": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/T-001-manifest.json",
+  "base_manifest_sha256": "ce110f89d42c472c8cd07851c2b00fc81ad610bb35ec5c8f906d89bf58ed5006",
+  "previous_validation_manifest_path": "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/input-manifest.json",
+  "previous_validation_manifest_sha256": "d2dd62c7dfe5edabe53e9e4e9d863ad7007d6b8215440b890d93b0425d92ca99",
+  "subject": {
+    "path": "plugins/sdd-context/validation.mjs",
+    "exists": true,
+    "sha256": "e8378d8f121f5b44f522ff1ef0e23a2e4b8de72e164f7538ce0ed6b157885bae"
+  },
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "3cdd1df7b00b2635e26a1d10ee0650e342ceae84a22f21b76d8df7f69b843671",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/AGENTS.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/requirements.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "0af1d884ad0c458ad59e0b5e172f444455fcf948c6b4eff6f6f62871a3f7d7f7",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/design.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "specs/sdd-context-continuity/tasks.md",
+      "sha256": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/tasks.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/acceptance-tests.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "specs/sdd-context-continuity/traceability.md",
+      "sha256": "221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/traceability.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/ux-spec.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/frontend-spec.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/infra-spec.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/security-spec.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "specs/sdd-context-continuity/codemap.md",
+      "sha256": "9a20dd27ffc5f17732c049960cff0df6ca85d1491100f54455b7adf8615b92f3",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/codemap.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "docs/adr/0033-worktree-local-context-continuity.md",
+      "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/docs/adr/0033-worktree-local-context-continuity.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "contracts/task-input-manifest.schema.json",
+      "sha256": "fdfadf87501edbe29e35f6b723ea002c16438e82e75ab7c9703635aba568acb9",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/contracts/task-input-manifest.schema.json",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "sha256": "d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "784a0b471c143b5b044d63da1eaf7113727f99aa6dc79e0f9b95d8d689024fcd",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/plugins/sdd-implementation/templates/implementation-report.template.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "plugins/sdd-context/privacy.mjs",
+      "sha256": "349fd8a55fe4c2609251927945b384c9383fd79b2a33ed69fe833da5c046eeb1",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/plugins/sdd-context/privacy.mjs",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "tests/sdd-context/privacy.test.mjs",
+      "sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/tests/sdd-context/privacy.test.mjs",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "tests/sdd-context/privacy-grammar.test.mjs",
+      "sha256": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/tests/sdd-context/privacy-grammar.test.mjs",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "specs/sdd-context-continuity/verification/T-001/schema-definition-map.md",
+      "sha256": "fd4eaacc0e272c8f1b5a796762c85656bfdb034782ef8599ad00e333f8ff1ba4",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/verification/T-001/schema-definition-map.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "reports/verification/issue137-fresh-host-launch-20260928/T-001-manifest.json",
+      "sha256": "1aa7a4774b22077ee0199f26680bbb4817c35e005e50d7ea781cf9176d551afd",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/reports/verification/issue137-fresh-host-launch-20260928/T-001-manifest.json",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "reports/verification/issue137-fresh-host-launch-20260928/worker-brief.md",
+      "sha256": "cf26f50bd7b30dadb78580f3cca888a9f73ad9a1f0adc842da131cff2ccc8ed7",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/reports/verification/issue137-fresh-host-launch-20260928/worker-brief.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "reports/verification/issue137-fresh-host-launch-20260928/host-decision.json",
+      "sha256": "2e789172e673c69de2bdf02684b67bf67cc5bcb297d65121fb3995ee98b04361",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/reports/verification/issue137-fresh-host-launch-20260928/host-decision.json",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "reports/verification/issue137-contract-completion-addendum-20260929.md",
+      "sha256": "58e6bd9b22371fb5ec76a069b3e55a32af67eaf9eaac055dfd2b70c606053527",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/input-snapshot/reports/verification/issue137-contract-completion-addendum-20260929.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "contracts/sdd-forge-mcp-tools.v1.schema.json",
+      "sha256": "055b04cf07b3a348880bcd253a54bddd0250fe86141550168469d812134e4b78",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/input-snapshot/contracts/sdd-forge-mcp-tools.v1.schema.json",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "plugins/sdd-context/json-admission.mjs",
+      "sha256": "1627b6a24642faf1287daa705089633fb6c9046f63294449f2ed31d60d08be5b",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/input-snapshot/plugins/sdd-context/json-admission.mjs",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "reports/verification/issue137-git-head-contract-addendum-20260929.md",
+      "sha256": "20e4dfce79f984c4837292694f6a868ab4d4c3bc00baeab1247a4f65d356ae1d",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/git-head-red-20260929-01a0ebb9/input-snapshot/reports/verification/issue137-git-head-contract-addendum-20260929.md",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "tests/sdd-context/validation.test.mjs",
+      "sha256": "14a381d91b4776f99991b0047c33d7048ce577dc4b0226e6b0fc93e401219750",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/git-head-red-20260929-01a0ebb9/input-snapshot/tests/sdd-context/validation.test.mjs",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "plugins/sdd-context/validation.mjs",
+      "sha256": "e8378d8f121f5b44f522ff1ef0e23a2e4b8de72e164f7538ce0ed6b157885bae",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/git-head-red-20260929-01a0ebb9/input-snapshot/plugins/sdd-context/validation.mjs",
+      "snapshot_base": "worktree"
+    },
+    {
+      "path": "reports/implementation/sdd-context-continuity/T-001.md",
+      "sha256": "4d58c74a792295ec392cc401a35805432bd8869955e370911bd2cda36fd33cf3",
+      "snapshot": "specs/sdd-context-continuity/verification/T-001/git-head-red-20260929-01a0ebb9/input-snapshot/reports/implementation/sdd-context-continuity/T-001.md",
+      "snapshot_base": "worktree"
+    }
+  ],
+  "authority": {
+    "source_thread_id": "01a06d01-11b5-7bd3-83a3-7e29bb3c96cd",
+    "kind": "received-main-agent-continuation",
+    "scope": "one fixed real RED execution; production held until main-agent review; no project commit/push, ledger or task status changes",
+    "review_statement": "Main agent reports independent Astra input review found no additional Critical/Major findings; not a formal gate receipt."
+  },
+  "original_cases_retained": 28,
+  "expected_cases": 37
+}

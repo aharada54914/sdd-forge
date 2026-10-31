@@ -1,0 +1,38 @@
+{
+  "schema": "implementation-host-decision/v1",
+  "implementation_subagents_available": true,
+  "isolation_mode": "fresh-agent",
+  "selected_batch": [
+    "T-001"
+  ],
+  "thread_id": "01a0e682-61e2-7370-a241-7646661b372e",
+  "session_id": "01a0e682-61e2-7370-a241-7646661b372e",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "approval_policy": "never",
+  "permission_profile": {
+    "id": "sdd137-t001",
+    "extends": ":read-only"
+  },
+  "output_roots": [
+    "contracts/sdd-context",
+    "plugins/sdd-context",
+    "reports/implementation/sdd-context-continuity",
+    "specs/sdd-context-continuity/verification/T-001",
+    "tests/sdd-context"
+  ],
+  "network_access": false,
+  "exclude_slash_tmp": true,
+  "exclude_tmpdir_env": true,
+  "boundary_probe": {
+    "inside_write": "succeeded",
+    "outside_write": "rejected by native apply_patch",
+    "outside_file": "absent",
+    "product_activation_proof": false
+  },
+  "unused_allocation": {
+    "thread_id": "01a0e681-5540-7fc2-9868-488df9b40ce4",
+    "started_turn": false,
+    "reason": "initial response was truncated; unused idle allocation is not implementation evidence"
+  }
+}

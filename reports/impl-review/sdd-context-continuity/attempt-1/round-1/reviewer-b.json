@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "01a0e0f5-e94d-7bf0-868b-0db459d45f38",
+  "host_session_id": "01a0e0f5-e94d-7bf0-868b-0db459d45f38",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "8c162c59e32f5ba861d8b9c912facfb400b271804054bad9975c520117faf7a9"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "fad4f28f9b4509490ea33e5a8838602551552e8b575f415bfbd2786eb291c0c9"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+    },
+    {
+      "path": "specs/sdd-context-continuity/investigation.md",
+      "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/sdd-context-continuity/attempt-1/round-1/precheck-result.json",
+      "sha256": "c78525a0da1fd4a3c0e544696e1e410af8c5f2bcef36d744ca0ae0429e1ac01e"
+    },
+    {
+      "path": "reports/impl-review/sdd-context-continuity/attempt-1/round-1/integrated-summary.json",
+      "sha256": "5346a6fc9d2e3d258f0fae6ba72760c1182d1c78b000f5f37a28188ab81a4881"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Architecture/Components は短命Nodeプロセス、既存TypeScript/esbuildとtransport-free readerの再利用を、新規依存・stdio起動を避ける理由とともに説明。Data Plan はsourceを唯一の証拠として残しprojectionを破棄可能にする理由を説明。infra-spec.md Data Residency and Retention は固定segment名によるcrash時の選択曖昧性回避を説明。OS daily jobはrequirements.md OQ-010の人間決定に対応。"
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md Open Questions はOQ-005–010をまとめて『owned by the adapter, storage, security and infrastructure implementers respectively』と記載するが、6質問と4担当の対応が確定せず、各質問の Blocks Implementation: yes/no と Resolution Path: がない。OQ-011/012にもこの必須フィールドがない。requirements.md Open Questions と各layerには具体的な検証候補があるものの、design.mdの各entryへの明確な対応付けがなく、どの契約が誰の何の結果で実装可能になるか曖昧になる。担当・blocking判定・解決経路を質問別に明記する必要があるためMajor。"
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "investigation.md INV-001–017 はauthority、reader再利用、hook未検証、ignore不足、transport境界、unsafe readの区別を根拠付きで記録。design.md Assumptions はPreToolUseをlifecycle proofと扱わず、shared stateの再検証を要求。frontend/infra/securityもnative support・durability・schedulerを未検証として扱う。manifest外のintake/host-audit reportは読まず、その内容を確認済み事実として採用していない。"
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "design.md Constraint Compliance の4行はnative compact、新規command/dependency/daemon、owned logs、authorityのみを扱う。requirements.md AC-013の30日eligibility・通常24時間以内削除・catch-up、AC-014/016の全copy/output前redaction・Git安全条件、Bounded acceptance contractの1,000ms/1MiB/8MiB/8,192-byte制約に対応するcompliance statementが同sectionにない。各layerには対応設計があるが、このcheckはConstraint Complianceが存在する場合に全制約の同sectionでの対応を必須とする。制約一覧が不完全でdownstreamのcompliance確認から落ちるため、ロールの明示規定に従いCritical。"
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md API / Contract Plan とTest Strategyはfrontend-spec.md Performance Budgetおよびacceptance-tests.mdを参照。frontendは1,000ms monotonic deadline、remaining-time propagation、bounded lock/I/O、1MiB input、8MiB transcript scan、final serializationの8,192-byte測定とwhole-entry fittingを具体化。TEST-034–037/060はcore/native terminationとoutputを分離して検証する計画。未測定値を達成済みと主張していない。"
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md Deployment / CI Plan はexisting installationとinfra operationsを参照するが、infra-spec.md CI/CD Sequenceも『synthetic unit/fault/privacy tests → existing MCP readonly regressions → per-host ... tests → independent gates』という順序のみ。必要なCI pipeline変更、追加jobとnative laneの実行場所、environment variables/secretsの要否（不要ならその明記）が定義されていない。対象OSとinstaller ownershipは明確だが、実装担当がCIへの組込み範囲を決め直す必要があるためMajor。DB migration orderとincremental feature flagは該当surfaceなし。"
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Data Plan は新規worktree-local schema-v1 filesのみを定義し、retired experimentから移行しない、unknown schemaはunavailableで上書きしないと明記。既存table/column変更はない。infra-spec.md Rollbackはowned registrationのみ無効化し、残存private contentのexpiry filteringとcleanupを維持する方針を示す。"
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Components/Layer Specifications とfrontend-spec.md API Client Strategy はClaude/Codex native lifecycle、別serializer、versioned internal schemas、unsupported inputとmanual/auto failure behaviorを明示。infra-spec.md Deployment Topology/Environments/Data Residency and Retention はinstallerとmacOS launchd・Ubuntu systemd・Windows Task Schedulerの目的、candidate設定、拒否/無効時のwarning・capture禁止を示す。実際のhost version/schema/registrationはOQ-005/007/008、native schedulerはOQ-010のblocking検証として留保され、互換性を確定済みと主張していない。外部network APIはない。"
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Cross-Layer Dependencies/Architecture/Data PlanはREQ-001–012のcapture、decisions、compact reconciliation、authority、ownership、integrity、failure policy、host separation、expiry/redaction、bounded recovery、reader reuse、internal installationをカバー。registryとOS jobはAC-013のinactive-worktree deletionを実現する範囲。browser UI、network、database、新規workflow commandは追加しない。ux-spec.mdは全User Storiesとnative feedback/recoveryを対応付ける。"
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Test Strategy/Cross-Layer Dependencies/Security Boundaries はacceptance-tests.mdの具体的TEST-IDを指定。owner/path/Git/privacyはTEST-019–023/045–046/052–056、authorityはTEST-009–018/061–064、native failure behaviorはTEST-027–037/051/065、cleanup race/foreign targetsはTEST-044f–h/066で検証する計画。security-spec.md STRIDE AnalysisとSynthetic verificationは全persistent/output pathのnegative assertionsを具体化。live-host/native OS証拠をfixtureで代替しない。round 1: no prior summary; current summaryのcounts/check IDsから他reviewerの理由を推測していない。launch receipt再計算、1197=1196+1、previous hash、identity_unique、全manifest raw hashesの一致を確認済み。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: 許可されたroot domain/存在確認でdirectoryなし。Approved domain model surfaceがないため適用外。"
+    }
+  ]
+}

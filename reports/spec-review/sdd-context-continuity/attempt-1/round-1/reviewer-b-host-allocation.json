@@ -1,0 +1,69 @@
+{
+  "id": 4,
+  "result": {
+    "thread": {
+      "id": "01a0e0cc-8122-7d40-aed3-2064a584b8a7",
+      "environments": [
+        {
+          "environmentId": "local",
+          "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+          "runtimeWorkspaceRoots": [
+            "/Users/jrmag/.codex/worktrees/issue137-continuity"
+          ]
+        }
+      ],
+      "extra": null,
+      "sessionId": "01a0e0cc-8122-7d40-aed3-2064a584b8a7",
+      "forkedFromId": null,
+      "parentThreadId": null,
+      "preview": "",
+      "ephemeral": false,
+      "section": null,
+      "sectionEnteredAt": null,
+      "projectId": null,
+      "historyMode": "paginated",
+      "modelProvider": "openai",
+      "model": "gpt-6-sol",
+      "reasoningEffort": "high",
+      "createdAt": 1790477894,
+      "updatedAt": 1790477894,
+      "recencyAt": 1790477894,
+      "status": {
+        "type": "idle"
+      },
+      "path": "/Users/jrmag/.codex/sessions/2026/09/27/rollout-2026-09-27T11-58-13-01a0e0cc-8122-7d40-aed3-2064a584b8a7.jsonl",
+      "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+      "cliVersion": "0.158.0-alpha.2.1",
+      "originator": "Codex Desktop",
+      "source": "vscode",
+      "canAcceptDirectInput": true,
+      "threadSource": null,
+      "agentNickname": null,
+      "agentRole": null,
+      "gitInfo": null,
+      "name": null,
+      "daybreakEnabled": null,
+      "turns": []
+    },
+    "model": "gpt-6-sol",
+    "modelProvider": "openai",
+    "serviceTier": "default",
+    "disabledPluginIds": [],
+    "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+    "runtimeWorkspaceRoots": [
+      "/Users/jrmag/.codex/worktrees/issue137-continuity"
+    ],
+    "instructionSources": [
+      "/Users/jrmag/.codex/AGENTS.md",
+      "/Users/jrmag/.codex/worktrees/issue137-continuity/AGENTS.md"
+    ],
+    "approvalPolicy": "never",
+    "approvalsReviewer": "user",
+    "sandbox": {
+      "type": "dangerFullAccess"
+    },
+    "activePermissionProfile": null,
+    "reasoningEffort": "high",
+    "multiAgentMode": "explicitRequestOnly"
+  }
+}

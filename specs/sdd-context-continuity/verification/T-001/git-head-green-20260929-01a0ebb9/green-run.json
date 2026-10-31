@@ -1,0 +1,401 @@
+{
+  "schema": "validation-green-run/v1",
+  "run_id": "issue137-T001-git-head-green-20260929-01a0ebb9",
+  "kind": "green",
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "tests/sdd-context/validation.test.mjs"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+  "login": false,
+  "started_at_utc": "2026-09-29T09:37:07.215346+00:00",
+  "finished_at_utc": "2026-09-29T09:37:09.336887+00:00",
+  "elapsed_seconds": 2.121407958009513,
+  "node_version": "v24.13.0",
+  "git_version": "git version 2.54.0 (Apple Git-157)",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "head_before": "1d4f7cd34bef139cc3f5d357db6a37ee0905524f",
+  "head_after": "1d4f7cd34bef139cc3f5d357db6a37ee0905524f",
+  "git_storage_format": "sha1",
+  "git_storage_format_after": "sha1",
+  "exit_code": 0,
+  "counts": {
+    "tests": 37,
+    "suites": 0,
+    "pass": 37,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "counts_source": "Exact original Node reporter summary; single execution",
+  "manifest_sha256": "f8f156582aea43a86140b969448a317a3185186c68f18790560e4b35b5bb120b",
+  "inputs_before": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "3cdd1df7b00b2635e26a1d10ee0650e342ceae84a22f21b76d8df7f69b843671"
+    },
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "0af1d884ad0c458ad59e0b5e172f444455fcf948c6b4eff6f6f62871a3f7d7f7"
+    },
+    {
+      "path": "specs/sdd-context-continuity/tasks.md",
+      "sha256": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/traceability.md",
+      "sha256": "221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+    },
+    {
+      "path": "specs/sdd-context-continuity/codemap.md",
+      "sha256": "9a20dd27ffc5f17732c049960cff0df6ca85d1491100f54455b7adf8615b92f3"
+    },
+    {
+      "path": "docs/adr/0033-worktree-local-context-continuity.md",
+      "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"
+    },
+    {
+      "path": "contracts/task-input-manifest.schema.json",
+      "sha256": "fdfadf87501edbe29e35f6b723ea002c16438e82e75ab7c9703635aba568acb9"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "sha256": "d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "784a0b471c143b5b044d63da1eaf7113727f99aa6dc79e0f9b95d8d689024fcd"
+    },
+    {
+      "path": "plugins/sdd-context/privacy.mjs",
+      "sha256": "349fd8a55fe4c2609251927945b384c9383fd79b2a33ed69fe833da5c046eeb1"
+    },
+    {
+      "path": "tests/sdd-context/privacy.test.mjs",
+      "sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636"
+    },
+    {
+      "path": "tests/sdd-context/privacy-grammar.test.mjs",
+      "sha256": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+    },
+    {
+      "path": "specs/sdd-context-continuity/verification/T-001/schema-definition-map.md",
+      "sha256": "fd4eaacc0e272c8f1b5a796762c85656bfdb034782ef8599ad00e333f8ff1ba4"
+    },
+    {
+      "path": "reports/verification/issue137-fresh-host-launch-20260928/T-001-manifest.json",
+      "sha256": "1aa7a4774b22077ee0199f26680bbb4817c35e005e50d7ea781cf9176d551afd"
+    },
+    {
+      "path": "reports/verification/issue137-fresh-host-launch-20260928/worker-brief.md",
+      "sha256": "cf26f50bd7b30dadb78580f3cca888a9f73ad9a1f0adc842da131cff2ccc8ed7"
+    },
+    {
+      "path": "reports/verification/issue137-fresh-host-launch-20260928/host-decision.json",
+      "sha256": "2e789172e673c69de2bdf02684b67bf67cc5bcb297d65121fb3995ee98b04361"
+    },
+    {
+      "path": "reports/verification/issue137-contract-completion-addendum-20260929.md",
+      "sha256": "58e6bd9b22371fb5ec76a069b3e55a32af67eaf9eaac055dfd2b70c606053527"
+    },
+    {
+      "path": "contracts/sdd-forge-mcp-tools.v1.schema.json",
+      "sha256": "055b04cf07b3a348880bcd253a54bddd0250fe86141550168469d812134e4b78"
+    },
+    {
+      "path": "plugins/sdd-context/json-admission.mjs",
+      "sha256": "1627b6a24642faf1287daa705089633fb6c9046f63294449f2ed31d60d08be5b"
+    },
+    {
+      "path": "reports/verification/issue137-git-head-contract-addendum-20260929.md",
+      "sha256": "20e4dfce79f984c4837292694f6a868ab4d4c3bc00baeab1247a4f65d356ae1d"
+    },
+    {
+      "path": "tests/sdd-context/validation.test.mjs",
+      "sha256": "14a381d91b4776f99991b0047c33d7048ce577dc4b0226e6b0fc93e401219750"
+    },
+    {
+      "path": "plugins/sdd-context/validation.mjs",
+      "sha256": "ff9f7b869ebc439efb809924a5ae19f42476d036824715a2faad990b232c2678"
+    },
+    {
+      "path": "reports/implementation/sdd-context-continuity/T-001.md",
+      "sha256": "fe4e5588d626a967de11a5079c5a6f3c448d1a53baa620dacd9005eb1185e8a4"
+    },
+    {
+      "path": "tests/sdd-context/json-admission.test.mjs",
+      "sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663"
+    }
+  ],
+  "inputs_after": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "3cdd1df7b00b2635e26a1d10ee0650e342ceae84a22f21b76d8df7f69b843671"
+    },
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "0af1d884ad0c458ad59e0b5e172f444455fcf948c6b4eff6f6f62871a3f7d7f7"
+    },
+    {
+      "path": "specs/sdd-context-continuity/tasks.md",
+      "sha256": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/traceability.md",
+      "sha256": "221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+    },
+    {
+      "path": "specs/sdd-context-continuity/codemap.md",
+      "sha256": "9a20dd27ffc5f17732c049960cff0df6ca85d1491100f54455b7adf8615b92f3"
+    },
+    {
+      "path": "docs/adr/0033-worktree-local-context-continuity.md",
+      "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"
+    },
+    {
+      "path": "contracts/task-input-manifest.schema.json",
+      "sha256": "fdfadf87501edbe29e35f6b723ea002c16438e82e75ab7c9703635aba568acb9"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md",
+      "sha256": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+      "sha256": "d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "784a0b471c143b5b044d63da1eaf7113727f99aa6dc79e0f9b95d8d689024fcd"
+    },
+    {
+      "path": "plugins/sdd-context/privacy.mjs",
+      "sha256": "349fd8a55fe4c2609251927945b384c9383fd79b2a33ed69fe833da5c046eeb1"
+    },
+    {
+      "path": "tests/sdd-context/privacy.test.mjs",
+      "sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636"
+    },
+    {
+      "path": "tests/sdd-context/privacy-grammar.test.mjs",
+      "sha256": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+    },
+    {
+      "path": "specs/sdd-context-continuity/verification/T-001/schema-definition-map.md",
+      "sha256": "fd4eaacc0e272c8f1b5a796762c85656bfdb034782ef8599ad00e333f8ff1ba4"
+    },
+    {
+      "path": "reports/verification/issue137-fresh-host-launch-20260928/T-001-manifest.json",
+      "sha256": "1aa7a4774b22077ee0199f26680bbb4817c35e005e50d7ea781cf9176d551afd"
+    },
+    {
+      "path": "reports/verification/issue137-fresh-host-launch-20260928/worker-brief.md",
+      "sha256": "cf26f50bd7b30dadb78580f3cca888a9f73ad9a1f0adc842da131cff2ccc8ed7"
+    },
+    {
+      "path": "reports/verification/issue137-fresh-host-launch-20260928/host-decision.json",
+      "sha256": "2e789172e673c69de2bdf02684b67bf67cc5bcb297d65121fb3995ee98b04361"
+    },
+    {
+      "path": "reports/verification/issue137-contract-completion-addendum-20260929.md",
+      "sha256": "58e6bd9b22371fb5ec76a069b3e55a32af67eaf9eaac055dfd2b70c606053527"
+    },
+    {
+      "path": "contracts/sdd-forge-mcp-tools.v1.schema.json",
+      "sha256": "055b04cf07b3a348880bcd253a54bddd0250fe86141550168469d812134e4b78"
+    },
+    {
+      "path": "plugins/sdd-context/json-admission.mjs",
+      "sha256": "1627b6a24642faf1287daa705089633fb6c9046f63294449f2ed31d60d08be5b"
+    },
+    {
+      "path": "reports/verification/issue137-git-head-contract-addendum-20260929.md",
+      "sha256": "20e4dfce79f984c4837292694f6a868ab4d4c3bc00baeab1247a4f65d356ae1d"
+    },
+    {
+      "path": "tests/sdd-context/validation.test.mjs",
+      "sha256": "14a381d91b4776f99991b0047c33d7048ce577dc4b0226e6b0fc93e401219750"
+    },
+    {
+      "path": "plugins/sdd-context/validation.mjs",
+      "sha256": "ff9f7b869ebc439efb809924a5ae19f42476d036824715a2faad990b232c2678"
+    },
+    {
+      "path": "reports/implementation/sdd-context-continuity/T-001.md",
+      "sha256": "fe4e5588d626a967de11a5079c5a6f3c448d1a53baa620dacd9005eb1185e8a4"
+    },
+    {
+      "path": "tests/sdd-context/json-admission.test.mjs",
+      "sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663"
+    }
+  ],
+  "inputs_unchanged": true,
+  "protected_artifact_hashes": {
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/run-metadata.json": "aa2f469d1908d696ca833168ce81bdfc059d0238f18e5d7432a933399feed6b5",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/privacy-regression-run.json": "834c00eeee1b273cad8e47a73e3792e0c3029180c1e735f2918345c2e77c9eea",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/pre-red-implementation-report.md": "d4963218f1478b9588bc1ea7131185a434492a2afe938c52f152cde5f283d7d3",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/red-run.json": "b7799a6db5f1fd26d088341f0d7340cb61d65be26975efad91b7e5b9cb8d8f8b",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/privacy-regression-output.txt": "c35162a4d7f2583faf56516fdb4c4985b557fcf061c1da8997896f5b717723cf",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/red-output.txt": "af98abdedfdbde668a7b3ada712053c39a3369ac2d4a4afed9cd680c14427fee",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/T-001-manifest.json": "ce110f89d42c472c8cd07851c2b00fc81ad610bb35ec5c8f906d89bf58ed5006",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/AGENTS.md": "3cdd1df7b00b2635e26a1d10ee0650e342ceae84a22f21b76d8df7f69b843671",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/contracts/task-input-manifest.schema.json": "fdfadf87501edbe29e35f6b723ea002c16438e82e75ab7c9703635aba568acb9",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/reports/verification/issue137-fresh-host-launch-20260928/host-decision.json": "2e789172e673c69de2bdf02684b67bf67cc5bcb297d65121fb3995ee98b04361",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/reports/verification/issue137-fresh-host-launch-20260928/worker-brief.md": "cf26f50bd7b30dadb78580f3cca888a9f73ad9a1f0adc842da131cff2ccc8ed7",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/reports/verification/issue137-fresh-host-launch-20260928/T-001-manifest.json": "1aa7a4774b22077ee0199f26680bbb4817c35e005e50d7ea781cf9176d551afd",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/docs/adr/0033-worktree-local-context-continuity.md": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/tests/sdd-context/privacy-grammar.test.mjs": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/tests/sdd-context/privacy.test.mjs": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/plugins/sdd-context/privacy.mjs": "349fd8a55fe4c2609251927945b384c9383fd79b2a33ed69fe833da5c046eeb1",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/plugins/sdd-implementation/templates/implementation-report.template.md": "784a0b471c143b5b044d63da1eaf7113727f99aa6dc79e0f9b95d8d689024fcd",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md": "d1c8973dd74e224ccdafa43c6407a251f1c1e44fbf69a44d7e3410e2fd58393c",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md": "5f00ddf2765b5086dfc83b3e24ad6873a7e08a08d419126fb619adcc82e0beff",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/requirements.md": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/acceptance-tests.md": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/infra-spec.md": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/frontend-spec.md": "f7dee2ab743144c7503b7b718a30b79c845fb02e5e68a99f6c677301a2759fdb",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/traceability.md": "221de12da698bbb08e95c93235de931b0e87e924e34b21134304b3228111b57b",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/tasks.md": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/codemap.md": "9a20dd27ffc5f17732c049960cff0df6ca85d1491100f54455b7adf8615b92f3",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/design.md": "0af1d884ad0c458ad59e0b5e172f444455fcf948c6b4eff6f6f62871a3f7d7f7",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/ux-spec.md": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/security-spec.md": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c",
+    "specs/sdd-context-continuity/verification/T-001/json-admission-20260929-01a0eb88/input-snapshot/specs/sdd-context-continuity/verification/T-001/schema-definition-map.md": "fd4eaacc0e272c8f1b5a796762c85656bfdb034782ef8599ad00e333f8ff1ba4",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/input-manifest.json": "d2dd62c7dfe5edabe53e9e4e9d863ad7007d6b8215440b890d93b0425d92ca99",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/root-confirmation.json": "85cdc263a5df6d216f9c1330f1b7fc97b4bc55a0b3d71b2c126c2fe67d67c656",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/green-run.json": "3a954c17a249e8fe1cbbf0c6dc12c0e48b1a596088c53c246440d718c3ff220c",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/red-run.json": "84a211fd4fc99d72991bdcf231b115b720256ca433a8089a5a8a54849271ed16",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/regression-run.json": "1f6fff45a5a1a442e5662c8faa6a7b74bf5e48491bbc25614a6bcfdb68e83cfc",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/regression-output.txt": "27afdc61c7bfebe4b72fd8f1e9a1b95263e5c235453a81688ee04e4d32c0a4a1",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/red-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/green-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/green-output.txt": "c9cc5f1fcb1fe136d6e6dda61ba758f44c6e715eb83f16fcc2c82e8a60a86d22",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/red-output.txt": "45514328446f8f07c9818a18f9cc9416704c8d7f6d35ec9a260adf8d3b5d1ef8",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/regression-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/red-ready.json": "85bb4d359caf595f45d2d649795426ee02b7b1b8937ee3e4ae141cec1ee4b27c",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/input-snapshot/contracts/sdd-forge-mcp-tools.v1.schema.json": "055b04cf07b3a348880bcd253a54bddd0250fe86141550168469d812134e4b78",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/input-snapshot/reports/verification/issue137-contract-completion-addendum-20260929.md": "58e6bd9b22371fb5ec76a069b3e55a32af67eaf9eaac055dfd2b70c606053527",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/input-snapshot/reports/implementation/sdd-context-continuity/T-001.md": "2c925eb7fea56d359b2d46ab52adf51da4e63edf89d737ce1ef6c91224625d3e",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/input-snapshot/tests/sdd-context/validation.test.mjs": "3229a281ad5bd17cadfc196983a6cce2e7a63e718a881a7f46ab646cce9ab06e",
+    "specs/sdd-context-continuity/verification/T-001/validation-red-20260929-01a0ebb9/input-snapshot/plugins/sdd-context/json-admission.mjs": "1627b6a24642faf1287daa705089633fb6c9046f63294449f2ed31d60d08be5b",
+    "reports/review-context/identity-ledger.json": "f7762e87d657962dc8b141fb8359703aa590e8f46cd89587b2b75a3d91803e90",
+    "specs/workflow-state-registry.json": "2e5d3467f97cec025f066d366cec242f08601d451d44418558071903de5e4210",
+    "reports/review-context/sdd-context-continuity-impl-a1r1-a-invocation.json": "d1deaa416e6f18266c4757e2ece6ec4e910256c0b6847c1ec40ceb2dcc05f011",
+    "reports/review-context/sdd-context-continuity-impl-a1r1-b-invocation.json": "bb1e02b166cd1402560f4b34de6286274c9f6f103a3e9d3b8058f4fbabf00e89",
+    "reports/review-context/sdd-context-continuity-impl-a2r1-a-invocation.json": "19bcfaa5c0890039892a02f001d3825fa501559e78d5869a55ad68ac5443bf3f",
+    "reports/review-context/sdd-context-continuity-impl-a2r1-b-invocation.json": "f366ef820dd4b6770aaa2702e078d3c6039290ef9a366c19dc16c4e72c8392fc",
+    "reports/review-context/sdd-context-continuity-impl-a2r2-a-invocation.json": "676646a3e18b5ad3dfcf77e20877d2e5caa8cd8666006c24307352536fe2753b",
+    "reports/review-context/sdd-context-continuity-impl-a2r2-b-invocation.json": "de2ceb5d6f49f6d068bf0f14de155eeb6fe3e8ad1f8a857cb3770576564a45f1",
+    "reports/review-context/sdd-context-continuity-spec-a1r1-a-invocation.json": "add5b7cec88f1eaef105d404c4ebd758083ddcf6def843e47d39c13ea9d7c764",
+    "reports/review-context/sdd-context-continuity-spec-a1r1-b-invocation.json": "47867efc20d564f0870bd962862ab0f8183281ad187ae3c7c96dfcfbabca8755",
+    "reports/review-context/sdd-context-continuity-spec-a1r1-b-relaunch-invocation.json": "ff0fad67ce9ee9ad4e23020fb48bfa82dee229dcbcdeb6a417652a6255085a52",
+    "reports/review-context/sdd-context-continuity-spec-a1r2-a-invocation.json": "70b0569eb56067070e7669602f2320fa524575f93177e92ffb0b89bb5f9950fb",
+    "reports/review-context/sdd-context-continuity-spec-a1r2-b-invocation.json": "1cc7b67b58e37fe66b9dcabba1670adde31577b0aea03989976a2a4aa18085bf",
+    "reports/review-context/sdd-context-continuity-task-a1r1-a-invocation.json": "6ef6d694be9151aa885fc32085ba24c0e478fc9f121a521332aee128b082990a",
+    "reports/review-context/sdd-context-continuity-task-a1r1-b-invocation.json": "46511734412a332ee40b01132432874ff0fc220f4aab5ce96f1c7c9be6c3e585",
+    "reports/review-context/sdd-context-continuity-task-a1r2-a-invocation.json": "237f7f2561cf3b265757905573c6a6c2f0b56b0794576c43fc29039dd54a1efd",
+    "reports/review-context/sdd-context-continuity-task-a1r2-b-invocation.json": "10841aba46e7a811d938c87ef2ff7588bc9125bf1c396004ae083e0aad7f2576",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/integrated-summary-precanonical.json": "e392e0252b346ddff38e052e4315578ff8d678b05dc92427879912f71bb801ef",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/integrated-summary.json": "a898b7e3dab6bebb3840caf50134173c57701abc64341de679269a4128b41a8d",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/integrated-verdict.json": "823127740d6c3cfb93caf1639ed2bf4a1dd0b6c77a54cbdd40c1e94a2d40675d",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/reviewer-a-host-allocation.json": "9394ddf6a69e1faaaa9df78a07d702ea7b9c5677ef5e847fd1705b0af71d492c",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/reviewer-a-launch.md": "9375823e96a79fbca1a4a79318e99a6a303efdc0c5557d237a0a96ed9813d247",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/reviewer-a.json": "1ee17e64bb8816baa0f2ff0f403feb82338d10ee2543f68a7d8660ce5aa9f584",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/reviewer-a.raw.json": "65653f39a7515be714a42aa79d93e805caad893149dcb9718b9e76af08d32ea3",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/reviewer-b-host-allocation.json": "4d28745a83083f61d39dc4b5ad83a204388c2349f07ceed189f2e40fdccfd4c8",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/reviewer-b-launch.md": "a9b5184053466263e7758ab49db1909f78b6bd98cebd1bbbae304c874f330c0c",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/reviewer-b-precanonical.json": "babf936d78ea511768928b18e35c8b069af139d0970856b3d3c5ad00d0e6df08",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/reviewer-b-relaunch-boundary-blocked.json": "a8083a8ed8cb13a336a92baf00dbf41f980386afbc664a7ee32f126e3df7af51",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/reviewer-b-relaunch-host-allocation.json": "1e1b8bfdcdbf49232eb3245e0e008130bef8e037071a794fec4bd80452aa8a5c",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/reviewer-b.json": "5ca424b9362497c7f07083dc805c19ff7b73838e034a0eed314fa71040f46974",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/reviewer-b.raw.json": "c1db1f9d1331ba3373a168ebd522b38e02cf7f7598a298e928d6990e0fb02e57",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/spec-review-contract.json": "231422b767461931a8ef41bed67fb5321190077ac7317923ac644426f9505b26",
+    "reports/spec-review/sdd-context-continuity/attempt-1/round-1/spec-review-report.md": "086fbdc400bbdecebed3baf21d8dc59fd1076b634bf7bd4e9d35380ba0fa09b5",
+    "reports/verification/issue137-native-t001-preflight-20260927.md": "bbdff8b497fdcb1e4585ef9a1f5897a49247c79b07ef7457e20ea3c6816ff0d7",
+    "specs/sdd-context-continuity/verification/phase2-draft-validation.md": "2cf0acae031cf378fb8fa584a3717099c10f07e5ba032ba47e0a1cf2ca6b8d71",
+    "specs/sdd-context-continuity/verification/phase2-subagent-hook-denial.json": "637a31a1885a8fe3098b529a6121daf828de178c198d2a04668bbddf3c4c61e8",
+    "specs/sdd-context-continuity/verification/T-001/git-head-red-20260929-01a0ebb9/input-manifest.json": "2d2819a2088c1cae2792e6cdb3c832142d200155c5c5fc0c44425f4e7ff82bec",
+    "specs/sdd-context-continuity/verification/T-001/git-head-red-20260929-01a0ebb9/red-run.json": "fe96409e67734d47d88d4ec83661ba9ff6273c46de5bba0bb1e9594ed0d74dec",
+    "specs/sdd-context-continuity/verification/T-001/git-head-red-20260929-01a0ebb9/red-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "specs/sdd-context-continuity/verification/T-001/git-head-red-20260929-01a0ebb9/red-output.txt": "f1e5641f252e1c8fd86fe301fd55a84f174a1f8dc529664720b027da630ad613",
+    "specs/sdd-context-continuity/verification/T-001/git-head-red-20260929-01a0ebb9/red-ready.json": "23a9541813e6a2cddaf5b9c4a68ffb1406d24769c24fddd9c280f9d0a80a73cb",
+    "specs/sdd-context-continuity/verification/T-001/git-head-red-20260929-01a0ebb9/input-snapshot/reports/verification/issue137-git-head-contract-addendum-20260929.md": "20e4dfce79f984c4837292694f6a868ab4d4c3bc00baeab1247a4f65d356ae1d",
+    "specs/sdd-context-continuity/verification/T-001/git-head-red-20260929-01a0ebb9/input-snapshot/reports/implementation/sdd-context-continuity/T-001.md": "4d58c74a792295ec392cc401a35805432bd8869955e370911bd2cda36fd33cf3",
+    "specs/sdd-context-continuity/verification/T-001/git-head-red-20260929-01a0ebb9/input-snapshot/tests/sdd-context/validation.test.mjs": "14a381d91b4776f99991b0047c33d7048ce577dc4b0226e6b0fc93e401219750",
+    "specs/sdd-context-continuity/verification/T-001/git-head-red-20260929-01a0ebb9/input-snapshot/plugins/sdd-context/validation.mjs": "e8378d8f121f5b44f522ff1ef0e23a2e4b8de72e164f7538ce0ed6b157885bae",
+    "/Users/jrmag/sdd-forge/.git/worktrees/issue137-continuity/index": "193982c404a8da3498120875feabc76072a02dad7fda3f992e5d98e16f587f5b"
+  },
+  "changed_protected_artifacts": [],
+  "fixture_oids": {
+    "sha1": "58455ad2420fe1733261264574a56dd106145895",
+    "sha256": "e81f357daedd1f41b3217a6ff045c00bdc94c9fa0195eac68a1da05f25e8ae10"
+  },
+  "fixture_formats_observed": true,
+  "execution_count": 1,
+  "fix_attempt_count": 1
+}

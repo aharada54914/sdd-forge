@@ -1,0 +1,473 @@
+TAP version 13
+# Subtest: SC-RUNTIME-POSITIVE: current runtime admits every contract fixture before artifact implementation
+ok 1 - SC-RUNTIME-POSITIVE: current runtime admits every contract fixture before artifact implementation
+  ---
+  duration_ms: 1731.114958
+  type: 'test'
+  ...
+# Subtest: SC-PRESENT: standard internal schema artifact names every current encoding
+not ok 2 - SC-PRESENT: standard internal schema artifact names every current encoding
+  ---
+  duration_ms: 0.375667
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:131:1'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:132:20)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3)
+  ...
+# Subtest: SC-FIELDS-OwnerV1: closed fields match actual runtime admission
+not ok 3 - SC-FIELDS-OwnerV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 0.098458
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:141:3'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:142:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-FIELDS-CursorV1: closed fields match actual runtime admission
+not ok 4 - SC-FIELDS-CursorV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 0.042917
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:141:3'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:142:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-FIELDS-JournalHeaderV1: closed fields match actual runtime admission
+not ok 5 - SC-FIELDS-JournalHeaderV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 0.039083
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:141:3'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:142:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-FIELDS-JournalRecordV1: closed fields match actual runtime admission
+not ok 6 - SC-FIELDS-JournalRecordV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 0.037959
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:141:3'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:142:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-FIELDS-DecisionV1: closed fields match actual runtime admission
+not ok 7 - SC-FIELDS-DecisionV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 0.037291
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:141:3'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:142:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-FIELDS-LockV1: closed fields match actual runtime admission
+not ok 8 - SC-FIELDS-LockV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 0.031542
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:141:3'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:142:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-FIELDS-RegistryEntryV1: closed fields match actual runtime admission
+not ok 9 - SC-FIELDS-RegistryEntryV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 0.037458
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:141:3'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:142:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-FIELDS-OwnerRegistryV1: closed fields match actual runtime admission
+not ok 10 - SC-FIELDS-OwnerRegistryV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 0.070458
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:141:3'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:142:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-FIELDS-ProjectionV1: closed fields match actual runtime admission
+not ok 11 - SC-FIELDS-ProjectionV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 0.043875
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:141:3'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:142:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-FIELDS-ObservationV1: closed fields match actual runtime admission
+not ok 12 - SC-FIELDS-ObservationV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 0.031333
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:141:3'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:142:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-FIELDS-ReconcileV1: closed fields match actual runtime admission
+not ok 13 - SC-FIELDS-ReconcileV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 0.024958
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:141:3'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:142:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-FIELDS-ResumeV1: closed fields match actual runtime admission
+not ok 14 - SC-FIELDS-ResumeV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 0.022416
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:141:3'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:142:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-FIELDS-CleanupV1: closed fields match actual runtime admission
+not ok 15 - SC-FIELDS-CleanupV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 0.020125
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:141:3'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:142:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-SCALARS: exact bounds and enum rules have runtime mismatch counterparts
+not ok 16 - SC-SCALARS: exact bounds and enum rules have runtime mismatch counterparts
+  ---
+  duration_ms: 0.062333
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:153:1'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:155:22)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-OUTCOME: all nine closed discriminants and flags match the runtime
+not ok 17 - SC-OUTCOME: all nine closed discriminants and flags match the runtime
+  ---
+  duration_ms: 0.068084
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:171:1'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:172:20)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-NESTED: shared path/recovery objects are closed and runtime rejects field mismatches
+not ok 18 - SC-NESTED: shared path/recovery objects are closed and runtime rejects field mismatches
+  ---
+  duration_ms: 0.090666
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:185:1'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:186:89)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-TASK-REF: taskEntry resolves the existing contract without a copied definition
+not ok 19 - SC-TASK-REF: taskEntry resolves the existing contract without a copied definition
+  ---
+  duration_ms: 0.070583
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:205:1'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    definition (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:46:13)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:206:21)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-LIMITS: schema explicitly separates structural encoding from operational proof
+not ok 20 - SC-LIMITS: schema explicitly separates structural encoding from operational proof
+  ---
+  duration_ms: 0.048667
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:223:1'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:224:19)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: SC-OPERATIONAL: runtime separately rejects structurally encodable unsafe inputs
+not ok 21 - SC-OPERATIONAL: runtime separately rejects structurally encodable unsafe inputs
+  ---
+  duration_ms: 0.069625
+  type: 'test'
+  location: '/Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:234:1'
+  failureType: 'testCodeFailure'
+  error: 'internal contract artifact is absent'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    artifact (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:42:10)
+    TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/issue137-continuity/tests/sdd-context/contract-artifact.test.mjs:235:3)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 1
+# fail 20
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1768.884375

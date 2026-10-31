@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "sdd-context-continuity",
+  "run_id": "59089035-c0ee-4258-980d-57a22c54a596",
+  "verdict": "BLOCKED",
+  "round": 1,
+  "attempt": 1,
+  "findings_critical": 2,
+  "findings_major": 3,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "BLOCKED",
+  "reviewer_b_verdict": "BLOCKED"
+}

@@ -1,0 +1,147 @@
+{
+  "feature": "sdd-context-continuity",
+  "attempt": 2,
+  "round": 2,
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "917184de1b262628b2540d53ae5737ed84f1adf18e3d04985185c61a128bc411"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "42e28844d507e7417fa1a58e8f74bb5aceec0ff0afadd911f03eebce2be9395c"
+    },
+    {
+      "path": "specs/sdd-context-continuity/tasks.md",
+      "sha256": "66ff479d2f42cee4218abc948bc27365b9dee804ad2b739d2854867359269fd5"
+    },
+    {
+      "path": "specs/sdd-context-continuity/traceability.md",
+      "sha256": "a7c953bda7baeabab400e9e5a872d79c7ba3d431acfbc6fdc140e58e2e6109a7"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "ca33a3a01faf54c9c1b5814a494f0ff4999cc6c89b3330ea7d5567189e928a59"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "a6ab7a2ff922c8eb62d8a70b875aede2d49b9d5e8fae282463087a472612e0b2"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/task-review/sdd-context-continuity/attempt-2/round-2/precheck-result.json",
+      "sha256": "376e52d22934b15e2cce08a950ae3208d3be5ad803bec79e61e85cf7e3c09a37"
+    },
+    {
+      "path": "reports/task-review/sdd-context-continuity/attempt-2/round-2/dependency-graph.json",
+      "sha256": "12b096e4ccfa0d2e5fe8670c2c71a12c2155348f7e0a71027324870ef12e4e4a"
+    }
+  ],
+  "run_id": "f4a365d5-a7c8-42a2-802e-41f64845979a",
+  "host_session_id": "root.issue137_task_a2r2_a_native",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All explicit AC-NNN references in tasks.md resolve to acceptance-tests.md; the ranges in T-007 refer to the listed AC-001–AC-018 set."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All seven tasks use `None` or comma-separated T-NNN blockers; precheck also records blockers_format_valid=true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001–REQ-012 are covered across T-001–T-007; no requirement lacks task coverage."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001–AC-018 are referenced by task requirements; T-007 provides complete acceptance verification coverage."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001–T-007 each reference at least one REQ-NNN in Requirements."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-007 is the test/verification task and references AC-001–AC-018; no other task is test-only or title-matched as test/spec/verify."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "For this provenance re-review, existing tasks have valid approval/status lifecycle values; new T-007 is Draft/Planned."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All tasks declare valid fields and pair high/critical risk with tdd; precheck records workflow_match_precheck=PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Shared AC references have distinct task scopes: implementation or delivery integration versus T-007 acceptance verification."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every blocker exists in tasks.md and dependency-graph.json nodes."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "The dependency graph is acyclic: T-001→T-002→T-003→T-004/T-005→T-006→T-007."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each task has a coherent implementation, integration, cleanup, adapter, or acceptance-verification scope; test registration and acceptance verification in T-007 serve the same release-evidence concern."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task has inspectable tests, results, reports, or addenda; frozen artifacts are not named as required write targets, consistent with the empty frozen_artifact_done_when list."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Traceability includes T-001–T-007 and REQ-001–REQ-012; each requirement row has valid canonical anchors in the bound layer specifications."
+    }
+  ],
+  "findings": []
+}

@@ -1,0 +1,69 @@
+{
+  "checkpoint": "0e246666c23bd48b484fef5483aadb0fc76f2170",
+  "inputs": {
+    "plugins/sdd-context/validation.mjs": {
+      "bytes": 12423,
+      "sha256": "5e4aee1b887ec82be5bf44f9ee38eaf24d48bcb3a8c72c0c0f731ed4e03a0659"
+    },
+    "plugins/sdd-context/store-preparation.mjs": {
+      "bytes": 2580,
+      "sha256": "4552abdd6b118800ded80476e6bf264163e2f1f2c033d3abb94361107034cabb"
+    },
+    "plugins/sdd-context/privacy.mjs": {
+      "bytes": 6935,
+      "sha256": "349fd8a55fe4c2609251927945b384c9383fd79b2a33ed69fe833da5c046eeb1"
+    },
+    "plugins/sdd-context/json-admission.mjs": {
+      "bytes": 2160,
+      "sha256": "1627b6a24642faf1287daa705089633fb6c9046f63294449f2ed31d60d08be5b"
+    },
+    "reports/verification/issue137-contract-completion-addendum-20260929.md": {
+      "bytes": 5830,
+      "sha256": "ff921c751ee0d99695f28200159119ec82fe7b99af5571140cf0d18af1f0c234"
+    },
+    "reports/review-context/identity-ledger.json": {
+      "bytes": 517899,
+      "sha256": "f7762e87d657962dc8b141fb8359703aa590e8f46cd89587b2b75a3d91803e90"
+    },
+    "specs/workflow-state-registry.json": {
+      "bytes": 12044,
+      "sha256": "2e5d3467f97cec025f066d366cec242f08601d451d44418558071903de5e4210"
+    },
+    "specs/sdd-context-continuity/tasks.md": {
+      "bytes": 15074,
+      "sha256": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c"
+    },
+    "tests/sdd-context/validation.test.mjs": {
+      "bytes": 47787,
+      "sha256": "1d4f267df42b80de82c89cda5d6176654633e8e82265f27a74c55d372e9f41d0"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 124856,
+      "sha256": "f0e383cf12a143460d7352e611b420038277e64590585ff2a595c7cb348370c8"
+    }
+  },
+  "prior_report_prefix": {
+    "bytes": 121305,
+    "sha256": "fceab098a59713af694024517e70462df79f1fb62e3e091f5248b57d0a83efbf"
+  },
+  "test_preservation": {
+    "prior_bytes": 45327,
+    "restored_prefix_sha256": "4da707518036f61ef89890038eec8facb276d1833d519b28c6aef174d0ed665f",
+    "authorized_replacement": "obsolete LOCK-UNSUPPORTED becomes invalid-PID control; other 104 prior bodies unchanged"
+  },
+  "prior_snapshot_reference": "specs/sdd-context-continuity/verification/T-001/reconcile-red-20260929-01a0ebb9/input-manifest.json",
+  "structure_precheck": {
+    "command": [
+      "rtk",
+      "proxy",
+      "bash",
+      "scripts/check-sdd-structure.sh",
+      ".",
+      "sdd-context-continuity"
+    ],
+    "exit_code": 0,
+    "stdout": "advisory: CLAUDE.md\nhost: github\ncheck-sdd-structure: OK\n",
+    "prior_invocation_error": "Unsupported --feature option was corrected to documented positional arguments; no bypass."
+  },
+  "scope": "LockV1 test-only; no production/Git/status/ledger/registry/frozen changes"
+}

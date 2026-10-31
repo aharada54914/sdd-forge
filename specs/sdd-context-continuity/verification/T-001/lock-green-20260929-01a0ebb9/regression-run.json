@@ -1,0 +1,156 @@
+{
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "checkpoint": "c2f94111a9c87cd992ab0fd588c490eb5b3271a7",
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "tests/sdd-context/json-admission.test.mjs",
+    "tests/sdd-context/privacy.test.mjs",
+    "tests/sdd-context/privacy-grammar.test.mjs"
+  ],
+  "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+  "shell_login": false,
+  "started_utc": "2026-09-29T13:16:05.401659+00:00",
+  "ended_utc": "2026-09-29T13:16:05.568325+00:00",
+  "elapsed_seconds": 0.1666390419995878,
+  "node_version": "v24.13.0",
+  "platform": "Darwin",
+  "platform_release": "27.0.0",
+  "machine": "arm64",
+  "exit_code": 0,
+  "counts": {
+    "tests": 31,
+    "pass": 31,
+    "fail": 0,
+    "skipped": 0
+  },
+  "executions": 1,
+  "correction_loops": 0,
+  "stdout_sha256": "56c9b30e1f2aea21d31dc14d303aad7ac39ccd84ec6906ec95246fe98a5ad071",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "inputs_before": {
+    "plugins/sdd-context/validation.mjs": {
+      "bytes": 12723,
+      "sha256": "02d9cd243779d4f4139c13cd0541a62ee9c73ab301e9b0b0d70c9c5633612a57"
+    },
+    "plugins/sdd-context/store-preparation.mjs": {
+      "bytes": 2580,
+      "sha256": "4552abdd6b118800ded80476e6bf264163e2f1f2c033d3abb94361107034cabb"
+    },
+    "plugins/sdd-context/privacy.mjs": {
+      "bytes": 6935,
+      "sha256": "349fd8a55fe4c2609251927945b384c9383fd79b2a33ed69fe833da5c046eeb1"
+    },
+    "plugins/sdd-context/json-admission.mjs": {
+      "bytes": 2160,
+      "sha256": "1627b6a24642faf1287daa705089633fb6c9046f63294449f2ed31d60d08be5b"
+    },
+    "tests/sdd-context/validation.test.mjs": {
+      "bytes": 47787,
+      "sha256": "1d4f267df42b80de82c89cda5d6176654633e8e82265f27a74c55d372e9f41d0"
+    },
+    "tests/sdd-context/json-admission.test.mjs": {
+      "bytes": 4826,
+      "sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663"
+    },
+    "tests/sdd-context/privacy.test.mjs": {
+      "bytes": 2882,
+      "sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636"
+    },
+    "tests/sdd-context/privacy-grammar.test.mjs": {
+      "bytes": 8442,
+      "sha256": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 126790,
+      "sha256": "5da3e66c22a940b62a977db08b5b64f7387939f6ffa074fd3fd263d7751944cf"
+    },
+    "reports/verification/issue137-lock-validation-20260929.md": {
+      "bytes": 1760,
+      "sha256": "538477e615d65238662414ff6376f3d4e9630017f3bf9e219eb928a8951b2240"
+    },
+    "reports/verification/issue137-contract-completion-addendum-20260929.md": {
+      "bytes": 5830,
+      "sha256": "ff921c751ee0d99695f28200159119ec82fe7b99af5571140cf0d18af1f0c234"
+    },
+    "reports/review-context/identity-ledger.json": {
+      "bytes": 517899,
+      "sha256": "f7762e87d657962dc8b141fb8359703aa590e8f46cd89587b2b75a3d91803e90"
+    },
+    "specs/workflow-state-registry.json": {
+      "bytes": 12044,
+      "sha256": "2e5d3467f97cec025f066d366cec242f08601d451d44418558071903de5e4210"
+    },
+    "specs/sdd-context-continuity/tasks.md": {
+      "bytes": 15074,
+      "sha256": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c"
+    }
+  },
+  "inputs_after": {
+    "plugins/sdd-context/validation.mjs": {
+      "bytes": 12723,
+      "sha256": "02d9cd243779d4f4139c13cd0541a62ee9c73ab301e9b0b0d70c9c5633612a57"
+    },
+    "plugins/sdd-context/store-preparation.mjs": {
+      "bytes": 2580,
+      "sha256": "4552abdd6b118800ded80476e6bf264163e2f1f2c033d3abb94361107034cabb"
+    },
+    "plugins/sdd-context/privacy.mjs": {
+      "bytes": 6935,
+      "sha256": "349fd8a55fe4c2609251927945b384c9383fd79b2a33ed69fe833da5c046eeb1"
+    },
+    "plugins/sdd-context/json-admission.mjs": {
+      "bytes": 2160,
+      "sha256": "1627b6a24642faf1287daa705089633fb6c9046f63294449f2ed31d60d08be5b"
+    },
+    "tests/sdd-context/validation.test.mjs": {
+      "bytes": 47787,
+      "sha256": "1d4f267df42b80de82c89cda5d6176654633e8e82265f27a74c55d372e9f41d0"
+    },
+    "tests/sdd-context/json-admission.test.mjs": {
+      "bytes": 4826,
+      "sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663"
+    },
+    "tests/sdd-context/privacy.test.mjs": {
+      "bytes": 2882,
+      "sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636"
+    },
+    "tests/sdd-context/privacy-grammar.test.mjs": {
+      "bytes": 8442,
+      "sha256": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 126790,
+      "sha256": "5da3e66c22a940b62a977db08b5b64f7387939f6ffa074fd3fd263d7751944cf"
+    },
+    "reports/verification/issue137-lock-validation-20260929.md": {
+      "bytes": 1760,
+      "sha256": "538477e615d65238662414ff6376f3d4e9630017f3bf9e219eb928a8951b2240"
+    },
+    "reports/verification/issue137-contract-completion-addendum-20260929.md": {
+      "bytes": 5830,
+      "sha256": "ff921c751ee0d99695f28200159119ec82fe7b99af5571140cf0d18af1f0c234"
+    },
+    "reports/review-context/identity-ledger.json": {
+      "bytes": 517899,
+      "sha256": "f7762e87d657962dc8b141fb8359703aa590e8f46cd89587b2b75a3d91803e90"
+    },
+    "specs/workflow-state-registry.json": {
+      "bytes": 12044,
+      "sha256": "2e5d3467f97cec025f066d366cec242f08601d451d44418558071903de5e4210"
+    },
+    "specs/sdd-context-continuity/tasks.md": {
+      "bytes": 15074,
+      "sha256": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c"
+    }
+  },
+  "input_guards_unchanged": true,
+  "head_before": "c2f94111a9c87cd992ab0fd588c490eb5b3271a7",
+  "head_after": "c2f94111a9c87cd992ab0fd588c490eb5b3271a7",
+  "red_evidence_reference": "specs/sdd-context-continuity/verification/T-001/lock-red-20260929-01a0ebb9/red-run.json",
+  "scope": "Local in-memory Lock schema validation only; not native process/lock/persistence/CI/formal verdict evidence"
+}

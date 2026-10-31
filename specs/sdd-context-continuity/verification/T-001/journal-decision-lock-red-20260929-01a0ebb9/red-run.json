@@ -1,0 +1,75 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "tests/sdd-context/validation.test.mjs"
+  ],
+  "started_utc": "2026-09-29T11:09:29.690824+00:00",
+  "finished_utc": "2026-09-29T11:09:34.344893+00:00",
+  "elapsed_seconds": 4.653610207984457,
+  "exit_code": 1,
+  "counts": {
+    "tests": 91,
+    "pass": 88,
+    "fail": 3,
+    "skipped": 0
+  },
+  "case_output_format": "Node spec before summary; positions are file test order",
+  "case_result_count": 91,
+  "original_case_counts": {
+    "pass": 79,
+    "fail": 0
+  },
+  "added_case_counts": {
+    "pass": 9,
+    "fail": 3
+  },
+  "failed_cases": [
+    {
+      "position": 80,
+      "name": "HEADER-VALID: bounded segment and safe sequence admit only a non-null hash header"
+    },
+    {
+      "position": 82,
+      "name": "DECISION-VALID: standalone status variants retain corresponding source references"
+    },
+    {
+      "position": 83,
+      "name": "DECISION-REDACTION: standalone text is redacted with optional owned materialization"
+    }
+  ],
+  "environment": {
+    "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+    "login": false,
+    "node": "v24.13.0",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O"
+  },
+  "head": "21bc1b3244b4f5ba65c71062b2aa5c81d11b9b9d",
+  "head_after": "21bc1b3244b4f5ba65c71062b2aa5c81d11b9b9d",
+  "head_unchanged": true,
+  "source_sha256": "5dccf1bf3d739a10b2fd565122771ce4e69c22e41562dd1ac4200f33aca7e9d6",
+  "expanded_test_sha256": "19567de75dba7197f3d968a905b49f5a71462d7628a9ab7899521578f05788cc",
+  "original_prefix_sha256": "2920de6f167bdc8af3aa4a2a94fa461c5aa5741e59e9a9fe0544cd33d582e20e",
+  "input_delta_sha256": "21cf2505d49746df9fd8f4dd051b9d63167c41eb12004e86f5d284accd12cb74",
+  "test_only_diff_sha256": "f06c970f6236dc53ca841064f2008c3631c9fc4acf50a4d3840d65f4c91fb29a",
+  "stdout_sha256": "76a56ca158ad4ea6ffdc57f86975da55bd9f03123d32d25d55edac5817cb5bc5",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "unchanged_baseline_hashes_after": {
+    "plugins/sdd-context/validation.mjs": "5dccf1bf3d739a10b2fd565122771ce4e69c22e41562dd1ac4200f33aca7e9d6",
+    "reports/review-context/identity-ledger.json": "f7762e87d657962dc8b141fb8359703aa590e8f46cd89587b2b75a3d91803e90",
+    "specs/workflow-state-registry.json": "2e5d3467f97cec025f066d366cec242f08601d451d44418558071903de5e4210",
+    "specs/sdd-context-continuity/tasks.md": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c"
+  },
+  "baseline_preserved": true,
+  "test_execution_count": 1,
+  "correction_count": 0,
+  "production_changes": false,
+  "unsupported": "LockV1 PID type/range remains undefined; unsupported rejection is not per-field contract evidence.",
+  "limitation": "RED only; stop for root checkpoint before Header/Decision production, with no task/review/status/approval/identity/Git mutation or completion claim."
+}

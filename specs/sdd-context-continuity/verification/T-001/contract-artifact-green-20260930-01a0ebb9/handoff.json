@@ -1,0 +1,64 @@
+{
+  "recorded_utc": "2026-09-29T15:27:51.598749+00:00",
+  "red_commit": "2b81788e4f39133f991b287b9c430df585821a00",
+  "schema_path": "contracts/sdd-context/schema-v1.schema.json",
+  "schema": {
+    "bytes": 22551,
+    "sha256": "13e74678c13d8eb6904eea53f3d0c4457997e314bc80aba73bdf65e096abf513"
+  },
+  "fixed_test": {
+    "bytes": 25029,
+    "sha256": "e17f29aa11fa81100fbd315887c51a1a2f329dc364d7bf9f51049be35e00ae77"
+  },
+  "report_path": "reports/implementation/sdd-context-continuity/T-001.md",
+  "report": {
+    "bytes": 204655,
+    "sha256": "85783bd2cfeb5e6e589f44f5e7e5deeb1a6e9efcfaccb065e136b30e1645f672"
+  },
+  "artifacts": {
+    "specs/sdd-context-continuity/verification/T-001/contract-artifact-green-20260930-01a0ebb9/green-run.json": {
+      "bytes": 12463,
+      "sha256": "71af6d5f7ba4a49fbe1ce61c67baae0df857e946fec80567ed78a3372f92504e"
+    },
+    "specs/sdd-context-continuity/verification/T-001/contract-artifact-green-20260930-01a0ebb9/green-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "specs/sdd-context-continuity/verification/T-001/contract-artifact-green-20260930-01a0ebb9/green-stdout.txt": {
+      "bytes": 4662,
+      "sha256": "411e846fdc720254cc03b0a1e8e8c90ee4a043134cfb1d0f4e8fcb7328ade00b"
+    },
+    "specs/sdd-context-continuity/verification/T-001/contract-artifact-green-20260930-01a0ebb9/input-delta.json": {
+      "bytes": 10749,
+      "sha256": "0b3165ad5b14ef5f8ae4a4822712a2e40172aea92e0c6606f1283946f73951b0"
+    },
+    "specs/sdd-context-continuity/verification/T-001/contract-artifact-green-20260930-01a0ebb9/pre-schema-report.bin": {
+      "bytes": 200893,
+      "sha256": "09873f4e0865ea0ad7bfac70176b530309356ba4dfd26a221a1a6a8bebc7c265"
+    },
+    "specs/sdd-context-continuity/verification/T-001/contract-artifact-green-20260930-01a0ebb9/red-commit.json": {
+      "bytes": 10350,
+      "sha256": "542c438d2466e7cca7b75fbedf23747e86db3cde748ce58461409751ff71cd21"
+    },
+    "specs/sdd-context-continuity/verification/T-001/contract-artifact-green-20260930-01a0ebb9/schema-before-green.json": {
+      "bytes": 22551,
+      "sha256": "13e74678c13d8eb6904eea53f3d0c4457997e314bc80aba73bdf65e096abf513"
+    }
+  },
+  "green_counts": {
+    "tests": 21,
+    "pass": 21,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "fixed_33_inputs_exact_after_green": true,
+  "prior_10_green_proofs_exact": true,
+  "red_10_proofs_exact": true,
+  "report_append_only": true,
+  "root_independent_review_pending": true,
+  "correction_count": 2,
+  "remaining_corrections": 1,
+  "quality_gate_verdict": null,
+  "task_status_changed": false
+}

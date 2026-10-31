@@ -1,0 +1,24 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0f1ef-7358-7a21-b922-708d01fb3824",
+  "host_session_id": "01a0f1ef-7358-7a21-b922-708d01fb3824",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-context-continuity/requirements.md", "sha256": "69270e96e696d89dbd2691bd10ecd315d291bd149511352d0ac40bddca3eeb26"},
+    {"path": "specs/sdd-context-continuity/acceptance-tests.md", "sha256": "3da0976cd4a42ae7315361a3329dce0b5b23a4446f39a721efa26edd71773773"},
+    {"path": "specs/sdd-context-continuity/investigation.md", "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"},
+    {"path": "reports/spec-review/sdd-context-continuity/attempt-2/round-1/precheck-result.json", "sha256": "edcc9f89627c5de6dab6e112bc23279ca34056f47933a179e7858fb1696186c2"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id": "REQ-TESTABILITY", "result": "PASS", "severity": "Minor", "finding": "REQ-001–REQ-009 と REQ-011–REQ-012 には AC-001–AC-017 および対応する Planned の TEST 行があり、成功・失敗条件を検証できる。"},
+    {"id": "GOAL-AC-TRACE", "result": "FAIL", "severity": "Major", "finding": "REQ-010 は容量超過時にも未解決の合意、do-not-reopen 決定、作業状態、阻害要因、次の行動を優先するよう求める。一方、AC-018 と TEST-060 は 8,192 バイト制限、完全な項目、ポインタを検査するだけで、超過時にどの項目を残すかを検査しない。このままでは拒否済み案を再提案する回復表示でも受け入れテストに合格できる。重要な回復動作の合否条件が欠けているため、設計や実装の検証に先立つ仕様レビューの Major 指摘とする。"},
+    {"id": "AC-OBSERVABLE", "result": "PASS", "severity": "Minor", "finding": "AC-013–AC-017 は期限境界、削除、秘匿、障害時の警告、重複配送について観測可能な結果を定め、TEST-041–TEST-059 に具体的な予定検査がある。"},
+    {"id": "SCOPE-BOUNDARY", "result": "PASS", "severity": "Minor", "finding": "Non-goals と REQ-012 は native compaction の置換や新しい利用者向けコマンドを範囲外とし、AC-012 は未対応ホストと非 SDD ディレクトリの挙動を定める。"},
+    {"id": "CONSTRAINTS-EXPLICIT", "result": "PASS", "severity": "Minor", "finding": "Bounded acceptance contract はプロセス開始から単調時計で測る 3,000 ms の core deadline を定め、2 秒の native timeout 候補は別途実機で立証すると明記する。TEST-034 と TEST-035 も両者を分けている。"},
+    {"id": "RISK-VALIDATION-SURFACE", "result": "PASS", "severity": "Minor", "finding": "AC-011 と TEST-036–TEST-037 は Claude と Codex の実ホスト別検証を要求し、TEST-044a–TEST-044i は日次削除の OS ごとの起動、復帰、失敗を検査対象にしている。"},
+    {"id": "DOMAIN-CONFORMANCE", "result": "SKIP", "severity": "Minor", "finding": "許可済みの五つの入力に domain/ の規約や成果物は含まれていないため、この入力範囲から domain 固有の適合性は判定できない。"}
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "feature": "sdd-context-continuity",
+  "task_id": "T-001",
+  "run_id": "issue137-T001-20260928-01a0e682-61e2-7370-a241-7646661b372e",
+  "command": [
+    "rtk",
+    "proxy",
+    "node",
+    "--test",
+    "tests/sdd-context/validation.test.mjs"
+  ],
+  "started_utc": "2026-09-29T10:42:03.784045+00:00",
+  "finished_utc": "2026-09-29T10:42:08.450496+00:00",
+  "elapsed_seconds": 4.666429291974055,
+  "exit_code": 0,
+  "counts": {
+    "tests": 79,
+    "pass": 79,
+    "fail": 0,
+    "skipped": 0
+  },
+  "case_output_format": "Node spec before summary; positions are file test order",
+  "case_result_count": 79,
+  "failed_cases": [],
+  "original_case_counts": {
+    "pass": 66,
+    "fail": 0
+  },
+  "added_case_counts": {
+    "pass": 13,
+    "fail": 0
+  },
+  "environment": {
+    "cwd": "/Users/jrmag/.codex/worktrees/issue137-continuity",
+    "login": false,
+    "node": "v24.13.0",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O"
+  },
+  "head": "9673af8cfd8701d122964abe4dbe0ff5aee2931a",
+  "source_sha256": "5dccf1bf3d739a10b2fd565122771ce4e69c22e41562dd1ac4200f33aca7e9d6",
+  "fixed_test_sha256": "2920de6f167bdc8af3aa4a2a94fa461c5aa5741e59e9a9fe0544cd33d582e20e",
+  "input_delta_sha256": "2bfec73bbb43524ec5ec414e2eb0c6dceb1b9002c961ca7377c4e6c289aaf467",
+  "production_diff_sha256": "e916de8920d5164b7f6182c4d4cd4073fefc09a2868267cce3b616a8811b1f02",
+  "stdout_sha256": "47f22bc4b428240a405a15195479ff54272cfc5bef26adcf503401b58b4b7a89",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "implementation_attempt": 1,
+  "limitations": "In-memory admission only; independent review, current-head CI, native/persistence and formal quality-gate completion not established."
+}

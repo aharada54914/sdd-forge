@@ -1,0 +1,124 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "01a0e0fe-9fa8-7a63-8939-a5c5d49d46ac",
+  "host_session_id": "01a0e0fe-9fa8-7a63-8939-a5c5d49d46ac",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "0c9e8f192594416c311ad24941885a964746e1326b355a408d9d8a7ab1c0a9a1"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "fad4f28f9b4509490ea33e5a8838602551552e8b575f415bfbd2786eb291c0c9"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+    },
+    {
+      "path": "specs/sdd-context-continuity/investigation.md",
+      "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/sdd-context-continuity/attempt-2/round-1/precheck-result.json",
+      "sha256": "8cf9f8a2cf622824adf5400ea9a1de1b948533682aec24ff6e314823a3de77a7"
+    },
+    {
+      "path": "docs/adr/0033-worktree-local-context-continuity.md",
+      "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "internal local plugin",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:9–40 and infra-spec.md:5–12 define short-lived Node adapters, the continuity core, transport-free existing task-reader integration, private local storage and OS cleanup. Frontend technology and absence of a browser/service are explicit in frontend-spec.md:5–18. The original reservation receipt, sequence 1198, predecessor and pre-append tip 1197 now verify; all 11 input hashes and precheck bindings match. No new reservation or file mutation occurred; the earlier launch-deficiency response remains historical."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations found; checked architecture narratives in design.md:15–40 and frontend-spec.md:12–18 for circular dependencies. Capture/recovery flows and response return paths do not establish a dependency cycle."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:73–144 defines the nine new document entities, owner/provenance relationships, affected read-only authoritative inputs, writable installer registrations and private stores, and the no-existing-data-migration strategy. infra-spec.md:61–95 specifies expiry, mixed-segment replacement and original-receipt preservation."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "TYPE-D: incompatible definitions of ObservationV1. design.md:160–165 defines a closed capture request requiring schemaVersion, owner, kind, text and coverage, with only stableEventId optional. frontend-spec.md:20–24 instead names ObservationV1 with host, eventKind, opaque session/feature, observed text and an optional transcript locator; it does not define the required owner/coverage fields or distinguish this shape as a separate native-input type. Because unknown keys are rejected (design.md:77–83), an adapter implemented against the normative frontend shape will be rejected by the core capture contract, preventing REQ-001/008 capture. This is Major because it creates implementation mismatch at the adapter/core boundary. Use one canonical ObservationV1 definition, or give the native shape a distinct name and explicitly map it into the closed core request, including owner and coverage."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:200–204 delegates normative security detail to security-spec.md. security-spec.md:5–71 names four trust boundaries, local-account authentication, default-deny ownership/path authorization, private data classification and applicable OWASP controls. security-spec.md:101–160 specifies bounded redaction, rejection before writes and disclosed false-negative limits; untrusted journal content cannot grant approval."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is internal local plugin (design.md:4); frontend-spec.md:3 and :30–39 explicitly exclude a web frontend and network API. The internal adapter/core schema inconsistency is reported under API-COVERAGE."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:190–198 incorporates the named acceptance plan with synthetic unit/fault fixtures, integrated capture/recovery checks, MCP regressions and separate actual host/OS verification. acceptance-tests.md:12–77 specifies concrete assertions for TEST-001–066; :90–145 expands scheduler and redaction branches. design.md:213–229 names planned CI integration and sanitized feature-verification evidence. Live execution is not claimed or required for this review."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:23–40 defines adapters, continuity core, read-only SDD reader and installer integration. Existing parser/root/build reuse is identified in investigation.md INV-002–006 and INV-016–017; private store, registry and scheduler responsibilities are defined in design.md:73–144 and infra-spec.md:5–43, :97–110. No undefined architectural component was identified."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:64–71 declares docs/adr/0033-worktree-local-context-continuity.md through the admitted inline-path grammar. The current precheck ADR set, invocation entry and raw file hash agree, and the ADR-extension input digest verifies. ADR-0033:14–40 covers the local journal, separate adapters, read-only authority, OS scheduling, alternatives and consequences; its Proposed status does not claim implementation approval."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Applicability skipped: design.md:51–53 records exactly N/A — ds_profile: none; ux-spec.md:63–65 confirms no rendered components or visual tokens."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Applicability skipped: the explicitly permitted project-root existence check found no domain/ directory. No domain artifacts were read."
+    }
+  ]
+}

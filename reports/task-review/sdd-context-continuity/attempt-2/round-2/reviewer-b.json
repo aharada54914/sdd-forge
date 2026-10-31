@@ -1,0 +1,147 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "sdd-context-continuity",
+  "attempt": 2,
+  "round": 2,
+  "run_id": "a3b7b6f2-d531-4dae-a738-6e53cbd7f85a",
+  "host_session_id": "root.issue137_task_a2r2_b_corrected",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/sdd-context-continuity/requirements.md",
+        "sha256": "917184de1b262628b2540d53ae5737ed84f1adf18e3d04985185c61a128bc411"
+      },
+      {
+        "path": "specs/sdd-context-continuity/acceptance-tests.md",
+        "sha256": "2f63fc72e1f5fbb0e2c0928f9461f956619dbbeda9f18e6dc690185effe6f97a"
+      },
+      {
+        "path": "specs/sdd-context-continuity/design.md",
+        "sha256": "42e28844d507e7417fa1a58e8f74bb5aceec0ff0afadd911f03eebce2be9395c"
+      },
+      {
+        "path": "specs/sdd-context-continuity/tasks.md",
+        "sha256": "66ff479d2f42cee4218abc948bc27365b9dee804ad2b739d2854867359269fd5"
+      },
+      {
+        "path": "specs/sdd-context-continuity/traceability.md",
+        "sha256": "a7c953bda7baeabab400e9e5a872d79c7ba3d431acfbc6fdc140e58e2e6109a7"
+      },
+      {
+        "path": "specs/sdd-context-continuity/ux-spec.md",
+        "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+      },
+      {
+        "path": "specs/sdd-context-continuity/frontend-spec.md",
+        "sha256": "ca33a3a01faf54c9c1b5814a494f0ff4999cc6c89b3330ea7d5567189e928a59"
+      },
+      {
+        "path": "specs/sdd-context-continuity/infra-spec.md",
+        "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+      },
+      {
+        "path": "specs/sdd-context-continuity/security-spec.md",
+        "sha256": "a6ab7a2ff922c8eb62d8a70b875aede2d49b9d5e8fae282463087a472612e0b2"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+      },
+      {
+        "path": "reports/task-review/sdd-context-continuity/attempt-2/round-2/precheck-result.json",
+        "sha256": "376e52d22934b15e2cce08a950ae3208d3be5ad803bec79e61e85cf7e3c09a37"
+      },
+      {
+        "path": "reports/task-review/sdd-context-continuity/attempt-2/round-2/integrated-summary.json",
+        "sha256": "aec8e238f40bf3594b63aa6a2bbd5a9039439c5e4f06ea536de71b4ebb512699"
+      }
+    ]
+  },
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-007 is Risk: high, but its Scope and Planned Files are limited to test/CI registration, acceptance mapping, and user documentation; it explicitly excludes installer and core reimplementation. The risk-classification policy assigns docs and test-only changes to low, and the reviewer check treats high/critical classification of test-only work as a Major defect."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "T-001–T-007 are high or critical and use Required Workflow: tdd. Their Done When sections call for Red→Green evidence, but none requires the failing test to be committed before implementation begins. Their Done When sections also request an independent review verdict without requiring a named second reviewer distinct from the implementer. T-005 does separately require a signed bundle and a distinct named second approver; that does not identify the independent reviewer."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-004 combines separate Claude and Codex adapter normalization, final-output capture, transcript reconciliation, manual and automatic compaction handling, resume, and native timeout/barrier evidence. This spans more than three implementation areas for one focused task."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Functional task criteria have associated planned error or edge-path coverage: for example, T-001 maps to AC-014/016, T-002 to AC-003/008/015/017, T-003 to AC-005/006/018, and T-004 to AC-004/009/010/012/015."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No separate test-only task declares a test type that conflicts with its scope."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every high/critical task includes a Rollback field addressing disabling or reverting the owned change while preserving required safety controls."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Potential installer/build overlap is sequenced: T-006 is blocked by T-004 and T-005, and global constraints require shared installer/build/CI edits to be serialized."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Blockers reflect the implementation sequence: T-002 follows T-001; T-003 follows T-002; T-004/T-005 follow T-003; T-006 follows both; and T-007 follows T-006."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "RISK-APPROPRIATE",
+      "severity": "Major",
+      "task_id": "T-007",
+      "finding": "T-007 is classified high although its scope is test/CI registration, acceptance mapping, and documentation, with no installer or core implementation. Under risk-classification-policy.md and the RISK-APPROPRIATE rule, test-only/documentation work is low risk; the current tier overstates its scope."
+    },
+    {
+      "check_id": "HIGH-CRITICAL-EVIDENCE",
+      "severity": "Critical",
+      "task_id": null,
+      "finding": "For T-001–T-007, Done When does not require a failing TDD test to be committed before implementation or identify a named independent reviewer distinct from the implementer. T-005 names a distinct second approver and requires a signed bundle, but does not satisfy the separate named-independent-reviewer requirement."
+    },
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-004",
+      "finding": "T-004 combines two host adapters with event normalization, final-output capture, transcript reconciliation, manual/automatic compact behavior, resume, and native timeout/barrier verification. These are more than three distinct implementation areas for one focused task."
+    }
+  ]
+}

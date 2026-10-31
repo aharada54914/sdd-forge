@@ -1,0 +1,106 @@
+Git fixture OIDs: sha1=a274a39f2cfe59418046a52aef8a98251bad8f52; sha256=5386a1da7fcb54da5472190c882e4a39c8079cdf3969808fdc83771901561a6d
+✔ fixture control: real Git ignore and tracked states are distinct (26.483959ms)
+✔ VALIDATION-API: one real shared entrance exists (0.06275ms)
+✔ PROJECTION-VALID: approved empty-journal shape returns the validated object (112.671166ms)
+✔ ID-1024: ASCII and multibyte opaque IDs accept exactly 1024 UTF-8 bytes (209.459625ms)
+✔ ID-INVALID: empty, 1025-byte and malformed Unicode opaque IDs reject (1.144791ms)
+✔ HASH-VALID: distinct authority paths may share a hash (101.184083ms)
+✔ HASH-CLOSED: every authority entry requires path/sha256 and forbids extra fields (0.536458ms)
+✔ HASH-DUPLICATE: duplicate authority paths reject even with identical hashes (0.20625ms)
+✔ HASH-FORMAT: authority digests reject uppercase, wrong size and non-hex (0.41175ms)
+✔ TASK-VALID: existing taskEntry optional fields and lifecycle enums accept (530.4205ms)
+✔ TASK-CLOSED: required fields, field types and taskStateData-only extensions reject (1.753625ms)
+✔ TASK-ENUM: invalid approval/status/risk values reject (0.534208ms)
+✔ CURSOR-NULL: nonempty journal forbids a null cursor (0.156ms)
+✔ CURSOR-VALID: closed owned cursor accepts for a nonempty journal (98.324333ms)
+✔ CURSOR-CLOSED: each required field, safe sequence, hash and content extensions are checked (1.808166ms)
+✔ OWNER-MISMATCH: repository/worktree/Git directory/feature/host/session cannot self-authorize (0.606542ms)
+✔ CURSOR-FOREIGN: foreign owner and unproven predecessor session reject (0.383583ms)
+✔ SCHEMA-CLOSED: projection/owner version, required fields and unknown keys reject (1.620084ms)
+✔ JSON-DUPLICATE: duplicate decoded fields reject through the same entrance (0.067666ms)
+✔ REQUEST-AUTHORITY: caller cannot supply receipt/sequence/expiry/path/budget/lifecycle (0.434542ms)
+✔ IGNORE-MISSING: non-ignored content target rejects (35.365417ms)
+✔ IGNORE-NEGATED: effective negation rejects (34.90325ms)
+✔ TRACKED: ignored but tracked content target rejects (46.357542ms)
+✔ GIT-ERROR: unreadable Git ownership cannot be treated as safe (0.197875ms)
+✔ PATH-ESCAPE: direct foreign, traversal and symlink targets reject (72.574709ms)
+✔ HASH-PATH: authority membership cannot authorize foreign/escaping paths (0.348375ms)
+✔ REDACTION: admitted text is redacted before the in-memory result (94.475ms)
+✔ DEADLINE: exhausted shared trusted budget rejects without a result (0.136666ms)
+✔ HEAD-FIXTURE: real Git storage format and committed HEAD are observed (47.172292ms)
+✔ HEAD-VALID-sha1: real storage-format OID accepts despite a contradictory hint (106.634209ms)
+✔ HEAD-WRONG-FORMAT-sha1: another repository format cannot select the rule (57.998416ms)
+✔ HEAD-MALFORMED-sha1: abbreviated/overlong, uppercase and non-hex OIDs reject (236.357958ms)
+✔ HEAD-VALID-sha256: real storage-format OID accepts despite a contradictory hint (106.95275ms)
+✔ HEAD-WRONG-FORMAT-sha256: another repository format cannot select the rule (57.853416ms)
+✔ HEAD-MALFORMED-sha256: abbreviated/overlong, uppercase and non-hex OIDs reject (234.539917ms)
+✔ HEAD-CALLER-FORMAT: request cannot supply object-format authority (0.188833ms)
+✔ HEAD-UNSUPPORTED-GIT: real unsupported format configuration fails closed (10.915458ms)
+✔ RECONCILE-FIXTURE: valid owner/observation reaches the shared Git/path boundary (366.878334ms)
+✔ RECONCILE-VALID-observable-transcript-complete: declared request and nested Observation enums accept (111.059291ms)
+✔ RECONCILE-VALID-observable-transcript-partial: declared request and nested Observation enums accept (144.525583ms)
+✔ RECONCILE-VALID-observable-transcript-unavailable: declared request and nested Observation enums accept (97.642584ms)
+✔ RECONCILE-VALID-compact-manual-complete: declared request and nested Observation enums accept (93.474625ms)
+✔ RECONCILE-VALID-compact-manual-partial: declared request and nested Observation enums accept (82.291834ms)
+✔ RECONCILE-VALID-compact-manual-unavailable: declared request and nested Observation enums accept (87.647458ms)
+✔ RECONCILE-VALID-compact-auto-complete: declared request and nested Observation enums accept (92.740583ms)
+✔ RECONCILE-VALID-compact-auto-partial: declared request and nested Observation enums accept (80.14425ms)
+✔ RECONCILE-VALID-compact-auto-unavailable: declared request and nested Observation enums accept (84.055333ms)
+✔ RECONCILE-EMPTY-complete: records has no invented nonempty requirement (87.72275ms)
+✔ RECONCILE-EMPTY-partial: records has no invented nonempty requirement (89.705791ms)
+✔ RECONCILE-EMPTY-unavailable: records has no invented nonempty requirement (88.986042ms)
+✔ RECONCILE-UNAVAILABLE: absent optional records accepts (96.014167ms)
+✔ RECONCILE-REQUIRED-complete: missing records rejects (0.243458ms)
+✔ RECONCILE-REQUIRED-partial: missing records rejects (0.119916ms)
+✔ RECONCILE-CLOSED: required fields, version, types and unknown keys reject (0.989875ms)
+✔ RECONCILE-ENUM: unrelated kinds and case variants reject (0.759084ms)
+✔ RECONCILE-RECORDS: present records is always an Observation array (1.739792ms)
+✔ RECONCILE-OBSERVATION-CLOSED: every nested required field, type and enum is checked (2.153792ms)
+✔ RECONCILE-OWNER: outer and nested owners cannot self-authorize (3.053042ms)
+✔ RECONCILE-ID-1024: outer and nested IDs accept the existing UTF-8 boundary (171.605667ms)
+✔ RECONCILE-ID-INVALID: outer and nested ID types/Unicode/byte limits reject (1.174417ms)
+✔ RECONCILE-REDACTION: every nested text is prepared before returning any output (241.265542ms)
+✔ RECONCILE-AUTHORITY: outer and nested receipt/path/budget/lifecycle fields reject (2.110208ms)
+✔ RECONCILE-JSON: malformed, decoded-duplicate and surrogate input rejects (0.168791ms)
+✔ RECONCILE-DEADLINE: exhausted original trusted budget returns no result (0.063708ms)
+✔ RECONCILE-PATH: missing/negated ignore, tracked target and Git error fail closed (189.8065ms)
+✔ RECONCILE-UNKNOWN-TYPE: request spelling cannot open an unknown trusted contract (0.538042ms)
+✖ RESUME-VALID: same-owner request without predecessor returns only the input (0.155209ms)
+✖ CLEANUP-VALID-1-BYTE: bounded opaque ID returns only the input without cleanup (0.091417ms)
+✖ CLEANUP-VALID-1024-ASCII: bounded opaque ID returns only the input without cleanup (0.074ms)
+✖ CLEANUP-VALID-1024-UTF8: bounded opaque ID returns only the input without cleanup (0.08225ms)
+✔ RESUME-CLEANUP-CLOSED: required fields, object types, version and extra keys reject (1.346583ms)
+✔ RESUME-KIND: only the exact resume discriminant and an object owner are valid (0.473875ms)
+✔ RESUME-OWNER: closed owner cannot authorize a foreign path, feature, host or session (0.861958ms)
+✔ RESUME-PREDECESSOR: even a plausible ID cannot supply independent relationship proof (0.482333ms)
+✔ CLEANUP-ID-INVALID: ID type, Unicode and UTF-8 byte overflow reject (0.50325ms)
+✔ RESUME-CLEANUP-AUTHORITY: caller receipt/path/time/budget/lifecycle fields reject (1.323208ms)
+✔ RESUME-CLEANUP-JSON: malformed and decoded-duplicate fields reject (0.13975ms)
+✔ RESUME-CLEANUP-DEADLINE: the original exhausted trusted budget returns no result (0.060916ms)
+✔ RESUME-CLEANUP-PATH: existing ignore/tracked/Git/escape rejections remain required (0.737667ms)
+ℹ tests 79
+ℹ suites 0
+ℹ pass 75
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4747.497875
+
+✖ failing tests:
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ RESUME-VALID: same-owner request without predecessor returns only the input (0.155209ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ CLEANUP-VALID-1-BYTE: bounded opaque ID returns only the input without cleanup (0.091417ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ CLEANUP-VALID-1024-ASCII: bounded opaque ID returns only the input without cleanup (0.074ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ CLEANUP-VALID-1024-UTF8: bounded opaque ID returns only the input without cleanup (0.08225ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }

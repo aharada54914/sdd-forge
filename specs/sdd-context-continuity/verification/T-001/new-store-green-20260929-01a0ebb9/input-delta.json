@@ -1,0 +1,49 @@
+{
+  "checkpoint": "df356803015a81460699d653619001d474aa5248",
+  "inputs": {
+    "plugins/sdd-context/validation.mjs": {
+      "bytes": 12423,
+      "sha256": "5e4aee1b887ec82be5bf44f9ee38eaf24d48bcb3a8c72c0c0f731ed4e03a0659"
+    },
+    "tests/sdd-context/validation.test.mjs": {
+      "bytes": 45327,
+      "sha256": "4da707518036f61ef89890038eec8facb276d1833d519b28c6aef174d0ed665f"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 119194,
+      "sha256": "ef366f64bd5971efea8e0891c978258756d322570c78cc38e0bd088f4c2a1f6b"
+    },
+    "reports/review-context/identity-ledger.json": {
+      "bytes": 517899,
+      "sha256": "f7762e87d657962dc8b141fb8359703aa590e8f46cd89587b2b75a3d91803e90"
+    },
+    "specs/workflow-state-registry.json": {
+      "bytes": 12044,
+      "sha256": "2e5d3467f97cec025f066d366cec242f08601d451d44418558071903de5e4210"
+    },
+    "specs/sdd-context-continuity/tasks.md": {
+      "bytes": 15074,
+      "sha256": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c"
+    },
+    "reports/verification/issue137-new-store-preparation-20260929.md": {
+      "bytes": 1814,
+      "sha256": "25348f76e8a7b2ecb0c8f830b6ad61c86a27c8f54e9a54f9bad2b651f2d969ce"
+    },
+    "tests/sdd-context/json-admission.test.mjs": {
+      "bytes": 4826,
+      "sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663"
+    },
+    "tests/sdd-context/privacy.test.mjs": {
+      "bytes": 2882,
+      "sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636"
+    },
+    "tests/sdd-context/privacy-grammar.test.mjs": {
+      "bytes": 8442,
+      "sha256": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+    }
+  },
+  "red_evidence_reference": "specs/sdd-context-continuity/verification/T-001/new-store-red-20260929-01a0ebb9/red-run.json",
+  "prior_snapshot_reference": "specs/sdd-context-continuity/verification/T-001/reconcile-red-20260929-01a0ebb9/input-manifest.json",
+  "module_absent": true,
+  "scope": "OwnerV1/POSIX owning account only; exclusive empty mkdir 0700; same validate/trusted context; no chmod/file data or existing store mutation; no ancestor-race/Windows ACL claim"
+}

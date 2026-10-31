@@ -1,0 +1,25 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a0f1f3-94e8-7d31-8437-0a3804e068d4",
+  "host_session_id": "01a0f1f3-94e8-7d31-8437-0a3804e068d4",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-context-continuity/requirements.md", "sha256": "69270e96e696d89dbd2691bd10ecd315d291bd149511352d0ac40bddca3eeb26"},
+    {"path": "specs/sdd-context-continuity/acceptance-tests.md", "sha256": "3da0976cd4a42ae7315361a3329dce0b5b23a4446f39a721efa26edd71773773"},
+    {"path": "specs/sdd-context-continuity/investigation.md", "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"},
+    {"path": "reports/spec-review/sdd-context-continuity/attempt-2/round-1/precheck-result.json", "sha256": "edcc9f89627c5de6dab6e112bc23279ca34056f47933a179e7858fb1696186c2"},
+    {"path": "reports/spec-review/sdd-context-continuity/attempt-2/round-1/integrated-summary.json", "sha256": "2ea454d11d77723106f7b77cf802cb8a526884d7ac40486f516f1225feed0b0c"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id": "AMBIGUITY", "result": "FAIL", "severity": "Major", "finding": "AC-010はhook-process失敗時も内容を含まない継続性喪失の報告を求めるが、TEST-035はホストが継続することだけを検証する。要件の3,000 ms core期限と候補のnative 2秒上限は別の上限として両立する一方、2秒でプロセスが強制終了された場合、誰がいつ喪失を報告するかが未定義である。実装者によって無報告、ホスト警告、次回起動時の報告に分かれる。利用者に見える失敗時動作なので仕様レビューで確定すべきMajorの曖昧さである。"},
+    {"id": "CONTRADICTION", "result": "PASS", "severity": "Critical", "finding": "requirements.mdの有界契約は3,000 msをcore全体の上限、native 2秒を別途実証する候補と明記し、TEST-034/035も分離している。直接の矛盾はない。"},
+    {"id": "EDGE-CASE-COVERAGE", "result": "FAIL", "severity": "Major", "finding": "REQ-010は未解決の合意、再検討禁止の決定、ワークフロー状態、阻害要因、次の行動を優先すると定める。AC-018/TEST-060は8,192バイト境界、全件単位の収容、overflow時のポインタを確認するが、競合する項目のうち何を残すかを確認しない。予算超過時に古い項目が現在の阻害要因を押し出しても試験が通るため、優先順位を観測できる具体例が必要である。回復内容を左右する境界例の欠落であり、仕様レビュー対象のMajorである。"},
+    {"id": "ASSUMPTIONS-RESOLVABLE", "result": "PASS", "severity": "Major", "finding": "OQ-005–OQ-009は担当と実測・検証経路を明示し、未証明のホスト機能を利用可能と断定していない。"},
+    {"id": "APPROVAL-BOUNDARY", "result": "PASS", "severity": "Critical", "finding": "REQ-004/011、AC-006およびRoles and Permissionsは会話からの承認付与やDone変更を禁じ、記録済みの人間による保持・秘匿・失敗時方針を区別している。"},
+    {"id": "DOWNSTREAM-READINESS", "result": "FAIL", "severity": "Major", "finding": "AC-010/TEST-035の強制終了後の報告経路と、REQ-010/AC-018/TEST-060のoverflow時の項目選択が未確定である。前者は利用者への失敗通知、後者は回復表示の内容を変えるため、設計レビューに委ねると製品動作を発明させる。仕様段階で解決すべきMajorの不足である。"},
+    {"id": "DOMAIN-CONFORMANCE", "result": "SKIP", "severity": "Major", "finding": "許可された仕様入力に承認済みdomainモデルまたは複数のBounded-Context指定が示されておらず、この条件付き検査の対象を確認できない。"}
+  ]
+}

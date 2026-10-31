@@ -1,0 +1,11 @@
+--- plugins/sdd-context/privacy.mjs
++++ plugins/sdd-context/privacy.mjs
+@@ -101,6 +101,8 @@
+       if (quote === '"' && !JSON.parse(literal).isWellFormed()) reject();
+       if (next - valueStart === 2) continue;
+     } else {
++      const marker = '[REDACTED:assignment]';
++      if (text.startsWith(marker, next)) next += marker.length;
+       while (next < text.length && !/[\s,;}\]]/.test(text[next])) {
+         if (next - valueStart > VALUE_BYTES) reject();
+         next++;

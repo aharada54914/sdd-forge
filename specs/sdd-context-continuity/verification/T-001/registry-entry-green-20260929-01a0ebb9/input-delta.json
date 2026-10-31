@@ -1,0 +1,48 @@
+{
+  "checkpoint": "ea4f1a220261b1f7381d82f100d06ff617054f82",
+  "inputs": {
+    "plugins/sdd-context/validation.mjs": {
+      "bytes": 12036,
+      "sha256": "5e083fe7165247b4716cf06dba2b87ac730e829830aa4b7b97362278bbd151f7"
+    },
+    "tests/sdd-context/validation.test.mjs": {
+      "bytes": 41608,
+      "sha256": "6014e026fc934628b1642cf7ee32a8e0235361d1899947b9f0e5d27dca2d8865"
+    },
+    "reports/implementation/sdd-context-continuity/T-001.md": {
+      "bytes": 113476,
+      "sha256": "c2213cec7a144745a6e3e913bc65b99417f1be95ab77bf28139bd6c58ebdc7e3"
+    },
+    "reports/review-context/identity-ledger.json": {
+      "bytes": 517899,
+      "sha256": "f7762e87d657962dc8b141fb8359703aa590e8f46cd89587b2b75a3d91803e90"
+    },
+    "specs/workflow-state-registry.json": {
+      "bytes": 12044,
+      "sha256": "2e5d3467f97cec025f066d366cec242f08601d451d44418558071903de5e4210"
+    },
+    "specs/sdd-context-continuity/tasks.md": {
+      "bytes": 15074,
+      "sha256": "c971b81144534a9791f5fbef1996d4ce378936f1dfb0fbbf53fedaeff0b4569c"
+    },
+    "reports/verification/issue137-registry-entry-validation-20260929.md": {
+      "bytes": 1354,
+      "sha256": "459c771b0abce59265d7c7cd45d446b711de23f2434808bfac26504b5669efe0"
+    },
+    "tests/sdd-context/json-admission.test.mjs": {
+      "bytes": 4826,
+      "sha256": "9b02dc16e5eb77a4540505ca48455d74a156dc56cf5c0a92eaf95b2f7b987663"
+    },
+    "tests/sdd-context/privacy.test.mjs": {
+      "bytes": 2882,
+      "sha256": "6ecb05a5af3f48743450d740f1a04c1fdafff6dfdd9a4cb3cdfb1d2ab5490636"
+    },
+    "tests/sdd-context/privacy-grammar.test.mjs": {
+      "bytes": 8442,
+      "sha256": "b5077aa06d4e380c29016824c62dbf7d375b048191610ce46f502012c071e8d5"
+    }
+  },
+  "red_evidence_reference": "specs/sdd-context-continuity/verification/T-001/registry-entry-red-20260929-01a0ebb9/red-run.json",
+  "prior_snapshot_reference": "specs/sdd-context-continuity/verification/T-001/reconcile-red-20260929-01a0ebb9/input-manifest.json",
+  "scope": "standalone five-field RegistryEntryV1 only; fixed tests; existing helpers; no persistence or state/Git mutation"
+}

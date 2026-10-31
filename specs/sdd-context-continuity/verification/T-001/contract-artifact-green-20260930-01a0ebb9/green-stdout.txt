@@ -1,0 +1,136 @@
+TAP version 13
+# Subtest: SC-RUNTIME-POSITIVE: current runtime admits every contract fixture before artifact implementation
+ok 1 - SC-RUNTIME-POSITIVE: current runtime admits every contract fixture before artifact implementation
+  ---
+  duration_ms: 1746.935042
+  type: 'test'
+  ...
+# Subtest: SC-PRESENT: standard internal schema artifact names every current encoding
+ok 2 - SC-PRESENT: standard internal schema artifact names every current encoding
+  ---
+  duration_ms: 0.337334
+  type: 'test'
+  ...
+# Subtest: SC-FIELDS-OwnerV1: closed fields match actual runtime admission
+ok 3 - SC-FIELDS-OwnerV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 78.628625
+  type: 'test'
+  ...
+# Subtest: SC-FIELDS-CursorV1: closed fields match actual runtime admission
+ok 4 - SC-FIELDS-CursorV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 77.388125
+  type: 'test'
+  ...
+# Subtest: SC-FIELDS-JournalHeaderV1: closed fields match actual runtime admission
+ok 5 - SC-FIELDS-JournalHeaderV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 77.566959
+  type: 'test'
+  ...
+# Subtest: SC-FIELDS-JournalRecordV1: closed fields match actual runtime admission
+ok 6 - SC-FIELDS-JournalRecordV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 78.33075
+  type: 'test'
+  ...
+# Subtest: SC-FIELDS-DecisionV1: closed fields match actual runtime admission
+ok 7 - SC-FIELDS-DecisionV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 78.938
+  type: 'test'
+  ...
+# Subtest: SC-FIELDS-LockV1: closed fields match actual runtime admission
+ok 8 - SC-FIELDS-LockV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 80.956167
+  type: 'test'
+  ...
+# Subtest: SC-FIELDS-RegistryEntryV1: closed fields match actual runtime admission
+ok 9 - SC-FIELDS-RegistryEntryV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 99.107625
+  type: 'test'
+  ...
+# Subtest: SC-FIELDS-OwnerRegistryV1: closed fields match actual runtime admission
+ok 10 - SC-FIELDS-OwnerRegistryV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 77.5945
+  type: 'test'
+  ...
+# Subtest: SC-FIELDS-ProjectionV1: closed fields match actual runtime admission
+ok 11 - SC-FIELDS-ProjectionV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 89.106708
+  type: 'test'
+  ...
+# Subtest: SC-FIELDS-ObservationV1: closed fields match actual runtime admission
+ok 12 - SC-FIELDS-ObservationV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 78.677791
+  type: 'test'
+  ...
+# Subtest: SC-FIELDS-ReconcileV1: closed fields match actual runtime admission
+ok 13 - SC-FIELDS-ReconcileV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 155.834833
+  type: 'test'
+  ...
+# Subtest: SC-FIELDS-ResumeV1: closed fields match actual runtime admission
+ok 14 - SC-FIELDS-ResumeV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 78.498625
+  type: 'test'
+  ...
+# Subtest: SC-FIELDS-CleanupV1: closed fields match actual runtime admission
+ok 15 - SC-FIELDS-CleanupV1: closed fields match actual runtime admission
+  ---
+  duration_ms: 82.073209
+  type: 'test'
+  ...
+# Subtest: SC-SCALARS: exact bounds and enum rules have runtime mismatch counterparts
+ok 16 - SC-SCALARS: exact bounds and enum rules have runtime mismatch counterparts
+  ---
+  duration_ms: 1.703708
+  type: 'test'
+  ...
+# Subtest: SC-OUTCOME: all nine closed discriminants and flags match the runtime
+ok 17 - SC-OUTCOME: all nine closed discriminants and flags match the runtime
+  ---
+  duration_ms: 707.040667
+  type: 'test'
+  ...
+# Subtest: SC-NESTED: shared path/recovery objects are closed and runtime rejects field mismatches
+ok 18 - SC-NESTED: shared path/recovery objects are closed and runtime rejects field mismatches
+  ---
+  duration_ms: 1.8845
+  type: 'test'
+  ...
+# Subtest: SC-TASK-REF: taskEntry resolves the existing contract without a copied definition
+ok 19 - SC-TASK-REF: taskEntry resolves the existing contract without a copied definition
+  ---
+  duration_ms: 0.810417
+  type: 'test'
+  ...
+# Subtest: SC-LIMITS: schema explicitly separates structural encoding from operational proof
+ok 20 - SC-LIMITS: schema explicitly separates structural encoding from operational proof
+  ---
+  duration_ms: 0.046
+  type: 'test'
+  ...
+# Subtest: SC-OPERATIONAL: runtime separately rejects structurally encodable unsafe inputs
+ok 21 - SC-OPERATIONAL: runtime separately rejects structurally encodable unsafe inputs
+  ---
+  duration_ms: 89.879125
+  type: 'test'
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 21
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3717.70125

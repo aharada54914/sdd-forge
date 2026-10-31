@@ -1,0 +1,12 @@
+{
+  "schema": "spec-review-launch-deficiency/v1",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0f213-b47b-78e1-82b8-13d3c69a30db",
+  "host_session_id": "01a0f213-b47b-78e1-82b8-13d3c69a30db",
+  "reservation_sequence": 1208,
+  "reservation_record_sha256": "b9b46ddb3cb76c87192499330776bcff84b6b16a32c48877573cc50d1cddbd4d",
+  "result": "NONCANONICAL_BLOCKED",
+  "reason": "The launch prompt omitted the seven required spec-reviewer-a check IDs and their order. The reviewer refused to issue a canonical verdict without reading an unlisted role definition.",
+  "canonical_review_persisted": false,
+  "retry_requires_fresh_identity": true
+}

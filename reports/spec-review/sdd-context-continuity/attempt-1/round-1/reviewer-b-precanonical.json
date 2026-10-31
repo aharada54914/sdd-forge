@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a0e0cc-8122-7d40-aed3-2064a584b8a7",
+  "host_session_id": "01a0e0cc-8122-7d40-aed3-2064a584b8a7",
+  "allowed_input_manifest": [
+    {"path":"specs/sdd-context-continuity/requirements.md","sha256":"3b45c7d66f2c694206a7342772e937487e412aebab856b9d542455c08fc524fe"},
+    {"path":"specs/sdd-context-continuity/acceptance-tests.md","sha256":"b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"},
+    {"path":"specs/sdd-context-continuity/investigation.md","sha256":"59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"},
+    {"path":"reports/spec-review/sdd-context-continuity/attempt-1/round-1/precheck-result.json","sha256":"111e147421c589281cc0c554ce8e3127f54fc3d4637d881edc4af357361fc36c"},
+    {"path":"reports/spec-review/sdd-context-continuity/attempt-1/round-1/integrated-summary.json","sha256":"e392e0252b346ddff38e052e4315578ff8d678b05dc92427879912f71bb801ef"},
+    {"path":"plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"}
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:37–48、76–133で捕捉・所有者分離・失敗時動作・保持期間・秘匿化・時間と出力サイズの境界を定義している。未確認のホスト能力は保証から区別されている。"
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md:43、84–90で入力失敗時の継続、手動compactの安全判定、自動compactの非阻害を区別している。完全復旧の非保証と秘匿化・期限切れによる欠落も整合している。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.mdのTEST-005–008、010–035、041–060、066およびTEST-044a–i、045a–f、046a–cに、欠落入力、破損、所有者違い、失敗、保持期限、秘匿化の境界と並行処理の具体的な予定検証がある。実行済みとは主張していない。"
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:175–201で基準コミット、共有状態の再確認、OQ-005–012の担当・解決経路・阻害対象を明示している。acceptance-tests.mdのRemaining contractsは、対象範囲に必要な契約を設計・タスク承認までに解決する条件を明記している。"
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md:3、6はPhase 1未完了・Spec-Review-Status: Pendingとする一方、:156–158は既存のreports/verification/issue137-host-contract-audit-20260926.mdを設計入力として参照し、:200はsecurity-specによる解析詳細化を記述している。investigation.md全体に必須の「## Amendment Re-Review Context」はない。spec-review-calibration.md:63–106、114–119の既定規則では、Pending中の後続段階の設計・検証資料の参照は承認境界違反であり、例外を適用できない。後続担当者はこれらを承認済みの設計根拠として利用可能か判断できない。これは実装内容の検証ではなく段階の承認条件に関する仕様レビュー事項であり、規定された未承認のワークフロー境界としてCritical。後続資料への依存をPhase 1内の根拠へ置き換えるか、該当する場合は校正規則に適合する人間承認付き再レビュー宣言を整備する必要がある。"
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.mdのREQ-001–012、AC-001–018、数値付き境界とacceptance-tests.mdの予定検証により、設計レビューで必要な製品動作は定義されている。実装方式や未実行のネイティブ検証は後続段階の事項として区別されている。承認段階の問題はAPPROVAL-BOUNDARYに記録した。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "許可された存在確認でプロジェクトルートのdomain/ディレクトリが存在しないため、適用条件を満たさない。"
+    }
+  ]
+}

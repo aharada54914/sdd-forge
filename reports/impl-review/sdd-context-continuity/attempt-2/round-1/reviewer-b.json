@@ -1,0 +1,126 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "01a0e104-5223-7c53-aa05-07614732f023",
+  "host_session_id": "01a0e104-5223-7c53-aa05-07614732f023",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "718011e589ef2b46caaf94d02afa214fd0753ff15a8ed9895434790f7e9bec35"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/design.md",
+      "sha256": "0c9e8f192594416c311ad24941885a964746e1326b355a408d9d8a7ab1c0a9a1"
+    },
+    {
+      "path": "specs/sdd-context-continuity/ux-spec.md",
+      "sha256": "df930b237f8cc89edd5274b721b7b4c083e892bdf3f9de95fc931cc0d90f1343"
+    },
+    {
+      "path": "specs/sdd-context-continuity/frontend-spec.md",
+      "sha256": "fad4f28f9b4509490ea33e5a8838602551552e8b575f415bfbd2786eb291c0c9"
+    },
+    {
+      "path": "specs/sdd-context-continuity/infra-spec.md",
+      "sha256": "59bbca2726b06e3a9d7b31df47415e2f853f110c73ed77770d44aed4aebb6556"
+    },
+    {
+      "path": "specs/sdd-context-continuity/security-spec.md",
+      "sha256": "5bc819542a2b7afbbe80811de01ae82b75438f95f666e956123dbd803881f25c"
+    },
+    {
+      "path": "specs/sdd-context-continuity/investigation.md",
+      "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/sdd-context-continuity/attempt-2/round-1/precheck-result.json",
+      "sha256": "8cf9f8a2cf622824adf5400ea9a1de1b948533682aec24ff6e314823a3de77a7"
+    },
+    {
+      "path": "docs/adr/0033-worktree-local-context-continuity.md",
+      "sha256": "81571c041ba9e37861e8208ea9b065a899216fe360c78f8d128fd4579b194f98"
+    },
+    {
+      "path": "reports/impl-review/sdd-context-continuity/attempt-2/round-1/integrated-summary.json",
+      "sha256": "8b7f5f0b22a65764d8503ca8301cc43e51e279ac1591f2edc54f8870a6bd420e"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:32–40 は既存Node/TypeScript/parserの再利用とtransport分離を説明。ADR-0033:23–31 はJSONL、worktree分離、daemon/database不採用、権威維持の理由を示す。"
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:276–289 のOQ-005–012はOwner、Blocks Implementation、具体的Resolution Pathを備える。未実施のnative検証を解決済み扱いせず、OQ-001–004の決定も再開しない。"
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:32–40、254–262 は再利用前提と共有状態の再検証を明示。investigation.md:34–50 のINV-001–017が権威、parser、transport、hook、ignore、read-error前提を根拠付ける。native lifecycle対応は前提にせず未検証としている。"
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "レイヤー間契約矛盾。design.md:77–83、159–164 はObservationV1を閉じたschema-v1とし、owner、kind、text、coverageを必須とする。一方frontend-spec.md:14–24 はcoreに渡す正規化ObservationV1をhost、eventKind、opaque session/feature、observed text、optional transcript locatorで記述し、owner/coverageがなくkindも一致しない。別のadapter入力型であるとの区別や変換契約がないため、frontend定義どおりの入力はcoreのunknown-key/required-field検証で拒否され、REQ-001/008のcapture経路が成立しない。実装者が同じ型名の競合する定義から選ぶ必要があるためMajor。正規化後の型を統一するか、adapter入力型を別名にして変換を明示する必要がある。Constraint Compliance自体はdesign.md:232–252に記載されている。"
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:95–105の1,000ms、1MiB、8MiB、8,192-byte制約をdesign.md:250–252とfrontend-spec.md:60–81が扱う。design.md:190–198はTEST-034/060を含む具体的測定計画を参照し、native kill保証とJS deadlineを区別する。"
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:206–230は既存installer、Ubuntu suite inventory、既存OS matrixへの変更、隔離したnative検証、追加secret不要、明示installation rolloutを記載。infra-spec.md:21–34、97–110が各OSのper-user実行先とscheduler候補を示す。既存データ移行はない。"
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:103–123は既存データを移行せず新規schema-v1 storeのみ作成し、未知schemaを保持してunavailableにする。rollbackはcaptureを停止し、残存contentのexpiry cleanupを維持する。既存table/column変更はない。"
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:25–30がClaude/Codex、read-only reader、installerの目的を識別。frontend-spec.md:36–52はnative契約候補とmanual/auto/Stopの失敗動作を区別し、investigation.md:63–83は観測versionとCodex event形式を示す。infra-spec.md:97–110はOS scheduler契約候補と失敗時のcapture停止を記載。design.md:278–285は実際の対応version/schemaをnative証拠で確定する経路を残しており、live対応を断定していない。"
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:55–62がREQ-001–012とACを各レイヤーへ対応付ける。journal、derived views、owner registry、OS cleanup、parser reuseはrequirements.md:37–48、88–93の範囲内。公開API、追加user command、cloud service、UI frameworkは導入しない。"
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:190–204、222–226がacceptance-tests.mdとnative証拠保存先を指定。security-spec.md:16–25、136–149、169–175はowner、redaction、Git exclusion、診断漏洩に具体的TEST-IDを対応付ける。host failureはTEST-027–037/047–051で検証予定。実行済みとの主張はない。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "許可されたroot存在確認でdomain/なし。round 1: no prior summary; integrated-summaryはhashのみ検証し内容を読んでいない。全12入力hash、precheckのprimary/layer/ADR pins、input digestを検証済み。receipt hash 0b722a0a4e5310712fc1b37f09c06e89db0714905bdc46659de826084d7639d4をordered-manifest拡張付きで再計算し一致。sequence=1199=1198+1、previous_record_sha256一致、identity_unique=yesを確認。再予約・ledger読取・reviewer-a読取・書込なし。チェック集計: PASS=9、FAIL=1、SKIP=1。指摘件数: Critical=0、Major=1、Minor=0。"
+    }
+  ]
+}

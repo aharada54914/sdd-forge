@@ -1,0 +1,42 @@
+JSON admission subject: production module
+✔ TEST-046a JSON-API: planned shared admission API must exist (0.331958ms)
+✔ TEST-046a JSON-DUPLICATE: repeated decoded names reject even with identical values (0.447959ms)
+✔ TEST-046a JSON-DUPLICATE: escape-equivalent names reject after decoding (0.139375ms)
+✔ TEST-046a JSON-DUPLICATE: nested objects and array elements use their own member sets (0.130041ms)
+✔ TEST-046a JSON-DUPLICATE: prototype-like names are ordinary member identities (0.108ms)
+✔ TEST-046a JSON-UNICODE: decoded isolated/reversed surrogates in values and names reject (0.14275ms)
+✔ TEST-046a JSON-UNICODE: raw isolated surrogates in source names and values reject (0.087208ms)
+✔ TEST-046a JSON-UNICODE: nested decoded keys and values reject (0.057708ms)
+✔ TEST-046a JSON-SYNTAX: malformed JSON/escape errors remain content-free (0.103208ms)
+✔ TEST-046a controls: valid JSON/Unicode preserve standard decoder values and separate scopes (0.152583ms)
+✔ TEST-046a JSON-BOUNDS: exact 1 MiB UTF-8 input fits, +1 rejects without truncation (11.809417ms)
+✔ TEST-046a JSON-BOUNDS: wrong source type and exhausted/nonfinite trusted deadline reject (0.128ms)
+grammar subject: production module
+✔ TEST-045a / TEST-046b: four PEM labels, multiline and 4096/+1 bytes (1.467417ms)
+✔ TEST-045b: all keys, cases, quote styles and delimiters (3.019791ms)
+✔ TEST-045b: escaped quotes/backslashes, CRLF, empty values and ASCII key boundaries (0.130583ms)
+✔ TEST-045c: Bearer/Basic headers preserve lines and suppress assignment termination (0.075792ms)
+✔ TEST-045d: both URL schemes, userinfo and all one-pass decoded query keys (1.244625ms)
+✔ TEST-045e / TEST-046b: prefix bounds, AWS exact length and boundaries (0.351584ms)
+✔ TEST-045e / TEST-046b: linear JWT segments and aggregate sensitive-value bound (0.174083ms)
+✔ TEST-045e: overlapping assignment/token spans merge and preserve Unicode (0.058709ms)
+✔ TEST-045f: documented gaps do not become comprehensive detection claims (0.067833ms)
+✔ TEST-046a: malformed identified values, isolated/decoded surrogates, wrong text type (0.203625ms)
+✔ TEST-046b: malformed sensitive URLs and percent escapes (0.1435ms)
+✔ TEST-046b: 4096-byte bare/quoted/header/URL values and +1 (1.296084ms)
+✔ TEST-046b: 1 MiB input, oversize and replacement expansion (10.223959ms)
+✔ TEST-046c: 512 spans, 513 spans and elapsed process deadline (0.781667ms)
+✔ TEST-046c: scanner decoder exception exposes no raw cause/stack/payload (0.058791ms)
+privacy subject: production module
+✔ TEST-045b: assignment value removed, surrounding text preserved, omission disclosed (1.221375ms)
+✔ TEST-045c: authorization header removes the complete spaced value through CRLF (0.179833ms)
+✔ TEST-046a: unclosed identified quote rejects rather than returning writable text (0.125667ms)
+✔ TEST-045f control: ordinary Unicode and a non-key substring are unchanged (0.163708ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 53.694958

@@ -1,0 +1,41 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "feature": "sdd-context-continuity",
+  "run_id": "01a0e0cc-8122-7d40-aed3-2064a584b8a7",
+  "host_session_id": "01a0e0cc-8122-7d40-aed3-2064a584b8a7",
+  "sequence": 1192,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "2a891987dc32f91f6f2d9fe558362bdc2c8de7353fb1d5c1d28c2cb06ca69ca0",
+  "previous_record_sha256": "486fa0dc2a16fcc681b941f527606ce65ab3ebc237001066828ef76786f0c3ac",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context-continuity/requirements.md",
+      "sha256": "3b45c7d66f2c694206a7342772e937487e412aebab856b9d542455c08fc524fe"
+    },
+    {
+      "path": "specs/sdd-context-continuity/acceptance-tests.md",
+      "sha256": "b821d3eda3ce1e676e2c43e9b08a84f768f9fd4b06454025c834491c6f33c576"
+    },
+    {
+      "path": "specs/sdd-context-continuity/investigation.md",
+      "sha256": "59cd2488711c959ad8886d77a77425d635e2158ed771087dca9fa6fbf9bad872"
+    },
+    {
+      "path": "reports/spec-review/sdd-context-continuity/attempt-1/round-1/precheck-result.json",
+      "sha256": "111e147421c589281cc0c554ce8e3127f54fc3d4637d881edc4af357361fc36c"
+    },
+    {
+      "path": "reports/spec-review/sdd-context-continuity/attempt-1/round-1/integrated-summary.json",
+      "sha256": "e392e0252b346ddff38e052e4315578ff8d678b05dc92427879912f71bb801ef"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    }
+  ]
+}

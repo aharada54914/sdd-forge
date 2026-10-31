@@ -1,0 +1,26 @@
+✔ LOCK-V1-PID-INVALID: non-positive unsafe and wrong-type PID values reject (2.597375ms)
+✖ LOCK-V1-PID-1: inclusive endpoint and exact opaque byte bounds admit (0.268ms)
+✖ LOCK-V1-PID-MAX: inclusive endpoint and exact opaque byte bounds admit (15.440542ms)
+✔ LOCK-V1-CLOSED: all five fields are required and unknown keys or versions reject (0.681583ms)
+✔ LOCK-V1-OWNER: every independently trusted owner field must match (0.374583ms)
+✔ LOCK-V1-ID: nonce and start identity independently enforce the opaque contract (0.4855ms)
+✔ LOCK-V1-JSON: malformed or decoded duplicate Lock members reject (0.105375ms)
+✔ LOCK-V1-GUARDS: shared deadline Git and planned-path failures still reject (0.439084ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 6
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 334.219
+
+✖ failing tests:
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ LOCK-V1-PID-1: inclusive endpoint and exact opaque byte bounds admit (0.268ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
+
+test at tests/sdd-context/validation.test.mjs:88:3
+✖ LOCK-V1-PID-MAX: inclusive endpoint and exact opaque byte bounds admit (15.440542ms)
+  [Error: validation-rejected] { code: 'validation-rejected' }
