@@ -47,14 +47,17 @@ Release listing returned zero records during preparation. A next minor 1.19.0
 is a reasonable proposal for the added features, not a published version or a
 version bump performed by this preparation.
 
-After genuine advisory activation, define and record the bootstrap base commit
-and final release head explicitly. There is no existing start Release to cite;
-do not manufacture one or describe an unobserved historical interval as complete.
-The release preflight accepts explicit base/head commits and requires a genuine
-published final Release/tag at the head. Every first-parent commit in that
-interval must map exactly once to an observed PR and its final-head checks.
-The broader start/end-release acceptance wording must be reconciled openly
-with this first-release bootstrap boundary.
+After genuine advisory activation, publish a real bootstrap Release to establish
+the start boundary (1.19.0 is the provisional proposal above). Then perform the
+actual observed PR interval and publish a subsequent Release as its end boundary.
+Choose the endpoint version from the actual changes after their checks succeed.
+This plan satisfies both release boundaries without inventing a historical
+Release; neither Release has been published by this preparation.
+
+Record the start commit and final release head explicitly. The release preflight
+accepts explicit base/head commits and requires a genuine published final
+Release/tag at the head. Every first-parent commit in that interval must map
+exactly once to an observed PR and its final-head checks.
 
 Use the existing contributor release runbook: add the actual CHANGELOG version
 heading, run `bash scripts/bump-version.sh <version>` (including its mandatory
