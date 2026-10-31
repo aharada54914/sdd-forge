@@ -383,13 +383,15 @@ function Get-CandidateRootsForPath([string]$NormalizedPath) {
     # inner derivation this extracts). Returned with the comma operator so
     # PowerShell hands back the HashSet itself instead of unrolling it.
     $candidateRoots = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
-    foreach ($marker in @("/specs/", "/reports/", "/plugins/", "/domain/", "/design-system/")) {
+    foreach ($marker in @("/specs/", "/reports/", "/plugins/", "/docs/", "/domain/", "/design-system/")) {
         $index = $NormalizedPath.IndexOf($marker, [StringComparison]::Ordinal)
         while ($index -ge 0) {
             $suffix = $NormalizedPath.Substring($index + 1)
             if ($suffix -cmatch '^specs/[a-z0-9][a-z0-9-]*/[^/]+$' -or
+                $suffix -cmatch '^specs/[a-z0-9][a-z0-9-]*/research/(records/research-evidence[.]json|relations[.]json|review-input[.]json)$' -or
                 $suffix -cmatch '^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$' -or
                 $suffix -cmatch '^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$' -or
+                $suffix -cmatch '^docs/adr/[0-9]{4}-[a-z0-9][a-z0-9-]*[.]md$' -or
                 $suffix -cmatch '^domain/[^/]+(/[^/]+)*$' -or
                 $suffix -cmatch '^design-system/(design-tokens[.]json|design-system[.]md|ui-patterns[.]md)$') {
                 [void]$candidateRoots.Add($NormalizedPath.Substring(0, $index))
@@ -616,20 +618,36 @@ function Get-WorkflowConditionalPaths($Contract, [string]$Feature, [string]$Stag
     [string]$RepositoryRoot, [string]$RecordedRoot) {
     if ($Stage -cnotin @('spec','impl','task')) { return }
     $hasConditional = $false
+    $hasResearch = $false
     foreach ($reviewer in @($Contract.reviewers)) {
         foreach ($entry in @($reviewer.allowed_input_manifest)) {
             $relative = Get-RepositoryRelativePath ([string]$entry.path) $RepositoryRoot $RecordedRoot
-            if ($null -ne $relative -and $relative -cmatch ('^(domain|design-system)/|^specs/' + [Regex]::Escape($Feature) + '/concept-test')) {
+            if ($null -ne $relative -and $relative -cmatch ('^(domain|design-system)/|^specs/' + [Regex]::Escape($Feature) + '/(concept-test|research/)')) {
                 $hasConditional = $true
+                if ($relative.StartsWith("specs/$Feature/research/", [StringComparison]::Ordinal)) { $hasResearch = $true }
             }
         }
     }
     # Keep legacy contracts independent of current conditional files.
     if (-not $hasConditional) { return }
     $resolver = Join-Path $RepositoryRoot 'plugins/sdd-quality-loop/scripts/review-conditional-inputs.py'
-    $output = & python3 $resolver --root $RepositoryRoot --feature $Feature --stage $Stage
+    $researchArgs = @()
+    if (-not $hasResearch) { $researchArgs = @('--without-research') }
+    elseif ($Contract.stage -ceq 'impl' -and $Contract.verdict -cin @('NEEDS_WORK', 'BLOCKED')) {
+        $researchArgs = @('--history-contract', "reports/impl-review/$Feature/attempt-$($Contract.attempt)/round-$($Contract.round)/impl-review-contract.json")
+    }
+    $output = & python3 $resolver --root $RepositoryRoot --feature $Feature --stage $Stage @researchArgs
     if ($LASTEXITCODE -ne 0) { throw 'conditional input resolution failed' }
     $resolved = ($output -join "`n") | ConvertFrom-Json
+    foreach ($reviewer in @($Contract.reviewers)) {
+        foreach ($pin in @($resolved.research_inputs)) {
+            $matches = @($reviewer.allowed_input_manifest | Where-Object {
+                (Get-RepositoryRelativePath $_.path $RepositoryRoot $RecordedRoot) -ceq $pin.path })
+            if ($matches.Count -ne 1 -or ($matches[0].sha256 -cne $pin.sha256 -and
+          ($pin.path -cne "specs/$Feature/requirements.md" -or
+           $matches[0].sha256 -cne $resolved.observed.($pin.path)))) { throw 'incomplete research manifest' }
+        }
+    }
     foreach ($entry in @($resolved.inputs)) { [string]$entry.path }
 }
 
@@ -1239,8 +1257,12 @@ function Get-AdrHistoryManifest($Manifest, [string]$Role, $Precheck,
         # declarations may use this branch. Case-insensitive detection rejects
         # mis-cased aliases rather than granting them authority.
         if ($entry.path.Replace('\','/') -imatch '(^|/)docs/adr/') {
-            if (-not $adrs.ContainsKey($entry.path) -or $adrs[$entry.path] -cne $entry.sha256) {
-                throw 'ADR manifest member is undeclared or differs from precheck'
+            if ($adrs.ContainsKey($relative)) {
+                if (-not $adrs.ContainsKey($entry.path) -or $adrs[$entry.path] -cne $entry.sha256) {
+                    throw 'ADR manifest member differs from precheck'
+                }
+            } elseif ($ConditionalPaths -cnotcontains $relative) {
+                throw 'ADR manifest member is undeclared'
             }
         } elseif (-not $allowed.Contains($relative)) { throw 'ADR manifest violates role isolation' }
         $normalized.Add($relative, $entry.sha256)
@@ -1549,11 +1571,15 @@ function Get-AdrHistoryBinding([Collections.IDictionary]$Snapshots,
     $summary = Read-SavedAdrObject 'integrated-summary.json'
     $core = Get-AdrHistoryCoreBinding $contract $precheck
     if (-not $core.Extended) {
-        # Legacy absence is not permission to read ADRs, including aliases.
+        $recorded = Get-RecordedRepositoryRoot $contract $RepositoryRoot
+        if (-not $recorded.Valid) { throw 'ADR recorded root is ambiguous' }
+        $conditionalPaths = @(Get-WorkflowConditionalPaths $contract $Feature 'impl' $RepositoryRoot $recorded.Root)
+        # Only separately bound conditional inputs may supplement legacy absence.
         foreach ($owner in (@($contract.reviewers) + @($reviewerA, $reviewerB))) {
             foreach ($entry in @($owner.allowed_input_manifest)) {
                 if ($entry.path -isnot [string] -or
-                    $entry.path.Replace('\','/') -imatch '(^|/)docs/adr/') {
+                    ($entry.path.Replace('\','/') -imatch '(^|/)docs/adr/' -and
+                     $conditionalPaths -cnotcontains (Get-RepositoryRelativePath $entry.path $RepositoryRoot $recorded.Root))) {
                     throw 'ADR input has no binding extension'
                 }
             }

@@ -1,0 +1,28 @@
+{
+  "schema": "workflow-state-process-profile/v1",
+  "scope": "one local actual repository run per instrument; timings are perturbed and not performance comparisons",
+  "head": "3cbfcca3d847292415eb27e51eb6ab596d726ee5",
+  "gate_sha256": "b8944ffe8612e32b8d85db8c4c0aca2cc741acdc1b43124c001a0571c2e823aa",
+  "normal_stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0",
+  "strace": {
+    "mode": "strace -f -c -e trace=process,file",
+    "exit_code": 0,
+    "execve_calls": 12832,
+    "clone_calls": 18376,
+    "wait4_calls": 33067
+  },
+  "bash_xtrace": {
+    "mode": "bash -x with BASH_XTRACEFD, normalized command-name counts only",
+    "exit_code": 0,
+    "jq_invocations": 3493,
+    "sha256_file_invocations": 2393,
+    "distinct_sha256_file_argument_strings": 854,
+    "repeated_sha256_file_argument_occurrences": 1539,
+    "git_invocations": 1599
+  },
+  "limitations": [
+    "Counts are a single local observation and may vary by inputs, platform and tools.",
+    "Repeated argument strings do not prove that caching is safe or that bytes remained unchanged.",
+    "No approval, gate result reuse or overall speedup is established."
+  ]
+}

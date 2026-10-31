@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Selected Git inputs are independent of mutable checkout contents."""
 import importlib.util
+import json
+import shutil
+import sys
 import copy
 import hashlib
 import hmac
@@ -15,6 +18,48 @@ SCRIPT = pathlib.Path(__file__).resolve().parents[1] / 'plugins/sdd-review-loop/
 
 
 class SnapshotTests(unittest.TestCase):
+    def assert_helper_protection(self, runtime, extension):
+        guard = SCRIPT.parents[2] / ('sdd-quality-loop/scripts/sdd-hook-guard.' + extension)
+        target = 'plugins/sdd-review-loop/scripts/fixed-review-inputs.py'
+        for tool, expected in [('write', 2), ('read', 0)]:
+            with self.subTest(tool=tool):
+                payload = {'tool_name': tool, 'tool_input': {'file_path': target}}
+                if tool == 'write':
+                    payload['tool_input']['content'] = 'replacement'
+                result = subprocess.run(
+                    [runtime, str(guard), '--emit', 'exit'],
+                    input=json.dumps(payload), capture_output=True, text=True,
+                    env={**os.environ, 'CLAUDE_PROJECT_DIR': str(self.root)},
+                )
+                self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+
+    def test_python_guard_rejects_helper_write_and_allows_read(self):
+        self.assert_helper_protection(sys.executable, 'py')
+
+    @unittest.skipUnless(shutil.which('node'), 'Node runtime unavailable')
+    def test_javascript_guard_rejects_helper_write_and_allows_read(self):
+        self.assert_helper_protection(shutil.which('node'), 'js')
+
+    def test_reviewer_index_preserves_originals_and_rejects_stale_sources(self):
+        output = self.root / 'index-snapshot'
+        inventory = self.module.materialize(self.repo, self.commit, ['spec.md'], output)
+        self.addCleanup(output.chmod, 0o700)
+        index = self.module.reviewer_index(self.repo, output, inventory)
+        self.assertEqual(index['schema'], 'sdd-fixed-review-index/v1')
+        self.assertIsNone(index['verdict'])
+        self.assertEqual(index['sources'][0]['sha256'], inventory['inputs'][0]['sha256'])
+        self.assertEqual(pathlib.Path(index['sources'][0]['source']).read_text(), 'frozen\n')
+        self.assertEqual(index['inventory_sha256'], index['state_reference']['inventory_sha256'])
+        (self.repo / 'spec.md').write_text('dirty replacement\n')
+        with self.assertRaisesRegex(ValueError, 'stale'):
+            self.module.reviewer_index(self.repo, output, inventory)
+        (self.repo / 'spec.md').write_text('frozen\n')
+        (output / 'spec.md').chmod(0o644)
+        (output / 'spec.md').write_text('tampered\n')
+        (output / 'spec.md').chmod(0o444)
+        with self.assertRaises(ValueError):
+            self.module.reviewer_index(self.repo, output, inventory)
+
     def test_state_and_staleness_validate_inventory_before_git_access(self):
         invalid = [None, {}, {'commit': self.commit, 'inputs': []}]
         for inventory in invalid:

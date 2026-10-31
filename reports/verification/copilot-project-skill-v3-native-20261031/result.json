@@ -1,0 +1,25 @@
+{
+  "source_commit": "b3b997ed8af44d4d8f1fc94d07e94ee006f32f81",
+  "source_sha256": {
+    "plugins/sdd-bootstrap/scripts/project-skill.py": "f8480ee5745eafb30dbaa3ef982f7873accb861eaf53381625977c29efa33e54",
+    "plugins/sdd-quality-loop/scripts/validate-project-skill.py": "74f9d8bd8fdc444451923a5cfac34789417c76571c69a089c1b34e51710495dd"
+  },
+  "absent_before": true,
+  "native_discovered": true,
+  "exit_code": 0,
+  "duration_seconds": 12.361134744000083,
+  "owner_schema": "project-verification-observation/v3",
+  "owner_outcome": "passed",
+  "owner_exit_code": 0,
+  "independent_validation": "rejected: runtime-changed",
+  "absent_after": true,
+  "fixture_removed": true,
+  "status": "native-invocation-and-result-read-passed",
+  "completed_documented_runner_count": 1,
+  "other_python_commands_observed": 0,
+  "actual_host_selected_model": "GPT-6 Luna",
+  "final_reads_actual_result": true,
+  "collector_different_runtime_fields": [
+    "variables_sha256"
+  ]
+}

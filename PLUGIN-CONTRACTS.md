@@ -3,6 +3,47 @@
 This document defines the inter-plugin interfaces for sdd-forge. These contracts
 govern how plugins communicate and hand off control at version boundaries.
 
+## Project skill observations
+
+`project-skill-manifest/v1` binds the declared executable entry and its skill
+file closure. V2 also represents document procedures with null runtime/entry;
+these remain draft/not-run and cannot supply execution PASS. `project-verification-observation/v3` binds runtime/toolchain identity, execution environment, source executable permission bits and results to
+their declared inputs and outputs. The bootstrap runner creates and executes the
+skill; the quality-loop validator checks those contracts. A trial observation is
+not task evidence, and neither validation nor generation grants task approval or
+changes the existing quality-gate owner. The owned process-tree runner currently
+supports Linux; unsupported hosts report not-run. Historical v1/v2 observations remain readable but cannot project fresh execution evidence. See [ADR-0040](docs/adr/0040-project-skill-observation-ownership.md).
+## Passive exploration and decisions
+
+`workflow-playbook-request/v1` selects an advisory method without changing a
+track, approval or effect. `decision-packet/v1` displays pinned inputs and
+evidence; a human choice uses the existing signed approval-sidecar machinery
+and `decision-choice/v1`. A choice is not task approval or a Done transition.
+The helper owns no executor or persistent scheduling state. See
+[ADR-0043](docs/adr/0043-workflow-exploration-decision-ownership.md).
+
+## Research evidence
+
+`research-evidence/v1` records source and claim metadata, references and storage
+conditions separately from existing code-investigation and gate records. The
+quality-loop validator checks the closed contract and supported local consistency
+rules; validation does not assert truth, rights, independent review or gate PASS.
+See [ADR-0041](docs/adr/0041-research-evidence-contract.md).
+
+The bootstrap acquisition adapter returns bounded, source-pinned observations;
+quality-loop consumers compare supplied originals and excerpts. Retrieval,
+storage permission and semantic support remain separate decisions. The direct
+adapter refuses an inherited proxy instead of asserting its peer boundary.
+An explicit research review packet may be admitted through existing
+specification and implementation review input owners. An optional
+`source-evidence` contract check re-verifies the current originals; neither
+mechanism changes reviewer identity or approval authority.
+
+The optional project-evidence collector maps a fresh admitted execution into
+existing contract/report formats (see [collection procedure](docs/contributor/project-evidence-collection.md)). It does not import a claimed PASS or perform
+an independent review or task transition. High and critical work requires the
+existing separate review and signing process.
+
 ## Read-only inspection through protection hooks
 
 The protection hooks allow file inspection independently of write protection.
@@ -86,7 +127,9 @@ sdd-ship is a thin orchestrator. It does not re-implement logic from its depende
 
 ### Security Invariants
 
-- sdd-ship must never invoke `sdd-sudo` or create/modify `SDD_SUDO`.
+- sdd-ship must never invoke `sdd-sudo` or create/modify/extend/delete `SDD_SUDO`.
+  Explicit human invocation does not grant agent tools token-issuance authority;
+  an unavailable protected host issuer remains unavailable after account login.
 - sdd-ship must never set `Approval: Approved` on any task.
 - sdd-ship must never modify files under `plugins/sdd-quality-loop/hooks/` or any `sdd-hook-guard.*` script.
 - sdd-ship must never push to remote or create pull requests without explicit user instruction.

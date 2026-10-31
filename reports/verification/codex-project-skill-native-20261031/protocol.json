@@ -1,0 +1,20 @@
+{
+  "model_calls": 0,
+  "source_commit": "b3b997ed8af44d4d8f1fc94d07e94ee006f32f81",
+  "source_sha256": {
+    "plugins/sdd-bootstrap/scripts/project-skill.py": "f8480ee5745eafb30dbaa3ef982f7873accb861eaf53381625977c29efa33e54",
+    "plugins/sdd-quality-loop/scripts/validate-project-skill.py": "74f9d8bd8fdc444451923a5cfac34789417c76571c69a089c1b34e51710495dd"
+  },
+  "timeout_seconds": 90,
+  "maximum_model_calls": 1,
+  "model": "existing verify profile configured model; no override",
+  "workspace": "/tmp/tmpt8kqmh2q",
+  "prompt": "Use $verify-app in this fixture now: execute its one documented check once, read the actual generated observation and stdout, and report schema/outcome/text. No other workflow, delegation, edits, git operations, network or model calls are requested.",
+  "success": [
+    "native discovery",
+    "host invokes documented runner once",
+    "owner v3 observation validates passed",
+    "final answer reads real result",
+    "projection removed and absent"
+  ]
+}

@@ -1,0 +1,437 @@
+{
+  "source_base_revision": "f7ebf27a1050f63863de11da3696d6c894fe343d",
+  "original_fixture_revision": "c5a02f06c2aa6d6b287c0b81e203ce0d65f96620",
+  "source_sha256": {
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh": "8ddf68a6dea4adc4193007db61e4a024d3ea4b7cf50a9e75cc97885757b042be",
+    "plugins/sdd-quality-loop/scripts/workflow-state-session.py": "0bd8fd0571d21787e736cd5860504bee7bdb4971feac788e64d79dbec75b4746",
+    "plugins/sdd-bootstrap/scripts/project-skill.py": "2e85f50513653a92b974feed7c52593e52158fd0c05eb48a45beb14cce5b4ed5",
+    "plugins/sdd-bootstrap/scripts/project-skill-process.py": "2311490d2503ccd270bb90795b8de4c98ad6bc4bc05acd250d689b62a7ec5efa",
+    "plugins/sdd-quality-loop/scripts/validate-project-skill.py": "9aabdfbf4303783800dcac56ee2741f0f56888f605c71e28de432548c9eeb5c4",
+    "contracts/workflow-state-registry.schema.json": "bee4972d7d4d4ae8116ac0115d16295d1f167333edffd5a08d9dc8ceea3c31d7"
+  },
+  "executed_probe_sha256": "1056370b8379fbef7df70423b1aa33f7dbb83c755df276ba970d0284e9f2f7f8",
+  "reproduction_probe_sha256": "79203f830775fe10d3335c1a2f2120864835affc152ffd5be7ecd4fe895654c2",
+  "probe_difference": "Only unused base64 import removed after execution for lint; exact executed probe is archived.",
+  "source_change_detected": false,
+  "groups": {
+    "original-two-full-scans": {
+      "pairs": [
+        {
+          "baseline": "original-0-baseline",
+          "batch": "original-batch"
+        }
+      ],
+      "statistics": {
+        "baseline": {
+          "total_ns": {
+            "n": 1,
+            "median": 78003247605,
+            "minimum": 78003247605,
+            "maximum": 78003247605,
+            "mad": 0
+          },
+          "actual_full_scan_count": {
+            "n": 1,
+            "median": 2,
+            "minimum": 2,
+            "maximum": 2,
+            "mad": 0
+          },
+          "reused_count": {
+            "n": 1,
+            "median": 0,
+            "minimum": 0,
+            "maximum": 0,
+            "mad": 0
+          }
+        },
+        "batch": {
+          "total_ns": {
+            "n": 1,
+            "median": 79237360957,
+            "minimum": 79237360957,
+            "maximum": 79237360957,
+            "mad": 0
+          },
+          "actual_full_scan_count": {
+            "n": 1,
+            "median": 2,
+            "minimum": 2,
+            "maximum": 2,
+            "mad": 0
+          },
+          "reused_count": {
+            "n": 1,
+            "median": 0,
+            "minimum": 0,
+            "maximum": 0,
+            "mad": 0
+          }
+        }
+      },
+      "median_elapsed_ratio": 1.0158213073159392,
+      "half_elapsed_observed": false,
+      "diagnostics_and_exit_match": true
+    },
+    "pending48-two-requests": {
+      "pairs": [
+        {
+          "baseline": "pending48-0-baseline",
+          "batch": "pending48-0-batch"
+        },
+        {
+          "baseline": "pending48-1-baseline",
+          "batch": "pending48-1-batch"
+        },
+        {
+          "baseline": "pending48-2-baseline",
+          "batch": "pending48-2-batch"
+        },
+        {
+          "baseline": "pending48-3-baseline",
+          "batch": "pending48-3-batch"
+        },
+        {
+          "baseline": "pending48-4-baseline",
+          "batch": "pending48-4-batch"
+        }
+      ],
+      "statistics": {
+        "baseline": {
+          "total_ns": {
+            "n": 5,
+            "median": 1388273278,
+            "minimum": 1288169320,
+            "maximum": 1429379519,
+            "mad": 32175305
+          },
+          "actual_full_scan_count": {
+            "n": 5,
+            "median": 2,
+            "minimum": 2,
+            "maximum": 2,
+            "mad": 0
+          },
+          "reused_count": {
+            "n": 5,
+            "median": 0,
+            "minimum": 0,
+            "maximum": 0,
+            "mad": 0
+          }
+        },
+        "batch": {
+          "total_ns": {
+            "n": 5,
+            "median": 1574548548,
+            "minimum": 1523040233,
+            "maximum": 1630683124,
+            "mad": 37322751
+          },
+          "actual_full_scan_count": {
+            "n": 5,
+            "median": 1,
+            "minimum": 1,
+            "maximum": 1,
+            "mad": 0
+          },
+          "reused_count": {
+            "n": 5,
+            "median": 1,
+            "minimum": 1,
+            "maximum": 1,
+            "mad": 0
+          }
+        }
+      },
+      "median_elapsed_ratio": 1.1341776672877801,
+      "half_elapsed_observed": false,
+      "diagnostics_and_exit_match": true,
+      "cold_first_request_seconds": {
+        "n": 5,
+        "median": 1.1768632060047821,
+        "minimum": 1.1486016280032345,
+        "maximum": 1.210043762002897,
+        "mad": 0.02362223600357538
+      },
+      "subsequent_request_seconds": {
+        "n": 5,
+        "median": 0.26281523499346804,
+        "minimum": 0.2492536149948137,
+        "maximum": 0.28441535199817736,
+        "mad": 0.007955865992698818
+      },
+      "capture_seal_key_revalidation_other_ns": {
+        "n": 5,
+        "median": 677066587,
+        "minimum": 649645766,
+        "maximum": 704624308,
+        "mad": 25400824
+      }
+    },
+    "invalid48-two-requests": {
+      "pairs": [
+        {
+          "baseline": "invalid48-0-baseline",
+          "batch": "invalid48-0-batch"
+        },
+        {
+          "baseline": "invalid48-1-baseline",
+          "batch": "invalid48-1-batch"
+        },
+        {
+          "baseline": "invalid48-2-baseline",
+          "batch": "invalid48-2-batch"
+        }
+      ],
+      "statistics": {
+        "baseline": {
+          "total_ns": {
+            "n": 3,
+            "median": 1475062116,
+            "minimum": 1430824964,
+            "maximum": 1490035414,
+            "mad": 14973298
+          },
+          "actual_full_scan_count": {
+            "n": 3,
+            "median": 2,
+            "minimum": 2,
+            "maximum": 2,
+            "mad": 0
+          },
+          "reused_count": {
+            "n": 3,
+            "median": 0,
+            "minimum": 0,
+            "maximum": 0,
+            "mad": 0
+          }
+        },
+        "batch": {
+          "total_ns": {
+            "n": 3,
+            "median": 2746884643,
+            "minimum": 2645828188,
+            "maximum": 2821094194,
+            "mad": 74209551
+          },
+          "actual_full_scan_count": {
+            "n": 3,
+            "median": 2,
+            "minimum": 2,
+            "maximum": 2,
+            "mad": 0
+          },
+          "reused_count": {
+            "n": 3,
+            "median": 0,
+            "minimum": 0,
+            "maximum": 0,
+            "mad": 0
+          }
+        }
+      },
+      "median_elapsed_ratio": 1.8622162505595798,
+      "half_elapsed_observed": false,
+      "diagnostics_and_exit_match": true,
+      "cold_first_request_seconds": {
+        "n": 3,
+        "median": 1.3024486959984642,
+        "minimum": 1.2794764099962777,
+        "maximum": 1.3175357150030322,
+        "mad": 0.015087019004567992
+      },
+      "subsequent_request_seconds": {
+        "n": 3,
+        "median": 1.300054610001098,
+        "minimum": 1.2197428559957189,
+        "maximum": 1.3410384910021094,
+        "mad": 0.04098388100101147
+      },
+      "capture_seal_key_revalidation_other_ns": {
+        "n": 3,
+        "median": 723583081,
+        "minimum": 711720876,
+        "maximum": 798445399,
+        "mad": 11862205
+      }
+    },
+    "pending48-five-requests": {
+      "pairs": [
+        {
+          "baseline": "pending48-n5-0-baseline",
+          "batch": "pending48-n5-0-batch"
+        },
+        {
+          "baseline": "pending48-n5-1-baseline",
+          "batch": "pending48-n5-1-batch"
+        },
+        {
+          "baseline": "pending48-n5-2-baseline",
+          "batch": "pending48-n5-2-batch"
+        }
+      ],
+      "statistics": {
+        "baseline": {
+          "total_ns": {
+            "n": 3,
+            "median": 3293079052,
+            "minimum": 3149999261,
+            "maximum": 3589119171,
+            "mad": 143079791
+          },
+          "actual_full_scan_count": {
+            "n": 3,
+            "median": 5,
+            "minimum": 5,
+            "maximum": 5,
+            "mad": 0
+          },
+          "reused_count": {
+            "n": 3,
+            "median": 0,
+            "minimum": 0,
+            "maximum": 0,
+            "mad": 0
+          }
+        },
+        "batch": {
+          "total_ns": {
+            "n": 3,
+            "median": 2562060505,
+            "minimum": 2351067841,
+            "maximum": 2569340965,
+            "mad": 7280460
+          },
+          "actual_full_scan_count": {
+            "n": 3,
+            "median": 1,
+            "minimum": 1,
+            "maximum": 1,
+            "mad": 0
+          },
+          "reused_count": {
+            "n": 3,
+            "median": 4,
+            "minimum": 4,
+            "maximum": 4,
+            "mad": 0
+          }
+        }
+      },
+      "median_elapsed_ratio": 0.7780136657952298,
+      "half_elapsed_observed": false,
+      "diagnostics_and_exit_match": true,
+      "cold_first_request_seconds": {
+        "n": 3,
+        "median": 1.277073247001681,
+        "minimum": 1.2128718940002727,
+        "maximum": 1.2924343699996825,
+        "mad": 0.01536112299800152
+      },
+      "subsequent_request_seconds": {
+        "n": 12,
+        "median": 0.27204771600008826,
+        "minimum": 0.24494067700288724,
+        "maximum": 0.3072962930018548,
+        "mad": 0.016305101496982388
+      },
+      "capture_seal_key_revalidation_other_ns": {
+        "n": 3,
+        "median": 1556493468,
+        "minimum": 1402057686,
+        "maximum": 1579408583,
+        "mad": 22915115
+      }
+    },
+    "pending48-ten-requests": {
+      "pairs": [
+        {
+          "baseline": "pending48-n10-0-baseline",
+          "batch": "pending48-n10-0-batch"
+        },
+        {
+          "baseline": "pending48-n10-1-baseline",
+          "batch": "pending48-n10-1-batch"
+        },
+        {
+          "baseline": "pending48-n10-2-baseline",
+          "batch": "pending48-n10-2-batch"
+        }
+      ],
+      "statistics": {
+        "baseline": {
+          "total_ns": {
+            "n": 3,
+            "median": 6347373051,
+            "minimum": 6332754602,
+            "maximum": 6459634106,
+            "mad": 14618449
+          },
+          "actual_full_scan_count": {
+            "n": 3,
+            "median": 10,
+            "minimum": 10,
+            "maximum": 10,
+            "mad": 0
+          },
+          "reused_count": {
+            "n": 3,
+            "median": 0,
+            "minimum": 0,
+            "maximum": 0,
+            "mad": 0
+          }
+        },
+        "batch": {
+          "total_ns": {
+            "n": 3,
+            "median": 3587552028,
+            "minimum": 3486879703,
+            "maximum": 3612061286,
+            "mad": 24509258
+          },
+          "actual_full_scan_count": {
+            "n": 3,
+            "median": 1,
+            "minimum": 1,
+            "maximum": 1,
+            "mad": 0
+          },
+          "reused_count": {
+            "n": 3,
+            "median": 9,
+            "minimum": 9,
+            "maximum": 9,
+            "mad": 0
+          }
+        }
+      },
+      "median_elapsed_ratio": 0.5652026435463404,
+      "half_elapsed_observed": false,
+      "diagnostics_and_exit_match": true,
+      "cold_first_request_seconds": {
+        "n": 3,
+        "median": 1.142555687998538,
+        "minimum": 1.1316325989973848,
+        "maximum": 1.1697898269994766,
+        "mad": 0.01092308900115313
+      },
+      "subsequent_request_seconds": {
+        "n": 27,
+        "median": 0.2539995810002438,
+        "minimum": 0.23895814899879042,
+        "maximum": 0.30578629999945406,
+        "mad": 0.007909542000561487
+      },
+      "capture_seal_key_revalidation_other_ns": {
+        "n": 3,
+        "median": 2687966271,
+        "minimum": 2617656540,
+        "maximum": 2725292435,
+        "mad": 37326164
+      }
+    }
+  }
+}

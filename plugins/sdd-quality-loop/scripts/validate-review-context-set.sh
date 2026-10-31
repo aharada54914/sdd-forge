@@ -351,6 +351,17 @@ implementation_input_is_declared() {
 conditional_inputs_json=''
 path_is_authorized() {
   local stage=$1 role=$2 feature=$3 path=$4 expected_hash=$5
+  if [[ "$stage:$role" =~ ^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab])$ ]] &&
+      [[ "$path" =~ ^specs/"$feature"/research/(review-input\.json|relations\.json|records/research-evidence\.json)$ || "$path" =~ ^docs/adr/[0-9]{4}-[a-z0-9-]+\.md$ ]] &&
+      jq -e --arg p "specs/$feature/research/review-input.json" 'any(.allowed_input_manifest[]; .path == $p)' "$manifest" >/dev/null; then
+    if [[ -n "$persisted_match" ]]; then
+      [[ -n "$persisted_input_binding" ]]
+      return
+    fi
+    jq -e --arg path "$path" --arg sha "$expected_hash" \
+      'any(.inputs[]; .path == $path and .sha256 == $sha)' <<<"$conditional_inputs_json" >/dev/null
+    return
+  fi
   if [[ "$stage:$role" =~ ^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab]|task:task-reviewer-[ab]|quality:sdd-evaluator)$ ]] &&
       [[ "$path" == domain/* || "$path" == design-system/* || "$path" =~ ^specs/"$feature"/concept-test(-seed\.md|\.md|\.json|\.approval\.json)$ ]]; then
     case "$stage:$path" in
@@ -929,7 +940,7 @@ adr_declared_paths() {
 # Called only after all non-ADR manifest entries have passed the original loop.
 # A precheck with no extension keeps legacy rules; explicit null is not absence.
 verify_captured_adr_binding() {
-  local extension declared declared_set expected_set invocation_set design_hash
+  local extension declared declared_set expected_set invocation_set design_hash research_set
   verified_adr_inputs='[]'
   if [[ -z "$precheck_rel" ]]; then
     adr_binding_verified=true
@@ -966,6 +977,18 @@ verify_captured_adr_binding() {
   read_precheck_content | jq -e --argjson wanted "$declared_set" '[.adr_inputs[].path] == $wanted' >/dev/null || return 1
   expected_set=$(read_precheck_content | jq -cS '.adr_inputs') || return 1
   invocation_set=$(jq -cS '[.allowed_input_manifest[] | select(.path | startswith("docs/adr/"))] | sort_by(.path)' "$manifest") || return 1
+  research_set='[]'
+  if jq -e --arg p "specs/$feature/research/review-input.json" 'any(.allowed_input_manifest[]; .path == $p)' "$manifest" >/dev/null; then
+    if [[ -n "$persisted_match" && -n "$persisted_input_binding" ]]; then
+      research_set=$invocation_set
+    elif [[ -z "$persisted_match" ]]; then
+      research_set=$(jq -cS '[.research_inputs[] | select(.path | startswith("docs/adr/"))] | sort_by(.path)' <<<"$conditional_inputs_json") || return 1
+    fi
+  fi
+  expected_set=$(jq -cnS --argjson design "$expected_set" --argjson research "$research_set" '
+    ($design + $research) | group_by(.path) |
+    if any(.[]; (map(.sha256) | unique | length) != 1) then error("ADR hash disagreement")
+    else map(.[0]) end') || return 1
   [[ "$expected_set" == "$invocation_set" ]] || return 1
   verified_adr_inputs=$expected_set
   adr_binding_verified=true
@@ -988,6 +1011,8 @@ while IFS=$'\t' read -r path expected_hash; do
   if jq -e --arg p "$path" --arg h "$expected_hash" \
     'any(.[]; .path == $p and .sha256 == $h)' <<< "$fixed_references" >/dev/null; then
     : # Only references authenticated against this fixed inventory are admitted.
+  elif [[ "$stage" == impl && "$path" == docs/adr/* ]] && path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"; then
+    : # Research-selected ADRs are separately bound by the conditional resolver.
   elif [[ "$stage" == impl && "$path" == docs/adr/* ]]; then
     if [[ "$adr_binding_verified" != true ]]; then
       verify_captured_adr_binding || fail CONTRACT 'ADR declaration and input binding disagree'

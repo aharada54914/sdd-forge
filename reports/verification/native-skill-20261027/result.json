@@ -1,0 +1,52 @@
+{
+  "schema": "independent-project-skill-native-discovery/v1",
+  "host": "Codex",
+  "profile": "verify",
+  "model_invocation": "passed",
+  "authentication_scope": "Actual authenticated model execution, with unchanged fixture contents verified afterward.",
+  "source_sha256": {
+    "plugins/sdd-bootstrap/scripts/project-skill.py": "2e85f50513653a92b974feed7c52593e52158fd0c05eb48a45beb14cce5b4ed5",
+    "plugins/sdd-quality-loop/scripts/validate-project-skill.py": "9aabdfbf4303783800dcac56ee2741f0f56888f605c71e28de432548c9eeb5c4"
+  },
+  "helper_sha256": "df5a34761ce68f8aa3f7b985a4ed5051a590bf84111db683939e773a7cdd47f5",
+  "rpc_methods": [
+    "initialize",
+    "skills/list",
+    "initialize",
+    "skills/list"
+  ],
+  "commands": [
+    {
+      "operation": "seal",
+      "exit_code": 0,
+      "stdout": "{\"manifest\": \"sdd/skills/inspect-issue-602-fixture/skill-manifest.json\", \"reason\": \"generation-is-not-validation\", \"status\": \"draft\"}\n",
+      "stderr": ""
+    },
+    {
+      "operation": "project",
+      "exit_code": 0,
+      "stdout": "{\"native_host_verification\": \"unverified\", \"path\": \".agents/skills/inspect-issue-602-fixture/SKILL.md\", \"status\": \"generated\"}\n",
+      "stderr": ""
+    }
+  ],
+  "wrapper_sha256": "0ff6e50b2baeda937ecc35c28728d9e8ef2d7d6a94dfe3a29ae020cb0ba1cd4b",
+  "discovered_skill": {
+    "name": "inspect-issue-602-fixture",
+    "description": "Read the synthetic project note without changing files.",
+    "path": "/workspace/.tools/sdd-forge-dev/verification-workspace/issue-602-discovery-nzv35zh6/.agents/skills/inspect-issue-602-fixture/SKILL.md",
+    "scope": "repo",
+    "enabled": true,
+    "pluginId": null
+  },
+  "native_discovery": "passed",
+  "model_exit_code": 0,
+  "model_turn_completed": true,
+  "model_quoted_actual_note": true,
+  "fixture_bytes_unchanged": true,
+  "runner_or_model_execution": "model exercised; project verification runner not invoked",
+  "fixture_removed": true,
+  "workspace_entries_restored": true,
+  "skill_absent_after_cleanup": true,
+  "codex_version": "codex-cli 0.159.2",
+  "source_hashes_unchanged": true
+}

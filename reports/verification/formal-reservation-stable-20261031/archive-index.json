@@ -1,0 +1,38 @@
+[
+  {
+    "path": "README.md",
+    "sha256": "9d6708acee8dd70528159cad523f420bbff1797c7b22d9f4a6da3daebaf3bbaa"
+  },
+  {
+    "path": "baseline/Reservation.cfg",
+    "sha256": "b8866730366a914aa657b855f10dabb08bd67c68788c625676bb525f27b828f6"
+  },
+  {
+    "path": "baseline/Reservation.tla",
+    "sha256": "604e4c8218082b712fdc678ba1d7bfe4403a26c0ff18305bc19d6243acb56d97"
+  },
+  {
+    "path": "baseline/tlc.log",
+    "sha256": "9a9a52ad37d60a354088d382df71c6cec25ff5ea325b4cd97817e00d74f10f78"
+  },
+  {
+    "path": "negative/Reservation.cfg",
+    "sha256": "9507a6aa5361bff0d7557401e58733f37b7fb85bbf47d3b6088f094be0c4f07b"
+  },
+  {
+    "path": "negative/Reservation.tla",
+    "sha256": "604e4c8218082b712fdc678ba1d7bfe4403a26c0ff18305bc19d6243acb56d97"
+  },
+  {
+    "path": "negative/tlc.log",
+    "sha256": "8d1c7de8f69747946bb600ffe6e6e0f5901d309d8ae5653923707bc24f99fbec"
+  },
+  {
+    "path": "report.json",
+    "sha256": "dc2ee34e99c6fbf8a17050002ae3afccac70c245ddea6f296628cbeed7616351"
+  },
+  {
+    "path": "tool-asset.json",
+    "sha256": "deb0010b65ebc48f6c74a3ab36d85611e309a29acedcfdf29276f96f3d2a8092"
+  }
+]

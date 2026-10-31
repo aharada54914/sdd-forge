@@ -25,6 +25,13 @@ if (-not (Test-Path -LiteralPath $ContractPath)) {
 $contractRaw = Get-Content -Raw -Encoding Utf8 $ContractPath
 $contract = $contractRaw | ConvertFrom-Json
 
+# Only exact-string research opt-ins use the shared runtime.
+# Never coerce malformed legacy IDs into a research opt-in.
+if (@($contract.checks | Where-Object { ($_.id -is [string]) -and $_.id -ceq 'source-evidence' }).Count -gt 0) {
+    . (Join-Path $PSScriptRoot 'lib/py-dispatch.ps1')
+    Invoke-SddPyDispatch -Master (Join-Path $PSScriptRoot 'check-contract.py') -DiagnosticPrefix 'research-evidence' -Arguments @($ContractPath, $RepoRoot)
+}
+
 # gate seq 854: DateTimeKind is not a sound proxy for the python master's
 # pattern. ConvertFrom-Json maps a LOWERCASE `z` to Kind=Utc, so
 # `2026-08-24T10:00:00z` was accepted on this runtime and rejected by

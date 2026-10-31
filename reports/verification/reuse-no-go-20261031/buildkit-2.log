@@ -1,0 +1,39 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.04kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/sdd-issue618-eval:20261031
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [verification 1/6] FROM docker.io/library/sdd-issue618-eval:20261031
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 102B done
+#5 DONE 0.0s
+
+#6 [verification 4/6] RUN chmod 644 /owner-run.py /repo/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md && mkdir /evidence && chown 10001:10001 /evidence
+#6 CACHED
+
+#7 [verification 5/6] RUN --network=none --mount=type=tmpfs,target=/tmp --mount=type=tmpfs,target=/workspace/.tools/sdd-forge-dev/powershell/cache --mount=type=tmpfs,target=/workspace/.tools/sdd-forge-dev/powershell/config --mount=type=tmpfs,target=/workspace/.tools/sdd-forge-dev/powershell/data /usr/bin/env -i PATH=/workspace/.tools/sdd-forge-dev/bin:/usr/bin:/bin HOME=/tmp/home TMPDIR=/tmp LC_ALL="C.UTF-8" LANG="C.UTF-8" PYTHONDONTWRITEBYTECODE=1 POWERSHELL_TELEMETRY_OPTOUT=1 DOTNET_CLI_TELEMETRY_OPTOUT=1 OWNER_ARGS="" /usr/bin/python3 /owner-run.py
+#7 CACHED
+
+#8 [verification 2/6] COPY design.template.md /repo/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md
+#8 CACHED
+
+#9 [verification 3/6] COPY owner-run.py /owner-run.py
+#9 CACHED
+
+#10 [verification 6/6] RUN chmod -R a-w /evidence
+#10 CACHED
+
+#11 exporting to image
+#11 exporting layers done
+#11 writing image sha256:026dbc30caf8be6b0e1a5eee118ba2edebf179a53b44926c5ab39785309087ae done
+#11 DONE 0.0s

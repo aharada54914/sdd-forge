@@ -1,0 +1,54 @@
+[
+  {
+    "label": "buildkit-1",
+    "exit_code": 0,
+    "seconds": 33.6167034150003,
+    "image_id": "sha256:026dbc30caf8be6b0e1a5eee118ba2edebf179a53b44926c5ab39785309087ae",
+    "original_artifacts_identical": true,
+    "argv": [
+      "docker",
+      "--host=unix:///var/run/docker.sock",
+      "build",
+      "--network=none",
+      "--progress=plain",
+      "--iidfile",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/buildkit-1-image.txt",
+      "--no-cache",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/context"
+    ]
+  },
+  {
+    "label": "buildkit-2",
+    "exit_code": 0,
+    "seconds": 5.757245765000334,
+    "image_id": "sha256:026dbc30caf8be6b0e1a5eee118ba2edebf179a53b44926c5ab39785309087ae",
+    "original_artifacts_identical": true,
+    "argv": [
+      "docker",
+      "--host=unix:///var/run/docker.sock",
+      "build",
+      "--network=none",
+      "--progress=plain",
+      "--iidfile",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/buildkit-2-image.txt",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/context"
+    ]
+  },
+  {
+    "label": "buildkit-3",
+    "exit_code": 0,
+    "seconds": 6.748619170999518,
+    "image_id": "sha256:026dbc30caf8be6b0e1a5eee118ba2edebf179a53b44926c5ab39785309087ae",
+    "original_artifacts_identical": true,
+    "argv": [
+      "docker",
+      "--host=unix:///var/run/docker.sock",
+      "build",
+      "--network=none",
+      "--progress=plain",
+      "--iidfile",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/buildkit-3-image.txt",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/context"
+    ]
+  }
+]

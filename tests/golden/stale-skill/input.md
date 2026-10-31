@@ -1,0 +1,1 @@
+Compare current/SKILL.md with pending/SKILL.md and main/SKILL.md. Write assessment.json with state and action. Pending content differs from both current and main; preserve all three files and leave human reconciliation explicit. Follow output-contract.schema.json for the output vocabulary and shape.

@@ -1,0 +1,20 @@
+{
+  "schema": "ship-track-selection-current-publication/v1",
+  "note": "Explicit successor publication baseline. The epic-189 staged candidate stays pinned as the predecessor and whole-file byte equality stays the default; a live file differing from its staged candidate is admitted only when BOTH full SHA-256 values below match. Any other live edit, staged edit, or missing entry is drift. These are candidate byte pins only; independent review and approval remain pending.",
+  "successors": [
+    {
+      "live": "plugins/sdd-ship/skills/ship/SKILL.md",
+      "staged": "specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md",
+      "staged_sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d",
+      "live_sha256": "3d5055472da1ad160d2e1f6756c49a1f41a875edd0b15678c4b1e5b5115857bf",
+      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative."
+    },
+    {
+      "live": "plugins/sdd-ship/skills/ship/SKILL.md",
+      "staged": "specs/epic-136-phase2-gates/human-copy/plugins/sdd-ship/skills/ship/SKILL.md",
+      "staged_sha256": "ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d",
+      "live_sha256": "3d5055472da1ad160d2e1f6756c49a1f41a875edd0b15678c4b1e5b5115857bf",
+      "intentional_changes": "Optional purpose-playbook handoff and pinned decision-packet guidance; existing target, track and approval checks remain authoritative."
+    }
+  ]
+}

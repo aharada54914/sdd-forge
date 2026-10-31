@@ -1,0 +1,877 @@
+{
+  "source_head": "b1c828355d3b3ff5633f23c4b1d8f28b030817b0",
+  "source_pins_before": {
+    "plugins/sdd-review-loop/scripts/fixed-review-inputs.py": "db0a571e2ea0ed5254345fdb4a8e525430d36ed0949516833d958d5f7d05a9bb",
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "f53a44f08249bdcc29b4a2d61065c610e3e4c998539502a30aa80a5da378a1dc",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "fe48d79811f6c72908a8dd08ff25b196b6ef4c9c3af4b165ea175839a3f2c236",
+    "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py": "54dda8da53ccebc605cc0afa414b104886724929e46d48157ba02f89e3db6fc0"
+  },
+  "source_pins_after": {
+    "plugins/sdd-review-loop/scripts/fixed-review-inputs.py": "db0a571e2ea0ed5254345fdb4a8e525430d36ed0949516833d958d5f7d05a9bb",
+    "plugins/sdd-review-loop/scripts/launch-impl-review.py": "f53a44f08249bdcc29b4a2d61065c610e3e4c998539502a30aa80a5da378a1dc",
+    "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py": "fe48d79811f6c72908a8dd08ff25b196b6ef4c9c3af4b165ea175839a3f2c236",
+    "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py": "54dda8da53ccebc605cc0afa414b104886724929e46d48157ba02f89e3db6fc0"
+  },
+  "os": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "fixture_commit": "b45025600cc2d9ef7c534cf8d2f59ce82b56ffe0",
+  "feature": "workflow-state-integrity",
+  "role": "impl-reviewer-a",
+  "conditional": {
+    "inputs": [
+      {
+        "path": "specs/workflow-state-integrity/investigation.md",
+        "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"
+      }
+    ],
+    "research_inputs": [],
+    "research_history_only": false,
+    "domain_status": "skipped",
+    "design_system_status": "not-applicable",
+    "observed": {
+      "specs/workflow-state-integrity/investigation.md": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f",
+      "domain/context-map.md": null,
+      "domain/domain-contract.json": null,
+      "design-system/": null
+    }
+  },
+  "required_inputs": [
+    "plugins/sdd-review-loop/references/reviewer-calibration.md",
+    "reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+    "specs/workflow-state-integrity/acceptance-tests.md",
+    "specs/workflow-state-integrity/design.md",
+    "specs/workflow-state-integrity/investigation.md",
+    "specs/workflow-state-integrity/requirements.md"
+  ],
+  "input_count": 6,
+  "bytes_read_per_route": 35038,
+  "pairs": 5,
+  "samples": [
+    {
+      "pair": 0,
+      "route": "baseline",
+      "elapsed_ns": 104582754,
+      "inputs": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9",
+          "bytes": 10560
+        },
+        {
+          "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+          "sha256": "927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5",
+          "bytes": 521
+        },
+        {
+          "path": "specs/workflow-state-integrity/acceptance-tests.md",
+          "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+          "bytes": 3005
+        },
+        {
+          "path": "specs/workflow-state-integrity/design.md",
+          "sha256": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add",
+          "bytes": 12686
+        },
+        {
+          "path": "specs/workflow-state-integrity/investigation.md",
+          "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f",
+          "bytes": 3366
+        },
+        {
+          "path": "specs/workflow-state-integrity/requirements.md",
+          "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+          "bytes": 4900
+        }
+      ],
+      "state": {
+        "schema": "sdd-fixed-state-reference/v1",
+        "commit": "b45025600cc2d9ef7c534cf8d2f59ce82b56ffe0",
+        "inventory_sha256": "ddca10d957468a18fe173a4f3e22dc391bbbd86d77ae2400671096e86eb0a2a4",
+        "fields": [
+          {
+            "path": "specs/workflow-state-integrity/design.md",
+            "line": 3,
+            "text": "Impl-Review-Status: Passed"
+          },
+          {
+            "path": "specs/workflow-state-integrity/requirements.md",
+            "line": 3,
+            "text": "Spec-Review-Status: Passed"
+          }
+        ]
+      },
+      "output_sha256": "fc22eac112d26c5272608c62abc2e2de2cf262c5a02e95168120b3269d8fde40",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+        "source-map",
+        "--repo",
+        "/workspace/scratch/reviewer-preparation-20261031/fixture",
+        "--snapshot",
+        "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+        "--record",
+        "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+      ],
+      "human_active_ns": null
+    },
+    {
+      "pair": 0,
+      "route": "index",
+      "elapsed_ns": 106304894,
+      "inputs": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9",
+          "bytes": 10560
+        },
+        {
+          "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+          "sha256": "927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5",
+          "bytes": 521
+        },
+        {
+          "path": "specs/workflow-state-integrity/acceptance-tests.md",
+          "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+          "bytes": 3005
+        },
+        {
+          "path": "specs/workflow-state-integrity/design.md",
+          "sha256": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add",
+          "bytes": 12686
+        },
+        {
+          "path": "specs/workflow-state-integrity/investigation.md",
+          "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f",
+          "bytes": 3366
+        },
+        {
+          "path": "specs/workflow-state-integrity/requirements.md",
+          "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+          "bytes": 4900
+        }
+      ],
+      "state": {
+        "schema": "sdd-fixed-state-reference/v1",
+        "commit": "b45025600cc2d9ef7c534cf8d2f59ce82b56ffe0",
+        "inventory_sha256": "ddca10d957468a18fe173a4f3e22dc391bbbd86d77ae2400671096e86eb0a2a4",
+        "fields": [
+          {
+            "path": "specs/workflow-state-integrity/design.md",
+            "line": 3,
+            "text": "Impl-Review-Status: Passed"
+          },
+          {
+            "path": "specs/workflow-state-integrity/requirements.md",
+            "line": 3,
+            "text": "Spec-Review-Status: Passed"
+          }
+        ]
+      },
+      "output_sha256": "d057332ce00269b57e3e2086766bc86e9550331569125b315771156d23cf0ced",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+        "reviewer-index",
+        "--repo",
+        "/workspace/scratch/reviewer-preparation-20261031/fixture",
+        "--snapshot",
+        "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+        "--record",
+        "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+      ],
+      "human_active_ns": null
+    },
+    {
+      "pair": 1,
+      "route": "index",
+      "elapsed_ns": 104234008,
+      "inputs": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9",
+          "bytes": 10560
+        },
+        {
+          "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+          "sha256": "927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5",
+          "bytes": 521
+        },
+        {
+          "path": "specs/workflow-state-integrity/acceptance-tests.md",
+          "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+          "bytes": 3005
+        },
+        {
+          "path": "specs/workflow-state-integrity/design.md",
+          "sha256": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add",
+          "bytes": 12686
+        },
+        {
+          "path": "specs/workflow-state-integrity/investigation.md",
+          "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f",
+          "bytes": 3366
+        },
+        {
+          "path": "specs/workflow-state-integrity/requirements.md",
+          "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+          "bytes": 4900
+        }
+      ],
+      "state": {
+        "schema": "sdd-fixed-state-reference/v1",
+        "commit": "b45025600cc2d9ef7c534cf8d2f59ce82b56ffe0",
+        "inventory_sha256": "ddca10d957468a18fe173a4f3e22dc391bbbd86d77ae2400671096e86eb0a2a4",
+        "fields": [
+          {
+            "path": "specs/workflow-state-integrity/design.md",
+            "line": 3,
+            "text": "Impl-Review-Status: Passed"
+          },
+          {
+            "path": "specs/workflow-state-integrity/requirements.md",
+            "line": 3,
+            "text": "Spec-Review-Status: Passed"
+          }
+        ]
+      },
+      "output_sha256": "d057332ce00269b57e3e2086766bc86e9550331569125b315771156d23cf0ced",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+        "reviewer-index",
+        "--repo",
+        "/workspace/scratch/reviewer-preparation-20261031/fixture",
+        "--snapshot",
+        "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+        "--record",
+        "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+      ],
+      "human_active_ns": null
+    },
+    {
+      "pair": 1,
+      "route": "baseline",
+      "elapsed_ns": 106926348,
+      "inputs": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9",
+          "bytes": 10560
+        },
+        {
+          "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+          "sha256": "927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5",
+          "bytes": 521
+        },
+        {
+          "path": "specs/workflow-state-integrity/acceptance-tests.md",
+          "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+          "bytes": 3005
+        },
+        {
+          "path": "specs/workflow-state-integrity/design.md",
+          "sha256": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add",
+          "bytes": 12686
+        },
+        {
+          "path": "specs/workflow-state-integrity/investigation.md",
+          "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f",
+          "bytes": 3366
+        },
+        {
+          "path": "specs/workflow-state-integrity/requirements.md",
+          "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+          "bytes": 4900
+        }
+      ],
+      "state": {
+        "schema": "sdd-fixed-state-reference/v1",
+        "commit": "b45025600cc2d9ef7c534cf8d2f59ce82b56ffe0",
+        "inventory_sha256": "ddca10d957468a18fe173a4f3e22dc391bbbd86d77ae2400671096e86eb0a2a4",
+        "fields": [
+          {
+            "path": "specs/workflow-state-integrity/design.md",
+            "line": 3,
+            "text": "Impl-Review-Status: Passed"
+          },
+          {
+            "path": "specs/workflow-state-integrity/requirements.md",
+            "line": 3,
+            "text": "Spec-Review-Status: Passed"
+          }
+        ]
+      },
+      "output_sha256": "fc22eac112d26c5272608c62abc2e2de2cf262c5a02e95168120b3269d8fde40",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+        "source-map",
+        "--repo",
+        "/workspace/scratch/reviewer-preparation-20261031/fixture",
+        "--snapshot",
+        "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+        "--record",
+        "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+      ],
+      "human_active_ns": null
+    },
+    {
+      "pair": 2,
+      "route": "baseline",
+      "elapsed_ns": 104680310,
+      "inputs": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9",
+          "bytes": 10560
+        },
+        {
+          "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+          "sha256": "927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5",
+          "bytes": 521
+        },
+        {
+          "path": "specs/workflow-state-integrity/acceptance-tests.md",
+          "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+          "bytes": 3005
+        },
+        {
+          "path": "specs/workflow-state-integrity/design.md",
+          "sha256": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add",
+          "bytes": 12686
+        },
+        {
+          "path": "specs/workflow-state-integrity/investigation.md",
+          "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f",
+          "bytes": 3366
+        },
+        {
+          "path": "specs/workflow-state-integrity/requirements.md",
+          "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+          "bytes": 4900
+        }
+      ],
+      "state": {
+        "schema": "sdd-fixed-state-reference/v1",
+        "commit": "b45025600cc2d9ef7c534cf8d2f59ce82b56ffe0",
+        "inventory_sha256": "ddca10d957468a18fe173a4f3e22dc391bbbd86d77ae2400671096e86eb0a2a4",
+        "fields": [
+          {
+            "path": "specs/workflow-state-integrity/design.md",
+            "line": 3,
+            "text": "Impl-Review-Status: Passed"
+          },
+          {
+            "path": "specs/workflow-state-integrity/requirements.md",
+            "line": 3,
+            "text": "Spec-Review-Status: Passed"
+          }
+        ]
+      },
+      "output_sha256": "fc22eac112d26c5272608c62abc2e2de2cf262c5a02e95168120b3269d8fde40",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+        "source-map",
+        "--repo",
+        "/workspace/scratch/reviewer-preparation-20261031/fixture",
+        "--snapshot",
+        "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+        "--record",
+        "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+      ],
+      "human_active_ns": null
+    },
+    {
+      "pair": 2,
+      "route": "index",
+      "elapsed_ns": 106025204,
+      "inputs": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9",
+          "bytes": 10560
+        },
+        {
+          "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+          "sha256": "927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5",
+          "bytes": 521
+        },
+        {
+          "path": "specs/workflow-state-integrity/acceptance-tests.md",
+          "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+          "bytes": 3005
+        },
+        {
+          "path": "specs/workflow-state-integrity/design.md",
+          "sha256": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add",
+          "bytes": 12686
+        },
+        {
+          "path": "specs/workflow-state-integrity/investigation.md",
+          "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f",
+          "bytes": 3366
+        },
+        {
+          "path": "specs/workflow-state-integrity/requirements.md",
+          "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+          "bytes": 4900
+        }
+      ],
+      "state": {
+        "schema": "sdd-fixed-state-reference/v1",
+        "commit": "b45025600cc2d9ef7c534cf8d2f59ce82b56ffe0",
+        "inventory_sha256": "ddca10d957468a18fe173a4f3e22dc391bbbd86d77ae2400671096e86eb0a2a4",
+        "fields": [
+          {
+            "path": "specs/workflow-state-integrity/design.md",
+            "line": 3,
+            "text": "Impl-Review-Status: Passed"
+          },
+          {
+            "path": "specs/workflow-state-integrity/requirements.md",
+            "line": 3,
+            "text": "Spec-Review-Status: Passed"
+          }
+        ]
+      },
+      "output_sha256": "d057332ce00269b57e3e2086766bc86e9550331569125b315771156d23cf0ced",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+        "reviewer-index",
+        "--repo",
+        "/workspace/scratch/reviewer-preparation-20261031/fixture",
+        "--snapshot",
+        "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+        "--record",
+        "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+      ],
+      "human_active_ns": null
+    },
+    {
+      "pair": 3,
+      "route": "index",
+      "elapsed_ns": 105722118,
+      "inputs": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9",
+          "bytes": 10560
+        },
+        {
+          "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+          "sha256": "927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5",
+          "bytes": 521
+        },
+        {
+          "path": "specs/workflow-state-integrity/acceptance-tests.md",
+          "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+          "bytes": 3005
+        },
+        {
+          "path": "specs/workflow-state-integrity/design.md",
+          "sha256": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add",
+          "bytes": 12686
+        },
+        {
+          "path": "specs/workflow-state-integrity/investigation.md",
+          "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f",
+          "bytes": 3366
+        },
+        {
+          "path": "specs/workflow-state-integrity/requirements.md",
+          "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+          "bytes": 4900
+        }
+      ],
+      "state": {
+        "schema": "sdd-fixed-state-reference/v1",
+        "commit": "b45025600cc2d9ef7c534cf8d2f59ce82b56ffe0",
+        "inventory_sha256": "ddca10d957468a18fe173a4f3e22dc391bbbd86d77ae2400671096e86eb0a2a4",
+        "fields": [
+          {
+            "path": "specs/workflow-state-integrity/design.md",
+            "line": 3,
+            "text": "Impl-Review-Status: Passed"
+          },
+          {
+            "path": "specs/workflow-state-integrity/requirements.md",
+            "line": 3,
+            "text": "Spec-Review-Status: Passed"
+          }
+        ]
+      },
+      "output_sha256": "d057332ce00269b57e3e2086766bc86e9550331569125b315771156d23cf0ced",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+        "reviewer-index",
+        "--repo",
+        "/workspace/scratch/reviewer-preparation-20261031/fixture",
+        "--snapshot",
+        "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+        "--record",
+        "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+      ],
+      "human_active_ns": null
+    },
+    {
+      "pair": 3,
+      "route": "baseline",
+      "elapsed_ns": 110176002,
+      "inputs": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9",
+          "bytes": 10560
+        },
+        {
+          "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+          "sha256": "927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5",
+          "bytes": 521
+        },
+        {
+          "path": "specs/workflow-state-integrity/acceptance-tests.md",
+          "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+          "bytes": 3005
+        },
+        {
+          "path": "specs/workflow-state-integrity/design.md",
+          "sha256": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add",
+          "bytes": 12686
+        },
+        {
+          "path": "specs/workflow-state-integrity/investigation.md",
+          "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f",
+          "bytes": 3366
+        },
+        {
+          "path": "specs/workflow-state-integrity/requirements.md",
+          "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+          "bytes": 4900
+        }
+      ],
+      "state": {
+        "schema": "sdd-fixed-state-reference/v1",
+        "commit": "b45025600cc2d9ef7c534cf8d2f59ce82b56ffe0",
+        "inventory_sha256": "ddca10d957468a18fe173a4f3e22dc391bbbd86d77ae2400671096e86eb0a2a4",
+        "fields": [
+          {
+            "path": "specs/workflow-state-integrity/design.md",
+            "line": 3,
+            "text": "Impl-Review-Status: Passed"
+          },
+          {
+            "path": "specs/workflow-state-integrity/requirements.md",
+            "line": 3,
+            "text": "Spec-Review-Status: Passed"
+          }
+        ]
+      },
+      "output_sha256": "fc22eac112d26c5272608c62abc2e2de2cf262c5a02e95168120b3269d8fde40",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+        "source-map",
+        "--repo",
+        "/workspace/scratch/reviewer-preparation-20261031/fixture",
+        "--snapshot",
+        "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+        "--record",
+        "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+      ],
+      "human_active_ns": null
+    },
+    {
+      "pair": 4,
+      "route": "baseline",
+      "elapsed_ns": 114250060,
+      "inputs": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9",
+          "bytes": 10560
+        },
+        {
+          "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+          "sha256": "927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5",
+          "bytes": 521
+        },
+        {
+          "path": "specs/workflow-state-integrity/acceptance-tests.md",
+          "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+          "bytes": 3005
+        },
+        {
+          "path": "specs/workflow-state-integrity/design.md",
+          "sha256": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add",
+          "bytes": 12686
+        },
+        {
+          "path": "specs/workflow-state-integrity/investigation.md",
+          "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f",
+          "bytes": 3366
+        },
+        {
+          "path": "specs/workflow-state-integrity/requirements.md",
+          "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+          "bytes": 4900
+        }
+      ],
+      "state": {
+        "schema": "sdd-fixed-state-reference/v1",
+        "commit": "b45025600cc2d9ef7c534cf8d2f59ce82b56ffe0",
+        "inventory_sha256": "ddca10d957468a18fe173a4f3e22dc391bbbd86d77ae2400671096e86eb0a2a4",
+        "fields": [
+          {
+            "path": "specs/workflow-state-integrity/design.md",
+            "line": 3,
+            "text": "Impl-Review-Status: Passed"
+          },
+          {
+            "path": "specs/workflow-state-integrity/requirements.md",
+            "line": 3,
+            "text": "Spec-Review-Status: Passed"
+          }
+        ]
+      },
+      "output_sha256": "fc22eac112d26c5272608c62abc2e2de2cf262c5a02e95168120b3269d8fde40",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+        "source-map",
+        "--repo",
+        "/workspace/scratch/reviewer-preparation-20261031/fixture",
+        "--snapshot",
+        "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+        "--record",
+        "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+      ],
+      "human_active_ns": null
+    },
+    {
+      "pair": 4,
+      "route": "index",
+      "elapsed_ns": 112734380,
+      "inputs": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "63f0005c6dd64ee8e07e61770266ace305f9239a3695069dd2ea5671611885a9",
+          "bytes": 10560
+        },
+        {
+          "path": "reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+          "sha256": "927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5",
+          "bytes": 521
+        },
+        {
+          "path": "specs/workflow-state-integrity/acceptance-tests.md",
+          "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+          "bytes": 3005
+        },
+        {
+          "path": "specs/workflow-state-integrity/design.md",
+          "sha256": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add",
+          "bytes": 12686
+        },
+        {
+          "path": "specs/workflow-state-integrity/investigation.md",
+          "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f",
+          "bytes": 3366
+        },
+        {
+          "path": "specs/workflow-state-integrity/requirements.md",
+          "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+          "bytes": 4900
+        }
+      ],
+      "state": {
+        "schema": "sdd-fixed-state-reference/v1",
+        "commit": "b45025600cc2d9ef7c534cf8d2f59ce82b56ffe0",
+        "inventory_sha256": "ddca10d957468a18fe173a4f3e22dc391bbbd86d77ae2400671096e86eb0a2a4",
+        "fields": [
+          {
+            "path": "specs/workflow-state-integrity/design.md",
+            "line": 3,
+            "text": "Impl-Review-Status: Passed"
+          },
+          {
+            "path": "specs/workflow-state-integrity/requirements.md",
+            "line": 3,
+            "text": "Spec-Review-Status: Passed"
+          }
+        ]
+      },
+      "output_sha256": "d057332ce00269b57e3e2086766bc86e9550331569125b315771156d23cf0ced",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+        "reviewer-index",
+        "--repo",
+        "/workspace/scratch/reviewer-preparation-20261031/fixture",
+        "--snapshot",
+        "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+        "--record",
+        "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+      ],
+      "human_active_ns": null
+    }
+  ],
+  "negative_controls": [
+    {
+      "case": "snapshot-byte-tamper",
+      "results": {
+        "baseline": {
+          "argv": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+            "-B",
+            "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+            "source-map",
+            "--repo",
+            "/workspace/scratch/reviewer-preparation-20261031/fixture",
+            "--snapshot",
+            "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+            "--record",
+            "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "FIXED_INPUTS_STOPPED: snapshot input bytes changed\n"
+        },
+        "index": {
+          "argv": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+            "-B",
+            "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+            "reviewer-index",
+            "--repo",
+            "/workspace/scratch/reviewer-preparation-20261031/fixture",
+            "--snapshot",
+            "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+            "--record",
+            "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "FIXED_INPUTS_STOPPED: snapshot input bytes changed\n"
+        }
+      }
+    },
+    {
+      "case": "dirty-current-selected-source",
+      "results": {
+        "baseline": {
+          "argv": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+            "-B",
+            "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+            "source-map",
+            "--repo",
+            "/workspace/scratch/reviewer-preparation-20261031/fixture",
+            "--snapshot",
+            "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+            "--record",
+            "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+          ],
+          "exit": 0,
+          "stdout": "{\"commit\": \"b45025600cc2d9ef7c534cf8d2f59ce82b56ffe0\", \"sources\": {\"plugins/sdd-review-loop/references/reviewer-calibration.md\": \"/workspace/scratch/reviewer-preparation-20261031/snapshot/plugins/sdd-review-loop/references/reviewer-calibration.md\", \"reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json\": \"/workspace/scratch/reviewer-preparation-20261031/snapshot/reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json\", \"specs/workflow-state-integrity/acceptance-tests.md\": \"/workspace/scratch/reviewer-preparation-20261031/snapshot/specs/workflow-state-integrity/acceptance-tests.md\", \"specs/workflow-state-integrity/design.md\": \"/workspace/scratch/reviewer-preparation-20261031/snapshot/specs/workflow-state-integrity/design.md\", \"specs/workflow-state-integrity/investigation.md\": \"/workspace/scratch/reviewer-preparation-20261031/snapshot/specs/workflow-state-integrity/investigation.md\", \"specs/workflow-state-integrity/requirements.md\": \"/workspace/scratch/reviewer-preparation-20261031/snapshot/specs/workflow-state-integrity/requirements.md\"}}\n",
+          "stderr": ""
+        },
+        "index": {
+          "argv": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+            "-B",
+            "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+            "reviewer-index",
+            "--repo",
+            "/workspace/scratch/reviewer-preparation-20261031/fixture",
+            "--snapshot",
+            "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+            "--record",
+            "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "FIXED_INPUTS_STOPPED: reviewer index stale: selected working input changed\n"
+        }
+      }
+    },
+    {
+      "case": "missing-required-original",
+      "results": {
+        "baseline": {
+          "argv": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+            "-B",
+            "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+            "source-map",
+            "--repo",
+            "/workspace/scratch/reviewer-preparation-20261031/fixture",
+            "--snapshot",
+            "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+            "--record",
+            "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "FIXED_INPUTS_STOPPED: snapshot input unavailable\n"
+        },
+        "index": {
+          "argv": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+            "-B",
+            "/workspace/sdd-forge/plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
+            "reviewer-index",
+            "--repo",
+            "/workspace/scratch/reviewer-preparation-20261031/fixture",
+            "--snapshot",
+            "/workspace/scratch/reviewer-preparation-20261031/snapshot",
+            "--record",
+            "/workspace/scratch/reviewer-preparation-20261031/inventory.json"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "FIXED_INPUTS_STOPPED: snapshot input unavailable\n"
+        }
+      }
+    },
+    {
+      "case": "omit-required-original",
+      "consumer_rejected": "required-set-mismatch"
+    },
+    {
+      "case": "replace-required-original",
+      "consumer_rejected": "read-bytes-mismatch"
+    },
+    {
+      "case": "missing-conditional-admission",
+      "rejected": "conditional input missing or stale: specs/workflow-state-integrity/investigation.md"
+    }
+  ],
+  "timing": {
+    "baseline": {
+      "median_ns": 106926348,
+      "min_ns": 104582754,
+      "max_ns": 114250060
+    },
+    "index": {
+      "median_ns": 106025204,
+      "min_ns": 104234008,
+      "max_ns": 112734380
+    }
+  },
+  "human_time": "unobserved",
+  "review_quality": "not evaluated; byte/set preservation and rejection controls only",
+  "heavy_build_test_reuse": "not implemented"
+}

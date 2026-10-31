@@ -1,0 +1,705 @@
+{
+  "schema": "independent-maintenance-behavior/v1",
+  "product_sha256": "9d7de91525f3f98f77481a131a3e00d3521032855afdea15d051d24c8fbcc82d",
+  "results": [
+    {
+      "case": "route-change",
+      "baseline": {
+        "schema": "project-skill-trial/v1",
+        "skill": "verify-fixture",
+        "check_id": "aggregate",
+        "inputs": {
+          "sdd/skills/verify-fixture/handwritten.md": "b10fbbc5b63d1f2287814f7897ee8355a830150ec45698d81c7131bcde4166f6",
+          "sdd/skills/verify-fixture/SKILL.md": "0df4078a0fd75404bf63f0f0f6fd69719f1ed2acd1fdf69987bc0287e05070fc",
+          "sdd/skills/verify-fixture/run.py": "12a70bdd0e042efefb0daf2b98c6a8109887fab32a7a4937ab36d0d814add986",
+          "sdd/skills/verify-fixture/features/cli-status.md": "256b8f001ecf1dc8111f8b359365ef048b7fa34a5f479e2201262c2664ec3f13",
+          "sdd/skills/verify-fixture/features/view-account.md": "7f60c8c096bcb523c1836bc95ccf203122f1cc3473dc3468ff2bf600b072de7c",
+          "sdd/skills/verify-fixture/features/browse-items.md": "d7fc0a3af36eb12c0eeaa02336f7138c7cb7f687b709ead1972052e3953482e1",
+          "sdd/skills/verify-fixture/features/README.md": "8f30e3a969daa750654d4a057f92360f0c6cbd4a7d4757eeabb1dc77e39660cc",
+          "sdd/skills/verify-fixture/skill-manifest.json": "9ac661577441bee2da1cf94e022bf3f778f40d001a07e6b4a1fa58e5a6ea7837",
+          "app.py": "1be6baa572e392e2ff10024222bf5c90494b06d314abbb1cc8375dee491fdb67"
+        },
+        "isolation": "temporary-data-directory; not an OS sandbox",
+        "reason": null,
+        "observed_outputs": {
+          "__pycache__/app.cpython-312.pyc": "7d48a837d49915da3a4feead06f5165fceae63855c668870476f01a91ebbafb3"
+        },
+        "observation": "reports/project-skill-observations/trial/verify-fixture/aggregate.json",
+        "cleanup": true,
+        "directory_cleanup": true,
+        "seconds": 0.7027298389998577,
+        "outcome": "passed",
+        "stdout": {
+          "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-c67af06e13054fdab0045cd7b70f10da.stdout",
+          "sha256": "c868acbbb705045b57bb5ac91ea833d796f08de3e31bede4b5f0835f37747dca"
+        },
+        "stderr": {
+          "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-c67af06e13054fdab0045cd7b70f10da.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "observation_sha256": "c23b86d36f6f3d16d5d2bb45868f80b1c5d30c53ed6c1cb4bbd92da699a33984",
+        "exit_code": 0,
+        "observation_written": true,
+        "receipt": "reports/project-skill-observations/trial/verify-fixture/aggregate-c67af06e13054fdab0045cd7b70f10da.receipt.json"
+      },
+      "baseline_features": [
+        {
+          "feature": "browse-items",
+          "path": "/items",
+          "status": 200,
+          "body": "items-ready",
+          "passed": true
+        },
+        {
+          "feature": "view-account",
+          "path": "/account",
+          "status": 200,
+          "body": "account-ready",
+          "passed": true
+        },
+        {
+          "feature": "cli-status",
+          "exit_code": 0,
+          "stdout": "cli-ready",
+          "passed": true
+        }
+      ],
+      "maintenance": {
+        "status": "blocked",
+        "classification": "product-regression-or-harness-gap",
+        "results": [
+          {
+            "schema": "project-skill-trial/v1",
+            "skill": "verify-fixture",
+            "check_id": "aggregate",
+            "inputs": {
+              "sdd/skills/verify-fixture/handwritten.md": "b10fbbc5b63d1f2287814f7897ee8355a830150ec45698d81c7131bcde4166f6",
+              "sdd/skills/verify-fixture/SKILL.md": "0df4078a0fd75404bf63f0f0f6fd69719f1ed2acd1fdf69987bc0287e05070fc",
+              "sdd/skills/verify-fixture/run.py": "12a70bdd0e042efefb0daf2b98c6a8109887fab32a7a4937ab36d0d814add986",
+              "sdd/skills/verify-fixture/features/cli-status.md": "256b8f001ecf1dc8111f8b359365ef048b7fa34a5f479e2201262c2664ec3f13",
+              "sdd/skills/verify-fixture/features/view-account.md": "7f60c8c096bcb523c1836bc95ccf203122f1cc3473dc3468ff2bf600b072de7c",
+              "sdd/skills/verify-fixture/features/browse-items.md": "d7fc0a3af36eb12c0eeaa02336f7138c7cb7f687b709ead1972052e3953482e1",
+              "sdd/skills/verify-fixture/features/README.md": "8f30e3a969daa750654d4a057f92360f0c6cbd4a7d4757eeabb1dc77e39660cc",
+              "sdd/skills/verify-fixture/skill-manifest.json": "9ac661577441bee2da1cf94e022bf3f778f40d001a07e6b4a1fa58e5a6ea7837",
+              "app.py": "06e4a5123cbc72eac97e0ff792b2c362a3898485a68b7757ba3b2c413b858e69"
+            },
+            "isolation": "temporary-data-directory; not an OS sandbox",
+            "reason": null,
+            "observed_outputs": {
+              "__pycache__/app.cpython-312.pyc": "d9687a77c7122e358aab3a620a32adf45edda4499c4efd833329fa6b167c8c07"
+            },
+            "observation": "reports/project-skill-observations/trial/verify-fixture/aggregate.json",
+            "cleanup": true,
+            "directory_cleanup": true,
+            "seconds": 0.7123380980001457,
+            "outcome": "failed",
+            "stdout": {
+              "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-43821348c11e40b695372df063cc9898.stdout",
+              "sha256": "d7264706c9ba69cdce5961d8f2b92a93464dc0f8d4eb797faea8700990a0e48d"
+            },
+            "stderr": {
+              "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-43821348c11e40b695372df063cc9898.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observation_sha256": "ee77e7775042bcf8031809e66c4efe4cdbb1daeb5bbe5b69f3aae92dc2c8a9a8",
+            "exit_code": 1,
+            "observation_written": true,
+            "receipt": "reports/project-skill-observations/trial/verify-fixture/aggregate-43821348c11e40b695372df063cc9898.receipt.json"
+          }
+        ],
+        "unexecuted": []
+      },
+      "observed_features": [
+        {
+          "feature": "browse-items",
+          "path": "/items",
+          "status": 404,
+          "body": "route-not-found",
+          "passed": false
+        },
+        {
+          "feature": "view-account",
+          "path": "/account",
+          "status": 200,
+          "body": "account-ready",
+          "passed": true
+        },
+        {
+          "feature": "cli-status",
+          "exit_code": 0,
+          "stdout": "cli-ready",
+          "passed": true
+        }
+      ],
+      "unexecuted_features": [],
+      "reseal_without_explicit_removal": "manifest-exists; review changes and explicitly remove the old manifest before resealing",
+      "repair": "Only run.py route/auth constant changed; old manifest explicitly removed and resealed.",
+      "after": {
+        "status": "changed",
+        "classification": "source-drift",
+        "results": [
+          {
+            "schema": "project-skill-trial/v1",
+            "skill": "verify-fixture",
+            "check_id": "aggregate",
+            "inputs": {
+              "sdd/skills/verify-fixture/handwritten.md": "b10fbbc5b63d1f2287814f7897ee8355a830150ec45698d81c7131bcde4166f6",
+              "sdd/skills/verify-fixture/SKILL.md": "0df4078a0fd75404bf63f0f0f6fd69719f1ed2acd1fdf69987bc0287e05070fc",
+              "sdd/skills/verify-fixture/run.py": "f9df5585d631282fa92a0feb87c8ca06832e863ff9a3d4612f72c8d80d6822ca",
+              "sdd/skills/verify-fixture/features/cli-status.md": "256b8f001ecf1dc8111f8b359365ef048b7fa34a5f479e2201262c2664ec3f13",
+              "sdd/skills/verify-fixture/features/view-account.md": "7f60c8c096bcb523c1836bc95ccf203122f1cc3473dc3468ff2bf600b072de7c",
+              "sdd/skills/verify-fixture/features/browse-items.md": "d7fc0a3af36eb12c0eeaa02336f7138c7cb7f687b709ead1972052e3953482e1",
+              "sdd/skills/verify-fixture/features/README.md": "8f30e3a969daa750654d4a057f92360f0c6cbd4a7d4757eeabb1dc77e39660cc",
+              "sdd/skills/verify-fixture/skill-manifest.json": "6f640db76bd524722a0bbd4815a67ebfcb92802ecd1ff1bba45d546bfaf77827",
+              "app.py": "06e4a5123cbc72eac97e0ff792b2c362a3898485a68b7757ba3b2c413b858e69"
+            },
+            "isolation": "temporary-data-directory; not an OS sandbox",
+            "reason": null,
+            "observed_outputs": {
+              "__pycache__/app.cpython-312.pyc": "ea8ecc57b1a42b50d83c9d7c0f352dd6d0a2d0995692da7195ef98b7bafc9624"
+            },
+            "observation": "reports/project-skill-observations/trial/verify-fixture/aggregate.json",
+            "cleanup": true,
+            "directory_cleanup": true,
+            "seconds": 0.7019394799999645,
+            "outcome": "passed",
+            "stdout": {
+              "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-03126b328fb64b369656c568fdfc9889.stdout",
+              "sha256": "47a5ed0312c238b9493d14df8eb1df84df523e8cba61bd8a3bae144b712f8e45"
+            },
+            "stderr": {
+              "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-03126b328fb64b369656c568fdfc9889.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observation_sha256": "fa95e585633c06f2637b0a3897beae5a80426a55eb7a6cf93899b543bf0e567c",
+            "exit_code": 0,
+            "observation_written": true,
+            "receipt": "reports/project-skill-observations/trial/verify-fixture/aggregate-03126b328fb64b369656c568fdfc9889.receipt.json"
+          }
+        ],
+        "unexecuted": []
+      },
+      "after_features": [
+        {
+          "feature": "browse-items",
+          "path": "/v2/items",
+          "status": 200,
+          "body": "items-ready",
+          "passed": true
+        },
+        {
+          "feature": "view-account",
+          "path": "/account",
+          "status": 200,
+          "body": "account-ready",
+          "passed": true
+        },
+        {
+          "feature": "cli-status",
+          "exit_code": 0,
+          "stdout": "cli-ready",
+          "passed": true
+        }
+      ],
+      "handwritten_extension_unchanged": true,
+      "product_source_unchanged_by_maintenance": true
+    },
+    {
+      "case": "auth-added",
+      "baseline": {
+        "schema": "project-skill-trial/v1",
+        "skill": "verify-fixture",
+        "check_id": "aggregate",
+        "inputs": {
+          "sdd/skills/verify-fixture/handwritten.md": "b10fbbc5b63d1f2287814f7897ee8355a830150ec45698d81c7131bcde4166f6",
+          "sdd/skills/verify-fixture/SKILL.md": "0df4078a0fd75404bf63f0f0f6fd69719f1ed2acd1fdf69987bc0287e05070fc",
+          "sdd/skills/verify-fixture/run.py": "12a70bdd0e042efefb0daf2b98c6a8109887fab32a7a4937ab36d0d814add986",
+          "sdd/skills/verify-fixture/features/cli-status.md": "256b8f001ecf1dc8111f8b359365ef048b7fa34a5f479e2201262c2664ec3f13",
+          "sdd/skills/verify-fixture/features/view-account.md": "7f60c8c096bcb523c1836bc95ccf203122f1cc3473dc3468ff2bf600b072de7c",
+          "sdd/skills/verify-fixture/features/browse-items.md": "d7fc0a3af36eb12c0eeaa02336f7138c7cb7f687b709ead1972052e3953482e1",
+          "sdd/skills/verify-fixture/features/README.md": "8f30e3a969daa750654d4a057f92360f0c6cbd4a7d4757eeabb1dc77e39660cc",
+          "sdd/skills/verify-fixture/skill-manifest.json": "9ac661577441bee2da1cf94e022bf3f778f40d001a07e6b4a1fa58e5a6ea7837",
+          "app.py": "1be6baa572e392e2ff10024222bf5c90494b06d314abbb1cc8375dee491fdb67"
+        },
+        "isolation": "temporary-data-directory; not an OS sandbox",
+        "reason": null,
+        "observed_outputs": {
+          "__pycache__/app.cpython-312.pyc": "80c9495cd8c74e6a6737f46bbd92b3ef12217f439d58e7dc679fadd7ab476694"
+        },
+        "observation": "reports/project-skill-observations/trial/verify-fixture/aggregate.json",
+        "cleanup": true,
+        "directory_cleanup": true,
+        "seconds": 0.7160873209995771,
+        "outcome": "passed",
+        "stdout": {
+          "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-d13ec39f07df4dd3943145dca9e7f0fe.stdout",
+          "sha256": "c868acbbb705045b57bb5ac91ea833d796f08de3e31bede4b5f0835f37747dca"
+        },
+        "stderr": {
+          "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-d13ec39f07df4dd3943145dca9e7f0fe.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "observation_sha256": "377fd44538bed9fb1636c77f861ddf8ea9b721607265f7450a8413ddd6610ea1",
+        "exit_code": 0,
+        "observation_written": true,
+        "receipt": "reports/project-skill-observations/trial/verify-fixture/aggregate-d13ec39f07df4dd3943145dca9e7f0fe.receipt.json"
+      },
+      "baseline_features": [
+        {
+          "feature": "browse-items",
+          "path": "/items",
+          "status": 200,
+          "body": "items-ready",
+          "passed": true
+        },
+        {
+          "feature": "view-account",
+          "path": "/account",
+          "status": 200,
+          "body": "account-ready",
+          "passed": true
+        },
+        {
+          "feature": "cli-status",
+          "exit_code": 0,
+          "stdout": "cli-ready",
+          "passed": true
+        }
+      ],
+      "maintenance": {
+        "status": "blocked",
+        "classification": "product-regression-or-harness-gap",
+        "results": [
+          {
+            "schema": "project-skill-trial/v1",
+            "skill": "verify-fixture",
+            "check_id": "aggregate",
+            "inputs": {
+              "sdd/skills/verify-fixture/handwritten.md": "b10fbbc5b63d1f2287814f7897ee8355a830150ec45698d81c7131bcde4166f6",
+              "sdd/skills/verify-fixture/SKILL.md": "0df4078a0fd75404bf63f0f0f6fd69719f1ed2acd1fdf69987bc0287e05070fc",
+              "sdd/skills/verify-fixture/run.py": "12a70bdd0e042efefb0daf2b98c6a8109887fab32a7a4937ab36d0d814add986",
+              "sdd/skills/verify-fixture/features/cli-status.md": "256b8f001ecf1dc8111f8b359365ef048b7fa34a5f479e2201262c2664ec3f13",
+              "sdd/skills/verify-fixture/features/view-account.md": "7f60c8c096bcb523c1836bc95ccf203122f1cc3473dc3468ff2bf600b072de7c",
+              "sdd/skills/verify-fixture/features/browse-items.md": "d7fc0a3af36eb12c0eeaa02336f7138c7cb7f687b709ead1972052e3953482e1",
+              "sdd/skills/verify-fixture/features/README.md": "8f30e3a969daa750654d4a057f92360f0c6cbd4a7d4757eeabb1dc77e39660cc",
+              "sdd/skills/verify-fixture/skill-manifest.json": "9ac661577441bee2da1cf94e022bf3f778f40d001a07e6b4a1fa58e5a6ea7837",
+              "app.py": "60699561ab0c8d0eea84fd824f1fbeee7aaa930bc3accab7c5e1482799d925c7"
+            },
+            "isolation": "temporary-data-directory; not an OS sandbox",
+            "reason": null,
+            "observed_outputs": {
+              "__pycache__/app.cpython-312.pyc": "73ba00758b66cacee67756b6edf381c11881084aa37148ecc8b464f79899155c"
+            },
+            "observation": "reports/project-skill-observations/trial/verify-fixture/aggregate.json",
+            "cleanup": true,
+            "directory_cleanup": true,
+            "seconds": 0.7069786199999726,
+            "outcome": "failed",
+            "stdout": {
+              "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-85ba1215f482404fb1afa39d614ba0e5.stdout",
+              "sha256": "224477344eb55c910bdeade8615c0eae7b236d8b0e10f9a542b0f87033c4cc1d"
+            },
+            "stderr": {
+              "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-85ba1215f482404fb1afa39d614ba0e5.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observation_sha256": "ae0e3ba2a08c50b0eeb4ea53f45929f198f09deff00e9fa3d6c748dd4dfded4f",
+            "exit_code": 1,
+            "observation_written": true,
+            "receipt": "reports/project-skill-observations/trial/verify-fixture/aggregate-85ba1215f482404fb1afa39d614ba0e5.receipt.json"
+          }
+        ],
+        "unexecuted": []
+      },
+      "observed_features": [
+        {
+          "feature": "browse-items",
+          "path": "/items",
+          "status": 200,
+          "body": "items-ready",
+          "passed": true
+        },
+        {
+          "feature": "view-account",
+          "path": "/account",
+          "status": 401,
+          "body": "authentication-required",
+          "passed": false
+        },
+        {
+          "feature": "cli-status",
+          "exit_code": 0,
+          "stdout": "cli-ready",
+          "passed": true
+        }
+      ],
+      "unexecuted_features": [],
+      "reseal_without_explicit_removal": "manifest-exists; review changes and explicitly remove the old manifest before resealing",
+      "repair": "Only run.py route/auth constant changed; old manifest explicitly removed and resealed.",
+      "after": {
+        "status": "changed",
+        "classification": "source-drift",
+        "results": [
+          {
+            "schema": "project-skill-trial/v1",
+            "skill": "verify-fixture",
+            "check_id": "aggregate",
+            "inputs": {
+              "sdd/skills/verify-fixture/handwritten.md": "b10fbbc5b63d1f2287814f7897ee8355a830150ec45698d81c7131bcde4166f6",
+              "sdd/skills/verify-fixture/SKILL.md": "0df4078a0fd75404bf63f0f0f6fd69719f1ed2acd1fdf69987bc0287e05070fc",
+              "sdd/skills/verify-fixture/run.py": "058d095ab42dcc28fff47c1e251ff099bf70ea7fb1c36d210606e63316871825",
+              "sdd/skills/verify-fixture/features/cli-status.md": "256b8f001ecf1dc8111f8b359365ef048b7fa34a5f479e2201262c2664ec3f13",
+              "sdd/skills/verify-fixture/features/view-account.md": "7f60c8c096bcb523c1836bc95ccf203122f1cc3473dc3468ff2bf600b072de7c",
+              "sdd/skills/verify-fixture/features/browse-items.md": "d7fc0a3af36eb12c0eeaa02336f7138c7cb7f687b709ead1972052e3953482e1",
+              "sdd/skills/verify-fixture/features/README.md": "8f30e3a969daa750654d4a057f92360f0c6cbd4a7d4757eeabb1dc77e39660cc",
+              "sdd/skills/verify-fixture/skill-manifest.json": "c08d3e7b15cf76a29a2fef8fb3618a0762236252715a82c1e2a24c38189ada03",
+              "app.py": "60699561ab0c8d0eea84fd824f1fbeee7aaa930bc3accab7c5e1482799d925c7"
+            },
+            "isolation": "temporary-data-directory; not an OS sandbox",
+            "reason": null,
+            "observed_outputs": {
+              "__pycache__/app.cpython-312.pyc": "52d717ee5b4fcf932144d4d075618b1aed2e2750be751bff265d842564d2a8ea"
+            },
+            "observation": "reports/project-skill-observations/trial/verify-fixture/aggregate.json",
+            "cleanup": true,
+            "directory_cleanup": true,
+            "seconds": 0.6994233880000138,
+            "outcome": "passed",
+            "stdout": {
+              "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-987e9b705af34b65baca5d4612f36857.stdout",
+              "sha256": "c868acbbb705045b57bb5ac91ea833d796f08de3e31bede4b5f0835f37747dca"
+            },
+            "stderr": {
+              "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-987e9b705af34b65baca5d4612f36857.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observation_sha256": "4c88427bf93d1ea33be9ab3033d2c004eaa8eed3e9f473b5a3ed91159d9017ac",
+            "exit_code": 0,
+            "observation_written": true,
+            "receipt": "reports/project-skill-observations/trial/verify-fixture/aggregate-987e9b705af34b65baca5d4612f36857.receipt.json"
+          }
+        ],
+        "unexecuted": []
+      },
+      "after_features": [
+        {
+          "feature": "browse-items",
+          "path": "/items",
+          "status": 200,
+          "body": "items-ready",
+          "passed": true
+        },
+        {
+          "feature": "view-account",
+          "path": "/account",
+          "status": 200,
+          "body": "account-ready",
+          "passed": true
+        },
+        {
+          "feature": "cli-status",
+          "exit_code": 0,
+          "stdout": "cli-ready",
+          "passed": true
+        }
+      ],
+      "handwritten_extension_unchanged": true,
+      "product_source_unchanged_by_maintenance": true
+    },
+    {
+      "case": "cli-disappeared",
+      "baseline": {
+        "schema": "project-skill-trial/v1",
+        "skill": "verify-fixture",
+        "check_id": "aggregate",
+        "inputs": {
+          "sdd/skills/verify-fixture/handwritten.md": "b10fbbc5b63d1f2287814f7897ee8355a830150ec45698d81c7131bcde4166f6",
+          "sdd/skills/verify-fixture/SKILL.md": "0df4078a0fd75404bf63f0f0f6fd69719f1ed2acd1fdf69987bc0287e05070fc",
+          "sdd/skills/verify-fixture/run.py": "12a70bdd0e042efefb0daf2b98c6a8109887fab32a7a4937ab36d0d814add986",
+          "sdd/skills/verify-fixture/features/cli-status.md": "256b8f001ecf1dc8111f8b359365ef048b7fa34a5f479e2201262c2664ec3f13",
+          "sdd/skills/verify-fixture/features/view-account.md": "7f60c8c096bcb523c1836bc95ccf203122f1cc3473dc3468ff2bf600b072de7c",
+          "sdd/skills/verify-fixture/features/browse-items.md": "d7fc0a3af36eb12c0eeaa02336f7138c7cb7f687b709ead1972052e3953482e1",
+          "sdd/skills/verify-fixture/features/README.md": "8f30e3a969daa750654d4a057f92360f0c6cbd4a7d4757eeabb1dc77e39660cc",
+          "sdd/skills/verify-fixture/skill-manifest.json": "9ac661577441bee2da1cf94e022bf3f778f40d001a07e6b4a1fa58e5a6ea7837",
+          "app.py": "1be6baa572e392e2ff10024222bf5c90494b06d314abbb1cc8375dee491fdb67"
+        },
+        "isolation": "temporary-data-directory; not an OS sandbox",
+        "reason": null,
+        "observed_outputs": {
+          "__pycache__/app.cpython-312.pyc": "f19b7d72a8945a81911d3f8cd3c83e82e5adb981669c17910918279cc5115c02"
+        },
+        "observation": "reports/project-skill-observations/trial/verify-fixture/aggregate.json",
+        "cleanup": true,
+        "directory_cleanup": true,
+        "seconds": 0.691129200999967,
+        "outcome": "passed",
+        "stdout": {
+          "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-86bd180a0b2e42ecb577f9cf46af8953.stdout",
+          "sha256": "c868acbbb705045b57bb5ac91ea833d796f08de3e31bede4b5f0835f37747dca"
+        },
+        "stderr": {
+          "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-86bd180a0b2e42ecb577f9cf46af8953.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "observation_sha256": "767760cf968d61530ce58a5bb9b0b13a23ee0e1377eefb271bc6eb233ab5f2fd",
+        "exit_code": 0,
+        "observation_written": true,
+        "receipt": "reports/project-skill-observations/trial/verify-fixture/aggregate-86bd180a0b2e42ecb577f9cf46af8953.receipt.json"
+      },
+      "baseline_features": [
+        {
+          "feature": "browse-items",
+          "path": "/items",
+          "status": 200,
+          "body": "items-ready",
+          "passed": true
+        },
+        {
+          "feature": "view-account",
+          "path": "/account",
+          "status": 200,
+          "body": "account-ready",
+          "passed": true
+        },
+        {
+          "feature": "cli-status",
+          "exit_code": 0,
+          "stdout": "cli-ready",
+          "passed": true
+        }
+      ],
+      "maintenance": {
+        "status": "blocked",
+        "classification": "environment-unavailable",
+        "results": [
+          {
+            "schema": "project-skill-trial/v1",
+            "skill": "verify-fixture",
+            "check_id": "aggregate",
+            "inputs": {
+              "sdd/skills/verify-fixture/handwritten.md": "b10fbbc5b63d1f2287814f7897ee8355a830150ec45698d81c7131bcde4166f6",
+              "sdd/skills/verify-fixture/SKILL.md": "0df4078a0fd75404bf63f0f0f6fd69719f1ed2acd1fdf69987bc0287e05070fc",
+              "sdd/skills/verify-fixture/run.py": "12a70bdd0e042efefb0daf2b98c6a8109887fab32a7a4937ab36d0d814add986",
+              "sdd/skills/verify-fixture/features/cli-status.md": "256b8f001ecf1dc8111f8b359365ef048b7fa34a5f479e2201262c2664ec3f13",
+              "sdd/skills/verify-fixture/features/view-account.md": "7f60c8c096bcb523c1836bc95ccf203122f1cc3473dc3468ff2bf600b072de7c",
+              "sdd/skills/verify-fixture/features/browse-items.md": "d7fc0a3af36eb12c0eeaa02336f7138c7cb7f687b709ead1972052e3953482e1",
+              "sdd/skills/verify-fixture/features/README.md": "8f30e3a969daa750654d4a057f92360f0c6cbd4a7d4757eeabb1dc77e39660cc",
+              "sdd/skills/verify-fixture/skill-manifest.json": "9ac661577441bee2da1cf94e022bf3f778f40d001a07e6b4a1fa58e5a6ea7837",
+              "app.py": "1be6baa572e392e2ff10024222bf5c90494b06d314abbb1cc8375dee491fdb67"
+            },
+            "isolation": "temporary-data-directory; not an OS sandbox",
+            "reason": null,
+            "observed_outputs": {},
+            "observation": "reports/project-skill-observations/trial/verify-fixture/aggregate.json",
+            "cleanup": true,
+            "directory_cleanup": true,
+            "seconds": 0.0024565809999330668,
+            "outcome": "unavailable",
+            "stdout": {
+              "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-f3f65fcea38b49dcb1dd75356fc07df3.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stderr": {
+              "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-f3f65fcea38b49dcb1dd75356fc07df3.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observation_sha256": "2bcc2cbadeb2acc16a5dad2027dedc777b661465d90dbc560ba46b3bea74ed24",
+            "exit_code": null,
+            "observation_written": true,
+            "receipt": "reports/project-skill-observations/trial/verify-fixture/aggregate-f3f65fcea38b49dcb1dd75356fc07df3.receipt.json"
+          }
+        ],
+        "unexecuted": []
+      },
+      "observed_features": [],
+      "unexecuted_features": [
+        "browse-items",
+        "view-account",
+        "cli-status"
+      ],
+      "handwritten_extension_unchanged": true,
+      "product_source_unchanged_by_maintenance": true
+    },
+    {
+      "case": "product-regression",
+      "baseline": {
+        "schema": "project-skill-trial/v1",
+        "skill": "verify-fixture",
+        "check_id": "aggregate",
+        "inputs": {
+          "sdd/skills/verify-fixture/handwritten.md": "b10fbbc5b63d1f2287814f7897ee8355a830150ec45698d81c7131bcde4166f6",
+          "sdd/skills/verify-fixture/SKILL.md": "0df4078a0fd75404bf63f0f0f6fd69719f1ed2acd1fdf69987bc0287e05070fc",
+          "sdd/skills/verify-fixture/run.py": "12a70bdd0e042efefb0daf2b98c6a8109887fab32a7a4937ab36d0d814add986",
+          "sdd/skills/verify-fixture/features/cli-status.md": "256b8f001ecf1dc8111f8b359365ef048b7fa34a5f479e2201262c2664ec3f13",
+          "sdd/skills/verify-fixture/features/view-account.md": "7f60c8c096bcb523c1836bc95ccf203122f1cc3473dc3468ff2bf600b072de7c",
+          "sdd/skills/verify-fixture/features/browse-items.md": "d7fc0a3af36eb12c0eeaa02336f7138c7cb7f687b709ead1972052e3953482e1",
+          "sdd/skills/verify-fixture/features/README.md": "8f30e3a969daa750654d4a057f92360f0c6cbd4a7d4757eeabb1dc77e39660cc",
+          "sdd/skills/verify-fixture/skill-manifest.json": "9ac661577441bee2da1cf94e022bf3f778f40d001a07e6b4a1fa58e5a6ea7837",
+          "app.py": "1be6baa572e392e2ff10024222bf5c90494b06d314abbb1cc8375dee491fdb67"
+        },
+        "isolation": "temporary-data-directory; not an OS sandbox",
+        "reason": null,
+        "observed_outputs": {
+          "__pycache__/app.cpython-312.pyc": "5f2021da6d44d1cd783c6ef8887f59b00c7b4e4b1b539fc1e957b694b3ca2c9c"
+        },
+        "observation": "reports/project-skill-observations/trial/verify-fixture/aggregate.json",
+        "cleanup": true,
+        "directory_cleanup": true,
+        "seconds": 0.6974038600001222,
+        "outcome": "passed",
+        "stdout": {
+          "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-9d6f54735bb84d64890b1835c040ac08.stdout",
+          "sha256": "c868acbbb705045b57bb5ac91ea833d796f08de3e31bede4b5f0835f37747dca"
+        },
+        "stderr": {
+          "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-9d6f54735bb84d64890b1835c040ac08.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "observation_sha256": "0b3fc28f67c3dbe2168375011b8a39b9c0b48cc52caebc11a0787de903889bb5",
+        "exit_code": 0,
+        "observation_written": true,
+        "receipt": "reports/project-skill-observations/trial/verify-fixture/aggregate-9d6f54735bb84d64890b1835c040ac08.receipt.json"
+      },
+      "baseline_features": [
+        {
+          "feature": "browse-items",
+          "path": "/items",
+          "status": 200,
+          "body": "items-ready",
+          "passed": true
+        },
+        {
+          "feature": "view-account",
+          "path": "/account",
+          "status": 200,
+          "body": "account-ready",
+          "passed": true
+        },
+        {
+          "feature": "cli-status",
+          "exit_code": 0,
+          "stdout": "cli-ready",
+          "passed": true
+        }
+      ],
+      "maintenance": {
+        "status": "blocked",
+        "classification": "product-regression-or-harness-gap",
+        "results": [
+          {
+            "schema": "project-skill-trial/v1",
+            "skill": "verify-fixture",
+            "check_id": "aggregate",
+            "inputs": {
+              "sdd/skills/verify-fixture/handwritten.md": "b10fbbc5b63d1f2287814f7897ee8355a830150ec45698d81c7131bcde4166f6",
+              "sdd/skills/verify-fixture/SKILL.md": "0df4078a0fd75404bf63f0f0f6fd69719f1ed2acd1fdf69987bc0287e05070fc",
+              "sdd/skills/verify-fixture/run.py": "12a70bdd0e042efefb0daf2b98c6a8109887fab32a7a4937ab36d0d814add986",
+              "sdd/skills/verify-fixture/features/cli-status.md": "256b8f001ecf1dc8111f8b359365ef048b7fa34a5f479e2201262c2664ec3f13",
+              "sdd/skills/verify-fixture/features/view-account.md": "7f60c8c096bcb523c1836bc95ccf203122f1cc3473dc3468ff2bf600b072de7c",
+              "sdd/skills/verify-fixture/features/browse-items.md": "d7fc0a3af36eb12c0eeaa02336f7138c7cb7f687b709ead1972052e3953482e1",
+              "sdd/skills/verify-fixture/features/README.md": "8f30e3a969daa750654d4a057f92360f0c6cbd4a7d4757eeabb1dc77e39660cc",
+              "sdd/skills/verify-fixture/skill-manifest.json": "9ac661577441bee2da1cf94e022bf3f778f40d001a07e6b4a1fa58e5a6ea7837",
+              "app.py": "31d82523fcff56de2f41eb89963423d5223210554375fa04e0762ef6db261067"
+            },
+            "isolation": "temporary-data-directory; not an OS sandbox",
+            "reason": null,
+            "observed_outputs": {
+              "__pycache__/app.cpython-312.pyc": "47a130d99b5ab277a96c60e92ba6453ec82e478a96cd6187c4ad2d5fbb84e883"
+            },
+            "observation": "reports/project-skill-observations/trial/verify-fixture/aggregate.json",
+            "cleanup": true,
+            "directory_cleanup": true,
+            "seconds": 0.70040975899974,
+            "outcome": "failed",
+            "stdout": {
+              "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-c5b8c1839d8440c1a418cf6357c400eb.stdout",
+              "sha256": "5b7cde0c741b46e991c34e250f80dc727a02a0173c61f94f3a41e6e76c6bbaf0"
+            },
+            "stderr": {
+              "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-c5b8c1839d8440c1a418cf6357c400eb.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observation_sha256": "ed742ea14377c6d86473ca9c9b4a8b78c37c437a087747452d6cc2a09f33dc26",
+            "exit_code": 1,
+            "observation_written": true,
+            "receipt": "reports/project-skill-observations/trial/verify-fixture/aggregate-c5b8c1839d8440c1a418cf6357c400eb.receipt.json"
+          }
+        ],
+        "unexecuted": []
+      },
+      "observed_features": [
+        {
+          "feature": "browse-items",
+          "path": "/items",
+          "status": 200,
+          "body": "BROKEN",
+          "passed": false
+        },
+        {
+          "feature": "view-account",
+          "path": "/account",
+          "status": 200,
+          "body": "account-ready",
+          "passed": true
+        },
+        {
+          "feature": "cli-status",
+          "exit_code": 0,
+          "stdout": "cli-ready",
+          "passed": true
+        }
+      ],
+      "unexecuted_features": [],
+      "no_expectation_relaxation": true,
+      "repeat": {
+        "status": "blocked",
+        "classification": "product-regression-or-harness-gap",
+        "results": [
+          {
+            "schema": "project-skill-trial/v1",
+            "skill": "verify-fixture",
+            "check_id": "aggregate",
+            "inputs": {
+              "sdd/skills/verify-fixture/handwritten.md": "b10fbbc5b63d1f2287814f7897ee8355a830150ec45698d81c7131bcde4166f6",
+              "sdd/skills/verify-fixture/SKILL.md": "0df4078a0fd75404bf63f0f0f6fd69719f1ed2acd1fdf69987bc0287e05070fc",
+              "sdd/skills/verify-fixture/run.py": "12a70bdd0e042efefb0daf2b98c6a8109887fab32a7a4937ab36d0d814add986",
+              "sdd/skills/verify-fixture/features/cli-status.md": "256b8f001ecf1dc8111f8b359365ef048b7fa34a5f479e2201262c2664ec3f13",
+              "sdd/skills/verify-fixture/features/view-account.md": "7f60c8c096bcb523c1836bc95ccf203122f1cc3473dc3468ff2bf600b072de7c",
+              "sdd/skills/verify-fixture/features/browse-items.md": "d7fc0a3af36eb12c0eeaa02336f7138c7cb7f687b709ead1972052e3953482e1",
+              "sdd/skills/verify-fixture/features/README.md": "8f30e3a969daa750654d4a057f92360f0c6cbd4a7d4757eeabb1dc77e39660cc",
+              "sdd/skills/verify-fixture/skill-manifest.json": "9ac661577441bee2da1cf94e022bf3f778f40d001a07e6b4a1fa58e5a6ea7837",
+              "app.py": "31d82523fcff56de2f41eb89963423d5223210554375fa04e0762ef6db261067"
+            },
+            "isolation": "temporary-data-directory; not an OS sandbox",
+            "reason": null,
+            "observed_outputs": {
+              "__pycache__/app.cpython-312.pyc": "6e88d0c5dbd43cbe05eb298ed9a0c8c85b508f37ca446422847ca933e0ea4dff"
+            },
+            "observation": "reports/project-skill-observations/trial/verify-fixture/aggregate.json",
+            "cleanup": true,
+            "directory_cleanup": true,
+            "seconds": 0.7008607319999101,
+            "outcome": "failed",
+            "stdout": {
+              "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-18a750dd3c7e469094fdf9372d724e20.stdout",
+              "sha256": "5b7cde0c741b46e991c34e250f80dc727a02a0173c61f94f3a41e6e76c6bbaf0"
+            },
+            "stderr": {
+              "path": "reports/project-skill-observations/trial/verify-fixture/aggregate-18a750dd3c7e469094fdf9372d724e20.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observation_sha256": "a5084b032e7b2ee7508ab9c80e76a03c6247c6dd6599dc85652df13ff57500bc",
+            "exit_code": 1,
+            "observation_written": true,
+            "receipt": "reports/project-skill-observations/trial/verify-fixture/aggregate-18a750dd3c7e469094fdf9372d724e20.receipt.json"
+          }
+        ],
+        "unexecuted": []
+      },
+      "handwritten_extension_unchanged": true,
+      "product_source_unchanged_by_maintenance": true
+    }
+  ],
+  "classification_limit": "The helper reports product-regression-or-harness-gap for failed assertions; exact cause below is inferred from captured actual HTTP/CLI behavior, not claimed as helper diagnosis.",
+  "passed": true
+}

@@ -1,0 +1,83 @@
+{
+  "distribution_tag": "v1.8.0",
+  "observed_tool_version": "TLC2 Version 2026.10.28.014557 (rev: 56d37a9)",
+  "tool_asset_id": 683491413,
+  "jar_sha256": "fc6878c603f0fdc18b9fe3e5bf51860cb90ab5b1154e3c371660c036d6bdd63e",
+  "source_sha256": "47e7d8de3281e3b20b52a2c03ecde820167a20149bbdaac6022d7ebe4f7e9735",
+  "scope": "two contenders, one original ledger hash, one attempt each; no crashes, retries, hostile filesystem or OS-wide proof",
+  "runs": [
+    {
+      "case": "negative",
+      "exit_code": 12,
+      "seconds": 0.8934221409999736,
+      "counterexample": true,
+      "expected_result": true,
+      "real_code_replay": {
+        "accepted": 2,
+        "calls": [
+          {
+            "exit_code": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "exit_code": 0,
+            "stdout": "",
+            "stderr": ""
+          }
+        ],
+        "ledger": {
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "b",
+              "host_session_id": "b",
+              "previous_record_sha256": "",
+              "record_sha256": "b"
+            }
+          ]
+        }
+      },
+      "replay_expected": true
+    },
+    {
+      "case": "baseline",
+      "exit_code": 0,
+      "seconds": 0.7789908470003866,
+      "counterexample": false,
+      "expected_result": true,
+      "real_code_replay": {
+        "accepted": 1,
+        "calls": [
+          {
+            "exit_code": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "IDENTITY canonical identity ledger reservation is already in progress\n"
+          }
+        ],
+        "ledger": {
+          "records": [
+            {
+              "sequence": 1,
+              "stage": "spec",
+              "role": "spec-reviewer-a",
+              "run_id": "a",
+              "host_session_id": "a",
+              "previous_record_sha256": "",
+              "record_sha256": "a"
+            }
+          ]
+        }
+      },
+      "replay_expected": true
+    }
+  ],
+  "passed": true
+}

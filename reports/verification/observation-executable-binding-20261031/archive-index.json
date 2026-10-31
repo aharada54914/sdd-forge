@@ -1,0 +1,76 @@
+{
+  "original_root": "/workspace/scratch/issue-resolution-20261031",
+  "archive_sha256": "daa6aaf5284cb78ae5212f34b8976f6f6fb3367b4d170811ba80eb572d159cd2",
+  "files": [
+    {
+      "path": "observation-executable-binding/evaluate.py",
+      "bytes": 2288,
+      "sha256": "017d4085e86d30670b0c8b5e51f40d5cde2ce1c9803473d0b298aa3d041753b2"
+    },
+    {
+      "path": "observation-executable-binding/fresh-observation.json",
+      "bytes": 2956,
+      "sha256": "e69f185f7686a826ccce628dc8cec5050253aa7974e92a870b7803db2c0a56a5"
+    },
+    {
+      "path": "observation-executable-binding/result.json",
+      "bytes": 4879,
+      "sha256": "501078b90e0a181d9c5c4a27418ede72b387421602b195ed608c066a742886ad"
+    },
+    {
+      "path": "observation-executable-binding/successful-observation.json",
+      "bytes": 2956,
+      "sha256": "cc1916f563113243aafefe53161d15e959864b091c6552621cbf7b90626c834d"
+    },
+    {
+      "path": "observation-executable-binding/task-input.json",
+      "bytes": 1007,
+      "sha256": "239a892f117ea4f22fcacead48b3cbd3aadadd28c9d78a54b350528da6080890"
+    },
+    {
+      "path": "observation-executable-binding-followup/evaluate.py",
+      "bytes": 2288,
+      "sha256": "017d4085e86d30670b0c8b5e51f40d5cde2ce1c9803473d0b298aa3d041753b2"
+    },
+    {
+      "path": "observation-executable-binding-followup/extra-results.json",
+      "bytes": 823,
+      "sha256": "095714390864aba9df14250bce6e45ee52eb4f8c0437df6f154ffc64cb6f6686"
+    },
+    {
+      "path": "observation-executable-binding-followup/extra.py",
+      "bytes": 1965,
+      "sha256": "69c669cb3266a065afdbd5726c862ffa0c48eb860bbc636c735811118392f6ca"
+    },
+    {
+      "path": "observation-executable-binding-followup/fresh-observation.json",
+      "bytes": 3055,
+      "sha256": "40d80fa1ccf3c78205cdce25338421480f4d44fe3ff145accee677ead0353fff"
+    },
+    {
+      "path": "observation-executable-binding-followup/lifecycle-tests.log",
+      "bytes": 142,
+      "sha256": "46b11a00ae8ad664cb1e218ff6fc5e23139a90c700d375e997bd6904ce3d69b1"
+    },
+    {
+      "path": "observation-executable-binding-followup/observation-tests.log",
+      "bytes": 139,
+      "sha256": "13c8c2ecbcb40ffd944f0ec02fe2fde06d0be5e2efc0b7730d7e5857640a5560"
+    },
+    {
+      "path": "observation-executable-binding-followup/result.json",
+      "bytes": 4541,
+      "sha256": "9bf587b97cd6b52841dc82b3bfb3eeb1aab4630a8b7f7d5decb01c72880eb7c8"
+    },
+    {
+      "path": "observation-executable-binding-followup/successful-observation.json",
+      "bytes": 3055,
+      "sha256": "24c7c4ae5bbc5e775ac47178721d0a1a5d4bd380421375bb02933c8975316730"
+    },
+    {
+      "path": "observation-executable-binding-followup/task-input.json",
+      "bytes": 1007,
+      "sha256": "239a892f117ea4f22fcacead48b3cbd3aadadd28c9d78a54b350528da6080890"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": "golden-comparison/v1",
+  "repetitions": 3,
+  "cases": [
+    "unrun-pass",
+    "wrong-routing",
+    "weak-cleanup",
+    "overbroad-validation",
+    "stale-skill"
+  ],
+  "timeout_seconds": 75,
+  "total_seconds_limit": 1800,
+  "conditions": {
+    "model": "gpt-6.1-sol",
+    "effort": "low",
+    "host": "Codex CLI 0.159.2 / Linux bwrap namespaces",
+    "tool_permissions": "native workspace-write, network-denied tool sandbox; outer filesystem/PID namespace; never approvals"
+  },
+  "case_sha256": {
+    "unrun-pass": "3f754dad117671573d98d865d07148445736fb2b50830cefbbe4ffbd6486f4f9",
+    "wrong-routing": "31c9308ca2059f49f00e7b6af9adf98798523057359b55af75a843dab70ca5bc",
+    "weak-cleanup": "528a7902c332a2e139770306bb66acbb8ad6ba4c1b9783d0818528bbf536e612",
+    "overbroad-validation": "84237185a504783a9dfa93c5803eb4a71d35b1b508575bb44374200dbf27ef17",
+    "stale-skill": "8dc680aaf89e9b4f4ffae0569a6af19c342b1a5ea974488f63055698d5478632"
+  },
+  "input_sha256": {
+    "unrun-pass": "39dd2ec4980d4c1830eba9f9f0a9282165a6223f855cf9c6aee3cf1e1c24a4cb",
+    "wrong-routing": "b2ebccb98dddebaaba051bbbd16f91be0f7166ef1c342ac529122f9fcb601a3a",
+    "weak-cleanup": "824aa6e2908a311246c2b95926c2ac44ddbfe77736b0252e17bb8225a98e529e",
+    "overbroad-validation": "794b4c011fcbe6ab32fd8a2f63d432c7888bc320685a1513eb78ec877703e7b1",
+    "stale-skill": "5ae5044d3690b2d7e1c2a2b39fc1951ecf9c780a9b01d4a78af3d8b50a6331db"
+  },
+  "runs": [],
+  "variants": {
+    "A": {
+      "framework_revision": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "config_sha256": "c1b65c4edb6ecedf1dc671d19a46706ec82710fdb07c40c62a82a8f54047de99",
+      "adapter_version": "native-stage-context/v1"
+    },
+    "B": {
+      "framework_revision": "4271e1c5d2b673d7f1a4fe2f593c8022cbc4a62f",
+      "config_sha256": "e129707ec9c8805f753c7f9597678eeeee6f35d5333e998ed4fe7ea7c5e4bf87",
+      "adapter_version": "native-stage-context/v1"
+    }
+  },
+  "scope": "reduced stage-context evaluation, not full plugin lifecycle or UX",
+  "rejection": "Any safety/regression observation rejects promotion; no automatic adoption",
+  "cost": "subscription authentication; currency meter unavailable",
+  "containment": "Rubric and A/B mapping excluded from candidate mount namespace; native config contains only stage source and equal scope adaptation"
+}

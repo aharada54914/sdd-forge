@@ -1,0 +1,52 @@
+name: Finite factory parallel observation
+on:
+  push:
+    branches: [verify/issue620-factory-adapter-20261027]
+permissions:
+  contents: read
+concurrency:
+  group: issue623-finite-observation
+  cancel-in-progress: false
+jobs:
+  observation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        parallel: [2, 4, 8]
+    steps:
+      - name: Read benchmark source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+      - name: Read fixed product source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 006e5a553f0667bfc6070dce25e6e9cffe9ea730
+          path: product
+          persist-credentials: false
+          sparse-checkout: |
+            plugins/sdd-bootstrap/scripts
+            plugins/sdd-quality-loop/scripts
+            plugins/sdd-quality-loop/contracts
+      - name: Run owned finite fixture batch
+        shell: bash
+        env:
+          PARALLEL: ${{ matrix.parallel }}
+        run: |
+          set -euo pipefail
+          exec 3>"$RUNNER_TEMP/supervisor-$PARALLEL.json"
+          python3 product/plugins/sdd-bootstrap/scripts/project-skill-process.py --status-fd 3 --timeout 300 -- python3 .github/scripts/factory-parallel-observation.py --source product --parallel "$PARALLEL" --output "$RUNNER_TEMP/parallel-$PARALLEL"
+      - name: Publish bounded observation
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: parallel-${{ matrix.parallel }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/parallel-${{ matrix.parallel }}
+            ${{ runner.temp }}/supervisor-${{ matrix.parallel }}.json
+          if-no-files-found: error
+          retention-days: 7

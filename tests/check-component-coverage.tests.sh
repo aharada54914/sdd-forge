@@ -374,7 +374,7 @@ else
   fail "TEST-036.1: expected check-component-coverage inside the machine-form 'high =' line"
 fi
 process_block=$(sed -n '/^## Process/,/^## Done Decision/p' "${REPO_ROOT}/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md")
-if printf '%s' "$process_block" | grep -q "check-component-coverage"; then
+if [[ "$process_block" == *check-component-coverage* ]]; then
   ok "TEST-036.2: quality-gate/SKILL.md's ## Process section itself (not just anywhere in the file) documents check-component-coverage"
 else
   fail "TEST-036.2: expected check-component-coverage inside SKILL.md's ## Process section"
@@ -428,6 +428,10 @@ spec = importlib.util.spec_from_file_location('guard_evolution', repo / 'tests/l
 evolution = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(evolution)
 evolution.self_test(manifest.parent / 'plugins/sdd-quality-loop', repo / 'plugins/sdd-quality-loop')
+spec = importlib.util.spec_from_file_location('research_candidate', repo / 'tests/lib/research-consumer-publication.py')
+research = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(research)
+research_paths = set(research.checked_paths(repo))
 evolved_paths = {
     'plugins/sdd-quality-loop/references/guard-invariants.json',
     'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py',
@@ -469,11 +473,11 @@ for line in manifest.read_text().splitlines():
     applied_bytes = applied.read_bytes()
     guard_applied = b'if (\$args.Count -gt 0)' in applied_bytes and b'unrecognized arguments:' in applied_bytes
     pending_human_apply = relative in declared_human_apply and not guard_applied
-    if not pending_human_apply and relative not in evolved_paths and hashlib.sha256(applied_bytes).hexdigest() != expected:
+    if not pending_human_apply and relative not in evolved_paths and relative not in research_paths and hashlib.sha256(applied_bytes).hexdigest() != expected:
         raise SystemExit(f'applied hash mismatch: {relative}')
 raise SystemExit(0)
 "; then
-  ok "TEST-036.4: T-004's live registrations remain applied; every shared-manifest candidate hash verifies; and live protected rows are byte-identical or verified additive invariant evolution"
+  ok "TEST-036.4: T-004's registrations and frozen candidates verify; live protected rows match their predecessor or an exactly bound current candidate"
 else
   fail "TEST-036.4: T-004 registration, staged-candidate integrity, or T-004-owned live byte identity failed against ${HC_MANIFEST_191}"
 fi

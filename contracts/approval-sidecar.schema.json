@@ -5,7 +5,7 @@
   "additionalProperties": false,
   "required": ["schema", "context_sha256", "primary_approval", "second_approval", "effective_at", "predecessor_context_sha256", "weakening_verdict", "approval_epoch", "hmac"],
   "properties": {
-    "schema": { "enum": ["sdd-project-context-approval/v1", "sdd-provider-bindings-approval/v1", "sdd-concept-test-approval/v1"] },
+    "schema": { "enum": ["sdd-project-context-approval/v1", "sdd-provider-bindings-approval/v1", "sdd-concept-test-approval/v1", "sdd-decision-choice-approval/v1"] },
     "context_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
     "primary_approval": { "$ref": "#/definitions/approval" },
     "second_approval": { "oneOf": [{ "type": "null" }, { "$ref": "#/definitions/approval" }] },

@@ -1,0 +1,50 @@
+[
+  {
+    "label": "native-1",
+    "exit_code": 0,
+    "seconds": 5.886719829000867,
+    "argv": [
+      "/usr/bin/python3",
+      "tests/verification.py",
+      "--suite",
+      "tests/bootstrap-cross-layer-index.tests.sh",
+      "--run",
+      "--measure-dir",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/native-1-measurement",
+      "--receipt",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/native-1-receipt.json"
+    ]
+  },
+  {
+    "label": "native-2",
+    "exit_code": 0,
+    "seconds": 5.791844491999655,
+    "argv": [
+      "/usr/bin/python3",
+      "tests/verification.py",
+      "--suite",
+      "tests/bootstrap-cross-layer-index.tests.sh",
+      "--run",
+      "--measure-dir",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/native-2-measurement",
+      "--receipt",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/native-2-receipt.json"
+    ]
+  },
+  {
+    "label": "native-3",
+    "exit_code": 0,
+    "seconds": 5.684286245999829,
+    "argv": [
+      "/usr/bin/python3",
+      "tests/verification.py",
+      "--suite",
+      "tests/bootstrap-cross-layer-index.tests.sh",
+      "--run",
+      "--measure-dir",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/native-3-measurement",
+      "--receipt",
+      "/workspace/scratch/issue618-buildkit-eval-20261031/native-3-receipt.json"
+    ]
+  }
+]

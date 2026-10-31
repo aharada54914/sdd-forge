@@ -1,0 +1,7 @@
+--- a/specs/workflow-state-registry.json
++++ b/specs/workflow-state-registry.json
+@@ -472,3 +472,4 @@
+     }
+   ]
+ }
++INVALID BENCHMARK CONTROL

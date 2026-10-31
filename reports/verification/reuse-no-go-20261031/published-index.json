@@ -1,0 +1,54 @@
+{
+  "README.md": {
+    "sha256": "2a3487f53c5d42f87ff14e324db0fe5eb667a07ce082b4d932f62a059aa0d7f7",
+    "bytes": 8698
+  },
+  "protocol.json": {
+    "sha256": "d8525847dc1ea20420fe7118b1d60ab6014b889d73984538feba7bed726a541f",
+    "bytes": 1059
+  },
+  "comparison.json": {
+    "sha256": "0da0d211274459f2bf3f1ffae5a49ba0b4e01a68a313b79596736f29e52e768a",
+    "bytes": 613
+  },
+  "results.json": {
+    "sha256": "571c8cfde93c2c88f2c05e13f886dbedd1ec22df2ecf8b3ec363ae28fb157336",
+    "bytes": 1362
+  },
+  "buildkit-results.json": {
+    "sha256": "1f377aa3ebec06299d19f935504ae5d43963f1c8dd06877aee7bfc8e7ef0845f",
+    "bytes": 1627
+  },
+  "boundary-results.json": {
+    "sha256": "4a67db72f97ec37e608db2882eee5ac7c71b1c978749b1c8d2bcd92773b8e6f4",
+    "bytes": 1720
+  },
+  "artifact-controls.json": {
+    "sha256": "c4bd6314d49732eece5e91c0addeaea113f5f984e685b3d09a6df5492f0ba7f1",
+    "bytes": 199
+  },
+  "buildkit-1.log": {
+    "sha256": "8e4fd69113c03b819c2371ff857848c500324a494fdca8fb0fd7b0ee3febb5f9",
+    "bytes": 1743
+  },
+  "buildkit-2.log": {
+    "sha256": "f81686111ac274c553a8083d6f907019dc4a3af0ebf1461eab600dd136022531",
+    "bytes": 1704
+  },
+  "buildkit-3.log": {
+    "sha256": "067d818417219642c4125056783def74de36a97c6f253581cc67c1f1a712a24b",
+    "bytes": 1704
+  },
+  "buildkit-1-artifacts/receipt.json": {
+    "sha256": "e300c0aca651c7f6ce5a0bdec4246537387f020ad09affb3b6356e9088e9471f",
+    "bytes": 591
+  },
+  "buildkit-1-artifacts/result.json": {
+    "sha256": "028f20820dab6ae2f673702c824df7330010a22120869e08e9492afa69316301",
+    "bytes": 617
+  },
+  "buildkit-1-artifacts/artifact-hashes.json": {
+    "sha256": "597facf770607e2a8c70ae47a3c3830a12eca58a13e4b29900829ab648966200",
+    "bytes": 966
+  }
+}

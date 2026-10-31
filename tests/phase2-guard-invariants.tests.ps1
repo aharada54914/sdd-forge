@@ -1043,6 +1043,10 @@ if ($runnerPredatesRefresh -and ($env:SDD_PHASE2_RUNNER_CHILD -ne '1')) {
 # stages in its own bundle are not this bundle's staging surface.
 $syncOk = $true
 try {
+    $python = Get-Command python3 -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($null -eq $python) { $python = Get-Command python -CommandType Application -ErrorAction Stop | Select-Object -First 1 }
+    $researchSuccessors = @((& $python.Source (Join-Path $root 'tests/lib/research-consumer-publication.py') $root | ConvertFrom-Json))
+    if ($LASTEXITCODE -ne 0) { throw 'Research successor validation failed' }
     $syncTargets = @($bootstrapTargets)
     if ($syncTargets.Count -eq 0) { $syncOk = $false }
     foreach ($syncTarget in $syncTargets) {
@@ -1055,13 +1059,26 @@ try {
         }
         $syncLiveHash = (Get-FileHash -LiteralPath $syncLive -Algorithm SHA256).Hash
         $syncStagedHash = (Get-FileHash -LiteralPath $syncStaged -Algorithm SHA256).Hash
+        if ($syncTarget -ceq 'plugins/sdd-ship/skills/ship/SKILL.md') {
+            $fixture = Get-Content -Raw -LiteralPath (Join-Path $root 'tests/fixtures/ship-track-selection-current-publication.json') | ConvertFrom-Json
+            $entries = @($fixture.successors | Where-Object { $_.live -ceq $syncTarget -and $_.staged -ceq "specs/epic-136-phase2-gates/human-copy/$syncTarget" })
+            if ($fixture.schema -ceq 'ship-track-selection-current-publication/v1' -and $entries.Count -eq 1 -and
+                $entries[0].live_sha256 -ceq $syncLiveHash.ToLowerInvariant() -and
+                $entries[0].staged_sha256 -ceq $syncStagedHash.ToLowerInvariant() -and
+                $entries[0].intentional_changes -is [string] -and $entries[0].intentional_changes.Length -gt 0) { continue }
+        }
+        if ($syncTarget -ceq 'plugins/sdd-quality-loop/scripts/check-contract.ps1' -and
+            $researchSuccessors -ccontains $syncTarget -and
+            $syncStagedHash -ceq (Get-FileHash -LiteralPath (Join-Path $root "specs/epic-191-a3-path-ownership/human-copy/$syncTarget") -Algorithm SHA256).Hash) {
+            continue
+        }
         if ($syncLiveHash -cne $syncStagedHash) {
             Write-Host "  out of sync: $syncTarget"
             $syncOk = $false
         }
     }
 } catch { $syncOk = $false }
-if ($syncOk) { Ok 'WFI-016 staged targets are byte-identical to live (no stale staging)' } else { Bad 'WFI-016 staged targets are byte-identical to live (no stale staging)' }
+if ($syncOk) { Ok 'WFI-016 staged targets match live bytes or an exact pinned successor' } else { Bad 'WFI-016 staged targets match live bytes or an exact pinned successor' }
 
 Write-Host "phase2-guard-invariants.tests.ps1: $passCount passed, $failCount failed, $skipCount skipped"
 if ($failCount -gt 0) { exit 1 }

@@ -1,0 +1,53 @@
+{
+  "split": "held-out",
+  "origin": "docs/workflow-improvements/WFI-044-audit-cycle-2.md",
+  "files": {
+    "policy.json": {
+      "required": [
+        "markdown-links",
+        "placeholder-scan"
+      ],
+      "unrelated": [
+        "all-runtime-operator-scan"
+      ]
+    },
+    "change.txt": "Correct a spelling mistake in a contributor paragraph.\n",
+    "output-contract.schema.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "suites",
+        "limitations"
+      ],
+      "properties": {
+        "suites": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "runtime behavior unchanged",
+              "runtime behavior changed"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "expected": {
+    "plan.json": {
+      "suites": [
+        "markdown-links",
+        "placeholder-scan"
+      ],
+      "limitations": [
+        "runtime behavior unchanged"
+      ]
+    }
+  }
+}

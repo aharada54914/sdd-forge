@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Focused regression checks for human-copy mirror classification."""
+import copy
 import hashlib
 import importlib.util
+import json
 import tempfile
 from pathlib import Path
 
@@ -39,6 +41,340 @@ def states(root: Path, main_digest):
     return [row[0] for row in MODULE.classify(str(root), MainDigests(main_digest))]
 
 
+LIVE = "plugins/sdd-ship/skills/ship/SKILL.md"
+EPICS = ("epic-136-phase2-gates", "epic-189-a1-project-context")
+PIN_PATH = Path("tests/fixtures/ship-track-selection-current-publication.json")
+OTHER = "plugins/other/example.txt"
+
+
+def sha(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+class MainMap:
+    """origin/main digests by repo-relative path; unknown paths are absent."""
+
+    def __init__(self, digests=None):
+        self.digests = digests or {}
+
+    def get(self, rel):
+        return self.digests.get(rel)
+
+
+def stage(root: Path, bundle: str, rel: str, text: str) -> None:
+    """Write a staged file and register its true digest in the bundle manifest."""
+    directory = root / "specs" / bundle / "human-copy"
+    (directory / rel).parent.mkdir(parents=True, exist_ok=True)
+    (directory / rel).write_text(text, encoding="utf-8")
+    with (directory / "MANIFEST.sha256").open("a", encoding="utf-8") as manifest:
+        manifest.write(f"{sha(text)}  {rel}\n")
+
+
+def write_pins(root: Path, pins) -> None:
+    path = root / PIN_PATH
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(pins if isinstance(pins, str) else json.dumps(pins), encoding="utf-8")
+
+
+def valid_pins(staged: str, live: str) -> dict:
+    return {
+        "schema": "ship-track-selection-current-publication/v1",
+        "successors": [
+            {
+                "live": LIVE,
+                "staged": f"specs/{epic}/human-copy/{LIVE}",
+                "staged_sha256": sha(staged),
+                "live_sha256": sha(live),
+                "intentional_changes": f"synthetic reviewed change for {epic}",
+            }
+            for epic in EPICS
+        ],
+    }
+
+
+STAGED, LIVE_TEXT = "ship predecessor\n", "ship successor\n"
+
+
+def ship_root(directory: str, pins="valid") -> Path:
+    """Synthetic root: both ship mirrors staged at STAGED, live at LIVE_TEXT."""
+    root = Path(directory)
+    for epic in EPICS:
+        stage(root, epic, LIVE, STAGED)
+    (root / LIVE).parent.mkdir(parents=True, exist_ok=True)
+    (root / LIVE).write_text(LIVE_TEXT, encoding="utf-8")
+    if pins == "valid":
+        write_pins(root, valid_pins(STAGED, LIVE_TEXT))
+    elif pins is not None:
+        write_pins(root, pins)
+    return root
+
+
+def ship_states(root: Path, main=None):
+    return {
+        row[1].replace("\\", "/").split("/")[1]: row[0]
+        for row in MODULE.classify(str(root), MainMap(main)) if row[2] == LIVE
+    }
+
+
+def expect(root: Path, expected, message: str, main=None) -> None:
+    got = set(ship_states(root, main).values())
+    assert got == {expected}, f"{message}: expected {expected}, got {ship_states(root, main)}"
+
+
+def mutated(change):
+    pins = valid_pins(STAGED, LIVE_TEXT)
+    change(pins)
+    return pins
+
+
+def check_pins_never_waive() -> int:
+    bad_pins = {
+        "missing pin file": None,
+        "malformed json": "{not json",
+        "json list": "[]",
+        "wrong schema": mutated(lambda p: p.update(schema="ship-track-selection-current-publication/v0")),
+        "missing schema": mutated(lambda p: p.pop("schema")),
+        "successors not a list": mutated(lambda p: p.update(successors={})),
+        "short staged sha": mutated(lambda p: [e.update(staged_sha256=sha(STAGED)[:63]) for e in p["successors"]]),
+        "uppercase live sha": mutated(lambda p: [e.update(live_sha256=sha(LIVE_TEXT).upper()) for e in p["successors"]]),
+        "empty intentional_changes": mutated(lambda p: [e.update(intentional_changes="") for e in p["successors"]]),
+        "blank intentional_changes": mutated(lambda p: [e.update(intentional_changes="  \n") for e in p["successors"]]),
+        "missing intentional_changes": mutated(lambda p: [e.pop("intentional_changes") for e in p["successors"]]),
+        "staged and live pinned equal": mutated(lambda p: [e.update(live_sha256=sha(STAGED)) for e in p["successors"]]),
+        "wrong live path": mutated(lambda p: [e.update(live="plugins/sdd-ship/skills/ship/OTHER.md") for e in p["successors"]]),
+        "duplicate entries": mutated(lambda p: p["successors"].extend(copy.deepcopy(p["successors"]))),
+    }
+    for label, pins in bad_pins.items():
+        with tempfile.TemporaryDirectory() as directory:
+            root = ship_root(directory, pins)
+            expect(root, "STALE", f"{label} must not waive the mismatch")
+            expect(root, "STALE", f"{label} must not waive the mismatch", main={LIVE: sha("x")})
+    return len(bad_pins)
+
+
+def check_ship_successors() -> int:
+    checks = 0
+    with tempfile.TemporaryDirectory() as directory:
+        root = ship_root(directory)
+        expect(root, "PENDING", "exact pinned candidate pair")
+        checks += 1
+        assert set(ship_states(root)) == {"epic-136-phase2-gates", "epic-189-a1-project-context"}
+        checks += 1  # both known pairs classified, independently
+
+        (root / LIVE).write_text(LIVE_TEXT + "extra\n", encoding="utf-8")
+        expect(root, "STALE", "live mutation after publication")
+        checks += 1
+
+        (root / LIVE).write_text(LIVE_TEXT, encoding="utf-8")
+        for epic in EPICS:  # staged predecessor mutated, manifest left alone
+            (root / "specs" / epic / "human-copy" / LIVE).write_text(STAGED + "x\n", encoding="utf-8")
+        expect(root, "STALE", "staged mutation after publication")
+        checks += 1
+
+        # Predecessor tampered to equal live: no mismatch left to classify, still refused.
+        for epic in EPICS:
+            (root / "specs" / epic / "human-copy" / LIVE).write_text(LIVE_TEXT, encoding="utf-8")
+        expect(root, "STALE", "staged tampered to equal live")
+        checks += 1
+        (root / LIVE).write_text("both mutated\n", encoding="utf-8")
+        for epic in EPICS:
+            (root / "specs" / epic / "human-copy" / LIVE).write_text("both mutated\n", encoding="utf-8")
+        expect(root, "STALE", "equal mutated live and staged")
+        checks += 1
+        write_pins(root, "{}")
+        expect(root, "STALE", "equal mutated live and staged with unusable pins")
+        checks += 1
+
+    with tempfile.TemporaryDirectory() as directory:
+        root = ship_root(directory)
+        (root / LIVE).write_text(STAGED, encoding="utf-8")  # sync applied: staged == live == pinned predecessor
+        expect(root, "FRESH", "unmutated equal predecessor stays fresh")
+        checks += 1
+
+    with tempfile.TemporaryDirectory() as directory:
+        pins = valid_pins(STAGED, LIVE_TEXT)
+        pins["successors"].pop(0)  # only epic-189 pinned
+        root = ship_root(directory, pins)
+        assert ship_states(root) == {
+            "epic-136-phase2-gates": "STALE",
+            "epic-189-a1-project-context": "PENDING",
+        }, ship_states(root)
+        checks += 1
+
+    with tempfile.TemporaryDirectory() as directory:
+        pins = valid_pins(STAGED, LIVE_TEXT)
+        pins["successors"][0]["staged"] = f"specs/epic-999-unknown/human-copy/{LIVE}"
+        root = Path(directory)
+        stage(root, "epic-999-unknown", LIVE, STAGED)
+        (root / LIVE).parent.mkdir(parents=True)
+        (root / LIVE).write_text(LIVE_TEXT, encoding="utf-8")
+        write_pins(root, pins)
+        assert [r[0] for r in MODULE.classify(directory, MainMap())] == ["PENDING"], (
+            "a pin cannot extend the two known pairs to another bundle"
+        )
+        checks += 1
+    return checks
+
+
+def check_other_mirrors_unchanged() -> int:
+    with tempfile.TemporaryDirectory() as directory:
+        root = ship_root(directory)
+        stage(root, "fixture-stale", OTHER, "staged==main\n")
+        stage(root, "fixture-pending", "plugins/other/pending.txt", "waiting for human\n")
+        stage(root, "fixture-fresh", "plugins/other/fresh.txt", "same\n")
+        (root / OTHER).parent.mkdir(parents=True)
+        for rel, text in ((OTHER, "live moved\n"), ("plugins/other/pending.txt", "live differs\n"),
+                          ("plugins/other/fresh.txt", "same\n")):
+            (root / rel).write_text(text, encoding="utf-8")
+        main = {OTHER: sha("staged==main\n"), "plugins/other/pending.txt": sha("main differs\n")}
+        got = {row[2]: row[0] for row in MODULE.classify(str(root), MainMap(main)) if row[2] != LIVE}
+        assert got == {OTHER: "STALE", "plugins/other/pending.txt": "PENDING",
+                       "plugins/other/fresh.txt": "FRESH"}, got
+        # Unrelated stale/pending stay put even when the ship pins are unusable.
+        write_pins(root, "{broken")
+        again = {row[2]: row[0] for row in MODULE.classify(str(root), MainMap(main)) if row[2] != LIVE}
+        assert again == got, again
+    return 3
+
+
+def check_manifest_digest_independent() -> int:
+    with tempfile.TemporaryDirectory() as directory:
+        root = ship_root(directory)
+        assert list(MODULE.manifest_digest_mismatches(directory)) == []
+        manifest = root / "specs" / EPICS[0] / "human-copy" / "MANIFEST.sha256"
+        manifest.write_text(f"{'0' * 64}  {LIVE}\n", encoding="utf-8")
+        expect(root, "PENDING", "stale manifest digest does not change the pin classification")
+        rows = list(MODULE.manifest_digest_mismatches(directory))
+        assert [(r[0].replace("\\", "/"), r[1], r[2], r[3]) for r in rows] == [
+            (f"specs/{EPICS[0]}/human-copy", LIVE, "0" * 64, sha(STAGED))
+        ], rows
+        # The reverse: a published pair with a correct manifest is not reported.
+        manifest.write_text(f"{sha(STAGED)}  {LIVE}\n", encoding="utf-8")
+        assert list(MODULE.manifest_digest_mismatches(directory)) == []
+    return 2
+
+
+def check_second_edit_is_read_only() -> int:
+    # WFI-043: after the first sync, a second live edit is ambiguous, not permission.
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        stage(root, "second-edit", OTHER, "first branch edit\n")
+        (root / OTHER).parent.mkdir(parents=True)
+        (root / OTHER).write_text("second branch edit\n", encoding="utf-8")
+        before = {str(p.relative_to(root)): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+        rows = list(MODULE.classify(str(root), MainMap({OTHER: sha("main bytes\n")})))
+        assert [r[0] for r in rows] == ["PENDING"], rows
+        after = {str(p.relative_to(root)): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+        assert after == before, "classification must not repair ambiguous historical bytes"
+    return 2
+
+
+def check_extended_successors() -> int:
+    """Exercise all six reviewed consumer/sidecar pairs with real pinned bytes."""
+    fixture_names = (
+        "research-consumer-current-publication.json",
+        "decision-sidecar-current-publication.json",
+    )
+    documents = {
+        name: json.loads((ROOT / "tests/fixtures" / name).read_text(encoding="utf-8"))
+        for name in fixture_names
+    }
+    entries = [(name, entry) for name, document in documents.items()
+               for entry in document["successors"]]
+    assert len(entries) == 6
+    assert {entry["live"] for _, entry in entries} == {
+        "plugins/sdd-quality-loop/scripts/check-contract.py",
+        "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+        "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+        "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+        "plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py",
+        "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+    }
+    checks = 0
+    for fixture, entry in entries:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            live, staged = root / entry["live"], root / entry["staged"]
+            for destination, key, pin in ((live, "live", "live_sha256"), (staged, "staged", "staged_sha256")):
+                original = (ROOT / entry[key]).read_bytes()
+                assert hashlib.sha256(original).hexdigest() == entry[pin], (fixture, key, "repository pin drift")
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(original)
+            bundle = entry["staged"].split("/human-copy/", 1)[0] + "/human-copy"
+            (root / bundle / "MANIFEST.sha256").write_text(
+                f'{entry["staged_sha256"]}  {entry["live"]}\n', encoding="utf-8")
+            pin_file = root / "tests/fixtures" / fixture
+            pin_file.parent.mkdir(parents=True)
+            good = {"schema": documents[fixture]["schema"], "successors": [copy.deepcopy(entry)]}
+
+            def install(document):
+                pin_file.write_text(json.dumps(document), encoding="utf-8")
+
+            def check(expected, label, main=None):
+                before = {p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+                rows = list(MODULE.classify(str(root), MainMap(main)))
+                assert [row[0] for row in rows] == [expected], (fixture, entry["live"], label, rows)
+                after = {p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+                assert before == after, (label, "classification modified evidence")
+
+            install(good)
+            check("PENDING", "exact pinned candidate pair")
+            checks += 1
+            live_bytes, staged_bytes = live.read_bytes(), staged.read_bytes()
+            live.write_bytes(live_bytes + b"\n# live drift\n")
+            check("STALE", "live drift")
+            checks += 1
+            live.write_bytes(live_bytes)
+            staged.write_bytes(staged_bytes + b"\n# staged drift\n")
+            check("STALE", "staged drift")
+            checks += 1
+            staged.write_bytes(live_bytes)
+            check("STALE", "tampered staging equals live")
+            checks += 1
+            staged.write_bytes(staged_bytes)
+            live.write_bytes(staged_bytes)
+            check("FRESH", "both equal pinned predecessor")
+            checks += 1
+            live.write_bytes(live_bytes)
+
+            pin_file.unlink()
+            check("STALE", "missing fixture")
+            checks += 1
+            invalid = []
+            invalid.append(("missing pair", {**good, "successors": []}))
+            invalid.append(("duplicate pair", {**good, "successors": [entry, entry]}))
+            invalid.append(("wrong fixture schema", {**good, "schema": "unreviewed/v1"}))
+            for field, value in (("live_sha256", "0" * 64), ("staged_sha256", "1" * 64),
+                                 ("live", "plugins/unreviewed.py"),
+                                 ("staged", entry["staged"].replace("specs/", "specs/unknown/", 1)),
+                                 ("intentional_changes", " ")):
+                invalid.append((f"forged {field}", {**good, "successors": [{**entry, field: value}]}))
+            for label, document in invalid:
+                install(document)
+                check("STALE", label)
+                checks += 1
+            # A valid record in another publication fixture does not authorize this pair.
+            pin_file.unlink()
+            other_fixture = fixture_names[1] if fixture == fixture_names[0] else fixture_names[0]
+            (root / "tests/fixtures" / other_fixture).write_text(json.dumps(good), encoding="utf-8")
+            check("STALE", "misplaced valid pin")
+            checks += 1
+
+            # Pin entries cannot extend the exact allowlist to an unknown bundle.
+            unknown = "specs/unreviewed-copy/human-copy/" + entry["live"]
+            stage(root, "unreviewed-copy", entry["live"], staged_bytes.decode("utf-8"))
+            install({**good, "successors": [{**entry, "staged": unknown}]})
+            states_by_bundle = {row[1].replace("\\", "/"): row[0]
+                                for row in MODULE.classify(str(root), MainMap())}
+            assert states_by_bundle == {bundle: "STALE", "specs/unreviewed-copy/human-copy": "PENDING"}, states_by_bundle
+            checks += 1
+            states_by_bundle = {row[1].replace("\\", "/"): row[0]
+                                for row in MODULE.classify(str(root), MainMap({entry["live"]: entry["staged_sha256"]}))}
+            assert states_by_bundle == {bundle: "STALE", "specs/unreviewed-copy/human-copy": "STALE"}, states_by_bundle
+            checks += 1
+    return checks
+
+
 def main() -> None:
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
@@ -48,7 +384,77 @@ def main() -> None:
         assert states(root, hashlib.sha256(staged.read_bytes()).hexdigest()) == ["MISSING"], (
             "missing file that exists on main must remain a failure"
         )
-    print("human-copy mirror classification regression: 2 passed")
+        live = root / "plugins" / "example.txt"
+        live.parent.mkdir(parents=True)
+        live.write_text("second branch edit\n", encoding="utf-8")
+        before = {p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+        main_digest = hashlib.sha256(b"main bytes\n").hexdigest()
+        assert states(root, main_digest) == ["PENDING"], "ambiguous second edit must stay pending"
+        assert before == {p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()}, (
+            "classification must not modify reviewed bytes"
+        )
+        assert states(root, hashlib.sha256(staged.read_bytes()).hexdigest()) == ["STALE"]
+        live.write_bytes(staged.read_bytes())
+        assert states(root, main_digest) == ["FRESH"]
+    print("human-copy mirror classification regression: 6 passed")
+    for fixture_name in ('ship-track-selection-current-publication.json', 'decision-sidecar-current-publication.json'):
+        fixture = json.loads((ROOT / 'tests/fixtures' / fixture_name).read_text())
+        for entry in fixture['successors']:
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                live, staged = root / entry['live'], root / entry['staged']
+                for target, original in ((staged, ROOT / entry['staged']), (live, ROOT / entry['live'])):
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes(original.read_bytes())
+                bundle = staged
+                for _ in Path(entry['live']).parts:
+                    bundle = bundle.parent
+                (bundle / 'MANIFEST.sha256').write_text(f"{entry['staged_sha256']}  {entry['live']}\n")
+                pin = root / 'tests/fixtures' / fixture_name
+                pin.parent.mkdir(parents=True)
+                pin.write_text(json.dumps(fixture))
+                assert states(root, entry['staged_sha256']) == ['PENDING']
+                live.write_bytes(live.read_bytes() + b'changed')
+                assert states(root, entry['staged_sha256']) == ['STALE']
+                live.write_bytes(staged.read_bytes())
+                assert states(root, entry['staged_sha256']) == ['FRESH']
+                duplicate = dict(fixture, successors=fixture['successors'] + [entry])
+                pin.write_text(json.dumps(duplicate))
+                assert states(root, entry['staged_sha256']) == ['STALE']
+                pin.write_text(json.dumps(fixture))
+                staged.write_bytes(b'changed staged')
+                live.write_bytes(staged.read_bytes())
+                assert states(root, entry['staged_sha256']) == ['STALE']
+                pin.unlink()
+                assert states(root, entry['staged_sha256']) == ['STALE']
+    print("human-copy mirror classification regression: 26 passed")
+    fixture = json.loads((ROOT / 'tests/fixtures/research-consumer-current-publication.json').read_text())
+    entry = next(e for e in fixture['successors'] if e['live'].endswith('/check-contract.ps1'))
+    for bundle in ('epic-136-phase2-gates', 'epic-191-a3-path-ownership'):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            staged = root / 'specs' / bundle / 'human-copy' / entry['live']
+            live = root / entry['live']
+            for target, original in ((staged, ROOT / entry['staged']), (live, ROOT / entry['live'])):
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(original.read_bytes())
+            manifest = root / 'specs' / bundle / 'human-copy' / 'MANIFEST.sha256'
+            manifest.write_text(f"{entry['staged_sha256']}  {entry['live']}\n")
+            pin = root / 'tests/fixtures/research-consumer-current-publication.json'
+            pin.parent.mkdir(parents=True)
+            pin.write_text(json.dumps(fixture))
+            assert states(root, entry['staged_sha256']) == ['PENDING']
+            live.write_bytes(live.read_bytes() + b'changed')
+            assert states(root, entry['staged_sha256']) == ['STALE']
+            live.write_bytes(staged.read_bytes())
+            assert states(root, entry['staged_sha256']) == ['FRESH']
+            pin.unlink()
+            assert states(root, entry['staged_sha256']) == ['STALE']
+    print("human-copy mirror classification regression: 10 passed")
+    checks = sum(check() for check in (check_ship_successors, check_pins_never_waive,
+                 check_other_mirrors_unchanged, check_manifest_digest_independent,
+                 check_second_edit_is_read_only, check_extended_successors))
+    print(f"candidate mirror mutation matrix: {checks} passed")
 
 
 if __name__ == "__main__":

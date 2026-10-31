@@ -1,0 +1,13 @@
+{
+  "source": "b3b997ed full snapshot in base image",
+  "base_id": "sha256:94f70c069b465338e966fda4239155c76e1a8e0b91322cb0d1de302ff2ba9aea",
+  "suite": "tests/bootstrap-cross-layer-index.tests.sh",
+  "method": "BuildKit local RUN cache; no cache-from/cache import, first request forced no-cache. Same original-run artifacts on warm, require exact known cold artifact hash and imageID. Nonroot RUN/no network/private tmp, source and runtime root-owned image files.",
+  "comparisons": "three native owner executions vs cold plus two warm builds, all export/copy validation overhead included. Prior actual runtime/source image preparation cost separately and included in total.",
+  "negatives": [
+    "source template corruption must fail",
+    "actual owner args and locale changes must execute fresh",
+    "retained output artifact missing/modified must fail integrity check; reacquire only from known pinned image, not admit arbitrary PASS"
+  ],
+  "scope": "scratch only; no product edit, no guard/time dependence bypass; no real repeated caller inferred"
+}

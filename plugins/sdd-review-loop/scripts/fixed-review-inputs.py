@@ -277,6 +277,39 @@ def prepare(repo: Path, commit: str, paths: list[str], output: Path,
     return inventory
 
 
+def reviewer_index(repo: Path, snapshot: Path, inventory: dict) -> dict:
+    """A navigational view of existing fixed inputs, never a reviewer conclusion."""
+    validate_inventory(inventory)
+    paths = [item['path'] for item in inventory['inputs']]
+    verify_revision(repo, inventory['commit'], paths, snapshot, inventory)
+    verify_head_selection(repo, inventory)
+    sources = []
+    for item in inventory['inputs']:
+        source = snapshot / item['path']
+        current = repo / item['path']
+        # The optional human index may not present dirty selected inputs as current.
+        if (current.is_symlink() or not current.is_file()
+                or hashlib.sha256(current.read_bytes()).hexdigest() != item['sha256']):
+            raise ValueError('reviewer index stale: selected working input changed')
+        content = source.read_bytes()
+        if hashlib.sha256(content).hexdigest() != item['sha256']:
+            raise ValueError('reviewer index stale: snapshot changed during preparation')
+        try:
+            lines = len(content.decode('utf-8').splitlines())
+        except UnicodeDecodeError:
+            lines = None
+        sources.append({'path': item['path'], 'source': str(source.resolve()),
+                        'sha256': item['sha256'], 'bytes': len(content), 'lines': lines})
+    state = state_reference(repo, inventory)
+    verify(snapshot, inventory)
+    return {'schema': 'sdd-fixed-review-index/v1', 'commit': inventory['commit'],
+            'inventory_sha256': state['inventory_sha256'], 'sources': sources,
+            'state_reference': state, 'verdict': None,
+            'scope': 'selected fixed inputs; full originals remain mandatory',
+            'unresolved_findings': None,
+            'unresolved_reason': 'not inferred from a navigational index'}
+
+
 def unique_fields(pairs):
     result = {}
     for key, value in pairs:
@@ -288,7 +321,7 @@ def unique_fields(pairs):
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('operation', choices=('prepare', 'verify', 'source-map'))
+    parser.add_argument('operation', choices=('prepare', 'verify', 'source-map', 'reviewer-index'))
     parser.add_argument('--repo', type=Path, required=True)
     parser.add_argument('--commit')
     parser.add_argument('--input', action='append', dest='inputs')
@@ -297,11 +330,14 @@ def main() -> int:
     parser.add_argument('--current-commit', help='compare selected paths only; approval remains bound to --commit')
     args = parser.parse_args()
     try:
-        if args.operation == 'source-map':
+        if args.operation in ('source-map', 'reviewer-index'):
             if args.record.is_symlink() or not args.record.is_file():
                 raise ValueError('inventory must be a regular non-symlink file')
             inventory = json.loads(args.record.read_text(encoding='utf-8'),
                                    object_pairs_hook=unique_fields)
+            if args.operation == 'reviewer-index':
+                print(json.dumps(reviewer_index(args.repo, args.snapshot, inventory)))
+                return 0
             validate_inventory(inventory)
             verify_revision(args.repo, inventory['commit'],
                             [item['path'] for item in inventory['inputs']],

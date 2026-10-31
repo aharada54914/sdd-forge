@@ -1,0 +1,21 @@
+{
+  "schema": "project-skill-manifest/v1",
+  "name": "inspect-issue-602-fixture",
+  "checks": [
+    "read-note"
+  ],
+  "runtime": "python3",
+  "entry": "run.py",
+  "args": [],
+  "requires": [],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "sha256": "28dd575efbfb53ea96521a657bedd33da19b36749203406c52bd0e7fcda43024"
+    },
+    {
+      "path": "run.py",
+      "sha256": "d5a900a2990a1b1a8d0383d07df7e8b3205c1cc8646452e4c0fa83cd193ee832"
+    }
+  ]
+}

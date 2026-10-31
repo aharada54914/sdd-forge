@@ -245,6 +245,19 @@ def _pass2_per_check_rules(checks, root, failures, base_note=""):
             _validate_evidence(f"check '{cid}' evidence", evidence, root, failures, base_note)
 
 
+def _pass_research_evidence(checks, root, failures):
+    # Optional branch: old contracts do not load the newer research runtime.
+    for check in checks:
+        if check.get("id") != "source-evidence" or check.get("passes") is not True:
+            continue
+        try:
+            from research_consumers import relative_file, verify_check_record
+            evidence = relative_file(root, check.get("evidence"))
+            verify_check_record(evidence, root, os.environ.get("SDD_RESEARCH_SNAPSHOT_ROOT"))
+        except Exception:
+            failures.append("check 'source-evidence' fresh original verification failed")
+
+
 def _pass3_required_set(checks, failures):
     """Required-set protection: baseline ids must be present and non-downgraded."""
     present_ids = {check.get("id", "?") for check in checks}
@@ -503,6 +516,7 @@ def run(contract_path, root):
     _pass5b_risk_workflow(contract, failures)
     _pass6_cross_model(checks, contract, failures)
     _pass7_producer_digest(checks, evidence_root, failures)
+    _pass_research_evidence(checks, evidence_root, failures)
 
     return contract.get("task_id", "?"), failures
 

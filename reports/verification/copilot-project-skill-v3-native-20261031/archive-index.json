@@ -1,0 +1,112 @@
+{
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2766,
+      "sha256": "92fde4d2c77b7f7b459aea3998de37a236bf14513a61236752f657ff43d12dd2"
+    },
+    {
+      "path": "evidence.zip",
+      "bytes": 7923,
+      "sha256": "b0e0fea2d58650564804d9317dac8c61c844f6698842f47cd309058b6ea44c19"
+    },
+    {
+      "path": "protocol.json",
+      "bytes": 1844,
+      "sha256": "85f2f2aded2103e2d5660d831498d71628e0b1508a3d9f3f47e6ccd0667bd4b5"
+    },
+    {
+      "path": "result.json",
+      "bytes": 969,
+      "sha256": "ecbb3bbf3d16ac19fe6cecc8b89e7dc6e1882fbccca035400a9aabf780860f7b"
+    }
+  ],
+  "zip_members": [
+    {
+      "path": "additional-directory-check.txt",
+      "bytes": 188,
+      "sha256": "1f051166ed78fc6dcc2d2f5f90348ab7c1d19064108cecca6fdb5644cfdc78b6"
+    },
+    {
+      "path": "before-skills.txt",
+      "bytes": 605,
+      "sha256": "2c46abc7523c025d230b2b356cc4e9c74735cf2401e0438ce81ce09ee1255ade"
+    },
+    {
+      "path": "cleaned-skills.txt",
+      "bytes": 605,
+      "sha256": "2c46abc7523c025d230b2b356cc4e9c74735cf2401e0438ce81ce09ee1255ade"
+    },
+    {
+      "path": "generated-before/.github/skills/verify-app/SKILL.md",
+      "bytes": 278,
+      "sha256": "66c2d9922885af6a3c6fcd5356cc1eff2583e139296ac180cf8542b4a2501072"
+    },
+    {
+      "path": "generated-before/sdd/skill-projections.json",
+      "bytes": 174,
+      "sha256": "f1112b5b2bf0f71e77bbf6c6f2a02112770bd15b2212fae7deccf8b8f3b224e9"
+    },
+    {
+      "path": "generated-before/sdd/skills/verify-app/SKILL.md",
+      "bytes": 579,
+      "sha256": "3eb1b349dbf3b89f7c0fbd67731357b17a1e065fd8928dee53bd96154c56755f"
+    },
+    {
+      "path": "generated-before/sdd/skills/verify-app/run.py",
+      "bytes": 34,
+      "sha256": "496a1b26b01ad94645784389d7999f25b27ea0e444fca68c3e381f818ea12ce8"
+    },
+    {
+      "path": "generated-before/sdd/skills/verify-app/skill-manifest.json",
+      "bytes": 435,
+      "sha256": "ef0f8dd838a6fcbcc2132d1e2ee3ef3cacfddbf0bb576df3cc7452d8e60244c6"
+    },
+    {
+      "path": "generated-before/task-input.json",
+      "bytes": 884,
+      "sha256": "90840ce3fc002f50e228f48e14c481aa1d5c7ae14dbb8e9223137a9012ae5575"
+    },
+    {
+      "path": "native.stdout.txt",
+      "bytes": 981,
+      "sha256": "2849d5778f735ff76ba426f07e0d0ff6c2f4b45af34ed41c78d03e967b210219"
+    },
+    {
+      "path": "owner-reports/project-skill-observations/T-001/run1/smoke-1e5b23f39a3641b2ae46740492c8245d.receipt.json",
+      "bytes": 1277,
+      "sha256": "ba78278c0d48506bafd5d7cc2a9cf2ab8b4baed40dc72fe2082998bebacd20d7"
+    },
+    {
+      "path": "owner-reports/project-skill-observations/T-001/run1/smoke-1e5b23f39a3641b2ae46740492c8245d.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "owner-reports/project-skill-observations/T-001/run1/smoke-1e5b23f39a3641b2ae46740492c8245d.stdout",
+      "bytes": 25,
+      "sha256": "b32938e3e418ce2497d44befa687010d564606983e8bb9c163a122ed857a9743"
+    },
+    {
+      "path": "owner-reports/project-skill-observations/T-001/run1/smoke.json",
+      "bytes": 3055,
+      "sha256": "b9fe61656edb5403fde75a119ec097b2eb41a28cfbc26c195885d555fc54c544"
+    },
+    {
+      "path": "projected-skills.txt",
+      "bytes": 711,
+      "sha256": "330becd6c611d4f826776fd7391782a52731182b14a825d89a3abdeb44d88b9a"
+    },
+    {
+      "path": "trace-selection.json",
+      "bytes": 192,
+      "sha256": "022c5c6d3d00dff58bcd122e8a24cc62331eafb7116fe0da00b9e3b300f6a299"
+    }
+  ],
+  "inspection": {
+    "sensitive_patterns_found": 0,
+    "authentication_files_included": false,
+    "debug_logs_included": false,
+    "environment_values_included": false
+  }
+}

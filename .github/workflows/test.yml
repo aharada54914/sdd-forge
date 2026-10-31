@@ -177,10 +177,24 @@ jobs:
         run: python3 -B tests/traceability-freeze-contract.tests.py
       - name: Install contract validator
         run: npm ci --prefix mcp/ci-mcp --ignore-scripts
+      - name: Prepare private research-store fixture parent
+        shell: bash
+        run: |
+          set -euo pipefail
+          fixture_parent=$(sudo mktemp -d /var/lib/sdd-research-ci.XXXXXXXX)
+          sudo chown "$(id -u):$(id -g)" "$fixture_parent"
+          printf 'SDD_TEST_SHARED_STORE_PARENT=%s\n' "$fixture_parent" >> "$GITHUB_ENV"
       - name: Test shared review launch and conditional input contracts
         shell: bash
         run: |
           python3 tests/verification.py --profile ci-shared-python --run --receipt "$RUNNER_TEMP/verification-shared-python.json"
+      - name: Remove private research-store fixture parent
+        if: always()
+        shell: bash
+        run: |
+          case "${SDD_TEST_SHARED_STORE_PARENT:-}" in
+            /var/lib/sdd-research-ci.*) sudo rmdir "$SDD_TEST_SHARED_STORE_PARENT" ;;
+          esac
       - name: Install pinned domain regression test runner
         shell: pwsh
         run: Install-Module Pester -RequiredVersion 4.10.1 -Scope CurrentUser -Force -SkipPublisherCheck
@@ -253,6 +267,10 @@ jobs:
           fetch-depth: 0
       - name: "[deterministic] Install structural YAML parser"
         run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+
+      - name: "[deterministic] Test measurement clocks on native platforms"
+        shell: pwsh
+        run: python -B tests/run-measurement.tests.py
 
       - name: "[deterministic] Test selected-plan and Lite full promotion on native platforms"
         shell: pwsh

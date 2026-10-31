@@ -1,0 +1,11 @@
+{
+  "native_3_seconds": 17.36285056700035,
+  "buildkit_3_seconds": 46.122568351000155,
+  "prior_observed_image_prepare_seconds": 24.90719965399876,
+  "buildkit_3_plus_prior_prepare_seconds": 71.02976800499891,
+  "cold_run_id": "8b6f6bdddc034413bb999769b59393c3",
+  "actual_owner_runs_in_measured_buildkit_three_requests": 1,
+  "warm_requests": 2,
+  "warm_original_artifacts_identical": true,
+  "note": "Initial export failure/context preparation/dependency diagnosis costs excluded; no performance advantage. Prior preparation includes actual permission-correction rebuild, not idealized clean build estimate."
+}

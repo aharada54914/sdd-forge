@@ -130,6 +130,7 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-review-loop/scripts/impl-review-precheck.sh",
     "plugins/sdd-review-loop/scripts/task-review-precheck.sh",
     "plugins/sdd-review-loop/scripts/launch-impl-review.py",
+    "plugins/sdd-review-loop/scripts/fixed-review-inputs.py",
     "plugins/sdd-review-loop/scripts/preflight-host-review.py",
     "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
     "plugins/sdd-review-loop/scripts/probe-nontty-review.py",
@@ -189,6 +190,11 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-quality-loop/scripts/classify-readonly-inputs.py",
     "plugins/sdd-quality-loop/references/readonly-input-contracts.json",
     "tests/guard-readonly-inputs.tests.py",
+    "plugins/sdd-quality-loop/scripts/run_measurement.py",
+    "plugins/sdd-bootstrap/scripts/project-skill.py",
+    "plugins/sdd-bootstrap/scripts/workflow-playbook.py",
+    "plugins/sdd-bootstrap/scripts/research-sources.py",
+    "plugins/sdd-quality-loop/scripts/workflow-state-session.py",
 )
 EPIC_A1_TARGETS = (
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",

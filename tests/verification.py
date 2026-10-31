@@ -2,6 +2,7 @@
 """Plan and execute registered suites without interpreting workflow source text."""
 import argparse
 import hashlib
+import importlib.util
 import json
 import math
 import os
@@ -135,7 +136,7 @@ def repository_state(root):
             not status.stdout if status.returncode == 0 else None)
 
 
-def execute(catalog, selected, root, profile=None, powershell=None):
+def execute(catalog, selected, root, profile=None, powershell=None, measurement=None):
     revision, clean_before = repository_state(root)
     receipt = {'schema': 'verification-receipt/v1', 'profile': profile,
                'revision': revision, 'clean_before': clean_before, 'reusable': False,
@@ -152,11 +153,14 @@ def execute(catalog, selected, root, profile=None, powershell=None):
             optional = profile in row.get('optional_in', [])
             result.update(status='skipped' if optional else 'failed', exit_code=None, reason='missing-runtime')
         else:
+            span = measurement.start('command', 'suite:' + name, [root / name]) if measurement else None
             try:
                 completed = subprocess.run(command + [name] + row.get('args', []), cwd=root, check=False)
                 result.update(status='passed' if completed.returncode == 0 else 'failed', exit_code=completed.returncode)
             except OSError:
                 result.update(status='failed', exit_code=None, reason='process-start-failed')
+            if measurement:
+                measurement.finish(span, 'success' if result['status'] == 'passed' else 'failure', result['exit_code'])
         result['seconds'] = round(time.monotonic() - start, 6)
         receipt['results'].append(result)
         failed |= result['status'] == 'failed'
@@ -195,8 +199,12 @@ def main():
     parser.add_argument('--shard-count', type=int, default=1)
     parser.add_argument('--receipt', type=Path)
     parser.add_argument('--powershell')
+    parser.add_argument('--measure-dir', type=Path)
+    parser.add_argument('--measure-parent')
     args = parser.parse_args()
     try:
+        if (args.measure_dir or args.measure_parent) and not args.run:
+            raise ValueError('measurement requires run')
         catalog = load_catalog(args.catalog, ROOT)
         if args.suite:
             if args.suite not in catalog['_suites']:
@@ -219,11 +227,28 @@ def main():
                               'selected': selected, 'shard_index': args.shard_index,
                               'shard_count': args.shard_count}, indent=2))
             return 0
-        receipt, code = execute(catalog, selected, ROOT, args.profile, args.powershell)
+        measurement = None
+        if args.measure_parent and not args.measure_dir:
+            raise ValueError('measurement parent requires directory')
+        if args.measure_dir:
+            if args.measure_dir.resolve().is_relative_to(ROOT.resolve()):
+                raise ValueError('measurement directory must be outside the checkout')
+            spec = importlib.util.spec_from_file_location('run_measurement', ROOT / 'plugins/sdd-quality-loop/scripts/run_measurement.py')
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            try:
+                head, clean = repository_state(ROOT)
+                measurement = module.Observer(args.measure_dir, command_id='verification', parent_span_id=args.measure_parent,
+                                              head=head, dirty=None if clean is None else not clean, target_count=len(selected))
+            except module.MeasurementError as exc:
+                raise ValueError('invalid measurement configuration') from exc
+        receipt, code = execute(catalog, selected, ROOT, args.profile, args.powershell, measurement)
         if args.receipt:
             write_receipt(args.receipt, receipt)
         else:
             print(json.dumps(receipt, separators=(',', ':')))
+        if measurement:
+            measurement.close(code, [('verification-receipt', str(args.receipt), None)] if args.receipt else [])
         return code
     except (ValueError, KeyError, TypeError, OSError):
         # Configuration can point outside the checkout; do not echo local paths.

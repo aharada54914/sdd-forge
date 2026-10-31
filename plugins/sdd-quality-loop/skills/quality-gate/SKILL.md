@@ -61,8 +61,28 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
      the report but do not block until the error promotion
      (`SDD_DOMAIN_ENFORCE=error`); when `domain/` is absent the script skips
      with a note.
-   - `check-workflow-state` without `--feature`: validates the canonical
-     persisted-state invariant for every registered specification.
+   - During a correction cycle, `check-workflow-state --feature <feature>` gives
+     early feedback on the selected specification. This result is explicitly
+     feature-scoped and cannot satisfy the final repository-wide check.
+     At finalization run `check-workflow-state` without `--feature`: validates the
+     canonical persisted-state invariant for every registered specification.
+     Any edit after that final check invalidates it; rerun before Done. Never
+     substitute a saved PASS flag, receipt timestamp or feature-only success.
+     Only when the existing measurement owner shows a total-time benefit for
+     several tasks evaluated together on an unchanged repository, an optional
+     supported Linux profile can use `check-workflow-state.sh --batch
+     <requests.json>`. The external request file contains only
+     `{"schema":"workflow-state-batch/v1","requests":["feature/T-001","feature/T-002"]}`.
+     It requests the same full scan for each label; labels do not grant task
+     approval. Keep requests, outputs and measurements outside the checked tree.
+     Accept only this invocation's completed result bound to its final snapshot;
+     retained origin run IDs/timestamps identify any same-process reuse. Exit 2
+     (`cold-required`) means run the ordinary full checker, with no earlier batch
+     PASS reused. Exit 1 retains ordinary failed-check diagnostics. All remaining
+     gates below and independent reviewers still run. This optional profile does
+     not support Git-history reconciliation, conditional external validators,
+     symlinks/ACLs, oversized trees or arbitrary build/test caching. See
+     `docs/adr/0045-workflow-session-reuse.md` for the execution boundary.
    - `check-task-state` on tasks.md.
    - `check-contract` on the task contract: enforces the tier-minimum required
      set (superset rule) and, when `required_workflow` is `tdd`, non-empty
@@ -389,6 +409,9 @@ deterministic gates apply; every check runs as normal.
 
 Set the task to `Done` only when:
 
+- `check-workflow-state` without `--feature` passes against the final input tree,
+  including specifications outside the selected feature. A correction-cycle
+  feature check is early feedback only; it cannot authorize Done.
 - `check-risk` passes: valid tier + rationale, and `high`/`critical` declares
   `Required Workflow: tdd`
 - `check-contract` passes: every required contract check (the tier-minimum
@@ -469,3 +492,39 @@ these excuses — each one launders a claim into a `Done`.
 - An acceptance criterion with no test traced to it.
 - Setting `Done` while a Critical or Major finding is unresolved.
 - Running the critical review in the same context as the implementation.
+
+
+## Optional passive timing
+
+Keep measurement output outside the checkout. Existing execution owners accept
+`--measure-dir <new-empty-directory>` and
+`--measure-parent <open-parent-span-id>`: `tests/verification.py --run` and
+`sdd-lite/lib/run-lite-gate.py`. The immutable `sdd-run-measurement/v1` sidecar is
+observation only. It records separate command/gate/session spans, real outcomes,
+and hashes the owner's receipt/output only after publication. It does not replace
+run-records, contracts, independent review, evidence bundles or final checks.
+
+For existing Bash or PowerShell gate calls, open a measurement with
+`python run_measurement.py open --dir D --measurement-id ID --run-id RUN --scope feature --feature FEATURE`,
+then `start --dir D --phase gate --command-id GATE --span-id SPAN`; execute the
+original gate and save its exit code before calling
+`finish --dir D --span-id SPAN --outcome success|failure --exit-code CODE`.
+Return the saved original gate exit code, not the recorder's. Use an enclosing
+session span for aggregation. Record timeout/interruption only when the execution
+owner actually observed it; exit 124 alone is not a timeout observation.
+`summary` is obtained with `summarize --dir D --as-of none --ref-root ROOT`.
+Human-active and human-wait phases require explicit observation; unobserved time,
+tokens and cost stay null, never zero. Shared boot identity is used where
+available; when no shared monotonic clock domain can be established,
+cross-process duration remains unknown. Consult current-head
+native CI evidence for platform execution rather than inferring it from Linux.
+
+## Optional project evidence collection
+
+The [project evidence collection procedure](../../../../docs/contributor/project-evidence-collection.md)
+uses the existing runner and contract/report/bundle owners. Low-risk ordinary
+collection and prospective Red/Green keep the required checks unchanged.
+High/critical `--prepare` stops before the existing independent review, clean commit
+and signing steps; it does not grant approval or set Done. High/critical work
+retains its existing review and signing requirements. Collection is optional,
+and neither this helper nor an observation file replaces owner-side execution.

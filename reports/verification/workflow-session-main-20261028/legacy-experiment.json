@@ -1,0 +1,32 @@
+{
+  "schema": "workflow-state-legacy-experiment/v1",
+  "source_head": "9296b0ab",
+  "source_sha256": "bd168e57efa163636d916d97baaa963d96a9b33566e61258d1cb3bea4fdda1a1",
+  "candidate_sha256": "544c9ca9bb01465a56df15383164c378682e52fbd8548b0c97eb51011f7a3898",
+  "change": "preload per-feature legacy task membership arrays once instead of invoking jq for each task field",
+  "baseline": {
+    "exit_code": 0,
+    "seconds": 47.766,
+    "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0",
+    "stderr_sha256": "4a04157a5f7d4d9c1237a7e7a8f156719f8f5aa0ae9accfaf7cdc9852629038f"
+  },
+  "candidate": {
+    "exit_code": 0,
+    "seconds": 47.467,
+    "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0",
+    "stderr_sha256": "4a04157a5f7d4d9c1237a7e7a8f156719f8f5aa0ae9accfaf7cdc9852629038f"
+  },
+  "differential": {
+    "cases": 20,
+    "features": 2,
+    "same_exit_stdout_stderr": true,
+    "negative_cases_rejected": true
+  },
+  "limitations": [
+    "one run per variant; candidate execution overlapped a separate differential test",
+    "not a controlled speed comparison or evidence of improvement",
+    "jq failure before scanning an empty task file may change error behavior",
+    "protected source was not changed; candidate discarded",
+    "no automatic application, approval, or task completion"
+  ]
+}

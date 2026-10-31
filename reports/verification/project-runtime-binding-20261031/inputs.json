@@ -1,0 +1,10 @@
+{
+  "reusable": false,
+  "files": {
+    "plugins/sdd-bootstrap/scripts/project-skill.py": "4c40be46097fb928dfcee68df81beb8be78ac94722c62c158e0311942e8a7774",
+    "plugins/sdd-quality-loop/scripts/validate-project-skill.py": "b3590913633894d896fd5843df1e6017d46df03db81abbe1959041689cffd8bc",
+    "contracts/project-verification-observation.schema.json": "9b3849985c65e601c82483a58526e35a8667cb7dd460121e24cf8ad9f708e72d",
+    "tests/project-skill-lifecycle.tests.py": "48b46a63b50274ba8ad6089bd067bdcd9b2698a77ebd9ed217e5de588f8344c2",
+    "tests/project-skill-observation.tests.py": "b7a1cc3ab7314aa8673291479d50e06f17dd234f462ae451b441fc7da5b31856"
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "original_root": "/workspace/scratch/issue-resolution-20261031/copilot-project-skill-discovery",
+  "archive_sha256": "d7ba933050e50b635f7840e15fa667686e62791bcda1c614ade07a69544f0871",
+  "files": [
+    {
+      "path": "before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "before.stdout.txt",
+      "bytes": 605,
+      "sha256": "2c46abc7523c025d230b2b356cc4e9c74735cf2401e0438ce81ce09ee1255ade"
+    },
+    {
+      "path": "cleaned.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "cleaned.stdout.txt",
+      "bytes": 605,
+      "sha256": "2c46abc7523c025d230b2b356cc4e9c74735cf2401e0438ce81ce09ee1255ade"
+    },
+    {
+      "path": "evaluate.py",
+      "bytes": 3516,
+      "sha256": "95d4d26eed269d8007b2ed99a380ba62c2a0b1a6010a5222b3222403c8608d5f"
+    },
+    {
+      "path": "generated/.github/skills/inspect-issue-602-copilot-fixture/SKILL.md",
+      "bytes": 306,
+      "sha256": "b5128e664a096c0661cdd883599ae149c45868df6179284f4fa04192b976ff24"
+    },
+    {
+      "path": "generated/sdd/skill-projections.json",
+      "bytes": 197,
+      "sha256": "9f2b0a7eee10415be7c8dad562dd1afa2c9ef06546d01e308cd027117d4d5a21"
+    },
+    {
+      "path": "generated/sdd/skills/inspect-issue-602-copilot-fixture/SKILL.md",
+      "bytes": 241,
+      "sha256": "da0bb87353d805ea11b96eed559ce347494c6cc1b2a207672321998ddf82a099"
+    },
+    {
+      "path": "generated/sdd/skills/inspect-issue-602-copilot-fixture/skill-manifest.json",
+      "bytes": 462,
+      "sha256": "f595f3209cae8983619c676e857da30e523141f465be77b046d64f29b45e9b48"
+    },
+    {
+      "path": "project.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "project.stdout.txt",
+      "bytes": 135,
+      "sha256": "c1af8159784eccef0a69d7db8ebddc61c06ce69470d19d47411ee6d6bc45441c"
+    },
+    {
+      "path": "projected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projected.stdout.txt",
+      "bytes": 716,
+      "sha256": "a2cde2c0a58c558dfb37958bd283be608c6005a4cf5b9116e2fb687f2ac94804"
+    },
+    {
+      "path": "result.json",
+      "bytes": 2654,
+      "sha256": "24fde42fb21d57a86c8fcb957cf7daa51149d2e764e0b082e9bec7a7ac722098"
+    },
+    {
+      "path": "seal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "seal.stdout.txt",
+      "bytes": 142,
+      "sha256": "875de4b04d48de7b96ab1655531ce44adf8f019fc3ddc4724e4e9825c881f0e5"
+    },
+    {
+      "path": "version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "version.stdout.txt",
+      "bytes": 71,
+      "sha256": "3696964b10cc5113d5195f7f61fa27935bbe62aa38adf429797c29613116c247"
+    }
+  ]
+}
