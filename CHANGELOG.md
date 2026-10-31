@@ -12,6 +12,7 @@
 - 明示された公開ホストからの制限付き取得と、ローカル原文の引用照合を追加（#606・#607 の一部）。
 - 外部資料・主張・引用・保存条件を区別する研究根拠契約と受動的な検証器を追加（#605 の一部）。
 - 過去の失敗に基づく固定ケースと、生成成果物を比較するオフライン評価器を追加（#600 の一部）。この評価器はモデルを起動せず、採用判断を自動化しない。
+- Linux の隔離済み workflow-state 全体検査について、同じ入力を使う同一プロセス内の任意バッチを追加。対象外の場合は通常の全体検査が必要（#615 の一部）。
 - Add an opt-in loopback-only status view to sdd-forge-mcp. It displays current read-only project state, the next step and later phases without inventing unknown states.
 
 ## v1.18.0 (2026-10-01)

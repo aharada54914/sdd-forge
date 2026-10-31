@@ -272,6 +272,7 @@ ADDITIONAL_PROTECTIONS = (
     'tests/lib/cross-runtime-consumer-evidence.py',
     'plugins/sdd-bootstrap/scripts/workflow-playbook.py',
     'plugins/sdd-quality-loop/scripts/run_measurement.py',
+    'plugins/sdd-quality-loop/scripts/workflow-state-session.py',
     'plugins/sdd-bootstrap/scripts/project-skill.py',
     'plugins/sdd-bootstrap/scripts/research-sources.py',
 )

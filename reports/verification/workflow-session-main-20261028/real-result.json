@@ -1,0 +1,24 @@
+{
+  "scope": "one ordered local comparison on the actual branch; no task approval or full-lifecycle claim",
+  "head": "f325bf461082631a0e5a0e92aa2ec8cfe34de041",
+  "gate_sha256": "b8944ffe8612e32b8d85db8c4c0aca2cc741acdc1b43124c001a0571c2e823aa",
+  "ordinary": {
+    "exit_code": 0,
+    "seconds": 42.089,
+    "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0",
+    "stderr_sha256": "4a04157a5f7d4d9c1237a7e7a8f156719f8f5aa0ae9accfaf7cdc9852629038f"
+  },
+  "batch": {
+    "exit_code": 2,
+    "seconds": 0.404,
+    "status": "cold-required",
+    "reason": "snapshot-file-limit",
+    "complete": false
+  },
+  "fallback": {
+    "exit_code": 0,
+    "seconds": 41.077,
+    "stdout_sha256": "ad9b2c9a65db2e59c772e09a8d427e5ba9476aecd6819fe79554dac63b36c4d0",
+    "stderr_sha256": "4a04157a5f7d4d9c1237a7e7a8f156719f8f5aa0ae9accfaf7cdc9852629038f"
+  }
+}
