@@ -563,5 +563,24 @@
       "reason": "active PR, integration/release/verification ref, or unique history"
     }
   ],
-  "deleted_at": "2026-10-25T05:09:05.308407+00:00"
+  "deleted_at": "2026-10-25T05:09:05.308407+00:00",
+  "followups": [
+    {
+      "observed_at": "2026-10-31",
+      "integration_head": "87ad0fefd14a987ff97e98a1f2c5d7045494409d",
+      "reason": "Merged PRs; exact tips are ancestors of integration head; no open PR head/base or local worktree references; atomic remote deletion succeeded. Active split PR branches retained.",
+      "deleted": [
+        {
+          "branch": "work-20261028-015817-review-recovery-integration",
+          "sha": "4bc3f660c3db9452bb354b43f3140c40c339baa3",
+          "pr": 658
+        },
+        {
+          "branch": "work-20261028-021530-evaluation-evidence",
+          "sha": "0fa01789bbbfb00eb5d74a818a7318475fc12057",
+          "pr": 659
+        }
+      ]
+    }
+  ]
 }

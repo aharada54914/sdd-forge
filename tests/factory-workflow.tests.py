@@ -726,5 +726,138 @@ class FactoryContracts(unittest.TestCase):
         self.assertTrue(report["safety_regression"])
 
 
+
+class AdmissionPlanTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.adapter = load("factory_admission", "plugins/sdd-bootstrap/scripts/factory-adapter-readiness.py")
+
+    def job(self, name, **changes):
+        row = dict(id=name, feature=name, kind="isolated_prototype", workspace="preview",
+                   dependencies=[], paths=[name + "/app.py"], ports=[], databases=[], seeds=[],
+                   seconds=10, reviewers=1)
+        row.update(changes)
+        return row
+
+    def request(self, parallel=2):
+        return dict(schema="factory-admission-request/v1",
+                    limits=dict(parallel=parallel, features=parallel, reviewers=parallel,
+                                remaining_runs=20, remaining_seconds=200, ready_limit=3,
+                                wait_limit_seconds=120),
+                    active=[], queued=[self.job("a"), self.job("b")], completed=[],
+                    decision_queue=dict(ready_count=0, mean_review_seconds=None))
+
+    def test_bounded_two_four_eight_and_input_preservation(self):
+        for count in (2, 4, 8):
+            request = self.request(count)
+            request["queued"] = [self.job("job" + str(i)) for i in range(10)]
+            before = copy.deepcopy(request)
+            result = self.adapter.plan(request)
+            self.assertEqual(len(result["selected"]), count)
+            self.assertEqual(request, before)
+            self.assertFalse(result["dispatch_authorized"])
+            self.assertFalse(result["cost_guarantee"])
+            self.assertEqual(result, self.adapter.plan(request))
+
+    def test_duplicate_events_and_incomplete_dependency_never_selected(self):
+        request = self.request()
+        request["queued"] = [self.job("a"), self.job("a"), self.job("b", dependencies=["a"])]
+        result = self.adapter.plan(request)
+        self.assertEqual(result["selected"], [])
+        self.assertEqual(result["deferred"][0]["reasons"], ["duplicate-work-order"])
+        self.assertIn("dependencies-incomplete", result["deferred"][2]["reasons"])
+        request["queued"] = [self.job("b", dependencies=["a"])]
+        request["completed"] = ["a"]
+        self.assertEqual(self.adapter.plan(request)["selected"], ["b"])
+
+    def test_active_reservations_and_replayed_work_order(self):
+        request = self.request()
+        request["active"] = [self.job("a")]
+        result = self.adapter.plan(request)
+        self.assertEqual(result["selected"], ["b"])
+        self.assertEqual(result["active_unchanged"], ["a"])
+        self.assertIn("duplicate-work-order", result["deferred"][0]["reasons"])
+        request["limits"]["remaining_seconds"] = 19
+        self.assertEqual(self.adapter.plan(request)["selected"], [])
+
+    def test_file_ancestor_and_resource_conflicts(self):
+        for field, shared, expected in (("paths", ["src"], "path-conflict"),
+                                        ("ports", [8080], "ports-conflict"),
+                                        ("databases", ["db"], "databases-conflict"),
+                                        ("seeds", ["seed"], "seeds-conflict")):
+            request = self.request()
+            for row in request["queued"]:
+                row[field] = shared
+            if field == "paths":
+                request["queued"][1][field] = ["src/child.py"]
+            result = self.adapter.plan(request)
+            self.assertEqual(result["selected"], ["a"])
+            self.assertIn(expected, result["deferred"][0]["reasons"])
+        request = self.request()
+        for row in request["queued"]:
+            row.update(kind="read_only", paths=["src"])
+        self.assertEqual(self.adapter.plan(request)["selected"], ["a", "b"])
+        request["queued"][0]["kind"] = "isolated_prototype"
+        self.assertEqual(self.adapter.plan(request)["selected"], ["a"])
+
+    def test_budget_reviewers_features_and_human_wait_limits(self):
+        for field, value, expected in (("remaining_runs", 0, "run-time-budget"),
+                                       ("remaining_seconds", 9, "run-time-budget"),
+                                       ("reviewers", 0, "reviewer-capacity")):
+            request = self.request()
+            request["limits"][field] = value
+            self.assertEqual(self.adapter.plan(request)["selected"], [])
+            self.assertIn(expected, self.adapter.plan(request)["deferred"][0]["reasons"])
+        request = self.request()
+        request["limits"]["features"] = 1
+        self.assertEqual(self.adapter.plan(request)["selected"], ["a"])
+        for ready, mean in ((3, 1), (2, 60), (1, None)):
+            request = self.request()
+            request["active"] = [self.job("running-quality")]
+            request["decision_queue"] = dict(ready_count=ready, mean_review_seconds=mean)
+            result = self.adapter.plan(request)
+            self.assertEqual(result["selected"], [])
+            self.assertEqual(result["active_unchanged"], ["running-quality"])
+            self.assertIn("human-queue-limit", result["deferred"][0]["reasons"])
+
+    def test_product_write_never_uses_plan_as_task_approval(self):
+        request = self.request()
+        request["queued"][0]["kind"] = "product_write"
+        result = self.adapter.plan(request)
+        self.assertEqual(result["selected"], ["b"])
+        self.assertIn("task-approval-integration-required", result["deferred"][0]["reasons"])
+
+    def test_invalid_or_unknown_input_rejected(self):
+        mutations = [lambda r: r.update(approved=True),
+                     lambda r: r["limits"].update(remaining_seconds=None),
+                     lambda r: r["limits"].update(parallel=True),
+                     lambda r: r["queued"][0].update(paths=["../outside"]),
+                     lambda r: r["queued"][0].update(kind="read_only", paths=None),
+                     lambda r: r["queued"][0].update(ports=[65536]),
+                     lambda r: r["queued"][0].update(dependencies=["a"]),
+                     lambda r: r.update(active=[self.job("x"), self.job("x")]),
+                     lambda r: r.update(active=[self.job("x")], completed=["x"])]
+        for mutate in mutations:
+            request = self.request()
+            mutate(request)
+            with self.assertRaises(ValueError):
+                self.adapter.plan(request)
+
+    def test_actual_cli_and_duplicate_json_rejection(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "request.json"
+            path.write_text(json.dumps(self.request()))
+            command = [sys.executable, str(ROOT / "plugins/sdd-bootstrap/scripts/factory-adapter-readiness.py"),
+                       "--plan", str(path)]
+            result = subprocess.run(command, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(result.stdout)["selected"], ["a", "b"])
+            path.write_text('{"schema": "a", "schema": "b"}')
+            result = subprocess.run(command, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 2)
+            self.assertEqual(result.stdout, "")
+            self.assertIn("duplicate-json-key", result.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,30 @@
 # Open issue dependency and execution plan
 
+## Current integration and admission follow-up — 2026-10-31
+
+The remote task branch advanced through PRs #658/#659. Their integrated head
+`87ad0fef` passed hosted run 40869236870. Local work was fast-forwarded without
+rewriting those commits or discarding changes. #620 is closed by the actual
+weekly recovery; native Codex invocation and the later evaluation packets
+supersede the historical authentication blocker below.
+
+#623 now has a bounded pure admission proposal on the existing readiness command.
+It accounts for active reservations, duplicate work orders, completed dependencies,
+feature/file/preview conflicts, run/time and reviewer budgets, and human decision
+queue limits. Unknown budgets reject; a nonempty queue with unknown review time
+suppresses new proposals. Product-write requests remain deferred pending actual
+approval integration. Its output always says dispatch_authorized=false: no lease,
+reservation, approval, dispatch or fresh host observation is inferred from JSON.
+The existing cataloged factory suite passes 46 tests, including eight new policy/
+CLI tests and simulated 2/4/8 limits. Actual host comparisons remain unperformed.
+ADR-0043 now records the genuine Actions/subreaper evidence and the remaining
+lease/resource/reconciliation integration, rather than treating all execution as
+unavailable. No persistent scheduler or second task authority was added.
+
+The stored #624 owner feedback and selection are limited historical evidence.
+This continuation does not change this chat's fixture-only instruction, infer
+missing task/release approval, or claim measured real-user timing/error outcomes.
+
 ## Active continuation — 2026-10-27 UTC
 
 A follow-up real Actions run (40544596926) used the existing Linux subreaper
