@@ -9,6 +9,10 @@ MCP サーバーについては、[README.md](README.md) の「MCP サーバー�
 
 SDD のワークフロー手順・Skill の選び方・トラブルシューティングは別ドキュメントに分割済みで、対応表は末尾の [旧ユーザーガイドからの移行先](#旧ユーザーガイドからの移行先) にまとめてあります。**SDD の使い方を初めて学ぶ方は [docs/workflow-guide.md](docs/workflow-guide.md) の正常系フローからお読みください。**
 
+外部根拠の調査は既存の bootstrap `investigate` / `feature` から内部スキルを利用します。
+[research-sources の説明](docs/skill-reference.md#research-sources内部スキル)と
+[取得・引用照合・保存期限・レビュー連携の手順](plugins/sdd-bootstrap/references/research-workflow.md)を参照してください。MCP に書き込み権限を追加する機能ではありません。
+
 ## エージェントモデルルーティング — Effort Policy
 
 `select-agent-model` の `--effort-policy` は、T-007 (Issue #155,

@@ -1,6 +1,6 @@
 # SDD スキルリファレンス
 
-7つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite、sdd-domain）に含まれる26のスキル（＋ `plugins/` 外の単独スキル1件: [`skills/adversarial-review`](#skillsadversarial-reviewplugins-外の単独スキル)）の詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+7つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite、sdd-domain）に含まれるスキル（＋ `plugins/` 外の単独スキル1件: [`skills/adversarial-review`](#skillsadversarial-reviewplugins-外の単独スキル)）の詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
 
 > **2コマンドワークフロー**: 標準の feature workflow は `/sdd-bootstrap:bootstrap` と `/sdd-ship:ship` の2つで開始します。人間専用の補助コマンドを含む可視性契約は、この後の一覧を参照してください。
 
@@ -16,6 +16,7 @@
 | domain-review-loop | sdd-domain | `domain/` 成果物セット（戦略/戦術）を `domain-reviewer-a/b` が独立レビューし、検証済み verdict を永続化。`Domain-Model-Status: Pending → Reviewed` に遷移できる唯一の機構（`Approved` は人間のみ）。承認後のドリフトも検出 | domain-interviewer | — (人間承認待ち) |
 | domain-sync | sdd-domain | Approved な `domain/` を検出し、正準の Bounded Context と用語を sdd-bootstrap Phase 1 の requirements.md / design.md へ注入。`domain/` 不在または未 Approved なら skip 行を1行だけ記録して継続し、仕様生成をブロックしない | sdd-bootstrap-interviewer [Phase 1 冒頭] | sdd-bootstrap-interviewer [Phase 1 生成] |
 | sdd-adopt | sdd-bootstrap | 既存プロジェクトにSDD構造を導入 | — | investigate-codebase, sdd-bootstrap-interviewer |
+| research-sources | sdd-bootstrap | 外部一次資料の二経路探索・原文照合・未確認事項を保持して既存レビューへ渡す内部スキル | bootstrap investigate / feature | sdd-bootstrap-interviewer |
 | investigate-codebase | sdd-bootstrap | コードベース・問題領域の読み取り調査 | sdd-adopt | sdd-bootstrap-interviewer |
 | sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様生成 [Phase 1] と タスク生成 [Phase 2] | investigate-codebase (任意) | spec-review-loop → impl-review-loop (Phase 1後), task-review-loop (Phase 2後) |
 | design-sync-loop | sdd-bootstrap | UI アプリ（`ds_profile: custom`）で `design-system/` 契約を保証（ui-ux-pro-max シード生成 / Figma DTCG 取込 / テンプレートインタビュー）し、トークン駆動モックアップの確認ループを回す（claude.ai/design 連携・任意・非ブロッキング） | sdd-bootstrap-interviewer, lite-spec | — |
@@ -66,6 +67,18 @@ Source: https://github.com/example/repo/issues/42
 ```
 
 **詳細は** `plugins/sdd-bootstrap/skills/bootstrap/SKILL.md` **を参照。**
+
+---
+
+### research-sources（内部スキル）
+
+外部根拠が必要な bootstrap `investigate` / `feature` から利用します。
+公開スラッシュコマンドは追加しません。3–6件の主張を定め、公式資料と引用追跡の二経路を予算内で探索し、原文・引用・版hash・未解決事項を記録します。
+取得、引用照合、HTML表示、REQ/ADRへの根拠結合、更新候補と影響照会は既存の検証・レビュー所有者につなぎます。
+
+[スキル本文](../plugins/sdd-bootstrap/skills/research-sources/SKILL.md)と
+[コマンド・保存権限・対応範囲](../plugins/sdd-bootstrap/references/research-workflow.md)を参照してください。
+検索結果や原文は信頼しないデータとして扱い、取得失敗や未検証を成功へ読み替えません。引用一致は意味の正しさや人間の承認を表しません。
 
 ---
 

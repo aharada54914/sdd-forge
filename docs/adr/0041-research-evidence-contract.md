@@ -14,5 +14,6 @@ permission does not authorize storing or redistributing the original. Source
 retrieval, original comparison, human judgment and gate outcomes are separate.
 
 Validation alone does not establish source truth, legal permission or gate PASS.
-Acquisition, review integration, stale analysis and graph queries are separate
-follow-up work. This proposed decision does not grant task approval.
+Acquisition, review integration, stale analysis and graph queries remain separate
+from this passive validator. Their implemented owners and usage are documented
+in the [research workflow](../../plugins/sdd-bootstrap/references/research-workflow.md). This proposed decision does not grant task approval.

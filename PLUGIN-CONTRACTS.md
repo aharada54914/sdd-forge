@@ -40,7 +40,7 @@ specification and implementation review input owners. An optional
 mechanism changes reviewer identity or approval authority.
 
 The optional project-evidence collector maps a fresh admitted execution into
-existing contract/report formats. It does not import a claimed PASS or perform
+existing contract/report formats (see [collection procedure](docs/contributor/project-evidence-collection.md)). It does not import a claimed PASS or perform
 an independent review or task transition. High and critical work requires the
 existing separate review and signing process.
 

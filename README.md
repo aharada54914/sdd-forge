@@ -2,6 +2,10 @@
 
 v1.18.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
 
+外部一次資料を調べる場合は、既存の bootstrap `investigate` / `feature` から内部の
+[research-sources](plugins/sdd-bootstrap/skills/research-sources/SKILL.md) を利用できます。
+[調査・取得・原文照合・更新確認の手順](plugins/sdd-bootstrap/references/research-workflow.md)を参照してください。資料や引用の検証は、内容の真偽やタスク承認を自動確定しません。
+
 ## クイックスタート（2コマンド）
 
 ```bash

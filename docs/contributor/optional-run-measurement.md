@@ -21,6 +21,22 @@ Missing token usage, cost, human active time, and incomplete spans are reported
 as unknown rather than inferred. An invalid or already-used measurement
 directory is rejected before the run starts.
 
-This slice instruments the verification runner and Lite gate only. Full-gate
-instrumentation, representative baseline comparisons, and the other acceptance
-conditions for issue #614 require separate validation.
+Full Bash/PowerShell gate calls can use the passive `open` / `start` / `finish`
+API described in the quality-gate skill's Optional passive timing section. Use
+an enclosing session span, capture the original gate's exit code before recording,
+and return that saved code even when recording fails. An exit code alone does not
+establish timeout or human activity. This is caller-side instrumentation, not an
+automatic replacement for the Full execution owner.
+
+The [fixed-input baseline and overhead comparison](../../reports/verification/measurement-20261025/README.md)
+is preserved with its original baseline c5a02f06 and candidate dc0c17c2. It is
+historical performance evidence, not a benchmark of the current integration.
+The [bounded batch comparison](../../reports/verification/workflow-session-comparison-20261025/README.md)
+records zero reuse on the original large workload and benefits only for some
+eligible multi-request fixtures; the half-time goal was not achieved. Do not
+recommend batching without a measured total-time benefit for the actual input.
+
+Golden grader success counts are not valid-hypothesis counts. The run/experiment/
+variant references support attribution, but no human hypothesis-adjudication
+measurement is supplied by those historical grader results; that quantity remains
+unknown until an explicit evaluation supplies it.

@@ -75,3 +75,13 @@ The collector suite exercises actual Red/Green and the complete critical
 prepare/dirty rejection/clean commit/sign/verify route using explicitly synthetic
 manual checks, an explicitly synthetic independent report, and a synthetic key.
 This verifies integration, not production reviewer authority or real acceptance.
+
+## Measured preparation scope
+
+The [source-pinned collector comparison](../../reports/verification/collector-comparison-20261025/README.md)
+retains six matched pairs of the same smoke fixture and its original checker
+results. Caller-side field transfers fell from 20 to 0; both paths required zero
+post-validation corrections. These are scripted machine operations, not measured
+human active time, lower error rate, or whole-project speedup. The existing optional-check
+waivers in the legacy-format smoke fixture remain explicit, and high/critical acceptance is not inferred
+from that comparison.

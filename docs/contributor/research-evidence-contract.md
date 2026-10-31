@@ -12,6 +12,7 @@ python3 "<installed-root>/plugins/sdd-quality-loop/scripts/validate-research-evi
 Use `--previous` when validating an earlier record's append-only history.
 Validation reports the scope actually checked and does not fetch sources,
 verify real-world truth, grant storage rights, approve tasks or pass a quality
-gate. Keep unlicensed originals out of the repository. The source-acquisition,
-original-quote comparison and review-integration workflows remain separate
-follow-up work.
+gate. Keep unlicensed originals out of the repository. Source acquisition, original-quote comparison and review integration have
+separate owners described in the [research workflow](../../plugins/sdd-bootstrap/references/research-workflow.md)
+and [acquisition boundaries](research-acquisition.md). The metadata validator
+does not execute those operations.

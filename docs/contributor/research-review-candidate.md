@@ -12,6 +12,8 @@ detect drift. The fixture is a test input, not a reviewer signature or an
 approval of the current candidate. Frozen human-copy files and their manifest
 are unchanged. Fresh review of these current scripts is required.
 
-The A9 interrupted-review recovery change is being composed separately in
-PR #658. This main-based research candidate does not contain that recovery
-change; integration must preserve both changes and revalidate the combined bytes.
+The combined main candidate supersedes the earlier split PR description. It
+preserves the integrated review-launch behavior and restores research admission
+to the workflow-state owners. The [integration verification](../../reports/verification/research-workflow-integration-20261031/README.md)
+records the 20 expanded conditional cases and 10 bounded-session cases. This
+is not evidence of A9 activation, promotion or release acceptance.
