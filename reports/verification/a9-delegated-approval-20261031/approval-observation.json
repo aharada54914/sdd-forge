@@ -1,0 +1,23 @@
+{
+  "schema": "sdd-delegated-approval-observation/v1",
+  "recorded_at": "2026-10-31T23:07:49.817541+00:00",
+  "source_commit": "555bfb5f15265f622a353a946e3fd6b04ab575de",
+  "owner": "aharada54914",
+  "authorization_source": "User message in development session; recorded by agent, not an independently signed user attestation",
+  "authorization_verbatim": "君が代理でクラウド環境でやってください\n承認する",
+  "scope": [
+    "Prospective T-001 operational acceptance scope",
+    "Single-owner registry proposal",
+    "Exact Phase-1 advisory Context candidate and delegated cloud signing"
+  ],
+  "candidate_sha256": "a43669c40d374b1411df0ba2f3ed84c4fb05d337c33e850e157f9c612702076a",
+  "signing_executor": "development agent acting on explicit owner delegation",
+  "key_custody": "dedicated agent-accessible cloud file outside repository; directory 0700, file 0600",
+  "adr_0019_external_agent_inaccessible_key_requirement_met": false,
+  "signer_exit_code": 0,
+  "validator_exit_code": 0,
+  "validation_independent": false,
+  "live_context_published": false,
+  "task_status": "Planned",
+  "issue_678_complete": false
+}

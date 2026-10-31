@@ -1,0 +1,15 @@
+{
+  "approval_epoch": 1,
+  "context_sha256": "sha256:de192ae4b2077529189ca2bd05724c7ae1ef0bf5e9c1b5918e3b2654c1ec5c3b",
+  "effective_at": null,
+  "hmac": "380dfb9809694c8f84cef19202d57ca8ac7a5088a48d75282ee9672ebb952ee2",
+  "predecessor_context_sha256": null,
+  "primary_approval": {
+    "approved_at": "2026-10-31T23:07:49Z",
+    "approver": "aharada54914",
+    "status": "Approved"
+  },
+  "schema": "sdd-project-context-approval/v1",
+  "second_approval": null,
+  "weakening_verdict": null
+}
