@@ -1,0 +1,173 @@
+{
+  "files": {
+    "README.md": {
+      "published": "notes/original-readiness.md",
+      "sha256": "7db0b6572ce1f659ba6b05632a9f23f24d9d5220f5ea9f89e222364dc5e132d9"
+    },
+    "REVIEW-DECISIONS.md": {
+      "published": "notes/review-decisions.md",
+      "sha256": "acfa8c21bbab1b18af01e242734c9a35fde1c16c0dd290be707c1a312f9bd59b"
+    },
+    "phase1-preflight.json": {
+      "published": "phase1.json",
+      "sha256": "f01dd7002aa3c648c5c21b6b185804159ff28609a44995a4ab4b287c2616cb2a"
+    },
+    "phase1-preflight.stderr": {
+      "published": "phase1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "prepared-request.json": {
+      "published": "draft/request.json",
+      "sha256": "1d8a32090b9986f8b96df988082adec46bb1a258268e7d249c47fa468ba2ce61"
+    },
+    "readiness-status.json": {
+      "published": "status.json",
+      "sha256": "114cf0200f45614ccd90c2bd932a45251f7ca1057c1fed73f31c2273f329b435"
+    },
+    "readiness.json": {
+      "published": "readiness.json",
+      "sha256": "097ca39d0aed1c805aa271bb8e7e5bc7c32d6d9877e5145d1be3416c2a44dcde"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/requirements.md": {
+      "published": "draft/requirements.md",
+      "sha256": "a14bf5b038d2b5571a78e361d8ae92cf65dbe47dc3216f1ab3a304ee7dcf7a6c"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/tasks.md": {
+      "published": "draft/tasks.md",
+      "sha256": "6c7d3492d7c1e7869f7236c25c63b0da7a1f365337cfa43c9b706bb0baf2be53"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001.contract.json": {
+      "published": "draft/contract.json",
+      "sha256": "672596e008bf8b511e9b93ddb65fa3b2224608bbe81a1ba0dcf6fe756c556c0c"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/build.execution.json": {
+      "published": "e/build.execution.json",
+      "sha256": "b1ec0080f224cbab5e164184860d7e31a1727644ba09704744401dfc43f775a9"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/build.stderr": {
+      "published": "e/build.stderr",
+      "sha256": "aee7cfc434d57ab7cd0e818d5933a6792bc6a71986b1809662c164553b3bcc3d"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/build.stdout": {
+      "published": "e/build.stdout",
+      "sha256": "a56895355b2526ada6a8d51836a6ede03f11e71040d39b826b5bec87892ff090"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/contract-check.execution.json": {
+      "published": "e/contract-check.execution.json",
+      "sha256": "25f5636301650de3d33de798d06ca058423691abfab472cab05d60300131bd3a"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/contract-check.stderr": {
+      "published": "e/contract-check.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/contract-check.stdout": {
+      "published": "e/contract-check.stdout",
+      "sha256": "226049070e0ca3c9f082bd28ae1d79f3d55e3027ff49b3673476133e7e50c773"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/executions.json": {
+      "published": "e/executions.json",
+      "sha256": "14cfeacb5aa491e042717e30c7042c6ffd4de9f0f28cddaaab86429df3c7be30"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/fullsuite.execution.json": {
+      "published": "e/fullsuite.execution.json",
+      "sha256": "6b5337844ec3b6c37a0094201718cc9acfaf0522cc8f2cbb5810069cf90d908c"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/fullsuite.stderr": {
+      "published": "e/fullsuite.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/fullsuite.stdout": {
+      "published": "e/fullsuite.stdout",
+      "sha256": "f3575e0aa82d4a55f464600b97df577bfcb13ad99ce2b4c2a0a8c5786aa5b08d"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/install.stderr": {
+      "published": "e/install.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/install.stdout": {
+      "published": "e/install.stdout",
+      "sha256": "d04a0e29cc8c06d7fd5b1938b446968ec0b0763c54e0aca45bfa5c13b12b7500"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/lint.execution.json": {
+      "published": "e/lint.execution.json",
+      "sha256": "6b779267eecfa0dca5b345b7cd73100e74c17bd20c78a2965e66c158a4ec9fbf"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/lint.stderr": {
+      "published": "e/lint.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/lint.stdout": {
+      "published": "e/lint.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/placeholder-scan.execution.json": {
+      "published": "e/placeholder-scan.execution.json",
+      "sha256": "e0f629f16e0714d63aa201bff033d9160b803eaf3f32a70dfd967ef69bb38405"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/placeholder-scan.stderr": {
+      "published": "e/placeholder-scan.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/placeholder-scan.stdout": {
+      "published": "e/placeholder-scan.stdout",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/preparation-executions.json": {
+      "published": "e/preparation-executions.json",
+      "sha256": "d8ebab51991ebec9fbc7860815cff2f10da1fde3920e10f8fbb8e7340ab7933e"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/production-audit.execution.json": {
+      "published": "e/production-audit.execution.json",
+      "sha256": "b09eae561e57d94276e74b4e74c31c8ccb5d159ac49c11fa6aa88618e695f4de"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/production-audit.stderr": {
+      "published": "e/production-audit.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/production-audit.stdout": {
+      "published": "e/production-audit.stdout",
+      "sha256": "c6cbb8c7a97b7f902eab3bc86b735db5f8d6a0e968bff53e69f237351b946c19"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/source-binding.json": {
+      "published": "e/source-binding.json",
+      "sha256": "05bd1bdc46d640caac4e632d6c8449342718148749b9436f3c552053dce35fad"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/task-state-check.execution.json": {
+      "published": "e/task-state-check.execution.json",
+      "sha256": "936aa187f5244e3a72da40bdd9eebec59f8be27d33c8ce14f665dd92398a9aef"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/task-state-check.stderr": {
+      "published": "e/task-state-check.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/task-state-check.stdout": {
+      "published": "e/task-state-check.stdout",
+      "sha256": "1582d7d072549e7a876b68ce6ed1bf9dc752329a65d85e8c8b765c8173297459"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/typecheck.execution.json": {
+      "published": "e/typecheck.execution.json",
+      "sha256": "dd13ff17c110eda497ef5ea07aebac97517ab54a6c34e03ce34e2cf6fc670603"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/typecheck.stderr": {
+      "published": "e/typecheck.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "review-tree/specs/mcp-report-lookup-cache/verification/T-001/typecheck.stdout": {
+      "published": "e/typecheck.stdout",
+      "sha256": "c3fb6b341c1dd8055671bf668496cf9c991cb9a51baba33c6863595b0d05dd4c"
+    },
+    "unsigned-file-hashes.json": {
+      "published": "unsigned-hashes.json",
+      "sha256": "0ef4f1e7b84f3cc0e16110c8d535b7b813d9da20447617b09989109a5a8ee750"
+    },
+    "unsigned-stage/sdd/approver-registry.yaml": {
+      "published": "registry.yaml",
+      "sha256": "566db70f27b64f3ffcc5925f04c98d3cff6fa75857485bfe7756a8c7a8401c15"
+    },
+    "unsigned-stage/sdd/project-context.yaml": {
+      "published": "candidate.yaml",
+      "sha256": "a43669c40d374b1411df0ba2f3ed84c4fb05d337c33e850e157f9c612702076a"
+    }
+  },
+  "purpose": "Portable publication export only. Restore original review-tree target paths before invoking product consumers. Evidence and candidate bytes are unchanged."
+}

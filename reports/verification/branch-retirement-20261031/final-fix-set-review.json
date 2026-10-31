@@ -1,0 +1,25 @@
+{
+  "result": "PASS",
+  "candidate_sync": {
+    "only_new_recovery_job_and_required_aggregation_changed": true,
+    "same_as_live_jobs": true,
+    "only_candidate_workflow_manifest_hash_changed": true,
+    "frozen_human_copy_unchanged": true
+  },
+  "unsigned_packet": {
+    "indexed_files": 44,
+    "byte_preserving_mapped_files": 42,
+    "hashes_verified": true,
+    "execution_stdout_stderr_hashes_verified": true,
+    "independent_restored_contract_validation_exit": 0,
+    "draft_planned_retained": true,
+    "no_real_signature_or_live_activation_claimed": true,
+    "source_and_chronology_limits_explicit": true,
+    "bounded_secret_pattern_scan": "no matches"
+  },
+  "limits": [
+    "Technical8checkPASS is not owner task approval, actualadvisory, realrelease or promotion",
+    "Whitespace lint is explicitly narrow git diff --check, not ESLint",
+    "FinalCI required"
+  ]
+}

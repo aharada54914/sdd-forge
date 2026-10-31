@@ -107,3 +107,58 @@ export function hasQualityGateVerdictPass(root: SddRoot, relDir: string, taskId:
     return read.ok && /VERDICT: PASS/.test(read.data.contents);
   });
 }
+
+interface ReportDirectory {
+  files: ReadonlyArray<{ path: string; contents: string }>;
+  errors: DirectoryReadError[];
+}
+
+/** Internal dependency for one synchronous operation; never retain across requests. */
+export interface ReportLookup {
+  anyFileContainingWithDiagnostics: typeof anyFileContainingWithDiagnostics;
+  anyFileContaining: typeof anyFileContaining;
+  hasAnyFileMentioning: typeof hasAnyFileMentioning;
+  hasQualityGateVerdictPass: typeof hasQualityGateVerdictPass;
+}
+
+/**
+ * Lazily reads each root/directory through the existing guards once. Only report
+ * bytes and listing diagnostics are reused, never authorization or task verdicts.
+ * A directory is observed at its first scan, not as an atomic filesystem snapshot.
+ */
+export function createReportLookup(): ReportLookup {
+  const roots = new Map<SddRoot, Map<string, ReportDirectory>>();
+  const directory = (root: SddRoot, relDir: string): ReportDirectory => {
+    let directories = roots.get(root);
+    if (directories === undefined) {
+      directories = new Map();
+      roots.set(root, directories);
+    }
+    let snapshot = directories.get(relDir);
+    if (snapshot === undefined) {
+      const { files, errors } = listGuardedFilesWithDiagnostics(root, relDir);
+      const readable: { path: string; contents: string }[] = [];
+      for (const path of files) {
+        const read = guardedRead(root, path);
+        if (read.ok) readable.push({ path, contents: read.data.contents });
+      }
+      snapshot = { files: readable, errors };
+      directories.set(relDir, snapshot);
+    }
+    return snapshot;
+  };
+  const matching = (root: SddRoot, relDir: string, pattern: string) => {
+    const wordBoundary = new RegExp(`(^|[^A-Za-z0-9_-])${escapeRegExp(pattern)}([^A-Za-z0-9_-]|$)`);
+    return directory(root, relDir).files.filter(file => wordBoundary.test(file.contents));
+  };
+  return {
+    anyFileContainingWithDiagnostics: (root, relDir, pattern) => ({
+      matches: matching(root, relDir, pattern).map(file => file.path),
+      errors: directory(root, relDir).errors.map(error => ({ ...error })),
+    }),
+    anyFileContaining: (root, relDir, pattern) => matching(root, relDir, pattern).map(file => file.path),
+    hasAnyFileMentioning: (root, relDir, taskId) => matching(root, relDir, taskId).length > 0,
+    hasQualityGateVerdictPass: (root, relDir, taskId) =>
+      matching(root, relDir, taskId).some(file => /VERDICT: PASS/.test(file.contents)),
+  };
+}

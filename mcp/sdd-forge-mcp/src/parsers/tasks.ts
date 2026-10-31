@@ -25,6 +25,7 @@
 import { ok, type Result } from "../envelope.js";
 import { guardedRead } from "../path-guard.js";
 import type { SddRoot } from "../root.js";
+import { createReportLookup, type ReportLookup } from "./report-lookup.js";
 import { finishTask } from "./task-validation.js";
 import { newDraft, type TaskDraft, type TaskEntry, type TaskFailure, type TaskStateData } from "./task-types.js";
 
@@ -70,6 +71,7 @@ export function parseTaskState(
   relTasksFilePath: string,
   reportsDir = "reports/quality-gate",
   implReportsDir = "reports/implementation",
+  reportLookup: ReportLookup = createReportLookup(),
 ): Result<TaskStateData> {
   const fileResult = guardedRead(root, relTasksFilePath);
   if (!fileResult.ok) {
@@ -86,7 +88,7 @@ export function parseTaskState(
 
   const finish = (): void => {
     if (draft !== undefined) {
-      finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks);
+      finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup);
     }
   };
 

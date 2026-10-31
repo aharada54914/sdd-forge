@@ -1,0 +1,5 @@
+{
+  "schema": "a9-advisory-request/v1",
+  "feature": "mcp-report-lookup-cache",
+  "verification_contract": "specs/mcp-report-lookup-cache/verification/T-001.contract.json"
+}

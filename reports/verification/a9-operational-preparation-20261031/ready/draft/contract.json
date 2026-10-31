@@ -1,0 +1,99 @@
+{
+  "schema": "verification-contract/v2",
+  "task_id": "T-001",
+  "feature": "mcp-report-lookup-cache",
+  "risk": "medium",
+  "stack": "code",
+  "spec_revision": "a14bf5b038d2b5571a78e361d8ae92cf65dbe47dc3216f1ab3a304ee7dcf7a6c",
+  "comment": "Technical observations only. Draft/Planned task-state PASS means the draft state is valid, never approval or operational completion. Lint is actual git diff --check whitespace lint; this package has no configured ESLint command. Typecheck supplies separate TypeScript static diagnostics. One fullsuite execution substantiates unit/acceptance/regression views. No TDD or acceptance-first chronology is claimed. REQ-005 and parent678 remain unexecuted. Source references and limits are in requirements.md.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/lint.execution.json",
+      "waiver_reason": "",
+      "command": "git diff --check 5328aee7 75b169fe -- mcp/sdd-forge-mcp",
+      "exit_code": 0,
+      "started_at": "2026-10-31T14:42:02.758060Z",
+      "finished_at": "2026-10-31T14:42:02.779105Z"
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/typecheck.execution.json",
+      "waiver_reason": "",
+      "command": "npm run typecheck",
+      "exit_code": 0,
+      "started_at": "2026-10-31T14:30:40.105776Z",
+      "finished_at": "2026-10-31T14:30:40.867903Z"
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/build.execution.json",
+      "waiver_reason": "",
+      "command": "npm run build",
+      "exit_code": 0,
+      "started_at": "2026-10-31T14:30:40.868489Z",
+      "finished_at": "2026-10-31T14:30:41.337951Z"
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/placeholder-scan.execution.json",
+      "waiver_reason": "",
+      "command": "sh /workspace/scratch/sdd-forge-main-integration/plugins/sdd-quality-loop/scripts/check-placeholders.sh mcp/sdd-forge-mcp/src/parsers/report-lookup.ts mcp/sdd-forge-mcp/src/parsers/task-validation.ts mcp/sdd-forge-mcp/src/parsers/tasks.ts mcp/sdd-forge-mcp/src/tools/core.ts",
+      "exit_code": 0,
+      "started_at": "2026-10-31T14:42:02.779448Z",
+      "finished_at": "2026-10-31T14:42:02.785830Z"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/task-state-check.execution.json",
+      "waiver_reason": "",
+      "command": "sh /workspace/scratch/sdd-forge-main-integration/plugins/sdd-quality-loop/scripts/check-task-state.sh /workspace/scratch/issue678-operational-readiness-20261031/review-tree/specs/mcp-report-lookup-cache/tasks.md /workspace/scratch/issue678-operational-readiness-20261031/review-tree/reports/quality-gate /workspace/scratch/issue678-operational-readiness-20261031/review-tree/reports/implementation /workspace/scratch/issue678-operational-readiness-20261031/review-tree",
+      "exit_code": 0,
+      "started_at": "2026-10-31T14:42:02.786104Z",
+      "finished_at": "2026-10-31T14:42:02.804938Z"
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/fullsuite.execution.json",
+      "waiver_reason": "",
+      "command": "npm test",
+      "exit_code": 0,
+      "started_at": "2026-10-31T14:30:41.338632Z",
+      "finished_at": "2026-10-31T14:31:24.255623Z"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/fullsuite.execution.json",
+      "waiver_reason": "",
+      "command": "npm test",
+      "exit_code": 0,
+      "started_at": "2026-10-31T14:30:41.338632Z",
+      "finished_at": "2026-10-31T14:31:24.255623Z"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/fullsuite.execution.json",
+      "waiver_reason": "",
+      "command": "npm test",
+      "exit_code": 0,
+      "started_at": "2026-10-31T14:30:41.338632Z",
+      "finished_at": "2026-10-31T14:31:24.255623Z"
+    }
+  ]
+}

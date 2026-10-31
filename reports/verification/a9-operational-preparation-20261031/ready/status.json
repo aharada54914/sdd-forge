@@ -1,0 +1,57 @@
+{
+  "status": "READY_FOR_REVIEW_NOT_OPERATIONAL",
+  "source": "75b169feb5e0f4a7c7fdfa95bf66f1ba86ca1740",
+  "task": {
+    "feature": "mcp-report-lookup-cache",
+    "id": "T-001",
+    "approval": "Draft",
+    "status": "Planned",
+    "meaning": "Prospective operational acceptance, not retroactive approval of code recovery"
+  },
+  "observed_checks": {
+    "technical_contract": "PASS",
+    "whitespace_lint": "PASS",
+    "typecheck": "PASS",
+    "build": "PASS",
+    "production_placeholder_scan": "PASS",
+    "draft_task_state_validity": "PASS",
+    "fullsuite": {
+      "pass": 309,
+      "skip": 0,
+      "fail": 0,
+      "executions": 1,
+      "used_for": [
+        "unit-tests",
+        "acceptance-tests",
+        "regression"
+      ]
+    },
+    "production_audit_vulnerabilities": 0,
+    "candidate_phase1_static": "PASS"
+  },
+  "human_actions": [
+    "Review and explicitly approve prospective T-001 scope and completion criteria; preserve actual human origin",
+    "Confirm one real registry identity aharada54914",
+    "Issue Context HMAC using existing human/CI-only issuer in trusted private environment, return only signed public artifacts and verification result"
+  ],
+  "agent_actions_before_operational_acceptance": [
+    "Independently review DRAFT packet and execution/source bindings",
+    "Publish actual packet/request/contract as reviewed tracked files and preserve human approval provenance",
+    "Revalidate final merged source and refresh evidence only where source/inputs changed",
+    "Compose and verify signed four-file publication stage, then use approved human-copy route",
+    "Run actual advisory collection on clean committed final PR head; preserve original check/digest association and actual friction",
+    "Complete real published-release interval and evidence-based promotion decision; do not count inactive CI or old isolated JUnit",
+    "If promotion chosen, satisfy operator-signed decision, live proof and actual signed rollback requirements, then run real feature after promotion"
+  ],
+  "not_claimed": [
+    "Human approval",
+    "Context signature",
+    "Live activation",
+    "Advisory observation",
+    "Completed release cycle",
+    "Required/facet-hybrid promotion",
+    "All implementation workflows or all apps guaranteed"
+  ],
+  "keys_read": false,
+  "tracked_files_changed_by_this_agent": false
+}

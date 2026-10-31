@@ -20,6 +20,7 @@ import { parseActiveSpecDirectories } from "../parsers/agents-md.js";
 import { listQualityReports, type QualityReportEntry } from "../parsers/quality-report.js";
 import { listReviewTickets, type ReviewTicketEntry } from "../parsers/review-ticket.js";
 import { extractHeaderValue } from "../parsers/spec-header.js";
+import { createReportLookup } from "../parsers/report-lookup.js";
 import { parseTaskState } from "../parsers/tasks.js";
 import type { TaskEntry, TaskStateData } from "../parsers/task-types.js";
 import { guardedRead } from "../path-guard.js";
@@ -85,8 +86,9 @@ export function listActiveSpecs(root: SddRoot): Result<ActiveSpecsData> {
     return specsResult;
   }
 
+  const reportLookup = createReportLookup();
   const specs: ActiveSpecEntry[] = specsResult.data.map((spec) => {
-    const taskStateResult = parseTaskState(root, spec.feature, `specs/${spec.feature}/tasks.md`);
+    const taskStateResult = parseTaskState(root, spec.feature, `specs/${spec.feature}/tasks.md`, undefined, undefined, reportLookup);
     const flag = taskStateResult.ok ? hasApprovedPlannedOrInProgress(taskStateResult.data.tasks) : false;
     return {
       feature: spec.feature,

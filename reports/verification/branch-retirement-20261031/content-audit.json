@@ -1,0 +1,356 @@
+{
+  "main": "5328aee7efa85dfe9b1b475799b63251200d29a6",
+  "branch_count": 34,
+  "rows": [
+    {
+      "branch": "auto/improve-20261005",
+      "sha": "053db9728df692540ffb85e3f186b301d20e7889",
+      "merge_base": "164767d998240b33f8622849729fb46f55e0a3d3",
+      "disposition": "superseded",
+      "rationale": "Current weekly-local-codex-audit and workflow-detail explicitly distinguish historical disabled from active workflow and dual-run observations; newer correction is more precise.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 2
+    },
+    {
+      "branch": "auto/improve-20261027",
+      "sha": "8cbf59c099f30cb412b4ba95f1ed1c602371ce43",
+      "merge_base": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "disposition": "superseded",
+      "rationale": "Current prompt references workflow SHA-pinned action.yml without hardcoding version, avoiding stale version prose.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 1
+    },
+    {
+      "branch": "chore/dependabot-yearly",
+      "sha": "ee976dee2dd1f9a8aed394af6df4e963b3d42027",
+      "merge_base": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "disposition": "identical",
+      "rationale": "Changed .github/dependabot.yml byte-identical to main.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 1
+    },
+    {
+      "branch": "codex/a9-interrupted-review-recovery-checkpoint",
+      "sha": "77ac9969242eae5af249961669a3c6d0d526b515",
+      "merge_base": "f0c03956c6e7526f0e0632cd8601cd65958e7a05",
+      "disposition": "recovery-review",
+      "rationale": "Unique fixture and preflight tests belong to PR640 interrupted recovery; coordinate adoption assessment.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 3
+    },
+    {
+      "branch": "codex/fixed-approval-issuer",
+      "sha": "3a76f3f7ad15990c15e20248a0daa08d7af424bc",
+      "merge_base": "fc9c847743c17d4e0d5760e9e5917b4dccf1db2f",
+      "disposition": "superseded",
+      "rationale": "Approval issuance fixes and regression tests retained; current issuer extends concept/decision-choice schema; preserve frozen human-copy, do not rollback.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 7
+    },
+    {
+      "branch": "codex/fixed-native-probe-retry",
+      "sha": "218deec77b9209c776a7031abcd9da330bc3f83e",
+      "merge_base": "d5766615bbdf6b5ec9e24269eb46eb770358840b",
+      "disposition": "superseded",
+      "rationale": "All added code lines retained; main further filters transport.native_messages before parsing blocks.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 3
+    },
+    {
+      "branch": "codex/issue137-continuity",
+      "sha": "ed52efb42852f38058b10ef159386e2cd4eedfc9",
+      "merge_base": "f026ca6b6dba618ff2e88f72dbb5c99503a3aca1",
+      "disposition": "archive-not-adopt",
+      "rationale": "Unique sdd-context plugin absent from current seven-plugin main. Requires separate store/continuity product adoption; do not import ancillary Windows test alone.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 152
+    },
+    {
+      "branch": "codex/issue290-concept-reverse",
+      "sha": "94ea370fb3ab9747588db343a4178f964fd07cba",
+      "merge_base": "f10c2c61f93e5deca46f73497ca8feaa0315df26",
+      "disposition": "superseded",
+      "rationale": "Templates, reverse/model skills, C4 ownership and key tests match currentmain; later concept changes explain remaining differences.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 27
+    },
+    {
+      "branch": "codex/issue290-concept-review-phase3",
+      "sha": "8226eef12833ebbd36dcd7f263ec1502ad73abf0",
+      "merge_base": "f10c2c61f93e5deca46f73497ca8feaa0315df26",
+      "disposition": "superseded",
+      "rationale": "Upstream-concept-issue implementation, calibration, review checks and tests retained; runner registration evolved.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 19
+    },
+    {
+      "branch": "codex/issue290-concept-test-phase1",
+      "sha": "badbb7aa5d16114be542c33018967c58770d1a41",
+      "merge_base": "96c040a6cf7644981f94956e0878092d0ac85c04",
+      "disposition": "superseded",
+      "rationale": "Functional added lines retained; remaining unique differences are old approval/spec/review snapshots to preserve as history.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 40
+    },
+    {
+      "branch": "codex/issue423-boundary-checkpoint",
+      "sha": "021c1cdede139cf9f7ae1bf5966dc04e25a72c29",
+      "merge_base": "10072e8a952e26c6678c6a975d73013fffecad41",
+      "disposition": "archive-not-adopt",
+      "rationale": "Historical human-copy candidate/evolution test variants; currentmain newer protected boundary validators and CI pass. Do not replace frozen snapshots or current protections with old candidate tests.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 18
+    },
+    {
+      "branch": "codex/issue423-filesonly-exit-message",
+      "sha": "221dc6f72ea7caa3f72b46c105a3511836cfa0ae",
+      "merge_base": "3a1afcab243fcebb769dc4314599999af4545050",
+      "disposition": "identical-functional",
+      "rationale": "install.sh byte-identical; added regression lines retained in current tests.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 2
+    },
+    {
+      "branch": "codex/issue559-bounded-audit",
+      "sha": "6b1e62242267bf0ea1c17a3f78a4adcdf19e5188",
+      "merge_base": "71eede42ebf81b9e4097ea1a441f58f91d265829",
+      "disposition": "superseded",
+      "rationale": "Recovery-review document byte-identical; main retains bounded workflow evidence and evolved assertion/prompt.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 5
+    },
+    {
+      "branch": "codex/issue559-completion-diagnostics",
+      "sha": "9840601365d537abe66928e43ae2e3ed76f3c6e7",
+      "merge_base": "0698fa14a37ca61bce84e58ced8106625b315050",
+      "disposition": "superseded",
+      "rationale": "Restoration report and task-prior-pass-receipt test byte-identical; suite runner registrations evolved.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 6
+    },
+    {
+      "branch": "codex/mcp-production-dependency-repair",
+      "sha": "762c28a728531131a3319ab434da01650303ca40",
+      "merge_base": "9ce19abe90df0cb83e385f96855e4843318a8807",
+      "disposition": "superseded",
+      "rationale": "main SDK1.32.1 retained and fast-uri3.1.9/js-yaml5.4.3 exceed branch fast-uri3.1.8/js-yaml5.4.2; do not rollback lockfiles.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 6
+    },
+    {
+      "branch": "codex/t002-failure-diagnostics",
+      "sha": "2e9f59ae804472a51e75be2657ed71f95423bbb0",
+      "merge_base": "4366438f3b243210a4ece5a17f873ca2d920600a",
+      "disposition": "archive-not-adopt",
+      "rationale": "Old RT002 two-envelope amendment and human approval provenance from divergent product line. Preserve history; no automatic human-copy/live authorization migration.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 605
+    },
+    {
+      "branch": "dependabot/github_actions/anthropics/claude-code-action-1.0.257",
+      "sha": "e6b9096f56cd438c9ff42f74cde64984ee7811fa",
+      "merge_base": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "disposition": "superseded-by-candidate",
+      "rationale": "Version1.0.259 candidate supersedes1.0.257; preserve tag and remove branch after chosen update validation.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 1
+    },
+    {
+      "branch": "dependabot/github_actions/anthropics/claude-code-action-1.0.259",
+      "sha": "c234e0d0a8cede87dd17e70125a864459f1768ec",
+      "merge_base": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "disposition": "recover-candidate",
+      "rationale": "Current main pins1.0.248; recover only newer action SHA with verification, not old workflow whole file.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 1
+    },
+    {
+      "branch": "dependabot/npm_and_yarn/mcp/sdd-forge-mcp/js-yaml-5.5.0",
+      "sha": "37024a9368997f4f7a617a89774246be2c228b8b",
+      "merge_base": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "disposition": "recover-candidate",
+      "rationale": "Currentmain js-yaml5.4.3. Update only dependency on current lock; oldbranch fast-uri3.1.8 must not replace current3.1.9.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 2
+    },
+    {
+      "branch": "feat/issue-594-contracts",
+      "sha": "d0a49f73e0ac97a84b75a5404dd93f06149df3db",
+      "merge_base": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "disposition": "superseded",
+      "rationale": "Draft specification on obsolete work lineage; corresponding original33 issue implemented and closed in676. Preserve drafts as history, do not overwrite accepted current contracts.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 8233
+    },
+    {
+      "branch": "feat/issue-601-structural-prevention",
+      "sha": "21bef3dc623d9c0f8cdb5b4108ebc934b8e8c126",
+      "merge_base": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "disposition": "superseded",
+      "rationale": "Draft specification on obsolete work lineage; corresponding original33 issue implemented and closed in676. Preserve drafts as history, do not overwrite accepted current contracts.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 8251
+    },
+    {
+      "branch": "feat/issue-605-research",
+      "sha": "a2459d59841fad8409c3433d1b2ecc46218764c3",
+      "merge_base": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "disposition": "superseded",
+      "rationale": "Draft specification on obsolete work lineage; corresponding original33 issue implemented and closed in676. Preserve drafts as history, do not overwrite accepted current contracts.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 8234
+    },
+    {
+      "branch": "feat/issue-614-measurement",
+      "sha": "e5a20b7bc07ea8ad4bea44de71c746e220b56cba",
+      "merge_base": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "disposition": "superseded",
+      "rationale": "Draft specification on obsolete work lineage; corresponding original33 issue implemented and closed in676. Preserve drafts as history, do not overwrite accepted current contracts.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 8266
+    },
+    {
+      "branch": "feature/epic-196-a8-integration",
+      "sha": "f525825e7a1ffb5021b80e3a0fbae20e36955d38",
+      "merge_base": "c7dfac2010713153bcb966cc3a4f72c38ca72241",
+      "disposition": "archive-not-adopt",
+      "rationale": "Old A8 multi-plugin integration; currentmain retains MCP/platform fixes in active product, while obsolete provider/product paths need no bulk revival.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 197
+    },
+    {
+      "branch": "fix/ci-job-metadata",
+      "sha": "232e940f03b50b5611dd9b36f9bb5bb25e3bc1d1",
+      "merge_base": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "disposition": "archive-not-adopt",
+      "rationale": "Active tests/verification-ci.py absent main; retained reconciler under reports/verification/actions-executor-20261027. Old selection orchestrator not needed by current complete required CI.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 8229
+    },
+    {
+      "branch": "release/cloud-orchestration-v1.19.0-20261018",
+      "sha": "d6b4cfa2048b6a0d5a27d4caf06df117b79fdfe0",
+      "merge_base": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "disposition": "recover-part-archive-rest",
+      "rationale": "Recover independent MCP per-operation report lookup from7850d3fb and associated tests. Do not adopt AWS/Azure plugin product expansion: own release audit records live acceptance blocked by sandbox/OIDC/IAM/images/health/budget prerequisites. Historical tagv1.19.0 already exists; no production-ready claim.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 4961
+    },
+    {
+      "branch": "verify/issue-642-native-desktop",
+      "sha": "d65a71555f2640db33d861f6018ca806dfb97fff",
+      "merge_base": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "disposition": "archive-not-adopt",
+      "rationale": "One-off native Desktop encoding experiment workflow; preserve observed results in tagged history, no ongoing workflow requirement.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 8314
+    },
+    {
+      "branch": "verify/issue620-factory-adapter-20261027",
+      "sha": "27b72a868f1e87e4a83b47866025184f1b361d8d",
+      "merge_base": "0535c3c1f4ae5ad3580a9d52127a1e4371747a84",
+      "disposition": "superseded",
+      "rationale": "Actual bounded native2/4/8 observation exported under main reports/verification/factory-parallel-native-20261031 with archive-index and workflow; experiment branch unnecessary.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 8870
+    },
+    {
+      "branch": "work",
+      "sha": "cf155d02199d0ac81e23f4b0ec43a8abe5072478",
+      "merge_base": "fcb8275a42061b8132ea88a36e69b02f4487be71",
+      "disposition": "archive-not-adopt",
+      "rationale": "Old integration base with provider/context/CI lineages and historical authorization. Currentmain intentional seven-plugin surface; do not bulk merge old base.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 8369
+    },
+    {
+      "branch": "work-20261025-140557-resolve-open-issues",
+      "sha": "b1c828355d3b3ff5633f23c4b1d8f28b030817b0",
+      "merge_base": "45c203f0aff9e4481845649a34530a0c04ccc52f",
+      "disposition": "recover-part-archive-rest",
+      "rationale": "Original33 selected work integrated676/677/679; project-skill-profiles test byte-identical. Old cloud/MCP reuse differences overlap release branch; recover independent report optimization only.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 8999
+    },
+    {
+      "branch": "work-20261028-071400-project-skill-main",
+      "sha": "da4b3fc7bea8d1737434a21ef3ce444dbb600f15",
+      "merge_base": "413677c23bf5fa910923e0c6f7f8b441bc8aca0a",
+      "disposition": "superseded",
+      "rationale": "All17 native Codex/Copilot evidence files byte-identical; old profile test replaced by current v3 profiles/lifecycle suites.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 19
+    },
+    {
+      "branch": "work-20261028-074500-research-evidence-main",
+      "sha": "d623c187b29ec9c339d4d32d1e1cbbd41744795c",
+      "merge_base": "e105d955a368f9c3a5bcfe5c0dfe38064089fa86",
+      "disposition": "superseded",
+      "rationale": "Research contracts, executable tools, consumers, validators and tests all byte-identical; only docs/registration evolved.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 23
+    },
+    {
+      "branch": "work-20261028-083500-research-discovery",
+      "sha": "2613ee32b6c8df39e927c6950d9e35dca67f0681",
+      "merge_base": "c830e33c5b36765017a56672deeec4b16ccf6ffd",
+      "disposition": "identical-functional",
+      "rationale": "No branch-owned changed files relative common ancestor; no unique content requiring recovery.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 0
+    },
+    {
+      "branch": "work-20261028-093000-golden-evaluation",
+      "sha": "0c3125ab135058d56ab7498864dc04498e5a151e",
+      "merge_base": "e105d955a368f9c3a5bcfe5c0dfe38064089fa86",
+      "disposition": "superseded",
+      "rationale": "Bounded golden evaluation and structural prevention selected into676, with current failure-derived corpus and independent evidence; preserve historical snapshot.",
+      "branch_retirement": "archive exact remote head before deleting branch; do not claim all historical features merged",
+      "verification_limit": "Read-only static/content audit; no claim all differing historical code is behaviorally equivalent.",
+      "historical_changed_file_count": 69
+    }
+  ],
+  "recovery_candidates": [
+    "MCP report lookup from7850d3fb",
+    "Claude action1.0.259",
+    "js-yaml5.5.0"
+  ],
+  "not_adopted_products": [
+    "sdd-context continuity plugin",
+    "AWS/Azure cloud orchestration plugins",
+    "old active CI selection/reconciler product"
+  ]
+}

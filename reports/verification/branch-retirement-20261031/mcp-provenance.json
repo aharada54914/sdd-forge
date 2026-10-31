@@ -1,0 +1,33 @@
+{
+  "source_commit": "7850d3fb",
+  "source_snapshot": "d6b4cfa2048b6a0d5a27d4caf06df117b79fdfe0",
+  "current_base": "5328aee7efa85dfe9b1b475799b63251200d29a6",
+  "files": [
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/report-lookup.ts",
+      "matches_recovered_source": true,
+      "sha256": "9ec77e3088ce9653a2433456a7deb89ac107b6abc2640900910f7775b492580d"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/task-validation.ts",
+      "matches_recovered_source": true,
+      "sha256": "7997a80a1d5265696ac318d4052958f926c30ca103c080726d11be2adc681250"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/parsers/tasks.ts",
+      "matches_recovered_source": true,
+      "sha256": "42101146441847522e20c8d4533735486123be78268f72aa673f351c42e992a1"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/src/tools/core.ts",
+      "matches_recovered_source": true,
+      "sha256": "6147f7db3c83733c2a5369fa70379ebf8413c82ec88849dddb21956c3949c6eb"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/parsers-state/report-reuse.test.ts",
+      "matches_recovered_source": true,
+      "sha256": "229538fd54b8adbed6b616387f19df0bf71ca645efa63ebd2a70201d3aef5351"
+    }
+  ],
+  "scope": "Only synchronous per-operation report-byte reuse; no decision/authorization cache; root identity and guard behavior preserved."
+}

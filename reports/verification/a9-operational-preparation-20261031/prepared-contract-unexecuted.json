@@ -1,0 +1,67 @@
+{
+  "schema": "verification-contract/v2",
+  "task_id": "T-001",
+  "feature": "mcp-report-lookup-cache",
+  "risk": "medium",
+  "stack": "code",
+  "spec_revision": "5328aee7efa85dfe9b1b475799b63251200d29a6",
+  "comment": "Unsigned preparation only: required checks remain false until genuine commands/results are imported. Source revision is the reviewed main base, not an approval or fabricated new spec. Historical test recovery does not establish newly performed Red/Green or acceptance-first authoring. The same npm-test.log may substantiate unit/acceptance/regression views of one actual fullsuite execution; never count these as three runs. Workflow and task-state integration require root review before publication.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/lint.log",
+      "waiver_reason": ""
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/typecheck.log",
+      "waiver_reason": ""
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/build.log",
+      "waiver_reason": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/placeholder-scan.log",
+      "waiver_reason": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/task-state-check.log",
+      "waiver_reason": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/npm-test.log",
+      "waiver_reason": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/npm-test.log",
+      "waiver_reason": ""
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/mcp-report-lookup-cache/verification/T-001/npm-test.log",
+      "waiver_reason": ""
+    }
+  ]
+}

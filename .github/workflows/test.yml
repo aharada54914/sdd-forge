@@ -1532,10 +1532,36 @@ jobs:
         shell: pwsh
         run: ./tests/cli-hook-enforcement.ps1
 
+  # Recovery uses an independent native matrix so its process-heavy negative
+  # corpus does not consume the existing regression jobs' time budgets.
+  interrupted-recovery:
+    name: interrupted recovery (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - name: Checkout complete history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Install structural YAML parser
+        run: npm ci --prefix mcp/sdd-forge-mcp --ignore-scripts
+      - name: "[deterministic] Test interrupted review recovery (PowerShell)"
+        shell: pwsh
+        run: ./tests/spec-review-interrupted-recovery.tests.ps1
+
+      - name: "[deterministic] Test interrupted review recovery (POSIX)"
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/spec-review-interrupted-recovery.tests.sh
+
   required-checks:
     name: required-checks
     if: always()
-    needs: [test, test-windows-heavy, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression, posix-unwired-sharded, a9-advisory-inputs, a9-advisory]
+    needs: [test, interrupted-recovery, test-windows-heavy, installers, loops-routing, version-gates, version-gates-windows-bump, version-gates-windows-lanes, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, posix-regression, posix-unwired-sharded, a9-advisory-inputs, a9-advisory]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -1543,6 +1569,10 @@ jobs:
         run: |
           if [ "${{ needs.test.result }}" != "success" ]; then
             echo "test job failed"
+            exit 1
+          fi
+          if [ "${{ needs.interrupted-recovery.result }}" != "success" ]; then
+            echo "interrupted-recovery job failed"
             exit 1
           fi
           if [ "${{ needs.test-windows-heavy.result }}" != "success" ]; then

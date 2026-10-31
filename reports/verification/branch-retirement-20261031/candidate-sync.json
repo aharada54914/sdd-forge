@@ -1,0 +1,24 @@
+{
+  "candidate_old_sha256": "1e3ccc3126233ff46d22d7f1654bfef9681ec39109f99da6b082841b808ddd36",
+  "candidate_new_sha256": "db5c00286d420eaf2633c6806999b7d33bc1d54fddc3432105af37f10db0b792",
+  "changed_jobs": [
+    "interrupted-recovery (added)",
+    "required-checks"
+  ],
+  "all_other_candidate_jobs_byte_identical": true,
+  "frozen_archive_sha256": "a005484044dbfecf0e72ea6df834e270e392a2879adb551604a012e9d9e22fd5",
+  "frozen_manifest_sha256": "d34c730daece7de30a07f7b381b8e1084b166f2a0a881a8aa0efa3087870caec",
+  "checks": {
+    "a2_workflow_evolution_self_test": "PASS",
+    "generate_gate_capabilities_bash": "32 passed,0 failed,0 designed-red; exit0",
+    "generate_gate_capabilities_powershell": "32 passed,0 failed,0 designed-red; exit0",
+    "frozen_human_copy_diff": "empty",
+    "candidate_other_jobs": "byte-identical",
+    "candidate_manifest": "workflow hash only updated; seven hashes verified by both generator suites",
+    "ownership_digest": "No update: resolver ownership_input hashes component include/exclude rules, shared-path rules and matcher semantics (resolve-component-paths.py:717-731); none changed. No candidate manifest consumer found in contracts or A9 candidate JSON/YAML."
+  },
+  "changed_paths": [
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/MANIFEST.sha256.candidate"
+  ]
+}

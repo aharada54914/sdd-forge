@@ -1,0 +1,13 @@
+{
+  "source": "5328aee7efa85dfe9b1b475799b63251200d29a6",
+  "exit_code": 0,
+  "candidate_path": "specs/epic-197-a9-dogfood/candidate/project-context-formal-verification.yaml",
+  "candidate_sha256": "a43669c40d374b1411df0ba2f3ed84c4fb05d337c33e850e157f9c612702076a",
+  "live_context_exists": false,
+  "approver_registry_exists": false,
+  "request_exists": false,
+  "context_key_file_exists": false,
+  "context_key_env_configured": false,
+  "key_material_read": false,
+  "writes_to_repository": false
+}

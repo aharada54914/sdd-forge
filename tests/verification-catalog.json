@@ -312,6 +312,8 @@
     {"path": "tests/ship-track-selection-migration.tests.sh", "runtime": "bash", "ci_jobs": ["version-gates"]},
     {"path": "tests/skip-allowlist-manifest.tests.ps1", "runtime": "powershell", "ci_jobs": ["test"]},
     {"path": "tests/skip-allowlist-manifest.tests.sh", "runtime": "bash"},
+    {"path": "tests/spec-review-interrupted-recovery.tests.ps1", "runtime": "powershell", "ci_jobs": ["interrupted-recovery"]},
+    {"path": "tests/spec-review-interrupted-recovery.tests.sh", "runtime": "bash", "ci_jobs": ["interrupted-recovery"]},
     {"path": "tests/spec-review-loop.tests.sh", "runtime": "bash", "ci_jobs": ["test"]},
     {"path": "tests/spec-review-verify-inputs.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/structural-activation.tests.sh", "runtime": "bash", "excluded": "Isolated clone structural mutation diagnostic; not registered by the previous runners."},
@@ -378,6 +380,7 @@
   ],
   "profiles": {
     "local-posix": [
+      "tests/spec-review-interrupted-recovery.tests.sh",
       "tests/benchmark-gates.tests.py",
       "tests/factory-workflow.tests.py",
       "tests/run-measurement.tests.py",
@@ -584,6 +587,7 @@
       "tests/verification-impact.tests.py"
     ],
     "local-powershell": [
+      "tests/spec-review-interrupted-recovery.tests.ps1",
       "tests/benchmark-gates.tests.py",
       "tests/factory-workflow.tests.py",
       "tests/run-measurement.tests.py",

@@ -1,0 +1,160 @@
+{
+  "scope": "Independent read-only review of selective recovery, MCP request-scoped report reuse, dependency/action updates",
+  "status": "pass-with-execution-conditions",
+  "finding": {
+    "severity": "P2",
+    "path": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+    "function": "Get-RecoveryPath",
+    "problem": "Test-Path -PathType Leaf accepts POSIX FIFO as FileInfo; subsequent ReadAllBytes may block rather than reject. Bash is_file rejects it; saved-reference PS validation already checks UnixStat.ItemType.",
+    "actual_probe": {
+      "leaf": true,
+      "type": "System.IO.FileInfo",
+      "unix": "NamedPipe",
+      "device": false
+    },
+    "requested_fix": "Check actual regular file for every admission file reference and add FIFO rejection regression.",
+    "resolution": "Fixed: admission Get-RecoveryPath now requires FileInfo/non-device and on POSIX UnixStat.ItemType File before reading. Independent production-AST probe accepts regular JSON and rejects FIFO.",
+    "resolved": true
+  },
+  "cleared": {
+    "mcp": "Per-operation cache only; existing guardedRead/list diagnostics retained; no contract/authorization/verdict cache. New requests rescan.",
+    "mcp_independent_tests": {
+      "command": "node --test dist-test/tests/parsers-state/report-reuse.test.js",
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0
+    },
+    "dependencies": "Lock changes scoped to js-yaml/argparse and compatible @hono/node-server2.1.5. No rollback of SDK/fast-uri. Action SHA and comment moved together without permissions changes.",
+    "approval_boundary": "New contributor doc explicitly requires genuine bounded AUTH-001 origin before actual recovery and disclaims content/hash authentication."
+  },
+  "limits": [
+    "Implementation still changing; final diff check and 3OS CI required",
+    "MCP caches all readable report bytes within one synchronous operation; existing per-file2MiB bound retained, no new aggregate memory bound claimed",
+    "No actual owner signature, live advisory activation or historical recovery performed"
+  ],
+  "fifo_fixed_probe": "fifo-fixed-probe.json",
+  "execution_conditions": [
+    "Recovery agent must complete final updated full suites and regression checks",
+    "Exact committed final head must pass required native Windows/Linux/macOS CI before integration"
+  ],
+  "reviewed_sha256": {
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh": "a444e57325d822c5b2abac816ae3e554a70db9476b287f073929a32486f8105f",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1": "b0aa1540f3d82a62b7b7ecf8554d6c24100b7cfc566f91f8e3d55c7a20df5d13",
+    "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh": "a4f45efcd0a37e70a56daeb7e4ce78d6af7e0a62833c61e0cd9276e74648c4d2",
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1": "6159fadf2a42404a06147c8ca4791560fd7bf3225f65e698c265bebcfa135bf3",
+    "plugins/sdd-review-loop/scripts/task-review-precheck.ps1": "d256c374d57e2a9f11c81778bbad4f2a7484ccfb02ddbac48905154ff932be69",
+    "mcp/sdd-forge-mcp/src/parsers/report-lookup.ts": "9ec77e3088ce9653a2433456a7deb89ac107b6abc2640900910f7775b492580d",
+    "mcp/sdd-forge-mcp/src/parsers/task-validation.ts": "7997a80a1d5265696ac318d4052958f926c30ca103c080726d11be2adc681250",
+    "mcp/sdd-forge-mcp/src/parsers/tasks.ts": "42101146441847522e20c8d4533735486123be78268f72aa673f351c42e992a1",
+    "mcp/sdd-forge-mcp/src/tools/core.ts": "6147f7db3c83733c2a5369fa70379ebf8413c82ec88849dddb21956c3949c6eb",
+    "mcp/sdd-forge-mcp/tests/parsers-state/report-reuse.test.ts": "229538fd54b8adbed6b616387f19df0bf71ca645efa63ebd2a70201d3aef5351",
+    "tests/spec-review-interrupted-recovery.tests.sh": "1acafbbbd1cc5ab9ccb8f988bfce7d5e6ee8b956b27d5ae1b2393179a377120d",
+    "tests/spec-review-interrupted-recovery.tests.ps1": "9f6807548dbe273d0a89c3e218e15c7dcc9b211c518bb1e050230bdf1ecb8d6d",
+    "docs/contributor/interrupted-review-recovery.md": "dd3777f023e1db0d8697baa135a49e7c7f0e580451b824ea5e9221b8af4410e8",
+    ".github/workflows/test.yml": "848c8ac2856fa0759e6a9908bac1ff157554235cab7c89149bb35e5ef2affab8",
+    "tests/verification-catalog.json": "e0811617275c1e99633363c8f44cc05fa5a324bf8aea56a8ef800e8498496fa8",
+    "tests/fixtures/research-consumer-current-publication.json": "6784aa03e24ef2aeefebf10ecd273667335cb5d52137bbae6d987560f7ebd0bf",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate": "db5c00286d420eaf2633c6806999b7d33bc1d54fddc3432105af37f10db0b792",
+    "specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/MANIFEST.sha256.candidate": "6089c17a887fcd5990b791e54ed764e7461029ad2ca52cbe0c0045389be8c74e"
+  },
+  "reviewed_committed_head": "451fa4c9798645d61e50323073cb8354bcf5cec7",
+  "ci_matrix_review": {
+    "result": "PASS",
+    "old_jobs_unchanged_except_required_aggregation": [
+      "a9-advisory-inputs",
+      "a9-advisory",
+      "posix-regression",
+      "posix-unwired-sharded",
+      "test",
+      "installers",
+      "loops-routing",
+      "version-gates",
+      "version-gates-windows-bump",
+      "version-gates-windows-lanes",
+      "mcp-tests",
+      "local-env-mcp-tests",
+      "ci-mcp-tests",
+      "cli-hook-enforcement",
+      "test-windows-heavy"
+    ],
+    "native_powershell": [
+      "macos-latest",
+      "ubuntu-latest",
+      "windows-latest"
+    ],
+    "native_bash": [
+      "ubuntu-latest",
+      "macos-latest"
+    ],
+    "failure_propagation": "Actual required-checks shell body passes success and rejects every dependency failure/cancelled/skipped/empty via existing18test suite",
+    "required_checks_tests": {
+      "pass": 18,
+      "fail": 0,
+      "log": "required-checks-tests.log"
+    },
+    "timeout_minutes": 45,
+    "test_contracts_weakened": false
+  },
+  "current_publication_pin_review": {
+    "result": "PASS",
+    "fixture": "tests/fixtures/research-consumer-current-publication.json",
+    "changed_fields": [
+      "live_sha256",
+      "intentional_changes"
+    ],
+    "changed_successors": [
+      "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1"
+    ],
+    "all_four_live_and_staged_hashes_match": true,
+    "staged_files_and_manifest_byte_identical_to_5328aee7": true,
+    "authorization_effect": "None; fixture binds exact current successor and frozen predecessor and classifies current distinct bytes PENDING, not signed or Approved.",
+    "validation": [
+      "Exact helper and mutation self-check passed",
+      "Mirror classification6+26+10 and candidate mutation133 passed"
+    ],
+    "fixture_sha256": "6784aa03e24ef2aeefebf10ecd273667335cb5d52137bbae6d987560f7ebd0bf"
+  },
+  "final_fix_set_review": {
+    "result": "PASS",
+    "candidate_sync": {
+      "only_new_recovery_job_and_required_aggregation_changed": true,
+      "same_as_live_jobs": true,
+      "only_candidate_workflow_manifest_hash_changed": true,
+      "frozen_human_copy_unchanged": true
+    },
+    "unsigned_packet": {
+      "indexed_files": 44,
+      "byte_preserving_mapped_files": 42,
+      "hashes_verified": true,
+      "execution_stdout_stderr_hashes_verified": true,
+      "independent_restored_contract_validation_exit": 0,
+      "draft_planned_retained": true,
+      "no_real_signature_or_live_activation_claimed": true,
+      "source_and_chronology_limits_explicit": true,
+      "bounded_secret_pattern_scan": "no matches"
+    },
+    "limits": [
+      "Technical8checkPASS is not owner task approval, actualadvisory, realrelease or promotion",
+      "Whitespace lint is explicitly narrow git diff --check, not ESLint",
+      "FinalCI required"
+    ]
+  },
+  "windows_snapshot_oracle_review": {
+    "result": "PASS",
+    "changed_file": "tests/spec-review-interrupted-recovery.tests.sh",
+    "test_only": true,
+    "old_native_windows_key_exclusion_misses": true,
+    "new_native_windows_path_key_matches_exact_driver_exclusion": true,
+    "independent_real_files": {
+      "raw_CRLF_byte_hash_preserved": true,
+      "byte_mutation_detected": true,
+      "addition_detected": true,
+      "deletion_detected": true,
+      "raw_symlink_target_preserved_and_changed_target_detected": true
+    },
+    "oracle_scope": "Only relative path spelling normalized; digest/links/file enumeration and exact two driver exclusions unchanged",
+    "new_shared_controls": 4,
+    "limitation": "Linux independent probe plus PureWindowsPath; native Windows CI must confirm runtime outcome"
+  }
+}

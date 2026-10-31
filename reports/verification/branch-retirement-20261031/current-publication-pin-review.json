@@ -1,0 +1,20 @@
+{
+  "result": "PASS",
+  "fixture": "tests/fixtures/research-consumer-current-publication.json",
+  "changed_fields": [
+    "live_sha256",
+    "intentional_changes"
+  ],
+  "changed_successors": [
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1"
+  ],
+  "all_four_live_and_staged_hashes_match": true,
+  "staged_files_and_manifest_byte_identical_to_5328aee7": true,
+  "authorization_effect": "None; fixture binds exact current successor and frozen predecessor and classifies current distinct bytes PENDING, not signed or Approved.",
+  "validation": [
+    "Exact helper and mutation self-check passed",
+    "Mirror classification6+26+10 and candidate mutation133 passed"
+  ],
+  "fixture_sha256": "6784aa03e24ef2aeefebf10ecd273667335cb5d52137bbae6d987560f7ebd0bf"
+}
