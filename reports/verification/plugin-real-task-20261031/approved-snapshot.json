@@ -1,0 +1,75 @@
+{
+  "commit": "0dffce05e1e3438bb9f327288db4ec3fcf58040b",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "git_blob": "40bbb9b441c4fbd8196ada977c28565bc6667794",
+      "sha256": "bd6d719259e87d36b3b5e36c6e635702f2ee684b5cecaba55e053e2cbb4d95ed"
+    },
+    {
+      "path": "CLAUDE.md",
+      "git_blob": "776e305b96d1b46cf8ce600b35aed00887385eba",
+      "sha256": "ce3572506012cab4bea77cbf67c7f4f3ef6f441312061c64207e9d888f5435cc"
+    },
+    {
+      "path": "README.md",
+      "git_blob": "71ed624011c9e636c844ec9200117e23817fdf11",
+      "sha256": "5257659cf5f4017538eb56eb52e7a233e75e60707cf8f73db1a20696fb485ac1"
+    },
+    {
+      "path": "REQUEST.md",
+      "git_blob": "7daba73427968e936d50c60f1a6489fcfe42ffc4",
+      "sha256": "e5df08c3828370db4b617dc67c52c814f600cc46a8157b453c2e38cfc3f81de7"
+    },
+    {
+      "path": "docs/adr/.gitkeep",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/review-tickets/.gitkeep",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "reports/implementation/.gitkeep",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "reports/implementation/hook-response.json",
+      "git_blob": "e16f33910b77f02b6bf5eecc5810efda1a50344a",
+      "sha256": "8b76c767cf2d9b9e0d261642f7ef2632644945c6fff50483e6f63ae17f0b784c"
+    },
+    {
+      "path": "reports/quality-gate/.gitkeep",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "scripts/check-sdd-structure.sh",
+      "git_blob": "b4ebcccf9e4393a8697006188e1b43ebb20f7a26",
+      "sha256": "4b64e8027ce7cc5f99f788ea044ad54f8a5add23acc253419c5f26fc5b9671f6"
+    },
+    {
+      "path": "specs/.gitkeep",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "specs/junit-summary/design.md",
+      "git_blob": "da8bd186a91937ff2f10b3a8822e21c95be8d882",
+      "sha256": "365c1724243f5bbad8909f9d5e3e6c022e12352374c015871ee7000517c9e015"
+    },
+    {
+      "path": "specs/junit-summary/requirements.md",
+      "git_blob": "21a7f51a56afe43deda44aa9b7275ee55d71c276",
+      "sha256": "bda5ec6dc54700740b7fe7715c3758659c0cbb796d1c859cf7d071ecbabd8a33"
+    },
+    {
+      "path": "specs/junit-summary/tasks.md",
+      "git_blob": "0eab562472996c7c9a53d246f9869f4024f939f2",
+      "sha256": "ecdf6c14c68f73f15d43b4b2deacabe4f2b500534b130a9fa3a2aeec54ce86d7"
+    }
+  ]
+}

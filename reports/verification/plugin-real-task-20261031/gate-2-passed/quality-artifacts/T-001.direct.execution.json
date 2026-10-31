@@ -1,0 +1,53 @@
+{
+  "reuse_allowed": false,
+  "kind": "passive execution evidence; not final gate decision",
+  "results": [
+    {
+      "check": "handshake",
+      "argv": [
+        "bash",
+        "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/scripts/check-hook-activation-handshake.sh",
+        "--verify-response",
+        "--nonce",
+        "d3e781334a48ea02244c49aa3a3ced13",
+        "--recorded-result",
+        "reports/quality-gate/T-001.fresh-hook-response.json",
+        "--runtime",
+        "codex-cli"
+      ],
+      "stdout": "{\n  \"nonce\": \"d3e781334a48ea02244c49aa3a3ced13\",\n  \"runtime\": \"codex-cli\",\n  \"schema\": \"sdd-hook-verify-result/v1\",\n  \"status\": \"HOOK_ACTIVE\"\n}\n",
+      "stderr": "",
+      "exit_code": 0,
+      "duration_seconds": 0.03663824000250315
+    },
+    {
+      "check": "placeholder",
+      "argv": [
+        "bash",
+        "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/scripts/check-placeholders.sh",
+        "junit_summary.py",
+        "README.md"
+      ],
+      "stdout": "Placeholder scan passed.\n",
+      "stderr": "",
+      "exit_code": 0,
+      "duration_seconds": 0.007224078995932359
+    },
+    {
+      "check": "unittest",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "stdout": "",
+      "stderr": "test_invalid_inputs (test_junit_summary.ContractCLI.test_invalid_inputs) ... ok\ntest_no_arguments_and_help (test_junit_summary.ContractCLI.test_no_arguments_and_help) ... ok\ntest_report_matrix (test_junit_summary.ContractCLI.test_report_matrix) ... ok\ntest_single_pass_exact_json (test_junit_summary.SummaryCLI.test_single_pass_exact_json) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 2.301s\n\nOK\n",
+      "exit_code": 0,
+      "duration_seconds": 2.365113954998378
+    }
+  ]
+}

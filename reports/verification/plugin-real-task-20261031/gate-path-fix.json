@@ -1,0 +1,8 @@
+{
+  "source_commit": "287f6d805df5da7bd47908eceb8df980540a8e90",
+  "before_skill_sha256": "c07a099bf1fbe28ae2d75124181aa11d6c3e83362bcb4ce0c5817956b6a5cf59",
+  "after_skill_sha256": "4aff3a213c1fcc9e9af8aa0ba23524ed77ca16e5e8ff935be22fbb5f0ff40d61",
+  "native_cache_equals_source": true,
+  "native_refresh": "verify profile plugin remove/add sdd-lite@sdd-plugins",
+  "scope": "Only report path instruction; gates/approval/code unchanged"
+}

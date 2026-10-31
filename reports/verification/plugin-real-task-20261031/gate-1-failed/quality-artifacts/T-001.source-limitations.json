@@ -1,0 +1,14 @@
+{
+  "reuse_allowed": false,
+  "argv": [
+    "git",
+    "show",
+    "--stat",
+    "--oneline",
+    "0dffce05e1e3438bb9f327288db4ec3fcf58040b"
+  ],
+  "stdout": "",
+  "stderr": "fatal: bad object 0dffce05e1e3438bb9f327288db4ec3fcf58040b\n",
+  "exit_code": 128,
+  "duration_seconds": 0.0026410740028950386
+}

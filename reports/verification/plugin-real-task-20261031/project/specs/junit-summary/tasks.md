@@ -2,7 +2,7 @@
 
 ## T-001 Implement and verify the local JUnit summary CLI
 Approval: Approved
-Status: Planned
+Status: Done
 
 ### Scope
 

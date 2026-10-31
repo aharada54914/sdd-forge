@@ -1,0 +1,71 @@
+{
+  "reuse_allowed": false,
+  "source": {
+    "before": {
+      "revision": "acd9dbd6fdf563287baf389407eb65924cd86be4",
+      "dirty": true
+    },
+    "after": {
+      "revision": "acd9dbd6fdf563287baf389407eb65924cd86be4",
+      "dirty": true
+    }
+  },
+  "results": [
+    {
+      "check": "registry-adapter",
+      "argv": [
+        "python3",
+        "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-lite/1.18.0/lib/run-lite-gate.py",
+        "--enforcement",
+        "none",
+        "--repo-root",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/junit-summary-cli",
+        "--runtime",
+        "posix",
+        "--output",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/junit-summary-cli/reports/quality-gate/T-001.execution.json"
+      ],
+      "stdout": "{\"checks\": [], \"reason\": \"all required Lite checks passed\", \"recorded_at\": \"2026-10-31T11:30:41.833074+00:00\", \"runtime\": \"posix\", \"source\": {\"after\": {\"dirty\": true, \"revision\": \"acd9dbd6fdf563287baf389407eb65924cd86be4\"}, \"before\": {\"dirty\": true, \"revision\": \"acd9dbd6fdf563287baf389407eb65924cd86be4\"}, \"head_changed\": false, \"reuse_allowed\": false, \"scope\": \"command-execution-only\"}, \"verdict\": \"PASS\"}\n",
+      "stderr": "",
+      "exit_code": 0,
+      "duration_seconds": 0.050874945998657495
+    },
+    {
+      "check": "placeholder-scan",
+      "argv": [
+        "bash",
+        "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/scripts/check-placeholders.sh",
+        "junit_summary.py",
+        "README.md"
+      ],
+      "stdout": "Placeholder scan passed.\n",
+      "stderr": "",
+      "exit_code": 0,
+      "duration_seconds": 0.007236058001581114
+    },
+    {
+      "check": "test",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "stdout": "",
+      "stderr": "test_invalid_inputs (test_junit_summary.ContractCLI.test_invalid_inputs) ... ok\ntest_no_arguments_and_help (test_junit_summary.ContractCLI.test_no_arguments_and_help) ... ok\ntest_report_matrix (test_junit_summary.ContractCLI.test_report_matrix) ... ok\ntest_single_pass_exact_json (test_junit_summary.SummaryCLI.test_single_pass_exact_json) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 2.241s\n\nOK\n",
+      "exit_code": 0,
+      "duration_seconds": 2.310848988003272
+    }
+  ],
+  "observed_sha256": {
+    "junit_summary.py": "2fb459acb6195fa754f05200f80a02f77e59dd1a6de6abf827a121e1c306a1fa",
+    "tests/test_junit_summary.py": "3745f3c17670c2bb9ad51f3748d00ea19e1805e7831755b8817dcc939ca3efd3",
+    "README.md": "f8b1951538aec1ac481f47a25da890bbf75a651fabf01aab6c110e9f96256e3c",
+    "reports/implementation/junit-summary/T-001-red.txt": "d3996a7613dd387fef1b5d814b001a15c16dbfcd8823f5b2597a3d8ff3050971",
+    "reports/implementation/junit-summary/T-001-green.txt": "9a27d84ecbfd03e231482cf4a5b51166d9e72199aee6eeb12853644fddff2f3d",
+    "specs/junit-summary/tasks.md": "a4bf17adb7897e40a07eaa874be746507f4ca86a97ea1c6e88d109281e473d98"
+  }
+}

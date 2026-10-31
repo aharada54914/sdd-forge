@@ -1,64 +1,92 @@
-# Native plugin small-development task: JUnit summary CLI
+# Native plugin development completed: JUnit summary CLI
 
-## Current result
+## Outcome and use
 
-The owner requested one actual small development task through implementation,
-verification and independent review. This packet records the completed preparation
-and the remaining human approval boundary; it does **not** claim implementation
-or end-to-end completion.
+One real low-stakes development task ran through native sdd-forge adoption,
+Lite specification, human task approval, implementation, actual tests and an
+independent Lite gate. T-001 is **Done**, with a final **PASS** report.
 
-- Product source: `b9d3062ebd3fd172053dd9bf5e9df8b08d413eed`.
-- Host: native Codex, isolated `verify-codex` profile, authenticated existing profile.
-- All six installed plugin payloads were refreshed using the native marketplace /
-  plugin registration path and checked against that source before the run.
-- Actual native `sdd-adopt` and `lite-spec` invocation generated the project and
-  concrete single-task specification. Structure check and risk intake passed;
-  a real forbidden-write canary was denied and the handshake reported `HOOK_ACTIVE`.
-- Native design stage exited 0. `design-completed-events.jsonl` retains completed
-  commands, file changes and final response; selection and original trace hash are
-  recorded separately. Credentials, debug stderr and unrelated sessions are omitted.
-- Independent specification review found no blocking findings. It recommends an
-  unknown XML encoding negative test, which is in scope of malformed-input handling.
-- `project/specs/junit-summary/tasks.md` remains `Approval: Draft` / `Status: Planned`.
-  No application or test implementation exists, and no Red/Green result is claimed.
+The resulting [standard-library Python CLI](project/junit_summary.py) summarizes
+actual testcase elements from one or more local JUnit XML reports:
 
-## Concrete task
+```sh
+python3 project/junit_summary.py REPORT.xml [REPORT.xml ...]
+python3 -m unittest discover -s project/tests -v
+```
 
-Create a Python standard-library CLI that summarizes one or more JUnit XML reports.
-Count actual testcases recursively (including namespaces), ignore stale suite totals,
-apply error/failure/skipped/passed precedence, and return deterministic JSON. Exit
-0 for pass/skip, 1 for failures/errors, and 2 for invalid input. Invalid input must
-not emit partial stdout; report bytes must remain unchanged. Include real subprocess
-tests, raw failing/passing test output and a usage README.
+It handles nested/namespaced suites and deterministic outcome precedence, ignores
+stale aggregate counters, preserves input bytes and emits no partial JSON on
+invalid input. Exit codes are 0 (pass/skip), 1 (failure/error), and 2 (invalid input).
+See the [usage README](project/README.md) and [task](project/specs/junit-summary/tasks.md).
 
-Read the [requirements](project/specs/junit-summary/requirements.md),
-[design](project/specs/junit-summary/design.md), and
-[single task T-001](project/specs/junit-summary/tasks.md).
+## What actually ran
 
-## Approval and continuation
+1. Native Codex in the isolated verify profile used installed sdd-adopt and lite-spec
+   against product source b9d3062ebd3fd172053dd9bf5e9df8b08d413eed. The six plugin
+   payloads were refreshed through native registration and compared to that source.
+2. Independent specification review found no blockers. It suggested the unknown
+   XML encoding negative case within existing REQ-005.
+3. The human changed only Approval: Draft to Approved in commit
+   0dffce05e1e3438bb9f327288db4ec3fcf58040b. Parent verification used GitHub's actual
+   commit/blob data, recorded in human-approval-origin.json and approved-snapshot.json.
+   That approved snapshot was restored into the isolated app. No agent wrote the
+   approval or issued a sudo token/signature.
+4. Native implementation captured a real initial failing behavioral test before
+   the application existed, then implemented the CLI and passed the full suite.
+   Raw Red/Green and completed native events are retained, not reconstructed.
+5. A separate fresh native session re-ran the tests and found a Lite gate report-path
+   inconsistency. It returned FAIL and left Implementation Complete unchanged.
+6. The product instruction was corrected, independently reviewed, and the sdd-lite
+   plugin was reinstalled through its native registration path. Another fresh
+   independent session re-ran verification, returned PASS, set Done, and then
+   successfully executed the final task-state checker. Parent additionally ran
+   the PowerShell checker against this actual Done workspace: exit 0.
 
-The installed `plugins/sdd-lite/skills/lite-spec/SKILL.md` explicitly states that
-only a human may change task Approval to Approved; the agent must not approve it.
-The implementation skill requires Approved before starting. The user's general
-implementation request was not recorded as a human file edit. No sudo token,
-signature, hook exemption or agent-written approval was created.
+The suite has four unittest methods with matrix subtests covering precedence,
+namespaces, multiple/duplicate files, malformed XML/unknown encodings, exit behavior
+and byte preservation. The first failing test remains in the final suite. No separate
+lint/typecheck/build commands exist for this interpreted standard-library utility.
 
-A human may review the concrete task and change its single `Approval: Draft` line
-to `Approval: Approved` in this tracked snapshot. Preserve the human-authored commit
-as the approval source when restoring the project into the isolated workspace.
-Do not rewrite that commit or claim its author was the implementation agent.
-Then resume native `sdd-ship --lite`, run the real CLI tests and an independent
-implementation review. Only the applicable gate may make the final Done transition.
-The preparation-only session instruction must be superseded explicitly for that
-implementation run; it must not be mistaken for the task's runtime contract.
+## Product defect found and repaired
 
-This local development exercise does not establish Claude host support, production
-release operation, Project Context promotion or quantified performance improvement.
+implement-task writes reports/implementation/<feature>/<task-id>.md. Both existing
+Bash and PowerShell Lite state validators already search recursively, but the
+Lite gate's precondition text required only reports/implementation/<task-id>.md.
+The actual first independent run therefore stopped despite passing app tests.
 
-## Related owner decisions
+Commit 287f6d805df5da7bd47908eceb8df980540a8e90 fixes that single instruction to
+recognize the standard feature path and retain legacy flat paths. It explicitly
+requires matching the target feature/task. Approval rules, checks and Done ordering
+are unchanged; no duplicate report was manufactured. The refreshed skill hash is
+4aff3a213c1fcc9e9af8aa0ba23524ed77ca16e5e8ff935be22fbb5f0ff40d61.
 
-On 2026-10-31 the owner accepted the recommended scope for #616/#623/#197 and
-parents #613/#621/#187. Their bodies retain the original unmet conditions and state
-the accepted reduced scope. Original issues: 31 closed, #602/#593 open for Claude
-native evaluation. The unperformed Project Context operational/release acceptance
-is tracked separately in #678. This packet does not close those outstanding items.
+The first FAIL is retained in gate-1-failed. The subsequent PASS is separate in
+gate-2-passed and project/reports/quality-gate. The app, tests, README and author
+report were unchanged by both reviewers; the final task change was Status only.
+
+## Evidence and limits
+
+- independent-assessment.json and artifact-index.json bind the final reviewed files.
+- project/reports/quality-gate/T-001.direct.execution.json records actual project
+  test execution. The adapter's empty-registry PASS alone is not test evidence.
+- project/reports/quality-gate/T-001.final-state.execution.json records the post-Done
+  validation. The source workspace was dirty; this is not a reusable clean-commit
+  certificate. Exported file hashes bind the actual reviewed result instead.
+- Each gate was a new native session, separate from implementation. This is
+  independent context review, not a claim of different-model review. Runtime was
+  the existing verify profile default; no unobserved exact model is asserted.
+- The retained implementation report's phrase 'clarified by the user' for unknown
+  encoding is corrected here: it was the independent specification review's
+  suggestion, carried into the implementation prompt under existing REQ-005.
+- The isolated native checkout did not contain the parent approval commit object;
+  its report states that limitation. Parent GitHub verification is retained above.
+- Historical Draft-stage prose in the specifications is preserved as authored;
+  the explicit implementation request and human approval authorized the later stage.
+- Raw traces stay in task scratch; published selections omit session/item identifiers
+  where feasible, usage/debug logs, credentials and unrelated history. Execution
+  paths remain in genuine error/output records for provenance.
+
+This demonstrates one local Python CLI through the Lite flow. It does not establish
+all-host support, production release operation, Project Context promotion or a
+measured productivity improvement. Original issues: 31 closed; #602/#593 still need
+Claude native evaluation. The separately deferred operational acceptance is #678.

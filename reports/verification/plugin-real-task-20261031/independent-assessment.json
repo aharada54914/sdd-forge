@@ -1,0 +1,91 @@
+{
+  "verdict": "PASS",
+  "native_exit": {
+    "exit_code": 0,
+    "seconds": 113.69712589900155
+  },
+  "source_integrity": [
+    {
+      "path": "REQUEST.md",
+      "sha256": "e5df08c3828370db4b617dc67c52c814f600cc46a8157b453c2e38cfc3f81de7",
+      "after_sha256": "e5df08c3828370db4b617dc67c52c814f600cc46a8157b453c2e38cfc3f81de7",
+      "unchanged": true,
+      "only_done_transition": false
+    },
+    {
+      "path": "specs/junit-summary/requirements.md",
+      "sha256": "bda5ec6dc54700740b7fe7715c3758659c0cbb796d1c859cf7d071ecbabd8a33",
+      "after_sha256": "bda5ec6dc54700740b7fe7715c3758659c0cbb796d1c859cf7d071ecbabd8a33",
+      "unchanged": true,
+      "only_done_transition": false
+    },
+    {
+      "path": "specs/junit-summary/design.md",
+      "sha256": "365c1724243f5bbad8909f9d5e3e6c022e12352374c015871ee7000517c9e015",
+      "after_sha256": "365c1724243f5bbad8909f9d5e3e6c022e12352374c015871ee7000517c9e015",
+      "unchanged": true,
+      "only_done_transition": false
+    },
+    {
+      "path": "specs/junit-summary/tasks.md",
+      "sha256": "a4bf17adb7897e40a07eaa874be746507f4ca86a97ea1c6e88d109281e473d98",
+      "after_sha256": "30474f66c4e5fcff3857a475ba0725fe0cb8800067f4eaff015faeb4e0998d92",
+      "unchanged": false,
+      "only_done_transition": true
+    },
+    {
+      "path": "junit_summary.py",
+      "sha256": "2fb459acb6195fa754f05200f80a02f77e59dd1a6de6abf827a121e1c306a1fa",
+      "after_sha256": "2fb459acb6195fa754f05200f80a02f77e59dd1a6de6abf827a121e1c306a1fa",
+      "unchanged": true,
+      "only_done_transition": false
+    },
+    {
+      "path": "tests/test_junit_summary.py",
+      "sha256": "3745f3c17670c2bb9ad51f3748d00ea19e1805e7831755b8817dcc939ca3efd3",
+      "after_sha256": "3745f3c17670c2bb9ad51f3748d00ea19e1805e7831755b8817dcc939ca3efd3",
+      "unchanged": true,
+      "only_done_transition": false
+    },
+    {
+      "path": "README.md",
+      "sha256": "f8b1951538aec1ac481f47a25da890bbf75a651fabf01aab6c110e9f96256e3c",
+      "after_sha256": "f8b1951538aec1ac481f47a25da890bbf75a651fabf01aab6c110e9f96256e3c",
+      "unchanged": true,
+      "only_done_transition": false
+    },
+    {
+      "path": "reports/implementation/junit-summary/T-001.md",
+      "sha256": "fc4f9e1a6bbef7cfba00792e7c801ec73978681c93945306c3d6ebece186e341",
+      "after_sha256": "fc4f9e1a6bbef7cfba00792e7c801ec73978681c93945306c3d6ebece186e341",
+      "unchanged": true,
+      "only_done_transition": false
+    }
+  ],
+  "native_threads": {
+    "independent-gate": [
+      {
+        "type": "thread.started",
+        "thread_id": "01a191b9-0603-7d92-88a4-3af5748018a2"
+      }
+    ],
+    "independent-gate-2": [
+      {
+        "type": "thread.started",
+        "thread_id": "01a191bc-d241-7930-981d-bbdca78cbd4b"
+      }
+    ]
+  },
+  "task_status": "Done",
+  "approval": "Approved unchanged; human origin 0dffce05e1e3438bb9f327288db4ec3fcf58040b restored by root; commit unavailable in native checkout",
+  "path_fix_source": "287f6d805df5da7bd47908eceb8df980540a8e90",
+  "path_fix_skill_sha256": "4aff3a213c1fcc9e9af8aa0ba23524ed77ca16e5e8ff935be22fbb5f0ff40d61",
+  "first_gate": "FAIL preserved, path precondition mismatch only",
+  "final_state_evidence": "project/reports/quality-gate/T-001.final-state.execution.json",
+  "limitations": [
+    "Dirty source observation is not a clean-commit certificate.",
+    "Empty-registry adapter PASS is not actual project unittest proof; direct execution JSON records tests.",
+    "Model is existing verify profile default; exact runtime identity not independently claimed.",
+    "Unknown encoding is existing REQ-005 independent-review clarification."
+  ]
+}
