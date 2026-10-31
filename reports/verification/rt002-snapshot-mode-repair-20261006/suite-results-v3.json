@@ -1,0 +1,18 @@
+{
+  "bash": {
+    "chunk_id": "806eeb",
+    "wall_time_seconds": 0.000014292,
+    "exit_code": 0,
+    "original_token_count": 23,
+    "output": "ok: task context isolation manifests, snapshots, fallback, and selector are deterministic\n"
+  },
+  "powershell": {
+    "chunk_id": "b2bd27",
+    "wall_time_seconds": 0.000008916,
+    "exit_code": 0,
+    "original_token_count": 26,
+    "output": "ok: PowerShell task context isolation manifests, snapshots, fallback, and selector are deterministic\n"
+  },
+  "native_windows": "NOT RUN",
+  "windows_git_bash": "NOT RUN"
+}

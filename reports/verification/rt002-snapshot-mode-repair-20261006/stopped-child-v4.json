@@ -1,0 +1,10 @@
+{
+  "returncode": 1,
+  "stdout": "child=33961\nmode-race builder did not exit before deadline\n",
+  "stderr": "",
+  "elapsed_seconds": 26.324561333982274,
+  "child_pid": 33961,
+  "child_absent_after_wait": true,
+  "pass": true,
+  "scope": "direct stopped child, not arbitrary descendant process trees"
+}

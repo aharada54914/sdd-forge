@@ -7,6 +7,9 @@ target:
   task: "T-003"
   files:
     - "plugins/sdd-implementation/scripts/prepare-task-snapshot.sh"
+    - "plugins/sdd-implementation/scripts/prepare-task-snapshot.ps1"
+    - "tests/task-context-isolation.tests.sh"
+    - "tests/task-context-isolation.tests.ps1"
     - "reports/implementation/agent-cost-context-isolation/T-003-review-2.md"
 summary: >-
   prepare-task-snapshot.sh inverts Win32 MoveFileW success semantics and fails
@@ -40,7 +43,10 @@ expected_fix:
   - "Fix the Win32 branch: result = 0 on MoveFileW success and nonzero on failure (or invert the guard), with a regression test that pins Win32 BOOL semantics under a stubbed platform - the existing macOS-only suite cannot cover it"
   - "Re-gate with a manifest naming reports/quality-gate/20260821T071500Z.md as gate_report_declaration so the drifted validators and suites become readable, then verify AC-003/AC-004 behaviorally and re-capture green.log as real command output"
   - "Reconcile or replace the false independent-review claims"
+  - "Approved scope extension recorded 2026-10-06: preserve source execute bits in read-only POSIX snapshots, reject source-mode races, and verify both runtime suites with candidate-v4.patch SHA-256 a1129be245b1e4b52035d66163939ba98c661e5a369b178b0b2709ed6b9ece2d. This four-file repair does not waive the three existing fixes, AC-003/AC-004, independent verification, or the T-001 dependency. User approval and bounded evidence are recorded in the referenced addendum; application is not a verdict."
 references:
+  - "reports/verification/rt002-snapshot-mode-repair-20261006/formal-addendum-candidate-v1.md"
+  - "reports/verification/rt002-snapshot-mode-repair-20261006/formal-provenance-followup-v2.md"
   - "reports/quality-gate/20260821T071500Z.md"
   - "specs/agent-cost-context-isolation/design.md"
   - "specs/agent-cost-context-isolation/requirements.md"

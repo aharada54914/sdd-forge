@@ -1,0 +1,15 @@
+{
+  "command": "rtk proxy python3 -B reports/verification/rt002-snapshot-mode-repair-20261006/human-apply-v4-unreleased.py --check-only",
+  "cwd": "/Users/jrmag/.codex/worktrees/rt002-bounded-integration/sdd-forge",
+  "login": false,
+  "result": {
+    "chunk_id": "b0b4a0",
+    "wall_time_seconds": 0.000005625,
+    "exit_code": 0,
+    "original_token_count": 225,
+    "output": "PIN_OK plugins/sdd-implementation/scripts/prepare-task-snapshot.sh b837c4409d3ea17e72c047bd2639e7cecb4a90f55c740170f313589f407f9267 83302522785440208bc235ab6ad54ac679632c15a0f0e1edf8b4d59502e26b6b\nPIN_OK plugins/sdd-implementation/scripts/prepare-task-snapshot.ps1 35c4981f2b5eebb164223b4dd943c4ba90e9e5281b45c6e22d1bd1903f3428b2 fbbde93b2d90d2cbdae5dac65121a361df30fef07eefb6e0ec8a5ac7a9cd7b75\nPIN_OK tests/task-context-isolation.tests.sh 6b12e9ddd97327606d67d28a4e165ce3391afba28cfeaa04d68379f50f77fd9b 3f4c0daa832c41db0c2b9899073508616f910a867dbf6673f43afc0cb15a04b5\nPIN_OK tests/task-context-isolation.tests.ps1 82641c89fc1b79a3077f18323fd3ac4a7f98aa7dd026e8173c26c9bffd566575 ef3954581c1578914943e43cc3f73fd2bfd9e50ccd0d1f0355c632b25da8a1ae\nCHECK_ONLY_OK: HEAD, helper, patch, four before/after hashes, exact targets and applicability\nUNRELEASED: protected source unchanged; no backup created\n"
+  },
+  "apply_executed": false,
+  "backup_created": false,
+  "release_status": "UNRELEASED"
+}

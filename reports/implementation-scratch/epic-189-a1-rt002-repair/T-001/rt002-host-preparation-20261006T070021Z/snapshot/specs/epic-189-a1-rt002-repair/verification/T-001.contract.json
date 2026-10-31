@@ -1,0 +1,26 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-189-a1-rt002-repair",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "dd6c53d41ea62dd121f89aa49b218727e78a5614350dc571fb4302247fe709d3",
+  "created": "2026-10-03T08:10:07Z",
+  "comment": "Default-FAIL quality-gate contract. Results are updated only from inspected, saved gate evidence.",
+  "checks": [
+    {"id":"lint","required":true,"passes":false,"evidence":"","waiver_reason":""},
+    {"id":"typecheck","required":true,"passes":false,"evidence":"","waiver_reason":""},
+    {"id":"unit-tests","required":true,"passes":false,"evidence":"","waiver_reason":"","red_evidence":"","green_evidence":""},
+    {"id":"integration-tests","required":false,"passes":false,"evidence":"","waiver_reason":"Native Windows and latest-head integration belong to T-002."},
+    {"id":"acceptance-tests","required":true,"passes":false,"evidence":"","waiver_reason":"","red_evidence":"","green_evidence":""},
+    {"id":"regression","required":true,"passes":false,"evidence":"","waiver_reason":""},
+    {"id":"requirement-traceability","required":true,"passes":false,"evidence":"","waiver_reason":""},
+    {"id":"check-component-coverage","required":false,"passes":false,"evidence":"","waiver_reason":"Project capability enforcement is disabled-legacy; the gate still records the N/A verdict."},
+    {"id":"build","required":true,"passes":false,"evidence":"","waiver_reason":""},
+    {"id":"placeholder-scan","required":true,"passes":false,"evidence":"","waiver_reason":""},
+    {"id":"task-state-check","required":true,"passes":false,"evidence":"","waiver_reason":""},
+    {"id":"smoke-run","required":false,"passes":false,"evidence":"","waiver_reason":"CLI native activation is recorded in T-001 implementation evidence; no user-facing server is introduced."},
+    {"id":"differential-baseline","required":false,"passes":false,"evidence":"","waiver_reason":"Differential evidence is included under required regression and acceptance checks."},
+    {"id":"ui-verification","required":false,"passes":false,"evidence":"","waiver_reason":"No user-facing UI changed."},
+    {"id":"design-system","required":false,"passes":false,"evidence":"","waiver_reason":"No user-facing UI or design-system contract is in scope."}
+  ]
+}

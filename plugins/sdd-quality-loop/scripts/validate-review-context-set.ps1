@@ -29,7 +29,7 @@ function Test-CanonicalPath {
     param([string]$Path)
     return (
         $Path -is [string] -and
-        $Path -cmatch '^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*$' -and
+        $Path -cmatch '^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*\z' -and
         $Path -cnotmatch '(^|/)\.\.?(/|$)' -and
         $Path -cnotmatch '^[A-Za-z]:' -and
         -not $Path.Contains('\')
@@ -108,6 +108,94 @@ function Get-TasksNormalizedHash([string]$Path) {
     $sha = [Security.Cryptography.SHA256]::Create()
     try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant() }
     finally { $sha.Dispose() }
+}
+
+function Get-ImplementationBinding {
+        if ($implementationManifestPath -ceq '') {
+            Fail-ReviewContext 'IDENTITY' 'new evaluator requires a pinned implementation manifest'
+        }
+        $declaration = $document.implementation_manifest
+        $pinned = @($inputs | Where-Object {
+            $_.path -ceq $declaration.path -and $_.sha256 -ceq $declaration.sha256
+        })
+        if ($pinned.Count -ne 1) {
+            Fail-ReviewContext 'IDENTITY' 'implementation manifest is not a hash-pinned evaluator input'
+        }
+        try {
+            $implementationText = Get-Content -LiteralPath (Join-Path $root $implementationManifestPath) -Raw -Encoding UTF8
+            Assert-ImplJsonObject $implementationText
+            $implementation = $implementationText | ConvertFrom-Json -AsHashtable
+        } catch {
+            Fail-ReviewContext 'IDENTITY' 'implementation manifest is invalid JSON'
+        }
+        if ($implementation.schema -cne 'task-input-manifest/v1' -or
+            $implementation.task_id -cne $document.task_id -or
+            $implementation.run_id -isnot [string] -or $implementation.run_id.Length -eq 0 -or
+            $implementation.session_id -isnot [string] -or $implementation.session_id.Length -eq 0) {
+            Fail-ReviewContext 'IDENTITY' 'implementation manifest task/run/session is invalid'
+        }
+        if ($implementation.allowed_inputs -isnot [array] -or $implementation.allowed_inputs.Count -eq 0) {
+            Fail-ReviewContext 'IDENTITY' 'implementation manifest allowed_inputs is invalid'
+        }
+        $seenInputs = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+        foreach ($entry in $implementation.allowed_inputs) {
+            if ($entry -isnot [hashtable] -or -not (Test-ExactKeys $entry @('path','sha256')) -or
+                $entry.path -isnot [string] -or -not (Test-CanonicalPath $entry.path) -or
+                -not $seenInputs.Add($entry.path) -or
+                $entry.sha256 -isnot [string] -or $entry.sha256.Length -ne 64 -or
+                $entry.sha256 -cnotmatch '^[0-9a-f]{64}$') {
+                Fail-ReviewContext 'IDENTITY' 'implementation manifest allowed_inputs is invalid'
+            }
+        }
+        if (@($implementationReportLines | Where-Object { $_.StartsWith('Run ID: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
+            @($implementationReportLines | Where-Object { $_.StartsWith('- **Run ID**: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
+            @($implementationReportLines | Where-Object { $_.StartsWith('- **Session ID**: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
+            @($implementationReportLines | Where-Object { $_ -ceq "Run ID: $($implementation.run_id)" }).Count -ne 1 -or
+            @($implementationReportLines | Where-Object { $_ -ceq "- **Run ID**: $($implementation.run_id)" }).Count -ne 1 -or
+            @($implementationReportLines | Where-Object { $_ -ceq "- **Session ID**: $($implementation.session_id)" }).Count -ne 1) {
+            Fail-ReviewContext 'IDENTITY' 'implementation report run/session does not match its manifest'
+        }
+        $manifestCitation = 'Input manifest: `' + $declaration.path + '`, SHA-256 `' + $declaration.sha256 + '`'
+        $citationLines = @($implementationReportLines | Where-Object { $_.StartsWith('Input manifest:', [StringComparison]::Ordinal) })
+        if ($citationLines.Count -ne 1 -or
+            -not ($citationLines[0] -ceq $manifestCitation -or $citationLines[0] -ceq ($manifestCitation + '.') -or
+                $citationLines[0].StartsWith($manifestCitation + '. ', [StringComparison]::Ordinal))) {
+            Fail-ReviewContext 'IDENTITY' 'implementation report does not cite the pinned manifest path and hash exactly once'
+        }
+        return $implementation
+}
+
+function Test-ImplementationInput {
+    param($Document, [string]$Root, [string]$Path, [string]$Hash)
+    if ($Document.stage -cne 'quality' -or $Document.role -cne 'sdd-evaluator' -or
+        -not $Document.ContainsKey('implementation_manifest')) { return $false }
+    $declaration = $Document.implementation_manifest
+    if (@($Document.allowed_input_manifest | Where-Object {
+        $_.path -ceq $declaration.path -and $_.sha256 -ceq $declaration.sha256
+    }).Count -ne 1 -or -not (Test-CanonicalPath $declaration.path)) { return $false }
+    $current = $Root
+    foreach ($component in $declaration.path.Split('/')) {
+        $current = Join-Path $current $component
+        if (-not (Test-Path -LiteralPath $current) -or
+            ((Get-Item -LiteralPath $current -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+            return $false
+        }
+    }
+    if (-not (Test-Path -LiteralPath $current -PathType Leaf) -or
+        (Get-FileHash -LiteralPath $current -Algorithm SHA256).Hash.ToLowerInvariant() -cne $declaration.sha256) {
+        return $false
+    }
+    $data = Get-ImplementationBinding
+    if ($data.allowed_inputs -isnot [array] -or $data.allowed_inputs.Count -eq 0) { return $false }
+    $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    $found = $false
+    foreach ($entry in $data.allowed_inputs) {
+        if ($entry -isnot [hashtable] -or -not (Test-ExactKeys $entry @('path','sha256')) -or
+            -not (Test-CanonicalPath $entry.path) -or -not $seen.Add($entry.path) -or
+            $entry.sha256 -isnot [string] -or $entry.sha256 -cnotmatch '^[0-9a-f]{64}$') { return $false }
+        if ($entry.path -ceq $Path -and $entry.sha256 -ceq $Hash) { $found = $true }
+    }
+    return $found
 }
 
 function Test-AuthorizedPath {
@@ -382,6 +470,9 @@ try {
     $topKeys = @($baseTopKeys)
     if ($document.stage -ceq 'quality') {
         $topKeys = @($baseTopKeys) + @('task_id')
+        if ($document.ContainsKey('implementation_manifest')) {
+            $topKeys = @($topKeys) + @('implementation_manifest')
+        }
         if ($document.ContainsKey('gate_report_declaration')) {
             $topKeys = @($topKeys) + @('gate_report_declaration')
         }
@@ -407,6 +498,19 @@ try {
     if ($document.stage -ceq 'quality' -and
         ($document.task_id -isnot [string] -or $document.task_id -cnotmatch '^T-[0-9]{3}$')) {
         Fail-ReviewContext 'CONTRACT' 'quality invocation requires a canonical task ID'
+    }
+    $implementationManifestPath = ''
+    if ($document.ContainsKey('implementation_manifest')) {
+        $implementationDeclaration = $document.implementation_manifest
+        if ($implementationDeclaration -isnot [hashtable] -or
+            -not (Test-ExactKeys $implementationDeclaration @('path','sha256')) -or
+            $implementationDeclaration.path -isnot [string] -or
+            $implementationDeclaration.path -cnotmatch '^handoffs/[A-Za-z0-9._-]+/manifest[.]json$' -or
+            $implementationDeclaration.sha256 -isnot [string] -or
+            $implementationDeclaration.sha256 -cnotmatch '^[0-9a-f]{64}$') {
+            Fail-ReviewContext 'CONTRACT' 'implementation_manifest requires a canonical path and SHA-256'
+        }
+        $implementationManifestPath = $implementationDeclaration.path
     }
     if ($document.ContainsKey('scratch_root') -and -not (Test-CanonicalScratchRoot $document.scratch_root)) {
         Fail-ReviewContext 'CONTRACT' 'scratch_root must be a canonical absolute path'
@@ -829,7 +933,9 @@ try {
             $verifiedAdrInputs.ContainsKey($input.path) -and
             $verifiedAdrInputs[$input.path] -ceq $input.sha256
         } else {
-            Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs
+            ($document.stage -ceq 'quality' -and $document.role -ceq 'sdd-evaluator' -and
+                $implementationManifestPath -cne '' -and $input.path -ceq $implementationManifestPath) -or
+                (Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs)
         }
         if ($input.path -cmatch '^reports/(spec|impl|task)-review/.*/reviewer-[^/]*\.json$' -or
             $input.path -cmatch '(^|/)reviewer-[ab]\.json$' -or
@@ -962,6 +1068,20 @@ try {
             if (-not $wfi025Applies) {
                 Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path)"
             }
+        }
+    }
+    if ("$($document.stage):$($document.role)" -ceq 'quality:sdd-evaluator') {
+        $implementation = Get-ImplementationBinding
+    }
+    if ($Reserve -and "$($document.stage):$($document.role)" -ceq 'quality:sdd-evaluator') {
+        if (@($records | Where-Object {
+            $_.run_id -ceq $implementation.run_id -or $_.host_session_id -ceq $implementation.session_id
+        }).Count -gt 0) {
+            Fail-ReviewContext 'IDENTITY' 'implementation run/session is reused in the canonical review ledger'
+        }
+        if ($document.run_id -ceq $implementation.run_id -or
+            $document.host_session_id -ceq $implementation.session_id) {
+            Fail-ReviewContext 'IDENTITY' 'evaluator reuses implementation run/session'
         }
     }
 

@@ -1,0 +1,987 @@
+PASS: TEST-027 claude-code: a genuine --emit exit deny signature + matching nonce -> exit 0
+PASS: TEST-027 claude-code: HOOK_ACTIVE reported
+PASS: TEST-027 claude-code: the write actually executing -> exit 63/WRITE_EXECUTED
+PASS: TEST-027 claude-code: WRITE_EXECUTED -> CAPABILITY_RUNTIME_UNAVAILABLE
+PASS: TEST-027 claude-code: WRITE_EXECUTED reason reported
+PASS: TEST-027 claude-code: executed:false with no guard_emit_mode/exit_code -> exit 64/UNRECOGNIZED_RESULT
+PASS: TEST-027 claude-code: UNRECOGNIZED_RESULT reason reported
+PASS: TEST-027 claude-code: a missing recorded-result file -> exit 60/NO_RECORDED_RESULT
+PASS: TEST-027 claude-code: NO_RECORDED_RESULT reason reported
+PASS: TEST-027 claude-code: an otherwise-correct signature with a MISMATCHED nonce -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-027 claude-code: STALE_CHALLENGE_REJECTED reason reported (never HOOK_ACTIVE without a fresh nonce match)
+PASS: TEST-027 copilot-cli: a genuine --emit copilot deny JSON + matching nonce -> exit 0
+PASS: TEST-027 copilot-cli: HOOK_ACTIVE reported
+PASS: TEST-027 copilot-cli: the write actually executing -> exit 63/WRITE_EXECUTED
+PASS: TEST-027 copilot-cli: an ABSENT permissionDecision -> exit 64/UNRECOGNIZED_RESULT, never HOOK_ACTIVE
+PASS: TEST-027 copilot-cli: the well-known 'subagent hook often does not fire' case (permissionDecision: allow) -> exit 64/UNRECOGNIZED_RESULT, not a special case
+PASS: TEST-027 copilot-cli: a missing recorded-result file -> exit 60/NO_RECORDED_RESULT
+PASS: TEST-027 copilot-cli: a MISMATCHED nonce against an otherwise-correct deny signature -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-027 codex-cli: plugin_hooks_enabled + denied_by_plugin_hooks + matching nonce -> exit 0
+PASS: TEST-027 codex-cli: HOOK_ACTIVE reported
+PASS: TEST-027 codex-cli: the write actually executing -> exit 63/WRITE_EXECUTED
+PASS: TEST-027 codex-cli: an unset/false plugin_hooks_enabled -> exit 65/PLUGIN_HOOKS_DISABLED even when denied_by_plugin_hooks claims true (the collapse-into-hook-not-active case, REQ-010)
+PASS: TEST-027 codex-cli: PLUGIN_HOOKS_DISABLED reason reported, never HOOK_ACTIVE
+PASS: RT-20260909-002: incomplete flag evidence still fails closed ({})
+PASS: RT-20260909-002: incomplete flag evidence never activates ({})
+PASS: RT-20260909-002: diagnostic distinguishes missing evidence from disabled configuration ({})
+PASS: RT-20260909-002: incomplete flag evidence still fails closed ({"plugin_hooks_enabled":null})
+PASS: RT-20260909-002: incomplete flag evidence never activates ({"plugin_hooks_enabled":null})
+PASS: RT-20260909-002: diagnostic distinguishes missing evidence from disabled configuration ({"plugin_hooks_enabled":null})
+PASS: RT-20260909-002: incomplete flag evidence still fails closed ({"plugin_hooks_enabled":"true"})
+PASS: RT-20260909-002: incomplete flag evidence never activates ({"plugin_hooks_enabled":"true"})
+PASS: RT-20260909-002: diagnostic distinguishes missing evidence from disabled configuration ({"plugin_hooks_enabled":"true"})
+PASS: TEST-027 codex-cli: plugin_hooks_enabled true but no denied_by_plugin_hooks -> exit 64/UNRECOGNIZED_RESULT
+PASS: TEST-027 codex-cli: a missing recorded-result file -> exit 60/NO_RECORDED_RESULT
+PASS: TEST-027 codex-cli: a MISMATCHED nonce against an otherwise-correct deny signature -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-027 shared: invalid JSON syntax -> exit 61/RECORDED_RESULT_UNREADABLE
+PASS: TEST-027 shared: a non-object (JSON array) top level -> exit 61/RECORDED_RESULT_UNREADABLE
+PASS: TEST-027 shared: invalid UTF-8 bytes -> exit 61/RECORDED_RESULT_UNREADABLE
+PASS: TEST-027 challenge shape: 'schema' is the exact literal design.md's CLI contract fixes
+PASS: TEST-027 challenge shape: 'canary_target' is the exact literal protected sentinel path design.md's Data Plan registers
+PASS: TEST-027 challenge shape: tool_call_template includes a 'claude-code' entry
+PASS: TEST-027 challenge shape: tool_call_template includes a 'codex-cli' entry
+PASS: TEST-027 challenge shape: tool_call_template includes a 'copilot-cli' entry
+PASS: TEST-032 (a) precondition: sentinel absent BEFORE the hook-fires branch
+PASS: TEST-032 (a) hook FIRES: HOOK_ACTIVE
+PASS: TEST-032 (a) the sentinel is absent-AFTER the hook-fires branch too (never created)
+PASS: TEST-032 (a) the live sidecar fixtures are byte-identical before/after (never touched)
+PASS: TEST-032 (b) hook does not fire: CAPABILITY_RUNTIME_UNAVAILABLE/WRITE_EXECUTED
+PASS: TEST-032 (b) a recorded cleanup delete showing success -> exit 0/SENTINEL_CLEANUP_CONFIRMED
+PASS: TEST-032 (b) cleanup_status is SENTINEL_CLEANUP_CONFIRMED
+PASS: TEST-032 (b) the standing capability_status (from the original probe) is restated alongside the cleanup verdict
+PASS: TEST-032 (c1) no cleanup-result evidence recorded at all -> exit 70/NO_CLEANUP_RESULT
+PASS: TEST-032 (c1) cleanup_status is SENTINEL_CLEANUP_UNCONFIRMED
+PASS: TEST-032 (c1) the standing CAPABILITY_RUNTIME_UNAVAILABLE is restated alongside (independent verdicts, never retroactively changed)
+PASS: TEST-032 (c2) the cleanup delete's own attempt was denied (create-to-delete race) -> exit 72/CLEANUP_DENIED, never a privileged force-delete
+PASS: TEST-032 (c2) CLEANUP_DENIED reason reported
+PASS: TEST-032 (c3) a cleanup-result with a MISMATCHED nonce is never confirmed -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-032 stale-start: --emit-challenge with a pre-existing stale sentinel still exits 0
+PASS: TEST-032 stale-start: the pre-existing stale sentinel is reported as a diagnostic (STALE_SENTINEL_DETECTED)
+PASS: TEST-032 stale-start: a fresh, valid challenge is still emitted regardless
+PASS: TEST-032 stale-start: the new challenge carries a non-empty nonce
+PASS: TEST-032 stale-start: the stale sentinel itself is byte-identical before/after --emit-challenge (this script never touches it, only the calling skill does)
+PASS: TEST-032 stale-start: the NEW challenge's own probe still resolves to HOOK_ACTIVE correctly, regardless of the stale-sentinel condition at start
+PASS: TEST-032 stale-start: HOOK_ACTIVE reported for the new challenge
+PASS: TEST-032 no-stale: --emit-challenge with NO pre-existing sentinel exits 0
+PASS: TEST-032 no-stale: no STALE_SENTINEL_DETECTED diagnostic when the sentinel is genuinely absent
+PASS: TEST-032 battery: all three live sidecar/registry fixtures are byte-identical across a full multi-invocation battery (--emit-challenge, HOOK_ACTIVE, WRITE_EXECUTED, confirm-cleanup)
+PASS: TEST-032 battery: the sentinel itself was never created by this script across the whole battery
+PASS: TEST-HARDEN(a) --verify-response with NO --nonce -> exit 2 usage error
+PASS: TEST-HARDEN(a): no raw traceback on stderr
+PASS: TEST-HARDEN(b) --verify-response with NO --recorded-result -> exit 2 usage error
+PASS: TEST-HARDEN(b): no raw traceback on stderr
+PASS: TEST-HARDEN(c) --verify-response with NO --runtime -> exit 2 usage error
+PASS: TEST-HARDEN(c): no raw traceback on stderr
+PASS: TEST-HARDEN(d) an unrecognized --runtime value -> exit 2 usage error
+PASS: TEST-HARDEN(d): no raw traceback on stderr
+PASS: TEST-HARDEN(e) an EMPTY --nonce value -> exit 2 usage error, never accepted as a trivial match
+PASS: TEST-HARDEN(e): no raw traceback on stderr
+PASS: TEST-HARDEN(f) --emit-challenge combined with --nonce -> exit 2 usage error (takes no other arguments)
+PASS: TEST-HARDEN(f): no raw traceback on stderr
+PASS: TEST-HARDEN(g) --confirm-cleanup combined with --recorded-result/--runtime -> exit 2 usage error
+PASS: TEST-HARDEN(g): no raw traceback on stderr
+PASS: TEST-HARDEN(h) --verify-response combined with --recorded-cleanup-result -> exit 2 usage error
+PASS: TEST-HARDEN(h): no raw traceback on stderr
+PASS: TEST-HARDEN(i) --confirm-cleanup with NO --recorded-cleanup-result -> exit 2 usage error
+PASS: TEST-HARDEN(i): no raw traceback on stderr
+PASS: TEST-HARDEN(j) no mode flag at all -> exit 2 usage error (argparse's own required mutually-exclusive-group check)
+PASS: TEST-HARDEN(k) two mode flags together -> exit 2 usage error (argparse's own mutually-exclusive-group check)
+PASS: TEST-HARDEN(l) an evidence path containing spaces resolves correctly -> exit 0/HOOK_ACTIVE
+PASS: TEST-HARDEN(l): no raw traceback on stderr
+PASS: TEST-HARDEN(m) a string 'executed' field (not boolean) -> exit 64/UNRECOGNIZED_RESULT, never coerced to a truthy/falsy denial
+PASS: TEST-HARDEN(m): no raw traceback on stderr
+PASS: TEST-HARDEN(n) a recorded-cleanup-result with no 'executed' field -> exit 71/CLEANUP_RESULT_UNREADABLE
+PASS: TEST-HARDEN(n): no raw traceback on stderr
+PASS: self-registration: tests/check-hook-activation-handshake.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/check-hook-activation-handshake.tests.ps1 registered in tests/run-all.ps1
+PASS: TEST-078 cleanup malformed rejected
+PASS: TEST-078 cleanup malformed reason
+PASS: TEST-078 cleanup malformed unconfirmed
+PASS: TEST-078 cleanup malformed cannot activate
+PASS: TEST-078 cleanup nonboolean rejected
+PASS: TEST-078 cleanup nonboolean reason
+PASS: TEST-078 cleanup nonboolean unconfirmed
+PASS: TEST-078 cleanup nonboolean cannot activate
+PASS: TEST-082 dangling sentinel emits challenge
+PASS: TEST-082 dangling sentinel diagnosed
+PASS: TEST-082 fresh nonce emitted
+PASS: TEST-082 symlink unchanged
+PASS: TEST-082 dangling target not followed or created
+FAIL: TEST-090 RT002 exact bare operation-bound denial accepted: got '64', want '0'
+FAIL: TEST-090 RT002 exact bare denial status: got 'False', want 'True'
+PASS: RT002 raw envelope rejected: prefix
+PASS: RT002 raw envelope cannot activate: prefix
+PASS: RT002 raw envelope reason: prefix
+PASS: RT002 raw envelope rejected: quote
+PASS: RT002 raw envelope cannot activate: quote
+PASS: RT002 raw envelope reason: quote
+PASS: RT002 raw envelope rejected: suffix
+PASS: RT002 raw envelope cannot activate: suffix
+PASS: RT002 raw envelope reason: suffix
+PASS: RT002 raw envelope rejected: truncate
+PASS: RT002 raw envelope cannot activate: truncate
+PASS: RT002 raw envelope reason: truncate
+PASS: RT002 raw envelope rejected: guard
+PASS: RT002 raw envelope cannot activate: guard
+PASS: RT002 raw envelope reason: guard
+PASS: RT002 raw envelope rejected: guard-ja
+PASS: RT002 raw envelope cannot activate: guard-ja
+PASS: RT002 raw envelope reason: guard-ja
+PASS: RT002 raw envelope rejected: guard-permissive
+PASS: RT002 raw envelope cannot activate: guard-permissive
+PASS: RT002 raw envelope reason: guard-permissive
+PASS: RT002 raw envelope rejected: guard-ja-permissive
+PASS: RT002 raw envelope cannot activate: guard-ja-permissive
+PASS: RT002 raw envelope reason: guard-ja-permissive
+PASS: RT002 raw envelope rejected: target
+PASS: RT002 raw envelope cannot activate: target
+PASS: RT002 raw envelope reason: target
+PASS: RT002 raw envelope rejected: target-dot
+PASS: RT002 raw envelope cannot activate: target-dot
+PASS: RT002 raw envelope reason: target-dot
+PASS: RT002 raw envelope rejected: guard-case
+PASS: RT002 raw envelope cannot activate: guard-case
+PASS: RT002 raw envelope reason: guard-case
+PASS: RT002 raw envelope rejected: target-case
+PASS: RT002 raw envelope cannot activate: target-case
+PASS: RT002 raw envelope reason: target-case
+PASS: RT002 raw envelope rejected: extra-operation
+PASS: RT002 raw envelope cannot activate: extra-operation
+PASS: RT002 raw envelope reason: extra-operation
+PASS: RT002 raw envelope rejected: appended-operation
+PASS: RT002 raw envelope cannot activate: appended-operation
+PASS: RT002 raw envelope reason: appended-operation
+PASS: RT002 raw envelope rejected: unknown-tool
+PASS: RT002 raw envelope cannot activate: unknown-tool
+PASS: RT002 raw envelope reason: unknown-tool
+PASS: RT002 raw envelope rejected: old-patch
+PASS: RT002 raw envelope cannot activate: old-patch
+PASS: RT002 raw envelope reason: old-patch
+PASS: RT002 raw envelope rejected: trailing-newline
+PASS: RT002 raw envelope cannot activate: trailing-newline
+PASS: RT002 raw envelope reason: trailing-newline
+PASS: RT002 raw envelope rejected: leading-newline
+PASS: RT002 raw envelope cannot activate: leading-newline
+PASS: RT002 raw envelope reason: leading-newline
+PASS: RT002 raw envelope rejected: crlf
+PASS: RT002 raw envelope cannot activate: crlf
+PASS: RT002 raw envelope reason: crlf
+PASS: RT002 raw envelope rejected: null
+PASS: RT002 raw envelope cannot activate: null
+PASS: RT002 raw envelope reason: null
+PASS: RT002 raw envelope rejected: boolean
+PASS: RT002 raw envelope cannot activate: boolean
+PASS: RT002 raw envelope reason: boolean
+PASS: RT002 raw envelope rejected: true
+PASS: RT002 raw envelope cannot activate: true
+PASS: RT002 raw envelope reason: true
+PASS: RT002 raw envelope rejected: number
+PASS: RT002 raw envelope cannot activate: number
+PASS: RT002 raw envelope reason: number
+PASS: RT002 raw envelope rejected: one
+PASS: RT002 raw envelope cannot activate: one
+PASS: RT002 raw envelope reason: one
+PASS: RT002 raw envelope rejected: array
+PASS: RT002 raw envelope cannot activate: array
+PASS: RT002 raw envelope reason: array
+PASS: RT002 raw envelope rejected: object
+PASS: RT002 raw envelope cannot activate: object
+PASS: RT002 raw envelope reason: object
+PASS: RT002 raw envelope rejected: TEST-092-no-lf
+PASS: RT002 raw envelope cannot activate: TEST-092-no-lf
+PASS: RT002 raw envelope reason: TEST-092-no-lf
+PASS: RT002 raw envelope rejected: TEST-093-crlf
+PASS: RT002 raw envelope cannot activate: TEST-093-crlf
+PASS: RT002 raw envelope reason: TEST-093-crlf
+PASS: RT002 raw envelope rejected: TEST-094-space-before-lf
+PASS: RT002 raw envelope cannot activate: TEST-094-space-before-lf
+PASS: RT002 raw envelope reason: TEST-094-space-before-lf
+PASS: RT002 raw envelope rejected: TEST-094-space-after-lf
+PASS: RT002 raw envelope cannot activate: TEST-094-space-after-lf
+PASS: RT002 raw envelope reason: TEST-094-space-after-lf
+PASS: RT002 raw envelope rejected: TEST-095-case
+PASS: RT002 raw envelope cannot activate: TEST-095-case
+PASS: RT002 raw envelope reason: TEST-095-case
+PASS: RT002 raw envelope rejected: TEST-096-repeated
+PASS: RT002 raw envelope cannot activate: TEST-096-repeated
+PASS: RT002 raw envelope reason: TEST-096-repeated
+PASS: RT002 raw envelope rejected: TEST-097-extra-lf
+PASS: RT002 raw envelope cannot activate: TEST-097-extra-lf
+PASS: RT002 raw envelope reason: TEST-097-extra-lf
+PASS: RT002 evidence field rejected: missing:schema
+PASS: RT002 evidence field cannot activate: missing:schema
+PASS: RT002 evidence field reason: missing:schema
+PASS: RT002 evidence field rejected: missing:runtime
+PASS: RT002 evidence field cannot activate: missing:runtime
+PASS: RT002 evidence field reason: missing:runtime
+PASS: RT002 evidence field rejected: missing:nonce
+PASS: RT002 evidence field cannot activate: missing:nonce
+PASS: RT002 evidence field reason: missing:nonce
+PASS: RT002 evidence field rejected: missing:executed
+PASS: RT002 evidence field cannot activate: missing:executed
+PASS: RT002 evidence field reason: missing:executed
+PASS: RT002 evidence field rejected: missing:raw_result
+PASS: RT002 evidence field cannot activate: missing:raw_result
+PASS: RT002 evidence field reason: missing:raw_result
+PASS: RT002 evidence field rejected: executed:null
+PASS: RT002 evidence field cannot activate: executed:null
+PASS: RT002 evidence field reason: executed:null
+PASS: RT002 evidence field rejected: executed:string
+PASS: RT002 evidence field cannot activate: executed:string
+PASS: RT002 evidence field reason: executed:string
+PASS: RT002 evidence field rejected: executed:true
+PASS: RT002 evidence field cannot activate: executed:true
+PASS: RT002 evidence field reason: executed:true
+PASS: RT002 evidence field rejected: executed:zero
+PASS: RT002 evidence field cannot activate: executed:zero
+PASS: RT002 evidence field reason: executed:zero
+PASS: RT002 evidence field rejected: executed:one
+PASS: RT002 evidence field cannot activate: executed:one
+PASS: RT002 evidence field reason: executed:one
+PASS: RT002 evidence field rejected: nonce:outer
+PASS: RT002 evidence field cannot activate: nonce:outer
+PASS: RT002 evidence field reason: nonce:outer
+FAIL: RT002 evidence field rejected: nonce:inner: got '64', want '62'
+PASS: RT002 evidence field cannot activate: nonce:inner
+FAIL: RT002 evidence field reason: nonce:inner: got 'False', want 'True'
+PASS: RT002 evidence field rejected: nonce:malformed
+PASS: RT002 evidence field cannot activate: nonce:malformed
+PASS: RT002 evidence field reason: nonce:malformed
+PASS: RT002 evidence field rejected: runtime:claude-code
+PASS: RT002 evidence field cannot activate: runtime:claude-code
+PASS: RT002 evidence field reason: runtime:claude-code
+PASS: RT002 evidence field rejected: runtime:copilot-cli
+PASS: RT002 evidence field cannot activate: runtime:copilot-cli
+PASS: RT002 evidence field reason: runtime:copilot-cli
+PASS: RT002 evidence field rejected: runtime:unknown-host
+PASS: RT002 evidence field cannot activate: runtime:unknown-host
+PASS: RT002 evidence field reason: runtime:unknown-host
+PASS: RT002 evidence field rejected: cli:claude-code
+PASS: RT002 evidence field cannot activate: cli:claude-code
+PASS: RT002 evidence field reason: cli:claude-code
+PASS: RT002 evidence field rejected: cli:copilot-cli
+PASS: RT002 evidence field cannot activate: cli:copilot-cli
+PASS: RT002 evidence field reason: cli:copilot-cli
+PASS: RT002 evidence field rejected: both:claude-code
+PASS: RT002 evidence field cannot activate: both:claude-code
+PASS: RT002 evidence field reason: both:claude-code
+PASS: RT002 evidence field rejected: both:copilot-cli
+PASS: RT002 evidence field cannot activate: both:copilot-cli
+PASS: RT002 evidence field reason: both:copilot-cli
+PASS: RT002 evidence field rejected: extra:plugin_hooks_enabled:true
+PASS: RT002 evidence field cannot activate: extra:plugin_hooks_enabled:true
+PASS: RT002 evidence field reason: extra:plugin_hooks_enabled:true
+PASS: RT002 evidence field rejected: extra:plugin_hooks_enabled:false
+PASS: RT002 evidence field cannot activate: extra:plugin_hooks_enabled:false
+PASS: RT002 evidence field reason: extra:plugin_hooks_enabled:false
+PASS: RT002 evidence field rejected: extra:denied_by_plugin_hooks:true
+PASS: RT002 evidence field cannot activate: extra:denied_by_plugin_hooks:true
+PASS: RT002 evidence field reason: extra:denied_by_plugin_hooks:true
+PASS: RT002 evidence field rejected: extra:denied_by_plugin_hooks:false
+PASS: RT002 evidence field cannot activate: extra:denied_by_plugin_hooks:false
+PASS: RT002 evidence field reason: extra:denied_by_plugin_hooks:false
+PASS: RT002 evidence field rejected: extra:arbitrary:true
+PASS: RT002 evidence field cannot activate: extra:arbitrary:true
+PASS: RT002 evidence field reason: extra:arbitrary:true
+PASS: RT002 evidence field rejected: extra:host:unknown-host
+PASS: RT002 evidence field cannot activate: extra:host:unknown-host
+PASS: RT002 evidence field reason: extra:host:unknown-host
+PASS: RT002 evidence field rejected: extra:tool:unknown-tool
+PASS: RT002 evidence field cannot activate: extra:tool:unknown-tool
+PASS: RT002 evidence field reason: extra:tool:unknown-tool
+PASS: RT002 extra flag rejected: plugin_hooks_enabled=null
+PASS: RT002 extra flag cannot activate: plugin_hooks_enabled=null
+PASS: RT002 extra flag reason: plugin_hooks_enabled=null
+PASS: RT002 extra flag rejected: plugin_hooks_enabled="false"
+PASS: RT002 extra flag cannot activate: plugin_hooks_enabled="false"
+PASS: RT002 extra flag reason: plugin_hooks_enabled="false"
+PASS: RT002 extra flag rejected: plugin_hooks_enabled=1
+PASS: RT002 extra flag cannot activate: plugin_hooks_enabled=1
+PASS: RT002 extra flag reason: plugin_hooks_enabled=1
+PASS: RT002 extra flag rejected: plugin_hooks_enabled=[]
+PASS: RT002 extra flag cannot activate: plugin_hooks_enabled=[]
+PASS: RT002 extra flag reason: plugin_hooks_enabled=[]
+PASS: RT002 extra flag rejected: plugin_hooks_enabled={}
+PASS: RT002 extra flag cannot activate: plugin_hooks_enabled={}
+PASS: RT002 extra flag reason: plugin_hooks_enabled={}
+PASS: RT002 extra flag rejected: denied_by_plugin_hooks=null
+PASS: RT002 extra flag cannot activate: denied_by_plugin_hooks=null
+PASS: RT002 extra flag reason: denied_by_plugin_hooks=null
+PASS: RT002 extra flag rejected: denied_by_plugin_hooks="false"
+PASS: RT002 extra flag cannot activate: denied_by_plugin_hooks="false"
+PASS: RT002 extra flag reason: denied_by_plugin_hooks="false"
+PASS: RT002 extra flag rejected: denied_by_plugin_hooks=1
+PASS: RT002 extra flag cannot activate: denied_by_plugin_hooks=1
+PASS: RT002 extra flag reason: denied_by_plugin_hooks=1
+PASS: RT002 extra flag rejected: denied_by_plugin_hooks=[]
+PASS: RT002 extra flag cannot activate: denied_by_plugin_hooks=[]
+PASS: RT002 extra flag reason: denied_by_plugin_hooks=[]
+PASS: RT002 extra flag rejected: denied_by_plugin_hooks={}
+PASS: RT002 extra flag cannot activate: denied_by_plugin_hooks={}
+PASS: RT002 extra flag reason: denied_by_plugin_hooks={}
+PASS: RT002 all invalid nonce rejected: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 all invalid nonce cannot activate: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 all invalid nonce reason: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 expected invalid nonce rejected: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 expected invalid nonce cannot activate: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 expected invalid nonce reason: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 echo invalid nonce rejected: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 echo invalid nonce cannot activate: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 echo invalid nonce reason: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 all invalid nonce rejected: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 all invalid nonce cannot activate: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 all invalid nonce reason: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 expected invalid nonce rejected: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 expected invalid nonce cannot activate: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 expected invalid nonce reason: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 echo invalid nonce rejected: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 echo invalid nonce cannot activate: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 echo invalid nonce reason: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 all invalid nonce rejected: 0123456789abcdef0123456789abcde
+PASS: RT002 all invalid nonce cannot activate: 0123456789abcdef0123456789abcde
+PASS: RT002 all invalid nonce reason: 0123456789abcdef0123456789abcde
+PASS: RT002 expected invalid nonce rejected: 0123456789abcdef0123456789abcde
+PASS: RT002 expected invalid nonce cannot activate: 0123456789abcdef0123456789abcde
+PASS: RT002 expected invalid nonce reason: 0123456789abcdef0123456789abcde
+PASS: RT002 echo invalid nonce rejected: 0123456789abcdef0123456789abcde
+PASS: RT002 echo invalid nonce cannot activate: 0123456789abcdef0123456789abcde
+PASS: RT002 echo invalid nonce reason: 0123456789abcdef0123456789abcde
+PASS: RT002 all invalid nonce rejected: 0123456789abcdef0123456789abcdef0
+PASS: RT002 all invalid nonce cannot activate: 0123456789abcdef0123456789abcdef0
+PASS: RT002 all invalid nonce reason: 0123456789abcdef0123456789abcdef0
+PASS: RT002 expected invalid nonce rejected: 0123456789abcdef0123456789abcdef0
+PASS: RT002 expected invalid nonce cannot activate: 0123456789abcdef0123456789abcdef0
+PASS: RT002 expected invalid nonce reason: 0123456789abcdef0123456789abcdef0
+PASS: RT002 echo invalid nonce rejected: 0123456789abcdef0123456789abcdef0
+PASS: RT002 echo invalid nonce cannot activate: 0123456789abcdef0123456789abcdef0
+PASS: RT002 echo invalid nonce reason: 0123456789abcdef0123456789abcdef0
+PASS: RT002 all invalid nonce rejected: z123456789abcdef0123456789abcdef
+PASS: RT002 all invalid nonce cannot activate: z123456789abcdef0123456789abcdef
+PASS: RT002 all invalid nonce reason: z123456789abcdef0123456789abcdef
+PASS: RT002 expected invalid nonce rejected: z123456789abcdef0123456789abcdef
+PASS: RT002 expected invalid nonce cannot activate: z123456789abcdef0123456789abcdef
+PASS: RT002 expected invalid nonce reason: z123456789abcdef0123456789abcdef
+PASS: RT002 echo invalid nonce rejected: z123456789abcdef0123456789abcdef
+PASS: RT002 echo invalid nonce cannot activate: z123456789abcdef0123456789abcdef
+PASS: RT002 echo invalid nonce reason: z123456789abcdef0123456789abcdef
+PASS: RT002 baseline nonce has 32 characters
+PASS: RT002 outer-only invalid nonce rejected: uppercase
+PASS: RT002 outer-only nonce reason: uppercase
+PASS: RT002 outer-only nonce cannot activate: uppercase
+PASS: RT002 outer-only invalid nonce rejected: short
+PASS: RT002 outer-only nonce reason: short
+PASS: RT002 outer-only nonce cannot activate: short
+PASS: RT002 outer-only invalid nonce rejected: long
+PASS: RT002 outer-only nonce reason: long
+PASS: RT002 outer-only nonce cannot activate: long
+PASS: RT002 outer-only invalid nonce rejected: nonhex
+PASS: RT002 outer-only nonce reason: nonhex
+PASS: RT002 outer-only nonce cannot activate: nonhex
+PASS: RT002 outer-only invalid nonce rejected: null
+PASS: RT002 outer-only nonce reason: null
+PASS: RT002 outer-only nonce cannot activate: null
+PASS: RT002 outer-only invalid nonce rejected: number
+PASS: RT002 outer-only nonce reason: number
+PASS: RT002 outer-only nonce cannot activate: number
+PASS: RT002 bare invalid selector with intact body rejected: null
+PASS: RT002 bare intact-body selector reason: null
+PASS: RT002 bare intact-body selector cannot activate: null
+PASS: RT002 bare invalid selector with intact body rejected: true
+PASS: RT002 bare intact-body selector reason: true
+PASS: RT002 bare intact-body selector cannot activate: true
+PASS: RT002 bare invalid selector with intact body rejected: false
+PASS: RT002 bare intact-body selector reason: false
+PASS: RT002 bare intact-body selector cannot activate: false
+PASS: RT002 bare invalid selector with intact body rejected: 1
+PASS: RT002 bare intact-body selector reason: 1
+PASS: RT002 bare intact-body selector cannot activate: 1
+PASS: RT002 bare invalid selector with intact body rejected: []
+PASS: RT002 bare intact-body selector reason: []
+PASS: RT002 bare intact-body selector cannot activate: []
+PASS: RT002 bare invalid selector with intact body rejected: {}
+PASS: RT002 bare intact-body selector reason: {}
+PASS: RT002 bare intact-body selector cannot activate: {}
+PASS: RT002 bare invalid selector with intact body rejected: "unknown"
+PASS: RT002 bare intact-body selector reason: "unknown"
+PASS: RT002 bare intact-body selector cannot activate: "unknown"
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: null
+PASS: RT002 selector rejected status: null
+PASS: RT002 Claude selector reason: null
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: true
+PASS: RT002 selector rejected status: true
+PASS: RT002 Claude selector reason: true
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: false
+PASS: RT002 selector rejected status: false
+PASS: RT002 Claude selector reason: false
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: 1
+PASS: RT002 selector rejected status: 1
+PASS: RT002 Claude selector reason: 1
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: []
+PASS: RT002 selector rejected status: []
+PASS: RT002 Claude selector reason: []
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: {}
+PASS: RT002 selector rejected status: {}
+PASS: RT002 Claude selector reason: {}
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: "unknown"
+PASS: RT002 selector rejected status: "unknown"
+PASS: RT002 Claude selector reason: "unknown"
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: "sdd-codex-host-denial/v1"
+PASS: RT002 selector rejected status: "sdd-codex-host-denial/v1"
+PASS: RT002 Claude selector reason: "sdd-codex-host-denial/v1"
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: null
+PASS: RT002 selector rejected status for codex-cli: null
+PASS: RT002 codex-cli selector reason: null
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: true
+PASS: RT002 selector rejected status for codex-cli: true
+PASS: RT002 codex-cli selector reason: true
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: false
+PASS: RT002 selector rejected status for codex-cli: false
+PASS: RT002 codex-cli selector reason: false
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: 1
+PASS: RT002 selector rejected status for codex-cli: 1
+PASS: RT002 codex-cli selector reason: 1
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: []
+PASS: RT002 selector rejected status for codex-cli: []
+PASS: RT002 codex-cli selector reason: []
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: {}
+PASS: RT002 selector rejected status for codex-cli: {}
+PASS: RT002 codex-cli selector reason: {}
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: "unknown"
+PASS: RT002 selector rejected status for codex-cli: "unknown"
+PASS: RT002 codex-cli selector reason: "unknown"
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: "sdd-codex-host-denial/v1"
+PASS: RT002 selector rejected status for codex-cli: "sdd-codex-host-denial/v1"
+PASS: RT002 codex-cli selector reason: "sdd-codex-host-denial/v1"
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: null
+PASS: RT002 selector rejected status for copilot-cli: null
+PASS: RT002 copilot-cli selector reason: null
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: true
+PASS: RT002 selector rejected status for copilot-cli: true
+PASS: RT002 copilot-cli selector reason: true
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: false
+PASS: RT002 selector rejected status for copilot-cli: false
+PASS: RT002 copilot-cli selector reason: false
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: 1
+PASS: RT002 selector rejected status for copilot-cli: 1
+PASS: RT002 copilot-cli selector reason: 1
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: []
+PASS: RT002 selector rejected status for copilot-cli: []
+PASS: RT002 copilot-cli selector reason: []
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: {}
+PASS: RT002 selector rejected status for copilot-cli: {}
+PASS: RT002 copilot-cli selector reason: {}
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: "unknown"
+PASS: RT002 selector rejected status for copilot-cli: "unknown"
+PASS: RT002 copilot-cli selector reason: "unknown"
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: "sdd-codex-host-denial/v1"
+PASS: RT002 selector rejected status for copilot-cli: "sdd-codex-host-denial/v1"
+PASS: RT002 copilot-cli selector reason: "sdd-codex-host-denial/v1"
+PASS: RT002 nonce-bound challenge emitted
+PASS: RT002 emitted patch binds exact fresh nonce and bytes
+PASS: TEST-084 complete claude-code template unchanged
+PASS: TEST-085 complete copilot-cli template unchanged
+PASS: TEST-079 response schema does not select cleanup adapter
+PASS: TEST-079 valid cleanup remains confirmed
+PASS: TEST-079 cleanup cannot activate capability
+PASS: TEST-080 unknown schema does not select cleanup adapter
+PASS: TEST-080 cleanup refusal reason unchanged
+PASS: TEST-080 refused cleanup remains unconfirmed
+PASS: TEST-080 cleanup refusal cannot activate capability
+PASS: RT002 response duplicate rejected: schema
+PASS: RT002 response duplicate cannot activate: schema
+PASS: RT002 response duplicate reason: schema
+PASS: RT002 response duplicate rejected: runtime
+PASS: RT002 response duplicate cannot activate: runtime
+PASS: RT002 response duplicate reason: runtime
+PASS: RT002 response duplicate rejected: nonce
+PASS: RT002 response duplicate cannot activate: nonce
+PASS: RT002 response duplicate reason: nonce
+PASS: RT002 response duplicate rejected: executed
+PASS: RT002 response duplicate cannot activate: executed
+PASS: RT002 response duplicate reason: executed
+PASS: RT002 response duplicate rejected: raw_result
+PASS: RT002 response duplicate cannot activate: raw_result
+PASS: RT002 response duplicate reason: raw_result
+PASS: RT002 response duplicate rejected: nested
+PASS: RT002 response duplicate cannot activate: nested
+PASS: RT002 response duplicate reason: nested
+PASS: RT002 response duplicate rejected: executed-true-first
+PASS: RT002 response duplicate cannot activate: executed-true-first
+PASS: RT002 response duplicate reason: executed-true-first
+PASS: RT002 response duplicate rejected: executed-false-first
+PASS: RT002 response duplicate cannot activate: executed-false-first
+PASS: RT002 response duplicate reason: executed-false-first
+PASS: RT002 duplicate cleanup executed rejected: true,false
+PASS: RT002 duplicate cleanup cannot confirm: true,false
+PASS: RT002 duplicate cleanup reason: true,false
+PASS: RT002 duplicate cleanup executed rejected: false,true
+PASS: RT002 duplicate cleanup cannot confirm: false,true
+PASS: RT002 duplicate cleanup reason: false,true
+PASS: RT002 nested cleanup duplicate rejected
+PASS: RT002 nested cleanup duplicate reason
+PASS: RT002 nested cleanup duplicate cannot confirm
+PASS: RT002 no-schema legacy duplicate rejected
+PASS: RT002 legacy duplicate reason
+PASS: RT002 legacy duplicate cannot activate
+PASS: RT002 new schema with both runtimes claude-code rejected
+PASS: RT002 both runtimes claude-code reason
+PASS: RT002 both runtimes claude-code cannot activate
+PASS: RT002 new schema with both runtimes copilot-cli rejected
+PASS: RT002 both runtimes copilot-cli reason
+PASS: RT002 both runtimes copilot-cli cannot activate
+PASS: RT002 truncated new response JSON rejected
+PASS: RT002 truncated JSON reason
+PASS: RT002 truncated JSON cannot activate
+PASS: RT002 bare invalid JSON/top-level array rejected: [
+PASS: RT002 bare invalid JSON/top-level array reason: [
+PASS: RT002 bare invalid JSON/top-level array cannot activate: [
+PASS: RT002 bare invalid JSON/top-level array rejected: {
+PASS: RT002 bare invalid JSON/top-level array reason: {
+PASS: RT002 bare invalid JSON/top-level array cannot activate: {
+PASS: RT002 bare invalid JSON/top-level array rejected: []
+PASS: RT002 bare invalid JSON/top-level array reason: []
+PASS: RT002 bare invalid JSON/top-level array cannot activate: []
+PASS: RT002 bare missing evidence rejected
+PASS: RT002 bare missing evidence reason
+PASS: RT002 bare missing evidence cannot activate
+PASS: RT002 bare unknown CLI runtime rejected
+PASS: TEST-091 RT002 exact wrapped operation-bound denial accepted
+PASS: TEST-091 RT002 exact wrapped denial status
+PASS: RT002 raw envelope rejected: prefix
+PASS: RT002 raw envelope cannot activate: prefix
+PASS: RT002 raw envelope reason: prefix
+PASS: RT002 raw envelope rejected: quote
+PASS: RT002 raw envelope cannot activate: quote
+PASS: RT002 raw envelope reason: quote
+PASS: RT002 raw envelope rejected: suffix
+PASS: RT002 raw envelope cannot activate: suffix
+PASS: RT002 raw envelope reason: suffix
+PASS: RT002 raw envelope rejected: truncate
+PASS: RT002 raw envelope cannot activate: truncate
+PASS: RT002 raw envelope reason: truncate
+PASS: RT002 raw envelope rejected: guard
+PASS: RT002 raw envelope cannot activate: guard
+PASS: RT002 raw envelope reason: guard
+PASS: RT002 raw envelope rejected: guard-ja
+PASS: RT002 raw envelope cannot activate: guard-ja
+PASS: RT002 raw envelope reason: guard-ja
+PASS: RT002 raw envelope rejected: guard-permissive
+PASS: RT002 raw envelope cannot activate: guard-permissive
+PASS: RT002 raw envelope reason: guard-permissive
+PASS: RT002 raw envelope rejected: guard-ja-permissive
+PASS: RT002 raw envelope cannot activate: guard-ja-permissive
+PASS: RT002 raw envelope reason: guard-ja-permissive
+PASS: RT002 raw envelope rejected: target
+PASS: RT002 raw envelope cannot activate: target
+PASS: RT002 raw envelope reason: target
+PASS: RT002 raw envelope rejected: target-dot
+PASS: RT002 raw envelope cannot activate: target-dot
+PASS: RT002 raw envelope reason: target-dot
+PASS: RT002 raw envelope rejected: guard-case
+PASS: RT002 raw envelope cannot activate: guard-case
+PASS: RT002 raw envelope reason: guard-case
+PASS: RT002 raw envelope rejected: target-case
+PASS: RT002 raw envelope cannot activate: target-case
+PASS: RT002 raw envelope reason: target-case
+PASS: RT002 raw envelope rejected: extra-operation
+PASS: RT002 raw envelope cannot activate: extra-operation
+PASS: RT002 raw envelope reason: extra-operation
+PASS: RT002 raw envelope rejected: appended-operation
+PASS: RT002 raw envelope cannot activate: appended-operation
+PASS: RT002 raw envelope reason: appended-operation
+PASS: RT002 raw envelope rejected: unknown-tool
+PASS: RT002 raw envelope cannot activate: unknown-tool
+PASS: RT002 raw envelope reason: unknown-tool
+PASS: RT002 raw envelope rejected: old-patch
+PASS: RT002 raw envelope cannot activate: old-patch
+PASS: RT002 raw envelope reason: old-patch
+PASS: RT002 raw envelope rejected: trailing-newline
+PASS: RT002 raw envelope cannot activate: trailing-newline
+PASS: RT002 raw envelope reason: trailing-newline
+PASS: RT002 raw envelope rejected: leading-newline
+PASS: RT002 raw envelope cannot activate: leading-newline
+PASS: RT002 raw envelope reason: leading-newline
+PASS: RT002 raw envelope rejected: crlf
+PASS: RT002 raw envelope cannot activate: crlf
+PASS: RT002 raw envelope reason: crlf
+PASS: RT002 raw envelope rejected: null
+PASS: RT002 raw envelope cannot activate: null
+PASS: RT002 raw envelope reason: null
+PASS: RT002 raw envelope rejected: boolean
+PASS: RT002 raw envelope cannot activate: boolean
+PASS: RT002 raw envelope reason: boolean
+PASS: RT002 raw envelope rejected: true
+PASS: RT002 raw envelope cannot activate: true
+PASS: RT002 raw envelope reason: true
+PASS: RT002 raw envelope rejected: number
+PASS: RT002 raw envelope cannot activate: number
+PASS: RT002 raw envelope reason: number
+PASS: RT002 raw envelope rejected: one
+PASS: RT002 raw envelope cannot activate: one
+PASS: RT002 raw envelope reason: one
+PASS: RT002 raw envelope rejected: array
+PASS: RT002 raw envelope cannot activate: array
+PASS: RT002 raw envelope reason: array
+PASS: RT002 raw envelope rejected: object
+PASS: RT002 raw envelope cannot activate: object
+PASS: RT002 raw envelope reason: object
+PASS: RT002 raw envelope rejected: TEST-092-no-lf
+PASS: RT002 raw envelope cannot activate: TEST-092-no-lf
+PASS: RT002 raw envelope reason: TEST-092-no-lf
+PASS: RT002 raw envelope rejected: TEST-093-crlf
+PASS: RT002 raw envelope cannot activate: TEST-093-crlf
+PASS: RT002 raw envelope reason: TEST-093-crlf
+PASS: RT002 raw envelope rejected: TEST-094-space-before-lf
+PASS: RT002 raw envelope cannot activate: TEST-094-space-before-lf
+PASS: RT002 raw envelope reason: TEST-094-space-before-lf
+PASS: RT002 raw envelope rejected: TEST-094-space-after-lf
+PASS: RT002 raw envelope cannot activate: TEST-094-space-after-lf
+PASS: RT002 raw envelope reason: TEST-094-space-after-lf
+PASS: RT002 raw envelope rejected: TEST-095-case
+PASS: RT002 raw envelope cannot activate: TEST-095-case
+PASS: RT002 raw envelope reason: TEST-095-case
+PASS: RT002 raw envelope rejected: TEST-096-repeated
+PASS: RT002 raw envelope cannot activate: TEST-096-repeated
+PASS: RT002 raw envelope reason: TEST-096-repeated
+PASS: RT002 raw envelope rejected: TEST-097-extra-lf
+PASS: RT002 raw envelope cannot activate: TEST-097-extra-lf
+PASS: RT002 raw envelope reason: TEST-097-extra-lf
+PASS: RT002 evidence field rejected: missing:schema
+PASS: RT002 evidence field cannot activate: missing:schema
+PASS: RT002 evidence field reason: missing:schema
+PASS: RT002 evidence field rejected: missing:runtime
+PASS: RT002 evidence field cannot activate: missing:runtime
+PASS: RT002 evidence field reason: missing:runtime
+PASS: RT002 evidence field rejected: missing:nonce
+PASS: RT002 evidence field cannot activate: missing:nonce
+PASS: RT002 evidence field reason: missing:nonce
+PASS: RT002 evidence field rejected: missing:executed
+PASS: RT002 evidence field cannot activate: missing:executed
+PASS: RT002 evidence field reason: missing:executed
+PASS: RT002 evidence field rejected: missing:raw_result
+PASS: RT002 evidence field cannot activate: missing:raw_result
+PASS: RT002 evidence field reason: missing:raw_result
+PASS: RT002 evidence field rejected: executed:null
+PASS: RT002 evidence field cannot activate: executed:null
+PASS: RT002 evidence field reason: executed:null
+PASS: RT002 evidence field rejected: executed:string
+PASS: RT002 evidence field cannot activate: executed:string
+PASS: RT002 evidence field reason: executed:string
+PASS: RT002 evidence field rejected: executed:true
+PASS: RT002 evidence field cannot activate: executed:true
+PASS: RT002 evidence field reason: executed:true
+PASS: RT002 evidence field rejected: executed:zero
+PASS: RT002 evidence field cannot activate: executed:zero
+PASS: RT002 evidence field reason: executed:zero
+PASS: RT002 evidence field rejected: executed:one
+PASS: RT002 evidence field cannot activate: executed:one
+PASS: RT002 evidence field reason: executed:one
+PASS: RT002 evidence field rejected: nonce:outer
+PASS: RT002 evidence field cannot activate: nonce:outer
+PASS: RT002 evidence field reason: nonce:outer
+PASS: RT002 evidence field rejected: nonce:inner
+PASS: RT002 evidence field cannot activate: nonce:inner
+PASS: RT002 evidence field reason: nonce:inner
+PASS: RT002 evidence field rejected: nonce:malformed
+PASS: RT002 evidence field cannot activate: nonce:malformed
+PASS: RT002 evidence field reason: nonce:malformed
+PASS: RT002 evidence field rejected: runtime:claude-code
+PASS: RT002 evidence field cannot activate: runtime:claude-code
+PASS: RT002 evidence field reason: runtime:claude-code
+PASS: RT002 evidence field rejected: runtime:copilot-cli
+PASS: RT002 evidence field cannot activate: runtime:copilot-cli
+PASS: RT002 evidence field reason: runtime:copilot-cli
+PASS: RT002 evidence field rejected: runtime:unknown-host
+PASS: RT002 evidence field cannot activate: runtime:unknown-host
+PASS: RT002 evidence field reason: runtime:unknown-host
+PASS: RT002 evidence field rejected: cli:claude-code
+PASS: RT002 evidence field cannot activate: cli:claude-code
+PASS: RT002 evidence field reason: cli:claude-code
+PASS: RT002 evidence field rejected: cli:copilot-cli
+PASS: RT002 evidence field cannot activate: cli:copilot-cli
+PASS: RT002 evidence field reason: cli:copilot-cli
+PASS: RT002 evidence field rejected: both:claude-code
+PASS: RT002 evidence field cannot activate: both:claude-code
+PASS: RT002 evidence field reason: both:claude-code
+PASS: RT002 evidence field rejected: both:copilot-cli
+PASS: RT002 evidence field cannot activate: both:copilot-cli
+PASS: RT002 evidence field reason: both:copilot-cli
+PASS: RT002 evidence field rejected: extra:plugin_hooks_enabled:true
+PASS: RT002 evidence field cannot activate: extra:plugin_hooks_enabled:true
+PASS: RT002 evidence field reason: extra:plugin_hooks_enabled:true
+PASS: RT002 evidence field rejected: extra:plugin_hooks_enabled:false
+PASS: RT002 evidence field cannot activate: extra:plugin_hooks_enabled:false
+PASS: RT002 evidence field reason: extra:plugin_hooks_enabled:false
+PASS: RT002 evidence field rejected: extra:denied_by_plugin_hooks:true
+PASS: RT002 evidence field cannot activate: extra:denied_by_plugin_hooks:true
+PASS: RT002 evidence field reason: extra:denied_by_plugin_hooks:true
+PASS: RT002 evidence field rejected: extra:denied_by_plugin_hooks:false
+PASS: RT002 evidence field cannot activate: extra:denied_by_plugin_hooks:false
+PASS: RT002 evidence field reason: extra:denied_by_plugin_hooks:false
+PASS: RT002 evidence field rejected: extra:arbitrary:true
+PASS: RT002 evidence field cannot activate: extra:arbitrary:true
+PASS: RT002 evidence field reason: extra:arbitrary:true
+PASS: RT002 evidence field rejected: extra:host:unknown-host
+PASS: RT002 evidence field cannot activate: extra:host:unknown-host
+PASS: RT002 evidence field reason: extra:host:unknown-host
+PASS: RT002 evidence field rejected: extra:tool:unknown-tool
+PASS: RT002 evidence field cannot activate: extra:tool:unknown-tool
+PASS: RT002 evidence field reason: extra:tool:unknown-tool
+PASS: RT002 extra flag rejected: plugin_hooks_enabled=null
+PASS: RT002 extra flag cannot activate: plugin_hooks_enabled=null
+PASS: RT002 extra flag reason: plugin_hooks_enabled=null
+PASS: RT002 extra flag rejected: plugin_hooks_enabled="false"
+PASS: RT002 extra flag cannot activate: plugin_hooks_enabled="false"
+PASS: RT002 extra flag reason: plugin_hooks_enabled="false"
+PASS: RT002 extra flag rejected: plugin_hooks_enabled=1
+PASS: RT002 extra flag cannot activate: plugin_hooks_enabled=1
+PASS: RT002 extra flag reason: plugin_hooks_enabled=1
+PASS: RT002 extra flag rejected: plugin_hooks_enabled=[]
+PASS: RT002 extra flag cannot activate: plugin_hooks_enabled=[]
+PASS: RT002 extra flag reason: plugin_hooks_enabled=[]
+PASS: RT002 extra flag rejected: plugin_hooks_enabled={}
+PASS: RT002 extra flag cannot activate: plugin_hooks_enabled={}
+PASS: RT002 extra flag reason: plugin_hooks_enabled={}
+PASS: RT002 extra flag rejected: denied_by_plugin_hooks=null
+PASS: RT002 extra flag cannot activate: denied_by_plugin_hooks=null
+PASS: RT002 extra flag reason: denied_by_plugin_hooks=null
+PASS: RT002 extra flag rejected: denied_by_plugin_hooks="false"
+PASS: RT002 extra flag cannot activate: denied_by_plugin_hooks="false"
+PASS: RT002 extra flag reason: denied_by_plugin_hooks="false"
+PASS: RT002 extra flag rejected: denied_by_plugin_hooks=1
+PASS: RT002 extra flag cannot activate: denied_by_plugin_hooks=1
+PASS: RT002 extra flag reason: denied_by_plugin_hooks=1
+PASS: RT002 extra flag rejected: denied_by_plugin_hooks=[]
+PASS: RT002 extra flag cannot activate: denied_by_plugin_hooks=[]
+PASS: RT002 extra flag reason: denied_by_plugin_hooks=[]
+PASS: RT002 extra flag rejected: denied_by_plugin_hooks={}
+PASS: RT002 extra flag cannot activate: denied_by_plugin_hooks={}
+PASS: RT002 extra flag reason: denied_by_plugin_hooks={}
+PASS: RT002 all invalid nonce rejected: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 all invalid nonce cannot activate: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 all invalid nonce reason: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 expected invalid nonce rejected: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 expected invalid nonce cannot activate: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 expected invalid nonce reason: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 echo invalid nonce rejected: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 echo invalid nonce cannot activate: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 echo invalid nonce reason: ABCDEF0123456789ABCDEF0123456789
+PASS: RT002 all invalid nonce rejected: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 all invalid nonce cannot activate: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 all invalid nonce reason: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 expected invalid nonce rejected: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 expected invalid nonce cannot activate: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 expected invalid nonce reason: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 echo invalid nonce rejected: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 echo invalid nonce cannot activate: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 echo invalid nonce reason: 0123456789ABCDEF0123456789ABCDEF
+PASS: RT002 all invalid nonce rejected: 0123456789abcdef0123456789abcde
+PASS: RT002 all invalid nonce cannot activate: 0123456789abcdef0123456789abcde
+PASS: RT002 all invalid nonce reason: 0123456789abcdef0123456789abcde
+PASS: RT002 expected invalid nonce rejected: 0123456789abcdef0123456789abcde
+PASS: RT002 expected invalid nonce cannot activate: 0123456789abcdef0123456789abcde
+PASS: RT002 expected invalid nonce reason: 0123456789abcdef0123456789abcde
+PASS: RT002 echo invalid nonce rejected: 0123456789abcdef0123456789abcde
+PASS: RT002 echo invalid nonce cannot activate: 0123456789abcdef0123456789abcde
+PASS: RT002 echo invalid nonce reason: 0123456789abcdef0123456789abcde
+PASS: RT002 all invalid nonce rejected: 0123456789abcdef0123456789abcdef0
+PASS: RT002 all invalid nonce cannot activate: 0123456789abcdef0123456789abcdef0
+PASS: RT002 all invalid nonce reason: 0123456789abcdef0123456789abcdef0
+PASS: RT002 expected invalid nonce rejected: 0123456789abcdef0123456789abcdef0
+PASS: RT002 expected invalid nonce cannot activate: 0123456789abcdef0123456789abcdef0
+PASS: RT002 expected invalid nonce reason: 0123456789abcdef0123456789abcdef0
+PASS: RT002 echo invalid nonce rejected: 0123456789abcdef0123456789abcdef0
+PASS: RT002 echo invalid nonce cannot activate: 0123456789abcdef0123456789abcdef0
+PASS: RT002 echo invalid nonce reason: 0123456789abcdef0123456789abcdef0
+PASS: RT002 all invalid nonce rejected: z123456789abcdef0123456789abcdef
+PASS: RT002 all invalid nonce cannot activate: z123456789abcdef0123456789abcdef
+PASS: RT002 all invalid nonce reason: z123456789abcdef0123456789abcdef
+PASS: RT002 expected invalid nonce rejected: z123456789abcdef0123456789abcdef
+PASS: RT002 expected invalid nonce cannot activate: z123456789abcdef0123456789abcdef
+PASS: RT002 expected invalid nonce reason: z123456789abcdef0123456789abcdef
+PASS: RT002 echo invalid nonce rejected: z123456789abcdef0123456789abcdef
+PASS: RT002 echo invalid nonce cannot activate: z123456789abcdef0123456789abcdef
+PASS: RT002 echo invalid nonce reason: z123456789abcdef0123456789abcdef
+PASS: RT002 baseline nonce has 32 characters
+PASS: RT002 outer-only invalid nonce rejected: uppercase
+PASS: RT002 outer-only nonce reason: uppercase
+PASS: RT002 outer-only nonce cannot activate: uppercase
+PASS: RT002 outer-only invalid nonce rejected: short
+PASS: RT002 outer-only nonce reason: short
+PASS: RT002 outer-only nonce cannot activate: short
+PASS: RT002 outer-only invalid nonce rejected: long
+PASS: RT002 outer-only nonce reason: long
+PASS: RT002 outer-only nonce cannot activate: long
+PASS: RT002 outer-only invalid nonce rejected: nonhex
+PASS: RT002 outer-only nonce reason: nonhex
+PASS: RT002 outer-only nonce cannot activate: nonhex
+PASS: RT002 outer-only invalid nonce rejected: null
+PASS: RT002 outer-only nonce reason: null
+PASS: RT002 outer-only nonce cannot activate: null
+PASS: RT002 outer-only invalid nonce rejected: number
+PASS: RT002 outer-only nonce reason: number
+PASS: RT002 outer-only nonce cannot activate: number
+PASS: RT002 wrapped invalid selector with intact body rejected: null
+PASS: RT002 wrapped intact-body selector reason: null
+PASS: RT002 wrapped intact-body selector cannot activate: null
+PASS: RT002 wrapped invalid selector with intact body rejected: true
+PASS: RT002 wrapped intact-body selector reason: true
+PASS: RT002 wrapped intact-body selector cannot activate: true
+PASS: RT002 wrapped invalid selector with intact body rejected: false
+PASS: RT002 wrapped intact-body selector reason: false
+PASS: RT002 wrapped intact-body selector cannot activate: false
+PASS: RT002 wrapped invalid selector with intact body rejected: 1
+PASS: RT002 wrapped intact-body selector reason: 1
+PASS: RT002 wrapped intact-body selector cannot activate: 1
+PASS: RT002 wrapped invalid selector with intact body rejected: []
+PASS: RT002 wrapped intact-body selector reason: []
+PASS: RT002 wrapped intact-body selector cannot activate: []
+PASS: RT002 wrapped invalid selector with intact body rejected: {}
+PASS: RT002 wrapped intact-body selector reason: {}
+PASS: RT002 wrapped intact-body selector cannot activate: {}
+PASS: RT002 wrapped invalid selector with intact body rejected: "unknown"
+PASS: RT002 wrapped intact-body selector reason: "unknown"
+PASS: RT002 wrapped intact-body selector cannot activate: "unknown"
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: null
+PASS: RT002 selector rejected status: null
+PASS: RT002 Claude selector reason: null
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: true
+PASS: RT002 selector rejected status: true
+PASS: RT002 Claude selector reason: true
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: false
+PASS: RT002 selector rejected status: false
+PASS: RT002 Claude selector reason: false
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: 1
+PASS: RT002 selector rejected status: 1
+PASS: RT002 Claude selector reason: 1
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: []
+PASS: RT002 selector rejected status: []
+PASS: RT002 Claude selector reason: []
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: {}
+PASS: RT002 selector rejected status: {}
+PASS: RT002 Claude selector reason: {}
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: "unknown"
+PASS: RT002 selector rejected status: "unknown"
+PASS: RT002 Claude selector reason: "unknown"
+PASS: RT002 explicit selector cannot enter legacy Claude verifier: "sdd-codex-host-denial/v1"
+PASS: RT002 selector rejected status: "sdd-codex-host-denial/v1"
+PASS: RT002 Claude selector reason: "sdd-codex-host-denial/v1"
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: null
+PASS: RT002 selector rejected status for codex-cli: null
+PASS: RT002 codex-cli selector reason: null
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: true
+PASS: RT002 selector rejected status for codex-cli: true
+PASS: RT002 codex-cli selector reason: true
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: false
+PASS: RT002 selector rejected status for codex-cli: false
+PASS: RT002 codex-cli selector reason: false
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: 1
+PASS: RT002 selector rejected status for codex-cli: 1
+PASS: RT002 codex-cli selector reason: 1
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: []
+PASS: RT002 selector rejected status for codex-cli: []
+PASS: RT002 codex-cli selector reason: []
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: {}
+PASS: RT002 selector rejected status for codex-cli: {}
+PASS: RT002 codex-cli selector reason: {}
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: "unknown"
+PASS: RT002 selector rejected status for codex-cli: "unknown"
+PASS: RT002 codex-cli selector reason: "unknown"
+PASS: RT002 explicit selector cannot enter legacy codex-cli verifier: "sdd-codex-host-denial/v1"
+PASS: RT002 selector rejected status for codex-cli: "sdd-codex-host-denial/v1"
+PASS: RT002 codex-cli selector reason: "sdd-codex-host-denial/v1"
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: null
+PASS: RT002 selector rejected status for copilot-cli: null
+PASS: RT002 copilot-cli selector reason: null
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: true
+PASS: RT002 selector rejected status for copilot-cli: true
+PASS: RT002 copilot-cli selector reason: true
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: false
+PASS: RT002 selector rejected status for copilot-cli: false
+PASS: RT002 copilot-cli selector reason: false
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: 1
+PASS: RT002 selector rejected status for copilot-cli: 1
+PASS: RT002 copilot-cli selector reason: 1
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: []
+PASS: RT002 selector rejected status for copilot-cli: []
+PASS: RT002 copilot-cli selector reason: []
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: {}
+PASS: RT002 selector rejected status for copilot-cli: {}
+PASS: RT002 copilot-cli selector reason: {}
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: "unknown"
+PASS: RT002 selector rejected status for copilot-cli: "unknown"
+PASS: RT002 copilot-cli selector reason: "unknown"
+PASS: RT002 explicit selector cannot enter legacy copilot-cli verifier: "sdd-codex-host-denial/v1"
+PASS: RT002 selector rejected status for copilot-cli: "sdd-codex-host-denial/v1"
+PASS: RT002 copilot-cli selector reason: "sdd-codex-host-denial/v1"
+PASS: RT002 nonce-bound challenge emitted
+PASS: RT002 emitted patch binds exact fresh nonce and bytes
+PASS: TEST-084 complete claude-code template unchanged
+PASS: TEST-085 complete copilot-cli template unchanged
+PASS: TEST-079 response schema does not select cleanup adapter
+PASS: TEST-079 valid cleanup remains confirmed
+PASS: TEST-079 cleanup cannot activate capability
+PASS: TEST-080 unknown schema does not select cleanup adapter
+PASS: TEST-080 cleanup refusal reason unchanged
+PASS: TEST-080 refused cleanup remains unconfirmed
+PASS: TEST-080 cleanup refusal cannot activate capability
+PASS: RT002 response duplicate rejected: schema
+PASS: RT002 response duplicate cannot activate: schema
+PASS: RT002 response duplicate reason: schema
+PASS: RT002 response duplicate rejected: runtime
+PASS: RT002 response duplicate cannot activate: runtime
+PASS: RT002 response duplicate reason: runtime
+PASS: RT002 response duplicate rejected: nonce
+PASS: RT002 response duplicate cannot activate: nonce
+PASS: RT002 response duplicate reason: nonce
+PASS: RT002 response duplicate rejected: executed
+PASS: RT002 response duplicate cannot activate: executed
+PASS: RT002 response duplicate reason: executed
+PASS: RT002 response duplicate rejected: raw_result
+PASS: RT002 response duplicate cannot activate: raw_result
+PASS: RT002 response duplicate reason: raw_result
+PASS: RT002 response duplicate rejected: nested
+PASS: RT002 response duplicate cannot activate: nested
+PASS: RT002 response duplicate reason: nested
+PASS: RT002 response duplicate rejected: executed-true-first
+PASS: RT002 response duplicate cannot activate: executed-true-first
+PASS: RT002 response duplicate reason: executed-true-first
+PASS: RT002 response duplicate rejected: executed-false-first
+PASS: RT002 response duplicate cannot activate: executed-false-first
+PASS: RT002 response duplicate reason: executed-false-first
+PASS: RT002 duplicate cleanup executed rejected: true,false
+PASS: RT002 duplicate cleanup cannot confirm: true,false
+PASS: RT002 duplicate cleanup reason: true,false
+PASS: RT002 duplicate cleanup executed rejected: false,true
+PASS: RT002 duplicate cleanup cannot confirm: false,true
+PASS: RT002 duplicate cleanup reason: false,true
+PASS: RT002 nested cleanup duplicate rejected
+PASS: RT002 nested cleanup duplicate reason
+PASS: RT002 nested cleanup duplicate cannot confirm
+PASS: RT002 no-schema legacy duplicate rejected
+PASS: RT002 legacy duplicate reason
+PASS: RT002 legacy duplicate cannot activate
+PASS: RT002 new schema with both runtimes claude-code rejected
+PASS: RT002 both runtimes claude-code reason
+PASS: RT002 both runtimes claude-code cannot activate
+PASS: RT002 new schema with both runtimes copilot-cli rejected
+PASS: RT002 both runtimes copilot-cli reason
+PASS: RT002 both runtimes copilot-cli cannot activate
+PASS: RT002 truncated new response JSON rejected
+PASS: RT002 truncated JSON reason
+PASS: RT002 truncated JSON cannot activate
+PASS: RT002 wrapped invalid JSON/top-level array rejected: [
+PASS: RT002 wrapped invalid JSON/top-level array reason: [
+PASS: RT002 wrapped invalid JSON/top-level array cannot activate: [
+PASS: RT002 wrapped invalid JSON/top-level array rejected: {
+PASS: RT002 wrapped invalid JSON/top-level array reason: {
+PASS: RT002 wrapped invalid JSON/top-level array cannot activate: {
+PASS: RT002 wrapped invalid JSON/top-level array rejected: []
+PASS: RT002 wrapped invalid JSON/top-level array reason: []
+PASS: RT002 wrapped invalid JSON/top-level array cannot activate: []
+PASS: RT002 wrapped missing evidence rejected
+PASS: RT002 wrapped missing evidence reason
+PASS: RT002 wrapped missing evidence cannot activate
+PASS: RT002 wrapped unknown CLI runtime rejected
+PASS: 981
+FAIL: 4

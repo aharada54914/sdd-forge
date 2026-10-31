@@ -1,0 +1,131 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-189-a1-rt002-repair",
+  "run_id": "01a06d01-11b5-7bd3-83a3-7e29bb3c96cd",
+  "verdict": "PASS",
+  "round": 1,
+  "attempt": 3,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "pass_type": "clean",
+  "legacy_design": false,
+  "feature_type": "bugfix",
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "b319feab9659915dfba970f371648325b9801ffa6aaa28b6acce47949f61997a",
+  "acceptance_sha256": "a27a30070d6c024d9815ac20dfc06c70b1940f86b863047c70b48cce7fc550e9",
+  "design_sha256": "a0532e6d053ff9113c66d718e32ce7a2fea81d72e6608de8418a9e77adb54890",
+  "adr_inputs": [],
+  "layer_sha256": {
+    "ux-spec.md": "629447b7835f52e1f1bb2f3e2e8d7c5ce0587e54ce17696fa016143e55fc113b",
+    "frontend-spec.md": "d44ce61d3112522e02363f9bfacbb307a44975dd3eeb1a7ac07d1a906b54b045",
+    "infra-spec.md": "3e334d055417e30229fc9cb10749dcf73ffbf4c55cdef3e721ed11e678cdfced",
+    "security-spec.md": "0bcbf5eafb7b8e333d3142ed75fc43557a3bf2d4648b5f788c068d7cfa4b16c8"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "01a0e8a8-ca91-7063-ab6d-7a7e008cce79",
+      "host_session_id": "01a0e8a8-ca91-7063-ab6d-7a7e008cce79",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-189-a1-rt002-repair/requirements.md",
+          "sha256": "b319feab9659915dfba970f371648325b9801ffa6aaa28b6acce47949f61997a"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/acceptance-tests.md",
+          "sha256": "a27a30070d6c024d9815ac20dfc06c70b1940f86b863047c70b48cce7fc550e9"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/design.md",
+          "sha256": "a0532e6d053ff9113c66d718e32ce7a2fea81d72e6608de8418a9e77adb54890"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/ux-spec.md",
+          "sha256": "629447b7835f52e1f1bb2f3e2e8d7c5ce0587e54ce17696fa016143e55fc113b"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/frontend-spec.md",
+          "sha256": "d44ce61d3112522e02363f9bfacbb307a44975dd3eeb1a7ac07d1a906b54b045"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/infra-spec.md",
+          "sha256": "3e334d055417e30229fc9cb10749dcf73ffbf4c55cdef3e721ed11e678cdfced"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/security-spec.md",
+          "sha256": "0bcbf5eafb7b8e333d3142ed75fc43557a3bf2d4648b5f788c068d7cfa4b16c8"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/investigation.md",
+          "sha256": "5eab69d08f30aa92d9d3b9e06fafe88b7493b78e5af5d40d68b9997c033b8144"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-189-a1-rt002-repair/attempt-3/round-1/precheck-result.json",
+          "sha256": "1d2df9ca664c8fb121479dc3e38696f236792bdfad20a4dfcca47156ff067713"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "01a0e8b0-39af-7dc1-b5ce-89b1e6ba50a4",
+      "host_session_id": "01a0e8b0-39af-7dc1-b5ce-89b1e6ba50a4",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-189-a1-rt002-repair/requirements.md",
+          "sha256": "b319feab9659915dfba970f371648325b9801ffa6aaa28b6acce47949f61997a"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/acceptance-tests.md",
+          "sha256": "a27a30070d6c024d9815ac20dfc06c70b1940f86b863047c70b48cce7fc550e9"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/design.md",
+          "sha256": "a0532e6d053ff9113c66d718e32ce7a2fea81d72e6608de8418a9e77adb54890"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/ux-spec.md",
+          "sha256": "629447b7835f52e1f1bb2f3e2e8d7c5ce0587e54ce17696fa016143e55fc113b"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/frontend-spec.md",
+          "sha256": "d44ce61d3112522e02363f9bfacbb307a44975dd3eeb1a7ac07d1a906b54b045"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/infra-spec.md",
+          "sha256": "3e334d055417e30229fc9cb10749dcf73ffbf4c55cdef3e721ed11e678cdfced"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/security-spec.md",
+          "sha256": "0bcbf5eafb7b8e333d3142ed75fc43557a3bf2d4648b5f788c068d7cfa4b16c8"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/investigation.md",
+          "sha256": "5eab69d08f30aa92d9d3b9e06fafe88b7493b78e5af5d40d68b9997c033b8144"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-189-a1-rt002-repair/attempt-3/round-1/precheck-result.json",
+          "sha256": "1d2df9ca664c8fb121479dc3e38696f236792bdfad20a4dfcca47156ff067713"
+        },
+        {
+          "path": "reports/impl-review/epic-189-a1-rt002-repair/attempt-3/round-1/integrated-summary.json",
+          "sha256": "50b35a4b0e0892228f8d99ec141c43c7524f3a9ce5d5540441df7c380c9bc1f9"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Rebind the human-adopted 2026-09-28 limited two-envelope amendment. Earlier verdicts and attempt records are preserved; no product execution claim.",
+  "timestamp": "2026-09-28T15:50:20.785Z"
+}

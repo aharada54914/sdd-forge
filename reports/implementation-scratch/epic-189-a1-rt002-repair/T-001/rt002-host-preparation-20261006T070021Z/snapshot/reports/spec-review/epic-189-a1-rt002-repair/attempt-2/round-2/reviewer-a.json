@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "01a0e899-b00d-7952-b0ff-00c42449b6fe",
+  "host_session_id": "01a0e899-b00d-7952-b0ff-00c42449b6fe",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-189-a1-rt002-repair/requirements.md",
+      "sha256": "b1cd92b7af976c2bbaa0cd14b8dd7386ce36235abb60cae683a4cb35043c5c67"
+    },
+    {
+      "path": "specs/epic-189-a1-rt002-repair/acceptance-tests.md",
+      "sha256": "a27a30070d6c024d9815ac20dfc06c70b1940f86b863047c70b48cce7fc550e9"
+    },
+    {
+      "path": "specs/epic-189-a1-rt002-repair/investigation.md",
+      "sha256": "5eab69d08f30aa92d9d3b9e06fafe88b7493b78e5af5d40d68b9997c033b8144"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-189-a1-rt002-repair/attempt-2/round-2/precheck-result.json",
+      "sha256": "6a11a60a67636578d645a4436aca629064d2d33f1444eb7ffb8b5c48a42f9c8f"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001〜005はAC-001〜006で出力、終了コード、保持する状態、レビュー・CI・実ホスト証拠として検証可能。"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001〜005はそれぞれAC-001、AC-002/003、AC-004、AC-005、AC-006に対応する。"
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001〜006は受理・拒否結果、正確なバイト列、終了コード、保存状態、レビュー・CI・実ホスト証拠を指定する。"
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goalsとRoles and Permissionsが修復範囲、通常実行、保護対象への適用、既存証拠の扱いを限定する。"
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Normative Codex bytes、AC-002〜006、Assumptionsが厳密一致、互換性、承認、実ホスト検証の制約を定める。"
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Risksの誤受理リスクにはTEST-090〜097と負例行列、AC-006のネイティブWindows CIおよび実ホストでの新規ディスパッチを検証面として指定する。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "プロジェクトルートにdomain/ディレクトリが存在しないため適用外。"
+    }
+  ]
+}

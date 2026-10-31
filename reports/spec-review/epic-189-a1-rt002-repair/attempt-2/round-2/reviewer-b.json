@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "01a0e89f-c675-7ef1-a888-c4198b2d7393",
+  "host_session_id": "01a0e89f-c675-7ef1-a888-c4198b2d7393",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-189-a1-rt002-repair/requirements.md",
+      "sha256": "b1cd92b7af976c2bbaa0cd14b8dd7386ce36235abb60cae683a4cb35043c5c67"
+    },
+    {
+      "path": "specs/epic-189-a1-rt002-repair/acceptance-tests.md",
+      "sha256": "a27a30070d6c024d9815ac20dfc06c70b1940f86b863047c70b48cce7fc550e9"
+    },
+    {
+      "path": "specs/epic-189-a1-rt002-repair/investigation.md",
+      "sha256": "5eab69d08f30aa92d9d3b9e06fafe88b7493b78e5af5d40d68b9997c033b8144"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-189-a1-rt002-repair/attempt-2/round-2/precheck-result.json",
+      "sha256": "6a11a60a67636578d645a4436aca629064d2d33f1444eb7ffb8b5c48a42f9c8f"
+    },
+    {
+      "path": "reports/spec-review/epic-189-a1-rt002-repair/attempt-2/round-2/integrated-summary.json",
+      "sha256": "3ab8c81d3c327e19b13588370875c1e09cf594a0cc8eb60bab2e2abed79212d5"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001 and the Normative Codex bytes section define the exact five-field record and B(N) | P+B(N) grammar; REQ-002 and AC-002–AC-003 specify rejection categories."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001–AC-006 align with REQ-001–REQ-005. The two-envelope amendment retains historical judgments and identifies fresh verification as pending."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TEST-002–TEST-080 cover selectors, fields, runtimes, nonce and raw-response failures, duplicates and cleanup; the paired-envelope matrix and TEST-092–TEST-097 cover both accepted forms and malformed wrappers."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Assumptions section requires current shared-state and installed-host rechecks; Open Questions identifies native Windows and live activation as pending verification obligations."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "AC-006 requires human task approval and activation before ordinary execution. Roles and Permissions retains human-only protected application. Investigation records dated approval quotations and amendment provenance."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The normative templates, exact response grammar, rejection outcomes, planned test matrix and live-proof criterion give implementation-policy review a defined behavior and verification target."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The project root has no domain/ directory, so the domain-conformance check does not apply."
+    }
+  ]
+}

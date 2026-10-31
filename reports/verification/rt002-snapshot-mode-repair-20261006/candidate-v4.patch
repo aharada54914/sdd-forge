@@ -1,0 +1,362 @@
+diff --git a/plugins/sdd-implementation/scripts/prepare-task-snapshot.sh b/plugins/sdd-implementation/scripts/prepare-task-snapshot.sh
+index ec15ca11..6e4add5f 100644
+--- a/plugins/sdd-implementation/scripts/prepare-task-snapshot.sh
++++ b/plugins/sdd-implementation/scripts/prepare-task-snapshot.sh
+@@ -70,7 +70,7 @@ def source_path(repo, rel):
+         fail("PATH", f"input is not a regular non-symlink file: {rel}")
+     return current, info
+ 
+-def make_read_only(root):
++def make_read_only(root, source_modes):
+     directories = []
+     for current, dirnames, filenames in os.walk(root):
+         directories.append(current)
+@@ -79,7 +79,8 @@ def make_read_only(root):
+             info = os.lstat(path)
+             if not stat.S_ISREG(info.st_mode):
+                 fail("PATH", "snapshot contains a non-regular file")
+-            os.chmod(path, 0o444, follow_symlinks=False)
++            sealed_mode = 0o444 if os.name == "nt" else 0o444 | (source_modes[path] & 0o111)
++            os.chmod(path, sealed_mode, follow_symlinks=False)
+         for name in dirnames:
+             path = os.path.join(current, name)
+             info = os.lstat(path)
+@@ -95,7 +96,8 @@ def make_read_only(root):
+     for current, dirnames, filenames in os.walk(root):
+         for name in filenames:
+             mode = os.lstat(os.path.join(current, name)).st_mode
+-            if not stat.S_ISREG(mode) or mode & 0o222:
++            expected_mode = 0o444 | (source_modes[os.path.join(current, name)] & 0o111)
++            if not stat.S_ISREG(mode) or mode & 0o222 or (os.name != "nt" and stat.S_IMODE(mode) != expected_mode):
+                 fail("PATH", "snapshot file is not read-only")
+         for name in dirnames:
+             mode = os.lstat(os.path.join(current, name)).st_mode
+@@ -104,8 +106,8 @@ def make_read_only(root):
+     if os.lstat(root).st_mode & 0o222:
+         fail("PATH", "snapshot root is not read-only")
+ 
+-def wait_at_test_publication_barrier():
+-    barrier = os.environ.get("SDD_TEST_SNAPSHOT_PUBLISH_BARRIER_DIR")
++def wait_at_test_barrier(variable):
++    barrier = os.environ.get(variable)
+     if not barrier:
+         return
+     try:
+@@ -180,6 +182,7 @@ os.makedirs(parent, exist_ok=True)
+ tmp = tempfile.mkdtemp(prefix=".task-snapshot-", dir=parent)
+ try:
+     seen = set()
++    source_modes = {}
+     for entry in inputs:
+         if not isinstance(entry, dict) or set(entry) != {"path", "sha256"}:
+             fail("PATH", "invalid allowed_inputs entry")
+@@ -203,29 +206,31 @@ try:
+             fail("PATH", f"input is not a regular non-symlink file: {rel}")
+         with os.fdopen(source_fd, "rb") as src, open(target, "xb") as dst:
+             opened = os.fstat(src.fileno())
+-            if (opened.st_dev, opened.st_ino) != (stat_before.st_dev, stat_before.st_ino):
++            if (opened.st_dev, opened.st_ino, opened.st_mode) != (stat_before.st_dev, stat_before.st_ino, stat_before.st_mode):
+                 fail("HASH", f"source changed before copy: {rel}")
+             for chunk in iter(lambda: src.read(1024 * 1024), b""):
+                 digest.update(chunk)
+                 dst.write(chunk)
+             dst.flush()
+             os.fsync(dst.fileno())
++            wait_at_test_barrier("SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR")
+             stat_after = os.fstat(src.fileno())
+         try:
+             path_after = os.lstat(source)
+         except FileNotFoundError:
+             fail("HASH", f"source changed during copy: {rel}")
+-        if (stat_before.st_dev, stat_before.st_ino, stat_before.st_size, stat_before.st_mtime_ns) != (
+-            stat_after.st_dev, stat_after.st_ino, stat_after.st_size, stat_after.st_mtime_ns
++        if (stat_before.st_dev, stat_before.st_ino, stat_before.st_size, stat_before.st_mtime_ns, stat_before.st_mode) != (
++            stat_after.st_dev, stat_after.st_ino, stat_after.st_size, stat_after.st_mtime_ns, stat_after.st_mode
+         ):
+             fail("HASH", f"source changed during copy: {rel}")
+-        if (path_after.st_dev, path_after.st_ino) != (stat_before.st_dev, stat_before.st_ino):
++        if (path_after.st_dev, path_after.st_ino, path_after.st_mode) != (stat_before.st_dev, stat_before.st_ino, stat_before.st_mode):
+             fail("HASH", f"source changed during copy: {rel}")
+         actual = digest.hexdigest()
+         if actual != expected:
+             fail("HASH", f"source hash mismatch: {rel}")
+-    make_read_only(tmp)
+-    wait_at_test_publication_barrier()
++        source_modes[target] = opened.st_mode
++    make_read_only(tmp, source_modes)
++    wait_at_test_barrier("SDD_TEST_SNAPSHOT_PUBLISH_BARRIER_DIR")
+     atomic_publish_no_replace(tmp, snapshot_root)
+     parent_fd = os.open(parent, os.O_RDONLY)
+     try:
+diff --git a/plugins/sdd-implementation/scripts/prepare-task-snapshot.ps1 b/plugins/sdd-implementation/scripts/prepare-task-snapshot.ps1
+index 512e5d74..ea32c5dd 100644
+--- a/plugins/sdd-implementation/scripts/prepare-task-snapshot.ps1
++++ b/plugins/sdd-implementation/scripts/prepare-task-snapshot.ps1
+@@ -31,7 +31,7 @@ function Get-SafeSource([string]$Repo, [string]$RelativePath) {
+   }
+   return $current
+ }
+-function Set-SnapshotReadOnly([string]$Root) {
++function Set-SnapshotReadOnly([string]$Root, [System.Collections.Generic.Dictionary[string,int]]$SourceModes) {
+   $items = @(Get-ChildItem -LiteralPath $Root -Recurse -Force)
+   if ($IsWindows) {
+     foreach ($item in $items) {
+@@ -71,7 +71,8 @@ function Set-SnapshotReadOnly([string]$Root) {
+     }
+   } else {
+     foreach ($item in @($items | Where-Object { -not $_.PSIsContainer })) {
+-      [IO.File]::SetUnixFileMode($item.FullName, [IO.UnixFileMode]::UserRead -bor [IO.UnixFileMode]::GroupRead -bor [IO.UnixFileMode]::OtherRead)
++      [IO.File]::SetUnixFileMode($item.FullName, [IO.UnixFileMode](292 -bor ($SourceModes[$item.FullName] -band 73)))
++      if ([int][IO.File]::GetUnixFileMode($item.FullName) -ne (292 -bor ($SourceModes[$item.FullName] -band 73))) { Fail PATH 'snapshot file mode mismatch' }
+     }
+     foreach ($item in @($items | Where-Object { $_.PSIsContainer } | Sort-Object { $_.FullName.Length } -Descending)) {
+       [IO.File]::SetUnixFileMode($item.FullName, [IO.UnixFileMode]::UserRead -bor [IO.UnixFileMode]::UserExecute -bor [IO.UnixFileMode]::GroupRead -bor [IO.UnixFileMode]::GroupExecute -bor [IO.UnixFileMode]::OtherRead -bor [IO.UnixFileMode]::OtherExecute)
+@@ -83,8 +84,8 @@ function Set-SnapshotReadOnly([string]$Root) {
+     }
+   }
+ }
+-function Wait-TestPublicationBarrier {
+-  $barrier = $env:SDD_TEST_SNAPSHOT_PUBLISH_BARRIER_DIR
++function Wait-TestBarrier([string]$Variable) {
++  $barrier = [Environment]::GetEnvironmentVariable($Variable)
+   if (-not $barrier) { return }
+   try {
+     [IO.File]::WriteAllBytes((Join-Path $barrier 'ready'), [byte[]]@())
+@@ -145,6 +146,7 @@ $tmp = Join-Path $parent ('.task-snapshot-' + [guid]::NewGuid())
+ New-Item -ItemType Directory -Path $tmp -Force | Out-Null
+ try {
+   $seen = @{}
++  $sourceModes = [System.Collections.Generic.Dictionary[string,int]]::new([StringComparer]::Ordinal)
+   foreach ($entry in @($data.allowed_inputs)) {
+     $entryNames = @($entry.PSObject.Properties | Select-Object -ExpandProperty Name)
+     if (($entryNames | Sort-Object -CaseSensitive) -join ',' -cne 'path,sha256') { Fail PATH 'invalid allowed_inputs entry' }
+@@ -157,12 +159,14 @@ try {
+     $repoPrefix = $repo.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+     if (-not $fullSource.StartsWith($repoPrefix, [StringComparison]::Ordinal)) { Fail PATH "input escapes repository: $($entry.path)" }
+     $item = Get-Item -LiteralPath $source -Force
++    $beforeMode = if (-not $IsWindows) { [IO.File]::GetUnixFileMode($source) } else { 0 }
+     $beforeLength = $item.Length
+     $beforeWrite = $item.LastWriteTimeUtc.Ticks
+     $target = Join-Path $tmp ($entry.path -replace '/', [IO.Path]::DirectorySeparatorChar)
+     New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force | Out-Null
+     $sourceStream = [IO.File]::Open($source, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
+     try {
++      if (-not $IsWindows -and [IO.File]::GetUnixFileMode($sourceStream.SafeFileHandle) -ne $beforeMode) { Fail HASH "source changed before copy: $($entry.path)" }
+       $sha = [Security.Cryptography.SHA256]::Create()
+       try {
+         $actual = [BitConverter]::ToString($sha.ComputeHash($sourceStream)).Replace('-','').ToLowerInvariant()
+@@ -175,6 +179,8 @@ try {
+       try {
+         $sourceStream.CopyTo($targetStream)
+         $targetStream.Flush($true)
++        Wait-TestBarrier SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR
++        if (-not $IsWindows -and [IO.File]::GetUnixFileMode($sourceStream.SafeFileHandle) -ne $beforeMode) { Fail HASH "source changed during copy: $($entry.path)" }
+       } finally {
+         $targetStream.Dispose()
+       }
+@@ -183,11 +189,13 @@ try {
+     }
+     $after = Get-Item -LiteralPath $source -Force
+     if ($after.LinkType -or $after.Length -ne $beforeLength -or $after.LastWriteTimeUtc.Ticks -ne $beforeWrite) { Fail HASH "source changed during copy: $($entry.path)" }
++    if (-not $IsWindows -and [IO.File]::GetUnixFileMode($source) -ne $beforeMode) { Fail HASH "source changed during copy: $($entry.path)" }
++    $sourceModes[$target] = [int]$beforeMode
+     $copied = (Get-FileHash -Algorithm SHA256 -LiteralPath $target).Hash.ToLowerInvariant()
+     if ($copied -cne $entry.sha256) { Fail HASH "snapshot hash mismatch: $($entry.path)" }
+   }
+-  Set-SnapshotReadOnly $tmp
+-  Wait-TestPublicationBarrier
++  Set-SnapshotReadOnly $tmp $sourceModes
++  Wait-TestBarrier SDD_TEST_SNAPSHOT_PUBLISH_BARRIER_DIR
+   try {
+     [IO.Directory]::Move($tmp, [IO.Path]::GetFullPath($SnapshotRoot))
+   } catch [IO.IOException] {
+diff --git a/tests/task-context-isolation.tests.sh b/tests/task-context-isolation.tests.sh
+index 4f42574b..23181110 100644
+--- a/tests/task-context-isolation.tests.sh
++++ b/tests/task-context-isolation.tests.sh
+@@ -103,6 +103,90 @@ write_manifest() {
+     }' > "$file"
+ }
+ 
++
++# Match the repository's Git Bash/Cygwin OS guard; only new Unix cases are skipped.
++case "$(uname -s)" in
++  MINGW*|MSYS*|CYGWIN*)
++    printf '%s\n' 'SKIP: Unix snapshot execute-mask and mode-race assertions are not applicable on this host'
++    ;;
++  *)
++# Unix execute masks must survive sealing without granting absent execute bits.
++MODE_REPO="$WORK/mode-repo"
++mkdir -p "$MODE_REPO"
++python3 - "$MODE_REPO" "$WORK/manifests/modes.json" <<'PY'
++import hashlib, json, os, sys
++from pathlib import Path
++repo = Path(sys.argv[1])
++body = b"#!/bin/sh\nprintf 'mode-ok\\n'\n"
++entries = []
++for name, mode in [('exec',0o755),('group',0o750),('owner',0o700),('plain.sh',0o644),('private',0o600),('special',0o7755)]:
++    file = repo / name
++    file.write_bytes(body)
++    file.chmod(mode)
++    entries.append({'path':name,'sha256':hashlib.sha256(body).hexdigest()})
++Path(sys.argv[2]).write_text(json.dumps({'allowed_inputs':entries}))
++PY
++bash "$SNAPSHOT" --manifest "$WORK/manifests/modes.json" --repo-root "$MODE_REPO" --snapshot-root "$WORK/snapshots/modes" >/dev/null
++python3 - "$WORK/snapshots/modes" <<'PY'
++import stat, subprocess, sys
++from pathlib import Path
++root = Path(sys.argv[1])
++for name, expected in [('exec',0o555),('group',0o554),('owner',0o544),('plain.sh',0o444),('private',0o444),('special',0o555)]:
++    assert stat.S_IMODE((root/name).stat().st_mode) == expected, name
++assert subprocess.check_output([str(root/'exec')]) == b'mode-ok\n'
++try:
++    subprocess.run([str(root/'plain.sh')], check=True)
++except PermissionError:
++    pass
++else:
++    raise AssertionError('nonexecutable source gained execute permission')
++PY
++
++# Deterministic mode-only mutation at the copy/recheck boundary.
++COPY_BARRIER="$WORK/copy-mode-barrier"
++COPY_SNAPSHOT="$WORK/snapshots/copy-mode-race"
++mkdir "$COPY_BARRIER"
++SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR="$COPY_BARRIER" \
++  bash "$SNAPSHOT" --manifest "$WORK/manifests/modes.json" --repo-root "$MODE_REPO" --snapshot-root "$COPY_SNAPSHOT" \
++  >"$WORK/copy-mode.out" 2>&1 &
++copy_pid=$!
++for _ in {1..500}; do
++  [[ -f "$COPY_BARRIER/ready" ]] && break
++  sleep 0.01
++done
++if [[ ! -f "$COPY_BARRIER/ready" ]]; then
++  kill -KILL "$copy_pid" 2>/dev/null || true
++  wait "$copy_pid" 2>/dev/null || true
++  fail "snapshot builder did not reach copy-mode boundary"
++fi
++chmod 0644 "$MODE_REPO/exec"
++: > "$COPY_BARRIER/continue"
++# Reuse the suite's bounded 10ms polling pattern before collecting child status.
++for _ in {1..1500}; do
++  kill -0 "$copy_pid" 2>/dev/null || break
++  sleep 0.01
++done
++if kill -0 "$copy_pid" 2>/dev/null; then
++  kill -KILL "$copy_pid" 2>/dev/null || true
++  wait "$copy_pid" 2>/dev/null || true
++  fail "mode-race builder did not exit before deadline"
++fi
++if wait "$copy_pid"; then
++  fail "snapshot builder accepted source mode-only mutation"
++fi
++case "$(cat "$WORK/copy-mode.out")" in
++  TASK_INPUT_HASH*) ;;
++  *) fail "mode mutation lost TASK_INPUT_HASH diagnostic" ;;
++esac
++[[ ! -e "$COPY_SNAPSHOT" ]] || fail "mode mutation published a snapshot"
++python3 - "$WORK/snapshots" <<'PY'
++from pathlib import Path
++import sys
++assert not list(Path(sys.argv[1]).glob('.task-snapshot-*')), 'mode-race temp tree leaked'
++PY
++    ;;
++esac
++
+ VALID="$WORK/manifests/valid.json"
+ write_manifest "$VALID" T-002 run-001 session-001 agent-001
+ VALID_SNAPSHOT="$WORK/snapshots/run-001"
+diff --git a/tests/task-context-isolation.tests.ps1 b/tests/task-context-isolation.tests.ps1
+index ed339751..5e3d8a21 100644
+--- a/tests/task-context-isolation.tests.ps1
++++ b/tests/task-context-isolation.tests.ps1
+@@ -83,6 +83,90 @@ try {
+   $evidenceOriginal = Get-Content -Raw -LiteralPath (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt')
+   $reloadHash = Get-Sha256 (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt')
+ 
++
++  # Unix-only execute-mask assertions; Windows retains its existing ACL tests.
++  if (-not $IsWindows) {
++    $modeRepo = Join-Path $work 'mode-repo'
++    New-Item -ItemType Directory -Path $modeRepo | Out-Null
++    $modeCases = @(
++      @{Name='exec'; Source=493; Expected=365},
++      @{Name='group'; Source=488; Expected=364},
++      @{Name='owner'; Source=448; Expected=356},
++      @{Name='plain.sh'; Source=420; Expected=292},
++      @{Name='private'; Source=384; Expected=292},
++      @{Name='special'; Source=4077; Expected=365}
++    )
++    $entries = @()
++    foreach ($case in $modeCases) {
++      $path = Join-Path $modeRepo $case.Name
++      [IO.File]::WriteAllText($path, "#!/bin/sh`nprintf 'mode-ok\n'`n")
++      [IO.File]::SetUnixFileMode($path, [IO.UnixFileMode]$case.Source)
++      $entries += @{path=$case.Name;sha256=(Get-Sha256 $path)}
++    }
++    $modeManifest = Join-Path $work 'manifests/modes.json'
++    @{allowed_inputs=$entries} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $modeManifest
++    $modeSnapshot = Join-Path $work 'snapshots/modes'
++    & $snapshot -Manifest $modeManifest -RepoRoot $modeRepo -SnapshotRoot $modeSnapshot | Out-Null
++    foreach ($case in $modeCases) {
++      if ([int][IO.File]::GetUnixFileMode((Join-Path $modeSnapshot $case.Name)) -ne $case.Expected) { Fail "execute mask mismatch: $($case.Name)" }
++    }
++    $info = [Diagnostics.ProcessStartInfo]::new((Join-Path $modeSnapshot 'exec'))
++    $info.UseShellExecute = $false
++    $info.RedirectStandardOutput = $true
++    $process = [Diagnostics.Process]::Start($info)
++    $modeOutput = $process.StandardOutput.ReadToEnd()
++    $process.WaitForExit()
++    if ($process.ExitCode -ne 0 -or $modeOutput.Trim() -cne 'mode-ok') { Fail 'direct executable invocation failed' }
++    $info.FileName = Join-Path $modeSnapshot 'plain.sh'
++    try {
++      $process = [Diagnostics.Process]::Start($info)
++      $process.WaitForExit()
++      Fail 'nonexecutable source gained execute permission'
++    } catch {
++      if ($_.Exception.Message.StartsWith('not ok:', [StringComparison]::Ordinal)) { throw }
++      if ($_.Exception.InnerException -isnot [ComponentModel.Win32Exception] -or $_.Exception.InnerException.NativeErrorCode -ne 13) { throw }
++    }
++  }
++
++  if (-not $IsWindows) {
++    $copyBarrier = Join-Path $work 'copy-mode-barrier'
++    $copySnapshot = Join-Path $work 'snapshots/copy-mode-race'
++    New-Item -ItemType Directory -Path $copyBarrier | Out-Null
++    $copyOut = Join-Path $work 'copy-mode.out'
++    $copyErr = Join-Path $work 'copy-mode.err'
++    $oldCopyBarrier = $env:SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR
++    $env:SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR = $copyBarrier
++    try {
++      $pwshPath = (Get-Process -Id $PID).Path
++      $copyProcess = Start-Process -FilePath $pwshPath -ArgumentList @(
++        '-NoLogo','-NoProfile','-File',$snapshot,
++        '-Manifest',$modeManifest,'-RepoRoot',$modeRepo,'-SnapshotRoot',$copySnapshot
++      ) -RedirectStandardOutput $copyOut -RedirectStandardError $copyErr -PassThru
++    } finally {
++      $env:SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR = $oldCopyBarrier
++    }
++    try {
++      foreach ($attempt in 1..500) {
++        if (Test-Path -LiteralPath (Join-Path $copyBarrier 'ready')) { break }
++        Start-Sleep -Milliseconds 10
++      }
++      if (-not (Test-Path -LiteralPath (Join-Path $copyBarrier 'ready'))) { Fail 'snapshot builder did not reach copy-mode boundary' }
++      [IO.File]::SetUnixFileMode((Join-Path $modeRepo 'exec'), [IO.UnixFileMode]420)
++      New-Item -ItemType File -Path (Join-Path $copyBarrier 'continue') | Out-Null
++      if (-not $copyProcess.WaitForExit(15000)) { Fail 'mode-race builder did not exit' }
++      if ($copyProcess.ExitCode -eq 0) { Fail 'snapshot builder accepted source mode-only mutation' }
++      $copyDiagnostic = Get-Content -Raw -LiteralPath $copyErr
++      if (-not $copyDiagnostic.Contains('TASK_INPUT_HASH:', [StringComparison]::Ordinal)) { Fail "mode mutation lost TASK_INPUT_HASH diagnostic: $copyDiagnostic" }
++      if (Test-Path -LiteralPath $copySnapshot) { Fail 'mode mutation published a snapshot' }
++      if (@(Get-ChildItem -LiteralPath (Join-Path $work 'snapshots') -Force | Where-Object Name -like '.task-snapshot-*').Count -ne 0) { Fail 'mode-race temp tree leaked' }
++    } finally {
++      if (-not $copyProcess.HasExited) { $copyProcess.Kill(); $copyProcess.WaitForExit() }
++      $copyProcess.Dispose()
++    }
++  } else {
++    Write-Output 'SKIP: Unix snapshot execute-mask and mode-race assertions are not applicable on Windows'
++  }
++
+   $valid = Join-Path $work 'manifests/valid.json'
+   $validSnapshot = Join-Path $work 'snapshots/run-001'
+   Write-Manifest $valid T-002 run-001 session-001 agent-001

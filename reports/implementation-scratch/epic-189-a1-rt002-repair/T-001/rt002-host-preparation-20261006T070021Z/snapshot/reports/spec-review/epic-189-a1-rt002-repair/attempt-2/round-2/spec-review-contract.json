@@ -1,0 +1,72 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "epic-189-a1-rt002-repair",
+  "attempt": 2,
+  "round": 2,
+  "requirements_sha256": "b1cd92b7af976c2bbaa0cd14b8dd7386ce36235abb60cae683a4cb35043c5c67",
+  "acceptance_sha256": "a27a30070d6c024d9815ac20dfc06c70b1940f86b863047c70b48cce7fc550e9",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "01a0e899-b00d-7952-b0ff-00c42449b6fe",
+      "host_session_id": "01a0e899-b00d-7952-b0ff-00c42449b6fe",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-189-a1-rt002-repair/requirements.md",
+          "sha256": "b1cd92b7af976c2bbaa0cd14b8dd7386ce36235abb60cae683a4cb35043c5c67"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/acceptance-tests.md",
+          "sha256": "a27a30070d6c024d9815ac20dfc06c70b1940f86b863047c70b48cce7fc550e9"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/investigation.md",
+          "sha256": "5eab69d08f30aa92d9d3b9e06fafe88b7493b78e5af5d40d68b9997c033b8144"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+        },
+        {
+          "path": "reports/spec-review/epic-189-a1-rt002-repair/attempt-2/round-2/precheck-result.json",
+          "sha256": "6a11a60a67636578d645a4436aca629064d2d33f1444eb7ffb8b5c48a42f9c8f"
+        }
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "01a0e89f-c675-7ef1-a888-c4198b2d7393",
+      "host_session_id": "01a0e89f-c675-7ef1-a888-c4198b2d7393",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-189-a1-rt002-repair/requirements.md",
+          "sha256": "b1cd92b7af976c2bbaa0cd14b8dd7386ce36235abb60cae683a4cb35043c5c67"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/acceptance-tests.md",
+          "sha256": "a27a30070d6c024d9815ac20dfc06c70b1940f86b863047c70b48cce7fc550e9"
+        },
+        {
+          "path": "specs/epic-189-a1-rt002-repair/investigation.md",
+          "sha256": "5eab69d08f30aa92d9d3b9e06fafe88b7493b78e5af5d40d68b9997c033b8144"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+        },
+        {
+          "path": "reports/spec-review/epic-189-a1-rt002-repair/attempt-2/round-2/precheck-result.json",
+          "sha256": "6a11a60a67636578d645a4436aca629064d2d33f1444eb7ffb8b5c48a42f9c8f"
+        },
+        {
+          "path": "reports/spec-review/epic-189-a1-rt002-repair/attempt-2/round-2/integrated-summary.json",
+          "sha256": "3ab8c81d3c327e19b13588370875c1e09cf594a0cc8eb60bab2e2abed79212d5"
+        }
+      ]
+    }
+  ],
+  "run_id": "01a06d01-11b5-7bd3-83a3-7e29bb3c96cd",
+  "verdict": "PASS",
+  "warningCount": 0
+}

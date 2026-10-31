@@ -1,0 +1,58 @@
+SOURCE /Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge
+PATCH_SHA256 a389fca3b6f3675ed48336b9527a2f3e52b98f10f8b3429bd38df2960fc1b512
+COMMAND python3 tests/review-implementation-binding.tests.py --repo /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/rt002-binding-integrated-ix0ute2t/repo
+EXIT 1
+STDOUT
+PASS bash valid: preflight=0, reserve=0, preflight-ledger-unchanged=True, reserve-ledger-unchanged=False
+PASS bash missing-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash string-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash empty-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash duplicate-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash bad-sha: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash bad-path: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+FAIL bash newline-path: preflight=0, reserve=0, preflight-ledger-unchanged=True, reserve-ledger-unchanged=False
+PREFLIGHT REVIEW_CONTEXT_OK 6a81624a5285055dcb46a3989fb26817226a7b9ff17b4907ff510ec10ed52047 sequence=2 previous_record_sha256=27d660ff4f43da7b22347d92a867cb8e44fef0866ef435f2185a645d6fd00dd8 pre_append_tip_sequence=1 identity_unique=yes
+ 
+RESERVE REVIEW_CONTEXT_OK 6a81624a5285055dcb46a3989fb26817226a7b9ff17b4907ff510ec10ed52047 sequence=2 previous_record_sha256=27d660ff4f43da7b22347d92a867cb8e44fef0866ef435f2185a645d6fd00dd8 pre_append_tip_sequence=1 identity_unique=yes
+ 
+FAIL bash tab-path: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PREFLIGHT  REVIEW_CONTEXT_IDENTITY: implementation manifest input path is invalid
+
+RESERVE  REVIEW_CONTEXT_IDENTITY: implementation manifest input path is invalid
+
+FAIL bash nul-path: preflight=0, reserve=0, preflight-ledger-unchanged=True, reserve-ledger-unchanged=False
+PREFLIGHT REVIEW_CONTEXT_OK 6a81624a5285055dcb46a3989fb26817226a7b9ff17b4907ff510ec10ed52047 sequence=2 previous_record_sha256=27d660ff4f43da7b22347d92a867cb8e44fef0866ef435f2185a645d6fd00dd8 pre_append_tip_sequence=1 identity_unique=yes
+ 
+RESERVE REVIEW_CONTEXT_OK 6a81624a5285055dcb46a3989fb26817226a7b9ff17b4907ff510ec10ed52047 sequence=2 previous_record_sha256=27d660ff4f43da7b22347d92a867cb8e44fef0866ef435f2185a645d6fd00dd8 pre_append_tip_sequence=1 identity_unique=yes
+ 
+PASS bash numeric-path: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash boolean-path: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash wrong-task: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash wrong-run: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash undeclared-source: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh valid: preflight=0, reserve=0, preflight-ledger-unchanged=True, reserve-ledger-unchanged=False
+PASS pwsh missing-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh string-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh empty-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh duplicate-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh bad-sha: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh bad-path: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh newline-path: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh tab-path: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh nul-path: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+FAIL pwsh numeric-path: preflight=0, reserve=0, preflight-ledger-unchanged=True, reserve-ledger-unchanged=False
+PREFLIGHT REVIEW_CONTEXT_OK 6a81624a5285055dcb46a3989fb26817226a7b9ff17b4907ff510ec10ed52047 sequence=2 previous_record_sha256=27d660ff4f43da7b22347d92a867cb8e44fef0866ef435f2185a645d6fd00dd8 pre_append_tip_sequence=1 identity_unique=yes
+ 
+RESERVE REVIEW_CONTEXT_OK 6a81624a5285055dcb46a3989fb26817226a7b9ff17b4907ff510ec10ed52047 sequence=2 previous_record_sha256=27d660ff4f43da7b22347d92a867cb8e44fef0866ef435f2185a645d6fd00dd8 pre_append_tip_sequence=1 identity_unique=yes
+ 
+FAIL pwsh boolean-path: preflight=0, reserve=0, preflight-ledger-unchanged=True, reserve-ledger-unchanged=False
+PREFLIGHT REVIEW_CONTEXT_OK 6a81624a5285055dcb46a3989fb26817226a7b9ff17b4907ff510ec10ed52047 sequence=2 previous_record_sha256=27d660ff4f43da7b22347d92a867cb8e44fef0866ef435f2185a645d6fd00dd8 pre_append_tip_sequence=1 identity_unique=yes
+ 
+RESERVE REVIEW_CONTEXT_OK 6a81624a5285055dcb46a3989fb26817226a7b9ff17b4907ff510ec10ed52047 sequence=2 previous_record_sha256=27d660ff4f43da7b22347d92a867cb8e44fef0866ef435f2185a645d6fd00dd8 pre_append_tip_sequence=1 identity_unique=yes
+ 
+PASS pwsh wrong-task: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh wrong-run: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh undeclared-source: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS: 25; FAIL: 5
+
+STDERR

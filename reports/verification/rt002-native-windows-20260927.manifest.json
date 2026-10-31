@@ -1,0 +1,14 @@
+{
+  "kind": "human-copy-candidate",
+  "base_commit": "91d1c32fb9f9b90a39209f19e9ec1d032d27e5ab",
+  "target": ".github/workflows/test.yml",
+  "base_sha256": "92e65656434259fa1c92af36badbc4e969df8369f668f5442d492b5561b15f4d",
+  "patch": "rt002-native-windows-20260927.patch",
+  "patch_sha256": "b1af775c971235198887a7992a62e6d2e21847fbc38db427a63cb0fc541130e6",
+  "bound_inputs": {
+    "tests/check-hook-activation-handshake.tests.ps1": "12580e2d000e51c25e5415579d2c397cfe3ccf095a3aaf8b90a35b8234761a33",
+    "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py": "bb388dfba366a9f300f1c0060fa6282468d7a896dc7e72986f3bf3452f08c3d5"
+  },
+  "native_windows_result": "pending first real execution at CI/release time",
+  "scope": "Remove only the existing PowerShell handshake step's non-Windows condition; no new job, workflow, dependency, or changed assertions."
+}

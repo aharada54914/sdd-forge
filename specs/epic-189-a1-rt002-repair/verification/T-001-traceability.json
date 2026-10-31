@@ -1,0 +1,158 @@
+{
+  "feature": "epic-189-a1-rt002-repair",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": [
+        "AC-001"
+      ],
+      "tests": [
+        "TEST-001",
+        "TEST-090",
+        "TEST-091"
+      ],
+      "evidence": [
+        "specs/epic-189-a1-rt002-repair/verification/T-001-results.md"
+      ]
+    },
+    {
+      "req": "REQ-002",
+      "acs": [
+        "AC-002"
+      ],
+      "tests": [
+        "TEST-002",
+        "TEST-003",
+        "TEST-004",
+        "TEST-005",
+        "TEST-006",
+        "TEST-007",
+        "TEST-008",
+        "TEST-009",
+        "TEST-010",
+        "TEST-011",
+        "TEST-012",
+        "TEST-013",
+        "TEST-014",
+        "TEST-015",
+        "TEST-016",
+        "TEST-017",
+        "TEST-018",
+        "TEST-019",
+        "TEST-020",
+        "TEST-021",
+        "TEST-022",
+        "TEST-023",
+        "TEST-024",
+        "TEST-025",
+        "TEST-026",
+        "TEST-027",
+        "TEST-028",
+        "TEST-029",
+        "TEST-030",
+        "TEST-031",
+        "TEST-032",
+        "TEST-033",
+        "TEST-034",
+        "TEST-035",
+        "TEST-061"
+      ],
+      "evidence": [
+        "specs/epic-189-a1-rt002-repair/verification/T-001-results.md"
+      ]
+    },
+    {
+      "req": "REQ-002",
+      "acs": [
+        "AC-003"
+      ],
+      "tests": [
+        "TEST-036",
+        "TEST-037",
+        "TEST-038",
+        "TEST-039",
+        "TEST-040",
+        "TEST-041",
+        "TEST-042",
+        "TEST-043",
+        "TEST-044",
+        "TEST-045",
+        "TEST-046",
+        "TEST-047",
+        "TEST-048",
+        "TEST-049",
+        "TEST-050",
+        "TEST-051",
+        "TEST-052",
+        "TEST-053",
+        "TEST-054",
+        "TEST-055",
+        "TEST-056",
+        "TEST-057",
+        "TEST-092",
+        "TEST-093",
+        "TEST-094",
+        "TEST-095",
+        "TEST-096",
+        "TEST-097"
+      ],
+      "evidence": [
+        "specs/epic-189-a1-rt002-repair/verification/T-001-results.md"
+      ]
+    },
+    {
+      "req": "REQ-003",
+      "acs": [
+        "AC-004"
+      ],
+      "tests": [
+        "TEST-058",
+        "TEST-059",
+        "TEST-060",
+        "TEST-061",
+        "TEST-062",
+        "TEST-063",
+        "TEST-064",
+        "TEST-065",
+        "TEST-066",
+        "TEST-067",
+        "TEST-068",
+        "TEST-069",
+        "TEST-070",
+        "TEST-071",
+        "TEST-072",
+        "TEST-073",
+        "TEST-074",
+        "TEST-075",
+        "TEST-076",
+        "TEST-077",
+        "TEST-078",
+        "TEST-079",
+        "TEST-080",
+        "TEST-081",
+        "TEST-082",
+        "TEST-086"
+      ],
+      "evidence": [
+        "specs/epic-189-a1-rt002-repair/verification/T-001-results.md"
+      ]
+    },
+    {
+      "req": "REQ-004",
+      "acs": [
+        "AC-005"
+      ],
+      "tests": [
+        "TEST-081",
+        "TEST-082",
+        "TEST-083",
+        "TEST-084",
+        "TEST-085",
+        "TEST-086"
+      ],
+      "evidence": [
+        "specs/epic-189-a1-rt002-repair/verification/T-001-results.md"
+      ]
+    }
+  ]
+}

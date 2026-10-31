@@ -1,0 +1,19 @@
+{
+  "schema": "rt002-binding-followup-candidate/v1",
+  "status": "candidate-not-applied",
+  "base": "shared-launch-auth-preserving.patch proposed bytes / #423-equivalent tree",
+  "patch": "binding-followup-integrated.patch",
+  "patch_sha256": "2b0fff67fbc907cf62a947fc887f7b776c26655e77a35535b093047b41997087",
+  "files": [
+    {"path":".github/workflows/test.yml","before_sha256":"fd086938cdffbdc63ca6caf2c8beb89d29d68210182b5b9f41d71e4abab9064b","proposed_sha256":"685f84399694b3daf355e0f92e6e1fc33bd36d072a3e1e2c5fc628a506c02ada"},
+    {"path":"plugins/sdd-quality-loop/scripts/validate-review-context-set.sh","before_sha256":"011f1d9c068e7b2f033f02bbae0fd15cf3a9c9c2c7f409c963fc1d9e941fc09b","proposed_sha256":"33ae6b9e80338715a3e607eaf50fdee3ad63a437d1077698dd1ba277b80d577c"},
+    {"path":"plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1","before_sha256":"e8424eb27598222fe527ffaaa296cd287a4c52f850ed05b91e98023c8c4e7925","proposed_sha256":"92051fb870653bfbefc548d014af4ff91e6e2e4403bb51fc4c556a794b04056f"},
+    {"path":"plugins/sdd-review-loop/references/review-context-boundary.md","before_sha256":"07f7834c17561b3b69093f91b32c7c5d4d655e9bc21bf2ff8bec6322fb02152a","proposed_sha256":"5ae94f4e3ba0d19c0765e7252b2fa1c660eb44a8cf7c8312f0986959b16cc24d"},
+    {"path":"tests/issue311-scratch-isolation.tests.py","before_sha256":"affe11ec4254bc169a0de969e02be484fdca6998bd7a1df34e324925a893d75e","proposed_sha256":"257c55dec7d8ab16af355317c723534bf13cf2e22c992255ef0bef688e5bf39f"},
+    {"path":"tests/review-scratch-history.tests.py","before_sha256":"24dd3afc8139ae55f04df97ec42da9ae812da829bf28b54baf828591595cd0d0","proposed_sha256":"f7508af43ff163a0d4ad97835e6574a1e658bfc6a54a6f4bcdb4b24bb78bbfe8"},
+    {"path":"tests/review-agent-isolation.tests.sh","before_sha256":"7f8d15c2c95aafe4cfa5e812fb2f10c431d775ef0d35aecc72946e932f60c1b9","proposed_sha256":"c4317193451966dd9b55ba7d22c200a1ce5269d121aaca72907359018d07dd7f"},
+    {"path":"tests/review-context-boundary.tests.sh","before_sha256":"34eb70012271e5f7f697a0c640fe1a4ce0f547f2ae92569beb5a532cba2e96ca","proposed_sha256":"e99614b63db1bf1af2b41683003500f83110681268b35492ef18ce589c75f496"},
+    {"path":"tests/run-all.sh","before_sha256":"5af4435a91487ce2b7e825677b86966bfc5bc6f952e2dfabf7920b12dfb52dd5","proposed_sha256":"30a0caf034ba9414a1760a0603085056a410f45a68b0d03cb64336e83d79075a"},
+    {"path":"tests/review-implementation-binding.tests.py","before_sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","proposed_sha256":"d7af8955d31908e0a99d897098a62dff69752240bbb44f3c37a50ca55ae2165d"}
+  ]
+}

@@ -103,6 +103,90 @@ write_manifest() {
     }' > "$file"
 }
 
+
+# Match the repository's Git Bash/Cygwin OS guard; only new Unix cases are skipped.
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*)
+    printf '%s\n' 'SKIP: Unix snapshot execute-mask and mode-race assertions are not applicable on this host'
+    ;;
+  *)
+# Unix execute masks must survive sealing without granting absent execute bits.
+MODE_REPO="$WORK/mode-repo"
+mkdir -p "$MODE_REPO"
+python3 - "$MODE_REPO" "$WORK/manifests/modes.json" <<'PY'
+import hashlib, json, os, sys
+from pathlib import Path
+repo = Path(sys.argv[1])
+body = b"#!/bin/sh\nprintf 'mode-ok\\n'\n"
+entries = []
+for name, mode in [('exec',0o755),('group',0o750),('owner',0o700),('plain.sh',0o644),('private',0o600),('special',0o7755)]:
+    file = repo / name
+    file.write_bytes(body)
+    file.chmod(mode)
+    entries.append({'path':name,'sha256':hashlib.sha256(body).hexdigest()})
+Path(sys.argv[2]).write_text(json.dumps({'allowed_inputs':entries}))
+PY
+bash "$SNAPSHOT" --manifest "$WORK/manifests/modes.json" --repo-root "$MODE_REPO" --snapshot-root "$WORK/snapshots/modes" >/dev/null
+python3 - "$WORK/snapshots/modes" <<'PY'
+import stat, subprocess, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+for name, expected in [('exec',0o555),('group',0o554),('owner',0o544),('plain.sh',0o444),('private',0o444),('special',0o555)]:
+    assert stat.S_IMODE((root/name).stat().st_mode) == expected, name
+assert subprocess.check_output([str(root/'exec')]) == b'mode-ok\n'
+try:
+    subprocess.run([str(root/'plain.sh')], check=True)
+except PermissionError:
+    pass
+else:
+    raise AssertionError('nonexecutable source gained execute permission')
+PY
+
+# Deterministic mode-only mutation at the copy/recheck boundary.
+COPY_BARRIER="$WORK/copy-mode-barrier"
+COPY_SNAPSHOT="$WORK/snapshots/copy-mode-race"
+mkdir "$COPY_BARRIER"
+SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR="$COPY_BARRIER" \
+  bash "$SNAPSHOT" --manifest "$WORK/manifests/modes.json" --repo-root "$MODE_REPO" --snapshot-root "$COPY_SNAPSHOT" \
+  >"$WORK/copy-mode.out" 2>&1 &
+copy_pid=$!
+for _ in {1..500}; do
+  [[ -f "$COPY_BARRIER/ready" ]] && break
+  sleep 0.01
+done
+if [[ ! -f "$COPY_BARRIER/ready" ]]; then
+  kill -KILL "$copy_pid" 2>/dev/null || true
+  wait "$copy_pid" 2>/dev/null || true
+  fail "snapshot builder did not reach copy-mode boundary"
+fi
+chmod 0644 "$MODE_REPO/exec"
+: > "$COPY_BARRIER/continue"
+# Reuse the suite's bounded 10ms polling pattern before collecting child status.
+for _ in {1..1500}; do
+  kill -0 "$copy_pid" 2>/dev/null || break
+  sleep 0.01
+done
+if kill -0 "$copy_pid" 2>/dev/null; then
+  kill -KILL "$copy_pid" 2>/dev/null || true
+  wait "$copy_pid" 2>/dev/null || true
+  fail "mode-race builder did not exit before deadline"
+fi
+if wait "$copy_pid"; then
+  fail "snapshot builder accepted source mode-only mutation"
+fi
+case "$(cat "$WORK/copy-mode.out")" in
+  TASK_INPUT_HASH*) ;;
+  *) fail "mode mutation lost TASK_INPUT_HASH diagnostic" ;;
+esac
+[[ ! -e "$COPY_SNAPSHOT" ]] || fail "mode mutation published a snapshot"
+python3 - "$WORK/snapshots" <<'PY'
+from pathlib import Path
+import sys
+assert not list(Path(sys.argv[1]).glob('.task-snapshot-*')), 'mode-race temp tree leaked'
+PY
+    ;;
+esac
+
 VALID="$WORK/manifests/valid.json"
 write_manifest "$VALID" T-002 run-001 session-001 agent-001
 VALID_SNAPSHOT="$WORK/snapshots/run-001"

@@ -1,0 +1,412 @@
+PASS: TEST-027 claude-code: a genuine --emit exit deny signature + matching nonce -> exit 0
+PASS: TEST-027 claude-code: HOOK_ACTIVE reported
+PASS: TEST-027 claude-code: the write actually executing -> exit 63/WRITE_EXECUTED
+PASS: TEST-027 claude-code: WRITE_EXECUTED -> CAPABILITY_RUNTIME_UNAVAILABLE
+PASS: TEST-027 claude-code: WRITE_EXECUTED reason reported
+PASS: TEST-027 claude-code: executed:false with no guard_emit_mode/exit_code -> exit 64/UNRECOGNIZED_RESULT
+PASS: TEST-027 claude-code: UNRECOGNIZED_RESULT reason reported
+PASS: TEST-027 claude-code: a missing recorded-result file -> exit 60/NO_RECORDED_RESULT
+PASS: TEST-027 claude-code: NO_RECORDED_RESULT reason reported
+PASS: TEST-027 claude-code: an otherwise-correct signature with a MISMATCHED nonce -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-027 claude-code: STALE_CHALLENGE_REJECTED reason reported (never HOOK_ACTIVE without a fresh nonce match)
+PASS: TEST-027 copilot-cli: a genuine --emit copilot deny JSON + matching nonce -> exit 0
+PASS: TEST-027 copilot-cli: HOOK_ACTIVE reported
+PASS: TEST-027 copilot-cli: the write actually executing -> exit 63/WRITE_EXECUTED
+PASS: TEST-027 copilot-cli: an ABSENT permissionDecision -> exit 64/UNRECOGNIZED_RESULT, never HOOK_ACTIVE
+PASS: TEST-027 copilot-cli: the well-known 'subagent hook often does not fire' case (permissionDecision: allow) -> exit 64/UNRECOGNIZED_RESULT, not a special case
+PASS: TEST-027 copilot-cli: a missing recorded-result file -> exit 60/NO_RECORDED_RESULT
+PASS: TEST-027 copilot-cli: a MISMATCHED nonce against an otherwise-correct deny signature -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-027 codex-cli: plugin_hooks_enabled + denied_by_plugin_hooks + matching nonce -> exit 0
+PASS: TEST-027 codex-cli: HOOK_ACTIVE reported
+PASS: TEST-027 codex-cli: the write actually executing -> exit 63/WRITE_EXECUTED
+PASS: TEST-027 codex-cli: an unset/false plugin_hooks_enabled -> exit 65/PLUGIN_HOOKS_DISABLED even when denied_by_plugin_hooks claims true (the collapse-into-hook-not-active case, REQ-010)
+PASS: TEST-027 codex-cli: PLUGIN_HOOKS_DISABLED reason reported, never HOOK_ACTIVE
+PASS: RT-20260909-002: incomplete flag evidence still fails closed ({})
+PASS: RT-20260909-002: incomplete flag evidence never activates ({})
+FAIL: RT-20260909-002: diagnostic incorrectly infers disabled configuration ({})
+PASS: RT-20260909-002: incomplete flag evidence still fails closed ({"plugin_hooks_enabled":null})
+PASS: RT-20260909-002: incomplete flag evidence never activates ({"plugin_hooks_enabled":null})
+FAIL: RT-20260909-002: diagnostic incorrectly infers disabled configuration ({"plugin_hooks_enabled":null})
+PASS: RT-20260909-002: incomplete flag evidence still fails closed ({"plugin_hooks_enabled":"true"})
+PASS: RT-20260909-002: incomplete flag evidence never activates ({"plugin_hooks_enabled":"true"})
+FAIL: RT-20260909-002: diagnostic incorrectly infers disabled configuration ({"plugin_hooks_enabled":"true"})
+PASS: TEST-027 codex-cli: plugin_hooks_enabled true but no denied_by_plugin_hooks -> exit 64/UNRECOGNIZED_RESULT
+PASS: TEST-027 codex-cli: a missing recorded-result file -> exit 60/NO_RECORDED_RESULT
+PASS: TEST-027 codex-cli: a MISMATCHED nonce against an otherwise-correct deny signature -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-027 shared: invalid JSON syntax -> exit 61/RECORDED_RESULT_UNREADABLE
+PASS: TEST-027 shared: a non-object (JSON array) top level -> exit 61/RECORDED_RESULT_UNREADABLE
+PASS: TEST-027 shared: invalid UTF-8 bytes -> exit 61/RECORDED_RESULT_UNREADABLE
+PASS: TEST-027 challenge shape: 'schema' is the exact literal design.md's CLI contract fixes
+PASS: TEST-027 challenge shape: 'canary_target' is the exact literal protected sentinel path design.md's Data Plan registers
+PASS: TEST-027 challenge shape: tool_call_template includes a 'claude-code' entry
+PASS: TEST-027 challenge shape: tool_call_template includes a 'codex-cli' entry
+PASS: TEST-027 challenge shape: tool_call_template includes a 'copilot-cli' entry
+PASS: TEST-032 (a) precondition: sentinel absent BEFORE the hook-fires branch
+PASS: TEST-032 (a) hook FIRES: HOOK_ACTIVE
+PASS: TEST-032 (a) the sentinel is absent-AFTER the hook-fires branch too (never created)
+PASS: TEST-032 (a) the live sidecar fixtures are byte-identical before/after (never touched)
+PASS: TEST-032 (b) hook does not fire: CAPABILITY_RUNTIME_UNAVAILABLE/WRITE_EXECUTED
+PASS: TEST-032 (b) a recorded cleanup delete showing success -> exit 0/SENTINEL_CLEANUP_CONFIRMED
+PASS: TEST-032 (b) cleanup_status is SENTINEL_CLEANUP_CONFIRMED
+PASS: TEST-032 (b) the standing capability_status (from the original probe) is restated alongside the cleanup verdict
+PASS: TEST-032 (c1) no cleanup-result evidence recorded at all -> exit 70/NO_CLEANUP_RESULT
+PASS: TEST-032 (c1) cleanup_status is SENTINEL_CLEANUP_UNCONFIRMED
+PASS: TEST-032 (c1) the standing CAPABILITY_RUNTIME_UNAVAILABLE is restated alongside (independent verdicts, never retroactively changed)
+PASS: TEST-032 (c2) the cleanup delete's own attempt was denied (create-to-delete race) -> exit 72/CLEANUP_DENIED, never a privileged force-delete
+PASS: TEST-032 (c2) CLEANUP_DENIED reason reported
+PASS: TEST-032 (c3) a cleanup-result with a MISMATCHED nonce is never confirmed -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-032 stale-start: --emit-challenge with a pre-existing stale sentinel still exits 0
+PASS: TEST-032 stale-start: the pre-existing stale sentinel is reported as a diagnostic (STALE_SENTINEL_DETECTED)
+PASS: TEST-032 stale-start: a fresh, valid challenge is still emitted regardless
+PASS: TEST-032 stale-start: the new challenge carries a non-empty nonce
+PASS: TEST-032 stale-start: the stale sentinel itself is byte-identical before/after --emit-challenge (this script never touches it, only the calling skill does)
+PASS: TEST-032 stale-start: the NEW challenge's own probe still resolves to HOOK_ACTIVE correctly, regardless of the stale-sentinel condition at start
+PASS: TEST-032 stale-start: HOOK_ACTIVE reported for the new challenge
+PASS: TEST-032 no-stale: --emit-challenge with NO pre-existing sentinel exits 0
+PASS: TEST-032 no-stale: no STALE_SENTINEL_DETECTED diagnostic when the sentinel is genuinely absent
+PASS: TEST-032 battery: all three live sidecar/registry fixtures are byte-identical across a full multi-invocation battery (--emit-challenge, HOOK_ACTIVE, WRITE_EXECUTED, confirm-cleanup)
+PASS: TEST-032 battery: the sentinel itself was never created by this script across the whole battery
+PASS: TEST-HARDEN(a) --verify-response with NO --nonce -> exit 2 usage error
+PASS: TEST-HARDEN(a): no raw traceback on stderr
+PASS: TEST-HARDEN(b) --verify-response with NO --recorded-result -> exit 2 usage error
+PASS: TEST-HARDEN(b): no raw traceback on stderr
+PASS: TEST-HARDEN(c) --verify-response with NO --runtime -> exit 2 usage error
+PASS: TEST-HARDEN(c): no raw traceback on stderr
+PASS: TEST-HARDEN(d) an unrecognized --runtime value -> exit 2 usage error
+PASS: TEST-HARDEN(d): no raw traceback on stderr
+PASS: TEST-HARDEN(e) an EMPTY --nonce value -> exit 2 usage error, never accepted as a trivial match
+PASS: TEST-HARDEN(e): no raw traceback on stderr
+PASS: TEST-HARDEN(f) --emit-challenge combined with --nonce -> exit 2 usage error (takes no other arguments)
+PASS: TEST-HARDEN(f): no raw traceback on stderr
+PASS: TEST-HARDEN(g) --confirm-cleanup combined with --recorded-result/--runtime -> exit 2 usage error
+PASS: TEST-HARDEN(g): no raw traceback on stderr
+PASS: TEST-HARDEN(h) --verify-response combined with --recorded-cleanup-result -> exit 2 usage error
+PASS: TEST-HARDEN(h): no raw traceback on stderr
+PASS: TEST-HARDEN(i) --confirm-cleanup with NO --recorded-cleanup-result -> exit 2 usage error
+PASS: TEST-HARDEN(i): no raw traceback on stderr
+PASS: TEST-HARDEN(j) no mode flag at all -> exit 2 usage error (argparse's own required mutually-exclusive-group check)
+PASS: TEST-HARDEN(k) two mode flags together -> exit 2 usage error (argparse's own mutually-exclusive-group check)
+PASS: TEST-HARDEN(l) an evidence path containing spaces resolves correctly -> exit 0/HOOK_ACTIVE
+PASS: TEST-HARDEN(l): no raw traceback on stderr
+PASS: TEST-HARDEN(m) a string 'executed' field (not boolean) -> exit 64/UNRECOGNIZED_RESULT, never coerced to a truthy/falsy denial
+PASS: TEST-HARDEN(m): no raw traceback on stderr
+PASS: TEST-HARDEN(n) a recorded-cleanup-result with no 'executed' field -> exit 71/CLEANUP_RESULT_UNREADABLE
+PASS: TEST-HARDEN(n): no raw traceback on stderr
+PASS: self-registration: tests/check-hook-activation-handshake.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/check-hook-activation-handshake.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/check-hook-activation-handshake.tests.ps1 twin exists
+FAIL: RT002 exact versioned operation-bound denial accepted (got exit 65, want 0; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 exact denial status (got 'CAPABILITY_RUNTIME_UNAVAILABLE', want 'HOOK_ACTIVE')
+FAIL: RT002 raw envelope rejected: prefix (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: prefix (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: prefix
+FAIL: RT002 raw envelope rejected: quote (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: quote (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: quote
+FAIL: RT002 raw envelope rejected: suffix (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: suffix (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: suffix
+FAIL: RT002 raw envelope rejected: truncate (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: truncate (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: truncate
+FAIL: RT002 raw envelope rejected: guard (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: guard (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: guard
+FAIL: RT002 raw envelope rejected: guard-ja (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: guard-ja (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: guard-ja
+FAIL: RT002 raw envelope rejected: target (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: target (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: target
+FAIL: RT002 raw envelope rejected: guard-case (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: guard-case (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: guard-case
+FAIL: RT002 raw envelope rejected: target-case (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: target-case (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: target-case
+FAIL: RT002 raw envelope rejected: extra-operation (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: extra-operation (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: extra-operation
+FAIL: RT002 raw envelope rejected: old-patch (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: old-patch (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: old-patch
+FAIL: RT002 raw envelope rejected: trailing-newline (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: trailing-newline (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: trailing-newline
+FAIL: RT002 raw envelope rejected: leading-newline (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: leading-newline (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: leading-newline
+FAIL: RT002 raw envelope rejected: crlf (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: crlf (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: crlf
+FAIL: RT002 raw envelope rejected: null (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: null (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: null
+FAIL: RT002 raw envelope rejected: boolean (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: boolean (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: boolean
+FAIL: RT002 raw envelope rejected: number (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: number (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: number
+FAIL: RT002 raw envelope rejected: array (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: array (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: array
+FAIL: RT002 raw envelope rejected: object (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 raw envelope reason: object (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 raw envelope cannot activate: object
+PASS: RT002 evidence field rejected: missing:schema
+PASS: RT002 evidence field reason: missing:schema
+PASS: RT002 evidence field cannot activate: missing:schema
+FAIL: RT002 evidence field rejected: missing:runtime (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 evidence field reason: missing:runtime (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 evidence field cannot activate: missing:runtime
+FAIL: RT002 evidence field rejected: missing:nonce (got exit 62, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: STALE_CHALLENGE_REJECTED: recorded evidence's own 'nonce' field is missing, empty, or does not match this invocation's --nonce (expected '0123456789abcdef0123456789abcdef', got None) -- rejected as stale/replayed evidence, never trusted as a fresh denial)
+FAIL: RT002 evidence field reason: missing:nonce (got 'STALE_CHALLENGE_REJECTED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 evidence field cannot activate: missing:nonce
+PASS: RT002 evidence field rejected: missing:executed
+PASS: RT002 evidence field reason: missing:executed
+PASS: RT002 evidence field cannot activate: missing:executed
+FAIL: RT002 evidence field rejected: missing:raw_result (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 evidence field reason: missing:raw_result (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 evidence field cannot activate: missing:raw_result
+PASS: RT002 evidence field rejected: executed:null
+PASS: RT002 evidence field reason: executed:null
+PASS: RT002 evidence field cannot activate: executed:null
+PASS: RT002 evidence field rejected: executed:string
+PASS: RT002 evidence field reason: executed:string
+PASS: RT002 evidence field cannot activate: executed:string
+PASS: RT002 evidence field rejected: executed:true
+PASS: RT002 evidence field reason: executed:true
+PASS: RT002 evidence field cannot activate: executed:true
+PASS: RT002 evidence field rejected: executed:zero
+PASS: RT002 evidence field reason: executed:zero
+PASS: RT002 evidence field cannot activate: executed:zero
+PASS: RT002 evidence field rejected: executed:one
+PASS: RT002 evidence field reason: executed:one
+PASS: RT002 evidence field cannot activate: executed:one
+PASS: RT002 evidence field rejected: nonce:outer
+PASS: RT002 evidence field reason: nonce:outer
+PASS: RT002 evidence field cannot activate: nonce:outer
+FAIL: RT002 evidence field rejected: nonce:inner (got exit 65, want 62; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 evidence field reason: nonce:inner (got 'PLUGIN_HOOKS_DISABLED', want 'STALE_CHALLENGE_REJECTED')
+PASS: RT002 evidence field cannot activate: nonce:inner
+FAIL: RT002 evidence field rejected: nonce:malformed (got exit 62, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: STALE_CHALLENGE_REJECTED: recorded evidence's own 'nonce' field is missing, empty, or does not match this invocation's --nonce (expected '0123456789abcdef0123456789abcdef', got 'INVALID') -- rejected as stale/replayed evidence, never trusted as a fresh denial)
+FAIL: RT002 evidence field reason: nonce:malformed (got 'STALE_CHALLENGE_REJECTED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 evidence field cannot activate: nonce:malformed
+FAIL: RT002 evidence field rejected: runtime:claude-code (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 evidence field reason: runtime:claude-code (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 evidence field cannot activate: runtime:claude-code
+FAIL: RT002 evidence field rejected: runtime:copilot-cli (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 evidence field reason: runtime:copilot-cli (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 evidence field cannot activate: runtime:copilot-cli
+PASS: RT002 evidence field rejected: cli:claude-code
+PASS: RT002 evidence field reason: cli:claude-code
+PASS: RT002 evidence field cannot activate: cli:claude-code
+PASS: RT002 evidence field rejected: cli:copilot-cli
+PASS: RT002 evidence field reason: cli:copilot-cli
+PASS: RT002 evidence field cannot activate: cli:copilot-cli
+PASS: RT002 evidence field rejected: extra:plugin_hooks_enabled:true
+PASS: RT002 evidence field reason: extra:plugin_hooks_enabled:true
+PASS: RT002 evidence field cannot activate: extra:plugin_hooks_enabled:true
+FAIL: RT002 evidence field rejected: extra:plugin_hooks_enabled:false (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 evidence field reason: extra:plugin_hooks_enabled:false (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 evidence field cannot activate: extra:plugin_hooks_enabled:false
+FAIL: RT002 evidence field rejected: extra:denied_by_plugin_hooks:true (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 evidence field reason: extra:denied_by_plugin_hooks:true (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 evidence field cannot activate: extra:denied_by_plugin_hooks:true
+FAIL: RT002 evidence field rejected: extra:denied_by_plugin_hooks:false (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 evidence field reason: extra:denied_by_plugin_hooks:false (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 evidence field cannot activate: extra:denied_by_plugin_hooks:false
+FAIL: RT002 evidence field rejected: extra:arbitrary:true (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 evidence field reason: extra:arbitrary:true (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 evidence field cannot activate: extra:arbitrary:true
+FAIL: RT002 extra flag rejected: plugin_hooks_enabled=null (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 extra flag reason: plugin_hooks_enabled=null (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 extra flag cannot activate: plugin_hooks_enabled=null
+FAIL: RT002 extra flag rejected: plugin_hooks_enabled="false" (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 extra flag reason: plugin_hooks_enabled="false" (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 extra flag cannot activate: plugin_hooks_enabled="false"
+FAIL: RT002 extra flag rejected: plugin_hooks_enabled=1 (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 extra flag reason: plugin_hooks_enabled=1 (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 extra flag cannot activate: plugin_hooks_enabled=1
+FAIL: RT002 extra flag rejected: plugin_hooks_enabled=[] (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 extra flag reason: plugin_hooks_enabled=[] (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 extra flag cannot activate: plugin_hooks_enabled=[]
+FAIL: RT002 extra flag rejected: plugin_hooks_enabled={} (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 extra flag reason: plugin_hooks_enabled={} (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 extra flag cannot activate: plugin_hooks_enabled={}
+FAIL: RT002 extra flag rejected: denied_by_plugin_hooks=null (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 extra flag reason: denied_by_plugin_hooks=null (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 extra flag cannot activate: denied_by_plugin_hooks=null
+FAIL: RT002 extra flag rejected: denied_by_plugin_hooks="false" (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 extra flag reason: denied_by_plugin_hooks="false" (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 extra flag cannot activate: denied_by_plugin_hooks="false"
+FAIL: RT002 extra flag rejected: denied_by_plugin_hooks=1 (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 extra flag reason: denied_by_plugin_hooks=1 (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 extra flag cannot activate: denied_by_plugin_hooks=1
+FAIL: RT002 extra flag rejected: denied_by_plugin_hooks=[] (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 extra flag reason: denied_by_plugin_hooks=[] (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 extra flag cannot activate: denied_by_plugin_hooks=[]
+FAIL: RT002 extra flag rejected: denied_by_plugin_hooks={} (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 extra flag reason: denied_by_plugin_hooks={} (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 extra flag cannot activate: denied_by_plugin_hooks={}
+FAIL: RT002 self-consistent invalid nonce rejected: ABCDEF0123456789ABCDEF0123456789 (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 invalid nonce reason: ABCDEF0123456789ABCDEF0123456789 (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 invalid nonce cannot activate: ABCDEF0123456789ABCDEF0123456789
+FAIL: RT002 self-consistent invalid nonce rejected: 0123456789abcdef0123456789abcde (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 invalid nonce reason: 0123456789abcdef0123456789abcde (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 invalid nonce cannot activate: 0123456789abcdef0123456789abcde
+FAIL: RT002 self-consistent invalid nonce rejected: 0123456789abcdef0123456789abcdef0 (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 invalid nonce reason: 0123456789abcdef0123456789abcdef0 (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 invalid nonce cannot activate: 0123456789abcdef0123456789abcdef0
+FAIL: RT002 self-consistent invalid nonce rejected: z123456789abcdef0123456789abcdef (got exit 65, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 invalid nonce reason: z123456789abcdef0123456789abcdef (got 'PLUGIN_HOOKS_DISABLED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 invalid nonce cannot activate: z123456789abcdef0123456789abcdef
+FAIL: RT002 outer-only invalid nonce rejected: uppercase (got exit 62, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: STALE_CHALLENGE_REJECTED: recorded evidence's own 'nonce' field is missing, empty, or does not match this invocation's --nonce (expected '0123456789abcdef0123456789abcdef', got '0123456789ABCDEF0123456789ABCDEF') -- rejected as stale/replayed evidence, never trusted as a fresh denial)
+FAIL: RT002 outer-only nonce reason: uppercase (got 'STALE_CHALLENGE_REJECTED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 outer-only nonce cannot activate: uppercase
+FAIL: RT002 outer-only invalid nonce rejected: short (got exit 62, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: STALE_CHALLENGE_REJECTED: recorded evidence's own 'nonce' field is missing, empty, or does not match this invocation's --nonce (expected '0123456789abcdef0123456789abcdef', got '0123456789abcdef0123456789abcde') -- rejected as stale/replayed evidence, never trusted as a fresh denial)
+FAIL: RT002 outer-only nonce reason: short (got 'STALE_CHALLENGE_REJECTED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 outer-only nonce cannot activate: short
+FAIL: RT002 outer-only invalid nonce rejected: long (got exit 62, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: STALE_CHALLENGE_REJECTED: recorded evidence's own 'nonce' field is missing, empty, or does not match this invocation's --nonce (expected '0123456789abcdef0123456789abcdef', got '0123456789abcdef0123456789abcdef0') -- rejected as stale/replayed evidence, never trusted as a fresh denial)
+FAIL: RT002 outer-only nonce reason: long (got 'STALE_CHALLENGE_REJECTED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 outer-only nonce cannot activate: long
+FAIL: RT002 outer-only invalid nonce rejected: nonhex (got exit 62, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: STALE_CHALLENGE_REJECTED: recorded evidence's own 'nonce' field is missing, empty, or does not match this invocation's --nonce (expected '0123456789abcdef0123456789abcdef', got 'z123456789abcdef0123456789abcdef') -- rejected as stale/replayed evidence, never trusted as a fresh denial)
+FAIL: RT002 outer-only nonce reason: nonhex (got 'STALE_CHALLENGE_REJECTED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 outer-only nonce cannot activate: nonhex
+FAIL: RT002 outer-only invalid nonce rejected: null (got exit 62, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: STALE_CHALLENGE_REJECTED: recorded evidence's own 'nonce' field is missing, empty, or does not match this invocation's --nonce (expected '0123456789abcdef0123456789abcdef', got None) -- rejected as stale/replayed evidence, never trusted as a fresh denial)
+FAIL: RT002 outer-only nonce reason: null (got 'STALE_CHALLENGE_REJECTED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 outer-only nonce cannot activate: null
+FAIL: RT002 outer-only invalid nonce rejected: number (got exit 62, want 64; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: STALE_CHALLENGE_REJECTED: recorded evidence's own 'nonce' field is missing, empty, or does not match this invocation's --nonce (expected '0123456789abcdef0123456789abcdef', got 0) -- rejected as stale/replayed evidence, never trusted as a fresh denial)
+FAIL: RT002 outer-only nonce reason: number (got 'STALE_CHALLENGE_REJECTED', want 'UNRECOGNIZED_RESULT')
+PASS: RT002 outer-only nonce cannot activate: number
+FAIL: RT002 explicit selector cannot enter legacy Claude verifier: null (got exit 0, want 64; stderr: )
+FAIL: RT002 Claude selector reason: null (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status: null (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy Claude verifier: true (got exit 0, want 64; stderr: )
+FAIL: RT002 Claude selector reason: true (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status: true (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy Claude verifier: false (got exit 0, want 64; stderr: )
+FAIL: RT002 Claude selector reason: false (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status: false (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy Claude verifier: 1 (got exit 0, want 64; stderr: )
+FAIL: RT002 Claude selector reason: 1 (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status: 1 (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy Claude verifier: [] (got exit 0, want 64; stderr: )
+FAIL: RT002 Claude selector reason: [] (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status: [] (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy Claude verifier: {} (got exit 0, want 64; stderr: )
+FAIL: RT002 Claude selector reason: {} (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status: {} (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy Claude verifier: "unknown" (got exit 0, want 64; stderr: )
+FAIL: RT002 Claude selector reason: "unknown" (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status: "unknown" (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy Claude verifier: "sdd-codex-host-denial/v1" (got exit 0, want 64; stderr: )
+FAIL: RT002 Claude selector reason: "sdd-codex-host-denial/v1" (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status: "sdd-codex-host-denial/v1" (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy codex-cli verifier: null (got exit 0, want 64; stderr: )
+FAIL: RT002 codex-cli selector reason: null (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for codex-cli: null (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy codex-cli verifier: true (got exit 0, want 64; stderr: )
+FAIL: RT002 codex-cli selector reason: true (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for codex-cli: true (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy codex-cli verifier: false (got exit 0, want 64; stderr: )
+FAIL: RT002 codex-cli selector reason: false (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for codex-cli: false (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy codex-cli verifier: 1 (got exit 0, want 64; stderr: )
+FAIL: RT002 codex-cli selector reason: 1 (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for codex-cli: 1 (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy codex-cli verifier: [] (got exit 0, want 64; stderr: )
+FAIL: RT002 codex-cli selector reason: [] (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for codex-cli: [] (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy codex-cli verifier: {} (got exit 0, want 64; stderr: )
+FAIL: RT002 codex-cli selector reason: {} (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for codex-cli: {} (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy codex-cli verifier: "unknown" (got exit 0, want 64; stderr: )
+FAIL: RT002 codex-cli selector reason: "unknown" (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for codex-cli: "unknown" (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy codex-cli verifier: "sdd-codex-host-denial/v1" (got exit 0, want 64; stderr: )
+FAIL: RT002 codex-cli selector reason: "sdd-codex-host-denial/v1" (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for codex-cli: "sdd-codex-host-denial/v1" (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy copilot-cli verifier: null (got exit 0, want 64; stderr: )
+FAIL: RT002 copilot-cli selector reason: null (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for copilot-cli: null (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy copilot-cli verifier: true (got exit 0, want 64; stderr: )
+FAIL: RT002 copilot-cli selector reason: true (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for copilot-cli: true (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy copilot-cli verifier: false (got exit 0, want 64; stderr: )
+FAIL: RT002 copilot-cli selector reason: false (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for copilot-cli: false (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy copilot-cli verifier: 1 (got exit 0, want 64; stderr: )
+FAIL: RT002 copilot-cli selector reason: 1 (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for copilot-cli: 1 (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy copilot-cli verifier: [] (got exit 0, want 64; stderr: )
+FAIL: RT002 copilot-cli selector reason: [] (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for copilot-cli: [] (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy copilot-cli verifier: {} (got exit 0, want 64; stderr: )
+FAIL: RT002 copilot-cli selector reason: {} (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for copilot-cli: {} (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy copilot-cli verifier: "unknown" (got exit 0, want 64; stderr: )
+FAIL: RT002 copilot-cli selector reason: "unknown" (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for copilot-cli: "unknown" (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 explicit selector cannot enter legacy copilot-cli verifier: "sdd-codex-host-denial/v1" (got exit 0, want 64; stderr: )
+FAIL: RT002 copilot-cli selector reason: "sdd-codex-host-denial/v1" (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 selector rejected status for copilot-cli: "sdd-codex-host-denial/v1" (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+PASS: RT002 nonce-bound challenge emitted
+FAIL: RT002 emitted patch binds exact fresh nonce and bytes (got 'False', want 'True')
+PASS: TEST-084 complete Claude template unchanged
+PASS: TEST-085 complete Copilot template unchanged
+PASS: TEST-079 response schema does not select cleanup adapter
+PASS: TEST-079 valid cleanup remains confirmed
+PASS: TEST-079 cleanup cannot activate capability
+PASS: TEST-080 unknown schema does not select cleanup adapter
+PASS: TEST-080 cleanup refusal reason unchanged
+PASS: TEST-080 refused cleanup remains unconfirmed
+PASS: TEST-080 cleanup refusal cannot activate capability
+FAIL: RT002 response duplicate rejected: schema (got exit 65, want 61; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 response duplicate reason: schema (got 'PLUGIN_HOOKS_DISABLED', want 'RECORDED_RESULT_UNREADABLE')
+PASS: RT002 response duplicate cannot activate: schema
+FAIL: RT002 response duplicate rejected: runtime (got exit 65, want 61; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 response duplicate reason: runtime (got 'PLUGIN_HOOKS_DISABLED', want 'RECORDED_RESULT_UNREADABLE')
+PASS: RT002 response duplicate cannot activate: runtime
+FAIL: RT002 response duplicate rejected: nonce (got exit 65, want 61; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 response duplicate reason: nonce (got 'PLUGIN_HOOKS_DISABLED', want 'RECORDED_RESULT_UNREADABLE')
+PASS: RT002 response duplicate cannot activate: nonce
+FAIL: RT002 response duplicate rejected: executed (got exit 65, want 61; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 response duplicate reason: executed (got 'PLUGIN_HOOKS_DISABLED', want 'RECORDED_RESULT_UNREADABLE')
+PASS: RT002 response duplicate cannot activate: executed
+FAIL: RT002 response duplicate rejected: raw_result (got exit 65, want 61; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 response duplicate reason: raw_result (got 'PLUGIN_HOOKS_DISABLED', want 'RECORDED_RESULT_UNREADABLE')
+PASS: RT002 response duplicate cannot activate: raw_result
+FAIL: RT002 response duplicate rejected: nested (got exit 65, want 61; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 response duplicate reason: nested (got 'PLUGIN_HOOKS_DISABLED', want 'RECORDED_RESULT_UNREADABLE')
+PASS: RT002 response duplicate cannot activate: nested
+FAIL: RT002 response duplicate rejected: executed-true-first (got exit 65, want 61; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: PLUGIN_HOOKS_DISABLED: codex-cli evidence's 'plugin_hooks_enabled' is not true -- an unset/false plugin_hooks feature flag means the guard was never invoked at all, so no denial signature can appear; this correctly collapses into hook-not-active rather than being treated as ambiguous)
+FAIL: RT002 response duplicate reason: executed-true-first (got 'PLUGIN_HOOKS_DISABLED', want 'RECORDED_RESULT_UNREADABLE')
+PASS: RT002 response duplicate cannot activate: executed-true-first
+FAIL: RT002 response duplicate rejected: executed-false-first (got exit 63, want 61; stderr: check-hook-activation-handshake: CAPABILITY_RUNTIME_UNAVAILABLE: WRITE_EXECUTED: recorded evidence shows the canary write EXECUTED (executed: true) -- no denial was observed)
+FAIL: RT002 response duplicate reason: executed-false-first (got 'WRITE_EXECUTED', want 'RECORDED_RESULT_UNREADABLE')
+PASS: RT002 response duplicate cannot activate: executed-false-first
+FAIL: RT002 duplicate cleanup executed rejected: true,false (got exit 72, want 71; stderr: check-hook-activation-handshake: SENTINEL_CLEANUP_UNCONFIRMED: CLEANUP_DENIED: recorded cleanup result shows the delete attempt did NOT succeed (executed: false) -- the create-to-delete race (the hook became active between the sentinel's creation and the cleanup attempt), never a privileged force-delete)
+FAIL: RT002 duplicate cleanup reason: true,false (got 'CLEANUP_DENIED', want 'CLEANUP_RESULT_UNREADABLE')
+PASS: RT002 duplicate cleanup cannot confirm: true,false
+FAIL: RT002 duplicate cleanup executed rejected: false,true (got exit 0, want 71; stderr: )
+FAIL: RT002 duplicate cleanup reason: false,true (got '', want 'CLEANUP_RESULT_UNREADABLE')
+FAIL: RT002 duplicate cleanup cannot confirm: false,true (got 'SENTINEL_CLEANUP_CONFIRMED', want 'SENTINEL_CLEANUP_UNCONFIRMED')
+FAIL: RT002 nested cleanup duplicate rejected (got exit 0, want 71; stderr: )
+FAIL: RT002 nested cleanup duplicate reason (got '', want 'CLEANUP_RESULT_UNREADABLE')
+FAIL: RT002 nested cleanup duplicate cannot confirm (got 'SENTINEL_CLEANUP_CONFIRMED', want 'SENTINEL_CLEANUP_UNCONFIRMED')
+FAIL: RT002 no-schema legacy duplicate rejected (got exit 0, want 61; stderr: )
+FAIL: RT002 legacy duplicate reason (got '', want 'RECORDED_RESULT_UNREADABLE')
+FAIL: RT002 legacy duplicate cannot activate (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 new schema with both runtimes claude-code rejected (got exit 0, want 64; stderr: )
+FAIL: RT002 both runtimes claude-code reason (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 both runtimes claude-code cannot activate (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+FAIL: RT002 new schema with both runtimes copilot-cli rejected (got exit 0, want 64; stderr: )
+FAIL: RT002 both runtimes copilot-cli reason (got '', want 'UNRECOGNIZED_RESULT')
+FAIL: RT002 both runtimes copilot-cli cannot activate (got 'HOOK_ACTIVE', want 'CAPABILITY_RUNTIME_UNAVAILABLE')
+PASS: RT002 truncated new response JSON rejected
+PASS: RT002 truncated JSON reason
+PASS: RT002 truncated JSON cannot activate
+PASS: 199
+FAIL: 211

@@ -1,0 +1,133 @@
+{
+  "builder": "/Users/jrmag/.codex/worktrees/rt002-bounded-integration/sdd-forge/reports/verification/rt002-snapshot-mode-repair-20261006/builder-candidate.sh",
+  "uid": 501,
+  "fixture_root": "/Users/jrmag/.codex/worktrees/rt002-bounded-integration/sdd-forge/reports/verification/rt002-snapshot-mode-repair-20261006/fixture-b7srrgfg",
+  "results": [
+    {
+      "case": "builder",
+      "pass": true,
+      "detail": "TASK_INPUT_OK\n"
+    },
+    {
+      "case": "mode:run",
+      "pass": true,
+      "detail": "0o555"
+    },
+    {
+      "case": "source-unchanged:run",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "mode:group.txt",
+      "pass": true,
+      "detail": "0o554"
+    },
+    {
+      "case": "source-unchanged:group.txt",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "mode:owner",
+      "pass": true,
+      "detail": "0o544"
+    },
+    {
+      "case": "source-unchanged:owner",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "mode:all",
+      "pass": true,
+      "detail": "0o555"
+    },
+    {
+      "case": "source-unchanged:all",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "mode:plain.sh",
+      "pass": true,
+      "detail": "0o444"
+    },
+    {
+      "case": "source-unchanged:plain.sh",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "mode:private",
+      "pass": true,
+      "detail": "0o444"
+    },
+    {
+      "case": "source-unchanged:private",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "mode:special",
+      "pass": true,
+      "detail": "0o555"
+    },
+    {
+      "case": "source-unchanged:special",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "direct-executable",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "direct-nonexecutable-denied",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "nonprivileged",
+      "pass": true,
+      "detail": "501"
+    },
+    {
+      "case": "readonly:write",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "readonly:create",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "readonly:delete",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "directory-mode",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "copy-barrier",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "mode-only-change-rejected",
+      "pass": true,
+      "detail": "TASK_INPUT_HASH: source changed during copy: run\n"
+    },
+    {
+      "case": "race-temp-cleaned",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "pass": true
+}

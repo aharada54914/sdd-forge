@@ -1,0 +1,429 @@
+$ErrorActionPreference = 'Stop'
+
+$root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$scriptDir = Join-Path $root 'plugins/sdd-implementation/scripts'
+$validator = Join-Path $scriptDir 'validate-task-input-manifest.ps1'
+$snapshot = Join-Path $scriptDir 'prepare-task-snapshot.ps1'
+$selector = Join-Path $scriptDir 'select-agent-model.ps1'
+
+function Fail([string]$Message) { throw "not ok: $Message" }
+function Get-Sha256([string]$Path) {
+  (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()
+}
+function Expect-Diagnostic([string]$Expected, [scriptblock]$Action) {
+  try {
+    & $Action 2>&1 | Out-Null
+  } catch {
+    if ($_.Exception.Message.StartsWith($Expected, [StringComparison]::Ordinal)) { return }
+    Fail "expected $Expected, got: $($_.Exception.Message)"
+  }
+  Fail "expected $Expected"
+}
+function Write-Manifest(
+  [string]$Path,
+  [string]$TaskId,
+  [string]$RunId,
+  [string]$SessionId,
+  [string]$AgentId,
+  [string]$Mode = 'fresh-agent',
+  [string]$FallbackReason = '',
+  [string]$HandoffHash = ''
+) {
+  [ordered]@{
+    schema = 'task-input-manifest/v1'
+    task_id = $TaskId
+    run_id = $RunId
+    session_id = $SessionId
+    agent_instance_id = $AgentId
+    model_tier = 'standard'
+    provider = 'codex'
+    model = 'codex-general-medium'
+    estimated_cost_per_attempt_usd = '0.125'
+    cost_estimate_source = 'fixture-2026-06-30'
+    cost_estimate_timestamp = '2026-06-30T00:00:00Z'
+    isolation_mode = $Mode
+    fallback_reason = $FallbackReason
+    handoff_reload_evidence_hash = $HandoffHash
+    allowed_inputs = @(
+      [ordered]@{path='specs/demo/requirements.md'; sha256=$script:reqHash},
+      [ordered]@{path='contracts/demo.json'; sha256=$script:contractHash}
+    )
+    allowed_outputs = @('reports/implementation/demo/T-002.md','specs/demo/verification/')
+  } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $Path -Encoding utf8
+}
+
+foreach ($required in @($validator, $snapshot, $selector)) {
+  if (-not (Test-Path -LiteralPath $required -PathType Leaf)) { Fail "missing script: $required" }
+}
+
+$work = Join-Path ([IO.Path]::GetTempPath()) ("sdd-task-context-" + [guid]::NewGuid())
+try {
+  $repo = Join-Path $work 'repo'
+  New-Item -ItemType Directory -Path (Join-Path $repo 'specs/demo') -Force | Out-Null
+  New-Item -ItemType Directory -Path (Join-Path $repo 'contracts') -Force | Out-Null
+  New-Item -ItemType Directory -Path (Join-Path $work 'manifests') -Force | Out-Null
+  New-Item -ItemType Directory -Path (Join-Path $work 'snapshots') -Force | Out-Null
+  Set-Content -LiteralPath (Join-Path $repo 'specs/demo/requirements.md') -Value "requirement text`n" -NoNewline -Encoding utf8
+  Set-Content -LiteralPath (Join-Path $repo 'contracts/demo.json') -Value "{`"contract`":true}`n" -NoNewline -Encoding utf8
+  $script:reqHash = Get-Sha256 (Join-Path $repo 'specs/demo/requirements.md')
+  $script:contractHash = Get-Sha256 (Join-Path $repo 'contracts/demo.json')
+  $evidenceRoot = Join-Path $work 'evidence'
+  New-Item -ItemType Directory -Path (Join-Path $evidenceRoot 'handoffs') -Force | Out-Null
+  [ordered]@{
+    schema = 'implementation-host-capability/v1'
+    implementation_subagents_available = $false
+    fallback_reason = 'host-does-not-support-implementation-subagents'
+    session_id = 'shared-session'
+    agent_instance_id = 'shared-agent'
+    task_runs = @(
+      [ordered]@{task_id='T-010'; run_id='run-010'},
+      [ordered]@{task_id='T-011'; run_id='run-011'}
+    )
+  } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt') -Encoding utf8
+  $evidenceOriginal = Get-Content -Raw -LiteralPath (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt')
+  $reloadHash = Get-Sha256 (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt')
+
+
+  # Unix-only execute-mask assertions; Windows retains its existing ACL tests.
+  if (-not $IsWindows) {
+    $modeRepo = Join-Path $work 'mode-repo'
+    New-Item -ItemType Directory -Path $modeRepo | Out-Null
+    $modeCases = @(
+      @{Name='exec'; Source=493; Expected=365},
+      @{Name='group'; Source=488; Expected=364},
+      @{Name='owner'; Source=448; Expected=356},
+      @{Name='plain.sh'; Source=420; Expected=292},
+      @{Name='private'; Source=384; Expected=292},
+      @{Name='special'; Source=4077; Expected=365}
+    )
+    $entries = @()
+    foreach ($case in $modeCases) {
+      $path = Join-Path $modeRepo $case.Name
+      [IO.File]::WriteAllText($path, "#!/bin/sh`nprintf 'mode-ok\n'`n")
+      [IO.File]::SetUnixFileMode($path, [IO.UnixFileMode]$case.Source)
+      $entries += @{path=$case.Name;sha256=(Get-Sha256 $path)}
+    }
+    $modeManifest = Join-Path $work 'manifests/modes.json'
+    @{allowed_inputs=$entries} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $modeManifest
+    $modeSnapshot = Join-Path $work 'snapshots/modes'
+    & $snapshot -Manifest $modeManifest -RepoRoot $modeRepo -SnapshotRoot $modeSnapshot | Out-Null
+    foreach ($case in $modeCases) {
+      if ([int][IO.File]::GetUnixFileMode((Join-Path $modeSnapshot $case.Name)) -ne $case.Expected) { Fail "execute mask mismatch: $($case.Name)" }
+    }
+    $info = [Diagnostics.ProcessStartInfo]::new((Join-Path $modeSnapshot 'exec'))
+    $info.UseShellExecute = $false
+    $info.RedirectStandardOutput = $true
+    $process = [Diagnostics.Process]::Start($info)
+    $modeOutput = $process.StandardOutput.ReadToEnd()
+    $process.WaitForExit()
+    if ($process.ExitCode -ne 0 -or $modeOutput.Trim() -cne 'mode-ok') { Fail 'direct executable invocation failed' }
+    $info.FileName = Join-Path $modeSnapshot 'plain.sh'
+    try {
+      $process = [Diagnostics.Process]::Start($info)
+      $process.WaitForExit()
+      Fail 'nonexecutable source gained execute permission'
+    } catch {
+      if ($_.Exception.Message.StartsWith('not ok:', [StringComparison]::Ordinal)) { throw }
+      if ($_.Exception.InnerException -isnot [ComponentModel.Win32Exception] -or $_.Exception.InnerException.NativeErrorCode -ne 13) { throw }
+    }
+  }
+
+  if (-not $IsWindows) {
+    $copyBarrier = Join-Path $work 'copy-mode-barrier'
+    $copySnapshot = Join-Path $work 'snapshots/copy-mode-race'
+    New-Item -ItemType Directory -Path $copyBarrier | Out-Null
+    $copyOut = Join-Path $work 'copy-mode.out'
+    $copyErr = Join-Path $work 'copy-mode.err'
+    $oldCopyBarrier = $env:SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR
+    $env:SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR = $copyBarrier
+    try {
+      $pwshPath = (Get-Process -Id $PID).Path
+      $copyProcess = Start-Process -FilePath $pwshPath -ArgumentList @(
+        '-NoLogo','-NoProfile','-File',$snapshot,
+        '-Manifest',$modeManifest,'-RepoRoot',$modeRepo,'-SnapshotRoot',$copySnapshot
+      ) -RedirectStandardOutput $copyOut -RedirectStandardError $copyErr -PassThru
+    } finally {
+      $env:SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR = $oldCopyBarrier
+    }
+    try {
+      foreach ($attempt in 1..500) {
+        if (Test-Path -LiteralPath (Join-Path $copyBarrier 'ready')) { break }
+        Start-Sleep -Milliseconds 10
+      }
+      if (-not (Test-Path -LiteralPath (Join-Path $copyBarrier 'ready'))) { Fail 'snapshot builder did not reach copy-mode boundary' }
+      [IO.File]::SetUnixFileMode((Join-Path $modeRepo 'exec'), [IO.UnixFileMode]420)
+      New-Item -ItemType File -Path (Join-Path $copyBarrier 'continue') | Out-Null
+      if (-not $copyProcess.WaitForExit(15000)) { Fail 'mode-race builder did not exit' }
+      if ($copyProcess.ExitCode -eq 0) { Fail 'snapshot builder accepted source mode-only mutation' }
+      $copyDiagnostic = Get-Content -Raw -LiteralPath $copyErr
+      if (-not $copyDiagnostic.Contains('TASK_INPUT_HASH:', [StringComparison]::Ordinal)) { Fail "mode mutation lost TASK_INPUT_HASH diagnostic: $copyDiagnostic" }
+      if (Test-Path -LiteralPath $copySnapshot) { Fail 'mode mutation published a snapshot' }
+      if (@(Get-ChildItem -LiteralPath (Join-Path $work 'snapshots') -Force | Where-Object Name -like '.task-snapshot-*').Count -ne 0) { Fail 'mode-race temp tree leaked' }
+    } finally {
+      if (-not $copyProcess.HasExited) { $copyProcess.Kill(); $copyProcess.WaitForExit() }
+      $copyProcess.Dispose()
+    }
+  } else {
+    Write-Output 'SKIP: Unix snapshot execute-mask and mode-race assertions are not applicable on Windows'
+  }
+
+  $valid = Join-Path $work 'manifests/valid.json'
+  $validSnapshot = Join-Path $work 'snapshots/run-001'
+  Write-Manifest $valid T-002 run-001 session-001 agent-001
+  & $snapshot -Manifest $valid -RepoRoot $repo -SnapshotRoot $validSnapshot | Out-Null
+  $output = @(& $validator -Manifest $valid -SnapshotRoot $validSnapshot) -join ''
+  if (-not $output.StartsWith('TASK_INPUT_OK', [StringComparison]::Ordinal)) { Fail "valid manifest was not accepted: $output" }
+  if (-not $IsWindows) {
+    $rootMode = [IO.File]::GetUnixFileMode($validSnapshot)
+    $dirMode = [IO.File]::GetUnixFileMode((Join-Path $validSnapshot 'specs/demo'))
+    $fileMode = [IO.File]::GetUnixFileMode((Join-Path $validSnapshot 'specs/demo/requirements.md'))
+    $writeBits = [IO.UnixFileMode]::UserWrite -bor [IO.UnixFileMode]::GroupWrite -bor [IO.UnixFileMode]::OtherWrite
+    if (($rootMode -band $writeBits) -or ($dirMode -band $writeBits) -or ($fileMode -band $writeBits)) {
+      Fail 'published snapshot contains writable Unix modes'
+    }
+  } elseif (-not ((Get-Item -LiteralPath (Join-Path $validSnapshot 'specs/demo/requirements.md') -Force).Attributes -band [IO.FileAttributes]::ReadOnly)) {
+    Fail 'published snapshot file is not read-only on Windows'
+  }
+  try {
+    Set-Content -LiteralPath (Join-Path $validSnapshot 'specs/demo/requirements.md') -Value "changed`n" -NoNewline -Encoding utf8 -ErrorAction Stop
+    Fail 'published snapshot permitted post-publication mutation'
+  } catch {
+    if ($_.Exception.Message.StartsWith('not ok:', [StringComparison]::Ordinal)) { throw }
+  }
+  try {
+    New-Item -ItemType File -Path (Join-Path $validSnapshot 'specs/demo/new.md') -ErrorAction Stop | Out-Null
+    Fail 'published snapshot permitted post-publication file creation'
+  } catch {
+    if ($_.Exception.Message.StartsWith('not ok:', [StringComparison]::Ordinal)) { throw }
+  }
+  try {
+    Remove-Item -LiteralPath (Join-Path $validSnapshot 'specs/demo/requirements.md') -ErrorAction Stop
+    Fail 'published snapshot permitted post-publication deletion'
+  } catch {
+    if ($_.Exception.Message.StartsWith('not ok:', [StringComparison]::Ordinal)) { throw }
+  }
+
+  foreach ($idx in 1..3) {
+    Write-Manifest (Join-Path $work "manifests/batch-$idx.json") ("T-00$idx") ("run-00$idx") ("session-00$idx") ("agent-00$idx")
+  }
+  & $validator -Batch @((Join-Path $work 'manifests/batch-1.json'), (Join-Path $work 'manifests/batch-2.json'), (Join-Path $work 'manifests/batch-3.json')) | Out-Null
+  $reuse = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/batch-3.json') | ConvertFrom-Json
+  $reuse.session_id = 'session-001'
+  $reuse | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/batch-3-reuse.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_IDENTITY { & $validator -Batch @((Join-Path $work 'manifests/batch-1.json'), (Join-Path $work 'manifests/batch-2.json'), (Join-Path $work 'manifests/batch-3-reuse.json')) }
+
+  # RT-20260821-012: adjacent + nonadjacent reuse for all three uniqueness
+  # fields, trailing-newline identity forgery, the CLI batch forms, and the
+  # -Batch/-Manifest ambiguity guard.
+  foreach ($reuseField in @('run_id', 'session_id', 'agent_instance_id')) {
+    $a1 = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/batch-1.json') | ConvertFrom-Json
+    $a1.$reuseField = "reused-$reuseField"
+    $a1 | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/reuse-a1.json') -Encoding utf8
+    $a2 = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/batch-2.json') | ConvertFrom-Json
+    $a2.$reuseField = "reused-$reuseField"
+    $a2 | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/reuse-a2.json') -Encoding utf8
+    Expect-Diagnostic TASK_INPUT_IDENTITY { & $validator -Batch @((Join-Path $work 'manifests/reuse-a1.json'), (Join-Path $work 'manifests/reuse-a2.json')) }
+    $n3 = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/batch-3.json') | ConvertFrom-Json
+    $n3.$reuseField = "reused-$reuseField"
+    $n3 | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/reuse-n3.json') -Encoding utf8
+    Expect-Diagnostic TASK_INPUT_IDENTITY { & $validator -Batch @((Join-Path $work 'manifests/reuse-a1.json'), (Join-Path $work 'manifests/batch-2.json'), (Join-Path $work 'manifests/reuse-n3.json')) }
+  }
+
+  $newline = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/batch-2.json') | ConvertFrom-Json
+  $newline.run_id = $newline.run_id + "`n"
+  $newline.session_id = $newline.session_id + "`n"
+  $newline | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/newline.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_IDENTITY { & $validator -Manifest (Join-Path $work 'manifests/newline.json') }
+  Expect-Diagnostic TASK_INPUT_IDENTITY { & $validator -Batch @((Join-Path $work 'manifests/batch-1.json'), (Join-Path $work 'manifests/newline.json')) }
+
+  # -Batch with positional leakage (the pwsh -File `-Batch a b c` shape binds
+  # b/c to -Manifest/-SnapshotRoot) must fail closed, never silently drop
+  # entries from dedupe
+  Expect-Diagnostic TASK_INPUT_JSON { & $validator -Batch @(,(Join-Path $work 'manifests/batch-1.json')) -Manifest (Join-Path $work 'manifests/batch-2.json') }
+
+  # the comma-separated single-element CLI form is the working -File batch
+  # shape and must still enforce dedupe
+  $commaOk = (& $validator -Batch ((@('batch-1.json','batch-2.json','batch-3.json') | ForEach-Object { Join-Path $work "manifests/$_" }) -join ','))
+  if (-not "$commaOk".StartsWith('TASK_INPUT_OK', [StringComparison]::Ordinal)) { Fail "comma batch form rejected a valid batch: $commaOk" }
+  Expect-Diagnostic TASK_INPUT_IDENTITY { & $validator -Batch ((@('batch-1.json','batch-2.json','batch-3-reuse.json') | ForEach-Object { Join-Path $work "manifests/$_" }) -join ',') }
+
+  Write-Manifest (Join-Path $work 'manifests/fallback-a.json') T-010 run-010 shared-session shared-agent same-session-file-reload host-does-not-support-implementation-subagents $reloadHash
+  Write-Manifest (Join-Path $work 'manifests/fallback-b.json') T-011 run-011 shared-session shared-agent same-session-file-reload host-does-not-support-implementation-subagents $reloadHash
+  foreach ($fallbackPath in @((Join-Path $work 'manifests/fallback-a.json'), (Join-Path $work 'manifests/fallback-b.json'))) {
+    $fallback = Get-Content -Raw -LiteralPath $fallbackPath | ConvertFrom-Json
+    $fallback.allowed_inputs += [pscustomobject]@{path='handoffs/reload-evidence.txt'; sha256=$reloadHash}
+    $fallback | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $fallbackPath -Encoding utf8
+  }
+  & $validator -EvidenceRoot $evidenceRoot -Batch @((Join-Path $work 'manifests/fallback-a.json'), (Join-Path $work 'manifests/fallback-b.json')) | Out-Null
+  $invented = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/fallback-a.json') | ConvertFrom-Json
+  $invented.handoff_reload_evidence_hash = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+  $invented.allowed_inputs[-1].sha256 = $invented.handoff_reload_evidence_hash
+  $invented | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/fallback-invented.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_HANDOFF { & $validator -EvidenceRoot $evidenceRoot -Batch @((Join-Path $work 'manifests/fallback-invented.json'), (Join-Path $work 'manifests/fallback-b.json')) }
+  Expect-Diagnostic TASK_INPUT_ISOLATION { & $validator -EvidenceRoot $evidenceRoot -Batch @((Join-Path $work 'manifests/batch-1.json'), (Join-Path $work 'manifests/fallback-b.json')) }
+  Set-Content -LiteralPath (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt') -Value "{`"schema`":`"fabricated`"}`n" -NoNewline -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_HANDOFF { & $validator -EvidenceRoot $evidenceRoot -Batch @((Join-Path $work 'manifests/fallback-a.json'), (Join-Path $work 'manifests/fallback-b.json')) }
+  Set-Content -LiteralPath (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt') -Value $evidenceOriginal -NoNewline -Encoding utf8
+  & $validator -EvidenceRoot $evidenceRoot -Batch @((Join-Path $work 'manifests/fallback-a.json'), (Join-Path $work 'manifests/fallback-b.json')) | Out-Null
+  $chatOnly = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/fallback-a.json') | ConvertFrom-Json
+  $chatOnly.handoff_reload_evidence_hash = ''
+  $chatOnly | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/chat-only.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_HANDOFF { & $validator -Manifest (Join-Path $work 'manifests/chat-only.json') }
+  $wrongReason = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/fallback-a.json') | ConvertFrom-Json
+  $wrongReason.fallback_reason = 'operator-prefers-one-session'
+  $wrongReason | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/wrong-fallback-reason.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_HANDOFF { & $validator -EvidenceRoot $evidenceRoot -Manifest (Join-Path $work 'manifests/wrong-fallback-reason.json') }
+
+  $bad = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json
+  $bad.task_id = 'T-999'
+  $bad | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/bad-task.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_IDENTITY { & $validator -Manifest (Join-Path $work 'manifests/bad-task.json') -ExpectedTask T-002 -SnapshotRoot $validSnapshot }
+  $bad = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json
+  $bad.allowed_inputs[0].path = '../secrets.txt'
+  $bad | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/bad-path.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_PATH { & $validator -Manifest (Join-Path $work 'manifests/bad-path.json') }
+  $bad = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json
+  $bad.allowed_inputs[0].sha256 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+  $bad | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/bad-sha.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_HASH { & $validator -Manifest (Join-Path $work 'manifests/bad-sha.json') -SnapshotRoot $validSnapshot }
+  $bad = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json
+  $bad.PSObject.Properties.Remove('cost_estimate_source')
+  $bad | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/missing-field.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_COST { & $validator -Manifest (Join-Path $work 'manifests/missing-field.json') }
+  $bad = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json
+  $bad.estimated_cost_per_attempt_usd = '1.2.3'
+  $bad | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/bad-cost.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_COST { & $validator -Manifest (Join-Path $work 'manifests/bad-cost.json') }
+  $bad = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json
+  $bad.allowed_outputs += '../outside'
+  $bad | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/bad-output.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_PATH { & $validator -Manifest (Join-Path $work 'manifests/bad-output.json') }
+  foreach ($field in @('allowed_inputs','allowed_outputs')) {
+    $bad = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json
+    $bad.$field = 'not-an-array'
+    $bad | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work "manifests/scalar-$field.json") -Encoding utf8
+    Expect-Diagnostic TASK_INPUT_PATH { & $validator -Manifest (Join-Path $work "manifests/scalar-$field.json") }
+  }
+  foreach ($timestamp in @('2026-02-29T00:00:00Z','2026-04-31T00:00:00Z','2026-12-31T24:00:00Z','2026-99-99T99:99:99Z','2026-06-30T00:00:00+00:00')) {
+    $bad = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json
+    $bad.cost_estimate_timestamp = $timestamp
+    $bad | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/bad-time.json') -Encoding utf8
+    Expect-Diagnostic TASK_INPUT_COST { & $validator -Manifest (Join-Path $work 'manifests/bad-time.json') }
+  }
+  foreach ($outputs in @(
+    @('specs/demo'),
+    @('specs'),
+    @('specs/demo/requirements.md/child'),
+    @('reports/','reports/out.md'),
+    @('reports/out.md','reports')
+  )) {
+    $bad = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json
+    $bad.allowed_outputs = $outputs
+    $bad | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/overlap.json') -Encoding utf8
+    Expect-Diagnostic TASK_INPUT_PATH { & $validator -Manifest (Join-Path $work 'manifests/overlap.json') }
+  }
+  New-Item -ItemType SymbolicLink -Path (Join-Path $repo 'specs/demo/link.md') -Target (Join-Path $repo 'specs/demo/requirements.md') | Out-Null
+  $bad = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json
+  $bad.allowed_inputs[0].path = 'specs/demo/link.md'
+  $bad.allowed_inputs[0].sha256 = $script:reqHash
+  $bad | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/symlink.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_PATH { & $snapshot -Manifest (Join-Path $work 'manifests/symlink.json') -RepoRoot $repo -SnapshotRoot (Join-Path $work 'snapshots/symlink') }
+  $external = Join-Path $work 'external/specs'
+  New-Item -ItemType Directory -Path $external -Force | Out-Null
+  Copy-Item -LiteralPath (Join-Path $repo 'specs/demo/requirements.md') -Destination (Join-Path $external 'requirements.md')
+  $linkedSnapshot = Join-Path $work 'snapshots/linked'
+  New-Item -ItemType Directory -Path $linkedSnapshot -Force | Out-Null
+  New-Item -ItemType SymbolicLink -Path (Join-Path $linkedSnapshot 'specs') -Target $external | Out-Null
+  $bad = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json
+  $bad.allowed_inputs = @([pscustomobject]@{path='specs/requirements.md'; sha256=$script:reqHash})
+  $bad | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/snapshot-parent-link.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_PATH { & $validator -Manifest (Join-Path $work 'manifests/snapshot-parent-link.json') -SnapshotRoot $linkedSnapshot }
+  $finalLinkedSnapshot = Join-Path $work 'snapshots/final-link'
+  New-Item -ItemType Directory -Path (Join-Path $finalLinkedSnapshot 'specs') -Force | Out-Null
+  New-Item -ItemType SymbolicLink -Path (Join-Path $finalLinkedSnapshot 'specs/requirements.md') -Target (Join-Path $external 'requirements.md') | Out-Null
+  Expect-Diagnostic TASK_INPUT_PATH { & $validator -Manifest (Join-Path $work 'manifests/snapshot-parent-link.json') -SnapshotRoot $finalLinkedSnapshot }
+  $rootLinkedSnapshot = Join-Path $work 'snapshots/root-link'
+  New-Item -ItemType SymbolicLink -Path $rootLinkedSnapshot -Target $validSnapshot | Out-Null
+  Expect-Diagnostic TASK_INPUT_PATH { & $validator -Manifest $valid -SnapshotRoot $rootLinkedSnapshot }
+
+  $sourceParentTarget = Join-Path $repo 'linked-parent-target'
+  New-Item -ItemType Directory -Path $sourceParentTarget -Force | Out-Null
+  Set-Content -LiteralPath (Join-Path $sourceParentTarget 'input.md') -Value "parent link input`n" -NoNewline -Encoding utf8
+  $sourceParentHash = Get-Sha256 (Join-Path $sourceParentTarget 'input.md')
+  New-Item -ItemType SymbolicLink -Path (Join-Path $repo 'linked-parent') -Target $sourceParentTarget | Out-Null
+  $bad = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json
+  $bad.allowed_inputs = @([pscustomobject]@{path='linked-parent/input.md'; sha256=$sourceParentHash})
+  $bad | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/source-parent-link.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_PATH { & $snapshot -Manifest (Join-Path $work 'manifests/source-parent-link.json') -RepoRoot $repo -SnapshotRoot (Join-Path $work 'snapshots/source-parent-link') }
+
+  if (-not $IsWindows) {
+    [IO.File]::SetUnixFileMode((Join-Path $validSnapshot 'specs/demo/requirements.md'), [IO.UnixFileMode]::UserRead -bor [IO.UnixFileMode]::UserWrite)
+  } else {
+    $target = Join-Path $validSnapshot 'specs/demo/requirements.md'
+    [IO.File]::SetAttributes($target, [IO.File]::GetAttributes($target) -band (-bnot [IO.FileAttributes]::ReadOnly))
+  }
+  Set-Content -LiteralPath (Join-Path $validSnapshot 'specs/demo/requirements.md') -Value "tampered`n" -NoNewline -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_HASH { & $validator -Manifest $valid -SnapshotRoot $validSnapshot }
+
+  $barrier = Join-Path $work 'publish-barrier'
+  $boundarySnapshot = Join-Path $work 'snapshots/publication-boundary'
+  $boundaryOut = Join-Path $work 'boundary.out'
+  $boundaryErr = Join-Path $work 'boundary.err'
+  New-Item -ItemType Directory -Path $barrier -Force | Out-Null
+  $oldBarrier = $env:SDD_TEST_SNAPSHOT_PUBLISH_BARRIER_DIR
+  $env:SDD_TEST_SNAPSHOT_PUBLISH_BARRIER_DIR = $barrier
+  try {
+    $pwshPath = (Get-Process -Id $PID).Path
+    $process = Start-Process -FilePath $pwshPath -ArgumentList @(
+      '-NoLogo','-NoProfile','-File',$snapshot,
+      '-Manifest',$valid,'-RepoRoot',$repo,'-SnapshotRoot',$boundarySnapshot
+    ) -RedirectStandardOutput $boundaryOut -RedirectStandardError $boundaryErr -PassThru
+  } finally {
+    $env:SDD_TEST_SNAPSHOT_PUBLISH_BARRIER_DIR = $oldBarrier
+  }
+  foreach ($attempt in 1..200) {
+    if (Test-Path -LiteralPath (Join-Path $barrier 'ready')) { break }
+    Start-Sleep -Milliseconds 10
+  }
+  if (-not (Test-Path -LiteralPath (Join-Path $barrier 'ready'))) { Fail 'snapshot builder did not reach publication boundary' }
+  New-Item -ItemType Directory -Path $boundarySnapshot | Out-Null
+  Set-Content -LiteralPath (Join-Path $boundarySnapshot 'marker') -Value "attacker-owned`n" -NoNewline -Encoding utf8
+  New-Item -ItemType File -Path (Join-Path $barrier 'continue') | Out-Null
+  $process.WaitForExit()
+  if ($process.ExitCode -eq 0) { Fail 'snapshot builder overwrote destination injected at publication boundary' }
+  $boundaryDiagnostic = Get-Content -Raw -LiteralPath $boundaryErr
+  if (-not $boundaryDiagnostic.Contains('TASK_INPUT_PATH:', [StringComparison]::Ordinal)) { Fail "publication-boundary rejection lost TASK_INPUT_PATH diagnostic: $boundaryDiagnostic" }
+  if ((Get-Content -Raw -LiteralPath (Join-Path $boundarySnapshot 'marker')).Trim() -cne 'attacker-owned') { Fail 'publication boundary destination was replaced' }
+
+  $selection = @(& $selector -Risk high -Candidate @('codex/fast:lightweight:0.010', 'codex/general:standard:0.030', 'codex/strong:strong:0.090')) -join ''
+  if ($selection -cne 'codex/strong strong') { Fail "unexpected selector output: $selection" }
+
+  Write-Output 'ok: PowerShell task context isolation manifests, snapshots, fallback, and selector are deterministic'
+} finally {
+  if (Test-Path -LiteralPath $work) {
+    if (-not $IsWindows) {
+      Get-ChildItem -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
+        try {
+          if ($_.PSIsContainer) {
+            [IO.File]::SetUnixFileMode($_.FullName, [IO.UnixFileMode]::UserRead -bor [IO.UnixFileMode]::UserWrite -bor [IO.UnixFileMode]::UserExecute)
+          } else {
+            [IO.File]::SetUnixFileMode($_.FullName, [IO.UnixFileMode]::UserRead -bor [IO.UnixFileMode]::UserWrite)
+          }
+        } catch {}
+      }
+    } else {
+      foreach ($snapshotRoot in @(Get-ChildItem -LiteralPath (Join-Path $work 'snapshots') -Directory -Force -ErrorAction SilentlyContinue)) {
+        try {
+          $acl = Get-Acl -LiteralPath $snapshotRoot.FullName
+          $acl.SetAccessRuleProtection($false, $false)
+          $acl.PurgeAccessRules([Security.Principal.WindowsIdentity]::GetCurrent().User)
+          Set-Acl -LiteralPath $snapshotRoot.FullName -AclObject $acl
+        } catch {}
+      }
+      Get-ChildItem -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
+        try { $_.Attributes = $_.Attributes -band (-bnot [IO.FileAttributes]::ReadOnly) } catch {}
+      }
+    }
+  }
+  Remove-Item -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue
+}

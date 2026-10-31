@@ -1,0 +1,8 @@
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -724,4 +724,3 @@
+       - name: Test hook-activation handshake suite (pwsh)
+-        if: runner.os != 'Windows'
+         shell: pwsh
+         run: ./tests/check-hook-activation-handshake.tests.ps1

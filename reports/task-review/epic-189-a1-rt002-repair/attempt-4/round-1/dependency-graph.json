@@ -1,0 +1,9 @@
+{
+  "schema": "dependency-graph/v1",
+  "feature": "epic-189-a1-rt002-repair",
+  "attempt": 4,
+  "round": 1,
+  "nodes": ["T-001","T-002"],
+  "edges": [{"from":"T-002","to":"T-001"}],
+  "generated_at": "2026-10-03T00:13:20Z"
+}

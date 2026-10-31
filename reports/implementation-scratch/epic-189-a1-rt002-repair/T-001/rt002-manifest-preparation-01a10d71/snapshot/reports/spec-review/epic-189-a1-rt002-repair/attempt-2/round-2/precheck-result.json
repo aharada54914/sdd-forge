@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-189-a1-rt002-repair",
+  "attempt": 2,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "b1cd92b7af976c2bbaa0cd14b8dd7386ce36235abb60cae683a4cb35043c5c67",
+  "acceptance_sha256": "a27a30070d6c024d9815ac20dfc06c70b1940f86b863047c70b48cce7fc550e9",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "d43dd6b9bbe352602bd5380239e9f65700c8231daf4cd7f41eff0a34313063e8",
+  "edit_summary": "Amendment provenance only: pin adopted commit and document/addendum SHA256, quote dated human authorization; preserve requirements, acceptance bytes and historical judgments.",
+  "reset": false,
+  "generated_at": "2026-09-28T15:09:42Z"
+}

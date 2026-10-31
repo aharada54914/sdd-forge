@@ -1,0 +1,36 @@
+{
+  "candidate": "v4",
+  "head": "1e86fb272643e798db4e1ca0c89f0402317a2fc8",
+  "bash": {
+    "chunk_id": "14f4c1",
+    "wall_time_seconds": 0.000004666,
+    "exit_code": 0,
+    "original_token_count": 23,
+    "output": "ok: task context isolation manifests, snapshots, fallback, and selector are deterministic\n"
+  },
+  "powershell": {
+    "chunk_id": "4e1d96",
+    "wall_time_seconds": 0.000003209,
+    "exit_code": 0,
+    "original_token_count": 26,
+    "output": "ok: PowerShell task context isolation manifests, snapshots, fallback, and selector are deterministic\n"
+  },
+  "patch_check": {
+    "exit_code": 0,
+    "applied": false
+  },
+  "stopped_child": {
+    "record": "stopped-child-v4.json",
+    "experiment_exit_code": 0,
+    "block_exit_code": 1,
+    "elapsed_seconds": 26.324561333982274,
+    "child_pid": 33961,
+    "child_absent_after_wait": true,
+    "scope": "direct child only; finite polling budget, not strict 15-second wall timeout"
+  },
+  "original_four_files_unchanged": true,
+  "windows": "NOT RUN",
+  "linux_ci": "NOT RUN",
+  "independent_v4_review": "PENDING",
+  "protected_application": "NOT PERFORMED"
+}

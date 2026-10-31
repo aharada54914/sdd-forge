@@ -1,0 +1,1 @@
+{"original_modes":[{"mode":"0644","path":"plugins/sdd-implementation/scripts/prepare-task-snapshot.sh"},{"mode":"0644","path":"plugins/sdd-implementation/scripts/prepare-task-snapshot.ps1"},{"mode":"0644","path":"tests/task-context-isolation.tests.sh"},{"mode":"0644","path":"tests/task-context-isolation.tests.ps1"}],"version":1}

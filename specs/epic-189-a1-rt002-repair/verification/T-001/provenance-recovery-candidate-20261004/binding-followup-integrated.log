@@ -1,0 +1,28 @@
+SOURCE /Users/jrmag/.codex/worktrees/issue423-approved-recovery/sdd-forge
+PATCH_SHA256 8c1f8f6ce4d44f23ae83eb3c55c4ed4b5650532c16b64bd2f9e3f9b17eb26c65
+COMMAND python3 tests/review-implementation-binding.tests.py --repo /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/rt002-binding-integrated-9znx9cw5/repo
+EXIT 0
+STDOUT
+PASS bash valid: preflight=0, reserve=0, preflight-ledger-unchanged=True, reserve-ledger-unchanged=False
+PASS bash missing-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash string-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash empty-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash duplicate-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash bad-sha: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash bad-path: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash wrong-task: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash wrong-run: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS bash undeclared-source: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh valid: preflight=0, reserve=0, preflight-ledger-unchanged=True, reserve-ledger-unchanged=False
+PASS pwsh missing-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh string-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh empty-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh duplicate-inputs: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh bad-sha: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh bad-path: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh wrong-task: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh wrong-run: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS pwsh undeclared-source: preflight=1, reserve=1, preflight-ledger-unchanged=True, reserve-ledger-unchanged=True
+PASS: 20; FAIL: 0
+
+STDERR

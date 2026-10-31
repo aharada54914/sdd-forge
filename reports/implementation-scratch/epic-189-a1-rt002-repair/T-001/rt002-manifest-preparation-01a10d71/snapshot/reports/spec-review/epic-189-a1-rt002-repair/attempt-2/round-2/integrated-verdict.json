@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-189-a1-rt002-repair",
+  "attempt": 2,
+  "round": 2,
+  "reviewer_a_run_id": "01a0e899-b00d-7952-b0ff-00c42449b6fe",
+  "reviewer_b_run_id": "01a0e89f-c675-7ef1-a888-c4198b2d7393",
+  "reviewer_a_host_session_id": "01a0e899-b00d-7952-b0ff-00c42449b6fe",
+  "reviewer_b_host_session_id": "01a0e89f-c675-7ef1-a888-c4198b2d7393",
+  "finding_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "verdict": "PASS",
+  "warningCount": 0
+}

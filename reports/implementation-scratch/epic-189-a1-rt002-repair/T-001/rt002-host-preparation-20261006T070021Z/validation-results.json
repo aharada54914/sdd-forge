@@ -1,0 +1,62 @@
+{
+  "selector": {
+    "available_candidates": [
+      "gpt-6-astra"
+    ],
+    "canonical_tier": "strong",
+    "effort": "high",
+    "effort_control": "flag",
+    "effort_source": "risk-matrix",
+    "escalation": null,
+    "estimated_cost_per_attempt_usd": "10.00",
+    "model": "gpt-6-astra",
+    "xhigh_reason": null
+  },
+  "prepare": {
+    "runtime": "bash",
+    "exit_code": 0,
+    "output": "TASK_INPUT_OK\n"
+  },
+  "validation": [
+    {
+      "cmd": "rtk proxy bash plugins/sdd-implementation/scripts/validate-task-input-manifest.sh --manifest reports/implementation-scratch/epic-189-a1-rt002-repair/T-001/rt002-host-preparation-20261006T070021Z/task-input-manifest.json --snapshot-root reports/implementation-scratch/epic-189-a1-rt002-repair/T-001/rt002-host-preparation-20261006T070021Z/snapshot --expected-task T-001",
+      "chunk_id": "1072fc",
+      "wall_time_seconds": 0.000010209,
+      "exit_code": 0,
+      "original_token_count": 4,
+      "output": "TASK_INPUT_OK\n"
+    },
+    {
+      "cmd": "rtk proxy bash plugins/sdd-implementation/scripts/validate-task-input-manifest.sh --batch reports/implementation-scratch/epic-189-a1-rt002-repair/T-001/rt002-host-preparation-20261006T070021Z/task-input-manifest.json",
+      "chunk_id": "764ea4",
+      "wall_time_seconds": 0.000006208,
+      "exit_code": 0,
+      "original_token_count": 4,
+      "output": "TASK_INPUT_OK\n"
+    },
+    {
+      "cmd": "rtk proxy pwsh -NoProfile -File plugins/sdd-implementation/scripts/validate-task-input-manifest.ps1 -Manifest reports/implementation-scratch/epic-189-a1-rt002-repair/T-001/rt002-host-preparation-20261006T070021Z/task-input-manifest.json -SnapshotRoot reports/implementation-scratch/epic-189-a1-rt002-repair/T-001/rt002-host-preparation-20261006T070021Z/snapshot -ExpectedTask T-001",
+      "chunk_id": "a1b6b8",
+      "wall_time_seconds": 1.025485583,
+      "exit_code": 0,
+      "original_token_count": 4,
+      "output": "TASK_INPUT_OK\n"
+    },
+    {
+      "cmd": "rtk proxy pwsh -NoProfile -File plugins/sdd-implementation/scripts/validate-task-input-manifest.ps1 -Batch reports/implementation-scratch/epic-189-a1-rt002-repair/T-001/rt002-host-preparation-20261006T070021Z/task-input-manifest.json",
+      "chunk_id": "8e82d1",
+      "wall_time_seconds": 0.49841825,
+      "exit_code": 0,
+      "original_token_count": 4,
+      "output": "TASK_INPUT_OK\n"
+    }
+  ],
+  "readback": {
+    "cmd": "rtk proxy node -e 'const fs=require(\"fs\"),c=require(\"crypto\"),p=require(\"path\");const base=process.argv[1],m=JSON.parse(fs.readFileSync(base+\"/task-input-manifest.json\"));const hash=f=>c.createHash(\"sha256\").update(fs.readFileSync(f)).digest(\"hex\");let bad=[],modes={};for(const x of m.allowed_inputs){let s=base+\"/snapshot/\"+x.path,src=fs.statSync(x.path).mode&511,actual=fs.statSync(s).mode&511,expected=292|(src&73);if(hash(s)!==x.sha256||hash(x.path)!==x.sha256||actual!==expected)bad.push(x.path);modes[actual.toString(8)]=(modes[actual.toString(8)]||0)+1;}let dirs=0;function walk(d){if((fs.statSync(d).mode&511)!==365)bad.push(d);dirs++;for(const e of fs.readdirSync(d,{withFileTypes:true}))if(e.isDirectory())walk(p.join(d,e.name));}walk(base+\"/snapshot\");console.log(JSON.stringify({utc:new Date().toISOString(),input_count:m.allowed_inputs.length,file_modes:modes,readonly_directories:dirs,mismatches:bad,manifest_sha256:hash(base+\"/task-input-manifest.json\")},null,2));process.exitCode=bad.length?1:0;' reports/implementation-scratch/epic-189-a1-rt002-repair/T-001/rt002-host-preparation-20261006T070021Z",
+    "chunk_id": "6e8dc1",
+    "wall_time_seconds": 0.0000065,
+    "exit_code": 0,
+    "original_token_count": 63,
+    "output": "{\n  \"utc\": \"2026-10-06T07:04:26.556Z\",\n  \"input_count\": 86,\n  \"file_modes\": {\n    \"444\": 83,\n    \"555\": 3\n  },\n  \"readonly_directories\": 49,\n  \"mismatches\": [],\n  \"manifest_sha256\": \"ba0fc7b153608bcdb8a7e9461fc2220085f2d2bec6d7089418058aa05b47486a\"\n}\n"
+  }
+}

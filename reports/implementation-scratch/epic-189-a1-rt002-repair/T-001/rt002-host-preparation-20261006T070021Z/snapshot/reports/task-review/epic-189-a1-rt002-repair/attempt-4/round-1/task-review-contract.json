@@ -1,0 +1,72 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-189-a1-rt002-repair",
+  "run_id": "collaboration:rt002-a4r1-integration:20261003-1",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 4,
+  "workflow_match_precheck": "PASS",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "b319feab9659915dfba970f371648325b9801ffa6aaa28b6acce47949f61997a",
+  "acceptance_sha256": "a27a30070d6c024d9815ac20dfc06c70b1940f86b863047c70b48cce7fc550e9",
+  "design_sha256": "a0532e6d053ff9113c66d718e32ce7a2fea81d72e6608de8418a9e77adb54890",
+  "tasks_sha256": "94ccc8f60f89f09f2f91fd81b6b14a8a45480444f7b76d3dbe274cfa0f460dd2",
+  "traceability_sha256": "0d19c24ab9d585f6649bdbc617ebace191d0c3d312a9f10f518b76784703e2b6",
+  "layer_sha256": {
+    "ux-spec.md": "629447b7835f52e1f1bb2f3e2e8d7c5ce0587e54ce17696fa016143e55fc113b",
+    "frontend-spec.md": "d44ce61d3112522e02363f9bfacbb307a44975dd3eeb1a7ac07d1a906b54b045",
+    "infra-spec.md": "3e334d055417e30229fc9cb10749dcf73ffbf4c55cdef3e721ed11e678cdfced",
+    "security-spec.md": "0bcbf5eafb7b8e333d3142ed75fc43557a3bf2d4648b5f788c068d7cfa4b16c8"
+  },
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "collaboration:rt002-a4r1-a:20261003-1",
+      "host_session_id": "collaboration:rt002-a4r1-a:20261003-1",
+      "allowed_input_manifest": [
+        {"path":"specs/epic-189-a1-rt002-repair/tasks.md","sha256":"94ccc8f60f89f09f2f91fd81b6b14a8a45480444f7b76d3dbe274cfa0f460dd2"},
+        {"path":"specs/epic-189-a1-rt002-repair/requirements.md","sha256":"b319feab9659915dfba970f371648325b9801ffa6aaa28b6acce47949f61997a"},
+        {"path":"specs/epic-189-a1-rt002-repair/acceptance-tests.md","sha256":"a27a30070d6c024d9815ac20dfc06c70b1940f86b863047c70b48cce7fc550e9"},
+        {"path":"specs/epic-189-a1-rt002-repair/design.md","sha256":"a0532e6d053ff9113c66d718e32ce7a2fea81d72e6608de8418a9e77adb54890"},
+        {"path":"specs/epic-189-a1-rt002-repair/traceability.md","sha256":"0d19c24ab9d585f6649bdbc617ebace191d0c3d312a9f10f518b76784703e2b6"},
+        {"path":"specs/epic-189-a1-rt002-repair/ux-spec.md","sha256":"629447b7835f52e1f1bb2f3e2e8d7c5ce0587e54ce17696fa016143e55fc113b"},
+        {"path":"specs/epic-189-a1-rt002-repair/frontend-spec.md","sha256":"d44ce61d3112522e02363f9bfacbb307a44975dd3eeb1a7ac07d1a906b54b045"},
+        {"path":"specs/epic-189-a1-rt002-repair/infra-spec.md","sha256":"3e334d055417e30229fc9cb10749dcf73ffbf4c55cdef3e721ed11e678cdfced"},
+        {"path":"specs/epic-189-a1-rt002-repair/security-spec.md","sha256":"0bcbf5eafb7b8e333d3142ed75fc43557a3bf2d4648b5f788c068d7cfa4b16c8"},
+        {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+        {"path":"reports/task-review/epic-189-a1-rt002-repair/attempt-4/round-1/precheck-result.json","sha256":"da2c2b3d8ff1fa7fc359067fb9ed759bdc197c1c675f82b1b212e49eec46f91e"},
+        {"path":"reports/task-review/epic-189-a1-rt002-repair/attempt-4/round-1/dependency-graph.json","sha256":"05b1c65244487ab5e46065474b5839f86b22031981877d765c5b9495b5ec24af"}
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "collaboration:rt002-a4r1-b:20261003-1",
+      "host_session_id": "collaboration:rt002-a4r1-b:20261003-1",
+      "allowed_input_manifest": [
+        {"path":"specs/epic-189-a1-rt002-repair/tasks.md","sha256":"94ccc8f60f89f09f2f91fd81b6b14a8a45480444f7b76d3dbe274cfa0f460dd2"},
+        {"path":"specs/epic-189-a1-rt002-repair/requirements.md","sha256":"b319feab9659915dfba970f371648325b9801ffa6aaa28b6acce47949f61997a"},
+        {"path":"specs/epic-189-a1-rt002-repair/acceptance-tests.md","sha256":"a27a30070d6c024d9815ac20dfc06c70b1940f86b863047c70b48cce7fc550e9"},
+        {"path":"specs/epic-189-a1-rt002-repair/design.md","sha256":"a0532e6d053ff9113c66d718e32ce7a2fea81d72e6608de8418a9e77adb54890"},
+        {"path":"specs/epic-189-a1-rt002-repair/traceability.md","sha256":"0d19c24ab9d585f6649bdbc617ebace191d0c3d312a9f10f518b76784703e2b6"},
+        {"path":"specs/epic-189-a1-rt002-repair/ux-spec.md","sha256":"629447b7835f52e1f1bb2f3e2e8d7c5ce0587e54ce17696fa016143e55fc113b"},
+        {"path":"specs/epic-189-a1-rt002-repair/frontend-spec.md","sha256":"d44ce61d3112522e02363f9bfacbb307a44975dd3eeb1a7ac07d1a906b54b045"},
+        {"path":"specs/epic-189-a1-rt002-repair/infra-spec.md","sha256":"3e334d055417e30229fc9cb10749dcf73ffbf4c55cdef3e721ed11e678cdfced"},
+        {"path":"specs/epic-189-a1-rt002-repair/security-spec.md","sha256":"0bcbf5eafb7b8e333d3142ed75fc43557a3bf2d4648b5f788c068d7cfa4b16c8"},
+        {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+        {"path":"reports/task-review/epic-189-a1-rt002-repair/attempt-4/round-1/precheck-result.json","sha256":"da2c2b3d8ff1fa7fc359067fb9ed759bdc197c1c675f82b1b212e49eec46f91e"},
+        {"path":"reports/task-review/epic-189-a1-rt002-repair/attempt-4/round-1/integrated-summary.json","sha256":"75a62a7a14cf28df905ada2107ae0dd95f436e742b3968a1cebd0e571366045b"},
+        {"path":"plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"},
+        {"path":"plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"}
+      ]
+    }
+  ],
+  "human_edit_summary": "Human-authorized 2026-10-02 limited T-001 Done When 4 restoration criterion amendment. Post-implementation provenance re-review binds the current task body; historical chronology remains unverified.",
+  "timestamp": "2026-10-03T00:23:00Z"
+}

@@ -391,6 +391,10 @@
       "profile": "full"
     },
     {
+      "feature": "epic-189-a1-rt002-repair",
+      "profile": "full"
+    },
+    {
       "feature": "design-sync-scan",
       "profile": "full"
     },

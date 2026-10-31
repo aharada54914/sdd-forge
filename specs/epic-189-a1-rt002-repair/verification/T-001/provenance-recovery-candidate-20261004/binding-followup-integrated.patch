@@ -1,0 +1,499 @@
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -34,6 +34,9 @@
+       - name: Test evaluator scratch isolation (Bash and PowerShell)
+         shell: bash
+         run: python3 tests/issue311-scratch-isolation.tests.py --repo "$GITHUB_WORKSPACE"
++      - name: Test evaluator implementation binding (Bash and PowerShell)
++        shell: bash
++        run: python3 tests/review-implementation-binding.tests.py --repo "$GITHUB_WORKSPACE"
+       - name: Test guard dispatch fallback
+         shell: bash
+         run: bash ./tests/guard-dispatch-fallback.tests.sh
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+@@ -261,9 +261,17 @@
+   jq -e --arg task "$task_id" '
+     .schema == "task-input-manifest/v1" and .task_id == $task and
+     (.run_id | type == "string" and length > 0) and
+-    (.session_id | type == "string" and length > 0)
++    (.session_id | type == "string" and length > 0) and
++    (.allowed_inputs | type == "array" and length > 0) and
++    all(.allowed_inputs[]; type == "object" and (keys | sort) == ["path","sha256"] and
++      (.path | type == "string" and (explode | all(.[]; . >= 32 and . != 127))) and
++      (.sha256 | type == "string" and length == 64 and test("^[0-9a-f]{64}$"))) and
++    (([.allowed_inputs[].path] | unique | length) == (.allowed_inputs | length))
+   ' "$implementation_manifest" >/dev/null 2>&1 ||
+-    fail IDENTITY 'implementation manifest task/run/session is invalid'
++    fail IDENTITY 'implementation manifest task/run/session/inputs is invalid'
++  while IFS= read -r pinned; do
++    is_canonical_path "$pinned" || fail IDENTITY 'implementation manifest input path is invalid'
++  done < <(jq -r '.allowed_inputs[].path' "$implementation_manifest")
+   implementation_run=$(jq -r '.run_id' "$implementation_manifest")
+   implementation_session=$(jq -r '.session_id' "$implementation_manifest")
+   implementation_report="$repository_root/$implementation_report_path"
+@@ -983,8 +991,10 @@
+ # New evaluator reservations use the implementation task manifest, not a
+ # fabricated implementation record in the reviewer/evaluator ledger. All
+ # referenced files have passed the ordinary path and hash loop above.
++if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
++  verify_implementation_binding
++fi
+ if $reserve && [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+-  verify_implementation_binding
+   if jq -e --arg run "$implementation_run" --arg session "$implementation_session" '
+     any(.records[]; .run_id == $run or .host_session_id == $session)
+   ' "$ledger" >/dev/null; then
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+@@ -29,7 +29,7 @@
+     param([string]$Path)
+     return (
+         $Path -is [string] -and
+-        $Path -cmatch '^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*$' -and
++        $Path -cmatch '^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*\z' -and
+         $Path -cnotmatch '(^|/)\.\.?(/|$)' -and
+         $Path -cnotmatch '^[A-Za-z]:' -and
+         -not $Path.Contains('\')
+@@ -133,6 +133,19 @@
+             $implementation.run_id -isnot [string] -or $implementation.run_id.Length -eq 0 -or
+             $implementation.session_id -isnot [string] -or $implementation.session_id.Length -eq 0) {
+             Fail-ReviewContext 'IDENTITY' 'implementation manifest task/run/session is invalid'
++        }
++        if ($implementation.allowed_inputs -isnot [array] -or $implementation.allowed_inputs.Count -eq 0) {
++            Fail-ReviewContext 'IDENTITY' 'implementation manifest allowed_inputs is invalid'
++        }
++        $seenInputs = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
++        foreach ($entry in $implementation.allowed_inputs) {
++            if ($entry -isnot [hashtable] -or -not (Test-ExactKeys $entry @('path','sha256')) -or
++                $entry.path -isnot [string] -or -not (Test-CanonicalPath $entry.path) -or
++                -not $seenInputs.Add($entry.path) -or
++                $entry.sha256 -isnot [string] -or $entry.sha256.Length -ne 64 -or
++                $entry.sha256 -cnotmatch '^[0-9a-f]{64}$') {
++                Fail-ReviewContext 'IDENTITY' 'implementation manifest allowed_inputs is invalid'
++            }
+         }
+         if (@($implementationReportLines | Where-Object { $_.StartsWith('Run ID: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
+             @($implementationReportLines | Where-Object { $_.StartsWith('- **Run ID**: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
+@@ -1057,8 +1070,10 @@
+             }
+         }
+     }
++    if ("$($document.stage):$($document.role)" -ceq 'quality:sdd-evaluator') {
++        $implementation = Get-ImplementationBinding
++    }
+     if ($Reserve -and "$($document.stage):$($document.role)" -ceq 'quality:sdd-evaluator') {
+-        $implementation = Get-ImplementationBinding
+         if (@($records | Where-Object {
+             $_.run_id -ceq $implementation.run_id -or $_.host_session_id -ceq $implementation.session_id
+         }).Count -gt 0) {
+--- a/plugins/sdd-review-loop/references/review-context-boundary.md
++++ b/plugins/sdd-review-loop/references/review-context-boundary.md
+@@ -20,9 +20,9 @@
+ `--reserve` runs in this order:
+ 
+ 1. Validate every manifest field, including `identity_ledger_sha256`, against the
+-   ledger **as it stands before the reservation** (`:679`, and again under the
+-   reservation lock at `:1221`).
+-2. Append the reserved record to the ledger (`:1231-1243`).
++   ledger **as it stands before the reservation** (`:687`, and again under the
++   reservation lock at `:1231`).
++2. Append the reserved record to the ledger (`:1241-1253`).
+ 3. Print the `REVIEW_CONTEXT_OK` line — the record hash followed by the
+    chain facts the validator proved before printing (WFI-037):
+    `REVIEW_CONTEXT_OK <record_sha256> sequence=<n> previous_record_sha256=<hash|-> pre_append_tip_sequence=<n|-> identity_unique=yes`.
+@@ -39,20 +39,20 @@
+ 
+ | Field | Validator checks | Reviewer re-verifies? |
+ |---|---|---|
+-| `schema` | must equal `review-context-invocation/v2` (`:441`) | **yes** — cheap, and a wrong schema means a wrong contract |
+-| `input_mode` | must equal `file-manifest` (`:442`) | **yes** |
+-| `fallback_mode` | must equal `none` (`:443`) | **yes** |
+-| `read_only` | must equal `true` (`:444`) | **yes** |
+-| `stage`, `role` | must be an authorized pair (`:492-494`) | **yes** — confirm they match the role you actually are |
+-| `feature` | charset only (`:445`) | **yes** — confirm it is the feature you were asked to review |
+-| `sequence` | integer >= 2, and must equal `last_record.sequence + 1` (`:446`, `:681`) | **yes** — via the caller-quoted `REVIEW_CONTEXT_OK` line, see below |
+-| `previous_record_sha256` | must equal the last record's `record_sha256` (`:681`) | **yes** — via the caller-quoted line; this is the chain |
+-| `identity_ledger_path` | must be exactly `reports/review-context/identity-ledger.json` (`:447`) | **yes** — it is a constant |
+-| `identity_ledger_sha256` | hex-format (`:448`); equality against the ledger **before** the append (`:679`, `:1221`) | **NO — see below** |
+-| `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:875-889`) | **yes** — and read nothing outside it |
+-| `allowed_input_manifest[].sha256` | equality against the file on disk (`:951-954`) | **yes** — this is the substantive integrity check |
+-| `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:418`, `:701-714`) | **yes** |
+-| `gate_report_declaration` (quality stage only, OPTIONAL) | shape (`:425-430`); the named document must be a canonical, symlink-free, regular file under `reports/quality-gate/` and must hash to the pinned `sha256` before any row is read from it (`:733-748`); its `## Post-Fix Artifacts` rows then authorize manifest entries the frozen implementation report cannot describe (`:242-247`, WFI-036) | **yes** -- it is a second authorization source, so confirm it is the gate report for the cycle you were launched for |
++| `schema` | must equal `review-context-invocation/v2` (`:449`) | **yes** — cheap, and a wrong schema means a wrong contract |
++| `input_mode` | must equal `file-manifest` (`:450`) | **yes** |
++| `fallback_mode` | must equal `none` (`:451`) | **yes** |
++| `read_only` | must equal `true` (`:452`) | **yes** |
++| `stage`, `role` | must be an authorized pair (`:500-502`) | **yes** — confirm they match the role you actually are |
++| `feature` | charset only (`:453`) | **yes** — confirm it is the feature you were asked to review |
++| `sequence` | integer >= 2, and must equal `last_record.sequence + 1` (`:454`, `:689`) | **yes** — via the caller-quoted `REVIEW_CONTEXT_OK` line, see below |
++| `previous_record_sha256` | must equal the last record's `record_sha256` (`:689`) | **yes** — via the caller-quoted line; this is the chain |
++| `identity_ledger_path` | must be exactly `reports/review-context/identity-ledger.json` (`:455`) | **yes** — it is a constant |
++| `identity_ledger_sha256` | hex-format (`:456`); equality against the ledger **before** the append (`:687`, `:1231`) | **NO — see below** |
++| `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:883-897`) | **yes** — and read nothing outside it |
++| `allowed_input_manifest[].sha256` | equality against the file on disk (`:959-962`) | **yes** — this is the substantive integrity check |
++| `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:426`, `:709-722`) | **yes** |
++| `gate_report_declaration` (quality stage only, OPTIONAL) | shape (`:433-438`); the named document must be a canonical, symlink-free, regular file under `reports/quality-gate/` and must hash to the pinned `sha256` before any row is read from it (`:741-756`); its `## Post-Fix Artifacts` rows then authorize manifest entries the frozen implementation report cannot describe (`:242-247`, WFI-036) | **yes** -- it is a second authorization source, so confirm it is the gate report for the cycle you were launched for |
+ 
+ ## `identity_ledger_sha256`: do not re-verify
+ 
+@@ -97,7 +97,7 @@
+ 3. `<record_sha256>` recomputes as
+    `sha256("<sequence>|<stage>|<role>|<run_id>|<host_session_id>|<previous_record_sha256>")`
+    from your manifest's own fields — the same construction the validator
+-   uses at `:573` and `:1209`. (evidence: caller-quoted line + manifest)
++   uses at `:581` and `:1219`. (evidence: caller-quoted line + manifest)
+    For new scratch-bound quality reservations, compute the declaration digest as
+    SHA256 of UTF-8 `feature + LF + scratch_root` with no terminal newline. Append
+    `|scratch-declaration-v1|<declaration digest>` to the original chain text before
+--- a/tests/issue311-scratch-isolation.tests.py
++++ b/tests/issue311-scratch-isolation.tests.py
+@@ -26,8 +26,18 @@
+         first["record_sha256"] = digest(b"1|implementation|implementer|impl|impl-session|")
+         records = [first]
+         implementation_manifest = root / "handoffs/fixture/manifest.json"
+-        write_json(implementation_manifest, dict(schema="task-input-manifest/v1", task_id="T-001",
+-                                                 run_id="worker-run", session_id="worker-session"))
++        requirement = root / "specs/f/requirements.md"
++        requirement.parent.mkdir(parents=True)
++        requirement.write_text("requirements\n")
++        write_json(implementation_manifest, dict(
++            schema="task-input-manifest/v1", task_id="T-001", run_id="worker-run",
++            session_id="worker-session", agent_instance_id="worker-agent",
++            model_tier="standard", provider="codex", model="codex-general-medium",
++            estimated_cost_per_attempt_usd="0.125", cost_estimate_source="fixture-2026-10-04",
++            cost_estimate_timestamp="2026-10-04T00:00:00Z", isolation_mode="fresh-agent",
++            fallback_reason="", handoff_reload_evidence_hash="",
++            allowed_inputs=[dict(path="specs/f/requirements.md", sha256=digest(requirement.read_bytes()))],
++            allowed_outputs=["reports/implementation/f/T-001.md"]))
+         implementation_hash = digest(implementation_manifest.read_bytes())
+         report = root / "reports/implementation/f/T-001.md"
+         report.parent.mkdir(parents=True)
+--- a/tests/review-scratch-history.tests.py
++++ b/tests/review-scratch-history.tests.py
+@@ -26,8 +26,18 @@
+         first["record_sha256"] = digest(b"1|implementation|implementer|impl|impl-session|")
+         records = [first]
+         implementation_manifest = root / "handoffs/fixture/manifest.json"
+-        write_json(implementation_manifest, dict(schema="task-input-manifest/v1", task_id="T-001",
+-                                                 run_id="worker-run", session_id="worker-session"))
++        requirement = root / "specs/f/requirements.md"
++        requirement.parent.mkdir(parents=True)
++        requirement.write_text("requirements\n")
++        write_json(implementation_manifest, dict(
++            schema="task-input-manifest/v1", task_id="T-001", run_id="worker-run",
++            session_id="worker-session", agent_instance_id="worker-agent",
++            model_tier="standard", provider="codex", model="codex-general-medium",
++            estimated_cost_per_attempt_usd="0.125", cost_estimate_source="fixture-2026-10-04",
++            cost_estimate_timestamp="2026-10-04T00:00:00Z", isolation_mode="fresh-agent",
++            fallback_reason="", handoff_reload_evidence_hash="",
++            allowed_inputs=[dict(path="specs/f/requirements.md", sha256=digest(requirement.read_bytes()))],
++            allowed_outputs=["reports/implementation/f/T-001.md"]))
+         implementation_hash = digest(implementation_manifest.read_bytes())
+         report = root / "reports/implementation/f/T-001.md"
+         report.parent.mkdir(parents=True)
+--- a/tests/review-agent-isolation.tests.sh
++++ b/tests/review-agent-isolation.tests.sh
+@@ -80,7 +80,16 @@
+   printf '{}\n' > "$repository/reports/task-review/f/attempt-1/round-1/precheck-result.json"
+   printf 'authorized output\n' > "$repository/plugins/task/authorized-output.txt"
+   printf 'unrelated plugin input\n' > "$repository/plugins/internal/arbitrary-existing.txt"
+-  jq -n '{schema:"task-input-manifest/v1",task_id:"T-001",run_id:"worker-run",session_id:"worker-session"}' \
++  local requirement_hash
++  requirement_hash="$(sha256 "$repository/specs/f/requirements.md")"
++  jq -n --arg req "$requirement_hash" '{
++    schema:"task-input-manifest/v1",task_id:"T-001",run_id:"worker-run",session_id:"worker-session",
++    agent_instance_id:"worker-agent",model_tier:"standard",provider:"codex",model:"codex-general-medium",
++    estimated_cost_per_attempt_usd:"0.125",cost_estimate_source:"fixture-2026-10-04",
++    cost_estimate_timestamp:"2026-10-04T00:00:00Z",isolation_mode:"fresh-agent",
++    fallback_reason:"",handoff_reload_evidence_hash:"",
++    allowed_inputs:[{path:"specs/f/requirements.md",sha256:$req}],
++    allowed_outputs:["reports/implementation/f/T-001.md"]}' \
+     > "$repository/handoffs/fixture/manifest.json"
+   local authorized_output_hash
+   authorized_output_hash="$(sha256 "$repository/plugins/task/authorized-output.txt")"
+@@ -146,6 +155,19 @@
+     local implementation_report="$repository/reports/implementation/f/T-001.md"
+     if ! grep -Fq '**Scratch Root**:' "$implementation_report"; then
+       printf '%s\n' '- **Scratch Root**: /tmp/implementation-f' >> "$implementation_report"
++    fi
++    if ! grep -q '^Run ID: ' "$implementation_report"; then
++      printf '%s\n' 'Run ID: worker-run' >> "$implementation_report"
++    fi
++    if ! grep -Fq -- '- **Run ID**: ' "$implementation_report"; then
++      printf '%s\n' '- **Run ID**: worker-run' >> "$implementation_report"
++    fi
++    if ! grep -Fq -- '- **Session ID**: ' "$implementation_report"; then
++      printf '%s\n' '- **Session ID**: worker-session' >> "$implementation_report"
++    fi
++    if ! grep -q '^Input manifest:' "$implementation_report"; then
++      printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' \
++        "$(sha256 "$repository/handoffs/fixture/manifest.json")" >> "$implementation_report"
+     fi
+   fi
+   ledger_hash="$(sha256 "$ledger")"
+--- a/tests/review-context-boundary.tests.sh
++++ b/tests/review-context-boundary.tests.sh
+@@ -81,25 +81,25 @@
+ anchors() {
+   cat <<'ANCHORS'
+ # The flat contract predicates in the manifest jq filter.
+-:441 validator .schema == "review-context-invocation/v2"
+-:442 validator .input_mode == "file-manifest"
+-:443 validator .fallback_mode == "none"
+-:444 validator .read_only == true
+-:445 validator .feature | type == "string" and test(
+-:446 validator .sequence | type == "number" and floor == . and . >= 2
+-:447 validator .identity_ledger_path == "reports/review-context/identity-ledger.json"
+-:448 validator .identity_ledger_sha256 | type == "string" and test("^[0-9a-f]{64}$")
+-:418 validator .task_id | type == "string" and test("^T-[0-9]{3}$")
++:449 validator .schema == "review-context-invocation/v2"
++:450 validator .input_mode == "file-manifest"
++:451 validator .fallback_mode == "none"
++:452 validator .read_only == true
++:453 validator .feature | type == "string" and test(
++:454 validator .sequence | type == "number" and floor == . and . >= 2
++:455 validator .identity_ledger_path == "reports/review-context/identity-ledger.json"
++:456 validator .identity_ledger_sha256 | type == "string" and test("^[0-9a-f]{64}$")
++:426 validator .task_id | type == "string" and test("^T-[0-9]{3}$")
+ 
+ # The optional quality-stage gate-report declaration: presence gate and shape.
+-:425-430 validator if has("gate_report_declaration") then
+-:425-430 validator (keys | sort) == ["path", "sha256"]
++:433-438 validator if has("gate_report_declaration") then
++:433-438 validator (keys | sort) == ["path", "sha256"]
+ 
+ # The declared gate report must be canonical, symlink-free, a regular file
+ # under reports/quality-gate/, and hash to the pinned value before any row is
+ # read from it.
+-:733-748 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
+-:733-748 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
++:741-756 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
++:741-756 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
+ 
+ # Its `## Post-Fix Artifacts` rows are the second authorization source.
+ :242-247 validator gate_report_output_is_declared() {
+@@ -107,8 +107,8 @@
+ 
+ # stage/role must be an authorized pair. The identically-shaped `case` inside
+ # path_is_authorized is NOT this one, which is why the fail arm is pinned too.
+-:492-494 validator case "$stage:$role" in
+-:492-494 validator fail CONTRACT 'stage and role are not an authorized invocation pair'
++:500-502 validator case "$stage:$role" in
++:500-502 validator fail CONTRACT 'stage and role are not an authorized invocation pair'
+ 
+ # No rows for the ledger's global-uniqueness check or for the line that prints
+ # REVIEW_CONTEXT_OK. The document describes both -- the WFI-037 rewrite states
+@@ -120,34 +120,34 @@
+ 
+ # identity_ledger_sha256 equality: before the reservation, and again under the
+ # reservation lock.
+-:679 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
+-:1221 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
++:687 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
++:1231 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
+ 
+ # The chain position this invocation must occupy.
+-:681 validator [[ "$sequence" -eq "$expected_sequence"
++:689 validator [[ "$sequence" -eq "$expected_sequence"
+ 
+ # The record-hash construction a reviewer is told to recompute: the chain-walk
+ # copy the validator verifies existing records with, and the reservation copy it
+ # builds the new record with. The document cites both as "the same construction".
+-:573 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
+-:1209 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
++:581 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
++:1219 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
+ 
+ # task_id shape, and the implementation report that must carry it.
+-:701-714 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+-:701-714 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
++:709-722 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
++:709-722 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
+ 
+ # Manifest path admission: canonical, not a raw reviewer report, role-authorized,
+ # no symlink component. One row per clause the field table claims.
+-:875-889 validator is_canonical_path "$path"
+-:875-889 validator is_forbidden_review_output "$path"
+-:875-889 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
++:883-897 validator is_canonical_path "$path"
++:883-897 validator is_forbidden_review_output "$path"
++:883-897 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
+ 
+ # Manifest hash equality against the file on disk.
+-:951-954 validator actual_hash=$(printf '%s' "$content_base64" | base64 -d | sha256_text)
+-:951-954 validator actual_hash=$(sha256_file "$candidate")
++:959-962 validator actual_hash=$(printf '%s' "$content_base64" | base64 -d | sha256_text)
++:959-962 validator actual_hash=$(sha256_file "$candidate")
+ 
+ # The append.
+-:1231-1243 validator '.records += [{
++:1241-1253 validator '.records += [{
+ 
+ # The two impl-review-precheck claims. The previous-round-summary requirement
+ # lives in the shared lib since the #325 consolidation; the mode admission is
+--- a/tests/run-all.sh
++++ b/tests/run-all.sh
+@@ -67,6 +67,16 @@
+   echo "SKIP: issue311-scratch-isolation.tests.py requires python3 and pwsh"
+ fi
+ 
++if command -v python3 >/dev/null 2>&1 && command -v pwsh >/dev/null 2>&1; then
++  echo "==> tests/review-implementation-binding.tests.py"
++  if ! python3 tests/review-implementation-binding.tests.py --repo "$ROOT"; then
++    echo "FAILED: tests/review-implementation-binding.tests.py"
++    failed+=("tests/review-implementation-binding.tests.py")
++  fi
++else
++  echo "SKIP: review-implementation-binding.tests.py requires python3 and pwsh"
++fi
++
+ if [[ ${#failed[@]} -gt 0 ]]; then
+   printf '\n%d failing suite(s):\n' "${#failed[@]}"
+   printf '  %s\n' "${failed[@]}"
+--- /dev/null
++++ b/tests/review-implementation-binding.tests.py
+@@ -0,0 +1,143 @@
++"""Evaluator implementation-manifest binding, using disposable fixture ledgers only."""
++
++import argparse
++import importlib.util
++import json
++import pathlib
++import shutil
++import subprocess
++
++
++def load_fixture(repo):
++    path = repo / "tests/issue311-scratch-isolation.tests.py"
++    spec = importlib.util.spec_from_file_location("issue311_fixture", path)
++    module = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(module)
++    return module
++
++
++def exercise(fixture, repo, runtime, variant):
++    actual_run = subprocess.run
++    captured = []
++
++    def intercept(command, *args, **kwargs):
++        invocation = pathlib.Path(command[2] if runtime == "bash" else command[5])
++        root = invocation.parent
++        data = json.loads(invocation.read_text())
++        manifest_path = root / data["implementation_manifest"]["path"]
++        task_data = json.loads(manifest_path.read_text())
++        report = root / "reports/implementation/f/T-001.md"
++        if variant == "missing-inputs":
++            task_data.pop("allowed_inputs")
++        elif variant == "string-inputs":
++            task_data["allowed_inputs"] = "specs/f/requirements.md"
++        elif variant == "empty-inputs":
++            task_data["allowed_inputs"] = []
++        elif variant == "duplicate-inputs":
++            task_data["allowed_inputs"].append(dict(task_data["allowed_inputs"][0]))
++        elif variant == "bad-sha":
++            task_data["allowed_inputs"][0]["sha256"] = "g" * 64
++        elif variant == "trailing-newline-sha":
++            task_data["allowed_inputs"][0]["sha256"] += "\n"
++        elif variant == "bad-path":
++            task_data["allowed_inputs"][0]["path"] = "../requirements.md"
++        elif variant == "newline-path":
++            task_data["allowed_inputs"][0]["path"] = "foo\nbar"
++        elif variant == "trailing-newline-path":
++            task_data["allowed_inputs"][0]["path"] = "foo\n"
++        elif variant == "tab-path":
++            task_data["allowed_inputs"][0]["path"] = "foo\tbar"
++        elif variant == "nul-path":
++            task_data["allowed_inputs"][0]["path"] = "foo\x00bar"
++        elif variant == "numeric-path":
++            task_data["allowed_inputs"][0]["path"] = 123
++        elif variant == "boolean-path":
++            task_data["allowed_inputs"][0]["path"] = True
++        elif variant == "wrong-task":
++            task_data["task_id"] = "T-002"
++        elif variant == "wrong-run":
++            task_data["run_id"] = "other-worker-run"
++        elif variant not in ("valid", "undeclared-source"):
++            raise ValueError(variant)
++        old_hash = data["implementation_manifest"]["sha256"]
++        fixture.write_json(manifest_path, task_data)
++        new_hash = fixture.digest(manifest_path.read_bytes())
++        report.write_text(report.read_text().replace(old_hash, new_hash))
++        data["implementation_manifest"]["sha256"] = new_hash
++        for entry in data["allowed_input_manifest"]:
++            if entry["path"] == "handoffs/fixture/manifest.json":
++                entry["sha256"] = new_hash
++            elif entry["path"] == "reports/implementation/f/T-001.md":
++                entry["sha256"] = fixture.digest(report.read_bytes())
++        fixture.write_json(invocation, data)
++        ledger = root / "reports/review-context/identity-ledger.json"
++        before = ledger.read_bytes()
++        flag = "--reserve" if runtime == "bash" else "-Reserve"
++        preflight = actual_run(command, capture_output=True, text=True, timeout=40)
++        preflight_unchanged = ledger.read_bytes() == before
++        reserve = actual_run(command + [flag], capture_output=True, text=True, timeout=40)
++        captured.append((preflight, reserve, preflight_unchanged, ledger.read_bytes() == before))
++        raise StopIteration
++
++    subprocess.run = intercept
++    try:
++        try:
++            fixture.exercise(repo, runtime,
++                             "dependency-undeclared" if variant == "undeclared-source" else "dependency-output-declared")
++        except StopIteration:
++            pass
++    finally:
++        subprocess.run = actual_run
++    return captured[0]
++
++
++def main():
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--repo", type=pathlib.Path, required=True)
++    args = parser.parse_args()
++    repo = args.repo.resolve()
++    fixture = load_fixture(repo)
++    failures = 0
++    count = 0
++    for runtime in ("bash", "pwsh"):
++        if not shutil.which(runtime):
++            raise SystemExit(f"required runtime missing: {runtime}")
++        for variant in ("valid", "missing-inputs", "string-inputs", "empty-inputs",
++                        "duplicate-inputs", "bad-sha", "trailing-newline-sha", "bad-path",
++                        "newline-path", "trailing-newline-path",
++                        "tab-path", "nul-path", "numeric-path", "boolean-path", "wrong-task",
++                        "wrong-run", "undeclared-source"):
++            pre, reserve, pre_unchanged, reserve_unchanged = exercise(fixture, repo, runtime, variant)
++            valid = variant == "valid"
++            passed = (pre.returncode == 0) == valid and (reserve.returncode == 0) == valid
++            passed = passed and pre_unchanged and (reserve_unchanged == (not valid))
++            if not valid:
++                if variant == "undeclared-source":
++                    expected = "REVIEW_CONTEXT_PATH: sdd-evaluator contains a real but role-unlisted path"
++                elif variant == "wrong-task":
++                    expected = ("REVIEW_CONTEXT_IDENTITY: implementation manifest task/run/session/inputs is invalid"
++                                if runtime == "bash" else
++                                "REVIEW_CONTEXT_IDENTITY: implementation manifest task/run/session is invalid")
++                elif variant == "wrong-run":
++                    expected = "REVIEW_CONTEXT_IDENTITY: implementation report run/session does not match its manifest"
++                elif runtime == "pwsh":
++                    expected = "REVIEW_CONTEXT_IDENTITY: implementation manifest allowed_inputs is invalid"
++                elif variant == "bad-path":
++                    expected = "REVIEW_CONTEXT_IDENTITY: implementation manifest input path is invalid"
++                else:
++                    expected = "REVIEW_CONTEXT_IDENTITY: implementation manifest task/run/session/inputs is invalid"
++                passed = passed and all(expected in result.stderr for result in (pre, reserve))
++            failures += not passed
++            count += 1
++            print(f"{'PASS' if passed else 'FAIL'} {runtime} {variant}: "
++                  f"preflight={pre.returncode}, reserve={reserve.returncode}, "
++                  f"preflight-ledger-unchanged={pre_unchanged}, reserve-ledger-unchanged={reserve_unchanged}")
++            if not passed:
++                print("PREFLIGHT", pre.stdout, pre.stderr)
++                print("RESERVE", reserve.stdout, reserve.stderr)
++    print(f"PASS: {count - failures}; FAIL: {failures}")
++    raise SystemExit(1 if failures else 0)
++
++
++if __name__ == "__main__":
++    main()

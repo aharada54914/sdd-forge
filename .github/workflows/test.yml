@@ -34,6 +34,9 @@ jobs:
       - name: Test evaluator scratch isolation (Bash and PowerShell)
         shell: bash
         run: python3 tests/issue311-scratch-isolation.tests.py --repo "$GITHUB_WORKSPACE"
+      - name: Test evaluator implementation binding (Bash and PowerShell)
+        shell: bash
+        run: python3 tests/review-implementation-binding.tests.py --repo "$GITHUB_WORKSPACE"
       - name: Test guard dispatch fallback
         shell: bash
         run: bash ./tests/guard-dispatch-fallback.tests.sh

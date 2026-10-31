@@ -114,6 +114,7 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - `specs/epic-159-pillar-c/`
 - `specs/epic-159-pillar-d/`
 - `specs/epic-189-a1-project-context/`
+- `specs/epic-189-a1-rt002-repair/`
 - `specs/epic-192-a4-facet-manifest/`
 - `specs/epic-136-phase3/`
 - `specs/epic-136-phase4-docs/`

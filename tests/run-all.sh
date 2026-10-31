@@ -67,6 +67,16 @@ else
   echo "SKIP: issue311-scratch-isolation.tests.py requires python3 and pwsh"
 fi
 
+if command -v python3 >/dev/null 2>&1 && command -v pwsh >/dev/null 2>&1; then
+  echo "==> tests/review-implementation-binding.tests.py"
+  if ! python3 tests/review-implementation-binding.tests.py --repo "$ROOT"; then
+    echo "FAILED: tests/review-implementation-binding.tests.py"
+    failed+=("tests/review-implementation-binding.tests.py")
+  fi
+else
+  echo "SKIP: review-implementation-binding.tests.py requires python3 and pwsh"
+fi
+
 if [[ ${#failed[@]} -gt 0 ]]; then
   printf '\n%d failing suite(s):\n' "${#failed[@]}"
   printf '  %s\n' "${failed[@]}"

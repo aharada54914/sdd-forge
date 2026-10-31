@@ -1,0 +1,118 @@
+{
+  "builder": "/Users/jrmag/.codex/worktrees/rt002-bounded-integration/sdd-forge/plugins/sdd-implementation/scripts/prepare-task-snapshot.ps1",
+  "uid": 501,
+  "fixture_root": "/Users/jrmag/.codex/worktrees/rt002-bounded-integration/sdd-forge/reports/verification/rt002-snapshot-mode-repair-20261006/fixture-tay56w2v",
+  "results": [
+    {
+      "case": "builder",
+      "pass": true,
+      "detail": "TASK_INPUT_OK\n"
+    },
+    {
+      "case": "mode:run",
+      "pass": false,
+      "detail": "0o444"
+    },
+    {
+      "case": "source-unchanged:run",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "mode:group.txt",
+      "pass": false,
+      "detail": "0o444"
+    },
+    {
+      "case": "source-unchanged:group.txt",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "mode:owner",
+      "pass": false,
+      "detail": "0o444"
+    },
+    {
+      "case": "source-unchanged:owner",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "mode:all",
+      "pass": false,
+      "detail": "0o444"
+    },
+    {
+      "case": "source-unchanged:all",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "mode:plain.sh",
+      "pass": true,
+      "detail": "0o444"
+    },
+    {
+      "case": "source-unchanged:plain.sh",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "mode:private",
+      "pass": true,
+      "detail": "0o444"
+    },
+    {
+      "case": "source-unchanged:private",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "mode:special",
+      "pass": false,
+      "detail": "0o444"
+    },
+    {
+      "case": "source-unchanged:special",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "direct-executable",
+      "pass": false,
+      "detail": "[Errno 13] Permission denied: '/Users/jrmag/.codex/worktrees/rt002-bounded-integration/sdd-forge/reports/verification/rt002-snapshot-mode-repair-20261006/fixture-tay56w2v/snapshot/run'"
+    },
+    {
+      "case": "direct-nonexecutable-denied",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "nonprivileged",
+      "pass": true,
+      "detail": "501"
+    },
+    {
+      "case": "readonly:write",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "readonly:create",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "readonly:delete",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "case": "directory-mode",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "pass": false
+}

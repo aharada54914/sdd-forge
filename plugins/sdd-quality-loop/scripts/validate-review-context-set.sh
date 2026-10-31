@@ -247,6 +247,80 @@ gate_report_output_is_declared() {
     "$repository_root/$gate_report_declaration_path" '## Post-Fix Artifacts'
 }
 
+# Bind the pinned implementation task manifest to its same-task report.
+verify_implementation_binding() {
+  [[ -n "$implementation_manifest_path" ]] ||
+    fail IDENTITY 'new evaluator requires a pinned implementation manifest'
+  implementation_manifest_hash=$(jq -r '.implementation_manifest.sha256' "$manifest")
+  jq -e --arg p "$implementation_manifest_path" --arg h "$implementation_manifest_hash" \
+    'any(.allowed_input_manifest[]; .path == $p and .sha256 == $h)' "$manifest" >/dev/null ||
+    fail IDENTITY 'implementation manifest is not a hash-pinned evaluator input'
+  implementation_manifest="$repository_root/$implementation_manifest_path"
+  admission_json_members "$implementation_manifest" >/dev/null 2>&1 ||
+    fail IDENTITY 'implementation manifest contains ambiguous JSON members'
+  jq -e --arg task "$task_id" '
+    .schema == "task-input-manifest/v1" and .task_id == $task and
+    (.run_id | type == "string" and length > 0) and
+    (.session_id | type == "string" and length > 0) and
+    (.allowed_inputs | type == "array" and length > 0) and
+    all(.allowed_inputs[]; type == "object" and (keys | sort) == ["path","sha256"] and
+      (.path | type == "string" and (explode | all(.[]; . >= 32 and . != 127))) and
+      (.sha256 | type == "string" and length == 64 and test("^[0-9a-f]{64}$"))) and
+    (([.allowed_inputs[].path] | unique | length) == (.allowed_inputs | length))
+  ' "$implementation_manifest" >/dev/null 2>&1 ||
+    fail IDENTITY 'implementation manifest task/run/session/inputs is invalid'
+  while IFS= read -r pinned; do
+    is_canonical_path "$pinned" || fail IDENTITY 'implementation manifest input path is invalid'
+  done < <(jq -r '.allowed_inputs[].path' "$implementation_manifest")
+  implementation_run=$(jq -r '.run_id' "$implementation_manifest")
+  implementation_session=$(jq -r '.session_id' "$implementation_manifest")
+  implementation_report="$repository_root/$implementation_report_path"
+  [[ "$(grep -c '^Run ID: ' "$implementation_report" || true)" -eq 1 &&
+     "$(grep -c '^- \*\*Run ID\*\*: ' "$implementation_report" || true)" -eq 1 &&
+     "$(grep -c '^- \*\*Session ID\*\*: ' "$implementation_report" || true)" -eq 1 &&
+     "$(grep -Fxc -- "Run ID: $implementation_run" "$implementation_report" || true)" -eq 1 &&
+     "$(grep -Fxc -- "- **Run ID**: $implementation_run" "$implementation_report" || true)" -eq 1 &&
+     "$(grep -Fxc -- "- **Session ID**: $implementation_session" "$implementation_report" || true)" -eq 1 ]] ||
+    fail IDENTITY 'implementation report run/session does not match its manifest'
+  manifest_citation="Input manifest: \`$implementation_manifest_path\`, SHA-256 \`$implementation_manifest_hash\`"
+  citation_line=$(grep '^Input manifest:' "$implementation_report" || true)
+  [[ "$(grep -c '^Input manifest:' "$implementation_report" || true)" -eq 1 &&
+     ( "$citation_line" == "$manifest_citation" || "$citation_line" == "$manifest_citation." ||
+       "$citation_line" == "$manifest_citation. "* ) ]] ||
+    fail IDENTITY 'implementation report does not cite the pinned manifest path and hash exactly once'
+}
+
+implementation_input_is_declared() {
+  local path=$1 expected_hash=$2 declaration absolute component current pinned
+  [[ "$stage:$role" == quality:sdd-evaluator && -n "$implementation_manifest_path" ]] || return 1
+  declaration=$(jq -r '.implementation_manifest.sha256' "$manifest")
+  jq -e --arg p "$implementation_manifest_path" --arg h "$declaration" \
+    'any(.allowed_input_manifest[]; .path == $p and .sha256 == $h)' "$manifest" >/dev/null || return 1
+  is_canonical_path "$implementation_manifest_path" || return 1
+  absolute="$repository_root/$implementation_manifest_path"
+  current="$repository_root"
+  local -a components
+  IFS='/' read -r -a components <<< "$implementation_manifest_path"
+  for component in "${components[@]}"; do
+    current="$current/$component"
+    [[ ! -L "$current" ]] || return 1
+  done
+  [[ -f "$absolute" && ! -L "$absolute" ]] || return 1
+  [[ "$(sha256_file "$absolute")" == "$declaration" ]] || return 1
+  verify_implementation_binding
+  jq -e --arg task "$task_id" --arg p "$path" --arg h "$expected_hash" '
+    (.allowed_inputs | type == "array" and length > 0) and
+    all(.allowed_inputs[]; type == "object" and (keys | sort) == ["path","sha256"] and
+      (.path | type == "string" and (test("[\\r\\n]") | not)) and
+      (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))) and
+    (([.allowed_inputs[].path] | unique | length) == (.allowed_inputs | length)) and
+    any(.allowed_inputs[]; .path == $p and .sha256 == $h)
+  ' "$absolute" >/dev/null 2>&1 || return 1
+  while IFS= read -r pinned; do
+    is_canonical_path "$pinned" || return 1
+  done < <(jq -r '.allowed_inputs[].path' "$absolute")
+}
+
 path_is_authorized() {
   local stage=$1 role=$2 feature=$3 path=$4 expected_hash=$5
   case "$stage:$role" in
@@ -285,6 +359,7 @@ path_is_authorized() {
       [[ "$path" =~ ^specs/"$feature"/(requirements|acceptance-tests|design|tasks|traceability|baseline-behavior|ux-spec|frontend-spec|infra-spec|security-spec)\.(md|json)$ ]] ||
         [[ "$path" == plugins/sdd-quality-loop/references/quality-gate-calibration.md ]] ||
         [[ "$path" == "$implementation_report_path" ]] ||
+        [[ -n "$implementation_manifest_path" && "$path" == "$implementation_manifest_path" ]] ||
         evaluator_output_is_declared \
           "$path" "$expected_hash" \
           "$repository_root/$implementation_report_path" '## Outputs' ||
@@ -345,9 +420,16 @@ jq -e '
     (.stage == "quality" and
       ((keys | sort) ==
         ((base_keys + ["task_id"] +
+          (if has("implementation_manifest") then ["implementation_manifest"] else [] end) +
           (if has("gate_report_declaration") then ["gate_report_declaration"] else [] end) +
           (if has("scratch_root") then ["scratch_root"] else [] end)) | sort)) and
       (.task_id | type == "string" and test("^T-[0-9]{3}$")) and
+      (if has("implementation_manifest") then
+        (.implementation_manifest |
+          type == "object" and ((keys | sort) == ["path", "sha256"]) and
+          (.path | type == "string" and test("^handoffs/[A-Za-z0-9._-]+/manifest[.]json$")) and
+          (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))
+      else true end) and
       (if has("gate_report_declaration") then
         (.gate_report_declaration |
           type == "object" and
@@ -396,6 +478,10 @@ bound_ledger_sha256=$(jq -r '.identity_ledger_sha256' "$manifest" | tr -d '\r')
 task_id=''
 [[ "$stage" == quality ]] && task_id=$(jq -r '.task_id' "$manifest" | tr -d '\r')
 scratch_binding=''
+implementation_manifest_path=''
+if [[ "$stage" == quality ]] && jq -e 'has("implementation_manifest")' "$manifest" >/dev/null 2>&1; then
+  implementation_manifest_path=$(jq -r '.implementation_manifest.path' "$manifest" | tr -d '\r')
+fi
 scratch_root=''
 if [[ "$stage" == quality ]] && jq -e 'has("scratch_root")' "$manifest" >/dev/null 2>&1; then
   scratch_root=$(jq -r '.scratch_root' "$manifest" | tr -d '\r')
@@ -900,6 +986,22 @@ done < <(jq -r --arg stage "$stage" '.allowed_input_manifest |
 if [[ "$stage" == impl && "$adr_binding_verified" != true ]]; then
   # An omitted ADR list must not bypass validation of an explicit extension.
   verify_captured_adr_binding || fail CONTRACT 'ADR declaration and input binding disagree'
+fi
+
+# New evaluator reservations use the implementation task manifest, not a
+# fabricated implementation record in the reviewer/evaluator ledger. All
+# referenced files have passed the ordinary path and hash loop above.
+if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+  verify_implementation_binding
+fi
+if $reserve && [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+  if jq -e --arg run "$implementation_run" --arg session "$implementation_session" '
+    any(.records[]; .run_id == $run or .host_session_id == $session)
+  ' "$ledger" >/dev/null; then
+    fail IDENTITY 'implementation run/session is reused in the canonical review ledger'
+  fi
+  [[ "$run_id" != "$implementation_run" && "$host_session_id" != "$implementation_session" ]] ||
+    fail IDENTITY 'evaluator reuses implementation run/session'
 fi
 
 # Round consistency. A manifest freezes hashes at reservation time; the round's

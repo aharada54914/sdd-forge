@@ -1,0 +1,96 @@
+{
+  "observed_at_utc": "2026-10-06T07:03:25Z",
+  "request": {
+    "method": "thread/start",
+    "params": {
+      "cwd": "/Users/jrmag/.codex/worktrees/rt002-bounded-integration/sdd-forge",
+      "ephemeral": true,
+      "model": "gpt-6-astra"
+    }
+  },
+  "response": {
+    "id": 2,
+    "result": {
+      "thread": {
+        "id": "01a11004-5d73-72f1-9dcb-c3df340e3ddc",
+        "environments": [
+          {
+            "environmentId": "local",
+            "cwd": "/Users/jrmag/.codex/worktrees/rt002-bounded-integration/sdd-forge",
+            "runtimeWorkspaceRoots": [
+              "/Users/jrmag/.codex/worktrees/rt002-bounded-integration/sdd-forge"
+            ]
+          }
+        ],
+        "extra": null,
+        "sessionId": "01a11004-5d73-72f1-9dcb-c3df340e3ddc",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "",
+        "ephemeral": true,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "paginated",
+        "modelProvider": "openai",
+        "model": "gpt-6-astra",
+        "reasoningEffort": "high",
+        "createdAt": 1791270084,
+        "updatedAt": 1791270084,
+        "recencyAt": 1791270084,
+        "status": {
+          "type": "idle"
+        },
+        "path": null,
+        "cwd": "/Users/jrmag/.codex/worktrees/rt002-bounded-integration/sdd-forge",
+        "cliVersion": "0.160.0",
+        "originator": "Codex Desktop",
+        "source": "vscode",
+        "canAcceptDirectInput": true,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "daybreakEnabled": null,
+        "turns": []
+      },
+      "model": "gpt-6-astra",
+      "modelProvider": "openai",
+      "serviceTier": "default",
+      "disabledPluginIds": [],
+      "cwd": "/Users/jrmag/.codex/worktrees/rt002-bounded-integration/sdd-forge",
+      "runtimeWorkspaceRoots": [
+        "/Users/jrmag/.codex/worktrees/rt002-bounded-integration/sdd-forge"
+      ],
+      "instructionSources": [
+        "/Users/jrmag/.codex/AGENTS.md",
+        "/Users/jrmag/.codex/worktrees/rt002-bounded-integration/sdd-forge/AGENTS.md"
+      ],
+      "approvalPolicy": "never",
+      "approvalsReviewer": "user",
+      "sandbox": {
+        "type": "dangerFullAccess"
+      },
+      "activePermissionProfile": null,
+      "reasoningEffort": "high",
+      "multiAgentMode": "explicitRequestOnly"
+    }
+  },
+  "transport_exec_session": 29674,
+  "approximate_shutdown_deadline_utc": "2026-10-06T07:21:05Z",
+  "input_delivery": "No turn/start or thread/inject issued; no task input delivered.",
+  "run_id_note": "Caller-authored preparation label, not a separate host-issued run identity.",
+  "unused_receiver": {
+    "thread_id": "01a11002-2b1a-74e3-b292-0c4a33c7ffa3",
+    "model": "gpt-6.1-sol",
+    "reason": "Not registered in owner model capability registry",
+    "termination": "Transport session 15248 interrupted; exit 1 observed; never used for manifest or task delivery."
+  },
+  "limitations": [
+    "Model advertised and thread allocation observed; no inference access claim.",
+    "thread/start returns empty turns; no independent persisted history inspection.",
+    "Default dangerFullAccess does not establish output-root enforcement.",
+    "Ephemeral receiver must not be reused after process termination; expiry blocks task delivery."
+  ]
+}

@@ -1,0 +1,2 @@
+HUMAN_RESTORED /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/rt002-restore-test-zdp12id6/target sha256=bb388dfba366a9f300f1c0060fa6282468d7a896dc7e72986f3bf3452f08c3d5
+Restore isolation checks: PASS (restore, two hash refusals, two symlink refusals)
