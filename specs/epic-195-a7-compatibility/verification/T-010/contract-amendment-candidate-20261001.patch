@@ -1,0 +1,319 @@
+diff --git a/specs/epic-195-a7-compatibility/requirements.md b/specs/epic-195-a7-compatibility/requirements.md
+--- a/specs/epic-195-a7-compatibility/requirements.md
++++ b/specs/epic-195-a7-compatibility/requirements.md
+@@ -621,13 +621,23 @@
+   design.md Data Plan); each dependency's own `fingerprints` is itself an
+   array of `{source, line_range, algorithm, digest, quote}` objects (a
+   canonical-window sha256 digest, never a `path:line-range#item`
+-  locator); and a machine-detectable `activation_condition` — a boolean
+-  expression over exactly the two primitive predicates `merged(<epic-id>)`
+-  and `fingerprint_match(<dependency-index>)`, combined only by
+-  `AND`/`OR` (design.md Data Plan fixes the grammar and evaluator).
++  locator); each dependency may carry a 40-hex `merged_commit` receipt
++  (malformed receipts hard-error; non-ancestral receipts stay inactive,
++  never falling back to a branch); and a
++  machine-detectable `activation_condition` — a boolean
++  expression over `merged(<epic-id>)`,
++  `fingerprint_match(<dependency-index>)`,
++  `file_contains(<repo-path>,<literal>)`, and
++  `executable_contains(<repo-root>,<literal>)`, combined only by
++  `AND`/`OR` and evaluated left to right (design.md Data Plan fixes the
++  exact grammar and evaluator). A5-dependent AC-004 and AC-021 activate
++  only when A5 has merged and an executable caller containing
++  `resolve-project-context` exists under `plugins/sdd-bootstrap` on
++  `main`; an unavailable `main` ref or absent caller keeps that predicate
++  false, never silently true.
+ - AC-035: The suite fails — not `SKIP`s, not passes — when (a) an
+-  allowlisted assertion's `merged(...)` predicate (AC-034) evaluates true
+-  but the assertion still emits `SKIP` (dependency-present SKIP); (b) any
++  allowlisted assertion's complete `activation_condition` evaluates true
++  but the assertion still emits `SKIP` (active-assertion SKIP); (b) any
+   `SKIP`-shaped line in suite output does not match an allowlist entry
+   (unknown SKIP); or (c) `merged(...)` evaluates true but
+   `fingerprint_match(...)` evaluates false for any of that entry's own
+@@ -642,8 +652,10 @@
+   sha256 of the fixed line window and the target heading's own ordinal
+   position Epic A5's `design.md` item 10(a) already records (`FP-A5-CALLER-CONTRACT-10`,
+   design.md Design Decisions "Cross-epic fingerprint citations" —
+-  `specs/epic-193-a5-capability-resolver/design.md:1886-1915`, `sha256:
+-  9b549be9c9d8897c9efd1badbab8a5d4184086649e98a3c31325ef3210561bff`),
++  `specs/epic-193-a5-capability-resolver/design.md:2139-2179`, `sha256:
++  1bf6f2e295bcc8ef49ca93755c046ef6a6301b604ae9d33c1aa95e00e4f8b33c`;
++  supersedes the 2026-08-08 citation of lines 1886-1915 / `9b549be9...`
++  after A5's item-10 body moved),
+   failing loudly on drift — resolving OQ-001's suite-ownership half for
+   this specific assertion.
+ - AC-037: A `TEST-0NN` case inside this epic's own existing suite asserts
+@@ -832,6 +844,6 @@
+    (AC-033), following the `effort` object's exact pattern (INV-006).
+ 4. That task builds the REQ-007 allowlist manifest (AC-034) and wires
+-   AC-035's three hard-fail checks (dependency-present SKIP, unknown
++   AC-035's three hard-fail checks (active-assertion SKIP, unknown
+    SKIP, fingerprint drift) into the suite run itself.
+ 5. CI runs every REQ-005 matrix cell (AC-028); cells depending on
+    unmerged upstream epics report a named `SKIP` per the allowlist
+diff --git a/specs/epic-195-a7-compatibility/design.md b/specs/epic-195-a7-compatibility/design.md
+--- a/specs/epic-195-a7-compatibility/design.md
++++ b/specs/epic-195-a7-compatibility/design.md
+@@ -143,6 +143,6 @@
+ | requirements.md | investigation.md INV-013 | `PROJECT_CONTEXT_INVALID` is a required negative variant of each Context-present row, distinct from the compatibility fallback | REQ-005 | AC-019–AC-021 |
+ | requirements.md | investigation.md INV-022 | golden baseline is captured once against a fixed pre-capability merge-base commit and updated only via a candidate→canonical PR | REQ-006 | AC-001, AC-018, AC-041 |
+-| requirements.md | investigation.md INV-023 | the SKIP allowlist manifest closes the fail-open direction (dependency-present SKIP, unknown SKIP, fingerprint drift) and enumerates A1–A6 | REQ-007 | AC-004, AC-007, AC-016, AC-034, AC-035 |
++| requirements.md | investigation.md INV-023 | the SKIP allowlist manifest closes the fail-open direction (active-assertion SKIP, unknown SKIP, fingerprint drift) and enumerates A1–A6 | REQ-007 | AC-004, AC-007, AC-016, AC-034, AC-035 |
+ | requirements.md | investigation.md INV-014 | the three-state Gate-applicability pattern is scoped to `check-component-coverage`; the Resolver's own disabled-legacy behavior is independently defined | REQ-003 | AC-009, AC-039 |
+ | requirements.md | investigation.md INV-016 | Epic A5's three deferred fixture assertions are owned by this epic's own existing suite, not a new suite | REQ-003 | AC-004, AC-021, AC-036, AC-037 |
+ | design.md Design Decisions | requirements.md OQ-001–OQ-003 | suite placement (split loop-consistency/loop-escalation), baseline location, and the A5 caller-contract suite's home are all three resolved below (OQ-003 is a closed decision, not a recommendation) | REQ-003, REQ-006 | AC-001, AC-010, AC-032, AC-036, AC-037, AC-040 |
+@@ -405,6 +405,10 @@
+ see Design Decisions, "Cross-epic fingerprint citations," for the
+ identical digest algorithm applied to this package's own normative
+ citations of Epic A5):
++A dependency may also carry an optional 40-hex `merged_commit` receipt
++(AC-007's A4 dependency uses one). Its commit must be ancestral to the
++target `main` ref; a malformed receipt is an error, while a non-ancestral
++receipt stays inactive. Neither case falls back to a branch.
+ 
+ ```jsonc
+ [
+@@ -417,16 +421,16 @@
+         "fingerprints": [
+           {
+             "source": "specs/epic-193-a5-capability-resolver/design.md",
+-            "line_range": "1886-1915",
++            "line_range": "2139-2179",
+             "algorithm": "sha256",
+             "normalization": "lf-normalized, utf-8, lines joined by a single \n, no trailing newline",
+-            "digest": "sha256:9b549be9c9d8897c9efd1badbab8a5d4184086649e98a3c31325ef3210561bff",
++            "digest": "sha256:1bf6f2e295bcc8ef49ca93755c046ef6a6301b604ae9d33c1aa95e00e4f8b33c",
+             "quote": "10. `resolve-project-context-caller-contract` (new, M6) — a contract test"
+           }
+         ]
+       }
+     ],
+-    "activation_condition": "merged(A5)"
++    "activation_condition": "merged(A5) AND executable_contains(plugins/sdd-bootstrap,resolve-project-context)"
+   },
+   {
+     "assertion_id": "AC-007",
+@@ -434,6 +438,7 @@
+       {
+         "epic": "A4",
+         "issue": 192,
++        "merged_commit": "02166dbabb0979081337b1d408b26019be3668d6",
+         "fingerprints": [
+           {
+             "source": "specs/epic-192-a4-facet-manifest/requirements.md",
+@@ -471,16 +476,16 @@
+         "fingerprints": [
+           {
+             "source": "specs/epic-193-a5-capability-resolver/design.md",
+-            "line_range": "1886-1915",
++            "line_range": "2139-2179",
+             "algorithm": "sha256",
+             "normalization": "lf-normalized, utf-8, lines joined by a single \n, no trailing newline",
+-            "digest": "sha256:9b549be9c9d8897c9efd1badbab8a5d4184086649e98a3c31325ef3210561bff",
++            "digest": "sha256:1bf6f2e295bcc8ef49ca93755c046ef6a6301b604ae9d33c1aa95e00e4f8b33c",
+             "quote": "10. `resolve-project-context-caller-contract` (new, M6) — a contract test"
+           }
+         ]
+       }
+     ],
+-    "activation_condition": "merged(A1) AND merged(A5)"
++    "activation_condition": "merged(A1) AND merged(A5) AND executable_contains(plugins/sdd-bootstrap,resolve-project-context)"
+   },
+   {
+     "assertion_id": "AC-042",
+@@ -552,8 +557,8 @@
+ finalized in the Spec-Review-Status: Passed spec.
+ 
+ **`activation_condition` grammar and evaluator** (deterministic, no
+-free-form text): a boolean expression over exactly two primitive
+-predicates, combined only by `AND`/`OR`:
++free-form text): an odd-length space-separated sequence of predicates
++and uppercase `AND`/`OR` operators, evaluated left to right:
+ 
+ - `merged(<epic-id>)` — true iff the cited epic's own spec
+   `Spec-Review-Status`/`Impl-Review-Status` front matter reads a
+@@ -566,11 +571,27 @@
+   LF-normalized, UTF-8, joined by `\n`, no trailing newline) against the
+   cited epic's own current HEAD equals the recorded `digest` value
+   exactly.
++- `file_contains(<repo-path>,<literal>)` — true iff the named repository
++  path exists at the target `main` commit and its content contains the
++  nonempty literal; an unavailable `main` ref or absent path is false.
++- `executable_contains(<repo-root>,<literal>)` — true iff at least one
++  tracked file below the named root at the target `main` commit contains
++  the nonempty literal and is either Git-mode `100755` or has a `.sh`,
++  `.ps1`, `.py`, or `.js` suffix. An unavailable `main` ref or absent
++  matching caller is false. For AC-004/AC-021 the root is
++  `plugins/sdd-bootstrap` and the literal is `resolve-project-context`.
++
++The grammar accepts only `merged(A[0-9]+)`,
++`fingerprint_match([0-9]+)`, `file_contains(path,literal)`, and
++`executable_contains(root,literal)` with nonempty comma-separated
++arguments and no nested expressions. Predicate and operator tokens are
++case-sensitive; malformed tokens are errors, not inactive dependencies.
+ 
+ The evaluator emits `SKIP` whenever this entry's own `activation_condition`
+-(evaluated with `merged(...)` alone) is false, and hard-fails per AC-035
+-whenever: (a) `merged(...)` is true but `SKIP` still fires (dependency-
+-present SKIP); (b) a `SKIP`-shaped line in suite output matches no
++(evaluated with all four documented predicates) is false, and hard-fails
++per AC-035
++whenever: (a) the complete activation condition is true but `SKIP`
++still fires (active-assertion SKIP); (b) a `SKIP`-shaped line matches no
+ manifest entry (unknown SKIP); or (c) `merged(...)` is true but
+ `fingerprint_match(...)` is false for any of that entry's own
+ `fingerprints[]` (fingerprint drift) — `fingerprint_match` is evaluated
+@@ -582,10 +603,13 @@
+ already drifted to the wrong content by the time of that review, but a
+ locator is not a digest and cannot itself be recomputed and compared —
+ `fingerprint_match` recomputing this package's own recorded
+-`sha256:9b549be9c9d8897c9efd1badbab8a5d4184086649e98a3c31325ef3210561bff`
++`sha256:1bf6f2e295bcc8ef49ca93755c046ef6a6301b604ae9d33c1aa95e00e4f8b33c`
+ against Epic A5's own current HEAD would have produced a mismatch and
+ hard-failed the suite the moment that drift occurred, rather than silently
+-trusting a stale line-number citation.
++trusting a stale line-number citation. The 2026-08-08 item-10 window
++`1886-1915` / `9b549be9...` was superseded by the verified current
++`2139-2179` window after A5's source movement; both AC-004 and AC-021
++use the latter.
+ 
+ ## API / Contract Plan
+ 
+@@ -895,15 +919,15 @@
+ upstream edit can silently invalidate without this package's own
+ re-verification catching it. This corrects the exact failure NEW-001
+ found: an earlier draft's `design.md:1861-1890` locator for Epic A5's own
+-item 10 had already drifted to the wrong content (item 10 is now at
+-`design.md:1886-1915`) by the time of that review, and a bare locator
++item 10 had already drifted to the wrong content (item 10 was then at
++`design.md:1886-1915`) by the time of that review, and a bare locator
+ cannot itself be recomputed and compared the way a digest can. Two
+ fingerprints are recorded, each reused by every citation below that needs
+ it:
+ 
+-- **`FP-A5-CALLER-CONTRACT-10`**: `specs/epic-193-a5-capability-resolver/design.md:1886-1915`
+-  (item 10, `resolve-project-context-caller-contract`, its own full
+-  three-sub-item (a)/(b)/(c) body) — `sha256:
+-  9b549be9c9d8897c9efd1badbab8a5d4184086649e98a3c31325ef3210561bff` —
++- **`FP-A5-CALLER-CONTRACT-10`**: `specs/epic-193-a5-capability-resolver/design.md:2139-2179`
++  (superseded 2026-10-01 by `design.md:2139-2179`, item 10's revised
++  four-sub-item (a)/(b)/(c)/(d) body) — current `sha256:
++  1bf6f2e295bcc8ef49ca93755c046ef6a6301b604ae9d33c1aa95e00e4f8b33c` —
+   quote: "10. `resolve-project-context-caller-contract` (new, M6) — a
+   contract test".
+ - **`FP-A5-BLOCK-REQ002`**: `specs/epic-193-a5-capability-resolver/requirements.md:341-343`
+diff --git a/specs/epic-195-a7-compatibility/acceptance-tests.md b/specs/epic-195-a7-compatibility/acceptance-tests.md
+--- a/specs/epic-195-a7-compatibility/acceptance-tests.md
++++ b/specs/epic-195-a7-compatibility/acceptance-tests.md
+@@ -35,7 +35,7 @@
+ | AC-031 | REQ-002 | TEST-031 | integration, non-gating | live-model structural-comparison refresh test, registered outside the gating suite/CI job | Planned |
+ | AC-032 | REQ-003 | TEST-032 | integration | `TEST-018` in `tests/loop-consistency.tests.sh` exists, calls `assert_event_trace`, and asserts a Context-absent round's own event trace | Planned |
+ | AC-033 | REQ-003 | TEST-033 | integration + golden negative test | `emit-run-record.sh`'s four flag-combination outcomes; capability-only usage-error golden negative test | Planned |
+-| AC-034 | REQ-007 | TEST-034 | static / doc-review | REQ-007 allowlist manifest: assertion→`dependencies[]` (epic/issue/`fingerprints[]` sha256-digest array)→`merged`/`fingerprint_match` activation-condition grammar, enumerating A1–A6 | Planned |
++| AC-034 | REQ-007 | TEST-034 | static / doc-review | REQ-007 allowlist manifest: five assertion IDs, `dependencies[]` with sha256 fingerprints, and case-sensitive `merged`/`fingerprint_match`/`file_contains`/`executable_contains` grammar; AC-004/AC-021 require an executable A5 caller on `main` | Planned |
+-| AC-035 | REQ-007 | TEST-035 | integration, negative self-check ×3 | dependency-present SKIP / unknown SKIP / fingerprint drift each independently hard-fail the suite | Planned |
++| AC-035 | REQ-007 | TEST-035 | integration, negative self-check ×3 | active-assertion SKIP / unknown SKIP / fingerprint drift each independently hard-fail the suite | Planned |
+ | AC-036 | REQ-003 | TEST-036 | integration (named SKIP until Epic A5 merges) | anchor-fingerprint drift check against the live `sdd-bootstrap-interviewer/SKILL.md`, owned by this epic's existing suite (OQ-001) | Planned |
+ | AC-037 | REQ-003 | TEST-037 | integration (named SKIP until Epic A5 merges) | a REQ-002 Block surfaces as a visible stop/error event, never a silent fallback (OQ-001) | Planned |
+diff --git a/specs/epic-195-a7-compatibility/tasks.md b/specs/epic-195-a7-compatibility/tasks.md
+--- a/specs/epic-195-a7-compatibility/tasks.md
++++ b/specs/epic-195-a7-compatibility/tasks.md
+@@ -1382,7 +1382,7 @@
+ indefinitely-extended `SKIP`") and reuses B4's own fingerprint-recompute
+ mechanism (`fingerprint_match`). A silent defect in any of the three
+-hard-fail conditions (dependency-present `SKIP`, unknown `SKIP`,
++hard-fail conditions (active-assertion `SKIP`, unknown `SKIP`,
+ fingerprint drift) is precisely the fail-open direction INV-023
+ identifies — a `SKIP` silently outliving its own justification, forever
+ masking a real coverage gap, the "silent defect causes material harm"
+ surface the policy's `high` tier names. It is not `critical`: no
+@@ -1405,14 +1405,14 @@
+ 
+ Planned Files:
+ - `tests/fixtures/skip-allowlist-manifest.json` (new, agent-editable —
+-  `skip-allowlist-manifest/v1`, exactly the five entries design.md's own
+-  Data Plan jsonc example fixes: AC-004, AC-007, AC-021, AC-042, AC-043)
++  `skip-allowlist-manifest/v1`, exactly the five assertion IDs in the
++  re-reviewed Data Plan: AC-004, AC-007, AC-021, AC-042, AC-043)
+ - `tests/lib/skip-allowlist-evaluator.sh` (new, agent-editable — the
+-  `merged(<epic-id>)`/`fingerprint_match(<dependency-index>)` primitive
+-  predicates and the `AND`/`OR` `activation_condition` evaluator)
++  four documented predicates and left-to-right `AND`/`OR`
++  `activation_condition` evaluator)
+ - `tests/lib/skip-allowlist-evaluator.ps1` (new, agent-editable — twin)
+ - `tests/skip-allowlist-manifest.tests.sh` (new, agent-editable — the
+-  three hard-fail checks: dependency-present `SKIP`, unknown `SKIP`,
++  three hard-fail checks: active-assertion `SKIP`, unknown `SKIP`,
+   fingerprint drift)
+ - `tests/skip-allowlist-manifest.tests.ps1` (new, agent-editable — twin)
+ - `tests/loop-consistency.tests.sh`, `tests/loop-escalation.tests.sh`,
+@@ -1439,12 +1439,13 @@
+ 
+ ### Goal
+ 
+-Author the `skip-allowlist-manifest/v1` JSON array exactly as design.md's
+-own Data Plan fixes it (five entries: AC-004, AC-007, AC-021, AC-042,
+-AC-043, each `dependencies[]` an array of `{epic, issue, fingerprints[]}`),
+-the `merged`/`fingerprint_match` evaluator and its `AND`/`OR`
++Author the `skip-allowlist-manifest/v1` JSON array with the five
++re-reviewed Data Plan assertion IDs (AC-004, AC-007, AC-021, AC-042,
++AC-043, each `dependencies[]` an array of `{epic, issue, fingerprints[]}`
++with an optional, validated 40-hex `merged_commit` receipt),
++the four-predicate evaluator and its left-to-right `AND`/`OR`
+ `activation_condition` grammar, and wire the three hard-fail checks
+-(AC-035) into the suite run: dependency-present `SKIP`, unknown `SKIP`,
++(AC-035) into the suite run: active-assertion `SKIP`, unknown `SKIP`,
+ and fingerprint drift — re-pointing every `SKIP` line T-003/T-004/T-006/
+ T-007/T-008 introduced ad hoc to read from this manifest (AC-016).
+ 
+@@ -1462,12 +1463,14 @@
+ 
+ ### Scope
+ 
+-- TDD Red→Green: write the three hard-fail fixtures (a `merged(...)`-true
++- TDD Red→Green: write the three hard-fail fixtures (an activation-true
+   entry that still emits `SKIP`; an unrecognized `SKIP`-shaped line; a
+   `merged(...)`-true entry whose fingerprint no longer matches) before
+   implementing the evaluator.
+-- Author the manifest with exactly design.md's own five entries and
+-  fingerprint values, unmodified from the recorded jsonc example.
++- Author the manifest with exactly the five re-reviewed assertion IDs;
++  recompute each fingerprint against its named current source window,
++  including A5 item 10 at lines 2139-2179, and require its executable
++  caller on `main` for AC-004/AC-021.
+ - Implement `merged(<epic-id>)` (spec front matter terminal value **and**
+   branch-ancestry check) and `fingerprint_match(<dependency-index>)`
+   (sha256 recompute against the cited epic's current HEAD).
+@@ -1476,12 +1479,15 @@
+ 
+ ### Done When
+ 
+-- [ ] The manifest exists with exactly the five documented entries and
+-  fingerprint values (AC-034).
++- [ ] The manifest exists with exactly the five documented assertion IDs,
++  verified current-source fingerprint values, and A5 caller conditions (AC-034).
+ - [ ] `merged`/`fingerprint_match` evaluate correctly against a fixture
+   epic in each of {unmerged, merged-fingerprint-match,
+-  merged-fingerprint-mismatch} states.
+-- [ ] The suite hard-fails on dependency-present `SKIP` (AC-035a), on an
++  merged-fingerprint-mismatch}.
++- [ ] `file_contains`/`executable_contains` agree across Bash and PowerShell
++  for literal metacharacters, case-sensitive suffixes, absent paths/callers,
++  and an unavailable `main` ref.
++- [ ] The suite hard-fails on active-assertion `SKIP` (AC-035a), on an
+   unrecognized `SKIP`-shaped line (AC-035b), and on fingerprint drift
+   (AC-035c) — three independent fixtures, each alone sufficient to fail.
+ - [ ] Every `SKIP` line from T-003/T-004/T-006/T-007/T-008 reads its
+diff --git a/specs/epic-195-a7-compatibility/traceability.md b/specs/epic-195-a7-compatibility/traceability.md
+--- a/specs/epic-195-a7-compatibility/traceability.md
++++ b/specs/epic-195-a7-compatibility/traceability.md
+@@ -23,7 +23,7 @@
+ | REQ-004 | investigation.md (Root cause / rationale for an extension-only design) | N/A — cross-layer only: REQ-004 is a formal requirement-decomposition and citation-discipline concern (decision doc §4's exact sentence, decomposed into clauses (a)/(b)/(c) below), not owned by any single UX/frontend/infra/security layer — already satisfied by design.md's own Observable×fixture-state judgment table and this document's own clause mapping, below | design.md#data-plan ("Observable×fixture-state judgment table"); design.md's Compatibility Matrix disposition legend | N/A — no schema of its own | N/A — no code target; satisfied by requirements.md's own AC-001–AC-043 text and this document | TEST-013, TEST-017, TEST-029 | N/A — see Deferred / Non-Task Acceptance Criteria, below | this document (traceability review) | Satisfied at spec-authoring time — see Deferred / Non-Task Acceptance Criteria, below |
+ | REQ-005 | investigation.md INV-008, INV-011, INV-013, INV-024 | infra-spec.md#data-residency-and-retention | design.md#api--contract-plan ("Fixture-matrix builder contract"); design.md#data-plan ("`PROJECT_CONTEXT_INVALID` variant plan"; Compatibility Matrix; Context-absent CLI submatrix) | fixture-matrix builder's own five-parameter contract (design.md#api--contract-plan) | tests/lib/fixture-matrix-builder.{sh,ps1} | TEST-014, TEST-015, TEST-028 | tests/lib/fixture-matrix-builder.sh; tests/lib/fixture-matrix-builder.ps1 (consumed, not independently registered, per design.md's own "never registered as its own independent test suite"); tests/run-all.sh; tests/run-all.ps1; .github/workflows/test.yml | reports/quality-gate/ for T-001, T-011; specs/epic-195-a7-compatibility/verification/{T-001,T-011}/ | In Progress — T-001 Done (quality-gate cycle-2 PASS, ledger seq0662, reports/quality-gate/epic-195-a7-compatibility/T-001.md); T-011 Planned |
+ | REQ-006 | investigation.md INV-022 | infra-spec.md#data-residency-and-retention; security-spec.md#trust-boundaries | design.md#api--contract-plan ("Golden-baseline capture/promote contract"); design.md#design-decisions-resolving-requirementsmds-open-questions-where-possible ("Golden-baseline location"); design.md#security-boundaries (B1) | golden-baseline manifest (per-target + script sha256, pinned commit SHA, fixed env vars — design.md#api--contract-plan) | tests/capture-golden-baseline.{sh,ps1}; tests/promote-golden-baseline.{sh,ps1}; tests/golden-baseline-contract.tests.{sh,ps1}; tests/promote-golden-baseline-ci-guard.tests.{sh,ps1} | TEST-001, TEST-018, TEST-040, TEST-041 | tests/golden-baseline-contract.tests.sh; tests/golden-baseline-contract.tests.ps1; tests/promote-golden-baseline-ci-guard.tests.sh; tests/promote-golden-baseline-ci-guard.tests.ps1 | reports/quality-gate/ for T-002, T-013; specs/epic-195-a7-compatibility/verification/{T-002,T-013}/ | In Progress — T-002 Done (quality-gate cycle-1 PASS, ledger seq0667, reports/quality-gate/epic-195-a7-compatibility/T-002.md); T-013 Planned |
+-| REQ-007 | investigation.md INV-015, INV-016, INV-023 | infra-spec.md#data-residency-and-retention; security-spec.md#trust-boundaries | design.md#data-plan ("REQ-007 SKIP allowlist manifest"; "`activation_condition` grammar and evaluator"); design.md#design-decisions-resolving-requirementsmds-open-questions-where-possible ("OQ-001 resolved"; "Cross-epic fingerprint citations") | `skip-allowlist-manifest/v1` (design.md#data-plan) | tests/fixtures/skip-allowlist-manifest.json; tests/lib/skip-allowlist-evaluator.{sh,ps1}; tests/skip-allowlist-manifest.tests.{sh,ps1} | TEST-016, TEST-034, TEST-035 | tests/skip-allowlist-manifest.tests.sh; tests/skip-allowlist-manifest.tests.ps1 | reports/quality-gate/ for T-010; specs/epic-195-a7-compatibility/verification/T-010/ | Planned |
++| REQ-007 | investigation.md INV-015, INV-016, INV-023 | infra-spec.md#data-residency-and-retention; security-spec.md#trust-boundaries | design.md#data-plan ("REQ-007 SKIP allowlist manifest"; "`activation_condition` grammar and evaluator", including A5 executable caller); design.md#design-decisions-resolving-requirementsmds-open-questions-where-possible ("OQ-001 resolved"; "Cross-epic fingerprint citations") | `skip-allowlist-manifest/v1` (design.md#data-plan) | tests/fixtures/skip-allowlist-manifest.json; tests/lib/skip-allowlist-evaluator.{sh,ps1}; tests/skip-allowlist-manifest.tests.{sh,ps1} | TEST-016, TEST-034, TEST-035 | tests/skip-allowlist-manifest.tests.sh; tests/skip-allowlist-manifest.tests.ps1 | reports/quality-gate/ for T-010; specs/epic-195-a7-compatibility/verification/T-010/ | Planned |
+ | REQ-009 | investigation.md INV-013 | N/A — cross-layer only: REQ-009 is Epic A1's own requirement (`specs/epic-189-a1-project-context/requirements.md:891-921`), cited in this package's requirements.md only as the external upstream contract that defines `PROJECT_CONTEXT_INVALID` (Field Definitions "Context-present-invalid variant"; Edge Cases) — it is not one of this package's own REQ-001–REQ-007 and has no Layer Spec, Design, or Code Target of its own within this feature | requirements.md Field Definitions ("Context-present-invalid variant"); Edge Cases; AC-019–AC-021 cite its consequence only | N/A — external contract, not authored by this package | N/A — no code target within this feature; T-007/T-008 assert against its consequence (a distinct `PROJECT_CONTEXT_INVALID` stop event), never re-implement Epic A1's own validator | N/A | N/A | N/A | N/A — external, Epic A1's own scope (requirements.md Non-goals); tracked here only to satisfy this document's own requirement-ID coverage check |
+ 
+ ## Deferred / Non-Task Acceptance Criteria

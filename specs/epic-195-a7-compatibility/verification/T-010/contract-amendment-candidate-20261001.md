@@ -1,0 +1,16 @@
+# T-010 contract amendment candidate — 2026-10-01
+
+Status: candidate only; not applied, approved, reviewed, PASS, or Done. T-010 remains Planned/high-risk, with unfinished dependencies. No formal gate or T-004 repair cycle was started here.
+
+The adjacent `contract-amendment-candidate-20261001.patch` proposes updated requirements, design, acceptance-test, task, and traceability wording for the existing four-predicate allowlist evaluator and current A5 item-10 fingerprint. The five frozen originals remain byte-identical. Their SHA-256 values, respectively, are `7af43a41f52d7fee4144ea603eba10cd5fe9ccf6468bcfe778afd212546f5a79`, `ef0a43714f623e92ba7b5e2a583a53bc7dbcd4b8e2481b0df2aa96cef2fa2c96`, `f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815`, `fee9e7323ea2d3da9b4e30aedda5d7a80c80afa83775d41db360163fe94ce321`, and `676d2e3de2c0e311b1aa796dd4a7b21950e5ac47a030dd0fba3611617805cd31`.
+
+Current candidate patch SHA-256: `89386328904688431e56db691a6d1049a4655a3bb327c0bd640563b5a0811cab`. An earlier candidate passed ordinary `git apply --check` with exit 0 and empty stderr. After additional wording corrections, the check returned exit 128 (`error: corrupt patch at ...patch:55`); after hunk-length correction it returned exit 1 with context mismatches at `requirements.md:642` and `design.md:898`. `git apply --check --verbose` showed a leading-space mismatch in the newly added contexts. The primary maintainer checked the third, whitespace-corrected candidate once: exit 1, with the exact diagnostics below. No fourth correction or patch application was attempted. The current candidate is **not applicable**; the earlier exit 0 is not validation of this hash.
+
+```text
+error: patch failed: specs/epic-195-a7-compatibility/design.md:898
+error: specs/epic-195-a7-compatibility/design.md: patch does not apply
+```
+
+The proposed four-predicate contract is not yet implemented with Bash/PowerShell parity. `tests/lib/skip-allowlist-evaluator.sh:67` uses `grep -Fq` for literal containment, whereas `tests/lib/skip-allowlist-evaluator.ps1:80` uses `-clike "*$Literal*"`, which interprets wildcard characters. Reproduction against `HEAD` and `specs/epic-195-a7-compatibility/requirements.md` with literal `Spec-Review-Statu?`: Bash `file-contains` exited 1 and PowerShell `file-contains` exited 0; both had empty stdout/stderr. Separately, Bash's `.sh/.ps1/.py/.js` suffix comparisons at `tests/lib/skip-allowlist-evaluator.sh:80` are case-sensitive, while PowerShell's `-notmatch` at `tests/lib/skip-allowlist-evaluator.ps1:92` is case-insensitive. A tracked non-executable file ending `.SH` and containing the requested marker is a focused negative fixture to reproduce this predicted divergence; that fixture has not been run. Existing manifest suites passing (Bash 20/0, PowerShell 23/0) do not resolve either parity defect.
+
+Before application, the failed patch needs an explicitly authorized additional repair attempt, successful exact-byte applicability verification, and the required frozen-artifact adoption/provenance review. A contract-only amendment cannot complete T-010 or unblock its unfinished task dependencies. Approval/Status, review reports, review tickets, and gate verdicts have not been changed by this candidate work.

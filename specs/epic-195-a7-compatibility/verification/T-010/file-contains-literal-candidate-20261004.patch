@@ -1,0 +1,189 @@
+diff --git a/tests/lib/skip-allowlist-evaluator.ps1 b/tests/lib/skip-allowlist-evaluator.ps1
+--- a/tests/lib/skip-allowlist-evaluator.ps1
++++ b/tests/lib/skip-allowlist-evaluator.ps1
+@@ -77,6 +77,6 @@ function Test-FileContains([string]$Repo, [string]$MainRef, [string]$Path, [stri
+     & git -C $Repo cat-file -e "${MainRef}:$Path" 2>$null
+     if ($LASTEXITCODE -ne 0) { return $false }
+     try { $content = (Invoke-GitText $Repo @('show', "${MainRef}:$Path") -join "`n") } catch { throw 'activation target file could not be read' }
+-    return ([string]$content -clike "*$Literal*")
++    return ([string]$content).IndexOf([string]$Literal, [StringComparison]::Ordinal) -ge 0
+ }
+ function Test-ExecutableContains([string]$Repo, [string]$MainRef, [string]$Root, [string]$Literal) {
+@@ -90,4 +90,4 @@ function Test-ExecutableContains([string]$Repo, [string]$MainRef, [string]$Root,
+         $mode = $parts[0].Split(' ')[0]; $path = $parts[1]
+         if (-not $path.StartsWith("$Root/", [StringComparison]::Ordinal)) { continue }
+-        if ($mode -ne '100755' -and $path -notmatch '\.(?:sh|ps1|py|js)$') { continue }
++        if ($mode -ne '100755' -and $path -cnotmatch '\.(?:sh|ps1|py|js)$') { continue }
+         try { $content = (Invoke-GitText $Repo @('show', "${MainRef}:$path") -join "`n") } catch { continue }
+diff --git a/tests/skip-allowlist-manifest.tests.sh b/tests/skip-allowlist-manifest.tests.sh
+--- a/tests/skip-allowlist-manifest.tests.sh
++++ b/tests/skip-allowlist-manifest.tests.sh
+@@ -120,4 +120,34 @@ case_clean() {
+ 
+ case_primitives() {
+   create_fixture merged-fingerprint-match
++  local path='specs/epic-999-fixture/requirements.md' literal rc
++  if run_evaluator file-contains "$FIXTURE_REPO" main "$path" 'Spec-Review-Status: Passed'; then
++    pass 'file_contains finds exact text'
++  else
++    fail 'file_contains finds exact text'
++  fi
++  for literal in 'spec-review-status: Passed' 'Spec-Review-Statu?' 'Spec-Review-*' 'contract-v[1]'; do
++    if run_evaluator file-contains "$FIXTURE_REPO" main "$path" "$literal" >/dev/null 2>&1; then rc=0; else rc=$?; fi
++    if ((rc == 1)); then
++      pass "file_contains rejects absent literal $literal"
++    else
++      fail "file_contains rejects absent literal $literal (exit $rc, expected 1)"
++    fi
++  done
++  printf '%s\n' 'literal?*[s]' >> "$FIXTURE_REPO/$path"
++  git -C "$FIXTURE_REPO" add "$path"
++  git -C "$FIXTURE_REPO" commit -q -m 'fixture literal special characters'
++  if run_evaluator file-contains "$FIXTURE_REPO" main "$path" 'literal?*[s]'; then
++    pass 'file_contains finds literal special characters'
++  else
++    fail 'file_contains finds literal special characters'
++  fi
++  if run_evaluator file-contains "$FIXTURE_REPO" missing-main "$path" marker >/dev/null 2>&1; then rc=0; else rc=$?; fi
++  if ((rc == 1)); then pass 'file_contains missing ref is false'; else fail "file_contains missing ref exit $rc, expected 1"; fi
++  if run_evaluator file-contains "$FIXTURE_REPO" main missing.md marker >/dev/null 2>&1; then rc=0; else rc=$?; fi
++  if ((rc == 1)); then pass 'file_contains missing path is false'; else fail "file_contains missing path exit $rc, expected 1"; fi
++  if run_evaluator file-contains "$FIXTURE_REPO" main '' marker >/dev/null 2>&1; then rc=0; else rc=$?; fi
++  if ((rc == 2)); then pass 'file_contains empty path is invalid'; else fail "file_contains empty path exit $rc, expected 2"; fi
++  if run_evaluator file-contains "$FIXTURE_REPO" main "$path" '' >/dev/null 2>&1; then rc=0; else rc=$?; fi
++  if ((rc == 2)); then pass 'file_contains empty literal is invalid'; else fail "file_contains empty literal exit $rc, expected 2"; fi
+   local integrated
+@@ -199,9 +229,4 @@ case_primitives() {
+-  if run_evaluator condition "$WORK/condition.json" AC-900 "$FIXTURE_REPO" missing-main >/dev/null 2>&1; then
+-    fail 'executable_contains activates when the target ref is unavailable'
+-  else
+-    pass 'file_contains fails closed when the target ref is unavailable'
+-  fi
+   if run_evaluator condition "$WORK/condition.json" AC-900 "$FIXTURE_REPO" missing-main >/dev/null 2>&1; then
+     fail 'condition activates when the target ref is unavailable'
+   else
+     pass 'condition remains inactive when the target ref is unavailable'
+@@ -208,7 +233,48 @@ case_primitives() {
+   fi
+   git -C "$FIXTURE_REPO" switch -q main
+   git -C "$FIXTURE_REPO" merge -q --no-ff feature/epic-999-fixture -m 'merge caller marker'
++  local caller_root="$FIXTURE_REPO/plugins/sdd-bootstrap/scripts"
++  printf 'md-marker\n' > "$caller_root/not-executable.md"
++  printf 'upper-marker\n' > "$caller_root/not-executable-upper.SH"
++  printf 'lower-marker\n' > "$caller_root/not-executable-lower.sh"
++  printf 'mode-marker\n' > "$caller_root/executable-no-extension"
++  git -C "$FIXTURE_REPO" add plugins/sdd-bootstrap/scripts
++  if ! git -C "$FIXTURE_REPO" update-index --chmod=-x -- plugins/sdd-bootstrap/scripts/not-executable.md plugins/sdd-bootstrap/scripts/not-executable-upper.SH plugins/sdd-bootstrap/scripts/not-executable-lower.sh; then
++    fail 'fixture non-executable index mode setup'
++    return
++  fi
++  if ! git -C "$FIXTURE_REPO" update-index --chmod=+x -- plugins/sdd-bootstrap/scripts/executable-no-extension; then
++    fail 'fixture executable index mode setup'
++    return
++  fi
++  git -C "$FIXTURE_REPO" commit -q -m 'caller extension and mode fixtures'
++  local mode_path mode_expected mode_actual
++  for mode_path in not-executable.md not-executable-upper.SH not-executable-lower.sh executable-no-extension; do
++    mode_expected=100644
++    [[ "$mode_path" == executable-no-extension ]] && mode_expected=100755
++    mode_actual="$(git -C "$FIXTURE_REPO" ls-tree main -- "plugins/sdd-bootstrap/scripts/$mode_path")"
++    if [[ "$mode_actual" == "$mode_expected "* ]]; then
++      pass "fixture committed mode $mode_path is $mode_expected"
++    else
++      fail "fixture committed mode $mode_path is not $mode_expected"
++    fi
++  done
++  local marker expected
++  for marker in md-marker upper-marker lower-marker mode-marker; do
++    expected=1
++    [[ "$marker" == lower-marker || "$marker" == mode-marker ]] && expected=0
++    if run_evaluator executable-contains "$FIXTURE_REPO" main plugins/sdd-bootstrap "$marker" >/dev/null 2>&1; then rc=0; else rc=$?; fi
++    if ((rc == expected)); then pass "executable_contains $marker exit $expected"; else fail "executable_contains $marker exit $rc, expected $expected"; fi
++  done
++  if run_evaluator executable-contains "$FIXTURE_REPO" main missing-root lower-marker >/dev/null 2>&1; then rc=0; else rc=$?; fi
++  if ((rc == 1)); then pass 'executable_contains missing root is false'; else fail "executable_contains missing root exit $rc, expected 1"; fi
++  if run_evaluator executable-contains "$FIXTURE_REPO" missing-main plugins/sdd-bootstrap lower-marker >/dev/null 2>&1; then rc=0; else rc=$?; fi
++  if ((rc == 1)); then pass 'executable_contains missing ref is false'; else fail "executable_contains missing ref exit $rc, expected 1"; fi
++  if run_evaluator executable-contains "$FIXTURE_REPO" main '' lower-marker >/dev/null 2>&1; then rc=0; else rc=$?; fi
++  if ((rc == 2)); then pass 'executable_contains empty root is invalid'; else fail "executable_contains empty root exit $rc, expected 2"; fi
++  if run_evaluator executable-contains "$FIXTURE_REPO" main plugins/sdd-bootstrap '' >/dev/null 2>&1; then rc=0; else rc=$?; fi
++  if ((rc == 2)); then pass 'executable_contains empty literal is invalid'; else fail "executable_contains empty literal exit $rc, expected 2"; fi
+   if run_evaluator condition "$WORK/condition.json" AC-900 "$FIXTURE_REPO" main >/dev/null 2>&1; then
+     pass 'executable_contains activates after the caller marker reaches main'
+   else
+     fail 'executable_contains activates after the caller marker reaches main'
+diff --git a/tests/skip-allowlist-manifest.tests.ps1 b/tests/skip-allowlist-manifest.tests.ps1
+--- a/tests/skip-allowlist-manifest.tests.ps1
++++ b/tests/skip-allowlist-manifest.tests.ps1
+@@ -106,4 +106,29 @@ function Test-Clean {
+ }
+ function Test-Primitives {
+     $fixture = New-Fixture 'merged-fingerprint-match'
++    $path = 'specs/epic-999-fixture/requirements.md'
++    if ((Invoke-Evaluator @('file-contains', $fixture.Repo, 'main', $path, 'Spec-Review-Status: Passed')) -eq 0) {
++        Pass 'file_contains finds exact text'
++    } else { Fail 'file_contains finds exact text' }
++    foreach ($literal in @('spec-review-status: Passed', 'Spec-Review-Statu?', 'Spec-Review-*', 'contract-v[1]')) {
++        if ((Invoke-Evaluator @('file-contains', $fixture.Repo, 'main', $path, $literal)) -eq 1) {
++            Pass "file_contains rejects absent literal $literal"
++        } else { Fail "file_contains rejects absent literal $literal" }
++    }
++    $target = Join-Path $fixture.Repo $path
++    [IO.File]::AppendAllText($target, "literal?*[s]`n", [Text.UTF8Encoding]::new($false))
++    Invoke-Git $fixture.Repo @('add', $path)
++    Invoke-Git $fixture.Repo @('commit', '-q', '-m', 'fixture literal special characters')
++    if ((Invoke-Evaluator @('file-contains', $fixture.Repo, 'main', $path, 'literal?*[s]')) -eq 0) {
++        Pass 'file_contains finds literal special characters'
++    } else { Fail 'file_contains finds literal special characters' }
++    if ((Invoke-Evaluator @('file-contains', $fixture.Repo, 'main', 'missing.md', 'marker')) -eq 1) {
++        Pass 'file_contains missing path is false'
++    } else { Fail 'file_contains missing path is false (expected exit 1)' }
++    if ((Invoke-Evaluator @('file-contains', $fixture.Repo, 'main', '', 'marker')) -eq 2) {
++        Pass 'file_contains empty path is invalid'
++    } else { Fail 'file_contains empty path is invalid (expected exit 2)' }
++    if ((Invoke-Evaluator @('file-contains', $fixture.Repo, 'main', $path, '')) -eq 2) {
++        Pass 'file_contains empty literal is invalid'
++    } else { Fail 'file_contains empty literal is invalid (expected exit 2)' }
+     $integrated = (& git -C $fixture.Repo rev-parse HEAD).Trim()
+@@ -153,5 +178,5 @@ function Test-Primitives {
+     $document[0].activation_condition = 'executable_contains(plugins/sdd-bootstrap,resolve-project-context)'
+     [IO.File]::WriteAllText($conditionManifest, ($document | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
+     if ((Invoke-Evaluator @('condition', $conditionManifest, 'AC-900', $fixture.Repo, 'main')) -ne 0) { Pass 'executable_contains stays false while the caller marker is not on main' } else { Fail 'executable_contains does not activate before target file reaches main' }
+-    if ((Invoke-Evaluator @('file-contains', $conditionManifest, 'AC-900', $fixture.Repo, 'missing-main')) -ne 0) { Pass 'file_contains fails closed when the target ref is unavailable' } else { Fail 'file_contains activates when the target ref is unavailable' }
++    if ((Invoke-Evaluator @('file-contains', $fixture.Repo, 'missing-main', 'specs/epic-999-fixture/requirements.md', 'Spec-Review-Status: Passed')) -eq 1) { Pass 'file_contains missing ref is false' } else { Fail 'file_contains missing ref is false (expected exit 1)' }
+     if ((Invoke-Evaluator @('condition', $conditionManifest, 'AC-900', $fixture.Repo, 'missing-main')) -ne 0) { Pass 'condition remains inactive when the target ref is unavailable' } else { Fail 'condition activates when the target ref is unavailable' }
+@@ -158,3 +183,34 @@ function Test-Primitives {
+     Invoke-Git $fixture.Repo @('switch', '-q', 'main')
+     Invoke-Git $fixture.Repo @('merge', '-q', '--no-ff', 'feature/epic-999-fixture', '-m', 'merge caller marker')
++    $callerRoot = Join-Path $fixture.Repo 'plugins/sdd-bootstrap/scripts'
++    foreach ($pair in @(@('not-executable.md', 'md-marker'), @('not-executable-upper.SH', 'upper-marker'), @('not-executable-lower.sh', 'lower-marker'), @('executable-no-extension', 'mode-marker'))) {
++        [IO.File]::WriteAllText((Join-Path $callerRoot $pair[0]), "$($pair[1])`n", [Text.UTF8Encoding]::new($false))
++    }
++    Invoke-Git $fixture.Repo @('add', 'plugins/sdd-bootstrap/scripts')
++    Invoke-Git $fixture.Repo @('update-index', '--chmod=-x', '--', 'plugins/sdd-bootstrap/scripts/not-executable.md', 'plugins/sdd-bootstrap/scripts/not-executable-upper.SH', 'plugins/sdd-bootstrap/scripts/not-executable-lower.sh')
++    Invoke-Git $fixture.Repo @('update-index', '--chmod=+x', '--', 'plugins/sdd-bootstrap/scripts/executable-no-extension')
++    Invoke-Git $fixture.Repo @('commit', '-q', '-m', 'caller extension and mode fixtures')
++    foreach ($modeCase in @(@('not-executable.md', '100644'), @('not-executable-upper.SH', '100644'), @('not-executable-lower.sh', '100644'), @('executable-no-extension', '100755'))) {
++        $treeLine = (& git -C $fixture.Repo ls-tree main -- "plugins/sdd-bootstrap/scripts/$($modeCase[0])" | Out-String).Trim()
++        if ($LASTEXITCODE -ne 0) { throw "fixture committed mode lookup failed: $($modeCase[0])" }
++        if ($treeLine.StartsWith("$($modeCase[1]) ", [StringComparison]::Ordinal)) { Pass "fixture committed mode $($modeCase[0]) is $($modeCase[1])" }
++        else { Fail "fixture committed mode $($modeCase[0]) is not $($modeCase[1])" }
++    }
++    foreach ($probe in @(@('md-marker', 1), @('upper-marker', 1), @('lower-marker', 0), @('mode-marker', 0))) {
++        $actual = Invoke-Evaluator @('executable-contains', $fixture.Repo, 'main', 'plugins/sdd-bootstrap', $probe[0])
++        if ($actual -eq $probe[1]) { Pass "executable_contains $($probe[0]) exit $($probe[1])" }
++        else { Fail "executable_contains $($probe[0]) exit $actual, expected $($probe[1])" }
++    }
++    if ((Invoke-Evaluator @('executable-contains', $fixture.Repo, 'main', 'missing-root', 'lower-marker')) -eq 1) {
++        Pass 'executable_contains missing root is false'
++    } else { Fail 'executable_contains missing root is false (expected exit 1)' }
++    if ((Invoke-Evaluator @('executable-contains', $fixture.Repo, 'missing-main', 'plugins/sdd-bootstrap', 'lower-marker')) -eq 1) {
++        Pass 'executable_contains missing ref is false'
++    } else { Fail 'executable_contains missing ref is false (expected exit 1)' }
++    if ((Invoke-Evaluator @('executable-contains', $fixture.Repo, 'main', '', 'lower-marker')) -eq 2) {
++        Pass 'executable_contains empty root is invalid'
++    } else { Fail 'executable_contains empty root is invalid (expected exit 2)' }
++    if ((Invoke-Evaluator @('executable-contains', $fixture.Repo, 'main', 'plugins/sdd-bootstrap', '')) -eq 2) {
++        Pass 'executable_contains empty literal is invalid'
++    } else { Fail 'executable_contains empty literal is invalid (expected exit 2)' }
+     if ((Invoke-Evaluator @('condition', $conditionManifest, 'AC-900', $fixture.Repo, 'main')) -eq 0) { Pass 'executable_contains activates after the caller marker reaches main' } else { Fail 'executable_contains activates after the caller marker reaches main' }

@@ -103,3 +103,41 @@ retained logs, but are not a substitute for a fresh independent review.
 - The only existing-file edits are the dated supersession notices in the
   implementation report and two independent records. No old verdict,
   product code, frozen spec, approval, or task lifecycle field was changed.
+
+## Fresh replay addendum — 2026-10-02
+
+Under the already-approved evidence-only repair, the same replay wrapper was
+run once per mode from source HEAD
+`a1bf96a6d7348dc6c4f48494d68b964dfe56fa20` with `origin/main` at
+`49e1602459108fd8ef318b644b51301a3b61d0b1`. The pre-fix PowerShell
+twin remains pinned to `abc7ab4a01d1aaec2647fdc78a84b0b8f9eb73e6`.
+Both wrapper processes exited 0. The shipped harness digest remained
+`62c44804c97243524fedba413fef76113eebecb570a317e6b47694413bc97af2`;
+the Bash, pre-fix PowerShell, and current PowerShell twin digests in the raw
+logs match the reproduction inputs above. These are new local transcripts,
+not replacements for the 2026-09-27 logs or their expected hashes.
+
+| Mode | New raw transcript (repository-relative) | Transcript SHA-256 | Classifier result | Raw harness exit | Restore result |
+|---|---|---|---|---:|---|
+| RED | `specs/epic-195-a7-compatibility/verification/T-004/red-accounting-20261002-a1bf96a-red.log` | `fc8e233add1238b86d688c758265266f7dcefbba63bb88e775a5c6aec471d88b` | 113 killed / 3 survived | 1 | Bash 61/0; pre-fix PowerShell 39/1 |
+| GREEN | `specs/epic-195-a7-compatibility/verification/T-004/red-accounting-20261002-a1bf96a-green.log` | `c0494845a68b3d832e65d1f3a9316753be6ea908349f2037eb5b3112d229ab36` | 116 killed / 0 survived | 0 | Bash 61/0; current PowerShell 68/0 |
+
+The RED classifier survivors are the same three PowerShell corpus cases,
+each with suite exit 1 but without the required parse-fallback diagnostic.
+The pre-fix PowerShell restore's one failure is the separate old aggregate
+runner registration incompatibility; it causes the RED harness to exit before
+printing a summary. RED 113/3 is counted from its per-mutation records, not
+inferred from raw exit 1. GREEN prints `MUTATION SUMMARY: 116 killed, 0
+survived` and `EXIT_CODE=0` after both clean restores. The replay script
+uses the current checkout and `origin/main`, which differ from the 2026-09-27
+refs; neither fresh transcript is claimed to match an old raw-log digest.
+
+This evidence-only replay does not resolve the ticket, reserve an evaluator,
+or grant a fourth quality-gate cycle. `RT-20260814-001.yml` still records
+`status: open` and `review_cycles: 3`. The current
+`check-quality-gate-cycle-limit.sh` returns `continue` for T-004 because the
+three historical cycles share one report file; that file-count result does
+not supersede the recorded three-cycle limit or authorize another launch.
+Before any new gate, the quality-gate owner must reconcile the fresh raw
+transcripts and ticket's one-fresh-cycle proposal against the persisted
+three-cycle history. The script's `continue` alone is not that decision.
