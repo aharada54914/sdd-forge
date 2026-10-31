@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Selected Git inputs are independent of mutable checkout contents."""
 import importlib.util
+import json
+import shutil
+import sys
 import copy
 import hashlib
 import hmac
@@ -15,6 +18,28 @@ SCRIPT = pathlib.Path(__file__).resolve().parents[1] / 'plugins/sdd-review-loop/
 
 
 class SnapshotTests(unittest.TestCase):
+    def assert_helper_protection(self, runtime, extension):
+        guard = SCRIPT.parents[2] / ('sdd-quality-loop/scripts/sdd-hook-guard.' + extension)
+        target = 'plugins/sdd-review-loop/scripts/fixed-review-inputs.py'
+        for tool, expected in [('write', 2), ('read', 0)]:
+            with self.subTest(tool=tool):
+                payload = {'tool_name': tool, 'tool_input': {'file_path': target}}
+                if tool == 'write':
+                    payload['tool_input']['content'] = 'replacement'
+                result = subprocess.run(
+                    [runtime, str(guard), '--emit', 'exit'],
+                    input=json.dumps(payload), capture_output=True, text=True,
+                    env={**os.environ, 'CLAUDE_PROJECT_DIR': str(self.root)},
+                )
+                self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+
+    def test_python_guard_rejects_helper_write_and_allows_read(self):
+        self.assert_helper_protection(sys.executable, 'py')
+
+    @unittest.skipUnless(shutil.which('node'), 'Node runtime unavailable')
+    def test_javascript_guard_rejects_helper_write_and_allows_read(self):
+        self.assert_helper_protection(shutil.which('node'), 'js')
+
     def test_reviewer_index_preserves_originals_and_rejects_stale_sources(self):
         output = self.root / 'index-snapshot'
         inventory = self.module.materialize(self.repo, self.commit, ['spec.md'], output)

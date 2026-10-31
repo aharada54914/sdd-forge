@@ -667,7 +667,6 @@ for a9_dependency in \
     plugins/sdd-review-loop/references/a8-trusted-signers.json \
     plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json \
     plugins/sdd-review-loop/references/a8-skip-allowlist.json \
-    plugins/sdd-review-loop/scripts/fixed-review-inputs.py \
     tests/hook-activation-live-proof/nonce-ledger.json; do
     parity_check "A9 dependency write: $a9_dependency" 2 \
         "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"$a9_dependency\",\"content\":\"replacement\"}}"
