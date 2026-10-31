@@ -1,0 +1,43 @@
+{
+  "scope": "Independent read-only Claude native discovery/invocation/owner-result audit; no auth files or environment values read",
+  "checks": {
+    "archive_hashes": true,
+    "selected_events_equal_actual_trace": true,
+    "one_runner_call": true,
+    "skill_invoked": true,
+    "runner_observation_hash": true,
+    "log_hashes": true,
+    "owner_v3_passed": true,
+    "fixture_seal_and_task_hashes": true,
+    "source_comparison": true,
+    "codex-project-skill-native-20261031 sdd/skills/verify-app/SKILL.md": true,
+    "codex-project-skill-native-20261031 sdd/skills/verify-app/run.py": true,
+    "copilot-project-skill-v3-native-20261031 sdd/skills/verify-app/SKILL.md": true,
+    "copilot-project-skill-v3-native-20261031 sdd/skills/verify-app/run.py": true
+  },
+  "all_checks_passed": true,
+  "hashed_files": 20,
+  "actual_tools": [
+    "Skill",
+    "Read",
+    "Read",
+    "Bash",
+    "Bash"
+  ],
+  "native_smoke": "demonstrated for this synthetic canonical skill",
+  "outside_host_gate_admissible": false,
+  "outside_host_failure": "runtime-changed; archived offline comparison identifies only variables_sha256 mismatch; environment not reconstructed",
+  "permission_boundary": "Exact requested Bash permission did not prevent additional read-only cat; no argv isolation claim",
+  "cleanup": "Filesystem projection and fixture cleanup recorded; no native discovery after cleanup",
+  "issues": {
+    "602": "Native Claude acceptance gap satisfied; with existing Codex/Copilot smoke and reviewed deterministic contract tests, recommend close after merging/pinning this evidence. Do not require cross-host current-input gate PASS as an extra #602 discovery criterion.",
+    "593": "This packet alone does not close parent: verify other children and independent CLI/Web/API -> gate -> maintenance acceptance and comparative cost/time evidence. It neither adds a new auth blocker nor establishes Full/Lite PASS."
+  },
+  "limitations": [
+    "One synthetic fixture and one Claude invocation; not all skills/hosts/models",
+    "No host reexecution or independent environment reconstruction",
+    "PASS in owner record is historical execution outcome, not fresh validated Full/Lite result",
+    "Initial erroneous canonical-relative Read and subsequent corrected Read retained",
+    "Budget and cleanup are observed/bounded; no independent model evaluation claim"
+  ]
+}

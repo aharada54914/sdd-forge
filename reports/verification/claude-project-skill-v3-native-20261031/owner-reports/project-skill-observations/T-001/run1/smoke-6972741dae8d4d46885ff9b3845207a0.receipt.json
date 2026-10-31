@@ -1,0 +1,29 @@
+{
+  "schema": "project-skill-trial/v1",
+  "skill": "verify-app",
+  "check_id": "smoke",
+  "inputs": {
+    "sdd/skills/verify-app/skill-manifest.json": "0c1f101be4f5067b47be14f4740b8370b2fe8f7460656958841413e73fe37c48",
+    "sdd/skills/verify-app/run.py": "496a1b26b01ad94645784389d7999f25b27ea0e444fca68c3e381f818ea12ce8",
+    "sdd/skills/verify-app/SKILL.md": "98c7d02f0ed4686c1d54aea7376829347e6a008d3122ce9ea680deefb1c9ae78"
+  },
+  "isolation": "temporary-data-directory; not an OS sandbox",
+  "reason": null,
+  "observed_outputs": {},
+  "observation": "reports/project-skill-observations/T-001/run1/smoke.json",
+  "cleanup": true,
+  "directory_cleanup": true,
+  "seconds": 0.18228747400280554,
+  "outcome": "passed",
+  "stdout": {
+    "path": "reports/project-skill-observations/T-001/run1/smoke-6972741dae8d4d46885ff9b3845207a0.stdout",
+    "sha256": "b32938e3e418ce2497d44befa687010d564606983e8bb9c163a122ed857a9743"
+  },
+  "stderr": {
+    "path": "reports/project-skill-observations/T-001/run1/smoke-6972741dae8d4d46885ff9b3845207a0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "observation_sha256": "054f86f25dca7c6fcd5bbc4d91d92770f84bf7257ae3b523b1e099342a8c5b31",
+  "exit_code": 0,
+  "observation_written": true
+}

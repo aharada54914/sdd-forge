@@ -1,0 +1,7 @@
+{
+  "subtype": "success",
+  "result": "I ran the `verify-app` check once and read its observation file and stdout. The check passed.\n\n- **Schema:** `project-verification-observation/v3`. The runner's own summary reports `project-skill-trial/v1`.\n- **Outcome:** `passed`, exit code 0, for `check_id` `smoke`, task `T-001`, run `run1`.\n- **Stdout text:** `native-v3-owner-check-ok`\n\nI made no edits and no git, network or model calls. This is only the synthetic smoke check, not full product approval.",
+  "total_cost_usd": 0.0683074,
+  "permission_denials": [],
+  "is_error": false
+}

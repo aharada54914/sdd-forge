@@ -1,0 +1,21 @@
+{
+  "schema": "project-skill-manifest/v1",
+  "name": "verify-app",
+  "checks": [
+    "smoke"
+  ],
+  "runtime": "python3",
+  "entry": "run.py",
+  "args": [],
+  "requires": [],
+  "files": [
+    {
+      "path": "SKILL.md",
+      "sha256": "98c7d02f0ed4686c1d54aea7376829347e6a008d3122ce9ea680deefb1c9ae78"
+    },
+    {
+      "path": "run.py",
+      "sha256": "496a1b26b01ad94645784389d7999f25b27ea0e444fca68c3e381f818ea12ce8"
+    }
+  ]
+}

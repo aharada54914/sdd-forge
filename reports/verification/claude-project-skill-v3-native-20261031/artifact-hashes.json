@@ -1,0 +1,22 @@
+{
+  "README.md": "d769756565fdd53b1290ab50117d824847c0ea022a91049bf22b4072b6567616",
+  "before-projection-presence.json": "9c8132b9169684453ba5e16d081da694d7bc357882070f66b780d997c6237328",
+  "cleaned-projection-presence.json": "9c8132b9169684453ba5e16d081da694d7bc357882070f66b780d997c6237328",
+  "generated-before/.claude/skills/verify-app/SKILL.md": "66c2d9922885af6a3c6fcd5356cc1eff2583e139296ac180cf8542b4a2501072",
+  "generated-before/sdd/skill-projections.json": "1d8465d40c589f74f0d269b844e1772f561f3145dc4e7f5690c235bfeb64666c",
+  "generated-before/sdd/skills/verify-app/SKILL.md": "98c7d02f0ed4686c1d54aea7376829347e6a008d3122ce9ea680deefb1c9ae78",
+  "generated-before/sdd/skills/verify-app/run.py": "496a1b26b01ad94645784389d7999f25b27ea0e444fca68c3e381f818ea12ce8",
+  "generated-before/sdd/skills/verify-app/skill-manifest.json": "0c1f101be4f5067b47be14f4740b8370b2fe8f7460656958841413e73fe37c48",
+  "generated-before/task-input.json": "15ec0d854af4fa8c3c9226e5075859a1b9372a1d50a124ee204533a9fdbbf9ab",
+  "native-result.json": "aec8907e93d21f5cc356b0a7ea34ed0b5a1fbb5ee107f61a2f84abf68c738046",
+  "offline-checks.json": "796c23deb7313a1a71b22a57675f5e4260c031023ee2a9c4d46712ce4fe88618",
+  "owner-reports/project-skill-observations/T-001/run1/smoke-6972741dae8d4d46885ff9b3845207a0.receipt.json": "39c8422fcdf8646107228b52d9359634ad4c32255854b4f1b6246a15c5133ab1",
+  "owner-reports/project-skill-observations/T-001/run1/smoke-6972741dae8d4d46885ff9b3845207a0.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "owner-reports/project-skill-observations/T-001/run1/smoke-6972741dae8d4d46885ff9b3845207a0.stdout": "b32938e3e418ce2497d44befa687010d564606983e8bb9c163a122ed857a9743",
+  "owner-reports/project-skill-observations/T-001/run1/smoke.json": "054f86f25dca7c6fcd5bbc4d91d92770f84bf7257ae3b523b1e099342a8c5b31",
+  "projected-projection-presence.json": "0802fc5600958d5b50d48da2c462c55d214df3ee6d25dd6f640f780deb851e85",
+  "protocol.json": "2387ac658560e2ecaa2354c4185cf879886c6f2c97f4950eb406d6518445737f",
+  "result.json": "dfef7df95b7fc0a8c509acdb01e6ad6606d64188a3d85a418cda2e22d7b7b604",
+  "source-comparison.json": "5eec7952cdefcd852c15f3ac996af296f00dd9295315d279d459e19c50fbc502",
+  "tool-events.json": "23fc08ed2bac566270505e64c58507f3f44fddffeffe4ffc1b9937156555d809"
+}
