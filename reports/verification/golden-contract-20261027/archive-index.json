@@ -1,0 +1,27 @@
+[
+  {
+    "path": "protocol.json",
+    "sha256": "723c703bd8d9817db3be7a2d8ce3a6b640e9e0fa035402d29dcb4f7a1bdab1bc",
+    "bytes": 2556
+  },
+  {
+    "path": "evaluate.py",
+    "sha256": "69002c1ccd55dab850a60567eb76ce3a921f7b49664b337dc59df691769129d9",
+    "bytes": 9267
+  },
+  {
+    "path": "comparison.json",
+    "sha256": "946c4255103cabb18e5bf2a76b5b24973aca7d18b1d396a72e3149ef4c916442",
+    "bytes": 44384
+  },
+  {
+    "path": "experiment.json",
+    "sha256": "b681c9b436c300b5a1530934ae8300b78287368c9e81b29a9cc982bd670b9ed8",
+    "bytes": 40247
+  },
+  {
+    "path": "raw-evidence.zip",
+    "sha256": "562b1a84e8c6f00d46a46fc24bb51b9f6c074cf56964712d0730fcbeaf380262",
+    "bytes": 114892
+  }
+]

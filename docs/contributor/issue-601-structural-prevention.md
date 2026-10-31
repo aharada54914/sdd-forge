@@ -19,6 +19,9 @@ not policy. Neither is removed here.
 
 The golden cases are reduced source-backed controls, not exact replays of every
 historical incident. The main-based portfolio and this mapping are pending CI
-and review. Held-out model trials, subsequent retention measurements, and Windows PowerShell
-5.1 execution remain unverified. No task approval, historical
+and review. The source-pinned diagnostic, public-contract and held-out native
+trials are preserved in `reports/verification/golden-{native,contract,heldout}-20261027/`.
+Their historical framework snapshots are not native execution proof for the current
+main integration. Current-candidate native trials, subsequent retention measurements
+and Windows PowerShell 5.1 execution remain unverified. No task approval, historical
 report, or pending human-copy artifact is changed by this record.
