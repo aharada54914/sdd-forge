@@ -1,0 +1,347 @@
+{
+  "schema": "sdd-gate-benchmark/v1",
+  "baseline_head": "c5a02f06c2aa6d6b287c0b81e203ce0d65f96620",
+  "code_paths": [
+    "plugins/sdd-quality-loop/scripts",
+    "plugins/sdd-lite/lib",
+    "tests/verification.py"
+  ],
+  "inputs": [
+    {
+      "path": "specs/workflow-state-registry.json",
+      "sha256": "1e9099ce4520db1e7cf692e412ff67a0ba2b1351657d4513c4fd97f07924e210"
+    },
+    {
+      "path": "specs/workflow-state-integrity/requirements.md",
+      "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"
+    },
+    {
+      "path": "specs/workflow-state-integrity/design.md",
+      "sha256": "3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add"
+    },
+    {
+      "path": "specs/workflow-state-integrity/tasks.md",
+      "sha256": "7d68c9d258109350d890694b51c6b07e819b8bbc7bb8172657037a6aa5e3e2e1"
+    },
+    {
+      "path": "specs/workflow-state-integrity/traceability.json",
+      "sha256": "5c890d985dcd8d8ff36880a55e7f427a0e8d73cc959d06d34daea30d8c31c8f5"
+    },
+    {
+      "path": "specs/workflow-state-integrity/verification/T-001.contract.json",
+      "sha256": "88e3e2ffa242473b0f51289b6a1636dad67a8ff44ab32bd9b3fa8df5a12c06fa"
+    },
+    {
+      "path": "specs/workflow-state-integrity/verification/T-001.evidence.json",
+      "sha256": "bb0f13750ee335e58344cec6a589e09bf126d6f96f40356d44669651d3ce379f"
+    }
+  ],
+  "trials": 5,
+  "pinned": {
+    "feature": "workflow-state-integrity",
+    "task_id": "T-001",
+    "risk": "high",
+    "contract": "specs/workflow-state-integrity/verification/T-001.contract.json"
+  },
+  "skill_source": {
+    "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+    "sha256": "6fd4eac7efd7d127d2f0c6ebd467c766417d927ee07bfbc2036660498db9b7ba"
+  },
+  "recipes": {
+    "full-correction-cycle": [
+      {
+        "step_id": "workflow-feedback",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+          "--registry",
+          "specs/workflow-state-registry.json"
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      },
+      {
+        "step_id": "risk",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-risk.sh",
+          "specs/workflow-state-integrity/tasks.md",
+          "T-001"
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      },
+      {
+        "step_id": "placeholder",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+          "specs/workflow-state-integrity/requirements.md",
+          "specs/workflow-state-integrity/design.md"
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      },
+      {
+        "step_id": "task-state",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+          "specs/workflow-state-integrity/tasks.md",
+          "reports/quality-gate",
+          "reports/implementation",
+          "."
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      },
+      {
+        "step_id": "contract",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-contract.sh",
+          "specs/workflow-state-integrity/verification/T-001.contract.json",
+          "."
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      },
+      {
+        "step_id": "traceability",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+          "specs/workflow-state-integrity/traceability.json",
+          ".",
+          "require-evidence"
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      },
+      {
+        "step_id": "bundle",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+          "specs/workflow-state-integrity/verification/T-001.evidence.json",
+          "."
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      },
+      {
+        "step_id": "workflow-final",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+          "--registry",
+          "specs/workflow-state-registry.json"
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      }
+    ],
+    "scoped-correction-cycle": [
+      {
+        "step_id": "workflow-feedback",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+          "--registry",
+          "specs/workflow-state-registry.json",
+          "--feature",
+          "workflow-state-integrity"
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      },
+      {
+        "step_id": "risk",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-risk.sh",
+          "specs/workflow-state-integrity/tasks.md",
+          "T-001"
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      },
+      {
+        "step_id": "placeholder",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+          "specs/workflow-state-integrity/requirements.md",
+          "specs/workflow-state-integrity/design.md"
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      },
+      {
+        "step_id": "task-state",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+          "specs/workflow-state-integrity/tasks.md",
+          "reports/quality-gate",
+          "reports/implementation",
+          "."
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      },
+      {
+        "step_id": "contract",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-contract.sh",
+          "specs/workflow-state-integrity/verification/T-001.contract.json",
+          "."
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      },
+      {
+        "step_id": "traceability",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-traceability.sh",
+          "specs/workflow-state-integrity/traceability.json",
+          ".",
+          "require-evidence"
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      },
+      {
+        "step_id": "bundle",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+          "specs/workflow-state-integrity/verification/T-001.evidence.json",
+          "."
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      },
+      {
+        "step_id": "workflow-final",
+        "argv": [
+          "bash",
+          "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+          "--registry",
+          "specs/workflow-state-registry.json"
+        ],
+        "cwd": ".",
+        "expected_exit": 0
+      }
+    ]
+  },
+  "lifecycles": {
+    "initial": {}
+  },
+  "temperatures": [
+    "cold"
+  ],
+  "primary": {
+    "recipe": "full-correction-cycle",
+    "scope": "all",
+    "lifecycle": "initial",
+    "temperature": "cold",
+    "statistic": "median",
+    "value": "session_ns"
+  },
+  "compare_cases": [
+    {
+      "case_id": "workflow-valid",
+      "family": "workflow-state",
+      "class": "normal",
+      "argv": [
+        "bash",
+        "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+        "--registry",
+        "<CASE_ROOT>/specs/workflow-state-registry.json"
+      ],
+      "cwd": ".",
+      "expected_exit": 0,
+      "builder": {
+        "script": "tests/lib/workflow-state-cases.sh",
+        "sha256": "2d130475345da9281d1f33773d0fa8847894f7815979af4e60d2b1a609b0041f",
+        "case": "valid"
+      }
+    },
+    {
+      "case_id": "workflow-invalid",
+      "family": "workflow-state",
+      "class": "invalid",
+      "argv": [
+        "bash",
+        "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+        "--registry",
+        "<CASE_ROOT>/specs/workflow-state-registry.json"
+      ],
+      "cwd": ".",
+      "expected_exit": 1,
+      "builder": {
+        "script": "tests/lib/workflow-state-cases.sh",
+        "sha256": "2d130475345da9281d1f33773d0fa8847894f7815979af4e60d2b1a609b0041f",
+        "case": "invalid"
+      }
+    },
+    {
+      "case_id": "workflow-stale",
+      "family": "workflow-state",
+      "class": "tampered",
+      "argv": [
+        "bash",
+        "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+        "--registry",
+        "<CASE_ROOT>/specs/workflow-state-registry.json"
+      ],
+      "cwd": ".",
+      "expected_exit": 1,
+      "builder": {
+        "script": "tests/lib/workflow-state-cases.sh",
+        "sha256": "2d130475345da9281d1f33773d0fa8847894f7815979af4e60d2b1a609b0041f",
+        "case": "stale"
+      }
+    },
+    {
+      "case_id": "workflow-forged",
+      "family": "workflow-state",
+      "class": "tampered",
+      "argv": [
+        "bash",
+        "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+        "--registry",
+        "<CASE_ROOT>/specs/workflow-state-registry.json"
+      ],
+      "cwd": ".",
+      "expected_exit": 1,
+      "builder": {
+        "script": "tests/lib/workflow-state-cases.sh",
+        "sha256": "2d130475345da9281d1f33773d0fa8847894f7815979af4e60d2b1a609b0041f",
+        "case": "forged"
+      }
+    },
+    {
+      "case_id": "workflow-boundary",
+      "family": "workflow-state",
+      "class": "boundary",
+      "argv": [
+        "bash",
+        "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+        "--registry",
+        "<CASE_ROOT>/specs/workflow-state-registry.json"
+      ],
+      "cwd": ".",
+      "expected_exit": 1,
+      "builder": {
+        "script": "tests/lib/workflow-state-cases.sh",
+        "sha256": "2d130475345da9281d1f33773d0fa8847894f7815979af4e60d2b1a609b0041f",
+        "case": "boundary"
+      }
+    }
+  ],
+  "repeat_count": 1
+}

@@ -15,6 +15,26 @@ SCRIPT = pathlib.Path(__file__).resolve().parents[1] / 'plugins/sdd-review-loop/
 
 
 class SnapshotTests(unittest.TestCase):
+    def test_reviewer_index_preserves_originals_and_rejects_stale_sources(self):
+        output = self.root / 'index-snapshot'
+        inventory = self.module.materialize(self.repo, self.commit, ['spec.md'], output)
+        self.addCleanup(output.chmod, 0o700)
+        index = self.module.reviewer_index(self.repo, output, inventory)
+        self.assertEqual(index['schema'], 'sdd-fixed-review-index/v1')
+        self.assertIsNone(index['verdict'])
+        self.assertEqual(index['sources'][0]['sha256'], inventory['inputs'][0]['sha256'])
+        self.assertEqual(pathlib.Path(index['sources'][0]['source']).read_text(), 'frozen\n')
+        self.assertEqual(index['inventory_sha256'], index['state_reference']['inventory_sha256'])
+        (self.repo / 'spec.md').write_text('dirty replacement\n')
+        with self.assertRaisesRegex(ValueError, 'stale'):
+            self.module.reviewer_index(self.repo, output, inventory)
+        (self.repo / 'spec.md').write_text('frozen\n')
+        (output / 'spec.md').chmod(0o644)
+        (output / 'spec.md').write_text('tampered\n')
+        (output / 'spec.md').chmod(0o444)
+        with self.assertRaises(ValueError):
+            self.module.reviewer_index(self.repo, output, inventory)
+
     def test_state_and_staleness_validate_inventory_before_git_access(self):
         invalid = [None, {}, {'commit': self.commit, 'inputs': []}]
         for inventory in invalid:

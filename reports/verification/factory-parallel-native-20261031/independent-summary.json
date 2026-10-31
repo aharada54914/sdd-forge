@@ -1,0 +1,74 @@
+{
+  "status": "PASS",
+  "run_id": 41158269796,
+  "attempt": 1,
+  "workflow_source": "27b72a868f1e87e4a83b47866025184f1b361d8d",
+  "product_source": "006e5a553f0667bfc6070dce25e6e9cffe9ea730",
+  "children_checked": 72,
+  "measurements_reduced": 9,
+  "variants": [
+    {
+      "parallel": 2,
+      "job_id": 124409801913,
+      "runner_id": 1000053668,
+      "cpu_count": 4,
+      "image": "20261026.354.1",
+      "seconds": [
+        0.896673308000004,
+        0.8442169049999961,
+        0.8221063380000047
+      ],
+      "median_seconds": 0.8442169049999961,
+      "peak_wrapper_concurrency": [
+        2,
+        2,
+        2
+      ],
+      "zip_sha256": "sha256:e219505b3f5eeb5048a758fa70bbd0573c09bd56c15ad490dc6fac0e9a24edce"
+    },
+    {
+      "parallel": 4,
+      "job_id": 124409802059,
+      "runner_id": 1000053669,
+      "cpu_count": 4,
+      "image": "20261026.354.1",
+      "seconds": [
+        0.6737096039999813,
+        0.6336344519999955,
+        0.6097093740000048
+      ],
+      "median_seconds": 0.6336344519999955,
+      "peak_wrapper_concurrency": [
+        4,
+        4,
+        4
+      ],
+      "zip_sha256": "sha256:88bac85def1188140c583484164181e1f440f9ca894a7d49b5572d578470569a"
+    },
+    {
+      "parallel": 8,
+      "job_id": 124409802105,
+      "runner_id": 1000053670,
+      "cpu_count": 4,
+      "image": "20261026.354.1",
+      "seconds": [
+        0.6879283119999968,
+        0.6127451520000022,
+        0.613525745000004
+      ],
+      "median_seconds": 0.613525745000004,
+      "peak_wrapper_concurrency": [
+        8,
+        8,
+        8
+      ],
+      "zip_sha256": "sha256:b39c3243549c0cda64d5ade90bc4a2b136cd8acfd4528795b0c56af0d28c4498"
+    }
+  ],
+  "limits": [
+    "Fixture temporary directories are not an OS security sandbox.",
+    "Separate hosted jobs and fixed order; no causal speedup inference.",
+    "No external WorkOrder ownership/lease, human-load or provider monetary-cost proof.",
+    "Observation receipt files referenced by runner rows were not included in these archives; this is a fixture audit, not evidence-bundle gate acceptance."
+  ]
+}

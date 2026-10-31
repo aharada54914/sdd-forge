@@ -1,6 +1,7 @@
 {
   "schema": "verification-catalog/v1",
   "suites": [
+    {"path": "tests/benchmark-gates.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/factory-workflow.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/run-measurement.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
     {"path": "tests/run-measurement-integration.tests.py", "runtime": "python", "ci_jobs": ["posix-regression"]},
@@ -377,6 +378,7 @@
   ],
   "profiles": {
     "local-posix": [
+      "tests/benchmark-gates.tests.py",
       "tests/factory-workflow.tests.py",
       "tests/run-measurement.tests.py",
       "tests/run-measurement-integration.tests.py",
@@ -582,6 +584,7 @@
       "tests/verification-impact.tests.py"
     ],
     "local-powershell": [
+      "tests/benchmark-gates.tests.py",
       "tests/factory-workflow.tests.py",
       "tests/run-measurement.tests.py",
       "tests/run-measurement-integration.tests.py",
@@ -807,6 +810,7 @@
       "tests/upstream-concept-issue.tests.sh"
     ],
     "ci-shared-python": [
+      "tests/benchmark-gates.tests.py",
       "tests/human-copy-mirrors-classification.tests.py",
       "tests/factory-workflow.tests.py",
       "tests/run-measurement.tests.py",
