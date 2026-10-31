@@ -1,0 +1,18 @@
+{
+  "label": "production-audit",
+  "argv": [
+    "npm",
+    "audit",
+    "--omit=dev",
+    "--json"
+  ],
+  "cwd": "/workspace/scratch/sdd-forge-main-integration/mcp/sdd-forge-mcp",
+  "started_at": "2026-10-31T14:31:24.256339+00:00",
+  "completed_at": "2026-10-31T14:31:25.296781+00:00",
+  "exit_code": 0,
+  "stdout_path": "production-audit.stdout",
+  "stderr_path": "production-audit.stderr",
+  "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b",
+  "stdout_sha256": "c6cbb8c7a97b7f902eab3bc86b735db5f8d6a0e968bff53e69f237351b946c19",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

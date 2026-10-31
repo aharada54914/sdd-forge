@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/sdd-forge-main-integration/plugins/sdd-quality-loop/scripts/check-contract.py",
+    "/workspace/scratch/issue678-operational-readiness-20261031/review-tree/specs/mcp-report-lookup-cache/verification/T-001.contract.json",
+    "/workspace/scratch/issue678-operational-readiness-20261031/review-tree"
+  ],
+  "cwd": "/workspace/scratch/issue678-operational-readiness-20261031/review-tree",
+  "started_at": "2026-10-31T14:42:27.544527+00:00",
+  "completed_at": "2026-10-31T14:42:27.572339+00:00",
+  "exit_code": 0,
+  "stdout_path": "contract-check.stdout",
+  "stderr_path": "contract-check.stderr",
+  "stdout_sha256": "226049070e0ca3c9f082bd28ae1d79f3d55e3027ff49b3673476133e7e50c773",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "earlier_preparation_failure": "First validation rejected empty lint.stdout as evidence. The contract now references genuine execution JSON binding the empty stdout hash. This is a preparation metadata correction, not a changed product test."
+}

@@ -1,0 +1,10 @@
+{
+  "from_feature": "mcp-report-lookup-cache",
+  "from_task": "T-001",
+  "to_feature": "epic-197-a9-dogfood",
+  "to_task": "T-678",
+  "historical_evidence_prefix": "specs/mcp-report-lookup-cache/verification/T-001/",
+  "current_evidence_prefix": "specs/epic-197-a9-dogfood/verification/T-678/",
+  "scope_changed": false,
+  "historical_raw_records_rewritten": false
+}

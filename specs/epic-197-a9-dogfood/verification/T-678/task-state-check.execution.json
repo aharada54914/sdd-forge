@@ -1,0 +1,19 @@
+{
+  "label": "task-state-check",
+  "argv": [
+    "sh",
+    "/workspace/scratch/sdd-forge-main-integration/plugins/sdd-quality-loop/scripts/check-task-state.sh",
+    "/workspace/scratch/issue678-operational-readiness-20261031/review-tree/specs/mcp-report-lookup-cache/tasks.md",
+    "/workspace/scratch/issue678-operational-readiness-20261031/review-tree/reports/quality-gate",
+    "/workspace/scratch/issue678-operational-readiness-20261031/review-tree/reports/implementation",
+    "/workspace/scratch/issue678-operational-readiness-20261031/review-tree"
+  ],
+  "cwd": "/workspace/scratch/issue678-operational-readiness-20261031/review-tree",
+  "started_at": "2026-10-31T14:42:02.786104+00:00",
+  "completed_at": "2026-10-31T14:42:02.804938+00:00",
+  "exit_code": 0,
+  "stdout_path": "task-state-check.stdout",
+  "stderr_path": "task-state-check.stderr",
+  "stdout_sha256": "1582d7d072549e7a876b68ce6ed1bf9dc752329a65d85e8c8b765c8173297459",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,5 @@
+{
+  "schema": "a9-advisory-request/v1",
+  "feature": "epic-197-a9-dogfood",
+  "verification_contract": "specs/epic-197-a9-dogfood/verification/T-678/contract.json"
+}

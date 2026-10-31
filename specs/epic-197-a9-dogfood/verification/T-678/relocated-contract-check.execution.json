@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "sh",
+    "plugins/sdd-quality-loop/scripts/check-contract.sh",
+    "/workspace/scratch/678-preparation/specs/epic-197-a9-dogfood/verification/T-678/contract.json",
+    "/workspace/scratch/678-preparation"
+  ],
+  "cwd": "/workspace/scratch/678-preparation",
+  "started_at": "2026-10-31T23:28:48.282503Z",
+  "completed_at": "2026-10-31T23:28:48.309147Z",
+  "exit_code": 0,
+  "stdout_path": "relocated-contract-check.stdout",
+  "stderr_path": "relocated-contract-check.stderr",
+  "stdout_sha256": "63a7c5485c08ab47421637a95689293d0ca32d9c1c2c0d17c22d15895ebf7e25",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

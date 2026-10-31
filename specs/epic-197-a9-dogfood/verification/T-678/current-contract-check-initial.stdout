@@ -1,0 +1,3 @@
+Verification contract FAILED for task T-001:
+ - check 'task-state-check' has invalid started_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)
+ - check 'task-state-check' has invalid finished_at: expected ISO-8601 UTC (YYYY-MM-DDTHH:MM:SSZ)

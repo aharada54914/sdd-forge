@@ -1,0 +1,31 @@
+{
+  "validated_input_commit": "acf626caad35fc6f44aac2de7885379a01e5d7c4",
+  "checks": {
+    "relocated_task_state": "PASS",
+    "relocated_contract": "PASS",
+    "request_and_contract_committed_bytes": "PASS",
+    "feature_task_and_evidence_paths": "PASS",
+    "spec_revision_matches_operational_requirements": "PASS",
+    "historical_raw_evidence_hashes": "29 matched",
+    "whole_workflow_state_bash": "PASS",
+    "whole_workflow_state_powershell": "PASS"
+  },
+  "request_inputs": {
+    "result": "BLOCKED_EXPECTED_NOT_ACTIVATED",
+    "missing_live_inputs": [
+      "anchor",
+      "approval",
+      "context"
+    ]
+  },
+  "logs": {
+    "workflow-state-bash": {
+      "sha256": "8ea982255942f7f86535d011fadc3a596e0cccc598e72cf636045cf18226c9f7",
+      "exit_code": 0
+    },
+    "workflow-state-powershell": {
+      "sha256": "8ea982255942f7f86535d011fadc3a596e0cccc598e72cf636045cf18226c9f7",
+      "exit_code": 0
+    }
+  }
+}
