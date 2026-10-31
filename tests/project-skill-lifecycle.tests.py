@@ -91,6 +91,34 @@ class Lifecycle(unittest.TestCase):
                 self.assertEqual(result, (None, b"", b"", "platform-process-ownership-unverified", False))
                 start.assert_not_called()
 
+    def test_changed_imported_runner_or_validator_is_not_readmitted(self):
+        self.seal('print("ok")')
+        with tempfile.TemporaryDirectory() as directory:
+            installed = Path(directory)
+            for relative in (
+                "plugins/sdd-bootstrap/scripts/project-skill.py",
+                "plugins/sdd-bootstrap/scripts/project-skill-process.py",
+                "plugins/sdd-quality-loop/scripts/validate-project-skill.py",
+                "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+                "plugins/sdd-quality-loop/contracts/project-skill-manifest.schema.json",
+                "plugins/sdd-quality-loop/contracts/project-verification-observation.schema.json",
+            ):
+                target = installed / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes((ROOT / relative).read_bytes())
+            runner_path = installed / "plugins/sdd-bootstrap/scripts/project-skill.py"
+            copied_spec = importlib.util.spec_from_file_location("copied_runner", runner_path)
+            copied = importlib.util.module_from_spec(copied_spec)
+            copied_spec.loader.exec_module(copied)
+            for path in (runner_path, Path(copied.V.__file__), Path(copied.V._schema.__file__)):
+                original = path.read_bytes()
+                path.write_bytes(original + b"\n# changed after import\n")
+                with patch.object(copied, "execute") as execute:
+                    with self.assertRaisesRegex(ValueError, "runtime-changed"):
+                        copied.run(self.root, "verify-app", "smoke")
+                    execute.assert_not_called()
+                path.write_bytes(original)
+
     def test_generation_is_draft(self):
         self.assertEqual(self.seal('print("ok")')["status"], "draft")
 
@@ -145,7 +173,9 @@ class Lifecycle(unittest.TestCase):
                     seed.write_bytes(b"replacement")
             return data
 
-        def execute(argv, execution, timeout, limit):
+        def execute(argv, execution, timeout, limit, *, env):
+            self.assertNotIn("SHLVL", env)
+            self.assertNotIn("PWD", env)
             copied.append(original(execution / "seed.txt"))
             return 0, b"", b"", None, True
 

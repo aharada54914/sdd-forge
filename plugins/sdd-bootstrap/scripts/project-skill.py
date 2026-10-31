@@ -28,6 +28,7 @@ spec = importlib.util.spec_from_file_location(
 )
 V = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(V)
+RUNNER_SOURCE_SHA256 = V.digest(Path(__file__).read_bytes())
 
 
 def save(path, value, exclusive=False):
@@ -77,7 +78,7 @@ def seal(root, name, runtime, entry, checks, requires):
     }
 
 
-def execute(argv, cwd, timeout, limit, *, input_fds=()):
+def execute(argv, cwd, timeout, limit, *, input_fds=(), env=None):
     """Bound capture; the dedicated Linux subreaper owns detached descendants."""
     validate_limits(timeout, limit)
     if sys.platform != "linux":
@@ -102,6 +103,7 @@ def execute(argv, cwd, timeout, limit, *, input_fds=()):
             stderr=subprocess.PIPE,
             start_new_session=True,
             pass_fds=(write_fd, *input_fds),
+            env=env,
         )
     finally:
         os.close(write_fd)
@@ -175,6 +177,8 @@ def validate_limits(timeout, output_limit):
 
 def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1048576):
     validate_limits(timeout, output_limit)
+    if V.digest(Path(__file__).read_bytes()) != RUNNER_SOURCE_SHA256:
+        raise ValueError("runtime-changed")
     manifest, raw_manifest, closure = V.discover(root, name)
     manifest_relative = "sdd/skills/" + name + "/skill-manifest.json"
     closure[manifest_relative] = V.digest(raw_manifest)
@@ -193,12 +197,13 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
             if not source.is_file():
                 raise ValueError("trial-input-must-be-file")
             admitted[path] = V.digest(source.read_bytes())
-    runtime = shutil.which(manifest["runtime"])
+    runtime_binding = V.runtime_environment(manifest)
+    runtime = runtime_binding["runtime_path"]
     missing = ([] if runtime else ["runtime"]) + [
         p for p in manifest["requires"] if shutil.which(p) is None
     ]
     observation = {
-        "schema": "project-verification-observation/v1",
+        "schema": "project-verification-observation/v2",
         "mode": "task" if task else "trial",
         "skill": name,
         "check_id": check,
@@ -209,7 +214,7 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
                 sys.platform, "linux"
             ),
             "host": "project-skill-local-runner",
-            "runtime_path": runtime,
+            **runtime_binding,
             "missing": missing,
         },
         "outcome": "unavailable" if missing else "not-run",
@@ -272,6 +277,8 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
             if task:
                 V.source_records(execution, manifest, task, observation, skill_closure)
             if not missing:
+                if V.runtime_environment(manifest) != runtime_binding:
+                    raise ValueError("runtime-changed")
                 started = datetime.datetime.now(datetime.timezone.utc).strftime(
                     "%Y-%m-%dT%H:%M:%SZ"
                 )
@@ -284,8 +291,11 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
                     execution,
                     timeout,
                     output_limit,
+                    env=V.execution_environment(),
                 )
                 result["reason"] = reason
+                if V.runtime_environment(manifest) != runtime_binding:
+                    raise ValueError("runtime-changed")
                 if code is not None:
                     observation.update(
                         outcome="passed" if code == 0 else "failed",

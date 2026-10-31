@@ -9,6 +9,8 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import shlex
+from unittest.mock import patch
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,7 +45,7 @@ class Contracts(unittest.TestCase):
         }
         self.write_manifest()
         self.obs = {
-            "schema": "project-verification-observation/v1",
+            "schema": "project-verification-observation/v2",
             "mode": "trial",
             "skill": "example",
             "check_id": "smoke",
@@ -59,7 +61,7 @@ class Contracts(unittest.TestCase):
             "environment": {
                 "os": "linux",
                 "host": "fixture",
-                "runtime_path": sys.executable,
+                **V.runtime_environment(self.manifest),
                 "missing": [],
             },
             "outcome": "passed",
@@ -126,6 +128,53 @@ class Contracts(unittest.TestCase):
 
     def test_manifest_only(self):
         self.assertEqual(V.validate(self.root, "example")[2], "manifest-only")
+
+    def test_legacy_record_is_history_not_fresh_execution(self):
+        self.obs["schema"] = "project-verification-observation/v1"
+        self.obs["environment"].pop("toolchain")
+        self.obs["environment"].pop("variables_sha256")
+        self.write_observation()
+        validated = self.validate()
+        self.assertEqual(validated[2], "legacy-runtime-unbound")
+        self.assertNotIn("passes", V.project_execution({"id": "smoke"}, validated))
+
+    @unittest.skipUnless(sys.platform == "linux", "actual runner ownership is Linux-only")
+    def test_actual_pass_rejected_after_runtime_replacement_at_same_path(self):
+        runtime = self.root / "runtime-probe"
+        runtime.write_text("#!/bin/sh\nexec " + shlex.quote(sys.executable) + ' "$@"\n')
+        runtime.chmod(0o755)
+        self.manifest["runtime"] = "runtime-probe"
+        self.write_manifest()
+        self.task()
+        self.observation.unlink()
+        runner_spec = importlib.util.spec_from_file_location(
+            "runtime_runner", ROOT / "plugins/sdd-bootstrap/scripts/project-skill.py")
+        runner = importlib.util.module_from_spec(runner_spec)
+        runner_spec.loader.exec_module(runner)
+        with patch.dict(os.environ, {"PATH": str(self.root) + os.pathsep + os.environ["PATH"]}):
+            result = runner.run(self.root, "example", "smoke", task_path=self.task_path)
+            self.assertEqual(result["outcome"], "passed")
+            observation = self.root / result["observation"]
+            self.assertEqual(V.validate(self.root, "example", observation, self.task_path)[2], "passed")
+            runtime.write_text("#!/bin/sh\nexit 3\n")
+            with self.assertRaisesRegex(V.Invalid, "runtime-changed"):
+                V.validate(self.root, "example", observation, self.task_path)
+
+    def test_declared_helper_replacement_and_environment_change_invalidate(self):
+        helper = self.root / "tool-probe"
+        helper.write_text("#!/bin/sh\nexit 0\n")
+        helper.chmod(0o755)
+        with patch.dict(os.environ, {"PATH": str(self.root) + os.pathsep + os.environ["PATH"]}):
+            self.manifest["requires"] = ["tool-probe"]
+            self.write_manifest()
+            self.obs["skill_manifest_sha256"] = V.digest((self.skill / "skill-manifest.json").read_bytes())
+            self.obs["environment"].update(V.runtime_environment(self.manifest))
+            self.write_observation()
+            self.assertEqual(self.validate()[2], "trial-passed")
+            with patch.dict(os.environ, {"SDD_FIXTURE_RUNTIME_INPUT": "changed"}):
+                self.invalid("runtime-changed")
+            helper.write_text("#!/bin/sh\nexit 2\n")
+            self.invalid("runtime-changed")
 
     def test_valid_trial(self):
         self.assertEqual(self.validate()[2], "trial-passed")

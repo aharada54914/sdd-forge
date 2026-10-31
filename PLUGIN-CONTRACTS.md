@@ -6,12 +6,12 @@ govern how plugins communicate and hand off control at version boundaries.
 ## Project skill observations
 
 `project-skill-manifest/v1` binds the declared executable entry and its skill
-file closure. `project-verification-observation/v1` binds execution results to
+file closure. `project-verification-observation/v2` binds runtime/toolchain identity, execution environment and results to
 their declared inputs and outputs. The bootstrap runner creates and executes the
 skill; the quality-loop validator checks those contracts. A trial observation is
 not task evidence, and neither validation nor generation grants task approval or
 changes the existing quality-gate owner. The owned process-tree runner currently
-supports Linux; unsupported hosts report not-run.
+supports Linux; unsupported hosts report not-run. Historical v1 observations remain readable but cannot project fresh execution evidence. See [ADR-0040](docs/adr/0040-project-skill-observation-ownership.md).
 ## Passive exploration and decisions
 
 `workflow-playbook-request/v1` selects an advisory method without changing a
