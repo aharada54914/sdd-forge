@@ -89,8 +89,9 @@ make_repository() {
   printf 'unrelated plugin input\n' > "$repository/plugins/internal/arbitrary-existing.txt"
   local authorized_output_hash
   authorized_output_hash="$(sha256 "$repository/plugins/task/authorized-output.txt")"
-  jq -n '{schema:"task-input-manifest/v1",task_id:"T-001",
-    run_id:"fixture-task-run",session_id:"fixture-task-session"}' \
+  jq -n --arg input_hash "$(sha256 "$repository/specs/f/requirements.md")" '{schema:"task-input-manifest/v1",task_id:"T-001",
+    run_id:"fixture-task-run",session_id:"fixture-task-session",
+    allowed_inputs:[{path:"specs/f/requirements.md",sha256:$input_hash}]}' \
     > "$repository/handoffs/fixture-task/manifest.json"
   {
     printf '# Implementation Report: T-001\n\n'

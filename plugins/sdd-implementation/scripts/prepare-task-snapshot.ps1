@@ -31,7 +31,7 @@ function Get-SafeSource([string]$Repo, [string]$RelativePath) {
   }
   return $current
 }
-function Set-SnapshotReadOnly([string]$Root) {
+function Set-SnapshotReadOnly([string]$Root, [System.Collections.Generic.Dictionary[string,int]]$SourceModes) {
   $items = @(Get-ChildItem -LiteralPath $Root -Recurse -Force)
   if ($IsWindows) {
     foreach ($item in $items) {
@@ -71,7 +71,8 @@ function Set-SnapshotReadOnly([string]$Root) {
     }
   } else {
     foreach ($item in @($items | Where-Object { -not $_.PSIsContainer })) {
-      [IO.File]::SetUnixFileMode($item.FullName, [IO.UnixFileMode]::UserRead -bor [IO.UnixFileMode]::GroupRead -bor [IO.UnixFileMode]::OtherRead)
+      [IO.File]::SetUnixFileMode($item.FullName, [IO.UnixFileMode](292 -bor ($SourceModes[$item.FullName] -band 73)))
+      if ([int][IO.File]::GetUnixFileMode($item.FullName) -ne (292 -bor ($SourceModes[$item.FullName] -band 73))) { Fail PATH 'snapshot file mode mismatch' }
     }
     foreach ($item in @($items | Where-Object { $_.PSIsContainer } | Sort-Object { $_.FullName.Length } -Descending)) {
       [IO.File]::SetUnixFileMode($item.FullName, [IO.UnixFileMode]::UserRead -bor [IO.UnixFileMode]::UserExecute -bor [IO.UnixFileMode]::GroupRead -bor [IO.UnixFileMode]::GroupExecute -bor [IO.UnixFileMode]::OtherRead -bor [IO.UnixFileMode]::OtherExecute)
@@ -83,8 +84,8 @@ function Set-SnapshotReadOnly([string]$Root) {
     }
   }
 }
-function Wait-TestPublicationBarrier {
-  $barrier = $env:SDD_TEST_SNAPSHOT_PUBLISH_BARRIER_DIR
+function Wait-TestBarrier([string]$Variable) {
+  $barrier = [Environment]::GetEnvironmentVariable($Variable)
   if (-not $barrier) { return }
   try {
     [IO.File]::WriteAllBytes((Join-Path $barrier 'ready'), [byte[]]@())
@@ -145,6 +146,7 @@ $tmp = Join-Path $parent ('.task-snapshot-' + [guid]::NewGuid())
 New-Item -ItemType Directory -Path $tmp -Force | Out-Null
 try {
   $seen = @{}
+  $sourceModes = [System.Collections.Generic.Dictionary[string,int]]::new([StringComparer]::Ordinal)
   foreach ($entry in @($data.allowed_inputs)) {
     $entryNames = @($entry.PSObject.Properties | Select-Object -ExpandProperty Name)
     if (($entryNames | Sort-Object -CaseSensitive) -join ',' -cne 'path,sha256') { Fail PATH 'invalid allowed_inputs entry' }
@@ -157,12 +159,14 @@ try {
     $repoPrefix = $repo.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
     if (-not $fullSource.StartsWith($repoPrefix, [StringComparison]::Ordinal)) { Fail PATH "input escapes repository: $($entry.path)" }
     $item = Get-Item -LiteralPath $source -Force
+    $beforeMode = if (-not $IsWindows) { [IO.File]::GetUnixFileMode($source) } else { 0 }
     $beforeLength = $item.Length
     $beforeWrite = $item.LastWriteTimeUtc.Ticks
     $target = Join-Path $tmp ($entry.path -replace '/', [IO.Path]::DirectorySeparatorChar)
     New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force | Out-Null
     $sourceStream = [IO.File]::Open($source, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
     try {
+      if (-not $IsWindows -and [IO.File]::GetUnixFileMode($sourceStream.SafeFileHandle) -ne $beforeMode) { Fail HASH "source changed before copy: $($entry.path)" }
       $sha = [Security.Cryptography.SHA256]::Create()
       try {
         $actual = [BitConverter]::ToString($sha.ComputeHash($sourceStream)).Replace('-','').ToLowerInvariant()
@@ -175,6 +179,8 @@ try {
       try {
         $sourceStream.CopyTo($targetStream)
         $targetStream.Flush($true)
+        Wait-TestBarrier SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR
+        if (-not $IsWindows -and [IO.File]::GetUnixFileMode($sourceStream.SafeFileHandle) -ne $beforeMode) { Fail HASH "source changed during copy: $($entry.path)" }
       } finally {
         $targetStream.Dispose()
       }
@@ -183,11 +189,13 @@ try {
     }
     $after = Get-Item -LiteralPath $source -Force
     if ($after.LinkType -or $after.Length -ne $beforeLength -or $after.LastWriteTimeUtc.Ticks -ne $beforeWrite) { Fail HASH "source changed during copy: $($entry.path)" }
+    if (-not $IsWindows -and [IO.File]::GetUnixFileMode($source) -ne $beforeMode) { Fail HASH "source changed during copy: $($entry.path)" }
+    $sourceModes[$target] = [int]$beforeMode
     $copied = (Get-FileHash -Algorithm SHA256 -LiteralPath $target).Hash.ToLowerInvariant()
     if ($copied -cne $entry.sha256) { Fail HASH "snapshot hash mismatch: $($entry.path)" }
   }
-  Set-SnapshotReadOnly $tmp
-  Wait-TestPublicationBarrier
+  Set-SnapshotReadOnly $tmp $sourceModes
+  Wait-TestBarrier SDD_TEST_SNAPSHOT_PUBLISH_BARRIER_DIR
   try {
     [IO.Directory]::Move($tmp, [IO.Path]::GetFullPath($SnapshotRoot))
   } catch [IO.IOException] {

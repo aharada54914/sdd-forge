@@ -91,6 +91,89 @@ try {
   $evidenceOriginal = Get-Content -Raw -LiteralPath (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt')
   $reloadHash = Get-Sha256 (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt')
 
+  # Unix-only execute-mask assertions; Windows retains its existing ACL tests.
+  if (-not $IsWindows) {
+    $modeRepo = Join-Path $work 'mode-repo'
+    New-Item -ItemType Directory -Path $modeRepo | Out-Null
+    $modeCases = @(
+      @{Name='exec'; Source=493; Expected=365},
+      @{Name='group'; Source=488; Expected=364},
+      @{Name='owner'; Source=448; Expected=356},
+      @{Name='plain.sh'; Source=420; Expected=292},
+      @{Name='private'; Source=384; Expected=292},
+      @{Name='special'; Source=4077; Expected=365}
+    )
+    $entries = @()
+    foreach ($case in $modeCases) {
+      $path = Join-Path $modeRepo $case.Name
+      [IO.File]::WriteAllText($path, "#!/bin/sh`nprintf 'mode-ok\n'`n")
+      [IO.File]::SetUnixFileMode($path, [IO.UnixFileMode]$case.Source)
+      $entries += @{path=$case.Name;sha256=(Get-Sha256 $path)}
+    }
+    $modeManifest = Join-Path $work 'manifests/modes.json'
+    @{allowed_inputs=$entries} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $modeManifest
+    $modeSnapshot = Join-Path $work 'snapshots/modes'
+    & $snapshot -Manifest $modeManifest -RepoRoot $modeRepo -SnapshotRoot $modeSnapshot | Out-Null
+    foreach ($case in $modeCases) {
+      if ([int][IO.File]::GetUnixFileMode((Join-Path $modeSnapshot $case.Name)) -ne $case.Expected) { Fail "execute mask mismatch: $($case.Name)" }
+    }
+    $info = [Diagnostics.ProcessStartInfo]::new((Join-Path $modeSnapshot 'exec'))
+    $info.UseShellExecute = $false
+    $info.RedirectStandardOutput = $true
+    $process = [Diagnostics.Process]::Start($info)
+    $modeOutput = $process.StandardOutput.ReadToEnd()
+    $process.WaitForExit()
+    if ($process.ExitCode -ne 0 -or $modeOutput.Trim() -cne 'mode-ok') { Fail 'direct executable invocation failed' }
+    $info.FileName = Join-Path $modeSnapshot 'plain.sh'
+    try {
+      $process = [Diagnostics.Process]::Start($info)
+      $process.WaitForExit()
+      Fail 'nonexecutable source gained execute permission'
+    } catch {
+      if ($_.Exception.Message.StartsWith('not ok:', [StringComparison]::Ordinal)) { throw }
+      if ($_.Exception.InnerException -isnot [ComponentModel.Win32Exception] -or $_.Exception.InnerException.NativeErrorCode -ne 13) { throw }
+    }
+  }
+
+  if (-not $IsWindows) {
+    $copyBarrier = Join-Path $work 'copy-mode-barrier'
+    $copySnapshot = Join-Path $work 'snapshots/copy-mode-race'
+    New-Item -ItemType Directory -Path $copyBarrier | Out-Null
+    $copyOut = Join-Path $work 'copy-mode.out'
+    $copyErr = Join-Path $work 'copy-mode.err'
+    $oldCopyBarrier = $env:SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR
+    $env:SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR = $copyBarrier
+    try {
+      $pwshPath = (Get-Process -Id $PID).Path
+      $copyProcess = Start-Process -FilePath $pwshPath -ArgumentList @(
+        '-NoLogo','-NoProfile','-File',$snapshot,
+        '-Manifest',$modeManifest,'-RepoRoot',$modeRepo,'-SnapshotRoot',$copySnapshot
+      ) -RedirectStandardOutput $copyOut -RedirectStandardError $copyErr -PassThru
+    } finally {
+      $env:SDD_TEST_SNAPSHOT_COPY_BARRIER_DIR = $oldCopyBarrier
+    }
+    try {
+      foreach ($attempt in 1..500) {
+        if (Test-Path -LiteralPath (Join-Path $copyBarrier 'ready')) { break }
+        Start-Sleep -Milliseconds 10
+      }
+      if (-not (Test-Path -LiteralPath (Join-Path $copyBarrier 'ready'))) { Fail 'snapshot builder did not reach copy-mode boundary' }
+      [IO.File]::SetUnixFileMode((Join-Path $modeRepo 'exec'), [IO.UnixFileMode]420)
+      New-Item -ItemType File -Path (Join-Path $copyBarrier 'continue') | Out-Null
+      if (-not $copyProcess.WaitForExit(15000)) { Fail 'mode-race builder did not exit' }
+      if ($copyProcess.ExitCode -eq 0) { Fail 'snapshot builder accepted source mode-only mutation' }
+      $copyDiagnostic = Get-Content -Raw -LiteralPath $copyErr
+      if (-not $copyDiagnostic.Contains('TASK_INPUT_HASH:', [StringComparison]::Ordinal)) { Fail "mode mutation lost TASK_INPUT_HASH diagnostic: $copyDiagnostic" }
+      if (Test-Path -LiteralPath $copySnapshot) { Fail 'mode mutation published a snapshot' }
+      if (@(Get-ChildItem -LiteralPath (Join-Path $work 'snapshots') -Force | Where-Object Name -like '.task-snapshot-*').Count -ne 0) { Fail 'mode-race temp tree leaked' }
+    } finally {
+      if (-not $copyProcess.HasExited) { $copyProcess.Kill(); $copyProcess.WaitForExit() }
+      $copyProcess.Dispose()
+    }
+  } else {
+    Write-Output 'SKIP: Unix snapshot execute-mask and mode-race assertions are not applicable on Windows'
+  }
+
   $valid = Join-Path $work 'manifests/valid.json'
   $validSnapshot = Join-Path $work 'snapshots/run-001'
   Write-Manifest $valid T-002 run-001 session-001 agent-001

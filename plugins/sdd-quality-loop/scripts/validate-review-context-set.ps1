@@ -146,6 +146,20 @@ function Get-ImplementationBinding {
             $implementation.session_id -isnot [string] -or $implementation.session_id.Length -eq 0) {
             Fail-ReviewContext 'IDENTITY' 'implementation manifest task/run/session is invalid'
         }
+        if ($implementation.allowed_inputs -isnot [array] -or $implementation.allowed_inputs.Count -eq 0) {
+            Fail-ReviewContext 'IDENTITY' 'implementation manifest allowed_inputs is invalid'
+        }
+        $seenInputs = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+        foreach ($entry in $implementation.allowed_inputs) {
+            if ($entry -isnot [hashtable] -or -not (Test-ExactKeys $entry @('path','sha256')) -or
+                $entry.path -isnot [string] -or $entry.path -cmatch '[\x00-\x1f\x7f]' -or
+                $entry.path -cnotmatch '^[A-Za-z0-9.]' -or
+                -not (Test-CanonicalPath $entry.path) -or -not $seenInputs.Add($entry.path) -or
+                $entry.sha256 -isnot [string] -or $entry.sha256.Length -ne 64 -or
+                $entry.sha256 -cnotmatch '^[0-9a-f]{64}$') {
+                Fail-ReviewContext 'IDENTITY' 'implementation manifest allowed_inputs is invalid'
+            }
+        }
         if (@($implementationReportLines | Where-Object { $_.StartsWith('Run ID: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
             @($implementationReportLines | Where-Object { $_.StartsWith('- **Run ID**: ', [StringComparison]::Ordinal) }).Count -ne 1 -or
             @($implementationReportLines | Where-Object { $_.StartsWith('- **Session ID**: ', [StringComparison]::Ordinal) }).Count -ne 1 -or

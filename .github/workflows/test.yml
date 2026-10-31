@@ -154,6 +154,9 @@ jobs:
       - name: Test evaluator scratch isolation (Bash and PowerShell)
         shell: bash
         run: python3 tests/issue311-scratch-isolation.tests.py --repo "$GITHUB_WORKSPACE"
+      - name: Test evaluator implementation binding (Bash and PowerShell)
+        shell: bash
+        run: python3 tests/review-implementation-binding.tests.py --repo "$GITHUB_WORKSPACE"
       - name: Test shared quality non-TTY transport contracts
         shell: bash
         run: python3 -B tests/quality-nontty-transport.tests.py
