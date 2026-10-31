@@ -1,0 +1,15 @@
+{
+  "run_id": 41161753242,
+  "job_id": 124420897870,
+  "failed_source": "48dbe88da0a3efdbd041f3cc26932eb366ac917d",
+  "archive_sha256": "664a563685e9b7ac74b39e628362032c98e488e5ed4892e75219ba0d3a5f752b",
+  "members": {
+    "hosted-job-124420897870.log": "3d32fd2ca3bc71a9492bf6abce35c3a5e5bc8c214d535cb19c31ff4b30c3c022",
+    "guard-parity-fixed.log": "62890483bad242250daccf211b8d09a013c5ca05e4c14e299b877b5d26326833"
+  },
+  "fixed_sources": {
+    "plugins/sdd-quality-loop/references/guard-invariants.json": "8891b4575723aad98cfa2c4c5ce86ab758b33c08be40e4a6b702b0438a306d2e",
+    "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py": "3ba423605573c45a04fb2b2e4d62911a69f468886f7fa378b4d6d55585581922",
+    "tests/guard-parity.tests.sh": "81324c80c99212c5182826ce946102237022a3abbe3444ccb1ab303680e86025"
+  }
+}
