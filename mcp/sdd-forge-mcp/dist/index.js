@@ -38007,7 +38007,6 @@ var Schema = class Schema2 {
         case "mapping":
           if (tag.matchByTagPrefix) prefix.mapping.push(tag);
           else exact.mapping[tag.tagName] = tag;
-          break;
       }
     }
     const implicitScalarAnyFirstChar = implicitScalarTags.filter((tag) => tag.implicitFirstChars === null);
@@ -38517,16 +38516,17 @@ function getBlockValue(input2, start, end, indent, chomping, folded) {
     }
     const content = line.slice(textIndent);
     const first = content.charCodeAt(0);
-    if (folded) if (first === 32 || first === 9) {
-      atMoreIndented = true;
-      result += "\n".repeat(didReadContent ? 1 + emptyLines : emptyLines);
-    } else if (atMoreIndented) {
-      atMoreIndented = false;
-      result += "\n".repeat(emptyLines + 1);
-    } else if (emptyLines === 0) {
-      if (didReadContent) result += " ";
-    } else result += "\n".repeat(emptyLines);
-    else result += "\n".repeat(didReadContent ? 1 + emptyLines : emptyLines);
+    if (folded) {
+      if (first === 32 || first === 9) {
+        atMoreIndented = true;
+        result += "\n".repeat(didReadContent ? 1 + emptyLines : emptyLines);
+      } else if (atMoreIndented) {
+        atMoreIndented = false;
+        result += "\n".repeat(emptyLines + 1);
+      } else if (emptyLines === 0) {
+        if (didReadContent) result += " ";
+      } else result += "\n".repeat(emptyLines);
+    } else result += "\n".repeat(didReadContent ? 1 + emptyLines : emptyLines);
     result += content;
     didReadContent = true;
     emptyLines = 0;
@@ -38558,12 +38558,39 @@ var DEFAULT_TAG_HANDLERS = Object.assign(/* @__PURE__ */ Object.create(null), {
   "!": "!",
   "!!": "tag:yaml.org,2002:"
 });
+var TAG_SUFFIX_CHARS = "-#;/?:@&=+$_.~*'()";
+var TAG_URI_CHARS = TAG_SUFFIX_CHARS + "!,[]";
+function tagPercentDecode(source) {
+  let result = "";
+  let index = 0;
+  while (index < source.length) {
+    if (source.charCodeAt(index) !== 37) {
+      result += source[index++];
+      continue;
+    }
+    let ch = parseInt(source.slice(index + 1, index + 3), 16);
+    index += 3;
+    if (ch >= 192) {
+      let remaining = ch < 224 ? 1 : ch < 240 ? 2 : 3;
+      ch &= (1 << 6 - remaining) - 1;
+      while (remaining-- > 0) {
+        ch = ch << 6 | parseInt(source.slice(index + 1, index + 3), 16) & 63;
+        index += 3;
+      }
+    }
+    if (ch < 65536) result += String.fromCharCode(ch);
+    else {
+      ch -= 65536;
+      result += String.fromCharCode(55296 | ch >> 10, 56320 | ch & 1023);
+    }
+  }
+  return result;
+}
 function tagNameFull(rawTag, tagHandlers) {
-  if (rawTag.startsWith("!<") && rawTag.endsWith(">")) return decodeURIComponent(rawTag.slice(2, -1));
+  if (rawTag.startsWith("!<") && rawTag.endsWith(">")) return tagPercentDecode(rawTag.slice(2, -1));
   const handleEnd = rawTag.indexOf("!", 1);
   const handle = handleEnd === -1 ? "!" : rawTag.slice(0, handleEnd + 1);
-  const prefix = tagHandlers?.[handle] ?? DEFAULT_TAG_HANDLERS[handle] ?? handle;
-  return decodeURIComponent(prefix) + decodeURIComponent(rawTag.slice(handle.length));
+  return tagPercentDecode(tagHandlers?.[handle] ?? DEFAULT_TAG_HANDLERS[handle] ?? handle) + tagPercentDecode(rawTag.slice(handle.length));
 }
 var NO_RANGE$2 = -1;
 var MERGE_TAG_NAME = "tag:yaml.org,2002:merge";
@@ -39026,7 +39053,11 @@ function skipUntilLineEnd(state) {
   while (ch !== 0 && !isEol(ch)) ch = state.input.charCodeAt(++state.position);
 }
 function checkPrintable(state, start, end) {
-  if (PATTERN_NON_PRINTABLE.test(state.input.slice(start, end))) throwError(state, "the stream contains non-printable characters");
+  const match = PATTERN_NON_PRINTABLE.exec(state.input.slice(start, end));
+  if (match !== null) {
+    state.position = start + match.index + match[0].length - 1;
+    throwError(state, "the stream contains non-printable characters");
+  }
 }
 function readTagProperty(state, props, inFlow) {
   if (state.input.charCodeAt(state.position) !== 33) return false;
@@ -39053,12 +39084,14 @@ function readTagProperty(state, props, inFlow) {
     state.position++;
   } else {
     while (ch !== 0 && !isWsOrEol(ch) && !(inFlow && isFlowIndicator(ch))) {
-      if (ch === 33) if (!isNamed) {
-        tagHandle = state.input.slice(suffixStart - 1, state.position + 1);
-        if (!PATTERN_TAG_HANDLE.test(tagHandle)) throwError(state, "named tag handle cannot contain such characters");
-        isNamed = true;
-        suffixStart = state.position + 1;
-      } else throwError(state, "tag suffix cannot contain exclamation marks");
+      if (ch === 33) {
+        if (!isNamed) {
+          tagHandle = state.input.slice(suffixStart - 1, state.position + 1);
+          if (!PATTERN_TAG_HANDLE.test(tagHandle)) throwError(state, "named tag handle cannot contain such characters");
+          isNamed = true;
+          suffixStart = state.position + 1;
+        } else throwError(state, "tag suffix cannot contain exclamation marks");
+      }
       ch = state.input.charCodeAt(++state.position);
     }
     tagName = state.input.slice(suffixStart, state.position);
@@ -39242,7 +39275,7 @@ function readBlockScalar(state, parentIndent, props) {
 function canStartPlainScalar(state, nodeContext) {
   const ch = state.input.charCodeAt(state.position);
   const inFlow = nodeContext === CONTEXT_FLOW_IN;
-  if (ch === 0 || isWsOrEol(ch) || ch === 35 || ch === 38 || ch === 42 || ch === 33 || ch === 124 || ch === 62 || ch === 39 || ch === 34 || ch === 37 || ch === 64 || ch === 96 || inFlow && isFlowIndicator(ch)) return false;
+  if (ch === 0 || isWsOrEol(ch) || ch === 35 || ch === 38 || ch === 42 || ch === 33 || ch === 124 || ch === 62 || ch === 39 || ch === 34 || ch === 37 || ch === 64 || ch === 96 || isFlowIndicator(ch)) return false;
   if (ch === 63 || ch === 45) {
     const following = state.input.charCodeAt(state.position + 1);
     if (isWsOrEolOrEnd(following) || inFlow && isFlowIndicator(following)) return false;
@@ -39514,19 +39547,20 @@ function parseNode(state, parentIndent, nodeContext, allowToSeek, allowCompact, 
   if (indentStatus === 1 || nodeContext === CONTEXT_BLOCK_OUT) {
     const flowIndent = nodeContext === CONTEXT_FLOW_IN || nodeContext === CONTEXT_FLOW_OUT ? parentIndent : parentIndent + 1;
     const blockIndent = state.position - state.lineStart;
-    if (indentStatus === 1) if (allowBlockCollections && (readBlockSequence(state, blockIndent, props) || readBlockMapping(state, blockIndent, flowIndent, props)) || readFlowCollection(state, flowIndent, props)) hasContent = true;
-    else {
-      const ch = state.input.charCodeAt(state.position);
-      if (propertyStart !== null && allowPropertyMapping && allowBlockStyles && !allowBlockCollections && ch !== 124 && ch !== 62) {
-        const fallbackState = snapshotState(state);
-        const propertyIndent = propertyStart.position - propertyStart.lineStart;
-        restoreState(state, propertyStart);
-        if (readBlockMapping(state, propertyIndent, flowIndent, emptyProperties()) && state.events[fallbackState.eventsLength]?.type === EVENT_ID.MAPPING) hasContent = true;
-        else restoreState(state, fallbackState);
+    if (indentStatus === 1) {
+      if (allowBlockCollections && (readBlockSequence(state, blockIndent, props) || readBlockMapping(state, blockIndent, flowIndent, props)) || readFlowCollection(state, flowIndent, props)) hasContent = true;
+      else {
+        const ch = state.input.charCodeAt(state.position);
+        if (propertyStart !== null && allowPropertyMapping && allowBlockStyles && !allowBlockCollections && ch !== 124 && ch !== 62) {
+          const fallbackState = snapshotState(state);
+          const propertyIndent = propertyStart.position - propertyStart.lineStart;
+          restoreState(state, propertyStart);
+          if (readBlockMapping(state, propertyIndent, flowIndent, emptyProperties()) && state.events[fallbackState.eventsLength]?.type === EVENT_ID.MAPPING) hasContent = true;
+          else restoreState(state, fallbackState);
+        }
+        if (!hasContent && (allowBlockScalars && readBlockScalar(state, flowIndent, props) || readSingleQuotedScalar(state, flowIndent, props) || readDoubleQuotedScalar(state, flowIndent, props) || readAlias(state, props) || readPlainScalar(state, flowIndent, nodeContext, props))) hasContent = true;
       }
-      if (!hasContent && (allowBlockScalars && readBlockScalar(state, flowIndent, props) || readSingleQuotedScalar(state, flowIndent, props) || readDoubleQuotedScalar(state, flowIndent, props) || readAlias(state, props) || readPlainScalar(state, flowIndent, nodeContext, props))) hasContent = true;
-    }
-    else if (indentStatus === 0) hasContent = allowBlockCollections && readBlockSequence(state, blockIndent, props);
+    } else if (indentStatus === 0) hasContent = allowBlockCollections && readBlockSequence(state, blockIndent, props);
   }
   allowBlockScalars = allowBlockScalars && !hasContent;
   if (!hasContent && (props.anchorStart !== NO_RANGE$1 || props.tagStart !== NO_RANGE$1 || allowBlockScalars)) {
@@ -39918,6 +39952,70 @@ function extractHeaderValue(contents, key) {
   return void 0;
 }
 
+// src/parsers/report-lookup.ts
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function anyFileContainingWithDiagnostics(root, relDir, pattern) {
+  const wordBoundary = new RegExp(`(^|[^A-Za-z0-9_-])${escapeRegExp(pattern)}([^A-Za-z0-9_-]|$)`);
+  const { files, errors } = listGuardedFilesWithDiagnostics(root, relDir);
+  const matches = [];
+  for (const relFilePath of files) {
+    const read = guardedRead(root, relFilePath);
+    if (read.ok && wordBoundary.test(read.data.contents)) {
+      matches.push(relFilePath);
+    }
+  }
+  return { matches, errors };
+}
+function anyFileContaining(root, relDir, pattern) {
+  return anyFileContainingWithDiagnostics(root, relDir, pattern).matches;
+}
+function hasAnyFileMentioning(root, relDir, taskId) {
+  return anyFileContaining(root, relDir, taskId).length > 0;
+}
+function hasQualityGateVerdictPass(root, relDir, taskId) {
+  return anyFileContaining(root, relDir, taskId).some((relFilePath) => {
+    const read = guardedRead(root, relFilePath);
+    return read.ok && /VERDICT: PASS/.test(read.data.contents);
+  });
+}
+function createReportLookup() {
+  const roots = /* @__PURE__ */ new Map();
+  const directory = (root, relDir) => {
+    let directories = roots.get(root);
+    if (directories === void 0) {
+      directories = /* @__PURE__ */ new Map();
+      roots.set(root, directories);
+    }
+    let snapshot = directories.get(relDir);
+    if (snapshot === void 0) {
+      const { files, errors } = listGuardedFilesWithDiagnostics(root, relDir);
+      const readable = [];
+      for (const path of files) {
+        const read = guardedRead(root, path);
+        if (read.ok) readable.push({ path, contents: read.data.contents });
+      }
+      snapshot = { files: readable, errors };
+      directories.set(relDir, snapshot);
+    }
+    return snapshot;
+  };
+  const matching = (root, relDir, pattern) => {
+    const wordBoundary = new RegExp(`(^|[^A-Za-z0-9_-])${escapeRegExp(pattern)}([^A-Za-z0-9_-]|$)`);
+    return directory(root, relDir).files.filter((file2) => wordBoundary.test(file2.contents));
+  };
+  return {
+    anyFileContainingWithDiagnostics: (root, relDir, pattern) => ({
+      matches: matching(root, relDir, pattern).map((file2) => file2.path),
+      errors: directory(root, relDir).errors.map((error62) => ({ ...error62 }))
+    }),
+    anyFileContaining: (root, relDir, pattern) => matching(root, relDir, pattern).map((file2) => file2.path),
+    hasAnyFileMentioning: (root, relDir, taskId) => matching(root, relDir, taskId).length > 0,
+    hasQualityGateVerdictPass: (root, relDir, taskId) => matching(root, relDir, taskId).some((file2) => /VERDICT: PASS/.test(file2.contents))
+  };
+}
+
 // src/parsers/json-object.ts
 function isJsonObject(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -40171,35 +40269,6 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
   return failures;
 }
 
-// src/parsers/report-lookup.ts
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-function anyFileContainingWithDiagnostics(root, relDir, pattern) {
-  const wordBoundary = new RegExp(`(^|[^A-Za-z0-9_-])${escapeRegExp(pattern)}([^A-Za-z0-9_-]|$)`);
-  const { files, errors } = listGuardedFilesWithDiagnostics(root, relDir);
-  const matches = [];
-  for (const relFilePath of files) {
-    const read = guardedRead(root, relFilePath);
-    if (read.ok && wordBoundary.test(read.data.contents)) {
-      matches.push(relFilePath);
-    }
-  }
-  return { matches, errors };
-}
-function anyFileContaining(root, relDir, pattern) {
-  return anyFileContainingWithDiagnostics(root, relDir, pattern).matches;
-}
-function hasAnyFileMentioning(root, relDir, taskId) {
-  return anyFileContaining(root, relDir, taskId).length > 0;
-}
-function hasQualityGateVerdictPass(root, relDir, taskId) {
-  return anyFileContaining(root, relDir, taskId).some((relFilePath) => {
-    const read = guardedRead(root, relFilePath);
-    return read.ok && /VERDICT: PASS/.test(read.data.contents);
-  });
-}
-
 // src/parsers/task-types.ts
 var STATUS_VALUES = [
   "Planned",
@@ -40233,7 +40302,7 @@ function approverId(value) {
 function isApprovedShape(value) {
   return value === "Approved" || APPROVED_ANNOTATION_PATTERN.test(value);
 }
-function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks) {
+function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup) {
   const taskId = draft.id;
   const fail = (rule, message) => {
     failures.push({ taskId, rule, message });
@@ -40259,10 +40328,10 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
     fail("approval-required", `${taskId} is '${status}' without Approval: Approved`);
   }
   if (status === "Done") {
-    validateDoneEvidence(root, taskId, draft.risk, tasksDir, reportsDir, fail);
+    validateDoneEvidence(root, taskId, draft.risk, tasksDir, reportsDir, fail, reportLookup);
   }
   if (status === "Implementation Complete") {
-    if (!hasAnyFileMentioning(root, implReportsDir, taskId)) {
+    if (!(reportLookup?.hasAnyFileMentioning ?? hasAnyFileMentioning)(root, implReportsDir, taskId)) {
       fail(
         "impl-complete-report-missing",
         `${taskId} is Implementation Complete but no implementation report in ${implReportsDir} mentions it`
@@ -40289,7 +40358,7 @@ function finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures,
     tasks.push(buildTaskEntry(taskId, draft, approval, status, blockersNonEmpty));
   }
 }
-function validateDoneEvidence(root, taskId, taskRisk, tasksDir, reportsDir, fail) {
+function validateDoneEvidence(root, taskId, taskRisk, tasksDir, reportsDir, fail, reportLookup) {
   const bundleRelPath = `${tasksDir}/verification/${taskId}.evidence.json`;
   const contractRelPath = `${tasksDir}/verification/${taskId}.contract.json`;
   if (!guardedExists(root, bundleRelPath)) {
@@ -40341,13 +40410,13 @@ function validateDoneEvidence(root, taskId, taskRisk, tasksDir, reportsDir, fail
       );
     }
   }
-  const qgMatches = anyFileContaining(root, reportsDir, taskId);
+  const qgMatches = (reportLookup?.anyFileContaining ?? anyFileContaining)(root, reportsDir, taskId);
   if (qgMatches.length === 0) {
     fail(
       "done-quality-gate-report-missing",
       `${taskId} is Done but no quality-gate report in ${reportsDir} mentions it`
     );
-  } else if (!hasQualityGateVerdictPass(root, reportsDir, taskId)) {
+  } else if (!(reportLookup?.hasQualityGateVerdictPass ?? hasQualityGateVerdictPass)(root, reportsDir, taskId)) {
     fail(
       "done-quality-gate-verdict-fail",
       `${taskId} is Done but quality-gate report does not contain VERDICT: PASS: ${qgMatches[0]}`
@@ -40424,7 +40493,7 @@ function parentDir(relTasksFilePath) {
   const idx = relTasksFilePath.lastIndexOf("/");
   return idx === -1 ? "." : relTasksFilePath.slice(0, idx);
 }
-function parseTaskState(root, feature, relTasksFilePath, reportsDir = "reports/quality-gate", implReportsDir = "reports/implementation") {
+function parseTaskState(root, feature, relTasksFilePath, reportsDir = "reports/quality-gate", implReportsDir = "reports/implementation", reportLookup = createReportLookup()) {
   const fileResult = guardedRead(root, relTasksFilePath);
   if (!fileResult.ok) {
     return fileResult;
@@ -40437,7 +40506,7 @@ function parseTaskState(root, feature, relTasksFilePath, reportsDir = "reports/q
   let draft;
   const finish = () => {
     if (draft !== void 0) {
-      finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks);
+      finishTask(draft, root, tasksDir, reportsDir, implReportsDir, failures, tasks, reportLookup);
     }
   };
   for (const rawLine of lines) {
@@ -40747,8 +40816,9 @@ function listActiveSpecs(root) {
   if (!specsResult.ok) {
     return specsResult;
   }
+  const reportLookup = createReportLookup();
   const specs = specsResult.data.map((spec) => {
-    const taskStateResult = parseTaskState(root, spec.feature, `specs/${spec.feature}/tasks.md`);
+    const taskStateResult = parseTaskState(root, spec.feature, `specs/${spec.feature}/tasks.md`, void 0, void 0, reportLookup);
     const flag = taskStateResult.ok ? hasApprovedPlannedOrInProgress(taskStateResult.data.tasks) : false;
     return {
       feature: spec.feature,
@@ -41948,5 +42018,5 @@ main().catch((error62) => {
 /*! Bundled license information:
 
 js-yaml/dist/js-yaml.mjs:
-  (*! js-yaml 5.4.3 https://github.com/nodeca/js-yaml @license MIT *)
+  (*! js-yaml 5.5.0 https://github.com/nodeca/js-yaml @license MIT *)
 */

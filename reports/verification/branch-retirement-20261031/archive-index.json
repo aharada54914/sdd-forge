@@ -1,0 +1,309 @@
+{
+  "source_main": "5328aee7efa85dfe9b1b475799b63251200d29a6",
+  "archive_date": "2026-10-31",
+  "archive_tags_remotely_verified": true,
+  "meaning": "Exact original heads and all reachable history retained. Archiving is not a claim all content was integrated.",
+  "branches": [
+    {
+      "branch": "t011/activation-96afb59fccea",
+      "sha": "96afb59fcceab422024d5f2d1abc1b478d7058cf",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/activation-96afb59fccea"
+    },
+    {
+      "branch": "t011/baseline-096235a20c17",
+      "sha": "096235a20c17ef4908244af1b8cca07a0ceab370",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/baseline-096235a20c17"
+    },
+    {
+      "branch": "t011/baseline-4b6ecf77f1be",
+      "sha": "4b6ecf77f1bef6686c0c41dff033c976c2a05b23",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/baseline-4b6ecf77f1be"
+    },
+    {
+      "branch": "t011/baseline-6c2b4e713915",
+      "sha": "6c2b4e7139158674dfaa1148c009db7da261706f",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/baseline-6c2b4e713915"
+    },
+    {
+      "branch": "t011/baseline-7d3b6ef287c2",
+      "sha": "7d3b6ef287c2aa729b3f6f276374d872986dabf9",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/baseline-7d3b6ef287c2"
+    },
+    {
+      "branch": "t011/baseline-c747b59e2864",
+      "sha": "c747b59e28649c94e1309bab67885182e3e8cfea",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/baseline-c747b59e2864"
+    },
+    {
+      "branch": "t011/baseline-f80ac878fb81",
+      "sha": "f80ac878fb815b029e5b07f9d9dc4035c387bffd",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/baseline-f80ac878fb81"
+    },
+    {
+      "branch": "t011/final-windows-payload-96afb59f-v120",
+      "sha": "2806170b47c26db5f282a59350e990107aaa1816",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/final-windows-payload-96afb59f-v120"
+    },
+    {
+      "branch": "t011/mutation-6c2b4e713915",
+      "sha": "67f66723ab98ffab6aeef220fee4a942c8f2a821",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/mutation-6c2b4e713915"
+    },
+    {
+      "branch": "t011/mutation-c747b59e2864",
+      "sha": "df47ab705377e29e5094892e4f1040b9ab9e139e",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/mutation-c747b59e2864"
+    },
+    {
+      "branch": "t011/mutation-f80ac878fb81",
+      "sha": "78170dded31b9f9db346192ebc6acecbd0264a58",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/mutation-f80ac878fb81"
+    },
+    {
+      "branch": "t011/probe-cloud-96afb59fccea",
+      "sha": "5b03917593a2fca6d439ca2eeb7d886d756bd4a2",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/probe-cloud-96afb59fccea"
+    },
+    {
+      "branch": "t011/probe-mcp-96afb59fccea",
+      "sha": "0fd45bffd20f8aa0163918e6fb2e0ef0db2a7fb2",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/probe-mcp-96afb59fccea"
+    },
+    {
+      "branch": "t011/probe-readme-96afb59fccea",
+      "sha": "035711d21847a69c62c50f23e0f868af4604a3eb",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/probe-readme-96afb59fccea"
+    },
+    {
+      "branch": "t011/probe-shared-96afb59fccea",
+      "sha": "d8a2155adeb49ea4109874c50e089f2e029cab26",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/probe-shared-96afb59fccea"
+    },
+    {
+      "branch": "t011/restore-c747b59e2864",
+      "sha": "8f086ec539dc8e43ad8ee0726b7e5ad3d8ac59e6",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/restore-c747b59e2864"
+    },
+    {
+      "branch": "t011/restore-f80ac878fb81",
+      "sha": "f43e84ca2453fa9c9c8c328568d6c16515fcb8a0",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/restore-f80ac878fb81"
+    },
+    {
+      "branch": "t011/windows-archive-diagnostic-096235a2-20261021",
+      "sha": "d22911f749f93c279e8802d149cd63f173f64c2e",
+      "branch_references": [],
+      "sha_references": [],
+      "archive_tag": "archive/20261031/t011/windows-archive-diagnostic-096235a2-20261021"
+    },
+    {
+      "branch": "a9-recovery-t001",
+      "sha": "55fb04ee2c1f6af182305eb85882b5719bc62cb6",
+      "archive_tag": "archive/20261031/a9-recovery-t001"
+    },
+    {
+      "branch": "auto/improve-20261005",
+      "sha": "053db9728df692540ffb85e3f186b301d20e7889",
+      "archive_tag": "archive/20261031/auto/improve-20261005"
+    },
+    {
+      "branch": "auto/improve-20261027",
+      "sha": "8cbf59c099f30cb412b4ba95f1ed1c602371ce43",
+      "archive_tag": "archive/20261031/auto/improve-20261027"
+    },
+    {
+      "branch": "chore/dependabot-yearly",
+      "sha": "ee976dee2dd1f9a8aed394af6df4e963b3d42027",
+      "archive_tag": "archive/20261031/chore/dependabot-yearly"
+    },
+    {
+      "branch": "codex/a9-interrupted-review-recovery-checkpoint",
+      "sha": "77ac9969242eae5af249961669a3c6d0d526b515",
+      "archive_tag": "archive/20261031/codex/a9-interrupted-review-recovery-checkpoint"
+    },
+    {
+      "branch": "codex/fixed-approval-issuer",
+      "sha": "3a76f3f7ad15990c15e20248a0daa08d7af424bc",
+      "archive_tag": "archive/20261031/codex/fixed-approval-issuer"
+    },
+    {
+      "branch": "codex/fixed-native-probe-retry",
+      "sha": "218deec77b9209c776a7031abcd9da330bc3f83e",
+      "archive_tag": "archive/20261031/codex/fixed-native-probe-retry"
+    },
+    {
+      "branch": "codex/issue137-continuity",
+      "sha": "ed52efb42852f38058b10ef159386e2cd4eedfc9",
+      "archive_tag": "archive/20261031/codex/issue137-continuity"
+    },
+    {
+      "branch": "codex/issue290-concept-reverse",
+      "sha": "94ea370fb3ab9747588db343a4178f964fd07cba",
+      "archive_tag": "archive/20261031/codex/issue290-concept-reverse"
+    },
+    {
+      "branch": "codex/issue290-concept-review-phase3",
+      "sha": "8226eef12833ebbd36dcd7f263ec1502ad73abf0",
+      "archive_tag": "archive/20261031/codex/issue290-concept-review-phase3"
+    },
+    {
+      "branch": "codex/issue290-concept-test-phase1",
+      "sha": "badbb7aa5d16114be542c33018967c58770d1a41",
+      "archive_tag": "archive/20261031/codex/issue290-concept-test-phase1"
+    },
+    {
+      "branch": "codex/issue423-boundary-checkpoint",
+      "sha": "021c1cdede139cf9f7ae1bf5966dc04e25a72c29",
+      "archive_tag": "archive/20261031/codex/issue423-boundary-checkpoint"
+    },
+    {
+      "branch": "codex/issue423-filesonly-exit-message",
+      "sha": "221dc6f72ea7caa3f72b46c105a3511836cfa0ae",
+      "archive_tag": "archive/20261031/codex/issue423-filesonly-exit-message"
+    },
+    {
+      "branch": "codex/issue559-bounded-audit",
+      "sha": "6b1e62242267bf0ea1c17a3f78a4adcdf19e5188",
+      "archive_tag": "archive/20261031/codex/issue559-bounded-audit"
+    },
+    {
+      "branch": "codex/issue559-completion-diagnostics",
+      "sha": "9840601365d537abe66928e43ae2e3ed76f3c6e7",
+      "archive_tag": "archive/20261031/codex/issue559-completion-diagnostics"
+    },
+    {
+      "branch": "codex/mcp-production-dependency-repair",
+      "sha": "762c28a728531131a3319ab434da01650303ca40",
+      "archive_tag": "archive/20261031/codex/mcp-production-dependency-repair"
+    },
+    {
+      "branch": "codex/t002-failure-diagnostics",
+      "sha": "2e9f59ae804472a51e75be2657ed71f95423bbb0",
+      "archive_tag": "archive/20261031/codex/t002-failure-diagnostics"
+    },
+    {
+      "branch": "dependabot/github_actions/anthropics/claude-code-action-1.0.257",
+      "sha": "e6b9096f56cd438c9ff42f74cde64984ee7811fa",
+      "archive_tag": "archive/20261031/dependabot/github_actions/anthropics/claude-code-action-1.0.257"
+    },
+    {
+      "branch": "dependabot/github_actions/anthropics/claude-code-action-1.0.259",
+      "sha": "c234e0d0a8cede87dd17e70125a864459f1768ec",
+      "archive_tag": "archive/20261031/dependabot/github_actions/anthropics/claude-code-action-1.0.259"
+    },
+    {
+      "branch": "dependabot/npm_and_yarn/mcp/sdd-forge-mcp/js-yaml-5.5.0",
+      "sha": "37024a9368997f4f7a617a89774246be2c228b8b",
+      "archive_tag": "archive/20261031/dependabot/npm_and_yarn/mcp/sdd-forge-mcp/js-yaml-5.5.0"
+    },
+    {
+      "branch": "feat/issue-594-contracts",
+      "sha": "d0a49f73e0ac97a84b75a5404dd93f06149df3db",
+      "archive_tag": "archive/20261031/feat/issue-594-contracts"
+    },
+    {
+      "branch": "feat/issue-601-structural-prevention",
+      "sha": "21bef3dc623d9c0f8cdb5b4108ebc934b8e8c126",
+      "archive_tag": "archive/20261031/feat/issue-601-structural-prevention"
+    },
+    {
+      "branch": "feat/issue-605-research",
+      "sha": "a2459d59841fad8409c3433d1b2ecc46218764c3",
+      "archive_tag": "archive/20261031/feat/issue-605-research"
+    },
+    {
+      "branch": "feat/issue-614-measurement",
+      "sha": "e5a20b7bc07ea8ad4bea44de71c746e220b56cba",
+      "archive_tag": "archive/20261031/feat/issue-614-measurement"
+    },
+    {
+      "branch": "feature/epic-196-a8-integration",
+      "sha": "f525825e7a1ffb5021b80e3a0fbae20e36955d38",
+      "archive_tag": "archive/20261031/feature/epic-196-a8-integration"
+    },
+    {
+      "branch": "fix/ci-job-metadata",
+      "sha": "232e940f03b50b5611dd9b36f9bb5bb25e3bc1d1",
+      "archive_tag": "archive/20261031/fix/ci-job-metadata"
+    },
+    {
+      "branch": "release/cloud-orchestration-v1.19.0-20261018",
+      "sha": "d6b4cfa2048b6a0d5a27d4caf06df117b79fdfe0",
+      "archive_tag": "archive/20261031/release/cloud-orchestration-v1.19.0-20261018"
+    },
+    {
+      "branch": "verify/issue-642-native-desktop",
+      "sha": "d65a71555f2640db33d861f6018ca806dfb97fff",
+      "archive_tag": "archive/20261031/verify/issue-642-native-desktop"
+    },
+    {
+      "branch": "verify/issue620-factory-adapter-20261027",
+      "sha": "27b72a868f1e87e4a83b47866025184f1b361d8d",
+      "archive_tag": "archive/20261031/verify/issue620-factory-adapter-20261027"
+    },
+    {
+      "branch": "work",
+      "sha": "cf155d02199d0ac81e23f4b0ec43a8abe5072478",
+      "archive_tag": "archive/20261031/work"
+    },
+    {
+      "branch": "work-20261025-140557-resolve-open-issues",
+      "sha": "b1c828355d3b3ff5633f23c4b1d8f28b030817b0",
+      "archive_tag": "archive/20261031/work-20261025-140557-resolve-open-issues"
+    },
+    {
+      "branch": "work-20261028-071400-project-skill-main",
+      "sha": "da4b3fc7bea8d1737434a21ef3ce444dbb600f15",
+      "archive_tag": "archive/20261031/work-20261028-071400-project-skill-main"
+    },
+    {
+      "branch": "work-20261028-074500-research-evidence-main",
+      "sha": "d623c187b29ec9c339d4d32d1e1cbbd41744795c",
+      "archive_tag": "archive/20261031/work-20261028-074500-research-evidence-main"
+    },
+    {
+      "branch": "work-20261028-083500-research-discovery",
+      "sha": "2613ee32b6c8df39e927c6950d9e35dca67f0681",
+      "archive_tag": "archive/20261031/work-20261028-083500-research-discovery"
+    },
+    {
+      "branch": "work-20261028-093000-golden-evaluation",
+      "sha": "0c3125ab135058d56ab7498864dc04498e5a151e",
+      "archive_tag": "archive/20261031/work-20261028-093000-golden-evaluation"
+    }
+  ]
+}

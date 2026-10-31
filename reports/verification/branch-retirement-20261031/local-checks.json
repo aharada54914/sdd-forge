@@ -1,0 +1,201 @@
+{
+  "mcp_report_lookup": [
+    {
+      "label": "install",
+      "argv": [
+        "npm",
+        "ci",
+        "--ignore-scripts"
+      ],
+      "cwd": "/workspace/scratch/sdd-forge-main-integration/mcp/sdd-forge-mcp",
+      "started_at": "2026-10-31T14:30:32.175848+00:00",
+      "completed_at": "2026-10-31T14:30:40.096774+00:00",
+      "exit_code": 0,
+      "stdout_path": "install.stdout",
+      "stderr_path": "install.stderr",
+      "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b"
+    },
+    {
+      "label": "typecheck",
+      "argv": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "cwd": "/workspace/scratch/sdd-forge-main-integration/mcp/sdd-forge-mcp",
+      "started_at": "2026-10-31T14:30:40.105776+00:00",
+      "completed_at": "2026-10-31T14:30:40.867903+00:00",
+      "exit_code": 0,
+      "stdout_path": "typecheck.stdout",
+      "stderr_path": "typecheck.stderr",
+      "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b"
+    },
+    {
+      "label": "build",
+      "argv": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/workspace/scratch/sdd-forge-main-integration/mcp/sdd-forge-mcp",
+      "started_at": "2026-10-31T14:30:40.868489+00:00",
+      "completed_at": "2026-10-31T14:30:41.337951+00:00",
+      "exit_code": 0,
+      "stdout_path": "build.stdout",
+      "stderr_path": "build.stderr",
+      "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b"
+    },
+    {
+      "label": "fullsuite",
+      "argv": [
+        "npm",
+        "test"
+      ],
+      "cwd": "/workspace/scratch/sdd-forge-main-integration/mcp/sdd-forge-mcp",
+      "started_at": "2026-10-31T14:30:41.338632+00:00",
+      "completed_at": "2026-10-31T14:31:24.255623+00:00",
+      "exit_code": 0,
+      "stdout_path": "fullsuite.stdout",
+      "stderr_path": "fullsuite.stderr",
+      "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b"
+    },
+    {
+      "label": "production-audit",
+      "argv": [
+        "npm",
+        "audit",
+        "--omit=dev",
+        "--json"
+      ],
+      "cwd": "/workspace/scratch/sdd-forge-main-integration/mcp/sdd-forge-mcp",
+      "started_at": "2026-10-31T14:31:24.256339+00:00",
+      "completed_at": "2026-10-31T14:31:25.296781+00:00",
+      "exit_code": 0,
+      "stdout_path": "production-audit.stdout",
+      "stderr_path": "production-audit.stderr",
+      "lock_sha256": "a41838ae8d9079464c8aae6fb032a002c84896bf601079a03050403efd86533b"
+    }
+  ],
+  "other_mcp": {
+    "ci-mcp": [
+      {
+        "command": [
+          "npm",
+          "ci",
+          "--ignore-scripts"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 17.581,
+        "log": "ci-mcp-ci---ignore-scripts.log"
+      },
+      {
+        "command": [
+          "npm",
+          "run",
+          "typecheck"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.311,
+        "log": "ci-mcp-run-typecheck.log"
+      },
+      {
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.054,
+        "log": "ci-mcp-run-build.log"
+      },
+      {
+        "command": [
+          "npm",
+          "test"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 6.882,
+        "log": "ci-mcp-test.log"
+      }
+    ],
+    "local-env-mcp": [
+      {
+        "command": [
+          "npm",
+          "ci",
+          "--ignore-scripts"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 14.371,
+        "log": "local-env-mcp-ci---ignore-scripts.log"
+      },
+      {
+        "command": [
+          "npm",
+          "run",
+          "typecheck"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.145,
+        "log": "local-env-mcp-run-typecheck.log"
+      },
+      {
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.699,
+        "log": "local-env-mcp-run-build.log"
+      },
+      {
+        "command": [
+          "npm",
+          "test"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 13.803,
+        "log": "local-env-mcp-test.log"
+      }
+    ]
+  },
+  "self_improvement_guard": {
+    "command": "bash tests/self-improvement-guard.tests.sh",
+    "exit_code": 0,
+    "passed": 66,
+    "failed": 0
+  },
+  "claude_action_tag": {
+    "tag": "v1.0.259",
+    "annotated_tag": "515fe2be6e2ac2b3c794f2d41bfca116adaf0976",
+    "commit": "ae68417a745a5df4b2124873632bd73a2255e6f6",
+    "verified_via": "GitHub REST tag ref and peeled tag object"
+  },
+  "production_audits": {
+    "ci-mcp": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "local-env-mcp": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "sdd-forge-mcp": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    }
+  }
+}
