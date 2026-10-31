@@ -235,6 +235,17 @@ class Lifecycle(unittest.TestCase):
         self.assertIn("owned.txt", result["observed_outputs"])
         self.assertTrue((self.root / result["receipt"]).is_file())
 
+    def test_executable_helper_in_skill_closure_runs(self):
+        helper = self.skill / "helper.sh"
+        helper.write_text("#!/bin/sh\nprintf 'helper ran\\n'\n")
+        helper.chmod(0o755)
+        self.seal(
+            'import subprocess\nsubprocess.run(["./sdd/skills/verify-app/helper.sh"], check=True)\n'
+        )
+        result = self.run_skill()
+        self.assertEqual(result["outcome"], "passed")
+        self.assertEqual((self.root / result["stdout"]["path"]).read_text(), "helper ran\n")
+
     def test_manifest_change_after_admission_cannot_pass(self):
         self.seal("import sys\nraise SystemExit(3 if len(sys.argv)>1 else 0)\n")
         original = A.V.discover

@@ -283,6 +283,7 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
                 target = V.safe(execution, path, "input-unbound")
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(source_bytes)
+                target.chmod(target.stat().st_mode | (source.stat().st_mode & 0o111))
             _m, _raw, skill_closure = V.discover(execution, name, task)
             if _raw != raw_manifest or _m != manifest:
                 raise ValueError("manifest-changed-after-admission")
