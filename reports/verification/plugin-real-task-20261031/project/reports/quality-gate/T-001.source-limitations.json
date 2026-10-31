@@ -1,0 +1,22 @@
+{
+  "hashes": {
+    "REQUEST.md": "e5df08c3828370db4b617dc67c52c814f600cc46a8157b453c2e38cfc3f81de7",
+    "README.md": "f8b1951538aec1ac481f47a25da890bbf75a651fabf01aab6c110e9f96256e3c",
+    "AGENTS.md": "bd6d719259e87d36b3b5e36c6e635702f2ee684b5cecaba55e053e2cbb4d95ed",
+    "junit_summary.py": "2fb459acb6195fa754f05200f80a02f77e59dd1a6de6abf827a121e1c306a1fa",
+    "tests/test_junit_summary.py": "3745f3c17670c2bb9ad51f3748d00ea19e1805e7831755b8817dcc939ca3efd3",
+    "specs/junit-summary/tasks.md": "a4bf17adb7897e40a07eaa874be746507f4ca86a97ea1c6e88d109281e473d98",
+    "specs/junit-summary/requirements.md": "bda5ec6dc54700740b7fe7715c3758659c0cbb796d1c859cf7d071ecbabd8a33",
+    "specs/junit-summary/design.md": "365c1724243f5bbad8909f9d5e3e6c022e12352374c015871ee7000517c9e015",
+    "reports/implementation/junit-summary/T-001.md": "fc4f9e1a6bbef7cfba00792e7c801ec73978681c93945306c3d6ebece186e341",
+    "reports/implementation/junit-summary/T-001-red.txt": "d3996a7613dd387fef1b5d814b001a15c16dbfcd8823f5b2597a3d8ff3050971",
+    "reports/implementation/junit-summary/T-001-green.txt": "9a27d84ecbfd03e231482cf4a5b51166d9e72199aee6eeb12853644fddff2f3d"
+  },
+  "project_context_lexists": false,
+  "track": "C1 COMPATIBILITY_FALLBACK -> lite via AGENTS.md",
+  "enforcement": "disabled-legacy (adapter none)",
+  "required_lite_checks": [],
+  "approval_commit": "User-supplied commit unavailable: git show returned fatal: bad object; current Approval Approved preserved; user confirms human approval",
+  "runtime": "existing verify profile default; exact runtime model not observed",
+  "reuse_allowed": false
+}

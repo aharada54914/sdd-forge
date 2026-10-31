@@ -1,0 +1,18 @@
+{
+  "source_commit": "bb2fdaa354c27e519df8df1991c5d7ac43ebcd4d",
+  "source_sha256": {
+    "plugins/sdd-bootstrap/scripts/project-skill.py": "f8480ee5745eafb30dbaa3ef982f7873accb861eaf53381625977c29efa33e54",
+    "plugins/sdd-quality-loop/scripts/validate-project-skill.py": "74f9d8bd8fdc444451923a5cfac34789417c76571c69a089c1b34e51710495dd"
+  },
+  "absent_before": true,
+  "wrapper_present": true,
+  "exit_code": 0,
+  "duration_seconds": 12.602809878997505,
+  "owner_schema": "project-verification-observation/v3",
+  "owner_outcome": "passed",
+  "owner_exit_code": 0,
+  "independent_validation": "rejected: runtime-changed",
+  "wrapper_absent_after": true,
+  "native_post_cleanup_discovery": "not-run: no standalone CLI discovery command used",
+  "fixture_removed": true
+}

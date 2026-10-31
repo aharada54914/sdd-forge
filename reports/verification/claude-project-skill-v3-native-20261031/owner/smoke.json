@@ -1,0 +1,64 @@
+{
+  "schema": "project-verification-observation/v3",
+  "mode": "task",
+  "skill": "verify-app",
+  "check_id": "smoke",
+  "skill_manifest_sha256": "0c1f101be4f5067b47be14f4740b8370b2fe8f7460656958841413e73fe37c48",
+  "source": {
+    "commit": null,
+    "tree_sha256": "9daaede4dea3fe9b41ddbbe7bd58a0a2095fe8a204d096eaf8bc2f5726094ed0",
+    "executable_modes_sha256": "1064b99e676d0c04d10efda352835b3842da6fdbb5769316179f3b3eb0ebc3d3"
+  },
+  "environment": {
+    "os": "linux",
+    "host": "project-skill-local-runner",
+    "runtime_path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "toolchain": [
+      {
+        "name": "python3",
+        "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "identity_sha256": "482f5a6c283e8c7d82800aeb562b41fa40a42eff8085816a2a7e4834cc0ece6f"
+      },
+      {
+        "name": "@runner-python",
+        "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "identity_sha256": "482f5a6c283e8c7d82800aeb562b41fa40a42eff8085816a2a7e4834cc0ece6f"
+      },
+      {
+        "name": "@validator",
+        "path": "/workspace/scratch/sdd-forge-main-integration/plugins/sdd-quality-loop/scripts/validate-project-skill.py",
+        "sha256": "74f9d8bd8fdc444451923a5cfac34789417c76571c69a089c1b34e51710495dd",
+        "identity_sha256": "b33f0f899e8294b47c1896c0b688f8d177667f48623af5269fc53150c085d925"
+      },
+      {
+        "name": "@schema-validator",
+        "path": "/workspace/scratch/sdd-forge-main-integration/plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+        "sha256": "343895ffea39fe4459af667308d815bd75cc6d4f4eaad7ef4e51b5753994ce99",
+        "identity_sha256": "b48ab2a73357defe60774adf31d727ea1c6427698a355a192b3c8353fcab49bf"
+      },
+      {
+        "name": "@runner",
+        "path": "/workspace/scratch/sdd-forge-main-integration/plugins/sdd-bootstrap/scripts/project-skill.py",
+        "sha256": "f8480ee5745eafb30dbaa3ef982f7873accb861eaf53381625977c29efa33e54",
+        "identity_sha256": "5bd3780932f9cb626693ccb4d8c39470f32d8a51610c8a6add70f20f300608f1"
+      },
+      {
+        "name": "@supervisor",
+        "path": "/workspace/scratch/sdd-forge-main-integration/plugins/sdd-bootstrap/scripts/project-skill-process.py",
+        "sha256": "2311490d2503ccd270bb90795b8de4c98ad6bc4bc05acd250d689b62a7ec5efa",
+        "identity_sha256": "27e768f87cf9f6a6518727281d8951daec8bd10b26562a8b78522af0b7aaaa2e"
+      }
+    ],
+    "variables_sha256": "039c5866a0b33dd8dc025cc723cd0491051023351f6cd59a4ccf7cfb6399d61a",
+    "missing": []
+  },
+  "outcome": "passed",
+  "task_id": "T-001",
+  "run_id": "run1",
+  "task_input_manifest_sha256": "15ec0d854af4fa8c3c9226e5075859a1b9372a1d50a124ee204533a9fdbbf9ab",
+  "exit_code": 0,
+  "started_at": "2026-10-31T11:54:30Z",
+  "finished_at": "2026-10-31T11:54:31Z"
+}

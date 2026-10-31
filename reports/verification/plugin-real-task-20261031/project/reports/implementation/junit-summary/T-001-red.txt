@@ -1,0 +1,20 @@
+Command: python3 -m unittest discover -s tests -v
+Application absent: true
+--- stdout ---
+--- stderr ---
+test_single_pass_exact_json (test_junit_summary.SummaryCLI.test_single_pass_exact_json) ... FAIL
+
+======================================================================
+FAIL: test_single_pass_exact_json (test_junit_summary.SummaryCLI.test_single_pass_exact_json)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/.tools/sdd-forge-dev/verification-workspace/junit-summary-cli/tests/test_junit_summary.py", line 17, in test_single_pass_exact_json
+    self.assertEqual(result.returncode, 0, result.stderr)
+AssertionError: 2 != 0 : /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3: can't open file '/workspace/.tools/sdd-forge-dev/verification-workspace/junit-summary-cli/junit_summary.py': [Errno 2] No such file or directory
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.017s
+
+FAILED (failures=1)
+Exit status: 1

@@ -1,0 +1,4 @@
+{
+  "wrapper_exists": true,
+  "scope": "filesystem only; not native discovery"
+}

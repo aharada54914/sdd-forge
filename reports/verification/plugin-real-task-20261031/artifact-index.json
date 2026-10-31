@@ -1,0 +1,112 @@
+[
+  {
+    "path": "independent-assessment.json",
+    "sha256": "1b7459fb328dd58ed3cdbe4c1dec3d90342fe2a1d111c1bd27c024e11b73c621",
+    "bytes": 3638
+  },
+  {
+    "path": "project/README.md",
+    "sha256": "f8b1951538aec1ac481f47a25da890bbf75a651fabf01aab6c110e9f96256e3c",
+    "bytes": 1130
+  },
+  {
+    "path": "project/REQUEST.md",
+    "sha256": "e5df08c3828370db4b617dc67c52c814f600cc46a8157b453c2e38cfc3f81de7",
+    "bytes": 1239
+  },
+  {
+    "path": "project/junit_summary.py",
+    "sha256": "2fb459acb6195fa754f05200f80a02f77e59dd1a6de6abf827a121e1c306a1fa",
+    "bytes": 1865
+  },
+  {
+    "path": "project/reports/implementation/.gitkeep",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "project/reports/implementation/hook-response.json",
+    "sha256": "8b76c767cf2d9b9e0d261642f7ef2632644945c6fff50483e6f63ae17f0b784c",
+    "bytes": 774
+  },
+  {
+    "path": "project/reports/implementation/junit-summary/T-001-green.txt",
+    "sha256": "9a27d84ecbfd03e231482cf4a5b51166d9e72199aee6eeb12853644fddff2f3d",
+    "bytes": 540
+  },
+  {
+    "path": "project/reports/implementation/junit-summary/T-001-red.txt",
+    "sha256": "d3996a7613dd387fef1b5d814b001a15c16dbfcd8823f5b2597a3d8ff3050971",
+    "bytes": 1058
+  },
+  {
+    "path": "project/reports/implementation/junit-summary/T-001.md",
+    "sha256": "fc4f9e1a6bbef7cfba00792e7c801ec73978681c93945306c3d6ebece186e341",
+    "bytes": 5603
+  },
+  {
+    "path": "project/reports/quality-gate/.gitkeep",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "project/reports/quality-gate/T-001.direct.execution.json",
+    "sha256": "918436d436f793a916490c19d72362cc0cccd5597a9b087763bbb053680c519d",
+    "bytes": 1988
+  },
+  {
+    "path": "project/reports/quality-gate/T-001.execution.json",
+    "sha256": "7fa5d6c83bd0828961a3e385780f9c6c9c557a8ee5a7c9470ebfb612b18808cb",
+    "bytes": 409
+  },
+  {
+    "path": "project/reports/quality-gate/T-001.final-state.execution.json",
+    "sha256": "258eb0881deb4320e34b76709d3d4a7cc843db079077909f81bf7757f4693762",
+    "bytes": 368
+  },
+  {
+    "path": "project/reports/quality-gate/T-001.fresh-hook-response.json",
+    "sha256": "7643cce7f5c14cc3653ff385cba2c4e9a791814a3ebf654091e4dfb277d0d614",
+    "bytes": 774
+  },
+  {
+    "path": "project/reports/quality-gate/T-001.handshake.execution.json",
+    "sha256": "b13e9cbea1084047a037f5980c56b19293bffdb82d8789ab6a77e3f58e493b3c",
+    "bytes": 657
+  },
+  {
+    "path": "project/reports/quality-gate/T-001.hook-response.json",
+    "sha256": "7643cce7f5c14cc3653ff385cba2c4e9a791814a3ebf654091e4dfb277d0d614",
+    "bytes": 774
+  },
+  {
+    "path": "project/reports/quality-gate/T-001.md",
+    "sha256": "e967e828b7c344eabd7bcaa562c0069c129d219694a1764e1027571c0c86fc95",
+    "bytes": 5973
+  },
+  {
+    "path": "project/reports/quality-gate/T-001.source-limitations.json",
+    "sha256": "f20e291a6c3707f680cfb1c5cd537afb5e2dfe2293d26be692f3ef0484288317",
+    "bytes": 1615
+  },
+  {
+    "path": "project/specs/junit-summary/design.md",
+    "sha256": "365c1724243f5bbad8909f9d5e3e6c022e12352374c015871ee7000517c9e015",
+    "bytes": 5135
+  },
+  {
+    "path": "project/specs/junit-summary/requirements.md",
+    "sha256": "bda5ec6dc54700740b7fe7715c3758659c0cbb796d1c859cf7d071ecbabd8a33",
+    "bytes": 2542
+  },
+  {
+    "path": "project/specs/junit-summary/tasks.md",
+    "sha256": "30474f66c4e5fcff3857a475ba0725fe0cb8800067f4eaff015faeb4e0998d92",
+    "bytes": 1475
+  },
+  {
+    "path": "project/tests/test_junit_summary.py",
+    "sha256": "3745f3c17670c2bb9ad51f3748d00ea19e1805e7831755b8817dcc939ca3efd3",
+    "bytes": 6199
+  }
+]

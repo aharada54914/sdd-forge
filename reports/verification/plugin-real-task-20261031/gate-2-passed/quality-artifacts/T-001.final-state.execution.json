@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "bash",
+    "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-lite/1.18.0/scripts/check-task-state-lite.sh",
+    "specs/junit-summary/tasks.md"
+  ],
+  "stdout": "Task state (lite) check passed for 1 task(s).\n",
+  "stderr": "",
+  "exit_code": 0,
+  "duration_seconds": 0.017520551999041345,
+  "after_done_transition": true
+}

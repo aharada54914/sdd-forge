@@ -1,0 +1,9 @@
+{
+  "reason": "Shorten published paths for Windows disposable clone MAX_PATH compatibility. Recorded native paths inside evidence remain unchanged.",
+  "original_to_published": {
+    "owner-reports/project-skill-observations/T-001/run1/smoke-6972741dae8d4d46885ff9b3845207a0.receipt.json": "owner/smoke-6972741dae8d4d46885ff9b3845207a0.receipt.json",
+    "owner-reports/project-skill-observations/T-001/run1/smoke-6972741dae8d4d46885ff9b3845207a0.stderr": "owner/smoke-6972741dae8d4d46885ff9b3845207a0.stderr",
+    "owner-reports/project-skill-observations/T-001/run1/smoke-6972741dae8d4d46885ff9b3845207a0.stdout": "owner/smoke-6972741dae8d4d46885ff9b3845207a0.stdout",
+    "owner-reports/project-skill-observations/T-001/run1/smoke.json": "owner/smoke.json"
+  }
+}

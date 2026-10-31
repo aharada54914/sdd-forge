@@ -1,0 +1,81 @@
+{
+  "files": [
+    {
+      "path": "CLAUDE.md",
+      "sha256": "ce3572506012cab4bea77cbf67c7f4f3ef6f441312061c64207e9d888f5435cc",
+      "bytes": 526
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "bd6d719259e87d36b3b5e36c6e635702f2ee684b5cecaba55e053e2cbb4d95ed",
+      "bytes": 2370
+    },
+    {
+      "path": "README.md",
+      "sha256": "5257659cf5f4017538eb56eb52e7a233e75e60707cf8f73db1a20696fb485ac1",
+      "bytes": 187
+    },
+    {
+      "path": "REQUEST.md",
+      "sha256": "e5df08c3828370db4b617dc67c52c814f600cc46a8157b453c2e38cfc3f81de7",
+      "bytes": 1239
+    },
+    {
+      "path": "scripts/check-sdd-structure.sh",
+      "sha256": "4b64e8027ce7cc5f99f788ea044ad54f8a5add23acc253419c5f26fc5b9671f6",
+      "bytes": 2033
+    },
+    {
+      "path": "specs/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "reports/implementation/hook-response.json",
+      "sha256": "8b76c767cf2d9b9e0d261642f7ef2632644945c6fff50483e6f63ae17f0b784c",
+      "bytes": 774
+    },
+    {
+      "path": "reports/implementation/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "reports/quality-gate/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "specs/junit-summary/design.md",
+      "sha256": "365c1724243f5bbad8909f9d5e3e6c022e12352374c015871ee7000517c9e015",
+      "bytes": 5135
+    },
+    {
+      "path": "specs/junit-summary/requirements.md",
+      "sha256": "bda5ec6dc54700740b7fe7715c3758659c0cbb796d1c859cf7d071ecbabd8a33",
+      "bytes": 2542
+    },
+    {
+      "path": "specs/junit-summary/tasks.md",
+      "sha256": "d91a77aeb2de049328087cbc064cf70aec5a351483cc5f20847441f5738c67e7",
+      "bytes": 1475
+    },
+    {
+      "path": "docs/review-tickets/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/adr/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "sensitive_pattern_matches": 0,
+  "environment_specific_path_files": [],
+  "excluded": [
+    ".git/",
+    "profile auth/config",
+    "raw stderr debug logs"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "reuse_allowed": false,
+  "results": [
+    {
+      "check": "hook-verify",
+      "argv": [
+        "bash",
+        "/workspace/.tools/sdd-forge-dev/codex-verify/plugins/cache/sdd-plugins/sdd-quality-loop/1.18.0/scripts/check-hook-activation-handshake.sh",
+        "--verify-response",
+        "--nonce",
+        "e98e684ace6afa1c9b6dbd0eec956941",
+        "--recorded-result",
+        "/workspace/.tools/sdd-forge-dev/verification-workspace/junit-summary-cli/reports/quality-gate/T-001.hook-response.json",
+        "--runtime",
+        "codex-cli"
+      ],
+      "stdout": "{\n  \"nonce\": \"e98e684ace6afa1c9b6dbd0eec956941\",\n  \"runtime\": \"codex-cli\",\n  \"schema\": \"sdd-hook-verify-result/v1\",\n  \"status\": \"HOOK_ACTIVE\"\n}\n",
+      "stderr": "",
+      "exit_code": 0,
+      "duration_seconds": 0.05964181000308599
+    }
+  ]
+}

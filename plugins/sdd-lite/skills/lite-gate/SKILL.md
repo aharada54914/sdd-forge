@@ -27,7 +27,7 @@ this file from its entry command:
 ## Preconditions
 
 - 対象タスクが `Status: Implementation Complete` かつ `Approval: Approved`。
-- `reports/implementation/<task-id>.md` が存在する。
+- 対象タスクの実装レポートが存在する。`implement-task` の標準出力先は `reports/implementation/<feature>/<task-id>.md`。既存の `reports/implementation/<task-id>.md` も利用できる。対象 feature / task の記載を確認し、別タスクのレポートで代用しない（`check-task-state-lite` は実装レポートディレクトリを再帰検索する）。
 - 実装を担当していない別コンテキスト/別セッション（または委譲）で、一度の独立レビューとして実行する。独立した実行者を用意できなければ停止し、自己レビューを独立レビューと記録しない。これは実行時の責務であり、レポートの自己申告だけで独立性を証明したとは扱わない。
 - レビューでは短い `Done When` を受け入れ条件として、報告された現象の再現、原因、修正後の動作、関連する回帰を確認する。実行できない確認を PASS にせず、不足として差し戻す。
 

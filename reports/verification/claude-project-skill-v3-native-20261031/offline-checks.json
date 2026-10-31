@@ -1,0 +1,10 @@
+{
+  "runtime_field_matches_outside_native_host": {
+    "runtime_path": true,
+    "toolchain": true,
+    "variables_sha256": false
+  },
+  "original_runner_observation_hash_matches": true,
+  "stdout_sha256_matches": true,
+  "stderr_sha256_matches": true
+}

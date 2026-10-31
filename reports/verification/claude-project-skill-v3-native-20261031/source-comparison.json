@@ -1,0 +1,17 @@
+{
+  "tests/project-skill-lifecycle.tests.py": {
+    "b9d3062e_sha256": "2c72462699e05ce96ea265a5a106ef9a24e5dfae582e9f62e218e32fa41ca044",
+    "bb2fdaa3_sha256": "2c72462699e05ce96ea265a5a106ef9a24e5dfae582e9f62e218e32fa41ca044",
+    "identical": true
+  },
+  "plugins/sdd-bootstrap/scripts/project-skill.py": {
+    "b9d3062e_sha256": "f8480ee5745eafb30dbaa3ef982f7873accb861eaf53381625977c29efa33e54",
+    "bb2fdaa3_sha256": "f8480ee5745eafb30dbaa3ef982f7873accb861eaf53381625977c29efa33e54",
+    "identical": true
+  },
+  "plugins/sdd-quality-loop/scripts/validate-project-skill.py": {
+    "b9d3062e_sha256": "74f9d8bd8fdc444451923a5cfac34789417c76571c69a089c1b34e51710495dd",
+    "bb2fdaa3_sha256": "74f9d8bd8fdc444451923a5cfac34789417c76571c69a089c1b34e51710495dd",
+    "identical": true
+  }
+}
