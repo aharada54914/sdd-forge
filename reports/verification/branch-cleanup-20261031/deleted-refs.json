@@ -1,0 +1,9 @@
+{
+  "main": "e105d955a368f9c3a5bcfe5c0dfe38064089fa86",
+  "branches": {
+    "auto/improve-20261026": "4f602f7a4160009239b95a26e6b24c305ecc61dd",
+    "work-20261028-005306-issue654-action-reference": "5c58881fb8d7b7ccd1e1d54255a8d868bed320e7",
+    "work-20261028-010657-mcp-status-view": "e811de6f6f2769e42bce245704b26c81bc06c1b2"
+  },
+  "basis": "each exact tip already ancestor of main; no open PR head/base; no active worktree"
+}

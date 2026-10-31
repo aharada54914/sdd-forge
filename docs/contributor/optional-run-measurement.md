@@ -36,7 +36,13 @@ records zero reuse on the original large workload and benefits only for some
 eligible multi-request fixtures; the half-time goal was not achieved. Do not
 recommend batching without a measured total-time benefit for the actual input.
 
-Golden grader success counts are not valid-hypothesis counts. The run/experiment/
-variant references support attribution, but no human hypothesis-adjudication
-measurement is supplied by those historical grader results; that quantity remains
-unknown until an explicit evaluation supplies it.
+Golden grader success counts are not valid-hypothesis counts. A separate
+[retrospective evidence-based adjudication](../../reports/verification/hypothesis-adjudication-20261031/README.md)
+joins original source, outputs and traces by experiment/case/variant/repetition.
+It distinguishes two unique propositions from twelve repeated judgments and
+retains failed internal commands. All twelve decisions are valid rejections
+within the original per-trial 75-second bound. The propositions and reducer were
+formalized after the experiment, so this is not a new blinded comparison.
+The original full collection wall interval is unavailable: the count within its
+900-second total budget remains null. No human active time or general hypothesis
+value is inferred from these machine trials.
