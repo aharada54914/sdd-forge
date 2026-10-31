@@ -1,0 +1,51 @@
+diff --git a/tests/guards.tests.sh b/tests/guards.tests.sh
+--- a/tests/guards.tests.sh
++++ b/tests/guards.tests.sh
+@@ -1499,3 +1499,47 @@
+ fi
+ 
++# A8 native apply_patch safety regressions (Python and Node guard backends).
++a8_patch_case() {
++    local name="$1" expected="$2" payload="$3"
++    if command -v python3 >/dev/null 2>&1; then
++        invoke_py_guard "$payload"
++        if [[ $PY_CODE -eq $expected ]]; then ok "py: $name"; else fail "py: $name (expected $expected, got $PY_CODE)"; fi
++    fi
++    if command -v node >/dev/null 2>&1; then
++        invoke_node_guard "$payload"
++        if [[ $NODE_CODE -eq $expected ]]; then ok "node: $name"; else fail "node: $name (expected $expected, got $NODE_CODE)"; fi
++    fi
++}
++
++A8_MOVE_SAFE='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: scratch/a.md\n*** Move to: scratch/b.md\n@@\n-old\n+new\n*** End Patch"}}'
++A8_MOVE_GATE='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: scratch/a.md\n*** Move to: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py\n@@\n-old\n+new\n*** End Patch"}}'
++A8_MOVE_ROLE='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: scratch/a.md\n*** Move to: /home/u/.codex/agents/auditor.toml\n@@\n-old\n+new\n*** End Patch"}}'
++A8_MOVE_TASKS='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: scratch/a.md\n*** Move to: specs/a/tasks.md\n@@\n-old\n+new\n*** End Patch"}}'
++A8_CROSS_APPROVAL='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: specs/a/tasks.md\n@@\n-Approval: Approved\n+Approval: Draft\n*** Update File: specs/b/tasks.md\n@@\n-Approval: Draft\n+Approval: Approved\n*** End Patch"}}'
++A8_CROSS_SECOND='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: specs/a/tasks.md\n@@\n-Second Approval: Approved\n+Second Approval: Draft\n*** Update File: specs/b/tasks.md\n@@\n-Second Approval: Draft\n+Second Approval: Approved\n*** End Patch"}}'
++A8_CROSS_WFI='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: docs/workflow-improvements/a.md\n@@\n-Status: Approved\n+Status: Draft\n*** Update File: docs/workflow-improvements/b.md\n@@\n-Status: Draft\n+Status: Approved\n*** End Patch"}}'
++A8_CROSS_DOMAIN='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: a/domain/context-map.md\n@@\n-Domain-Model-Status: Approved\n+Domain-Model-Status: Draft\n*** Update File: b/domain/context-map.md\n@@\n-Domain-Model-Status: Draft\n+Domain-Model-Status: Approved\n*** End Patch"}}'
++A8_DESIGN_NO_VERDICT='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: specs/a8-no-verdict/design.md\n@@\n-Impl-Review-Status: Pending\n+Impl-Review-Status: Passed\n*** End Patch"}}'
++A8_DESIGN_WITH_VERDICT='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: specs/a8-with-verdict/design.md\n@@\n-Impl-Review-Status: Pending\n+Impl-Review-Status: Passed\n*** End Patch"}}'
++
++a8_patch_case "ordinary Move to remains allowed" 0 "$A8_MOVE_SAFE"
++a8_patch_case "empty Move to denied" 2 '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: scratch/a.md\n*** Move to: \n@@\n-old\n+new\n*** End Patch"}}'
++a8_patch_case "same-file approval removal remains allowed" 0 '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: specs/a/tasks.md\n@@\n-Approval: Approved\n+Approval: Draft\n*** End Patch"}}'
++a8_patch_case "same-file unchanged approval count remains allowed" 0 '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: specs/a/tasks.md\n@@\n-Approval: Approved\n+Approval: Approved\n*** End Patch"}}'
++a8_patch_case "Move to protected guard denied" 2 "$A8_MOVE_GATE"
++a8_patch_case "Move to agent role denied" 2 "$A8_MOVE_ROLE"
++a8_patch_case "Move to approval plan denied without resulting state" 2 "$A8_MOVE_TASKS"
++a8_patch_case "cross-file Approval transfer denied" 2 "$A8_CROSS_APPROVAL"
++a8_patch_case "cross-file Second Approval transfer denied" 2 "$A8_CROSS_SECOND"
++a8_patch_case "cross-file WFI Approval transfer denied" 2 "$A8_CROSS_WFI"
++a8_patch_case "cross-file domain-model Approval transfer denied" 2 "$A8_CROSS_DOMAIN"
++a8_patch_case "design status without same-feature verdict denied" 2 "$A8_DESIGN_NO_VERDICT"
++mkdir -p "${WORK}/reports/impl-review/a8-with-verdict/attempt-1/round-1"
++printf '%s\n' '{"verdict":"PASS"}' > "${WORK}/reports/impl-review/a8-with-verdict/attempt-1/round-1/integrated-verdict.json"
++export CLAUDE_PROJECT_DIR="$WORK"
++a8_patch_case "design status with same-feature verdict allowed" 0 "$A8_DESIGN_WITH_VERDICT"
++a8_patch_case "another feature verdict does not authorize design status" 2 "$A8_DESIGN_NO_VERDICT"
++a8_patch_case "Move to human-only sudo flag denied" 2 '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: scratch/a.md\n*** Move to: SDD_SUDO\n@@\n-old\n+new\n*** End Patch"}}'
++unset CLAUDE_PROJECT_DIR
++
+ echo ""

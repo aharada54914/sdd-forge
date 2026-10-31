@@ -1,0 +1,41 @@
+{
+  "request": {
+    "id": 5,
+    "method": "turn/start",
+    "params": {
+      "threadId": "01a107c3-2a6f-75b3-8704-56d694e60af4",
+      "input": [
+        {
+          "type": "text",
+          "text": "sdd-ship: approved A8 T004 fresh recovery. Manifest handoffs/t004-fresh-01a107c3-2a6f-75b3-8704-56d694e60af4/manifest.json sha256=4f72c007de7edd51b6769d7d6d33d48a973411c006050c643b25d6316e9e5211. Read ONLY manifest inputs under handoffs/t004-fresh-01a107c3-2a6f-75b3-8704-56d694e60af4/snapshot. Follow pinned implement-task and quality-gate recovery provision. Recheck code, baseline, historical RED; targeted test; new noncanonical report only. Outputs per manifest; scratch=handoffs/t004-fresh-01a107c3-2a6f-75b3-8704-56d694e60af4/work (including tempfiles). No source/status edits, history/memory/network/delegation/Gemini/review/Done. rtk proxy login=false; stop on refusals. Real IDs in pinned receipt. Report exact hashes, isolation, historical API-equivalent estimate (not billing), unresolved gates."
+        }
+      ],
+      "effort": "high"
+    }
+  },
+  "response": {
+    "id": 5,
+    "result": {
+      "turn": {
+        "id": "01a107c5-b1fd-71e1-9476-181b2d9afa48",
+        "items": [],
+        "itemsView": "notLoaded",
+        "status": "inProgress",
+        "error": null,
+        "startedAt": null,
+        "completedAt": null,
+        "durationMs": null
+      }
+    }
+  },
+  "started_notification": {
+    "threadId": "01a107c3-2a6f-75b3-8704-56d694e60af4",
+    "turnId": "01a107c5-b1fd-71e1-9476-181b2d9afa48",
+    "startedAt": 1791131759
+  },
+  "transport_note": "Long requests id3 and id4 were not accepted: PTY canonical line limit truncated their echo before newline; line-kill Ctrl-U cleared each before next request. First accepted turn is id5 above. first-turn-request.json retains the original unaccepted proposal, not execution evidence.",
+  "manifest_sha256": "4f72c007de7edd51b6769d7d6d33d48a973411c006050c643b25d6316e9e5211",
+  "snapshot_validation": "TASK_INPUT_OK",
+  "model": "gpt-6-astra",
+  "effort": "high"
+}

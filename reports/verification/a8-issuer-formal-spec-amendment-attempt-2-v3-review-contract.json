@@ -1,0 +1,11 @@
+{
+  "schema": "a8-formal-spec-amendment-review-candidate/v1",
+  "session_id": "01a100bf-a245-7560-8501-71c04f506483",
+  "candidate_patch": "reports/verification/a8-issuer-formal-spec-amendment-attempt-2-v3-native-apply.patch",
+  "candidate_patch_sha256": "669093a565c0a7432f95f88bbf90fa2c8d67ab5aa91f7359ad94cc6417ea4aeb",
+  "applicability_result": "APPLICABLE_IN_MEMORY",
+  "approval_scope": "root-authorized limited frozen-spec amendment through existing re-review governance",
+  "review_boundary": "independent reviewers must review reconstructed candidate bytes; this author session reserves no identity and launches no review",
+  "must_not_infer": ["applied", "Spec-Review-Status: Passed", "Impl-Review-Status: Passed", "Task-Review-Status: Passed", "implementation ready", "Done"],
+  "post_design_gate_only": "Draft/Planned T009 candidate and task/traceability reconciliation; preserve all historical approvals"
+}

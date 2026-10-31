@@ -1,0 +1,46 @@
+{
+  "scope": "A8 T-004 fresh implementation allocation; not a verdict",
+  "transport_session_id": 75705,
+  "request": {
+    "method": "thread/start",
+    "params": {
+      "cwd": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge",
+      "ephemeral": true,
+      "model": "gpt-6-astra",
+      "modelProvider": "openai"
+    }
+  },
+  "observed": {
+    "thread_id": "01a107bc-472e-7b51-a137-5b2667e49051",
+    "session_id": "01a107bc-472e-7b51-a137-5b2667e49051",
+    "parent_thread_id": null,
+    "forked_from_id": null,
+    "model": "gpt-6-astra",
+    "provider": "openai",
+    "reasoning_effort": "high",
+    "status": "idle",
+    "ephemeral": true,
+    "turns": [],
+    "approval_policy": "never",
+    "sandbox_type": "dangerFullAccess"
+  },
+  "identity_mapping": {
+    "run_id": "thread.id",
+    "session_id": "thread.sessionId",
+    "agent_instance_id": "thread.id (dedicated root instance)"
+  },
+  "sent_methods": [
+    "initialize",
+    "initialized",
+    "thread/start"
+  ],
+  "turn_start_sent": false,
+  "implementation_ledger_reservation": "not required; evaluator reservation remains separate",
+  "caller_gate": {
+    "context_physically_present": false,
+    "canary_physically_present": false,
+    "handshake": "CAPABILITY_RUNTIME_UNAVAILABLE / PLUGIN_HOOKS_DISABLED, exit 65; missing surfaced plugin metadata, not proof that no hook ran",
+    "track": "DISABLED_LEGACY / COMPATIBILITY_FALLBACK full",
+    "raw_evidence": "handoffs/t004-identity-audit-20261005/ship-canary-result.json"
+  }
+}

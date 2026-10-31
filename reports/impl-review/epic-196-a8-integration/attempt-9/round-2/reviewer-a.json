@@ -1,0 +1,133 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic196-impl-a9r2-a-54a93ded",
+  "host_session_id": "54a93ded-0cf5-43b3-a8da-6ea3a490d6d8",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-196-a8-integration/requirements.md",
+      "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+      "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/design.md",
+      "sha256": "c2a30f22f833f9a30ffeff01960d7f5304af262ba9ab4f0b9aad67f75b604cca"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/investigation.md",
+      "sha256": "888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/ux-spec.md",
+      "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/frontend-spec.md",
+      "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/infra-spec.md",
+      "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/security-spec.md",
+      "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/epic-196-a8-integration/attempt-9/round-2/precheck-result.json",
+      "sha256": "a9fb7d854cf30a24701bd6015fb5e8e9bbd34319da40c8c3cd66bd9b061a6bb6"
+    },
+    {
+      "path": "reports/impl-review/epic-196-a8-integration/attempt-9/round-1/integrated-summary.json",
+      "sha256": "8538100ab4a3b65b32f3421f5f037f3c1ff5c64433d245900638f9f924deee12"
+    },
+    {
+      "path": "docs/adr/0028-live-host-proof-ed25519-signing.md",
+      "sha256": "17b6c83d22126ed1095d556a80b3cb14173e4975deee039e5871656ce416186c"
+    },
+    {
+      "path": "docs/adr/0035-a8-two-contribution-handoff-oracle.md",
+      "sha256": "50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923"
+    }
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture gives a mermaid component graph with explicit interaction edges (HANDOFF->CANARY->LIVE, MATRIX->DRIFT, SYN->FLAG/SUBAGENT, FLAG->LIVE, LIVE->AGGREGATE, CLASS classifies). Integration with existing components is described in Technical Summary and Components (extends tests/cli-hook-enforcement.ps1 and tests/install.tests.{sh,ps1}; registers into tests/run-all.{sh,ps1} and .github/workflows/test.yml, INV-014). Technology per layer is in the Components Language column and Layer Specifications: sh/PowerShell scripts, JSON data, existing CI, no UI or frontend. Launch evidence verified: the sha256 of all 13 admitted files matches the manifest. The record hash recomputed from the manifest fields plus the allowed-inputs-v1 digest equals 6bd7c32b08b2676fd2ea302fbc461d4e2c2579051760dafec81e9f84b52dc4ed. sequence 1207 = pre_append_tip 1206 + 1. previous_record_sha256 matches the manifest."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Architecture graph is acyclic over components: HANDOFF->CANARY->LIVE->AGGREGATE, FLAG->LIVE, MATRIX->DRIFT/LOCAL/CI3, SYN->FLAG/SUBAGENT. The dotted AGGREGATE->REQ003 edge is a Done-gate annotation onto the enclosing subgraph, not a component dependency. Cross-Layer Dependencies shows no back-edge: the drift check depends on the installer defaults, and the installer does not depend on the drift check. validate-live-host-proof reads the A1-written nonce ledger and only sets consumed_by_record."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan carries all three required sub-fields: Data Entities (the live-proof records, nonce-ledger.json, raw/ captures, the three governance manifests, and four more schemas), Existing Data Affected (read-only comparison targets plus the single consumed_by_record write), and Migration Strategy ('No migration required' with rationale). Field-level schemas and constraints are given for all six schemas."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The feature has no HTTP endpoints. ## API / Contract Plan lists every new CLI contract: cross-runtime-handoff.tests, install-uninstall-matrix.tests, check-installed-plugin-drift, validate-live-host-proof, path-lineending-regression.tests, and the live-host capture. Each lists flags, defaults, exit semantics and output schemas (Data Plan). The non-breaking status of existing contracts is stated in Components and Protected-File Statement: installers are called unmodified and existing cli-hook-enforcement.ps1 assertions are preserved. Advisory (Minor, non-blocking): the closed list of validate-live-host-proof error codes in API / Contract Plan omits ERR_SIGNER_ROLE_MISMATCH. That code is defined in Schema Validation Rules, Signing Contract and Test Strategy item 10, so an implementer is not left ambiguous. Adding it to the list would remove the inconsistency."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Security Boundaries restates B1 (live-host session authenticity: fortified record, nonce, two-party Ed25519 attestation, AC-027 guard, aggregate gate) and B2 (read-only drift check). Authentication and authorization per boundary are in requirements.md's Security Boundaries table and in security-spec.md Authorization and Authentication Flow. Data classification is 'none' in requirements.md and detailed in security-spec.md Data Classification. OWASP is covered in security-spec.md OWASP Mapping, including Cryptographic Failures via ADR-0028 and Injection N/A with rationale. design.md says no additional boundary is introduced at design time, while security-spec.md B3-B5 are an explicit expansion of design.md content. These are consistent, not contradictory."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: this is not a fullstack feature. design.md has no Frontend Plan, and frontend-spec.md and ux-spec.md state N/A (no browser UI or client state). Every deliverable is sh/PowerShell/Python plus JSON, so there are no frontend-to-API endpoint or field mappings to check."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Test Strategy has 11 ordered items with concrete artifacts: tests/cross-runtime-handoff.tests.{sh,ps1}, tests/install-uninstall-matrix.tests.{sh,ps1}, the tests/cli-hook-enforcement.ps1 extension, validate-live-host-proof.{sh,ps1}, check-installed-plugin-drift.{sh,ps1}, tests/path-lineending-regression.tests.{sh,ps1}, and tests/hook-activation-live-proof/<cell>.json. Unit-level scope with mocked or fixture inputs appears in the Claude `mcp list` parser fixtures (positive, absent, similarly named, disconnected, malformed, failed), the signer-role negative fixtures (item 10), and the direct-invocation guard checks (item 4). Integration scope is the matrix, handoff and drift-in-verify sub-step. Acceptance approach is acceptance-tests.md TEST-001..030 mapped to AC-001..030, plus the live-host proof and aggregate gate. The user-journey path is the 5-cell live-host proof with validate-live-host-proof as Done and release gate. The framework is project tooling already named in the design."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every box in the Architecture diagram maps to a Components row or defined section: FIX, HANDOFF, MATRIX, SYN (with FLAG and SUBAGENT as its assertions), LIVE (tests/hook-activation-live-proof/), AGGREGATE (validate-live-host-proof), PATHFIX, DRIFT, CLASS (Classification Table), RECORD (live-host-verification-record/v1). CANARY is a named case inside HANDOFF; LOCAL and CI3 are defined in Test Strategy items 2-3. External components are established system components: Epic A1's check-hook-activation-handshake.{py,sh,ps1} (merged 2026-08-08, INV-005/INV-007), sdd-hook-guard, install/uninstall scripts, tests/run-all and test.yml."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## ADR Change Log declares docs/adr/0035-a8-two-contribution-handoff-oracle.md and docs/adr/0028-live-host-proof-ed25519-signing.md as single-backtick path literals. Both files exist and were read, and their hashes match precheck adr_inputs. The introduced decisions are covered: Ed25519, JCS, the trusted-signer registry and domain separation by ADR-0028, and the two-nonce handoff oracle by ADR-0035. Advisory (Minor, non-blocking): ADR-0028 Decision item 4 scopes verification to 'live-host-verification-record/v1 attestations' and names only operator and reviewer roles. design.md also verifies nonce-ledger issuer signatures (issuer role, ':nonce-issuer' separator) in the same validator. A one-line ADR scope extension would close that gap. Both ADRs are Status: Proposed. ADR-PRESENT requires existence, not adoption."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped, recorded as PASS. design.md ## Design System Compliance states 'Not applicable. This is internal test-infrastructure specification work with no UI surface', and ux-spec.md and frontend-spec.md confirm there is no UI. I did not probe for a design-system/ directory because it is outside the admitted manifest. Nothing in the admitted inputs indicates this feature touches one."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped, recorded as PASS. A read-only existence test at the project root returned NO_DOMAIN_DIR, so no approved domain model applies. The only permitted existence probe was used, and no domain/ content was read."
+    }
+  ]
+}
+

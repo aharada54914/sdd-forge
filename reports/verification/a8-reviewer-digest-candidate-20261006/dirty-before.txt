@@ -1,0 +1,173 @@
+ M AGENTS.md
+ M docs/adr/0028-live-host-proof-ed25519-signing.md
+ M docs/adr/README.md
+ M plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+ M plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+ M plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+ M plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+ M plugins/sdd-quality-loop/skills/cross-model-verify/SKILL.md
+ M plugins/sdd-quality-loop/skills/quality-gate/SKILL.md
+ M plugins/sdd-review-loop/references/review-context-boundary.md
+ M plugins/sdd-review-loop/scripts/impl-review-precheck.ps1
+ M plugins/sdd-review-loop/scripts/impl-review-precheck.sh
+ M reports/review-context/identity-ledger.json
+ M specs/epic-196-a8-integration/acceptance-tests.md
+ M specs/epic-196-a8-integration/design.md
+ M specs/epic-196-a8-integration/frontend-spec.md
+ M specs/epic-196-a8-integration/infra-spec.md
+ M specs/epic-196-a8-integration/requirements.md
+ M specs/epic-196-a8-integration/security-spec.md
+ M specs/epic-196-a8-integration/tasks.md
+ M specs/epic-196-a8-integration/traceability.md
+ M specs/epic-196-a8-integration/ux-spec.md
+ M tests/issue311-scratch-isolation.tests.py
+ M tests/review-agent-isolation.tests.sh
+ M tests/review-context-boundary.tests.sh
+ M tests/review-scratch-history.tests.py
+?? docs/adr/0035-a8-two-contribution-handoff-oracle.md
+?? docs/development-policy.md
+?? handoffs/t004-fresh-01a107bc-472e-7b51-a137-5b2667e49051/
+?? handoffs/t004-fresh-01a107c3-2a6f-75b3-8704-56d694e60af4/
+?? handoffs/t004-identity-audit-20261005/
+?? reports/impl-review/epic-196-a8-integration/attempt-8/
+?? reports/impl-review/epic-196-a8-integration/attempt-9/
+?? reports/implementation/epic-196-a8-integration/T-004.pre-recovery-20261004.md
+?? reports/review-context/epic-196-a8-integration-task-a4r1-a-invocation.json
+?? reports/review-context/epic-196-a8-integration-task-a4r1-a-retry2-invocation.json
+?? reports/review-context/epic-196-a8-integration-task-a4r1-a-retry3-invocation.json
+?? reports/review-context/epic-196-a8-integration-task-a4r1-a-retry4-invocation.json
+?? reports/review-context/epic-196-a8-integration-task-a4r1-b-retry1-invocation.json
+?? reports/review-context/epic-196-a8-integration-task-a5r1-a-invocation.json
+?? reports/review-context/epic-196-a8-integration-task-a5r1-a-retry1-invocation.json
+?? reports/review-context/epic-196-a8-integration-task-a5r1-a-retry2-invocation.json
+?? reports/review-context/epic-196-a8-integration-task-a5r1-b-invocation.json
+?? reports/review-context/epic-196-a8-integration-task-a5r1-b-retry1-invocation.json
+?? reports/review-context/epic-196-a8-integration-task-a5r1-b-retry2-invocation.json
+?? reports/review-context/epic-196-a8-integration-task-a5r1-b-retry3-invocation.json
+?? reports/spec-review/epic-196-a8-integration/attempt-4/
+?? reports/task-review/epic-196-a8-integration/attempt-4/
+?? reports/task-review/epic-196-a8-integration/attempt-5/
+?? reports/verification/a8-a9r2-a-delivery-audit-20261006.md
+?? reports/verification/a8-a9r2-continuation-20261006.md
+?? reports/verification/a8-ac016-amendment-batch-20261006.py
+?? reports/verification/a8-ac016-batch-results-20261006.md
+?? reports/verification/a8-ac016-inventory-candidate-20261006.md
+?? reports/verification/a8-ac016-inventory-prototype-20261006.py
+?? reports/verification/a8-ac016-inventory-results-20261006.md
+?? reports/verification/a8-ac016-minimal-amendment-20261006.md
+?? reports/verification/a8-ac016-minimal-contract-tests-20261006.py
+?? reports/verification/a8-blocked-continuation-candidate-20261005.patch
+?? reports/verification/a8-blocked-continuation-candidate-result-20261005.md
+?? reports/verification/a8-blocked-continuation-candidate.tests.py
+?? reports/verification/a8-blocked-continuation-independent-review-20261005.md
+?? reports/verification/a8-blocked-continuation-v2-20261005.patch
+?? reports/verification/a8-blocked-continuation-v2-independent-review-20261005.md
+?? reports/verification/a8-blocked-continuation-v2-result-20261005.md
+?? reports/verification/a8-blocked-continuation-v2.tests.py
+?? reports/verification/a8-blocked-continuation-v3-20261005.patch
+?? reports/verification/a8-blocked-continuation-v3-human-apply.py
+?? reports/verification/a8-blocked-continuation-v3-independent-review-20261005.md
+?? reports/verification/a8-blocked-continuation-v3-outcomes-20261005.txt
+?? reports/verification/a8-blocked-continuation-v3-result-20261005.md
+?? reports/verification/a8-blocked-continuation-v3.tests.py
+?? reports/verification/a8-blocked-v3-backup-vsv0ubhp/
+?? reports/verification/a8-branch-inclusion-20261002.md
+?? reports/verification/a8-caller-cat-current-refusal-20261005.md
+?? reports/verification/a8-caller-repair-next-operation-20261005.md
+?? reports/verification/a8-ci-mirror-repair-20261002.md
+?? reports/verification/a8-claude-read-tty-diagnostic-20261005.md
+?? reports/verification/a8-cli-read-probe-20261006.md
+?? reports/verification/a8-codex-appserver-idle-allocation-20261005.md
+?? reports/verification/a8-copilot-explicit-model-blocker-20261003.md
+?? reports/verification/a8-copilot-patch-safety-candidate-20261002.md
+?? reports/verification/a8-copilot-patch-safety-candidate-20261002.patch
+?? reports/verification/a8-copilot-patch-safety-regression-20261002.patch
+?? reports/verification/a8-current-validation-20261006.md
+?? reports/verification/a8-design-attempt9-precheck-20261005.md
+?? reports/verification/a8-design-six-findings-validation-20261005.md
+?? reports/verification/a8-existing-guards-recheck-20261003.md
+?? reports/verification/a8-issuer-contract-gap-20261003.md
+?? reports/verification/a8-issuer-formal-spec-amendment-attempt-2-native-apply.patch
+?? reports/verification/a8-issuer-formal-spec-amendment-attempt-2-review-contract-v2.json
+?? reports/verification/a8-issuer-formal-spec-amendment-attempt-2-review-contract.json
+?? reports/verification/a8-issuer-formal-spec-amendment-attempt-2-v3-integrity-check.txt
+?? reports/verification/a8-issuer-formal-spec-amendment-attempt-2-v3-native-apply.patch
+?? reports/verification/a8-issuer-formal-spec-amendment-attempt-2-v3-review-contract.json
+?? reports/verification/a8-issuer-formal-spec-amendment-attempt-2-v3-sweep.md
+?? reports/verification/a8-issuer-formal-spec-amendment-attempt-2-v3-validation-command.txt
+?? reports/verification/a8-issuer-formal-spec-amendment-attempt-2-v3-validation-result.json
+?? reports/verification/a8-issuer-formal-spec-amendment-attempt-2-v3-validation.py
+?? reports/verification/a8-issuer-formal-spec-amendment-attempt-2.patch
+?? reports/verification/a8-issuer-formalization-native-preflight-20261003.md
+?? reports/verification/a8-issuer-formalization-native-preflight-20261003.raw.json
+?? reports/verification/a8-issuer-formalization-native-preflight-attempt-2-raw.txt
+?? reports/verification/a8-issuer-formalization-native-preflight-attempt-2-recorded-result.json
+?? reports/verification/a8-issuer-formalization-native-preflight-attempt-2-verify-result.json
+?? reports/verification/a8-issuer-repair-design-candidate-20261003.md
+?? reports/verification/a8-issuer-v3-boundary-clarification-candidate-20261003.md
+?? reports/verification/a8-issuer-v3-publication-alignment-candidate-20261003.md
+?? reports/verification/a8-issuer-v3-root-audit-20261003.md
+?? reports/verification/a8-live-handoff-20261001.md
+?? reports/verification/a8-nonce-adoption-package-20261005.md
+?? reports/verification/a8-nonce-adr-existing-route-20261005.md
+?? reports/verification/a8-nonce-adr0035-candidate-20261005.md
+?? reports/verification/a8-nonce-design-candidate-result-20261005.md
+?? reports/verification/a8-nonce-design-human-apply.mjs
+?? reports/verification/a8-nonce-design-revision-20261005.patch
+?? reports/verification/a8-nonce-driver-candidate-result-20261005.md
+?? reports/verification/a8-nonce-driver-minimal-candidate-20261005.patch
+?? reports/verification/a8-nonce-driver-static-check-20261005.py
+?? reports/verification/a8-nonce-runtime-feasibility-20261005.py
+?? reports/verification/a8-nonce-runtime-feasibility-result-20261005.md
+?? reports/verification/a8-panel-receipt-empty-phase-20261005.md
+?? reports/verification/a8-post-apply-round2-a-interruption-20261005.md
+?? reports/verification/a8-post-update-live-20261002.md
+?? reports/verification/a8-pr513-boundary-current-20261005.md
+?? reports/verification/a8-pr513-current-audit-20261004.md
+?? reports/verification/a8-prior-pass-receipt-current-20261005.md
+?? reports/verification/a8-quoted-literal-candidate-20261005/
+?? reports/verification/a8-recovery-contract-dependencies-20261005.md
+?? reports/verification/a8-reviewer-digest-candidate-20261006/
+?? reports/verification/a8-round2-precheck-stop-20261005.md
+?? reports/verification/a8-spec-idle-identity-candidate-20261006/
+?? reports/verification/a8-t004-cross-model-contract-amendment-proposal-20261004.md
+?? reports/verification/a8-t004-cross-model-enable-candidate.patch
+?? reports/verification/a8-t004-cross-model-root-cause-20261005.md
+?? reports/verification/a8-t004-fresh-launch-preparation-20261005.md
+?? reports/verification/a8-t004-issue423-recovery-candidate-20261004.md
+?? reports/verification/a8-t004-issue423-recovery-candidate-20261004.patch
+?? reports/verification/a8-t004-owner-continuity-20261005.md
+?? reports/verification/a8-t004-recovery-current-limited-regression-20261005.md
+?? reports/verification/a8-t004-recovery-human-apply.mjs
+?? reports/verification/a8-t004-recovery-reserve-fixture.sh
+?? reports/verification/a8-t004-recovery-reviewed-v2.patch
+?? reports/verification/a8-t004-recovery-v2-pins.json
+?? reports/verification/a8-t004-task-rereview-transport-audit-20261004.md
+?? reports/verification/branch-cleanup-20261001.md
+?? reports/verification/continuation-plan-20261001.md
+?? reports/verification/issue423-windows-resolver-ci-candidate-20261001.patch
+?? reports/verification/issue423-windows-resolver-ci-candidate.tests.py
+?? reports/verification/pr513-node14-human-apply.py
+?? reports/verification/pr513-release-sync-20261001.md
+?? specs/epic-196-a8-integration/verification/T-001/auto-and-ac004-candidate.md
+?? specs/epic-196-a8-integration/verification/T-001/candidate.patch
+?? specs/epic-196-a8-integration/verification/T-001/candidate/
+?? specs/epic-196-a8-integration/verification/T-001/copilot-apply-patch-adapter.patch
+?? specs/epic-196-a8-integration/verification/T-001/copilot-json-shape-human-apply.sh
+?? specs/epic-196-a8-integration/verification/T-001/copilot-json-shape-repair.patch
+?? specs/epic-196-a8-integration/verification/T-001/copilot-native-guard-candidate.patch
+?? specs/epic-196-a8-integration/verification/T-001/copilot-native-guard-human-apply.sh
+?? specs/epic-196-a8-integration/verification/T-001/copilot-native-guard-repair-20261001.md
+?? specs/epic-196-a8-integration/verification/T-001/nonce-chain-regression.py
+?? specs/epic-196-a8-integration/verification/T-001/nonce-only-review-candidate-20261005.md
+?? specs/epic-196-a8-integration/verification/T-004.contract.json
+?? specs/epic-196-a8-integration/verification/T-004.panelist-anthropic.verdict.json
+?? specs/epic-196-a8-integration/verification/T-004.panelist-input.txt
+?? specs/epic-196-a8-integration/verification/T-004.panelist-openai.verdict.json
+?? specs/epic-196-a8-integration/verification/T-004/coverage-manifest.json
+?? specs/epic-196-a8-integration/verification/T-004/current-ci-20261004.md
+?? specs/epic-196-a8-integration/verification/T-004/gate-preparation-20261004/
+?? specs/epic-196-a8-integration/verification/T-004/recovery-fresh-20261004/
+?? specs/epic-196-a8-integration/verification/T-004/recovery-validation-20261004/
+?? specs/epic-196-a8-integration/verification/later-task-validation-20261004/
+?? specs/epic-196-a8-integration/verification/panel-collection-T004-20261004/

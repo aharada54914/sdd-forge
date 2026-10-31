@@ -1,0 +1,13 @@
+{
+  "result": "APPLICABLE_IN_MEMORY",
+  "frozen_files_written": false,
+  "patch_sha256": "669093a565c0a7432f95f88bbf90fa2c8d67ab5aa91f7359ad94cc6417ea4aeb",
+  "files": [
+    {"path":"specs/epic-196-a8-integration/requirements.md","hunks":2,"all_old_block_match_counts":1,"diff_additions":10,"diff_deletions":2,"original_sha256":"f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44","reconstructed_sha256":"fa82bc1fb1e5596efca5b32cbcda801ccf5e7717c6d82f229662898edc14166b","reconstructed_diff_sha256":"89c0aa20489db51bcead494879b2b95749d746ca6a34a126208f6a5a9264ba39"},
+    {"path":"specs/epic-196-a8-integration/acceptance-tests.md","hunks":1,"all_old_block_match_counts":1,"diff_additions":63,"diff_deletions":0,"original_sha256":"4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1","reconstructed_sha256":"faa82241dc115b1921fd32944a628b1e4a6f9beeffea6c12dca942007df262c9","reconstructed_diff_sha256":"d33f72184415ec3d3d7c035040d2e609e9122b45000dc981cbf8e2f361af2144"},
+    {"path":"specs/epic-196-a8-integration/design.md","hunks":6,"all_old_block_match_counts":1,"diff_additions":46,"diff_deletions":16,"original_sha256":"14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c","reconstructed_sha256":"1ba04c77c8bb084d2ee43f0240ad31868640fa820e5d0fbe1c0bbf2e14d943a8","reconstructed_diff_sha256":"87344f2ae3b4b86496d3f2950a2868f40816ddc2490392864cdcda470f6c0358"},
+    {"path":"specs/epic-196-a8-integration/frontend-spec.md","hunks":2,"all_old_block_match_counts":1,"diff_additions":2,"diff_deletions":1,"original_sha256":"c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76","reconstructed_sha256":"79ee21df316d752d43c1f03c0d0525611e13ce7bfa454a00f350cebd74841b74","reconstructed_diff_sha256":"fad55758b306c5b15e7c4ff53071bbaa97b98f919cb220a165af55bcedbf2bee"},
+    {"path":"specs/epic-196-a8-integration/infra-spec.md","hunks":2,"all_old_block_match_counts":1,"diff_additions":4,"diff_deletions":6,"original_sha256":"59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e","reconstructed_sha256":"b2b24d2a3fb08379aa596edf8c2bda4ac6de1ef52a293e4c50da1a04c178d0a8","reconstructed_diff_sha256":"804ea0ef41d73476ccd456806d67daf8c08daa34b824147b6f8e086d40ba6564"},
+    {"path":"specs/epic-196-a8-integration/security-spec.md","hunks":4,"all_old_block_match_counts":1,"diff_additions":6,"diff_deletions":4,"original_sha256":"45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7","reconstructed_sha256":"41a7c952d87b7c92d3b541d843bb8132d604e8d599b7f2dc47b5f4b1f166630e","reconstructed_diff_sha256":"0b2e77508a762cd445b0d7eb2e03ea80c985697bad932f696a1b1a734ef273d2"}
+  ]
+}

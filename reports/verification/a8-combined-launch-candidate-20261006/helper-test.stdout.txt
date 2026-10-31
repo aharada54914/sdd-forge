@@ -1,0 +1,11 @@
+PASS check
+PASS patch
+PASS preimage
+PASS head
+PASS symlink
+PASS hardlink
+PASS new-exists
+PASS nonTTY
+PASS confirmation
+PASS apply-reapply
+PASS owner original hashes and new-file absence unchanged

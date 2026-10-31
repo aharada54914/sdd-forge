@@ -1,0 +1,82 @@
+{
+  "schema": "a8-spec-amendment-review-contract/v1",
+  "feature": "epic-196-a8-integration",
+  "author_attempt": 2,
+  "candidate": "reports/verification/a8-issuer-formal-spec-amendment-attempt-2.patch",
+  "scope_source": "reports/verification/a8-issuer-repair-design-candidate-20261003.md",
+  "current_state": {
+    "spec_review_status": "Passed",
+    "impl_review_status": "Passed",
+    "task_review_status": "Passed",
+    "frozen_inputs_modified": false
+  },
+  "phase_1_candidate_targets": [
+    "specs/epic-196-a8-integration/requirements.md",
+    "specs/epic-196-a8-integration/acceptance-tests.md",
+    "specs/epic-196-a8-integration/design.md",
+    "specs/epic-196-a8-integration/frontend-spec.md",
+    "specs/epic-196-a8-integration/infra-spec.md",
+    "specs/epic-196-a8-integration/security-spec.md"
+  ],
+  "excluded": [
+    "source implementation",
+    "new schema",
+    "shell or PowerShell wrapper",
+    "key generation or registration",
+    "signature production",
+    "approval or status promotion",
+    "real nonce-ledger mutation",
+    "reviewer launch",
+    "identity reservation"
+  ],
+  "ordered_review_boundary": [
+    {
+      "stage": "human-freeze-authorization",
+      "required": true,
+      "action": "authorize applying the exact candidate to frozen Phase 1 inputs"
+    },
+    {
+      "stage": "spec-review",
+      "required": true,
+      "inputs": [
+        "specs/epic-196-a8-integration/requirements.md",
+        "specs/epic-196-a8-integration/acceptance-tests.md"
+      ],
+      "result_required": "new hash-bound Passed evidence"
+    },
+    {
+      "stage": "implementation-policy-review",
+      "required": true,
+      "inputs": [
+        "specs/epic-196-a8-integration/design.md",
+        "specs/epic-196-a8-integration/ux-spec.md",
+        "specs/epic-196-a8-integration/frontend-spec.md",
+        "specs/epic-196-a8-integration/infra-spec.md",
+        "specs/epic-196-a8-integration/security-spec.md"
+      ],
+      "result_required": "new hash-bound Passed evidence"
+    },
+    {
+      "stage": "phase-2-authoring",
+      "required": true,
+      "precondition": "implementation-policy-review Passed",
+      "action": "draft T-009 and traceability amendment only",
+      "task_contract": {
+        "id": "T-009",
+        "title": "Human-attended nonce issuance broker",
+        "approval": "Draft",
+        "status": "Planned",
+        "risk": "high",
+        "required_workflow": "tdd",
+        "dependency_order": ["T-005", "T-009", "T-008"]
+      }
+    },
+    {
+      "stage": "task-review",
+      "required": true,
+      "precondition": "T-009 candidate and traceability amendment exist",
+      "result_required": "new hash-bound Passed evidence before any human approval or implementation"
+    }
+  ],
+  "author_session_boundary": "stop before reviewer launch, identity reservation, frozen-input application, T-009 drafting, approval, or implementation"
+}

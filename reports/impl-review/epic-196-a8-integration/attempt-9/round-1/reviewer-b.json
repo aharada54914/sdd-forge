@@ -1,0 +1,126 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic196-impl-a9r1-b-01a10aef",
+  "host_session_id": "01a10aef-0ec5-79d2-8859-d349ff053058",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-196-a8-integration/requirements.md",
+      "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+      "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/design.md",
+      "sha256": "6485d5585fd37fe9ce298b295168ad2304d6dec6a1c7dc768bf76bbebf8c1aa3"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/investigation.md",
+      "sha256": "888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/ux-spec.md",
+      "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/frontend-spec.md",
+      "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/infra-spec.md",
+      "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/security-spec.md",
+      "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/epic-196-a8-integration/attempt-9/round-1/precheck-result.json",
+      "sha256": "cff8ad91fb44e12bdf184a6e49a953321b4e64d02a1a55be195fdeec8815c5ea"
+    },
+    {
+      "path": "docs/adr/0035-a8-two-contribution-handoff-oracle.md",
+      "sha256": "50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923"
+    },
+    {
+      "path": "reports/impl-review/epic-196-a8-integration/attempt-9/round-1/integrated-summary.json",
+      "sha256": "8538100ab4a3b65b32f3421f5f037f3c1ff5c64433d245900638f9f924deee12"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:339-349 と ADR-0035:21-41 は両 artifact を読む二者寄与 oracle、各 nonce の独立した負例、nonce2-only／派生 nonce を採用しない理由を規定する。design.md:1520-1570 は drift 範囲、SKIP 再利用、署名強化、synthetic/live 分離、FilesOnly 除外の理由を示す。歴史的 Passed は今回の根拠に使用していない。"
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:1508-1519,1704-1717 は OQ-001 を明示的に持ち越し、確認不能の場合の manual-required 経路を固定する。参照先 requirements.md:841-847 は確認担当を Phase 2/3 implementer、解決行為を経験的な契約確認とする。OQ-002 は具体的な Coverage Scope に解決済み。非阻害の補足不足として、OQ-001 の Blocks Implementation: no と Resolution Path: を Open Questions に明記するとよい。"
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:188-239,1678-1702 の依存前提は investigation.md の INV-008〜INV-016,INV-022 に根拠を持ち、A1 の旧未マージ前提を明示的に supersede する。A5 fingerprint は design.md:1186-1194 の消費直前の再計算・不一致 hard-fail で管理する。共有状態の現在値を Git／他ファイルでライブ検証したという主張は行わない。"
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "TYPE-D: requirements.md:144-146 の『新しい CI topology を提案しない』制約に対し、design.md の必須 Constraint Compliance 節:1656-1676 は CI resilience と B1/B2 のみを扱い、この制約の適合記載または参照を欠く。方針自体は Global Constraints:1575-1578 にあるが、指定された節で要求制約を照合する契約が成立しない。本チェックは同節の未対応制約を明示的に Critical と定めており、進行を阻害する。"
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md. nonce の24時間 TTL は鮮度・再利用防止の制約であり、応答時間・throughput・latency の性能要求ではない。infra-spec.md:186-200 もサービス SLO を対象外とする。"
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:1623-1654 は既存 test.yml の3 OS matrix、追加 suite steps、live-host Done/release gate、現在の designed-red と AC-006 の別 activation 条件を明示する。infra-spec.md:103-156 は登録先、human-copy、実機セッション環境を具体化する。Data Plan:277-282 に移行不要の理由があり、DB deployment order は適用されない。"
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:254-282 は新規 JSON ファイルと既存 nonce entry の consumed_by_record 更新を区別し、既存 table/column の schema migration がないと明記する。infra-spec.md:214-220 に同じ移行不要判断がある。本チェックの database schema-change 条件は該当しない。"
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "TYPE-H: design.md の External Integrations:1613-1621 は Claude/Codex/Copilot CLI と gh-authenticated GitHub access を挙げるが、対応契約・version と unavailable 時の処理を示さない。特に Claude MCP 検証は:439-445 で claude mcp list の output/exit contract を oracle とするだけで、支持する契約とコマンド失敗時の扱いが未規定。OQ-001:1508-1519 の session/headless 確認の延期は、この MCP 検証契約の欠落を解決しない。REQ-002 の present/absent 判定が CLI error と未登録をどう区別するか実装者に委ねられるため、検証不一致を招く Major。"
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md:8-27,88-104 は REQ-001〜REQ-007 を既存 CI／installer／guard 上の検証として対応付ける。二者寄与変更:339-349 と ADR-0035:43-52 は既存 artifact、output、trace schema の範囲内で AC-004 を満たし、permission expansion・guard bypass・旧結果の再解釈を許可しない。UX/frontend に新しい UI やサービスを導入していない。"
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "TYPE-H: security-spec.md:94-95 は operator_key_id／reviewer_key_id に対応する登録 role の一致を要求する。しかし design.md:561-566,701-715 の validator 規則は key 存在・identity・signature・key collision の照合のみで、operator/reviewer の登録 role を照合する規則を欠く。issuer だけは:634-645 に明示的な role 検査がある。Test Strategy:1160-1185 と security-spec.md:203-208 にも、署名自体は有効な issuer-role key または逆 role の key を operator/reviewer に使った場合の拒否経路がない。domain separation は署名 payload を区別しても登録 role の権限を検査しないため、設計どおりの実装がレイヤ仕様の役割制限を満たさない可能性がある。役割不一致の拒否規則・診断・負例を設計に結合する必要がある Major。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: 許可された project-root の存在確認で domain/ directory は存在しないため、Approved domain model に対する適合チェックは適用されない。"
+    }
+  ]
+}

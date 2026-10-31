@@ -76,7 +76,7 @@ def stale_block(name: str, install_root: Path) -> bytes:
     return (os.linesep.join(lines) + os.linesep).encode()
 
 
-def install_snapshot(root: Path, codex_home: Path) -> None:
+def install_snapshot(root: Path, codex_home: Path, *, target: str = "All") -> None:
     tracked = subprocess.run(
         ["git", "-C", str(REPO), "ls-files", "-z", "--", "plugins"],
         stdout=subprocess.PIPE, check=True,
@@ -92,7 +92,8 @@ def install_snapshot(root: Path, codex_home: Path) -> None:
             destination.symlink_to(os.readlink(source))
         else:
             shutil.copy2(source, destination)
-    shutil.copytree(REPO / ".codex" / "agents", codex_home / "agents", symlinks=True)
+    if target in ("All", "Codex"):
+        shutil.copytree(REPO / ".codex" / "agents", codex_home / "agents", symlinks=True)
     for name in MCP_NAMES:
         src = REPO / "mcp" / name
         dst = root / "mcp" / name
@@ -101,25 +102,29 @@ def install_snapshot(root: Path, codex_home: Path) -> None:
         shutil.copy2(src / "package.json", dst / "package.json")
     codex_home.mkdir(parents=True, exist_ok=True)
     (codex_home / "config.toml").write_bytes(b"# user-owned prefix" + os.linesep.encode() + b"".join(
-        current_block(name, root) for name in MCP_NAMES
+        current_block(name, root) for name in MCP_NAMES if target in ("All", "Codex")
     ))
 
 
-def command_for(runtime: str, checker: Path, root: Path, mode: str) -> list[str]:
+def command_for(runtime: str, checker: Path, root: Path, mode: str,
+                target: str | None = None) -> list[str]:
+    selection = [] if target is None else [
+        "-Target" if runtime == "ps1" and checker.suffix != ".py" else "--target", target]
     if checker.suffix == ".py":
-        return [sys.executable, str(checker), "--install-root", str(root), "--mode", mode]
+        return [sys.executable, str(checker), "--install-root", str(root), "--mode", mode] + selection
     if runtime == "sh":
-        return ["bash", str(checker), "--install-root", str(root), "--mode", mode]
+        return ["bash", str(checker), "--install-root", str(root), "--mode", mode] + selection
     return ["pwsh", "-NoLogo", "-NoProfile", "-File", str(checker),
-            "-InstallRoot", str(root), "-Mode", mode]
+            "-InstallRoot", str(root), "-Mode", mode] + selection
 
 
-def invoke(runtime: str, checker: Path, root: Path, codex_home: Path, mode: str) -> tuple[int, dict]:
+def invoke(runtime: str, checker: Path, root: Path, codex_home: Path, mode: str,
+           target: str | None = None) -> tuple[int, dict]:
     protected = [REPO, root, codex_home]
     before = tree_digest(protected)
     env = os.environ.copy()
     env["SDD_CODEX_HOME"] = str(codex_home)
-    result = subprocess.run(command_for(runtime, checker, root, mode), cwd=REPO,
+    result = subprocess.run(command_for(runtime, checker, root, mode, target), cwd=REPO,
                             env=env, text=True, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE, check=False)
     after = tree_digest(protected)
@@ -253,6 +258,35 @@ def main() -> int:
 
     with tempfile.TemporaryDirectory(prefix="installed-plugin-drift-") as tmp:
         base = Path(tmp)
+        try:
+            target_root, target_codex = base / "target", base / "target-codex"
+            install_snapshot(target_root, target_codex, target="Claude")
+            assert not (target_codex / "agents").exists()
+            for target in ("Claude", "Copilot", "Codex", "All", None):
+                code, report = invoke(args.runtime, checker, target_root, target_codex,
+                                      "verify", target)
+                required = target in ("Codex", "All", None)
+                assert code == (1 if required else 0), (target, code)
+                assert_contract(report, target_root, "verify",
+                                "installed_drifted" if required else "installed_synced")
+                assert bool(report["diverged"]) == required
+                print(f"ok target {target or 'default-All'} absent Codex surfaces")
+            shared_hook = target_root / HOOKS / "hooks.json"
+            shared_hook.write_bytes(shared_hook.read_bytes() + b"\nshared drift\n")
+            for target in ("Claude", "Copilot", "Codex", "All"):
+                code, report = invoke(args.runtime, checker, target_root, target_codex,
+                                      "verify", target)
+                assert code == 1
+                assert any(row["source_ref"] == (HOOKS / "hooks.json").as_posix()
+                           and row["change_type"] == "modified" for row in report["diverged"])
+                print(f"ok target {target} still checks shared hook drift")
+            for invalid_target in ("codex", "CLAUDE", "FilesOnly", "unknown"):
+                result = subprocess.run(command_for(args.runtime, checker, target_root,
+                                        "verify", invalid_target), capture_output=True)
+                assert result.returncode != 0, invalid_target
+                print(f"ok target rejects {invalid_target}")
+        except Exception as exc:
+            failures.append(f"target-contract: {exc}")
         try:
             contract_mismatch_self_check(base / "contract-root")
             wrapper_contract_checks(args.runtime, checker, base / "wrapper-contract")

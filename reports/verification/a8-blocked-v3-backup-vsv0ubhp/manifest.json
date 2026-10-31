@@ -1,0 +1,22 @@
+{
+  "head": "495c88d67af44530687ecea3ce9fb0a90a336539",
+  "patch_sha256": "5d9463812a38d4a85f26e82fc10c4f194f4a4f95f04b13b45831bfd5ac4d803b",
+  "files": {
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.sh": [
+      "9c79ab9c9cc821a7a4a36df713633063321a34573f320c7b235d5761db89f621",
+      "8a9a8833b9acae777276fe67dd00b8b74a60890146674aaef57134714d2a136a"
+    ],
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1": [
+      "72e03cfad7d35f8eb444fdd8db82b2aab705bdc33882e3dd4750d4a8017a47c4",
+      "6d066329e1675c77c06e780a842400514ec7d0d788b04cdeb8e854fff9c00cba"
+    ],
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh": [
+      "001f6962590b7d9dc9a831d8d90d7171174cca6d890e94b376881ab0193bd85f",
+      "f621d2e2f2a468fadf378d28b398c7ff3f531847d0ec39c1ce9af6fd60b4b647"
+    ],
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1": [
+      "13351170ba1284d2fa1eb0d096d6e5faf506e3ce0a3a22a3cb81d09b10a028db",
+      "7f189e25938644825f7f24295a91b99f06ba8d41c2216814af351b6bf3342993"
+    ]
+  }
+}

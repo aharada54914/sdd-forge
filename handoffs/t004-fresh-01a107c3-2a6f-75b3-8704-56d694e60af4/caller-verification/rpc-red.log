@@ -1,0 +1,32 @@
+✔ byte splits, multiple events, EOF flush, audit precedes safe summary and reply (15.563084ms)
+✔ incomplete EOF is failure, not successful flush (0.712542ms)
+✔ summary failure leaves durable request and stops observation (4.539584ms)
+✖ correlated initialize and allocation responses survive alongside tool events without private fields (7.398625ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 3
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 59.243792
+
+✖ failing tests:
+
+test at handoffs/t004-fresh-01a107c3-2a6f-75b3-8704-56d694e60af4/caller-verification/native-controller.test.mjs:63:1
+✖ correlated initialize and allocation responses survive alongside tool events without private fields (7.398625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 2
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/handoffs/t004-fresh-01a107c3-2a6f-75b3-8704-56d694e60af4/caller-verification/native-controller.test.mjs:79:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

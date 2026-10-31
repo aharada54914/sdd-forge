@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-196-a8-integration",
+  "run_id": "RUN-epic196-impl-a9r2-integrated-20261006",
+  "verdict": "NEEDS_WORK",
+  "round": 2,
+  "attempt": 9,
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK"
+}

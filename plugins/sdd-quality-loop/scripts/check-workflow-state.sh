@@ -5,6 +5,7 @@ set -euo pipefail
 SCRIPT_ROOT="$(cd "$(dirname "$0")/../../.." && pwd -P)"
 REGISTRY="$SCRIPT_ROOT/specs/workflow-state-registry.json"
 FEATURE_FILTER=""
+IMPL_HISTORY=""
 OPENING_STAGE=""
 OPENING_ATTEMPT=""
 OPENING_ROUND=""
@@ -779,6 +780,10 @@ while (($#)); do
     --registry)
       (($# >= 2)) || diagnostic repository cli-usage "--registry requires a value"
       REGISTRY="$2"; shift 2 ;;
+    --impl-history)
+      (($# >= 2)) || diagnostic repository cli-usage "--impl-history requires attempt:round"
+      [[ -z "$IMPL_HISTORY" && "$2" =~ ^[1-9][0-9]*:[1-9][0-9]*$ ]] || diagnostic repository cli-usage "invalid --impl-history"
+      IMPL_HISTORY="$2"; shift 2 ;;
     --opening)
       (($# >= 2)) || diagnostic repository cli-usage "--opening requires a value"
       [[ "$2" =~ ^(spec|impl|task):([1-9][0-9]*):([1-9][0-9]*)$ ]] ||
@@ -792,6 +797,9 @@ while (($#)); do
 done
 [[ -z "$FEATURE_FILTER" || "$FEATURE_FILTER" =~ ^[a-z0-9][a-z0-9-]*$ ]] ||
   diagnostic "$FEATURE_FILTER" cli-usage "invalid feature slug"
+if [[ -n "$IMPL_HISTORY" ]]; then
+  [[ -n "$FEATURE_FILTER" && -z "$OPENING_STAGE" ]] || diagnostic repository cli-usage "--impl-history requires --feature and forbids --opening"
+fi
 # --opening names the single round a review-loop precheck is about to open; it
 # only ever makes sense pinned to the one feature it belongs to, never as a
 # blanket exemption swept across the whole registry.
@@ -1834,6 +1842,18 @@ validate_legacy() {
     done < <(sed -n 's/^\(Status:[[:space:]]*.*\r\{0,1\}\)$/\1/p' "$dir/tasks.md" | tr -d '\r')
   fi
 }
+
+if [[ -n "$IMPL_HISTORY" ]]; then
+  # Validation only: no lifecycle dispatch, admission, reservation, or current ADR reads.
+  (
+    snapshot_dir='' verified_adr_bindings='[]'
+    workflow_adr_history_bindings "$FEATURE_FILTER" "${IMPL_HISTORY%:*}" "${IMPL_HISTORY#*:}"
+    jq -e 'has("adr_inputs")' "$snapshot_dir/impl-review-contract.json" >/dev/null ||
+      diagnostic "$FEATURE_FILTER" stage-provenance "explicit ADR history validation requires binding extension"
+    printf 'workflow-state: impl-history: ok\n'
+  )
+  exit $?
+fi
 
 while IFS= read -r entry; do
   feature="$(jq -r '.feature' <<<"$entry")"

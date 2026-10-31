@@ -1,0 +1,514 @@
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+@@ -1,6 +1,12 @@
+ #!/usr/bin/env bash
+ # Validate (and optionally reserve) one chronological reviewer/evaluator launch.
+ set -euo pipefail
++
++# Calculation only. This branch never reaches ledger reads or reservation.
++if [[ ${3:-} == --reviewer-receipt ]]; then
++  [[ $# -eq 4 ]] || { printf '%s\n' 'REVIEWER_DIGEST_ERROR: invalid arguments' >&2; exit 1; }
++  exec python3 -B "$(dirname "$0")/reviewer-receipt.py" "$1" "$2" "$4"
++fi
+ 
+ fail() {
+   printf 'REVIEW_CONTEXT_%s: %s\n' "$1" "$2" >&2
+--- a/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
++++ b/plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1
+@@ -6,10 +6,22 @@
+     [Parameter(Mandatory = $true)]
+     [string]$RepositoryRoot,
+ 
+-    [switch]$Reserve
++    [switch]$Reserve,
++
++    [string]$ReviewerReceipt
+ )
+ 
+ $ErrorActionPreference = 'Stop'
++
++# Calculation only. No ledger access and no reservation in this branch.
++if ($PSBoundParameters.ContainsKey('ReviewerReceipt')) {
++    if ($Reserve -or [string]::IsNullOrEmpty($ReviewerReceipt)) {
++        [Console]::Error.WriteLine('REVIEWER_DIGEST_ERROR: invalid arguments')
++        exit 1
++    }
++    & python3 -B (Join-Path $PSScriptRoot 'reviewer-receipt.py') $Manifest $RepositoryRoot $ReviewerReceipt
++    exit $LASTEXITCODE
++}
+ 
+ function Fail-ReviewContext {
+     param([string]$Category, [string]$Message)
+--- a/plugins/sdd-review-loop/agents/spec-reviewer-a.md
++++ b/plugins/sdd-review-loop/agents/spec-reviewer-a.md
+@@ -1,7 +1,7 @@
+ ---
+ name: spec-reviewer-a
+ description: Requirements and acceptance-coverage reviewer for the specification review gate. Fresh, read-only context; returns structured findings only.
+-tools: Read, Grep, Glob
++tools: Read, Grep, Glob, Bash
+ disallowedTools: Write, Edit, NotebookEdit
+ disallowedPaths:
+   - "reports/spec-review/**/reviewer-*.json"
+@@ -46,7 +46,7 @@
+ implementation/review/evaluation identity. No same-session fallback is
+ permitted.
+ 
+-Never run `validate-review-context-set` against your own manifest after the
++Never run ordinary/reservation modes of `validate-review-context-set` against your own manifest after the
+ caller's `--reserve` (`-Reserve`) step: the reserve append changes the ledger
+ the manifest's `identity_ledger_sha256` pinned, and it marks this identity
+ persisted, so a self-run is structurally guaranteed to fail without proving
+@@ -138,3 +138,18 @@
+ 
+ The `checks` array must contain one entry per check ID in this order:
+ `REQ-TESTABILITY, GOAL-AC-TRACE, AC-OBSERVABLE, SCOPE-BOUNDARY, CONSTRAINTS-EXPLICIT, RISK-VALIDATION-SURFACE, DOMAIN-CONFORMANCE.`
++
++### Restricted digest calculation capability
++
++Bash is available only for the caller-pinned exact invocation of
++`validate-review-context-set.sh <fixed-manifest> <fixed-root> --reviewer-receipt <fixed-receipt>`
++(or its PowerShell equivalent). No general shell, file creation, normal validator,
++reservation, changed argument, pipeline, redirection, or command chaining is allowed.
++The saved receipt is exactly `<fixed-manifest>.receipt.txt`, copied byte-for-byte
++from the caller's successful reservation stdout. Compare it with the quoted receipt
++and verify this context's real run/session correspondence before using the calculator.
++Run the pinned calculator after those checks and require exit 0 / REVIEWER_DIGEST_OK;
++it recomputes the ordered input and record digests and every admitted raw file hash
++without reading the ledger. It does not prove host identity, receipt authenticity,
++global uniqueness, precheck completeness or a review verdict. All existing checks
++remain mandatory. Any missing/denied capability blocks delivery; no executor fallback.
+--- a/plugins/sdd-review-loop/agents/spec-reviewer-b.md
++++ b/plugins/sdd-review-loop/agents/spec-reviewer-b.md
+@@ -1,7 +1,7 @@
+ ---
+ name: spec-reviewer-b
+ description: Independent specification risk and ambiguity reviewer for the specification review gate. Fresh, read-only context; receives only counts-and-IDs summary from reviewer A.
+-tools: Read, Grep, Glob
++tools: Read, Grep, Glob, Bash
+ disallowedTools: Write, Edit, NotebookEdit
+ disallowedPaths:
+   - "reports/spec-review/**/reviewer-*.json"
+@@ -48,7 +48,7 @@
+ implementation/review/evaluation identity. No same-session fallback is
+ permitted.
+ 
+-Never run `validate-review-context-set` against your own manifest after the
++Never run ordinary/reservation modes of `validate-review-context-set` against your own manifest after the
+ caller's `--reserve` (`-Reserve`) step: the reserve append changes the ledger
+ the manifest's `identity_ledger_sha256` pinned, and it marks this identity
+ persisted, so a self-run is structurally guaranteed to fail without proving
+@@ -137,3 +137,18 @@
+ 
+ The `checks` array must contain one entry per check ID in this order:
+ `AMBIGUITY, CONTRADICTION, EDGE-CASE-COVERAGE, ASSUMPTIONS-RESOLVABLE, APPROVAL-BOUNDARY, DOWNSTREAM-READINESS, DOMAIN-CONFORMANCE.`
++
++### Restricted digest calculation capability
++
++Bash is available only for the caller-pinned exact invocation of
++`validate-review-context-set.sh <fixed-manifest> <fixed-root> --reviewer-receipt <fixed-receipt>`
++(or its PowerShell equivalent). No general shell, file creation, normal validator,
++reservation, changed argument, pipeline, redirection, or command chaining is allowed.
++The saved receipt is exactly `<fixed-manifest>.receipt.txt`, copied byte-for-byte
++from the caller's successful reservation stdout. Compare it with the quoted receipt
++and verify this context's real run/session correspondence before using the calculator.
++Run the pinned calculator after those checks and require exit 0 / REVIEWER_DIGEST_OK;
++it recomputes the ordered input and record digests and every admitted raw file hash
++without reading the ledger. It does not prove host identity, receipt authenticity,
++global uniqueness, precheck completeness or a review verdict. All existing checks
++remain mandatory. Any missing/denied capability blocks delivery; no executor fallback.
+--- a/plugins/sdd-review-loop/references/review-context-boundary.md
++++ b/plugins/sdd-review-loop/references/review-context-boundary.md
+@@ -20,9 +20,9 @@
+ `--reserve` runs in this order:
+ 
+ 1. Validate every manifest field, including `identity_ledger_sha256`, against the
+-   ledger **as it stands before the reservation** (`:679`, and again under the
+-   reservation lock at `:1221`).
+-2. Append the reserved record to the ledger (`:1231-1243`).
++   ledger **as it stands before the reservation** (`:685`, and again under the
++   reservation lock at `:1227`).
++2. Append the reserved record to the ledger (`:1237-1249`).
+ 3. Print the `REVIEW_CONTEXT_OK` line — the record hash followed by the
+    chain facts the validator proved before printing (WFI-037):
+    `REVIEW_CONTEXT_OK <record_sha256> sequence=<n> previous_record_sha256=<hash|-> pre_append_tip_sequence=<n|-> identity_unique=yes`.
+@@ -39,20 +39,20 @@
+ 
+ | Field | Validator checks | Reviewer re-verifies? |
+ |---|---|---|
+-| `schema` | must equal `review-context-invocation/v2` (`:441`) | **yes** — cheap, and a wrong schema means a wrong contract |
+-| `input_mode` | must equal `file-manifest` (`:442`) | **yes** |
+-| `fallback_mode` | must equal `none` (`:443`) | **yes** |
+-| `read_only` | must equal `true` (`:444`) | **yes** |
+-| `stage`, `role` | must be an authorized pair (`:492-494`) | **yes** — confirm they match the role you actually are |
+-| `feature` | charset only (`:445`) | **yes** — confirm it is the feature you were asked to review |
+-| `sequence` | integer >= 2, and must equal `last_record.sequence + 1` (`:446`, `:681`) | **yes** — via the caller-quoted `REVIEW_CONTEXT_OK` line, see below |
+-| `previous_record_sha256` | must equal the last record's `record_sha256` (`:681`) | **yes** — via the caller-quoted line; this is the chain |
+-| `identity_ledger_path` | must be exactly `reports/review-context/identity-ledger.json` (`:447`) | **yes** — it is a constant |
+-| `identity_ledger_sha256` | hex-format (`:448`); equality against the ledger **before** the append (`:679`, `:1221`) | **NO — see below** |
+-| `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:875-889`) | **yes** — and read nothing outside it |
+-| `allowed_input_manifest[].sha256` | equality against the file on disk (`:951-954`) | **yes** — this is the substantive integrity check |
+-| `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:418`, `:701-714`) | **yes** |
+-| `gate_report_declaration` (quality stage only, OPTIONAL) | shape (`:425-430`); the named document must be a canonical, symlink-free, regular file under `reports/quality-gate/` and must hash to the pinned `sha256` before any row is read from it (`:733-748`); its `## Post-Fix Artifacts` rows then authorize manifest entries the frozen implementation report cannot describe (`:242-247`, WFI-036) | **yes** -- it is a second authorization source, so confirm it is the gate report for the cycle you were launched for |
++| `schema` | must equal `review-context-invocation/v2` (`:447`) | **yes** — cheap, and a wrong schema means a wrong contract |
++| `input_mode` | must equal `file-manifest` (`:448`) | **yes** |
++| `fallback_mode` | must equal `none` (`:449`) | **yes** |
++| `read_only` | must equal `true` (`:450`) | **yes** |
++| `stage`, `role` | must be an authorized pair (`:498-500`) | **yes** — confirm they match the role you actually are |
++| `feature` | charset only (`:451`) | **yes** — confirm it is the feature you were asked to review |
++| `sequence` | integer >= 2, and must equal `last_record.sequence + 1` (`:452`, `:687`) | **yes** — via the caller-quoted `REVIEW_CONTEXT_OK` line, see below |
++| `previous_record_sha256` | must equal the last record's `record_sha256` (`:687`) | **yes** — via the caller-quoted line; this is the chain |
++| `identity_ledger_path` | must be exactly `reports/review-context/identity-ledger.json` (`:453`) | **yes** — it is a constant |
++| `identity_ledger_sha256` | hex-format (`:454`); equality against the ledger **before** the append (`:685`, `:1227`) | **NO — see below** |
++| `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:881-895`) | **yes** — and read nothing outside it |
++| `allowed_input_manifest[].sha256` | equality against the file on disk (`:957-960`) | **yes** — this is the substantive integrity check |
++| `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:424`, `:707-720`) | **yes** |
++| `gate_report_declaration` (quality stage only, OPTIONAL) | shape (`:431-436`); the named document must be a canonical, symlink-free, regular file under `reports/quality-gate/` and must hash to the pinned `sha256` before any row is read from it (`:739-754`); its `## Post-Fix Artifacts` rows then authorize manifest entries the frozen implementation report cannot describe (`:248-253`, WFI-036) | **yes** -- it is a second authorization source, so confirm it is the gate report for the cycle you were launched for |
+ 
+ ## `identity_ledger_sha256`: do not re-verify
+ 
+@@ -97,7 +97,7 @@
+ 3. `<record_sha256>` recomputes as
+    `sha256("<sequence>|<stage>|<role>|<run_id>|<host_session_id>|<previous_record_sha256>")`
+    from your manifest's own fields — the same construction the validator
+-   uses at `:573` and `:1209`. (evidence: caller-quoted line + manifest)
++   uses at `:579` and `:1215`. (evidence: caller-quoted line + manifest)
+    For new scratch-bound quality reservations, compute the declaration digest as
+    SHA256 of UTF-8 `feature + LF + scratch_root` with no terminal newline. Append
+    `|scratch-declaration-v1|<declaration digest>` to the original chain text before
+@@ -338,3 +338,22 @@
+ implementation report; its allowed_inputs do not authorize evaluator inputs.
+ A changed source or test must be declared by exact path and hash in the report's
+ ## Outputs, or by the existing post-fix artifact declaration for that cycle.
++
++## Spec reviewer calculation-only entrypoint
++
++The optional `--reviewer-receipt` branch of the shared context validator provides
++the above existing digest recipes to spec reviewers without ledger access. Its
++only control inputs are a fixed canonical `reports/review-context/*.json` invocation
++and its `.json.receipt.txt` sidecar containing exactly the existing reservation
++stdout line. These are launch metadata, not additions to allowed_input_manifest.
++The caller saves the original receipt once; a reviewer compares it with the quoted
++receipt and verifies real context identity before using it. No receipt is invented
++or re-reserved. The mode reads only authorized spec inputs named in that invocation,
++checks their raw hashes, recomputes allowed-inputs-v1 and the record digest, and
++emits REVIEWER_DIGEST_OK rather than REVIEW_CONTEXT_OK. It never authorizes a launch,
++proves ledger history, replaces preflight/postflight, or grants a verdict.
++
++Both CLI entrypoints delegate this spec-only calculation to reviewer-receipt.py.
++Safe descriptor-relative no-link reads require a supported POSIX runtime; other
++runtimes fail closed, with native Windows support unverified/not enabled. Ordinary
++validator paths and all other stages retain their existing behavior.
+--- a/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
++++ b/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
+@@ -41,7 +41,8 @@
+ 
+ Before each reviewer launch, persist one
+ `review-context-invocation/v2` manifest for that reviewer only. Bind its stage,
+-role, feature, host-issued run/session IDs, canonical input paths and SHA-256
++role, feature, fresh orchestrator-issued per-reviewer run ID and actual
++host-issued session/thread ID, canonical input paths and SHA-256
+ values, plus the current hash and final record hash of
+ `reports/review-context/identity-ledger.json`. The canonical identity ledger
+ must already contain the invoking host/implementation identity and every prior
+@@ -68,11 +69,15 @@
+    only canonical requirements, acceptance tests, optional investigation,
+    `plugins/sdd-review-loop/references/spec-review-calibration.md`, and
+    precheck-result paths with hashes.
+-2. Obtain fresh host-issued run/session identities for `spec-reviewer-a`.
+-   If the host issues them only when allocating a context, allocate an empty,
+-   idle context without starting a model turn or supplying review inputs or
+-   inherited conversation. Persist the host's identity receipt. This allocation
+-   is not a reviewer launch and must not produce findings or consume inputs.
++2. Allocate a fresh host-issued session/thread identity for `spec-reviewer-a`
++   in an empty, idle context without starting a model turn or supplying review
++   inputs or inherited conversation. Persist the host allocation receipt and
++   verify the actual child role, model, read-only configuration and absence of
++   user/assistant turns and review inputs. Separately allocate a fresh
++   orchestrator-issued run ID for this reviewer invocation and persist its
++   correspondence with that host receipt; this is not a host-issued run ID or
++   the integrated orchestration run ID. This allocation is not a reviewer
++   launch and must not produce findings or consume inputs.
+    Build and reserve its invocation manifest through the sequential launch
+    boundary. Only after successful reservation and `REVIEW_CONTEXT_OK`, start
+    the first reviewer turn in exactly that reserved context. If the host cannot
+@@ -132,11 +137,33 @@
+ ## Identity-allocation failure handling
+ 
+ An allocation receipt is host evidence, not a caller-chosen UUID. It must bind
+-the host's actual run and session identities and show that review execution has
+-not started. Reservation failure must leave that context idle: no reviewer turn,
++the actual host-issued session/thread identity and show that review execution
++has not started. A separate orchestrator record binds the fresh per-reviewer
++run ID to that receipt; it must not claim host issuance of the run ID. Both IDs
++remain independently subject to ledger uniqueness and exact output matching.
++Reservation failure must leave that context idle: no reviewer turn,
+ no findings, no retry by changing IDs in its receipt. A failed first turn after
+ reservation does not release the consumed identity; preserve the reservation
+ and receipt and use a new context for a later permitted attempt. Both reviewers
+ remain read-only and separately isolated. This ordering does not authorize a
+ blocked shell launcher, a same-session fallback, or any guard bypass. Fixture
+ tests do not establish that a particular live host implements this lifecycle.
++
++## Required spec reviewer digest capability
++
++Before idle allocation, fix the invocation path under reports/review-context and
++its `.json.receipt.txt` sidecar path. Pin the installed calculator/entrypoint bytes.
++Provision only the exact calculation command described in the role, with dontAsk,
++Read/Grep/Glob and restricted Bash capability. No wildcard/prefix shell allowance,
++script writing, permission bypass or inferred inherited broad Bash access is allowed.
++Confirm the effective host policy rejects changed argv, other paths, --reserve,
++redirection, substitution and chained commands before formal dispatch. Unit/mocked
++checks are not host proof. Do not execute a refused operation via another executor.
++
++Run normal caller preflight/reservation unchanged. Save its successful stdout once
++at the fixed receipt sidecar (never overwrite old evidence), quote that same line
++to the reviewer, and preserve actual identity correspondence. The reviewer compares
++the saved receipt/manifest/real identity and invokes only the restricted calculator.
++Its result is not a replacement for any prior or subsequent required check.
++If the installed tools or host policy cannot support this boundary, stop before
++review input delivery; do not reserve a provisional or already-executed review.
+--- a/tests/review-context-boundary.tests.sh
++++ b/tests/review-context-boundary.tests.sh
+@@ -81,34 +81,34 @@
+ anchors() {
+   cat <<'ANCHORS'
+ # The flat contract predicates in the manifest jq filter.
+-:441 validator .schema == "review-context-invocation/v2"
+-:442 validator .input_mode == "file-manifest"
+-:443 validator .fallback_mode == "none"
+-:444 validator .read_only == true
+-:445 validator .feature | type == "string" and test(
+-:446 validator .sequence | type == "number" and floor == . and . >= 2
+-:447 validator .identity_ledger_path == "reports/review-context/identity-ledger.json"
+-:448 validator .identity_ledger_sha256 | type == "string" and test("^[0-9a-f]{64}$")
+-:418 validator .task_id | type == "string" and test("^T-[0-9]{3}$")
++:447 validator .schema == "review-context-invocation/v2"
++:448 validator .input_mode == "file-manifest"
++:449 validator .fallback_mode == "none"
++:450 validator .read_only == true
++:451 validator .feature | type == "string" and test(
++:452 validator .sequence | type == "number" and floor == . and . >= 2
++:453 validator .identity_ledger_path == "reports/review-context/identity-ledger.json"
++:454 validator .identity_ledger_sha256 | type == "string" and test("^[0-9a-f]{64}$")
++:424 validator .task_id | type == "string" and test("^T-[0-9]{3}$")
+ 
+ # The optional quality-stage gate-report declaration: presence gate and shape.
+-:425-430 validator if has("gate_report_declaration") then
+-:425-430 validator (keys | sort) == ["path", "sha256"]
++:431-436 validator if has("gate_report_declaration") then
++:431-436 validator (keys | sort) == ["path", "sha256"]
+ 
+ # The declared gate report must be canonical, symlink-free, a regular file
+ # under reports/quality-gate/, and hash to the pinned value before any row is
+ # read from it.
+-:733-748 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
+-:733-748 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
++:739-754 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
++:739-754 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
+ 
+ # Its `## Post-Fix Artifacts` rows are the second authorization source.
+-:242-247 validator gate_report_output_is_declared() {
+-:242-247 validator '## Post-Fix Artifacts'
++:248-253 validator gate_report_output_is_declared() {
++:248-253 validator '## Post-Fix Artifacts'
+ 
+ # stage/role must be an authorized pair. The identically-shaped `case` inside
+ # path_is_authorized is NOT this one, which is why the fail arm is pinned too.
+-:492-494 validator case "$stage:$role" in
+-:492-494 validator fail CONTRACT 'stage and role are not an authorized invocation pair'
++:498-500 validator case "$stage:$role" in
++:498-500 validator fail CONTRACT 'stage and role are not an authorized invocation pair'
+ 
+ # No rows for the ledger's global-uniqueness check or for the line that prints
+ # REVIEW_CONTEXT_OK. The document describes both -- the WFI-037 rewrite states
+@@ -120,34 +120,34 @@
+ 
+ # identity_ledger_sha256 equality: before the reservation, and again under the
+ # reservation lock.
+-:679 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
+-:1221 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
++:685 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
++:1227 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
+ 
+ # The chain position this invocation must occupy.
+-:681 validator [[ "$sequence" -eq "$expected_sequence"
++:687 validator [[ "$sequence" -eq "$expected_sequence"
+ 
+ # The record-hash construction a reviewer is told to recompute: the chain-walk
+ # copy the validator verifies existing records with, and the reservation copy it
+ # builds the new record with. The document cites both as "the same construction".
+-:573 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
+-:1209 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
++:579 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
++:1215 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
+ 
+ # task_id shape, and the implementation report that must carry it.
+-:701-714 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+-:701-714 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
++:707-720 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
++:707-720 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
+ 
+ # Manifest path admission: canonical, not a raw reviewer report, role-authorized,
+ # no symlink component. One row per clause the field table claims.
+-:875-889 validator is_canonical_path "$path"
+-:875-889 validator is_forbidden_review_output "$path"
+-:875-889 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
++:881-895 validator is_canonical_path "$path"
++:881-895 validator is_forbidden_review_output "$path"
++:881-895 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
+ 
+ # Manifest hash equality against the file on disk.
+-:951-954 validator actual_hash=$(printf '%s' "$content_base64" | base64 -d | sha256_text)
+-:951-954 validator actual_hash=$(sha256_file "$candidate")
++:957-960 validator actual_hash=$(printf '%s' "$content_base64" | base64 -d | sha256_text)
++:957-960 validator actual_hash=$(sha256_file "$candidate")
+ 
+ # The append.
+-:1231-1243 validator '.records += [{
++:1237-1249 validator '.records += [{
+ 
+ # The two impl-review-precheck claims. The previous-round-summary requirement
+ # lives in the shared lib since the #325 consolidation; the mode admission is
+--- /dev/null
++++ b/plugins/sdd-quality-loop/scripts/reviewer-receipt.py
+@@ -0,0 +1,139 @@
++#!/usr/bin/env python3
++"""Spec reviewer calculation only: no ledger, reservation, output files or verdict."""
++import hashlib
++import json
++import os
++from pathlib import Path
++import re
++import stat
++import sys
++
++
++def require(ok, message):
++    if not ok:
++        raise ValueError(message)
++
++
++def digest(data):
++    return hashlib.sha256(data).hexdigest()
++
++
++def canonical(value):
++    return (isinstance(value, str) and re.fullmatch(r'[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*', value)
++            and not any(p in ('.', '..') for p in value.split('/')))
++
++
++def unique_object(pairs):
++    result = {}
++    for key, value in pairs:
++        require(key not in result, 'duplicate JSON member')
++        result[key] = value
++    return result
++
++
++def read_at(root_fd, path):
++    """Open canonical components without following links; never open arbitrary absolute paths."""
++    require(canonical(path), 'noncanonical path')
++    fd = os.dup(root_fd)
++    try:
++        parts = path.split('/')
++        for component in parts[:-1]:
++            child = os.open(component, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
++            os.close(fd)
++            fd = child
++        leaf = os.open(parts[-1], os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
++        with os.fdopen(leaf, 'rb') as handle:
++            info = os.fstat(handle.fileno())
++            require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1, 'not a single-link regular file')
++            return handle.read()
++    finally:
++        os.close(fd)
++
++
++def verify(manifest, root, receipt):
++    require(os.name == 'posix' and os.open in os.supports_dir_fd, 'unsupported safe-read runtime')
++    require(Path(root).is_absolute() and str(Path(root).resolve()) == root, 'noncanonical root')
++    require(canonical(manifest) and re.fullmatch(r'reports/review-context/[A-Za-z0-9._-]+[.]json', manifest),
++            'manifest must be a fixed review-context JSON path')
++    require(receipt == manifest + '.receipt.txt', 'receipt must be the fixed manifest sidecar')
++    root_fd = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
++    try:
++        raw_manifest = read_at(root_fd, manifest)
++        m = json.loads(raw_manifest.decode('utf-8'), object_pairs_hook=unique_object)
++        keys = {'schema', 'stage', 'role', 'feature', 'run_id', 'host_session_id', 'read_only',
++                'input_mode', 'fallback_mode', 'identity_ledger_path', 'identity_ledger_sha256',
++                'previous_record_sha256', 'sequence', 'allowed_input_manifest'}
++        require(type(m) is dict and set(m) == keys, 'invalid manifest keys')
++        require(m['schema'] == 'review-context-invocation/v2' and m['stage'] == 'spec'
++                and m['role'] in ('spec-reviewer-a', 'spec-reviewer-b'), 'spec reviewer mode only')
++        require(m['read_only'] is True and m['input_mode'] == 'file-manifest'
++                and m['fallback_mode'] == 'none', 'invalid read-only invocation')
++        for key in ('run_id', 'host_session_id'):
++            require(isinstance(m[key], str) and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._:-]*', m[key]),
++                    'invalid identity')
++        feature = m['feature']
++        require(isinstance(feature, str) and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]*', feature), 'invalid feature')
++        require(type(m['sequence']) is int and m['sequence'] >= 2, 'invalid sequence')
++        for key in ('identity_ledger_sha256', 'previous_record_sha256'):
++            require(isinstance(m[key], str) and re.fullmatch('[0-9a-f]{64}', m[key]), 'invalid hash')
++        require(m['identity_ledger_path'] == 'reports/review-context/identity-ledger.json', 'invalid ledger declaration')
++        entries = m['allowed_input_manifest']
++        require(type(entries) is list and entries, 'missing input manifest')
++        paths = []
++        prechecks = []
++        for entry in entries:
++            require(type(entry) is dict and set(entry) == {'path', 'sha256'}, 'invalid input entry')
++            path, sha = entry['path'], entry['sha256']
++            require(canonical(path) and isinstance(sha, str) and re.fullmatch('[0-9a-f]{64}', sha), 'invalid input path/hash')
++            require(path not in paths, 'duplicate input path')
++            base = 'reports/spec-review/' + feature + '/'
++            is_precheck = re.fullmatch(re.escape(base) + r'attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result[.]json', path)
++            is_summary = (m['role'] == 'spec-reviewer-b' and
++                          re.fullmatch(re.escape(base) + r'attempt-[1-9][0-9]*/round-[1-9][0-9]*/integrated-summary[.]json', path))
++            require(path in ('specs/' + feature + '/requirements.md', 'specs/' + feature + '/acceptance-tests.md',
++                            'specs/' + feature + '/investigation.md',
++                            'plugins/sdd-review-loop/references/spec-review-calibration.md')
++                    or is_precheck or is_summary, 'unlisted spec input')
++            paths.append(path)
++            if is_precheck:
++                prechecks.append(path)
++        required = {'specs/' + feature + '/requirements.md', 'specs/' + feature + '/acceptance-tests.md',
++                    'plugins/sdd-review-loop/references/spec-review-calibration.md'}
++        require(required.issubset(paths) and len(prechecks) == 1, 'missing required spec inputs')
++        summaries = [p for p in paths if p.endswith('/integrated-summary.json')]
++        require(summaries == ([prechecks[0].replace('precheck-result.json', 'integrated-summary.json')]
++                             if m['role'] == 'spec-reviewer-b' else []), 'invalid summary input')
++
++        raw_receipt = read_at(root_fd, receipt)
++        pattern = (rb'REVIEW_CONTEXT_OK ([0-9a-f]{64}) sequence=([1-9][0-9]*) '
++                   rb'previous_record_sha256=([0-9a-f]{64}) pre_append_tip_sequence=([1-9][0-9]*) identity_unique=yes\n?')
++        match = re.fullmatch(pattern, raw_receipt)
++        require(match is not None, 'invalid saved receipt')
++        record, sequence, previous, tip = [v.decode('ascii') for v in match.groups()]
++        require(int(sequence) == m['sequence'] and int(tip) == m['sequence'] - 1
++                and previous == m['previous_record_sha256'], 'receipt identity-chain mismatch')
++        input_text = '\n'.join(e['path'] + '\t' + e['sha256'] for e in entries)
++        inputs_sha = digest(input_text.encode('utf-8'))
++        chain = '|'.join((str(m['sequence']), m['stage'], m['role'], m['run_id'],
++                          m['host_session_id'], m['previous_record_sha256'], 'allowed-inputs-v1', inputs_sha))
++        require(digest(chain.encode('utf-8')) == record, 'receipt record hash mismatch')
++        # Read domain bytes only after all paths and the receipt binding pass.
++        for entry in entries:
++            require(digest(read_at(root_fd, entry['path'])) == entry['sha256'], 'input hash mismatch: ' + entry['path'])
++        return 'REVIEWER_DIGEST_OK manifest_sha256=' + digest(raw_manifest) + ' receipt_sha256=' + digest(raw_receipt)
++    finally:
++        os.close(root_fd)
++
++
++def main():
++    try:
++        require(len(sys.argv) == 4, 'usage: reviewer-receipt.py manifest root receipt')
++        print(verify(*sys.argv[1:]))
++        return 0
++    except (ValueError, OSError, UnicodeError, TypeError, KeyError) as error:
++        print('REVIEWER_DIGEST_ERROR: ' + str(error), file=sys.stderr)
++        return 1
++
++
++if __name__ == '__main__':
++    sys.exit(main())

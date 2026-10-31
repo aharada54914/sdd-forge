@@ -1,0 +1,9 @@
+{
+  "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh": "011f1d9c068e7b2f033f02bbae0fd15cf3a9c9c2c7f409c963fc1d9e941fc09b",
+  "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1": "e8424eb27598222fe527ffaaa296cd287a4c52f850ed05b91e98023c8c4e7925",
+  "plugins/sdd-review-loop/agents/spec-reviewer-a.md": "a2df15daa4b42c582b507f17d094df14cc369c512e7ed6ac314fb24cfd85a34d",
+  "plugins/sdd-review-loop/agents/spec-reviewer-b.md": "992a2e8ec18512e83d1813f369e84d40ef3ec0e1d38b43fea19dbd361b34ccd6",
+  "plugins/sdd-review-loop/references/review-context-boundary.md": "07f7834c17561b3b69093f91b32c7c5d4d655e9bc21bf2ff8bec6322fb02152a",
+  "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md": "b816d5a7f09d458ecd9cab3cf23b7a2f52433ddde3badf80b3ff8d22bf46dad9",
+  "tests/review-context-boundary.tests.sh": "34eb70012271e5f7f697a0c640fe1a4ce0f547f2ae92569beb5a532cba2e96ca"
+}

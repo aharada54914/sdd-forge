@@ -1,0 +1,27 @@
+{
+  "schema": "a8-spec-amendment-review-contract/v1",
+  "feature": "epic-196-a8-integration",
+  "author_attempt": 2,
+  "supersedes_candidate": "reports/verification/a8-issuer-formal-spec-amendment-attempt-2.patch",
+  "candidate": "reports/verification/a8-issuer-formal-spec-amendment-attempt-2-native-apply.patch",
+  "frozen_inputs_modified": false,
+  "phase_1_targets": ["requirements.md", "acceptance-tests.md", "design.md", "frontend-spec.md", "infra-spec.md", "security-spec.md"],
+  "ordered_boundary": [
+    "human authorization to apply exact frozen-input amendment",
+    "new specification review over requirements.md and acceptance-tests.md",
+    "new implementation-policy review over design.md and all four layer specs",
+    "only after design Passed: draft T-009 plus traceability amendment",
+    "new task review before approval or implementation"
+  ],
+  "future_task_candidate": {
+    "id": "T-009",
+    "title": "Human-attended nonce issuance broker",
+    "approval": "Draft",
+    "status": "Planned",
+    "risk": "high",
+    "required_workflow": "tdd",
+    "dependency_order": ["T-005", "T-009", "T-008"]
+  },
+  "excluded": ["implementation", "new schemas or wrappers", "key generation", "signature production", "ledger mutation", "approval change", "reviewer launch", "identity reservation"],
+  "author_session_stop": "before frozen-input application, reviewer launch, identity reservation, T-009 drafting, approval, or implementation"
+}

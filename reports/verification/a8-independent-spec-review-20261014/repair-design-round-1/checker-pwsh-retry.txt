@@ -1,0 +1,9 @@
+Command: rtk proxy pwsh -NoProfile -File tests/check-installed-plugin-drift.tests.ps1
+Session: 44818
+exit_code: 0
+Final output: PASS TEST-022 and TEST-023; read-only digest assertions passed
+All 13 target assertions passed (5 absent-surface cases, 4 shared-hook drift cases, 4 invalid target cases).
+Previous checker-pwsh-green.txt filename is historical naming, NOT a success claim: its recorded exit_code is 1.
+That run overlapped implementer evidence writes within the repo-wide digest window.
+Retry performed without any repository writes; no production fix was needed.
+Native Windows default-path branch remains deferred to Windows CI.

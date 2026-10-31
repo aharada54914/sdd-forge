@@ -1,0 +1,53 @@
+{
+  "started": 1791116245.845618,
+  "bundle_sha256": "79a74fd5abfe5609b4fd2f6f93bd796dcb57e2629ba0c588ca444b0add8a2ead",
+  "input_digest": "3dc43bd2241d3e746a9cacdb6de3dcdb331f8d9b507b95c3d294cf1c9cfb181a",
+  "cwd": "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/a8-t004-blind-_qd8ug4m",
+  "gpt": [
+    "bash",
+    "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+    "--task",
+    "T-004",
+    "--feature",
+    "epic-196-a8-integration",
+    "--input",
+    "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/specs/epic-196-a8-integration/verification/T-004.panelist-input.txt",
+    "--spec-root",
+    "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/specs",
+    "--digest",
+    "3dc43bd2241d3e746a9cacdb6de3dcdb331f8d9b507b95c3d294cf1c9cfb181a"
+  ],
+  "claude": [
+    "/Users/jrmag/.local/bin/claude",
+    "--print",
+    "--model",
+    "sonnet",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--forward-subagent-text",
+    "--include-hook-events",
+    "--no-session-persistence",
+    "--tools",
+    "Agent",
+    "--allowedTools",
+    "Agent",
+    "--permission-mode",
+    "dontAsk",
+    "--strict-mcp-config",
+    "--mcp-config",
+    "{\"mcpServers\":{}}",
+    "--disable-slash-commands",
+    "--agents",
+    "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/a8-t004-blind-_qd8ug4m/agents.json",
+    "--system-prompt",
+    "You are only a blind review dispatcher. Invoke the Agent tool exactly once with subagent_type blind-panelist. Its system instructions already contain the full sanitized bundle. Send only the instruction to review that bundle and return the specified JSON. Do not review it yourself, supply any other context, or add findings. Return the agent's JSON unchanged. No other tool or repository access."
+  ],
+  "keys_unset": [
+    "SDD_EVIDENCE_KEY",
+    "SDD_SUDO_KEY",
+    "SDD_SUDO_KEY_FILE"
+  ],
+  "hooks_disabled": false,
+  "permission_bypass": false
+}

@@ -12,6 +12,7 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 import stat
+import subprocess
 import sys
 import tempfile
 
@@ -24,6 +25,13 @@ CELLS = {
     "Copilot-subagent-expected-unavailable": ("copilot", "not_applicable"),
 }
 FILENAMES = {cell: cell.lower() + ".json" for cell in CELLS}
+CONSUMERS = {
+    "sdd-bootstrap": "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+    "sdd-bootstrap-interviewer": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+    "lite-gate": "plugins/sdd-lite/skills/lite-gate/SKILL.md",
+    "lite-spec": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+    "sdd-ship": "plugins/sdd-ship/skills/ship/SKILL.md",
+}
 RECORD_KEYS = {
     "schema", "matrix_cell", "runtime", "check", "invocation_mode",
     "nonce", "host_session_id", "host_event_id", "raw_tool_request_ref",
@@ -34,7 +42,7 @@ RECORD_KEYS = {
     "operator_key_id", "reviewer", "reviewer_key_id", "cli_name",
     "cli_version", "host_os", "plugin_hooks_flag", "tool_call_evidence",
     "verdict", "skip_reason", "operator_signature", "reviewer_signature",
-    "notes",
+    "notes", "consumer_inventory",
 }
 REQUIRED_RECORD_KEYS = RECORD_KEYS - {"notes"}
 SKIP_NONNULL = {
@@ -233,8 +241,11 @@ def validate_registry(value):
 
 def signer_for(registry, key_id, role, cell=None):
     signer = registry["signers"].get(key_id) if isinstance(key_id, str) else None
-    if signer is None or signer.get("role") != role:
-        fail("ERR_SIGNER_UNTRUSTED", f"{role} key is absent or has the wrong registry role", cell)
+    if signer is None:
+        fail("ERR_SIGNER_UNTRUSTED", f"{role} key is absent from registry", cell)
+    if signer.get("role") != role:
+        code = "ERR_SIGNER_UNTRUSTED" if role == "issuer" else "ERR_SIGNER_ROLE_MISMATCH"
+        fail(code, f"{role} key has the wrong registry role", cell)
     public_key = strict_b64(signer["public_key"], 32, "ERR_SIGNATURE_INVALID", f"{role} public key", cell)
     if decode_point(public_key) is None:
         fail("ERR_SIGNATURE_INVALID", f"{role} public key is not a strict Ed25519 point", cell)
@@ -334,7 +345,7 @@ def validate_ledger(value, registry):
 
 def validate_record_schema(record, expected_cell):
     require_exact_keys(record, REQUIRED_RECORD_KEYS, {"notes"}, "live-host record", expected_cell)
-    if record["schema"] != "live-host-verification-record/v1" or record["matrix_cell"] != expected_cell:
+    if record["schema"] != "live-host-verification-record/v2" or record["matrix_cell"] != expected_cell:
         fail("ERR_SCHEMA_INVALID", "record schema or matrix-cell filename binding is invalid", expected_cell)
     verdict = record["verdict"]
     if verdict not in {"PASS", "FAIL", "SKIP"}:
@@ -374,6 +385,18 @@ def validate_record_schema(record, expected_cell):
         fail("ERR_SIGNER_KEY_COLLISION", "operator and reviewer must be distinct", expected_cell)
     if verdict == "SKIP":
         return
+    inventory = record["consumer_inventory"]
+    if not isinstance(inventory, list) or len(inventory) != len(CONSUMERS):
+        fail("ERR_SCHEMA_INVALID", "consumer_inventory must contain exactly five consumers", expected_cell)
+    seen = set()
+    for item in inventory:
+        require_exact_keys(item, {"entry_point", "source_commit", "source_path"}, set(), "consumer inventory entry", expected_cell)
+        if not all(nonempty_string(value) for value in item.values()):
+            fail("ERR_SCHEMA_INVALID", "consumer inventory values must be non-empty strings", expected_cell)
+        name = item["entry_point"]
+        if name not in CONSUMERS or name in seen or item["source_path"] != CONSUMERS[name]:
+            fail("ERR_SCHEMA_INVALID", "consumer inventory name/path is unknown, duplicate or mismatched", expected_cell)
+        seen.add(name)
     if not NONCE_RE.fullmatch(record["nonce"]):
         fail("ERR_SCHEMA_INVALID", "nonce format is invalid", expected_cell)
     for key in ("host_session_id", "host_event_id", "cli_name", "cli_version", "host_os", "tool_call_evidence"):
@@ -395,6 +418,33 @@ def validate_record_schema(record, expected_cell):
     end = parse_utc(record["session_end"], "session_end", expected_cell)
     if end <= start or record["session_date"] != start.date().isoformat():
         fail("ERR_SCHEMA_INVALID", "session date/order is invalid", expected_cell)
+
+
+def validate_consumer_sources(record, allowlist, root, cell):
+    entry = allowlist.get("AC-016")
+    if entry is None or set(entry["upstream_epic_a1_path_blob_ids"]) != set(CONSUMERS.values()):
+        fail("ERR_SCHEMA_INVALID", "AC-016 accepted source inventory is missing or incomplete", cell)
+    commit = entry["upstream_epic_a1_commit"]
+    inventory = record["consumer_inventory"]
+    if any(item["source_commit"] != commit for item in inventory):
+        fail("ERR_SCHEMA_INVALID", "consumer source commit differs from accepted AC-016 commit", cell)
+    queries = [f"{commit}:{item['source_path']}" for item in inventory]
+    try:
+        resolved = subprocess.run(
+            ["git", "cat-file", "--batch-check"], cwd=root,
+            input="\n".join(queries) + "\n", text=True, capture_output=True,
+            env={**os.environ, "GIT_NO_REPLACE_OBJECTS": "1"}, timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        fail("ERR_SCHEMA_INVALID", f"consumer source objects cannot be resolved: {exc}", cell)
+    lines = resolved.stdout.splitlines()
+    if resolved.returncode != 0 or len(lines) != len(inventory):
+        fail("ERR_SCHEMA_INVALID", "consumer source object resolution failed", cell)
+    for item, line in zip(inventory, lines):
+        fields = line.split()
+        expected = entry["upstream_epic_a1_path_blob_ids"][item["source_path"]]
+        if len(fields) != 3 or fields[1] != "blob" or fields[0] != expected:
+            fail("ERR_SCHEMA_INVALID", "consumer source object is unresolved or differs from accepted blob", cell)
 
 
 def validate_signatures(record, registry, cell):
@@ -582,6 +632,7 @@ def run(args):
             validate_skip(record, allowlist, root, cell)
             pending = True
         else:
+            validate_consumer_sources(record, allowlist, root, cell)
             proposals.append(validate_pass_record(record, root, manifest, ledger_by_nonce, cell))
     publish_consumption(args.nonce_ledger, ledger, proposals, original_ledger)
     print("pending" if pending else "discharged")

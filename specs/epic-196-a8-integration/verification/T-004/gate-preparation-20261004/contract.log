@@ -1,0 +1,13 @@
+Verification contract FAILED for task T-004:
+ - required check 'lint' has passes=false
+ - required check 'unit-tests' has passes=false
+ - required check 'acceptance-tests' has passes=false
+ - required check 'regression' has passes=false
+ - required check 'placeholder-scan' has passes=false
+ - required check 'task-state-check' has passes=false
+ - required check 'requirement-traceability' has passes=false
+ - required check 'check-component-coverage' has passes=false
+ - risk high requires check 'build' to be required:true
+ - risk high requires check 'typecheck' to be required:true
+ - check 'unit-tests' required_workflow tdd needs non-empty red_evidence
+ - check 'acceptance-tests' required_workflow tdd needs non-empty red_evidence

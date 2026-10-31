@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-196-a8-integration",
+  "run_id": "RUN-epic196-impl-a9r1-integrated-20261005T074126Z",
+  "verdict": "BLOCKED",
+  "round": 1,
+  "attempt": 9,
+  "findings_critical": 1,
+  "findings_major": 5,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "BLOCKED"
+}

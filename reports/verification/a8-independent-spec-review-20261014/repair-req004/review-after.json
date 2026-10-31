@@ -1,0 +1,30 @@
+{
+  "review_kind": "independent-codex-spec-review",
+  "formal_sdd_gate": false,
+  "verdict": "PASS",
+  "verified_inputs": [
+    {"path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/specs/epic-196-a8-integration/requirements.md", "sha256": "244f2c539a8242e36fe7a2d88a04b32476c15306534fa83db043bc0132b9775e"},
+    {"path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "60b2696d14cc9438a58c3c258c2117531249564c3aaa7c7c2b1500ce70bbcf4b"},
+    {"path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/specs/epic-196-a8-integration/investigation.md", "sha256": "888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f"},
+    {"path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/reports/spec-review/epic-196-a8-integration/attempt-4/round-1/precheck-result.json", "sha256": "3718c701f23907c710c3c98cb1cc64faec5d906bdbd577b2882c92d5bca32467"}
+  ],
+  "checks": [
+    {"id": "INPUT-INTEGRITY", "result": "PASS", "evidence": "指定5入力を全読し、shasum -a 256で実測した全ハッシュが今回の明示manifestと一致した。歴史precheck内のrequirementsハッシュは今回のadmissionに使用していない。"},
+    {"id": "REQUIREMENT-AC-TRACEABILITY", "result": "PASS", "evidence": "requirements.mdのREQ-001–REQ-007とAC-001–AC-030に対応するTEST-001–TEST-030がacceptance-tests.mdに存在し、各行は単一のprimary requirementを持つ。REQ-007の分類対象25チェックと対象外5プロセスチェックの区別も一致している。"},
+    {"id": "OBSERVABLE-ACCEPTANCE", "result": "PASS", "evidence": "AC-001–AC-004は消費側の出力・振る舞いへの寄与、AC-007–AC-009は対象別の状態・冪等性・残留、AC-022–AC-024は同期・乖離・未導入の診断とモード別結果を要求している。単なるファイル存在や作業実施を合格条件としていない。"},
+    {"id": "REQ004-CONTRACT-CONSISTENCY", "result": "PASS", "evidence": "REQ-004はtext/EOLを.gitattributes、NFC/NFDをAC-020の専用Unicode契約へ分離している。AC-018–AC-021およびTEST-018–TEST-021も同じ境界を採用し、pairwise matrix、各セルのoracle、ASSERT/N/A等の明示的dispositionを要求している。"},
+    {"id": "NATIVE-EVIDENCE-BOUNDARY", "result": "PASS", "evidence": "AC-012/AC-017の直接呼出しによる合成回帰と、AC-013–AC-016のnative session証明が区別されている。5 semantic cellsのactiveとexpected-unavailableには別の期待結果があり、直接guard呼出しをnative証明へ読み替えることを禁じている。"},
+    {"id": "AUTOMATION-UNCERTAINTY", "result": "PASS", "evidence": "AC-005/AC-025、OQ-001、Edge CasesはCLI能力の未確認状態と後続確認手順を明示し、能力未確認を対象セルの省略や合成証拠への置換に利用できない。設計時に確定する内容とPhase 1の必要な観測結果が区別されている。"},
+    {"id": "EVIDENCE-INTEGRITY-AND-INDEPENDENCE", "result": "PASS", "evidence": "AC-026–AC-028はnonce、raw capture hash、host session/event、config digest、独立した2署名とaggregate validationを要求する。2026-10-06 amendmentは新証拠をv2へ統一し、旧証拠の自動昇格を禁止する。TEST-016 amendmentにはinventory欠落・不正値・重複・source不整合・署名後変更・順序変更・SKIP/FAILの受入/拒否条件が列挙されている。"},
+    {"id": "SCOPE-AND-SAFETY", "result": "PASS", "evidence": "Non-goalsとAC-029はA1–A7の個別実装を再定義しない境界を設ける。AC-009は既存の無関係な利用者設定を削除対象から除外し、Security Boundary B2はdrift比較をread-onlyに限定する。live-host結果の捏造・不都合なFAILの破棄も禁止されている。"},
+    {"id": "AMENDMENT-AND-SKIP-CONSISTENCY", "result": "PASS", "evidence": "requirements.mdとacceptance-tests.mdのAC-006はpresence assertionとSKIP activationを区別し、AC-015/AC-016のmerge後hard-failureをそのままAC-006へ拡張していない。investigation.mdの追記はT-005の開始判定とBlocked時の残余挙動を開示している。v2追記は旧v1記述への優先順位を明示している。"}
+  ],
+  "findings": [],
+  "limitations": [
+    "これは指定manifestに対する独立したPhase 1仕様レビューであり、正式SDD gateのPASS、承認、状態遷移または台帳記録を生成するものではない。",
+    "design、tasks、実装、旧レビュー、メモリ、外部引用先は読んでいない。文書内の引用・履歴はその記述として評価し、引用先の現在の内容や実装適合性は再検証していない。",
+    "設計の具体的なmatrix・schema・oracleの充足、実装テスト、CI、実機証拠および品質ゲートは未評価であり、本PASSはそれらの成功を意味しない。",
+    "指定入力の読み取りとハッシュ実測のみを実施し、ファイル変更、Git操作、台帳予約、precheck再実行は行っていない。"
+  ]
+}

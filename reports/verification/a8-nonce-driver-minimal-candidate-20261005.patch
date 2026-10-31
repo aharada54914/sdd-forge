@@ -1,0 +1,67 @@
+diff --git a/tests/cross-runtime-handoff.tests.sh b/tests/cross-runtime-handoff.tests.sh
+--- a/tests/cross-runtime-handoff.tests.sh
++++ b/tests/cross-runtime-handoff.tests.sh
+@@ -128,4 +128,19 @@
+-    pseudo_copilot_output = f'COPILOT-CONSUMED:{nonce2}'.encode()
+-    expected_output_hash = hashlib.sha256(pseudo_copilot_output).hexdigest()
+-    output = root / 'handoff-02-output.txt'; output.write_bytes(pseudo_copilot_output)
+-    assert hashlib.sha256(output.read_bytes()).hexdigest() == expected_output_hash
++    def consume_files():
++        first = one.read_text().split(chr(34))[1]
++        second = two.read_text().removeprefix('<!-- nonce: ').removesuffix(' -->\n')
++        return ('COPILOT-CONSUMED:' + first + ':' + second).encode()
++    expected_output_hash = hashlib.sha256(f'COPILOT-CONSUMED:{nonce1}:{nonce2}'.encode()).hexdigest()
++    output = root / 'handoff-02-output.txt'; output.write_bytes(consume_files())
++    assert hashlib.sha256(output.read_bytes()).hexdigest() == expected_output_hash
++    baseline_output_hash = hashlib.sha256(output.read_bytes()).hexdigest()
++    changed1 = ('0' if nonce1[0] != '0' else '1') + nonce1[1:]
++    changed2 = ('0' if nonce2[0] != '0' else '1') + nonce2[1:]
++    for first, second in ((changed1, nonce2), (nonce1, changed2)):
++        one.write_bytes(f'token: "{first}"\n'.encode())
++        two.write_bytes(f'<!-- nonce: {second} -->\n'.encode())
++        expected = hashlib.sha256(f'COPILOT-CONSUMED:{first}:{second}'.encode()).hexdigest()
++        assert baseline_output_hash != expected, 'stale output accepted after one-input mutation'
++        output.write_bytes(consume_files())
++        assert hashlib.sha256(output.read_bytes()).hexdigest() == expected
++    one.write_bytes(f'token: "{nonce1}"\n'.encode())
++    two.write_bytes(f'<!-- nonce: {nonce2} -->\n'.encode())
+@@ -214,1 +229,1 @@
+-prompt="Read tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, extract the nonce in the HTML comment, and create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact bytes COPILOT-CONSUMED:<nonce> (no trailing newline). Do not run shell commands or access the network."
++prompt="Read tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml and tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md. Extract the YAML token as nonce1 and the HTML-comment nonce as nonce2. Create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact UTF-8 bytes COPILOT-CONSUMED:<nonce1>:<nonce2> (no BOM or trailing newline). Do not run shell commands or access the network."
+@@ -218,1 +233,1 @@
+-expected_output_sha=$(printf 'COPILOT-CONSUMED:%s' "$nonce2" | python3 -c 'import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest())')
++expected_output_sha=$(printf 'COPILOT-CONSUMED:%s:%s' "$nonce1" "$nonce2" | python3 -c 'import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest())')
+diff --git a/tests/cross-runtime-handoff.tests.ps1 b/tests/cross-runtime-handoff.tests.ps1
+--- a/tests/cross-runtime-handoff.tests.ps1
++++ b/tests/cross-runtime-handoff.tests.ps1
+@@ -154,3 +154,21 @@
+-    [IO.File]::WriteAllBytes($output, [Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2))
+-    $expectedOutputHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2))).ToLowerInvariant()
+-    if ((Get-Sha256 $output) -cne $expectedOutputHash) { Stop-Test 'pseudo Copilot generated-file hash mismatch' }
++    $consumeFiles = {
++        $first = [IO.File]::ReadAllText($copyOne).Split('"')[1]
++        $second = [IO.File]::ReadAllText($copyTwo) -creplace '^<!-- nonce: ([0-9a-f]{32}) -->\n$', '$1'
++        'COPILOT-CONSUMED:' + $first + ':' + $second
++    }
++    [IO.File]::WriteAllBytes($output, [Text.Encoding]::UTF8.GetBytes((& $consumeFiles)))
++    $expectedOutputHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce1 + ':' + $nonce2))).ToLowerInvariant()
++    if ((Get-Sha256 $output) -cne $expectedOutputHash) { Stop-Test 'pseudo Copilot generated-file hash mismatch' }
++    $baselineOutputHash = Get-Sha256 $output
++    $changed1 = $(if ($nonce1[0] -cne '0') { '0' } else { '1' }) + $nonce1.Substring(1)
++    $changed2 = $(if ($nonce2[0] -cne '0') { '0' } else { '1' }) + $nonce2.Substring(1)
++    foreach ($pair in @(@($changed1, $nonce2), @($nonce1, $changed2))) {
++        [IO.File]::WriteAllText($copyOne, ('token: "' + $pair[0] + '"' + $fixtureNewline), [Text.UTF8Encoding]::new($false))
++        [IO.File]::WriteAllText($copyTwo, ('<!-- nonce: ' + $pair[1] + ' -->' + $fixtureNewline), [Text.UTF8Encoding]::new($false))
++        $expected = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $pair[0] + ':' + $pair[1]))).ToLowerInvariant()
++        if ($baselineOutputHash -ceq $expected) { Stop-Test 'stale output accepted after one-input mutation' }
++        [IO.File]::WriteAllBytes($output, [Text.Encoding]::UTF8.GetBytes((& $consumeFiles)))
++        if ((Get-Sha256 $output) -cne $expected) { Stop-Test 'one-input mutation generated-file hash mismatch' }
++    }
++    [IO.File]::WriteAllText($copyOne, $textOne, [Text.UTF8Encoding]::new($false))
++    [IO.File]::WriteAllText($copyTwo, $textTwo, [Text.UTF8Encoding]::new($false))
+@@ -200,1 +218,1 @@
+-    $prompt = 'Read tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, extract the nonce in the HTML comment, and create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact bytes COPILOT-CONSUMED:<nonce> (no trailing newline). Do not run shell commands or access the network.'
++    $prompt = 'Read tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml and tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md. Extract the YAML token as nonce1 and the HTML-comment nonce as nonce2. Create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact UTF-8 bytes COPILOT-CONSUMED:<nonce1>:<nonce2> (no BOM or trailing newline). Do not run shell commands or access the network.'
+@@ -204,1 +222,1 @@
+-    $outputBytes = [Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2)
++    $outputBytes = [Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce1 + ':' + $nonce2)

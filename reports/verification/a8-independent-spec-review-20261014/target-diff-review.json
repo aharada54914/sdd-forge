@@ -1,0 +1,32 @@
+{
+  "formal_sdd_gate": false,
+  "review_kind": "independent-codex-implementation-diff-review",
+  "verdict": "PASS",
+  "owning_checkout": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge",
+  "head": "495c88d67af44530687ecea3ce9fb0a90a336539",
+  "reviewed_state": "指定6ファイルの未コミット差分。レビュー開始後と終了時のSHA256一致を確認。",
+  "verified_input_sha256s": {
+    "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py": "be27130eee484eb041a4a51d96f7553983ca4bef32c270d5eddf4353395d20a6",
+    "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.sh": "dd184db80e8d3d0bc67db6cef3fa074d4d52f8398d1adc200ea62117820b000f",
+    "plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.ps1": "f6f94819ac11fada7baaf77b43271600ff476aa237f6abdda6765fdbaf46c6c2",
+    "tests/fixtures/installed-plugin-drift/fixture_driver.py": "ece9e655672fe00dd7168179e6c80e4a4b249440e11489242a3a8a2da78faf1f",
+    "tests/install-uninstall-matrix.tests.sh": "bc97e958daabc628ddd14ad176fcf6e9dcb21d2d1c21b5416b9ff2f5fbd66204",
+    "tests/install-uninstall-matrix.tests.ps1": "9f21e206ae34bef754f7ccf8e6c25fd6dd57735948c316980265f36d87301014"
+  },
+  "findings": [],
+  "verified": [
+    "All|Codex|Claude|CopilotをPython argparseで大文字小文字を区別して検証し、両ラッパーが値をそのまま渡す。",
+    "省略時はAll。Codex agentおよびmanaged MCP region比較はAll/Codexで有効、Claude/Copilotで除外。",
+    "共有plugin/hook比較は対象条件の外で常時実行。",
+    "JSON v1のフィールド集合と出力構造に変更なし。",
+    "両matrixからCodex agentとmanaged regionの事前投入を除去。Claude/Copilotで未生成を確認。",
+    "Python/Bashの対象引数18ケース、PowerShellの対象引数9ケースを実行し成功。誤表記・未対応値はexit 2。",
+    "BashおよびPowerShellの対象スクリプト構文検証成功。"
+  ],
+  "limitations": [
+    "本結果は限定差分の独立レビューであり、正式SDDゲート、タスクDone判定、過去のPassedの再認定ではない。",
+    "実装担当が実行中のfixture全体およびinstall/uninstall matrixは重複実行せず、その実行結果を受領・判定していない。",
+    "Windows/Linux実機、最新HEADのCI、インストール済み実環境の検証は実施していない。",
+    "ファイル編集、commit、push、承認・タスク状態変更は実施していない。過去レビュー出力とmemoryは参照していない。"
+  ]
+}

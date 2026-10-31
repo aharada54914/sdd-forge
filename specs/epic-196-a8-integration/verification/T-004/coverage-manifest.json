@@ -1,0 +1,24 @@
+{
+  "schema": "task-coverage-map/v1",
+  "task": "T-004",
+  "source": "tests/cli-hook-enforcement.ps1",
+  "scope": "Synthetic guard contracts only; not live CLI activation",
+  "elements": [
+    {"id":"AC-012-enabled","marker":"Expected = 'true'","assertion":"$stateMatches -and $directExit -eq 2"},
+    {"id":"AC-012-disabled","marker":"Expected = 'false'","assertion":"$stateMatches -and $directExit -eq 2"},
+    {"id":"AC-012-subagent","marker":"synthetic_context_indicator","assertion":"$subagentIndicatorMatches -and $subagentJson -match"},
+    {"id":"AC-017-node-deny","marker":"claude-code (node --emit exit): self-approval DENIED","assertion":"$dc -eq 2"},
+    {"id":"AC-017-node-allow","marker":"claude-code (node --emit exit): benign edit ALLOWED","assertion":"$ac -eq 0"},
+    {"id":"AC-017-pwsh-deny","marker":"codex/copilot (pwsh .ps1 -Emit exit): self-approval DENIED","assertion":"$dc -eq 2"},
+    {"id":"AC-017-copilot-deny","marker":"copilot (.ps1 -Emit copilot): self-approval => deny","assertion":"$denyJson -match"},
+    {"id":"AC-017-copilot-allow","marker":"copilot (.ps1 -Emit copilot): benign => allow","assertion":"$allowJson -match"},
+    {"id":"AC-017-posix-deny","marker":"codex (sh .sh --emit exit): self-approval DENIED","assertion":"$dc -eq 2","platforms":["macOS","Ubuntu"]},
+    {"id":"AC-017-posix-copilot","marker":"copilot (sh .sh --emit copilot): self-approval => deny","assertion":"$denyShJson -match","platforms":["macOS","Ubuntu"]},
+    {"id":"AC-017-claude-config","marker":"drift: claude-hooks.json invokes","assertion":"$claudeCfg -match"},
+    {"id":"AC-017-codex-config","marker":"drift: hooks.json invokes","assertion":"$codexCfg -match"},
+    {"id":"AC-017-copilot-config","marker":"drift: copilot-hooks.json invokes","assertion":"$copilotCfg -match"},
+    {"id":"AC-017-continuity","marker":"TEST-017 regression continuity","assertion":"$preExistingFail -eq 0"}
+  ],
+  "execution_evidence": "specs/epic-196-a8-integration/verification/T-004/current-ci-20261004.md",
+  "informational_only": "CLI presence on PATH is not an activation assertion and changes displayed pass totals."
+}

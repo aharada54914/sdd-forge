@@ -1,0 +1,39 @@
+{
+  "review_kind": "independent-codex-spec-review",
+  "formal_sdd_gate": false,
+  "verdict": "NEEDS_WORK",
+  "verified_inputs": [
+    {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "9d14fb9f40153e53f63d2d88e45366473d0054699d50330697dd36477851e1e4"},
+    {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "60b2696d14cc9438a58c3c258c2117531249564c3aaa7c7c2b1500ce70bbcf4b"},
+    {"path": "specs/epic-196-a8-integration/investigation.md", "sha256": "888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-196-a8-integration/attempt-4/round-1/precheck-result.json", "sha256": "3718c701f23907c710c3c98cb1cc64faec5d906bdbd577b2882c92d5bca32467"}
+  ],
+  "checks": [
+    {"id": "INPUT-INTEGRITY", "result": "PASS", "evidence": ["5入力を実測SHA-256と照合し、全文を読んだ。", "reports/spec-review/epic-196-a8-integration/attempt-4/round-1/precheck-result.json:8-11"]},
+    {"id": "REQ-AC-TRACEABILITY", "result": "PASS", "evidence": ["specs/epic-196-a8-integration/requirements.md:205-231", "specs/epic-196-a8-integration/acceptance-tests.md:5-34"]},
+    {"id": "OBSERVABILITY", "result": "PASS", "evidence": ["specs/epic-196-a8-integration/requirements.md:278-299", "specs/epic-196-a8-integration/requirements.md:542-592", "specs/epic-196-a8-integration/acceptance-tests.md:87-97"]},
+    {"id": "AC016-AMENDMENT-CONSISTENCY", "result": "PASS", "evidence": ["specs/epic-196-a8-integration/requirements.md:896-915", "specs/epic-196-a8-integration/acceptance-tests.md:75-97", "v2の優先、旧記録非昇格、5 consumer全件の署名対象inventory、native証拠による実行確認が明記されている。旧v1参照は明示的supersessionで処理されている。"]},
+    {"id": "AC016-NEGATIVE-COVERAGE", "result": "PASS", "evidence": ["specs/epic-196-a8-integration/acceptance-tests.md:87-97", "欠落、型、件数、各consumer欠落、重複・未知名、余分なキー、source不整合、順序置換、署名後改変、SKIP、FAILの検証義務が列挙されている。"]},
+    {"id": "AUTHORIZATION-AND-EVIDENCE-BOUNDARY", "result": "PASS", "evidence": ["specs/epic-196-a8-integration/requirements.md:542-592", "specs/epic-196-a8-integration/requirements.md:665-679", "specs/epic-196-a8-integration/requirements.md:905-915", "nonce、trusted key署名、operatorとreviewerの独立性、native証拠、aggregate discharge条件は維持されている。"]},
+    {"id": "SCOPE-AND-AUTOMATION-BOUNDARY", "result": "PASS", "evidence": ["specs/epic-196-a8-integration/requirements.md:233-260", "specs/epic-196-a8-integration/requirements.md:747-779", "specs/epic-196-a8-integration/requirements.md:841-847", "specs/epic-196-a8-integration/acceptance-tests.md:16-21"]},
+    {"id": "CONTRADICTION", "result": "FAIL", "evidence": ["specs/epic-196-a8-integration/requirements.md:167-176", "specs/epic-196-a8-integration/requirements.md:470-484", "specs/epic-196-a8-integration/requirements.md:636-641", "specs/epic-196-a8-integration/acceptance-tests.md:24"]}
+  ],
+  "findings": [
+    {
+      "severity": "Major",
+      "path": "specs/epic-196-a8-integration/requirements.md",
+      "line": 174,
+      "problem": "REQ-004はNFC/NFDを含む各fixtureについて既存.gitattributes契約をoracleとすると規定する。一方AC-020（470-479行）、Field Definitions（636-641行）、TEST-020はUnicode専用契約を要求し、.gitattributesをoracleにすることを明示的に禁止している。AC-016 amendmentにはこの既存の矛盾を解消するsupersessionはない。",
+      "downstream_failure": "設計者・検証者がUnicode fixtureの合否基準をREQ-004とAC-020のどちらに従わせるか一意に決められない。既に明記された要件とACのoracle不一致であり、実装方式や未実施テストの問題ではないためPhase1レビュー対象。局所的な受入基準の曖昧さなのでMajorとした。",
+      "requested_change": "REQ-004の.gitattributes適用範囲をtext/EOLに限定し、Unicode軸はAC-020の専用契約に従うことを明記する。REQ-004・AC-020・Unicode-normalization contractの関連記述をidentifier sweepし、同一の適用境界へ揃える。"
+    }
+  ],
+  "limitations": [
+    "指定された5入力のみを読んだ。メモリ、他レビュー結果、design/tasks/実装、外部引用先は閲覧していない。",
+    "これは承認例外下の独立Codex仕様レビューであり、正式SDD gate verdict、台帳予約、製品フック起動、task status変更を行っていない。",
+    "design/task/実装/実機検証の未実施をPhase1不備として扱っていない。",
+    "引用された外部artifactの現行内容や履歴の真偽、v2実装、実機セッション、署名検証、CI、quality gateの合格は確認していない。",
+    "ファイル、台帳、状態は変更していない。host/run identityは生成していない。"
+  ]
+}

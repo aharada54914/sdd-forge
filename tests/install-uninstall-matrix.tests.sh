@@ -66,22 +66,8 @@ cell() {
     local resolved_install_root
     resolved_install_root="$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$install_root")"
     mkdir -p "$codex_home" "$vscode_dir" "$cursor_dir"
-    mkdir -p "${codex_home}/agents"
-    if compgen -G "${REPO_ROOT}/.codex/agents/*.toml" >/dev/null; then
-        cp -p "${REPO_ROOT}"/.codex/agents/*.toml "${codex_home}/agents/"
-    fi
-    # Seed the Codex config with the current managed regions. For non-Codex
-    # cells these are pre-existing, unchanged state; for Codex/All the
-    # installer re-writes the same regions. This lets the required drift
-    # verifier run on every target without changing the registration oracle.
-    {
-        printf '# fixture config\n'
-        for mcp in sdd-forge-mcp local-env-mcp ci-mcp; do
-            printf '\n# >>> %s (managed by sdd-forge installer; do not edit by hand) >>>\n' "$mcp"
-            printf '[mcp_servers.%s]\ncommand = "node"\nargs = ["%s/mcp/%s/dist/index.js"]\n' "$mcp" "$resolved_install_root" "$mcp"
-            printf '# <<< %s <<<\n' "$mcp"
-        done
-    } > "${codex_home}/config.toml"
+    # Only an unrelated config precondition; all managed assets must come from install.
+    printf '# fixture config\\n' > "${codex_home}/config.toml"
     printf '{"servers":{}}\n' > "${vscode_dir}/mcp.json"
     printf '{"mcpServers":{}}\n' > "${cursor_dir}/mcp.json"
     make_fake_cli "$bin_dir" "$log"
@@ -98,7 +84,14 @@ cell() {
     fi
     [[ -d "$install_root" ]] && ok "$target install_1 present" || fail "$target install_1 install root"
     install1_manifest="$(json_manifest "$install_root")"
-    if drift_json="$(bash "$DRIFT" --install-root "$install_root" --mode verify 2>&1)"; then
+    if [[ "$target" == Claude || "$target" == Copilot ]]; then
+        if [[ ! -d "$codex_home/agents" ]] && ! grep -q 'managed by sdd-forge' "$codex_home/config.toml"; then
+            ok "$target Codex surfaces remain absent"
+        else
+            fail "$target unexpectedly installed Codex surfaces"
+        fi
+    fi
+    if drift_json="$(bash "$DRIFT" --install-root "$install_root" --mode verify --target "$target" 2>&1)"; then
         if grep -q '"mode":"verify"' <<<"$drift_json" && grep -q '"state":"installed_synced"' <<<"$drift_json"; then
             ok "$target verify_1 drift_check"
         else

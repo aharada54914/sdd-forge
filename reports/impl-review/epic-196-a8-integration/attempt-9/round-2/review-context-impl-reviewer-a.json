@@ -1,0 +1,30 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "feature": "epic-196-a8-integration",
+  "run_id": "RUN-epic196-impl-a9r2-a-ba101901",
+  "host_session_id": "ba101901-0e4c-4400-be4d-beddb6537f16",
+  "sequence": 1206,
+  "previous_record_sha256": "309aff762e5abc5829cd413935f064b4c607be935c510815a88fdf7def940e69",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "156088924a3161ca26fb2eea492f3baa5b445ecd23f97eda68f464ab7540ea4d",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {"path":"specs/epic-196-a8-integration/requirements.md","sha256":"f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"},
+    {"path":"specs/epic-196-a8-integration/acceptance-tests.md","sha256":"4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"},
+    {"path":"specs/epic-196-a8-integration/design.md","sha256":"c2a30f22f833f9a30ffeff01960d7f5304af262ba9ab4f0b9aad67f75b604cca"},
+    {"path":"specs/epic-196-a8-integration/investigation.md","sha256":"888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f"},
+    {"path":"specs/epic-196-a8-integration/ux-spec.md","sha256":"c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"},
+    {"path":"specs/epic-196-a8-integration/frontend-spec.md","sha256":"c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+    {"path":"specs/epic-196-a8-integration/infra-spec.md","sha256":"59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+    {"path":"specs/epic-196-a8-integration/security-spec.md","sha256":"45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path":"reports/impl-review/epic-196-a8-integration/attempt-9/round-2/precheck-result.json","sha256":"a9fb7d854cf30a24701bd6015fb5e8e9bbd34319da40c8c3cd66bd9b061a6bb6"},
+    {"path":"reports/impl-review/epic-196-a8-integration/attempt-9/round-1/integrated-summary.json","sha256":"8538100ab4a3b65b32f3421f5f037f3c1ff5c64433d245900638f9f924deee12"},
+    {"path":"docs/adr/0028-live-host-proof-ed25519-signing.md","sha256":"17b6c83d22126ed1095d556a80b3cb14173e4975deee039e5871656ce416186c"},
+    {"path":"docs/adr/0035-a8-two-contribution-handoff-oracle.md","sha256":"50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923"}
+  ]
+}

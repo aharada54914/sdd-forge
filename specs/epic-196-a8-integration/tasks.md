@@ -213,8 +213,8 @@ adjacent handoff (Claude→Codex, Codex→Copilot), drive the producing
 runtime's mutation of a per-run `mutation_nonce` into the fixture, then
 assert the consuming runtime's own `consumer_observable` (a stdout
 substring for Claude→Codex, a generated-file hash for Codex→Copilot);
-chain both steps into one continuous 3-hop run reusing `handoff-02`'s own
-nonce (AC-004); register the hook-activation canary as a named, `SKIP`ped
+chain both steps into one continuous 3-hop run binding both handoff-01 and
+handoff-02 nonces in the final hash (AC-004); register the hook-activation canary as a named, `SKIP`ped
 case citing Epic A1's tracking issue (`sdd-forge-wt-epic-189`, #189/#187);
 and record, for each of the three CLIs independently, either a confirmed
 headless/non-interactive invocation contract (with file:line or
@@ -254,8 +254,9 @@ OQ-001).
   TEST-002 (Claude→Codex handoff, automated where OQ-001 confirms a
   contract, else a REQ-006-format manual-session record consumed by the
   same trace schema), TEST-003 (Codex→Copilot handoff, same conditional
-  branch), TEST-004 (full 3-hop chain, `handoff-02`'s nonce reused end to
-  end), TEST-005 (per-CLI headless-contract marker), TEST-006 (canary case
+  branch), TEST-004 (full 3-hop chain, final hash depends on both upstream
+  nonces; changing either nonce alone changes the oracle and rejects stale
+  output), TEST-005 (per-CLI headless-contract marker), TEST-006 (canary case
   present, `SKIP`, citing Epic A1's tracking issue, `coverage_complete:
   false` while `SKIP`ped pre-activation is itself asserted as the correct,
   non-`FAIL` state).
@@ -674,7 +675,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/196
 
 Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
-Status: Planned
+Status: Implementation Complete
 
 Risk: high
 
@@ -1668,3 +1669,25 @@ Done.
 ### Blockers
 
 T-001, T-005
+
+
+## AC-016 inventory amendment (2026-10-06; superseding contract)
+
+This dated amendment supersedes this document's prospective references to
+`live-host-verification-record/v1` for REQ-003/REQ-006 and AC-015/016/026/028:
+new evidence uses `live-host-verification-record/v2` as defined in design.md's
+AC-016 inventory amendment. Earlier text/examples describe the retained v1
+baseline, not an alternative current schema. Historical records and verdicts
+remain unchanged and are not automatically promoted to v2 evidence. No dual
+version acceptance path is required. Adoption is not review PASS or live proof.
+Existing five semantic cells, required checks, SKIP rules, native evidence,
+signer independence, nonce rules and task approval/status remain unchanged.
+
+T-005 owns the v2 schema/validator delta and TEST-016 structural/source/signature
+negative coverage defined in the amended design and acceptance tests. T-008
+populates the same inventory in the existing five cell records and preserves its
+ban on agent-created genuine signed evidence. This supersedes T-008's earlier
+inventory-shape prose and prospective v1 references, not the five-cell scope or
+human attestation boundary. No new tasks, status/approval changes, Done claims,
+extra sessions or signing operations are introduced. Rebind affected design and
+task inputs through independent review before implementing this delta.

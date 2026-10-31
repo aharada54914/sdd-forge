@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/reports/verification/a8-exact-bash-hook-20261006.mjs \"rtk proxy bash plugins/sdd-quality-loop/scripts/validate-review-context-set.sh reports/review-context/a8-spec-attempt4-round1-spec-reviewer-a.json /Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge --reviewer-receipt reports/review-context/a8-spec-attempt4-round1-spec-reviewer-a.json.receipt.txt\""
+          }
+        ]
+      }
+    ]
+  }
+}

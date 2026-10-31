@@ -1,0 +1,18 @@
+Exit code: 0
+DISPOSABLE_FIXTURES=/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/issue423-reserve-fixture.zCuG39
+PASS negative missing_declaration (bash,pwsh)
+PASS negative undeclared_handoff (bash,pwsh)
+PASS negative missing_pinned_input (bash,pwsh)
+PASS negative altered_manifest (bash,pwsh)
+PASS negative mismatched_run (bash,pwsh)
+PASS negative conflicting_run_line (bash,pwsh)
+PASS negative conflicting_session_line (bash,pwsh)
+PASS negative duplicate_manifest_citation (bash,pwsh)
+PASS negative suffixed_manifest_citation (bash,pwsh)
+PASS negative reused_implementation (bash,pwsh)
+PASS negative relative_scratch (bash,pwsh)
+PASS negative overlapping_scratch (bash,pwsh)
+PASS negative evaluator_reuse (bash,pwsh)
+PASS negative supersession_archive_unlisted (bash,pwsh)
+PASS supersession archive authorization controls (bash,pwsh)
+PASS positive controls (bash,pwsh); production ledger untouched

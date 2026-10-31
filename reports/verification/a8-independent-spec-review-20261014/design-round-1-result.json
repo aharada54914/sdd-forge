@@ -1,0 +1,88 @@
+{
+  "review_kind": "independent-codex-design-review",
+  "formal_sdd_gate": false,
+  "verdict": "NEEDS_WORK",
+  "manifest_sha256": "04a4ed807f71df42eb693c53c5e7af1fa3d6110e1381b835891182e798a207ba",
+  "verified_inputs": [
+    {"path":"specs/epic-196-a8-integration/requirements.md","sha256":"244f2c539a8242e36fe7a2d88a04b32476c15306534fa83db043bc0132b9775e"},
+    {"path":"specs/epic-196-a8-integration/acceptance-tests.md","sha256":"60b2696d14cc9438a58c3c258c2117531249564c3aaa7c7c2b1500ce70bbcf4b"},
+    {"path":"specs/epic-196-a8-integration/investigation.md","sha256":"888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f"},
+    {"path":"specs/epic-196-a8-integration/design.md","sha256":"b8cd43e5b5efd7e0fbe93a49809d3e5465388f6a8f9781e05f0ea3960f2e7a33"},
+    {"path":"specs/epic-196-a8-integration/ux-spec.md","sha256":"d837d191075ffa24ae6b1047f1c7c15b464117f5bdfc083dd60b3efbad43507d"},
+    {"path":"specs/epic-196-a8-integration/frontend-spec.md","sha256":"df5d037fee43a151f1246680562db56c99217fc47b091997464325811092de4b"},
+    {"path":"specs/epic-196-a8-integration/infra-spec.md","sha256":"e6680d0346ca9a67492880219d2a8557b7e116069c97a5fe203cfbdfb6e9"},
+    {"path":"specs/epic-196-a8-integration/security-spec.md","sha256":"980eeac88f92c1fe5c77600016281b3ac23e08ebdc78a631bf06f21f8b47edeb"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path":"plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path":"plugins/sdd-review-loop/references/phase-review-checklist.md","sha256":"7d8b4397585fc75cbd0e570101d5209ca8806d4ca9380b17547f8c06769b6b5c"},
+    {"path":"docs/adr/0035-a8-two-contribution-handoff-oracle.md","sha256":"50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923"},
+    {"path":"docs/adr/0028-live-host-proof-ed25519-signing.md","sha256":"a56af77acc13dde8aef1632d83680cbde42efc738b56e860e012d3a9e525a87b"},
+    {"path":"docs/adr/0019-approval-sidecar-protection.md","sha256":"f958b79ec60013c2f5df30baf06bbbb85c8662d56371838565897b24d6953bf6"},
+    {"path":"docs/adr/0008-evidence-deep-verify-no-signature-crypto.md","sha256":"1e3f9b65d3cf6ed003cd91548662224f05b82d3ab0d2d6bb15f2d353fd06996f"},
+    {"path":"plugins/sdd-review-loop/references/a8-skip-allowlist.json","sha256":"0bd487921d967d431766976fb8a62d0f181c27eb6478ab5b04a32190f03154f5"}
+  ],
+  "checks": [
+    {"id":"ARCH-COVERAGE","status":"PASS","evidence":"Architecture defines fixture drivers, drift checker, live-proof validator, existing installers and layer responsibilities."},
+    {"id":"NO-CIRCULAR-DEPS","status":"PASS","evidence":"Declared verification components consume existing installers, records and manifests without a stated component dependency cycle."},
+    {"id":"DATA-COVERAGE","status":"PASS","evidence":"Data Entities, Existing Data Affected and Migration Strategy are present; trace, matrix, live-proof and drift schemas are specified."},
+    {"id":"API-COVERAGE","status":"FAIL","finding_ids":["D-001"],"evidence":"The drift checker has no defined way to receive the matrix target needed to select its expected outside-install-root surfaces."},
+    {"id":"SECURITY-COVERAGE","status":"PASS","evidence":"B1-B5 cover authenticity, read-only drift, activation, nonce/signing and synthetic substitution; security-spec supplies authorization and data classification."},
+    {"id":"FRONTEND-BACKEND-CONSISTENCY","status":"SKIP","evidence":"Internal CLI/test infrastructure; no frontend/backend application interface."},
+    {"id":"TEST-STRATEGY-COVERAGE","status":"PASS","evidence":"Unit/schema negatives, integration fixtures, real-session acceptance and named commands/artifacts are specified. Contract defects remain findings D-001 and D-002."},
+    {"id":"NO-UNDEFINED-COMPONENT","status":"PASS","evidence":"Referenced major components are defined or identified as existing systems in design/investigation."},
+    {"id":"ADR-PRESENT","status":"PASS","evidence":"Admitted ADR-0035, ADR-0028, ADR-0019 and ADR-0008 exist and were read; proposed status is not treated as adoption."},
+    {"id":"DESIGN-SYSTEM-CONFORMANCE","status":"SKIP","evidence":"Design System Compliance explicitly states no UI surface; UX/frontend layers agree."},
+    {"id":"DOMAIN-CONFORMANCE","role":"impl-reviewer-a","status":"NOT_VERIFIED","evidence":"Approved domain-model applicability cannot be established from the admitted inputs; no unlisted domain files were accessed."},
+    {"id":"DECISION-JUSTIFIED","status":"PASS","evidence":"Fixture two-contribution oracle, independent nonces, synthetic/live separation, signing and drift coverage have stated rationales."},
+    {"id":"OPEN-QUESTIONS-RESOLVABLE","status":"PASS","evidence":"OQ-001 assigns empirical headless confirmation to the Phase 2/3 implementer before automation; manual fallback is defined. OQ-002 has an explicit resolved scope."},
+    {"id":"ASSUMPTIONS-VALID","status":"PASS","evidence":"Investigation supports the design premises; unconfirmed CLI capabilities and cross-epic drift are explicitly bounded. Historical statements are read with their supersession notes."},
+    {"id":"NO-REQ-CONTRADICTION","status":"FAIL","finding_ids":["D-001","D-002"],"evidence":"Target-specific installation expectations and per-runtime automation prerequisites are not consistently carried into their consuming contracts."},
+    {"id":"PERF-ADDRESSED","status":"PASS","evidence":"No numeric performance SLA requiring a separate implementation strategy is asserted."},
+    {"id":"DEPLOYMENT-CONCRETE","status":"PASS","evidence":"Existing three-OS CI topology, staged integration, activation behavior and real-proof discharge boundary are specified."},
+    {"id":"MIGRATION-PLANNED","status":"PASS","evidence":"New verification entities require no database migration. The v2 amendment explicitly preserves historical v1 evidence and does not permit dual acceptance or automatic promotion."},
+    {"id":"INTEGRATION-IDENTIFIED","status":"PASS","evidence":"Three CLI integrations and installer surfaces are named; unconfirmed session contracts and failure/manual handling are explicit, subject to D-002."},
+    {"id":"DESIGN-WITHIN-SCOPE","status":"PASS","evidence":"Design remains integration verification; no baseline replacement, approval expansion or individual-epic implementation transfer is authorized."},
+    {"id":"VERIFICATION-PATH-CONCRETE","status":"PASS","evidence":"Named validation commands, negative fixtures, five semantic live cells, nonce/signature checks and native-evidence review provide concrete validation paths."},
+    {"id":"DOMAIN-CONFORMANCE","role":"impl-reviewer-b","status":"NOT_VERIFIED","evidence":"Approved domain-model applicability cannot be established from admitted inputs."},
+    {"id":"AC016-V2-CONSISTENCY","status":"PASS","evidence":"Requirements, acceptance tests, design, all four layers and ADR-0028 consistently apply the v2 supersession. Exactly five consumers, exact keys/path/commit binding, SKIP null handling, signed inventory and native-execution review are specified."},
+    {"id":"AC016-PINNED-GIT-OBJECTS","status":"PASS","evidence":"Separately authorized read-only git rev-parse checks resolved all five allowlisted paths at c0aaf3a639f4cb4798b16acd115f0b05db44493f; all IDs matched the admitted allowlist. No object contents were read.","objects":[
+      {"path":"plugins/sdd-bootstrap/skills/bootstrap/SKILL.md","blob_id":"548112c966227a6f1d983a2a4c17e0e5c61a83de"},
+      {"path":"plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md","blob_id":"c3adc68681c4fabf0ebad6d2f6ef4af299af5327"},
+      {"path":"plugins/sdd-lite/skills/lite-gate/SKILL.md","blob_id":"5ca654fa714b182dcbd488b40517b924f7428e63"},
+      {"path":"plugins/sdd-lite/skills/lite-spec/SKILL.md","blob_id":"111c240d1959f7449a8dc0030a64a8d0d4138b4f"},
+      {"path":"plugins/sdd-ship/skills/ship/SKILL.md","blob_id":"74b04579a9ad0527f345d7bbacc619f59c748e1c"}
+    ]}
+  ],
+  "findings": [
+    {
+      "id":"D-001",
+      "severity":"Major",
+      "path":"specs/epic-196-a8-integration/design.md",
+      "line":1047,
+      "problem":"REQ-002は全4 targetでdrift checkerのverify実行を必須とする一方、checkerの入力はinstall-rootとmodeのみで、対象targetまたは期待surface集合を受け取る契約がない。Coverage Scope（1011-1023）はCodex agent TOMLとCodex MCP blockを一律ASSERTとするが、Target × Phase × Surface表（441-449）はClaude/Copilotでこれらが存在しないことを正解とする。",
+      "downstream_failure":"定義どおりの一律比較では正常なClaude/Copilot-only installがCodex surface欠落としてinstalled_driftedになり、4-target matrixを通せない。逆に存在するsurfaceだけを推測して比較すると、Codex installからCodex surfaceが欠落した不具合を正当な非対象と誤認できる。",
+      "scope_reason":"REQ-002/REQ-005、AC-007–AC-009/AC-024の既存連携契約内の不整合であり、新機能要求ではない。",
+      "severity_reason":"正常な必須matrix cellの失敗、または欠落検出のfail-openを招く実装判断が未定義で、表現上の軽微な問題ではない。",
+      "requested_change":"targetまたは信頼できる期待surface manifestをcheckerへ明示的に渡し、その選択規則とstandalone時の既定動作を定義する。正常Claude/Copilot-only installを許容しつつ、Codex/Allの必須surface欠落は拒否する両側のテストを指定する。欠落そのものからtargetを推定しない。"
+    },
+    {
+      "id":"D-002",
+      "severity":"Major",
+      "path":"specs/epic-196-a8-integration/design.md",
+      "line":1510,
+      "problem":"AC-002のautomatedへの昇格条件がClaude Codeのheadless契約確認だけになっている。requirements.md:290-292のAC-002は後続の実Codex sessionが内容を読み、その出力/挙動へ反映することまで要求するため、Codexの非対話実行契約も必要。隣接AC-003行はproducer/consumer双方の契約確認を要求しており、この非対称性を正当化する規則はない。",
+      "downstream_failure":"Claudeだけ確認済み、Codexは未確認の状態でAC-002をautomatedと分類できる。実行できないCI経路を構築するか、未確認Codex invocation/manual consumerを自動検証扱いにすることになり、AC-005/REQ-006の確認済み契約境界を破る。",
+      "scope_reason":"既存AC-002のproducer/consumer範囲とAC-025の分類条件の整合修正であり、全CLIの実機確認を今回レビューへ追加要求するものではない。",
+      "severity_reason":"将来の分類遷移と実行方式に影響する具体的な条件欠落で、単なる文言上の誤記として放置できない。",
+      "requested_change":"AC-002のUpgrade ConditionおよびGating factをClaude CodeとCodex CLI双方のheadless契約確認へ揃える。片方のみ確認済みでは昇格しないことを分類検証条件として明記する。"
+    }
+  ],
+  "limitations": [
+    "全16入力を全文読解し、終了時にもmanifestと各SHA-256の一致を再確認した。verified_inputsのpathはowner相対。",
+    "Part1が参照するplugins/sdd-review-loop/references/impl-review-rubric.mdは、親による存在確認で欠落と報告された。内容を補完せず、admitted calibrationとPart1本文の明示基準で評価した。今回の2 findingsは具体的な契約不整合であり、欠落rubricを根拠としない。",
+    "DOMAIN-CONFORMANCEの適用前提となるdomain/context-map.mdとdomain/domain-contract.jsonは未admit。モデルの存在・不存在・承認状態を推測せず、当該2チェックのみNOT_VERIFIEDとした。",
+    "指定入力以外の旧レビュー、memory、tasks、実装本文は読んでいない。追加アクセスは親が明示許可したAC-016の5 Git object ID照合のみ。",
+    "正式SDD gate、実装検証、native session、CI、quality-gate、task状態更新は実施していない。歴史的Passedや未更新precheckを新しい証明とも設計不備とも扱っていない。",
+    "AC-016 inventoryの整合およびblob ID一致は実行証拠ではない。5 consumersの実exercise、署名、nonce、native captureの成立は後続の実装・実機検証で確認する必要がある。"
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-196-a8-integration",
+  "attempt": 5,
+  "round": 1,
+  "run_id": "RUN-epic-196-a8-integration-task-a5r1-b-retry3-1791113814",
+  "host_session_id": "f782c743-cf5d-47b9-8bca-ce11c6bd1536",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path": "reports/task-review/epic-196-a8-integration/attempt-5/round-1/integrated-summary.json", "sha256": "12534c3d5a95d03dda1d23c5fc58800d7cf6f3cc271850c4b708dd391a4965be"},
+      {"path": "reports/task-review/epic-196-a8-integration/attempt-5/round-1/precheck-result.json", "sha256": "67ff81d4774788e07745e2fc56e34530e8d973f00553cd4e48649495163db5a0"},
+      {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"},
+      {"path": "specs/epic-196-a8-integration/design.md", "sha256": "14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c"},
+      {"path": "specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+      {"path": "specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+      {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"},
+      {"path": "specs/epic-196-a8-integration/security-spec.md", "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"},
+      {"path": "specs/epic-196-a8-integration/tasks.md", "sha256": "0d2e433cc013f886c70b854458dd0d36106d306521b0cfe1d5b26b3f5e1a05e6"},
+      {"path": "specs/epic-196-a8-integration/traceability.md", "sha256": "b3ca32a2ce5d22208918f58f17a4f1736492023d78ec91dc40f6633e9d039f61"},
+      {"path": "specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Launch identity verified. The recomputed record hash is 089950e974d62ab38c6dc1721da0ee5ead190d6b408e3711c6e0868f65975dff and matches the quoted REVIEW_CONTEXT_OK line. sequence=1201 equals pre_append_tip_sequence 1200 plus 1, previous_record_sha256 matches the manifest, and identity_unique=yes. The 13 non-tasks manifest hashes match the disk. The precheck's declared normalized tasks digest 0d2e433c… equals the manifest entry, and the precheck's requirements, acceptance, design, traceability and four layer hashes equal the manifest. Retry-numbered reservations for this role (a5r1-b, retries 1 to 3) are consumed or orphaned reservations, not a chain break. Tiers: T-001, T-003, T-006 and T-007 are medium with no sentinel surface (fixtures, drivers, static checks over frozen documents). T-002, T-004, T-005 and T-008 are high. T-002 is the Security Boundary B2 drift check, T-005 and T-008 are the B1 live-host-proof validator and its records, and each Risk Rationale cites risk-classification-policy.md. T-004 is a test-file-only edit, but requirements.md Risks names it High because it regresses the only automated hook-guard coverage, and tasks.md marks it Security-Sensitive: true, so over-classification does not apply. Amendment under review: T-004 now reads Cross-Model: enabled. That is consistent with the high tier (risk-gate-matrix.md footnote 3: cross-model is opt-in at high) and raises no tier mismatch. The task statuses (T-001 to T-003 and T-005 to T-008 Planned, T-004 Implementation Complete, all with Approval: Approved) are valid under the provenance lifecycle rule. Advisory: the Epic A1 merge state (2026-08-08) was evaluated only as recorded consistently in requirements.md, design.md, and tasks.md T-001/T-005/T-008. It was not independently verified against the current tree because that is outside the manifest. The recorded state does not contradict the task plan."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Each of the four high tasks has all three Done When items. (1) Red to Green evidence: T-002 'TDD evidence — RED … and GREEN', T-004 'TDD evidence — RED … GREEN', T-005 'TDD evidence — RED … GREEN (… cannot pass vacuously)', T-008 'TDD evidence — RED … GREEN'. (2) Independent review verdict: each says 'An independent quality-gate verdict records PASS.' (3) Requirement-traceability evidence: each has the 'Requirement-traceability evidence (high tier)' item per risk-gate-matrix.md. No task is critical. Amendment: T-004's Cross-Model: enabled adds no required Done When item under this check. Advisory: T-004's Done When has no explicit cross-model-verification verdict item. That control is enforced by check-contract Pass 6 when the contract declares cross_model (risk-gate-matrix.md footnote 3). The quality-gate lane should therefore run check-cross-model for T-004 before Done. This is not a missing mandatory item."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-005 is the largest task. It carries an explicit, substantive Size Rationale: the only traceability-legal split is the 3-way split along AC-026, AC-027 and AC-028, and that split would not separate the nonce-ledger and signing weight. It also states one coherent unit (a single deterministic verification pass over one record). Its Done When has 7 items (limit 8). T-001 (7 items) and T-008 (8 items) are at or under the limit, and the other tasks are at most 7. T-007's three scripts share one acceptance suite and one concern (static checks over frozen documents), so there is no fragmentation. Advisory: prior-attempt PASS evidence for T-005's size is not in the manifest, so this was judged on merits against the Size Rationale rather than via TYPE-H convergence."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task has error-path or negative coverage. T-001: AC-006 is verified in both Activation-Gate branches (non-failing SKIP versus hard failure) and AC-001's oracle is machine-checkable. T-002: AC-022 covers every change_type plus an independent negative-lifecycle case, and AC-023 covers not_installed failing in verify mode. T-003: AC-008 idempotency and AC-009 zero residue are negative self-checks. T-004: AC-012 asserts deny, and Edge Cases cover Codex-disabled and Copilot-subagent as correctly detected states. T-005: AC-026 and AC-027 enumerate 19 named error codes, each with its own fixture. T-006: 16 rows by 3 cases, with N/A rows and a collision-policy residue check. T-007: a mutated-copy negative fixture per check. T-008: the three SKIP states and the human apply-step discharge."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Declared test types match scope. Unit-like checks (the T-007 scripts) are exercised against single documents. Integration suites (T-001 handoff, T-003 matrix, T-006 pairwise matrix) involve at least two components. Static or doc-review items (TEST-001, TEST-005, TEST-010, TEST-011, TEST-021, TEST-025, TEST-029, TEST-030) are static or doc-review in the tasks. Every test carries a TEST-NNN to AC-NNN mapping in acceptance-tests.md and traceability.md. Advisory: acceptance-tests.md labels TEST-024 'static / doc-review', while T-003's Done When requires a real check-installed-plugin-drift --mode verify invocation populating drift_check. That is a stricter, integration-style proof, so the mismatch cannot cause a false pass. This content is unchanged by the T-004 amendment."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every high task has a Rollback: field. T-002 reverts the commits, and the script never writes. T-004 reverts, and the file's pre-existing 101 lines are restored exactly. T-005 reverts, and a8-trusted-signers.json stays empty-seeded, so no signed claim changes. T-008 reverts, and the draft SKIP records remain unsigned until the human apply step; it also states what to do after the human apply step. The medium tasks also carry Rollback fields. The T-004 amendment leaves its Rollback unchanged."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Shared files are append-only and ordered by Blockers. tests/run-all.*, the staged human-copy test.yml, and MANIFEST.sha256 are touched by T-001, T-002, T-003, T-005, T-006 and T-007, chained T-002 after T-001, T-003 after T-002, T-005 after T-003, T-006 after T-005, and T-007 after T-001, T-002, T-003, T-005 and T-006. a8-skip-allowlist.json is created by T-001 and appended by T-008, which is blocked by T-001. a8-trusted-signers.json is created by T-005 and appended by T-008, which is blocked by T-005. tests/validate-live-host-proof.tests.* and tests/fixtures/live-host-proof/ are created by T-005 and extended in place by T-008, which is blocked by T-005. T-004 touches only tests/cli-hook-enforcement.ps1, which no other task lists. Only the live test.yml is protected, and every task stages it under human-copy, so no uncoordinated parallel overlap exists."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each blocker has a stated artifact basis. T-002 is blocked by T-001, T-003 by T-002, T-005 by T-003, and T-006 by T-005, because each appends to the staged test.yml and lists MANIFEST.sha256 as existing. T-003 also invokes the T-002 script. T-007 is blocked by T-001, T-002, T-003, T-005 and T-006, because its registration proof reads all of their registrations. T-008 is blocked by T-001 and T-005, because it appends allowlist entries and exercises the T-005 validator. T-004 correctly has no blockers. T-005 declares T-001 and T-002 as ordering-only in Depends On, with Blockers carrying T-003, which covers them transitively. The ordering-only chain edges are documented and follow repository convention (epic-190 tasks.md). The tasks.md header cites it; its content is not in the manifest. Advisory (carried, not new): once T-005 reaches In Progress, AC-006's clause (a) holds. The T-001 canary then hard-fails by design (designed-red window), and no task's Done When removes that state. This was accepted as designed in design.md Risks and T-005 'Known designed-red condition'. Content is unchanged by the T-004 amendment, so no new finding is raised under the convergence rule; the exact prior PASS evidence path is not in the manifest."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. T-004 extends a regression test file and is not a bugfix."
+    }
+  ],
+  "findings": []
+}

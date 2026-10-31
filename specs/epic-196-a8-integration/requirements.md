@@ -1,6 +1,6 @@
 # Requirements: epic-196-a8-integration
 
-Spec-Review-Status: Passed
+Spec-Review-Status: Pending
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/196 (Epic A8,
 tracked under #187 / Epic A0 #188)
 
@@ -171,9 +171,11 @@ absent.
   this epic's own install/uninstall/skill-file surface, never re-specifying
   Epic A1's own canonicalizer-layer CRLF handling, which stays that epic's
   own AC/test — and (c) NFC-vs-NFD filename/content normalization across a
-  macOS-authored, Windows/Linux-consumed fixture. Each fixture asserts
-  against this repository's own existing `.gitattributes` contract
-  (INV-022), never a new, competing normalization rule.
+  macOS-authored, Windows/Linux-consumed fixture. Text/EOL assertions use
+  this repository's own existing `.gitattributes` contract (INV-022).
+  NFC-vs-NFD assertions use AC-020's dedicated Unicode-normalization
+  contract, never `.gitattributes` and never a normalization rule competing
+  with Epic A1's own canonicalizer-layer handling (Non-goals).
 - **REQ-005** (Known environment-difference detection: installed cache vs.
   repository drift): specify a detection check comparing a CLI-installed
   plugin cache (platform-correct default per install.sh/install.ps1's own
@@ -891,3 +893,25 @@ user-facing entry point; the UI Integration Checklist is not applicable.
   outstanding. The original wording is preserved above so the lineage of the
   Phase-1 deviation stays auditable; the six-line expectation must not be
   used as a current oracle.
+
+
+## AC-016 inventory amendment (2026-10-06; superseding contract)
+
+This dated amendment supersedes this document's prospective references to
+`live-host-verification-record/v1` for REQ-003/REQ-006 and AC-015/016/026/028:
+new evidence uses `live-host-verification-record/v2` as defined in design.md's
+AC-016 inventory amendment. Earlier text/examples describe the retained v1
+baseline, not an alternative current schema. Historical records and verdicts
+remain unchanged and are not automatically promoted to v2 evidence. No dual
+version acceptance path is required. Adoption is not review PASS or live proof.
+Existing five semantic cells, required checks, SKIP rules, native evidence,
+signer independence, nonce rules and task approval/status remain unchanged.
+
+AC-016 retains its five consumers per runtime/cell: sdd-bootstrap,
+sdd-bootstrap-interviewer, lite-gate, lite-spec, and sdd-ship. The signed record
+stores their entry-point names and source citations in `consumer_inventory`;
+runtime/cell are inherited from the containing record. AC-015/026/028 require
+the complete inventory before discharge. Source availability alone is not
+execution proof: the existing operator and independent reviewer confirm actual
+exercise against the existing native evidence. Shared captures are permitted;
+no additional sessions, canaries or signatures are required.

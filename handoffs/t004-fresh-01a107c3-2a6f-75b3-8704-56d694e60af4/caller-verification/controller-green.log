@@ -1,0 +1,21 @@
+✔ retains exact synthetic tool request and refusal BEFORE summary filtering (15.446ms)
+✔ stream fragments and Unicode survive, output deltas are not truncated (7.120917ms)
+✔ tool item lifecycle and server approval requests are retained (13.949583ms)
+✔ excludes account/config/environment/reasoning notifications (0.48475ms)
+✔ secret-key payloads and credential strings are redacted with explicit notice (7.350916ms)
+✔ malformed JSON is a hard error with no raw payload saved (0.353375ms)
+✔ audit file is private, exclusive, and never overwrites prior evidence (0.274084ms)
+✔ capture is durable before a throwing summary consumer runs (3.414125ms)
+✔ server tool request retains matching client result but not unrelated RPC replies (7.012542ms)
+✔ incomplete frames cannot silently become completed evidence (0.420166ms)
+✔ byte splits, multiple events, EOF flush, audit precedes safe summary and reply (29.900167ms)
+✔ incomplete EOF is failure, not successful flush (6.449042ms)
+✔ summary failure leaves durable request and stops observation (4.246333ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 90.622333

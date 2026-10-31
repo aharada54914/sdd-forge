@@ -1,0 +1,16 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "epic-196-a8-integration",
+  "attempt": 9,
+  "round": 2,
+  "impl_review_status_field": "Passed",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "c2a30f22f833f9a30ffeff01960d7f5304af262ba9ab4f0b9aad67f75b604cca",
+  "requirements_sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44",
+  "acceptance_sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1",
+  "layer_sha256": {"ux-spec.md":"c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286","frontend-spec.md":"c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76","infra-spec.md":"59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e","security-spec.md":"45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"},
+  "adr_inputs": [{"path":"docs/adr/0028-live-host-proof-ed25519-signing.md","sha256":"17b6c83d22126ed1095d556a80b3cb14173e4975deee039e5871656ce416186c"},{"path":"docs/adr/0035-a8-two-contribution-handoff-oracle.md","sha256":"50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923"}],
+  "input_sha256": "14136127acbc72c80ea1403f84a8ca69b633452b15bc92c4ecf68c0aaedb6f87",
+  "generated_at": "2026-10-05T14:24:01Z"
+}

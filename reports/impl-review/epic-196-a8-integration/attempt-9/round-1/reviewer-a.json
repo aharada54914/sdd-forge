@@ -1,0 +1,124 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic196-impl-a9r1-a-01a10ad7",
+  "host_session_id": "01a10ad7-b600-7bb2-868d-12d9e30838f5",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-196-a8-integration/requirements.md",
+      "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+      "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/design.md",
+      "sha256": "6485d5585fd37fe9ce298b295168ad2304d6dec6a1c7dc768bf76bbebf8c1aa3"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/investigation.md",
+      "sha256": "888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/ux-spec.md",
+      "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/frontend-spec.md",
+      "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/infra-spec.md",
+      "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/security-spec.md",
+      "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/epic-196-a8-integration/attempt-9/round-1/precheck-result.json",
+      "sha256": "cff8ad91fb44e12bdf184a6e49a953321b4e64d02a1a55be195fdeec8815c5ea"
+    },
+    {
+      "path": "docs/adr/0035-a8-two-contribution-handoff-oracle.md",
+      "sha256": "50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:29-105で各検証コンポーネント、相互作用、既存installer・guardとの統合、Bash/PowerShell・JSON等の技術選択を定義。infra-spec.md:103-147で既存3-OS CIへの統合を具体化。受領証のallowed-inputs-v1拡張付きrecord hash、precheckの拡張input hash、指定11ファイルの生ハッシュを検証し、全ファイルを独立に全文読了した。"
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Architecture/Componentsに明示的なコンポーネント依存宣言一覧はない。design.md:66-82のフローと:92-104の責務を確認し、実行依存の循環は認めなかった。Done/release gateの点線は判定条件である。"
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "TYPE-D: Data Planの必須項目はdesign.md:256-282にあるが、二つの契約矛盾がある。(1) :540-546はPASS/FAIL時にnotes以外の全値を非nullとし違反をERR_SCHEMA_INVALIDにする一方、:480/:565はskip_reasonをnull必須、:465/:583-587は非Codexのfeature-configをnull必須とする。文字どおり実装すると正当なPASS記録まで拒否され、例外を推測する必要がある。(2) :912-913/:931-933はrepo側だけの対象をadded、installed側だけをremovedとするが、MCP領域の:948-952は同じ欠落・余剰を逆に分類する。欠落MCPブロックの差分種別とnull/hash条件が両立せず、AC-022の厳密な差分判定が実装ごとに分かれる。ともに検証の不一致を招くMajor。"
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:986-1080で新規CLIのコマンド、引数・既定値、入力ファイル、出力スキーマ、終了状態・エラーコードを定義。:94は既存installer/uninstallerを変更せず呼び出す契約。応答データの矛盾はDATA-COVERAGEに記載した。"
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:1595-1611と規範的なsecurity-spec.md:39-99がB1-B5の信頼境界、役割別認可、署名者の独立性、read-only比較、nonce発行・消費権限を定義。security-spec.md:101-164に公開相当の署名者識別情報、秘密鍵非保存、raw captureの機密性制約、OWASP対応がある。署名方式のADR証拠不足はADR-PRESENTに記載した。"
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Typeはtest-infrastructure specification (Phase 1 — no code)。fullstackのUI/API連携面はなく、design.md:185-186およびacceptance-tests.md:36-37がUIなしを明記している。"
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "TYPE-D: design.md:1082-1194は統合・受入検証と具体的な実行先を計画しているが、AC-001の厳密な検証オラクルが未確定。requirements.md:279-287はPhase 2/3前に正確な初期bytesと最終bytes/hashを裁量なく定義するよう要求する。一方design.md:339-340は一つのフィールド/commentを含む将来のfixed stubのみを示し、テンプレート全体・encoding・改行を確定していない。:1086のfixed initial bytesという検証主張を再現できず、実装者が異なるテンプレートを選んでも各自のhash検証が通る。AC-001の予定証拠が一意にならないためMajor。二つの貢献を検証する:342-348の独立nonce変異チェック自体はADR-0035:21-33と一致する。"
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:92-104が新規・拡張コンポーネントを定義し、:986-1080がCLIとcapture経路を具体化。既存installer、hook guard、CIとの接続はinvestigation.mdのINV-013/INV-014/INV-016で識別できる。未定義の実行コンポーネントは認めなかった。"
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "TYPE-D: admitted ADR-0035を全文読み、:21-33/:45-49の二つのnonceを結ぶ判定とdesign.md:340-348の一致を新たに確認した。ただしdesign.md:247-252は新規Ed25519/JCS/Trusted-Signer Registry判断の対応ADRとしてADR-0028を指定し、security-spec.md:125/:176-182もその決定記録を前提とする。design.md:248-249のpathは改行をまたぐため宣言文法に適合せず、precheck-result.json:13とinvocationのADR集合は0035のみである。署名方式の対応ADRはhash-boundな審査証拠として未提供であり、ADR-PRESENTを満たせない。ファイル不在とは判定せず、境界外の読取りも行っていない。新規暗号・信頼登録方式の判断を検証できない証拠不足としてMajor。"
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP（対象UIなし）: design.md:183-186がDesign System Complianceを非適用とし、ux-spec.mdとacceptance-tests.md:36-37もUI面がないことを明記。design-systemディレクトリや未許可の資料は読んでいない。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP: 境界で許可されたルートdomain/の存在確認でディレクトリなしを確認。domainモデルとの照合は非適用。"
+    }
+  ]
+}

@@ -672,6 +672,7 @@ function Test-ManifestPaths(
 $ScriptRoot = (Resolve-Path (Join-Path $PSScriptRoot "../../..")).Path
 $Registry = Join-Path $ScriptRoot "specs/workflow-state-registry.json"
 $FeatureFilter = ""
+$ImplHistory = ""
 $script:OpeningStage = ""
 $script:OpeningAttempt = 0
 $script:OpeningRound = 0
@@ -684,6 +685,14 @@ for ($i = 0; $i -lt $args.Count; $i++) {
         "--registry" {
             if (++$i -ge $args.Count) { Stop-WorkflowState "repository" "cli-usage" "--registry requires a value" }
             $Registry = [string]$args[$i]
+        }
+        "--impl-history" {
+            if ([string]$args[$i] -cne '--impl-history') { Stop-WorkflowState "repository" "cli-usage" "invalid --impl-history spelling" }
+            if (++$i -ge $args.Count) { Stop-WorkflowState "repository" "cli-usage" "--impl-history requires attempt:round" }
+            if ($ImplHistory -or [string]$args[$i] -cnotmatch '\A[1-9][0-9]*:[1-9][0-9]*\z') {
+                Stop-WorkflowState "repository" "cli-usage" "invalid --impl-history"
+            }
+            $ImplHistory = [string]$args[$i]
         }
         "--opening" {
             if (++$i -ge $args.Count) { Stop-WorkflowState "repository" "cli-usage" "--opening requires a value" }
@@ -700,6 +709,9 @@ for ($i = 0; $i -lt $args.Count; $i++) {
 }
 if ($FeatureFilter -and $FeatureFilter -notmatch "^[a-z0-9][a-z0-9-]*$") {
     Stop-WorkflowState $FeatureFilter "cli-usage" "invalid feature slug"
+}
+if ($ImplHistory -and (-not $FeatureFilter -or $script:OpeningStage)) {
+    Stop-WorkflowState "repository" "cli-usage" "--impl-history requires --feature and forbids --opening"
 }
 # --opening names the single round a review-loop precheck is about to open;
 # it only ever makes sense pinned to the one feature it belongs to, never as
@@ -2351,6 +2363,19 @@ function Test-Legacy([string]$Feature, [string]$Directory, $Entry) {
             }
         }
     }
+}
+
+if ($ImplHistory) {
+    # Validation only; reuse the immutable history validator independently of status.
+    try {
+        $parts = $ImplHistory.Split(':')
+        $binding = Read-AdrHistoryEvidence $FeatureFilter ([int]$parts[0]) ([int]$parts[1]) $RepoRoot
+        if (-not $binding.Extended) { throw 'explicit ADR history validation requires binding extension' }
+    } catch {
+        Stop-WorkflowState $FeatureFilter "stage-provenance" "explicit ADR history validation failed"
+    }
+    Write-Output "workflow-state: impl-history: ok"
+    exit 0
 }
 
 foreach ($entry in @($RegistryData.entries)) {

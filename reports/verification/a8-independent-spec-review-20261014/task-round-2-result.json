@@ -1,0 +1,265 @@
+{
+  "review_kind": "independent-codex-task-review",
+  "formal_sdd_gate": false,
+  "owner": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge",
+  "input_manifest": "reports/verification/a8-independent-spec-review-20261014/task-round-2-inputs.json",
+  "verdict": "PASS",
+  "summary": "固定19入力に対する計画・ライフサイクル・来歴の独立レビューでは、実装を誤らせる未解決の指摘はありません。AC-016 v2 の T-005/T-008 分担および日付付き設計追補を現行契約として評価しました。",
+  "verified_inputs": [
+    {
+      "path": "specs/epic-196-a8-integration/requirements.md",
+      "sha256": "244f2c539a8242e36fe7a2d88a04b32476c15306534fa83db043bc0132b9775e",
+      "actual_sha256": "244f2c539a8242e36fe7a2d88a04b32476c15306534fa83db043bc0132b9775e",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+      "sha256": "60b2696d14cc9438a58c3c258c2117531249564c3aaa7c7c2b1500ce70bbcf4b",
+      "actual_sha256": "60b2696d14cc9438a58c3c258c2117531249564c3aaa7c7c2b1500ce70bbcf4b",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "specs/epic-196-a8-integration/investigation.md",
+      "sha256": "888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f",
+      "actual_sha256": "888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "specs/epic-196-a8-integration/design.md",
+      "sha256": "df7e8adb2c81a47925338259020b82bf23854b5809d544393aca3cad1f494ed3",
+      "actual_sha256": "df7e8adb2c81a47925338259020b82bf23854b5809d544393aca3cad1f494ed3",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "specs/epic-196-a8-integration/ux-spec.md",
+      "sha256": "d837d191075ffa24ae6b1047f1c7c15b464117f5bdfc083dd60b3efbad43507d",
+      "actual_sha256": "d837d191075ffa24ae6b1047f1c7c15b464117f5bdfc083dd60b3efbad43507d",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "specs/epic-196-a8-integration/frontend-spec.md",
+      "sha256": "df5d037fee43a151f1246680562db56c99217fc47b091997464325811092de4b",
+      "actual_sha256": "df5d037fee43a151f1246680562db56c99217fc47b091997464325811092de4b",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "specs/epic-196-a8-integration/infra-spec.md",
+      "sha256": "e6680d0346ca9a67492880219d2a8557b7e116069c97a5fe20335afcfbdfb6e9",
+      "actual_sha256": "e6680d0346ca9a67492880219d2a8557b7e116069c97a5fe20335afcfbdfb6e9",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "specs/epic-196-a8-integration/security-spec.md",
+      "sha256": "980eeac88f92c1fe5c77600016281b3ac23e08ebdc78a631bf06f21f8b47edeb",
+      "actual_sha256": "980eeac88f92c1fe5c77600016281b3ac23e08ebdc78a631bf06f21f8b47edeb",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2",
+      "actual_sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+      "actual_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/phase-review-checklist.md",
+      "sha256": "7d8b4397585fc75cbd0e570101d5209ca8806d4ca9380b17547f8c06769b6b5c",
+      "actual_sha256": "7d8b4397585fc75cbd0e570101d5209ca8806d4ca9380b17547f8c06769b6b5c",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "docs/adr/0035-a8-two-contribution-handoff-oracle.md",
+      "sha256": "50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923",
+      "actual_sha256": "50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "docs/adr/0028-live-host-proof-ed25519-signing.md",
+      "sha256": "a56af77acc13dde8aef1632d83680cbde42efc738b56e860e012d3a9e525a87b",
+      "actual_sha256": "a56af77acc13dde8aef1632d83680cbde42efc738b56e860e012d3a9e525a87b",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "docs/adr/0019-approval-sidecar-protection.md",
+      "sha256": "f958b79ec60013c2f5df30baf06bbbb85c8662d56371838565897b24d6953bf6",
+      "actual_sha256": "f958b79ec60013c2f5df30baf06bbbb85c8662d56371838565897b24d6953bf6",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "docs/adr/0008-evidence-deep-verify-no-signature-crypto.md",
+      "sha256": "1e3f9b65d3cf6ed003cd91548662224f05b82d3ab0d2d6bb15f2d353fd06996f",
+      "actual_sha256": "1e3f9b65d3cf6ed003cd91548662224f05b82d3ab0d2d6bb15f2d353fd06996f",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/a8-skip-allowlist.json",
+      "sha256": "0bd487921d967d431766976fb8a62d0f181c27eb6478ab5b04a32190f03154f5",
+      "actual_sha256": "0bd487921d967d431766976fb8a62d0f181c27eb6478ab5b04a32190f03154f5",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "specs/epic-196-a8-integration/tasks.md",
+      "sha256": "0ae49bafd1fc7d52e8e84e04ffa05cbac6721d79e676850f249d88b1952d3696",
+      "actual_sha256": "0ae49bafd1fc7d52e8e84e04ffa05cbac6721d79e676850f249d88b1952d3696",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "specs/epic-196-a8-integration/traceability.md",
+      "sha256": "cfa94aa7e1c2b0a1e341fc45517d3a973012574de12bdf37a70f6d161e31aec5",
+      "actual_sha256": "cfa94aa7e1c2b0a1e341fc45517d3a973012574de12bdf37a70f6d161e31aec5",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305",
+      "actual_sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305",
+      "regular_file": true,
+      "hash_match": true,
+      "read_complete": true
+    }
+  ],
+  "checks": [
+    {
+      "id": "INPUT-INTEGRITY",
+      "result": "PASS",
+      "evidence": [
+        "manifest の全19通常ファイルを全文参照し、保存直前にも SHA-256 を再計算して全件一致を確認した。",
+        "レビュー資料は固定19入力と適用 AGENTS/スキル指示に限定した。"
+      ]
+    },
+    {
+      "id": "LIFECYCLE-VALIDITY",
+      "result": "PASS",
+      "evidence": [
+        "specs/epic-196-a8-integration/tasks.md:140,345,515,676,814,1120,1263,1440 — 全8タスクの Approved に人間承認監査マークが存在する。",
+        "specs/epic-196-a8-integration/tasks.md:678 — T-004 は Implementation Complete、他7件は Planned。既存承認済みライフサイクルとして評価し、初期 Draft 規則は適用していない。",
+        "tasks.md:3 の旧 Passed ヘッダを今回の証明として使用していない。"
+      ]
+    },
+    {
+      "id": "REQUIREMENT-AC-TEST-TASK-COVERAGE",
+      "result": "PASS",
+      "evidence": [
+        "specs/epic-196-a8-integration/traceability.md:22 — REQ-001〜007 の設計・層・契約・テスト・証拠先対応を確認した。",
+        "specs/epic-196-a8-integration/traceability.md:60 — T-001〜008 のテスト対応と AC-001〜031 の対応表は、末尾の現行追補を適用した上で欠落・孤立を認めない。",
+        "specs/epic-196-a8-integration/traceability.md:152 — REQ-003/006 → AC-016 → TEST-016 → T-005 検証器・負例 / T-008 セル記録の分担が明示される。"
+      ]
+    },
+    {
+      "id": "AC016-V2-OWNERSHIP",
+      "result": "PASS",
+      "evidence": [
+        "specs/epic-196-a8-integration/tasks.md:1686 — T-005 が v2 スキーマ/検証器差分と TEST-016 structural/source/signature 負例を所有する。",
+        "specs/epic-196-a8-integration/tasks.md:1687 — T-008 は既存5セルに inventory を記入し、agent による genuine signed evidence 作成禁止を維持する。",
+        "specs/epic-196-a8-integration/acceptance-tests.md:89 — 欠損・型・重複・余分・source 不一致、順序、署名後変更、SKIP null、全消費者の実機証拠を具体的な TEST-016 条件として持つ。",
+        "specs/epic-196-a8-integration/design.md:1856 — non-SKIP の5要素 inventory と SKIP null、既存署名対象への包含、既存ソース対応を使う検証が定義される。"
+      ]
+    },
+    {
+      "id": "DATED-PRECEDENCE-AND-LAYERS",
+      "result": "PASS",
+      "evidence": [
+        "specs/epic-196-a8-integration/design.md:1840 および tasks.md:1674, traceability.md:140 — 2026-10-06 追補が prospective v1 と旧 inventory 分担を明示的に上書きし、歴史・承認・状態は維持する。",
+        "specs/epic-196-a8-integration/design.md:1895 — D-001 は All/Codex と Claude/Copilot の検査対象、明示 target、Codex 面の不在検査を規定し、T-002/T-003 が参照する旧無条件 ASSERT より優先される。",
+        "specs/epic-196-a8-integration/design.md:1913 — D-002 の Claude producer と Codex consumer 双方の確認条件が旧単独 producer 条件より優先され、未確認能力を宣言しない。",
+        "ux-spec.md, frontend-spec.md, infra-spec.md, security-spec.md の全層と investigation.md の保持された旧記述を、明示された追補の範囲と優先規則で評価した。"
+      ]
+    },
+    {
+      "id": "DEPENDENCIES-AND-WRITE-OWNERSHIP",
+      "result": "PASS",
+      "evidence": [
+        "specs/epic-196-a8-integration/tasks.md:72 — 共有 runner/CI の T-001 → T-002 → T-003 → T-005 → T-006 → T-007 直列化が明示される。",
+        "specs/epic-196-a8-integration/tasks.md:88 — 機能依存 Blockers と単なる順序 Depends On が区別され、循環はない。",
+        "specs/epic-196-a8-integration/tasks.md:94,100,1481 — T-004 は既存独立 suite、T-008 は T-001/T-005 の既存成果物を拡張し、新たな共有 CI 書込みを持たない。",
+        "specs/epic-196-a8-integration/tasks.md:106 — allowlist と signer registry の逐次所有者が分離される。AC 共有は役割を分けた補完であり、独立した重複実装を要求しない。"
+      ]
+    },
+    {
+      "id": "RISK-WORKFLOW-SIZE-ROLLBACK",
+      "result": "PASS",
+      "evidence": [
+        "plugins/sdd-quality-loop/references/risk-classification-policy.md — high の T-002/T-004/T-005/T-008 は tdd、medium の T-001/T-003/T-006/T-007 は acceptance-first と対応する。",
+        "specs/epic-196-a8-integration/tasks.md:862 — 大きい T-005 の単一検証器責務と明示的に受け入れられた分割判断を保持し、単なる行数から再分割を要求していない。",
+        "specs/epic-196-a8-integration/tasks.md:962,980,1532 — 検証器は disposable fixture で証明し、実 signer/nonce と staged human-copy を含む rollback 境界を区別する。各タスクのリスク・検証方法・撤回方針を確認した。"
+      ]
+    },
+    {
+      "id": "OBSERVABLE-DONE-AND-FREEZE",
+      "result": "PASS",
+      "evidence": [
+        "specs/epic-196-a8-integration/tasks.md:283,472,629,776,1046,1225,1391,1600 — 各 Done When はテスト結果・生成物・観測可能なチェックへ接続する。",
+        "specs/epic-196-a8-integration/traceability.md:126 — T-008 Done は5セルの genuine proof による discharged が必要。T-004/T-005 の先行完了は aggregate PASS を意味しない。",
+        "specs/epic-196-a8-integration/tasks.md:1692 — 差分の実装前に独立レビューで design/task 入力を再束縛し、既存状態を変更しない。凍結された成果物の結果更新は addendum/verification 記録と区別される。"
+      ]
+    },
+    {
+      "id": "SKIP-NATIVE-EVIDENCE-AND-TRUST",
+      "result": "PASS",
+      "evidence": [
+        "specs/epic-196-a8-integration/design.md:1329,1362,1385 — AC-006 の二条件と AC-015/016 の既に有効な一条件を区別し、status 判定と stale SKIP の失敗を維持する。",
+        "specs/epic-196-a8-integration/tasks.md:301,1027,1633 — タスクに activation 分岐、既存失敗状態、最終 discharged 条件が割り当てられる。",
+        "docs/adr/0028-live-host-proof-ed25519-signing.md と security-spec.md:62 — operator/reviewer の独立性、nonce、署名、source inventory、合成結果を native 証拠に昇格させない境界を保持する。",
+        "docs/adr/0035-a8-two-contribution-handoff-oracle.md — 2つの独立寄与を検出する oracle とそれぞれの変異負例を設計契約として扱い、session proof の代替にはしていない。",
+        "docs/adr/0008-evidence-deep-verify-no-signature-crypto.md と docs/adr/0019-approval-sidecar-protection.md の適用範囲を A8 独自の署名/実機証拠契約と混同していない。"
+      ]
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "NOT_APPLICABLE",
+      "evidence": [
+        "本レビューの対象は承認済み統合検証計画と契約追補であり、既知実装不具合の修復タスクとして crash reproduction を要求する範囲ではない。対象外の実装を読んで原因を推定していない。"
+      ]
+    }
+  ],
+  "findings": [],
+  "limitations": [
+    "これは user-approved fresh-context Codex exception に基づく計画レビューであり、正式 SDD gate の identity/admission/ledger/precheck/rebinding 完了を表さない。",
+    "実装、実行ログ、過去のレビュー結果、メモリ、他 checkout は参照していない。既存 T-004 Implementation Complete の実装妥当性は未検証。",
+    "テスト、native host、全5セルの実行、署名/nonce の実データ、CI、protected apply、quality-gate、Done、リリース受入れを証明しない。",
+    "固定19入力に含まれる source commit/path/blob map の文書間整合は確認したが、許可入力外の Git object や current main の実体は検査していない。設計が要求する実ソース map 再検証・ADR 採用時の共有状態再確認は別途必要。",
+    "未実行のチェックを PASS にしていない。上記 PASS は現行計画の構造・責務・契約整合に限定する。",
+    "reviewer スキルに従い、具体的な下流障害を示せない表現上の差や、追補により明示的に失効した旧記述は blocking finding にしていない。"
+  ]
+}

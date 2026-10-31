@@ -1,0 +1,38 @@
+{
+  "review_kind": "independent-codex-traceability-addendum-review",
+  "formal_sdd_gate": false,
+  "verdict": "PASS",
+  "scope": "specs/epic-196-a8-integration/verification/T-005/traceability-20261014.json の局所証拠リンクと主張範囲のみ",
+  "findings": [],
+  "checked": [
+    {
+      "check": "要件・AC・TEST・タスク対応",
+      "result": "PASS",
+      "evidence": "tasks.md:884、traceability.md:98-100、acceptance-tests.md:30-32 と一致。REQ-003→AC-028→TEST-028、REQ-006→AC-026/027→TEST-026/027 はT-005の範囲"
+    },
+    {
+      "check": "AC-028の局所証拠",
+      "result": "PASS",
+      "evidence": "role-green-bash.txt に all-five-pass-discharged、valid-premerge-skip-pending、mixed-pass-skip-pending、atomic-all-or-none、idempotent-repeat、lock-contention の成功記録が存在。追補は synthetic fixtures only と限定している"
+    },
+    {
+      "check": "AC-026/027の局所証拠",
+      "result": "PASS",
+      "evidence": "role-green-bash.txt に必須フィールド、署名、役割分離、未登録署名者、nonce再使用、分類置換、追加役割判定ケースの成功記録が存在。role-red.txt は役割エラー修正前の12失敗とissuer互換性1成功を記録"
+    },
+    {
+      "check": "独立レビュー参照の正確性",
+      "result": "PASS",
+      "evidence": "role-review-result.json は既提出の限定修正レビュー結果と一致し、13ケースと未登録キー確認の範囲を明示。追補はこれをT-005全体の受入れへ昇格していない"
+    },
+    {
+      "check": "完了主張の境界",
+      "result": "PASS",
+      "evidence": "scope が validator-only local synthetic regression、no native AC-016 discharge、no CI acceptance、no task status transition を明記。T-008完了の主張はなく、実ホストaggregate dischargeも明示的に除外"
+    }
+  ],
+  "limitations": [
+    "今回は追補と参照ログの読取確認のみ。全スイートやcheck-traceability --require-evidenceは再実行していない",
+    "この判定はT-005/T-008のDone、正式quality-gate、CI、実ホスト検証の合格証拠にはならない"
+  ]
+}

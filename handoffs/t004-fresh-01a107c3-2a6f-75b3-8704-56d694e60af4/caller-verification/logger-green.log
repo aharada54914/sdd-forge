@@ -1,0 +1,22 @@
+Synthetic-only diagnostic recorder verification
+Exit: 0
+
+✔ retains exact synthetic tool request and refusal BEFORE summary filtering (12.784584ms)
+✔ stream fragments and Unicode survive, output deltas are not truncated (5.1235ms)
+✔ tool item lifecycle and server approval requests are retained (12.933458ms)
+✔ excludes account/config/environment/reasoning notifications (0.258ms)
+✔ secret-key payloads and credential strings are redacted with explicit notice (3.632834ms)
+✔ malformed JSON is a hard error with no raw payload saved (0.338625ms)
+✔ audit file is private, exclusive, and never overwrites prior evidence (0.255708ms)
+✔ capture is durable before a throwing summary consumer runs (4.220958ms)
+✔ server tool request retains matching client result but not unrelated RPC replies (8.075625ms)
+✔ incomplete frames cannot silently become completed evidence (0.628875ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 50.72875
+

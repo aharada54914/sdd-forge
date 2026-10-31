@@ -221,8 +221,15 @@ function Get-AdrPreviousRoundJson {
     }
     return $null
   }
+  if ($Prior.verdict -ceq 'BLOCKED') {
+    if ($RoundNumber -ge 3) { Fail 'previous BLOCKED ADR round exhausted the three-round limit' }
+    & $powerShellExe -NoProfile -File (Join-Path $RepoRoot 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --feature $FeatureName --impl-history "${AttemptNumber}:${RoundNumber}" | Out-Null
+    if ($LASTEXITCODE -ne 0) { Fail 'previous BLOCKED ADR evidence requires explicit history validation' }
+  }
+
   if ($Prior.schema -cne 'impl-review-contract/v1' -or $Prior.stage -cne 'impl' -or
-      $Prior.feature -cne $FeatureName -or $Prior.verdict -cne 'NEEDS_WORK' -or
+      $Prior.feature -cne $FeatureName -or
+      ($Prior.verdict -cne 'NEEDS_WORK' -and ($Prior.verdict -cne 'BLOCKED' -or $RoundNumber -ge 3)) -or
       $precheck.schema -cne 'impl-review-precheck/v1' -or $precheck.feature -cne $FeatureName) {
     Fail 'invalid previous ADR review identity or verdict'
   }

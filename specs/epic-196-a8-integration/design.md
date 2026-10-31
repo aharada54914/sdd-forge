@@ -240,11 +240,12 @@ with no UI surface.
 
 ## ADR Change Log
 
+The two-contribution handoff oracle is specified by `docs/adr/0035-a8-two-contribution-handoff-oracle.md`.
+
 This package cites ADR-0019 (Approval Sidecar Protection) and decision doc
 §7/§9/§19 as read-only authoritative sources, and proposes one new ADR:
 **ADR-0028** (Ed25519 signing and a maintainer-committed trusted-signer
-registry for live-host verification records, `docs/adr/0028-live-host-
-proof-ed25519-signing.md`), scoping the Signing Contract's Ed25519
+registry for live-host verification records, `docs/adr/0028-live-host-proof-ed25519-signing.md`), scoping the Signing Contract's Ed25519
 algorithm choice, domain-separated signing targets, and Trusted-Signer
 Registry (Data Plan, below) as this package's own ADR-level decision, per
 ADR-0008's established bar for signature-verification-scoped decisions.
@@ -335,12 +336,32 @@ live-host finding also names for the adjacent live-host proof surface).
 | Handoff | Artifact path | Initial content | Producer mutation | Final oracle | `consumer_observable` |
 |---|---|---|---|---|---|
 | Claude→Codex | `tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml` | Fixed YAML stub committed with this fixture, containing a `token: "<PLACEHOLDER>"` field and no other variable content | Claude session replaces `<PLACEHOLDER>` with `mutation_nonce` and rewrites the file in place | `artifact_final_sha256` = sha256 of the file with `token: "<mutation_nonce>"` substituted, byte-for-byte, into the fixed template | Codex session's own stdout must contain the exact substring `HANDOFF-01:<mutation_nonce>` (emitted only when Codex's own invocation reads and parses `token` from the artifact) |
-| Codex→Copilot | `tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md` | Fixed Markdown stub committed with this fixture, containing a `<!-- nonce: PLACEHOLDER -->` HTML comment and no other variable content | Codex session replaces `PLACEHOLDER` with a second, independently-generated `mutation_nonce` and rewrites the file in place | `artifact_final_sha256` = sha256 of the file with `<!-- nonce: <mutation_nonce> -->` substituted, byte-for-byte, into the fixed template | Copilot session generates `tests/fixtures/cross-runtime-handoff/handoff-02-output.txt` whose own sha256 the driver script computes deterministically from `mutation_nonce` (`sha256("COPILOT-CONSUMED:" + mutation_nonce)`) — a generated-file-hash oracle, never a free-text description |
+| Codex→Copilot | `tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md` | Fixed Markdown stub committed with this fixture, containing a `<!-- nonce: PLACEHOLDER -->` HTML comment and no other variable content | Codex session replaces `PLACEHOLDER` with a second, independently-generated `mutation_nonce` and rewrites the file in place | `artifact_final_sha256` = sha256 of the file with `<!-- nonce: <mutation_nonce> -->` substituted, byte-for-byte, into the fixed template | Copilot reads handoff-01's token and handoff-02's nonce, then generates `tests/fixtures/cross-runtime-handoff/handoff-02-output.txt`; the driver verifies sha256 of the exact UTF-8 bytes `COPILOT-CONSUMED:<nonce1>:<nonce2>` without a trailing newline — a generated-file-hash oracle, never a free-text description |
 
-The full three-hop chain (AC-004) reuses `handoff-02`'s own
-`mutation_nonce` as the input to `handoff-02-output.txt`'s hash, so the
-chain's own final state is verifiably derived from both upstream steps'
-own contributions, not merely their both having run.
+The full three-hop chain (AC-004) uses both independently generated nonces:
+nonce1 is the token produced in handoff-01 and nonce2 is the nonce produced
+in handoff-02. Codex must still consume nonce1 before producing nonce2;
+Copilot must read both artifacts, rather than receive their values in its prompt.
+The driver computes the expected final hash from both known per-run nonces.
+Separate negative checks vary nonce1 alone and nonce2 alone and require each
+change to alter the expected hash and reject an output retaining the old value.
+This proves contribution binding; fixture success alone is not live-host proof.
+
+The complete initial fixture bytes, on every OS, are UTF-8 without BOM:
+handoff-01 is exactly `token: "<PLACEHOLDER>"` followed by one LF byte
+(`0a`); handoff-02 is exactly `<!-- nonce: PLACEHOLDER -->` followed by one
+LF byte. There are no other bytes. For each run, replace only the indicated
+placeholder with the independently generated ASCII nonce (`nonce1` in
+handoff-01, `nonce2` in handoff-02), retaining that single LF; these are
+the complete final artifact bytes. Compute each `artifact_initial_sha256`
+and `artifact_final_sha256` by SHA-256 over these exact byte strings, with
+the schema's `sha256:` prefix. The output artifact is exactly the UTF-8
+bytes `COPILOT-CONSUMED:<nonce1>:<nonce2>` with no BOM or newline; its
+SHA-256 is the `generated_file_hash` oracle. Reject CRLF, an extra LF,
+or a BOM even on Windows. The current fixture assertions use explicit LF
+(`tests/cross-runtime-handoff.tests.sh:100-101`,
+`tests/cross-runtime-handoff.tests.ps1:10,116-117`); this contract also
+fixes the future live-session expected bytes.
 
 ### `install-uninstall-matrix-result/v1` (REQ-002)
 
@@ -438,6 +459,24 @@ uses `claude mcp list`'s own output/exit contract as its oracle, parallel
 to but structurally distinct from the file-hash oracle Codex's and VS
 Code's own MCP surfaces use.
 
+For this Claude cell, capture the command's exit status, stdout and stderr
+separately after every install/uninstall phase. Only a zero exit with a
+complete, parseable server list may establish `present` or `absent`:
+match an exact configured server name as the prefix before `:` on a
+server row, never a substring of another name or health message. A row
+for the expected name establishes registration even when its health
+indicator is disconnected; connection health is recorded separately.
+No matching row in a successful complete list establishes absence. A
+nonzero exit, missing CLI, malformed/truncated list, or unsupported output
+shape is `FAIL` with the command diagnostics and cannot establish absence
+or discharge REQ-002. The harness must verify this parser against
+positive, absent, similarly named, disconnected, malformed, and failed
+command fixtures before using a live CLI result. `claude mcp --help`
+documents `list` as listing configured servers and `get <name>` as
+showing one server; neither command promises a version-stable
+machine-readable format, so an unrecognized future format blocks the
+affected acceptance proof pending a reviewed adapter.
+
 ### `live-host-verification-record/v1` (REQ-003, REQ-006; AC-026, AC-028; fortified per Blocker-level finding on captured-JSON forgeability)
 
 ```json
@@ -532,9 +571,10 @@ listed above and no others. `required` (present, though not necessarily
 non-null): every key above except `notes` (the schema's own sole
 freely-optional key). Whether a required key's own value must be
 non-null is conditional on `verdict`: when `verdict` is `PASS`/`FAIL`,
-every key except `notes` must be non-null (and `installed_feature_config_
-ref`/`_digest` must additionally be non-null when `runtime == codex`,
-null otherwise); when `verdict` is `SKIP`, only the fields the SKIP
+every required key is present, `skip_reason` is null, and the
+`installed_feature_config_ref`/`_digest` pair is non-null exactly when
+`runtime == codex` and null otherwise; all other required keys are
+non-null. When `verdict` is `SKIP`, only the fields the SKIP
 Representation subsection above lists as non-null may be non-null — every
 other field must be `null` (`ERR_SCHEMA_INVALID` on any violation of
 either branch). Type/format constraints:
@@ -554,6 +594,7 @@ either branch). Type/format constraints:
 | `session_start`, `session_end` | ISO 8601 UTC; `session_end` strictly after `session_start`; null iff `verdict == SKIP` |
 | `operator`, `reviewer` | non-empty string, required (non-null) even when `verdict == SKIP`; `operator != reviewer`; each must equal the Trusted-Signer Registry's own `identity` value for its corresponding `*_key_id` (`ERR_SIGNER_IDENTITY_MISMATCH` otherwise) |
 | `operator_key_id`, `reviewer_key_id` | must each resolve to a distinct entry in the Trusted-Signer Registry (below); `operator_key_id != reviewer_key_id`; the registry's own `public_key` bytes for the two entries must also differ (`ERR_SIGNER_KEY_COLLISION` otherwise — a defense-in-depth check independent of the key-ID string comparison) |
+| Registered signer roles | `registry[operator_key_id].role` must be exactly `operator` and `registry[reviewer_key_id].role` exactly `reviewer` for every verdict, including `SKIP`; reject a registered key in either wrong role as `ERR_SIGNER_ROLE_MISMATCH`, even if the identity and domain-separated signature verify |
 | `plugin_hooks_flag` | enum `enabled`/`disabled`/`not_applicable`; required (non-null) in every record, including `SKIP` |
 | `verdict` | enum `PASS`/`FAIL`/`SKIP`; for `-active` cells a `PASS` means denial observed, for `-expected-unavailable` cells a `PASS` means correctly-detected unavailability observed; `SKIP` is valid only before AC-015/AC-016's own single-clause SKIP Allowlist Activation Gate activates the case (SKIP Representation, above) — i.e. only before Epic A1's canonical artifacts exist on `main`, a window that already closed when Epic A1 merged on 2026-08-08 |
 | `skip_reason` | non-null and citing a current `a8-skip-allowlist.json` entry iff `verdict == SKIP`; null otherwise |
@@ -707,6 +748,10 @@ a snapshot that actually shows that configuration state.
   mismatch (`ERR_SIGNER_IDENTITY_MISMATCH`), or a `public_key` collision
   between the resolved operator/reviewer entries (`ERR_SIGNER_KEY_
   COLLISION`).
+  It also rejects any registered role other than `operator` for
+  `operator_key_id` or other than `reviewer` for `reviewer_key_id` as
+  `ERR_SIGNER_ROLE_MISMATCH`, before accepting a valid signature. This
+  includes issuer-role keys and operator/reviewer role reversal.
 
 `operator` and `reviewer` are both required and must name distinct
 identities in every record, regardless of `invocation_mode` (AC-026); an
@@ -941,9 +986,9 @@ through `# <<< <mcp-name> <<<` inclusive, for each selected MCP name —
 and hashes only those extracted lines (never the surrounding
 `config.toml` content the installer never owns). A missing marker pair
 for an MCP name the repository source expects is itself `change_type:
-"removed"`; an unexpected marker pair present in the installed file but
-absent from the repository's own current MCP selection is `change_type:
-"added"`.
+"added"` with `installed_sha256: null`; an unexpected marker pair present
+in the installed file but absent from the repository's own current MCP
+selection is `change_type: "removed"` with `repo_sha256: null`.
 
 #### Platform Install-Root Defaults (resolves the sh/ps1 default mismatch)
 
@@ -1177,6 +1222,12 @@ names — not `plugins/**` alone:
     Blocker-level gap — no missing, `SKIP`-after-merge, `FAIL`, stale,
     config-digest-mismatched, or duplicate-nonce record among the five
     cells can produce a green aggregate result.
+    Negative signer fixtures use distinct registered keys with otherwise
+    valid identities and signatures: an `issuer`-role key in the operator
+    or reviewer slot, a `reviewer`-role key in the operator slot, and an
+    `operator`-role key in the reviewer slot must each fail with
+    `ERR_SIGNER_ROLE_MISMATCH` (security-spec.md:94-95), rather than pass
+    signature verification alone.
 11. **A5 caller-contract fingerprint precheck (Minor-level finding
     remediation)** — before this epic's own Phase 2/3 tasks re-use
     `FP-A8-A5-CALLER-CONTRACT-10` (investigation.md INV-008), a precheck
@@ -1456,7 +1507,7 @@ why no automated path exists at all for a `manual-required` row.
 | Check (AC) | Current Classification | Upgrade Condition | Gating fact / reason |
 |---|---|---|---|
 | Fixture Contract table definition (AC-001) | automated | — | Static structural check: design.md's own Fixture Contract table (Data Plan) is grep/parse-checkable; no CLI session required |
-| Claude→Codex handoff step (AC-002) | automated-pending-confirmation | Upgrades to `automated` once Claude Code CLI's own headless/non-interactive contract is confirmed (OQ-001) | Claude Code CLI headless/non-interactive contract unconfirmed in this repo (INV-021, OQ-001) |
+| Claude→Codex handoff step (AC-002) | automated-pending-confirmation | Upgrades to `automated` once both Claude Code CLI producer and Codex CLI consumer headless/non-interactive contracts are confirmed (OQ-001); confirmation of only one never upgrades this row | Claude Code CLI and Codex CLI contracts both require confirmation (INV-021, OQ-001) |
 | Codex→Copilot handoff step (AC-003) | automated-pending-confirmation | Upgrades to `automated` once both Codex CLI's and Copilot CLI's own headless contracts are confirmed (OQ-001) | Codex CLI and Copilot CLI headless contracts both unconfirmed (INV-021, OQ-001) |
 | Full 3-hop chain (AC-004) | automated-pending-confirmation | Upgrades to `automated` once all three CLIs' headless contracts are confirmed (OQ-001) | Inherits both gating facts above; automatable only once all three are confirmed |
 | Per-CLI headless-contract confirmed-or-unconfirmed marker (AC-005) | automated | — | Static structural check: design.md's own classification table (this table) is itself the marker AC-005 requires; no CLI session required to verify the marker's own presence |
@@ -1610,9 +1661,32 @@ its full, broadened coverage surface (Coverage Scope, Data Plan).
   read-only (a CLI session is launched and observed; this epic's own
   scripts never modify any of the three CLIs' own configuration beyond
   what `install.sh`/`install.ps1` already do for REQ-002's matrix).
+- The current local command observations on 2026-10-05 are `claude
+  --version` = `2.1.289 (Claude Code)`, `codex --version` = `codex-cli
+  0.160.0`, and `copilot --version` = `GitHub Copilot CLI 1.0.91`.
+  These are version-command observations, not a supported version range
+  (`reports/verification/a8-design-six-findings-validation-20261005.md:84`). Before
+  each live proof, record the actual binary path, version, help/command
+  contract, exit status, and raw response for that session; an absent
+  binary, command failure, auth failure, or changed response shape is an
+  unavailable/failed proof, never evidence of an absent registration or
+  a successful host check. The Claude MCP registration parser and its
+  fail-closed rules are fixed under the REQ-002 matrix table above.
+  The 2026-10-05 `claude mcp --help` documents `list`/`get`
+  (`reports/verification/a8-design-six-findings-validation-20261005.md:97`).
+  Live list rows, successful list exit semantics, and the exact empty-list
+  output remain unverified; version/help output is not their proof. Until a fixture and
+  same-version live run establish that absence contract, Claude's
+  post-uninstall MCP absence proof remains blocked.
 - No network calls beyond what `install.sh`'s own `--source-directory`-free
   (remote) path already makes (`gh`-authenticated GitHub API access,
   existing installer behavior, unchanged by this epic).
+  The observed local `gh --version` is `2.97.0` (2026-10-05;
+  `reports/verification/a8-design-six-findings-validation-20261005.md:92`); remote
+  installation still requires the installer's existing `gh auth token`
+  success path (`install.sh:342-347`, `install.ps1:544-546`). A nonzero
+  authentication/API result fails that matrix phase with diagnostics;
+  it cannot be classified as a missing or successfully removed MCP.
 
 ## Deployment / CI Plan
 
@@ -1649,6 +1723,11 @@ its full, broadened coverage surface (Coverage Scope, Data Plan).
 
 ## Constraint Compliance
 
+- REQ-002's no-new-CI-topology constraint (`requirements.md:144-146`):
+  every new automated check remains a step in the existing
+  `tests/run-all.{sh,ps1}` and `.github/workflows/test.yml` 3-OS matrix,
+  as specified under Global Constraints and Deployment / CI Plan. No
+  additional workflow or runner topology is proposed.
 - CI resilience (bash 3.2 array safety, macOS `$TMPDIR`, Windows `jq.exe`
   CRLF, no real-validator probing) — carried verbatim from this
   repository's own established Constraint Compliance convention (Epic A7's
@@ -1756,3 +1835,80 @@ distinction (Data Plan) and the structural synthetic/live-host separation
   only — AC-015/AC-016 carry no such residual risk, since both already
   activated the moment Epic A1 merged, with no task-start clause to delay
   them (Designed-red window, above).
+
+
+## AC-016 inventory amendment (2026-10-06; superseding contract)
+
+This dated amendment supersedes this document's prospective references to
+`live-host-verification-record/v1` for REQ-003/REQ-006 and AC-015/016/026/028:
+new evidence uses `live-host-verification-record/v2` as defined in design.md's
+AC-016 inventory amendment. Earlier text/examples describe the retained v1
+baseline, not an alternative current schema. Historical records and verdicts
+remain unchanged and are not automatically promoted to v2 evidence. No dual
+version acceptance path is required. Adoption is not review PASS or live proof.
+Existing five semantic cells, required checks, SKIP rules, native evidence,
+signer independence, nonce rules and task approval/status remain unchanged.
+
+### Data/API delta
+
+In the existing record example and exact-key schema, change the schema constant
+to `live-host-verification-record/v2` and add one required key,
+`consumer_inventory`. Its value is null for SKIP (all existing SKIP rules still
+apply); otherwise it is an array of exactly five objects. Each object has exactly
+three non-empty string keys: `entry_point`, `source_commit`, `source_path`.
+The unique, case-sensitive entry-point set and path mapping are:
+
+| entry_point | source_path |
+| --- | --- |
+| sdd-bootstrap | plugins/sdd-bootstrap/skills/bootstrap/SKILL.md |
+| sdd-bootstrap-interviewer | plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md |
+| lite-gate | plugins/sdd-lite/skills/lite-gate/SKILL.md |
+| lite-spec | plugins/sdd-lite/skills/lite-spec/SKILL.md |
+| sdd-ship | plugins/sdd-ship/skills/ship/SKILL.md |
+
+Reuse AC-016's source commit and path/blob inventory already held in
+`plugins/sdd-review-loop/references/a8-skip-allowlist.json`. Each source_commit
+must equal that accepted commit; resolve the Git object for each source_path and
+compare its blob ID with the accepted inventory. Reverify the shared source map
+and all five objects at review/adoption and when collecting evidence; never
+substitute a moving branch tip. Runtime and matrix_cell come from the containing
+record. Array order has no semantic meaning (the exact serialized array remains
+signed). The validator rejects missing/null/non-array inventory for non-SKIP,
+wrong count, duplicate/unknown/missing consumers, unexpected entry keys, wrong
+types/path/commit, and unresolved or mismatched Git objects with the existing
+ERR_SCHEMA_INVALID diagnostic before aggregate discharge. FAIL remains FAIL.
+
+Storage remains the existing per-cell record; no separate inventory file or
+ledger is added. Operator/reviewer verify all five consumers were actually
+exercised in the containing record's cell against its existing native evidence,
+not merely present in source. A shared transcript is allowed. Unavailable cells
+retain expected-unavailability behavior; they do not claim hook interception.
+
+The existing RFC 8785 JCS target removes only operator_signature and
+reviewer_signature and therefore signs consumer_inventory without a new signing
+mechanism (validate-live-host-proof.py:399-417; fixture signer run_cases.py:187).
+Any inventory mutation after signing invalidates the existing signatures.
+These source claims must be rechecked against the exact implementation reviewed.
+All other v1 fields, raw capture bindings and verification rules carry forward.
+No production implementation is deemed complete by this amendment.
+
+## 2026-10-14 D-001 / D-002 bounded review amendment
+
+This explicitly supersedes unconditional Codex-surface ASSERT wording in Coverage
+Scope and the target-less drift API above. The checker accepts case-sensitive
+`--target All|Codex|Claude|Copilot` / `-Target ...`, default `All` for existing
+callers. All/Codex require agent TOML and managed Codex MCP regions;
+Claude/Copilot exclude those unrelated Codex surfaces from drift comparison.
+Shared plugin/hook files remain asserted for every target. Selection comes only
+from the explicit caller argument, never inferred from missing installed assets.
+The JSON v1 field set and exit/state rules are unchanged. Each matrix cell passes
+its installer target to the checker and provisions only empty/unrelated config
+preconditions, never agents or managed MCP regions. Claude/Copilot cells assert
+Codex surfaces remain absent; All/Codex must obtain them from the installer.
+This also governs T-002/T-003 and sibling layer references to REQ-005 coverage;
+old frozen verdicts are historical, not proof for these changed inputs.
+
+For AC-002/OQ-001, the classification row now requires BOTH Claude producer and
+Codex consumer headless contracts. Any sibling or historical single-producer
+upgrade wording is superseded by this conjunction; no capability is declared
+confirmed by this amendment. AC-003/AC-004 and native proof obligations are unchanged.

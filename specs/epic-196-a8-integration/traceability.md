@@ -135,3 +135,22 @@ T-004/T-005, which precede T-008, does not record a passing aggregate:
 in their window `validate-live-host-proof`'s designed-red hard failure
 is the intended, correct signal (design.md, Designed-red window), and
 their Done rests on their own saved test evidence above.
+
+
+## AC-016 inventory amendment (2026-10-06; superseding contract)
+
+This dated amendment supersedes this document's prospective references to
+`live-host-verification-record/v1` for REQ-003/REQ-006 and AC-015/016/026/028:
+new evidence uses `live-host-verification-record/v2` as defined in design.md's
+AC-016 inventory amendment. Earlier text/examples describe the retained v1
+baseline, not an alternative current schema. Historical records and verdicts
+remain unchanged and are not automatically promoted to v2 evidence. No dual
+version acceptance path is required. Adoption is not review PASS or live proof.
+Existing five semantic cells, required checks, SKIP rules, native evidence,
+signer independence, nonce rules and task approval/status remain unchanged.
+
+REQ-003/REQ-006 -> AC-016 -> design.md AC-016 inventory amendment -> TEST-016
+expanded fixture cases -> T-005 validator/negative tests and T-008 cell population.
+AC-015/026/028 retain their existing mappings and require the same v2 inventory.
+This supersedes earlier source-inventory-only/v1 mappings, not historical status.
+Implementation, independent gates and live evidence remain pending.

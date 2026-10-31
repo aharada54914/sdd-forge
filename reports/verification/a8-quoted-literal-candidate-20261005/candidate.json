@@ -1,0 +1,30 @@
+{
+  "status": "NON-APPLIED technical review candidate",
+  "pattern": "^rtk proxy claude --model sonnet --effort medium --session-id [a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12} --print --output-format json --tools Read,Bash --allowedTools Read 'Bash\\(rtk proxy shasum -a 256 -- [A-Za-z0-9_./-]+(?: [A-Za-z0-9_./-]+)*\\)' 'Bash\\(rtk proxy printf %b '\\\\''[A-Za-z0-9_./\\\\-]+'\\\\''\\)' 'Bash\\(rtk proxy printf %s '\\\\''[A-Za-z0-9_|.-]+'\\\\''\\)' 'Bash\\(rtk proxy shasum -a 256\\)' 'Bash\\(rtk proxy test -d domain\\)' --disallowedTools Write,Edit,NotebookEdit --permission-mode dontAsk --debug-file /tmp/a8-impl-a[0-9]+r[0-9]+-[ab]-[0-9]{8}\\.log --append-system-prompt \"\\$\\(rtk proxy cat plugins/sdd-review-loop/agents/impl-reviewer-[ab]\\.md plugins/sdd-review-loop/references/review-context-boundary\\.md\\)\" -- ('(?:[^'\\x00]|'\\\\'')*')$",
+  "entries": [
+    {
+      "ext": "py",
+      "sha": "dd791f28d1f247c404197e3dbcc2960a664b18f4bc324fc1b967fbc4ee03e448",
+      "anchor": "def _shell_targets_protected_gate_file(cmd):",
+      "old": "has_write = bool(SHELL_SUDO_WRITE_RE.search(cmd))",
+      "replace": "has_write = bool(SHELL_SUDO_WRITE_RE.search(_readonly_review_literal_projection(cmd)))",
+      "helper": "def _readonly_review_literal_projection(cmd):\n    \"\"\"Only the pinned read-only launch grammar treats its last argument as data.\n    Retain every write word; erase only literal redirect glyphs in that argument.\n    Unknown options, quote forms, shell suffixes and broad Bash rules fall back.\n    \"\"\"\n    match = re.fullmatch(\"^rtk proxy claude --model sonnet --effort medium --session-id [a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12} --print --output-format json --tools Read,Bash --allowedTools Read 'Bash\\\\(rtk proxy shasum -a 256 -- [A-Za-z0-9_./-]+(?: [A-Za-z0-9_./-]+)*\\\\)' 'Bash\\\\(rtk proxy printf %b '\\\\\\\\''[A-Za-z0-9_./\\\\\\\\-]+'\\\\\\\\''\\\\)' 'Bash\\\\(rtk proxy printf %s '\\\\\\\\''[A-Za-z0-9_|.-]+'\\\\\\\\''\\\\)' 'Bash\\\\(rtk proxy shasum -a 256\\\\)' 'Bash\\\\(rtk proxy test -d domain\\\\)' --disallowedTools Write,Edit,NotebookEdit --permission-mode dontAsk --debug-file /tmp/a8-impl-a[0-9]+r[0-9]+-[ab]-[0-9]{8}\\\\.log --append-system-prompt \\\"\\\\$\\\\(rtk proxy cat plugins/sdd-review-loop/agents/impl-reviewer-[ab]\\\\.md plugins/sdd-review-loop/references/review-context-boundary\\\\.md\\\\)\\\" -- ('(?:[^'\\\\x00]|'\\\\\\\\'')*')$\", cmd)\n    if not match:\n        return cmd\n    prompt = match.group(1)\n    return cmd[:-len(prompt)] + prompt.replace(\">\", \" \")\n\n\n"
+    },
+    {
+      "ext": "js",
+      "sha": "fa3cc8cad5661f8fbc6ee313fd8982762392adb3f08dd2ed13c736f985ccab0f",
+      "anchor": "function shellTargetsProtectedGateFile(cmd) {",
+      "old": "const hasWrite = SHELL_SUDO_WRITE_RE.test(cmd);",
+      "replace": "const hasWrite = SHELL_SUDO_WRITE_RE.test(readonlyReviewLiteralProjection(cmd));",
+      "helper": "function readonlyReviewLiteralProjection(cmd) {\n  // Pinned read-only CLI grammar, not a generic shell or prompt exemption.\n  // Keep write words. Only terminal single-quoted data loses redirect glyphs.\n  const match = new RegExp(\"^rtk proxy claude --model sonnet --effort medium --session-id [a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12} --print --output-format json --tools Read,Bash --allowedTools Read 'Bash\\\\(rtk proxy shasum -a 256 -- [A-Za-z0-9_./-]+(?: [A-Za-z0-9_./-]+)*\\\\)' 'Bash\\\\(rtk proxy printf %b '\\\\\\\\''[A-Za-z0-9_./\\\\\\\\-]+'\\\\\\\\''\\\\)' 'Bash\\\\(rtk proxy printf %s '\\\\\\\\''[A-Za-z0-9_|.-]+'\\\\\\\\''\\\\)' 'Bash\\\\(rtk proxy shasum -a 256\\\\)' 'Bash\\\\(rtk proxy test -d domain\\\\)' --disallowedTools Write,Edit,NotebookEdit --permission-mode dontAsk --debug-file /tmp/a8-impl-a[0-9]+r[0-9]+-[ab]-[0-9]{8}\\\\.log --append-system-prompt \\\"\\\\$\\\\(rtk proxy cat plugins/sdd-review-loop/agents/impl-reviewer-[ab]\\\\.md plugins/sdd-review-loop/references/review-context-boundary\\\\.md\\\\)\\\" -- ('(?:[^'\\\\x00]|'\\\\\\\\'')*')$\").exec(cmd);\n  if (!match || match[0].length !== cmd.length) return cmd;\n  const prompt = match[1];\n  return cmd.slice(0, -prompt.length) + prompt.replace(/>/g, ' ');\n}\n\n"
+    },
+    {
+      "ext": "ps1",
+      "sha": "433888e8afae4c414ea4dda8501ae98cb00b2ae330b3223d3d07b4d86f93aa6c",
+      "anchor": "function Test-ShellTargetsProtectedGateFile {",
+      "old": "$hasWrite = [regex]::IsMatch($Cmd, $ShellSudoWriteRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)",
+      "replace": "$hasWrite = [regex]::IsMatch((Get-ReadonlyReviewLiteralProjection $Cmd), $ShellSudoWriteRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)",
+      "helper": "function Get-ReadonlyReviewLiteralProjection {\n    # Exact case-sensitive read-only CLI grammar; no generic prompt exemption.\n    # Preserve write vocabulary and all unrecognized shell command forms.\n    param([string]$Cmd)\n    $match = [regex]::Match($Cmd, '^rtk proxy claude --model sonnet --effort medium --session-id [a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12} --print --output-format json --tools Read,Bash --allowedTools Read ''Bash\\(rtk proxy shasum -a 256 -- [A-Za-z0-9_./-]+(?: [A-Za-z0-9_./-]+)*\\)'' ''Bash\\(rtk proxy printf %b ''\\\\''''[A-Za-z0-9_./\\\\-]+''\\\\''''\\)'' ''Bash\\(rtk proxy printf %s ''\\\\''''[A-Za-z0-9_|.-]+''\\\\''''\\)'' ''Bash\\(rtk proxy shasum -a 256\\)'' ''Bash\\(rtk proxy test -d domain\\)'' --disallowedTools Write,Edit,NotebookEdit --permission-mode dontAsk --debug-file /tmp/a8-impl-a[0-9]+r[0-9]+-[ab]-[0-9]{8}\\.log --append-system-prompt \"\\$\\(rtk proxy cat plugins/sdd-review-loop/agents/impl-reviewer-[ab]\\.md plugins/sdd-review-loop/references/review-context-boundary\\.md\\)\" -- (''(?:[^''\\x00]|''\\\\'''')*'')$')\n    if (-not $match.Success -or $match.Length -ne $Cmd.Length) { return $Cmd }\n    $prompt = $match.Groups[1].Value\n    return $Cmd.Substring(0, $Cmd.Length - $prompt.Length) + $prompt.Replace('>', ' ')\n}\n\n"
+    }
+  ]
+}

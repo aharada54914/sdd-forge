@@ -1,0 +1,21 @@
+Command:
+rtk proxy shasum -a 256 reports/verification/a8-issuer-formal-spec-amendment-attempt-2-v3-native-apply.patch specs/epic-196-a8-integration/requirements.md specs/epic-196-a8-integration/acceptance-tests.md specs/epic-196-a8-integration/design.md specs/epic-196-a8-integration/frontend-spec.md specs/epic-196-a8-integration/infra-spec.md specs/epic-196-a8-integration/security-spec.md
+
+Output:
+669093a565c0a7432f95f88bbf90fa2c8d67ab5aa91f7359ad94cc6417ea4aeb  reports/verification/a8-issuer-formal-spec-amendment-attempt-2-v3-native-apply.patch
+f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44  specs/epic-196-a8-integration/requirements.md
+4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1  specs/epic-196-a8-integration/acceptance-tests.md
+14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c  specs/epic-196-a8-integration/design.md
+c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76  specs/epic-196-a8-integration/frontend-spec.md
+59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e  specs/epic-196-a8-integration/infra-spec.md
+45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7  specs/epic-196-a8-integration/security-spec.md
+
+Command:
+rtk proxy rg -n "^\\+\\| .*TEST-(0(3[1-9]|[4-8][0-9]|9[0-3])) " reports/verification/a8-issuer-formal-spec-amendment-attempt-2-v3-native-apply.patch | rtk proxy wc -l
+
+Output:
+63
+
+Interpretation: the six frozen source hashes equal the validator's original
+hashes, so the in-memory applicability check did not modify them. The 63 rows
+are the individual TEST-031 through TEST-093 candidate additions.

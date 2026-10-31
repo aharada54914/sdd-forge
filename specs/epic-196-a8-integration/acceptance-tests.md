@@ -70,3 +70,28 @@ resolve to `automated-pending-confirmation` because no CLI's headless
 contract is yet confirmed (INV-021); a Phase 2/3 confirmation upgrades
 the affected row in both design.md's table and this column in the same
 commit, never in only one of the two.
+
+
+## AC-016 inventory amendment (2026-10-06; superseding contract)
+
+This dated amendment supersedes this document's prospective references to
+`live-host-verification-record/v1` for REQ-003/REQ-006 and AC-015/016/026/028:
+new evidence uses `live-host-verification-record/v2` as defined in design.md's
+AC-016 inventory amendment. Earlier text/examples describe the retained v1
+baseline, not an alternative current schema. Historical records and verdicts
+remain unchanged and are not automatically promoted to v2 evidence. No dual
+version acceptance path is required. Adoption is not review PASS or live proof.
+Existing five semantic cells, required checks, SKIP rules, native evidence,
+signer independence, nonce rules and task approval/status remain unchanged.
+
+TEST-016 is expanded within the existing five semantic-cell fixture set (not a
+new live-session matrix). Each cell must cover the complete five named consumers
+from design.md and verify: (1) full inventory accepts structurally; (2) absence,
+null/non-array, wrong count, each missing consumer, duplicate/unknown names,
+unexpected keys, wrong types/path/commit, and unresolved/mismatched source
+objects reject before discharge; (3) order-permuted inventory accepts when
+properly signed; (4) changing inventory after signing rejects for signature
+mismatch; (5) SKIP requires null inventory and retains activation/staleness rules;
+(6) FAIL cannot discharge. TEST-015/026/028 retain every existing test obligation
+and apply to v2. Fixture success is not proof of actual five-consumer execution;
+the existing human-reviewed native evidence remains necessary for live claims.

@@ -1,0 +1,88 @@
+```json
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-196-a8-integration",
+  "attempt": 4,
+  "round": 1,
+  "run_id": "RUN-epic-196-a8-integration-task-a4r1-b-1791043309",
+  "host_session_id": "SESS-epic-196-a8-integration-task-a4r1-b-1791043309",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "7adb73e4a4a7eff2909aa0e2add7db3a8675e2ec60b5c8e36604b5377c6ca305"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path": "reports/task-review/epic-196-a8-integration/attempt-4/round-1/integrated-summary.json", "sha256": "34472f7eae6e101f425920590990b43c4f045949f8866c52ccf86df5fc98175c"},
+      {"path": "reports/task-review/epic-196-a8-integration/attempt-4/round-1/precheck-result.json", "sha256": "d0e65b7df8c1e46370b12df7c771f5221c27a9853d208c3b8a68a7b0bafdc5c3"},
+      {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"},
+      {"path": "specs/epic-196-a8-integration/design.md", "sha256": "14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c"},
+      {"path": "specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+      {"path": "specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+      {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"},
+      {"path": "specs/epic-196-a8-integration/security-spec.md", "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"},
+      {"path": "specs/epic-196-a8-integration/tasks.md", "sha256": "842ee61b70f024da515f9018b15a3120e37ae62efa604a980f736645738b184e"},
+      {"path": "specs/epic-196-a8-integration/traceability.md", "sha256": "b3ca32a2ce5d22208918f58f17a4f1736492023d78ec91dc40f6633e9d039f61"},
+      {"path": "specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 8 tasks' Risk tiers match their scope under risk-classification-policy.md's sentinel-surface and material-harm criteria. T-001 medium (fixture+driver, no sensitive surface; canary case is presence-only). T-002 high (REQ-005/Security Boundary B2 drift detector; Risk Rationale cites the identical 'silent defect causes material harm' basis as specs/epic-190-a2-capability-registry/tasks.md T-004). T-003 medium (drives install.sh/.ps1/uninstall.sh/.ps1 unmodified; no sensitive logic of its own). T-004 high (extends the sole automated hook-guard regression asset; regression risk explicitly named in requirements.md Risks). T-005 high (implements Security Boundary B1's schema/nonce-ledger/signing-verification core). T-006 medium (filesystem/EOL/Unicode fixture only). T-007 medium (static parsing/control-flow checks over frozen docs, no runtime/security surface). T-008 high (live-host semantic classification, draft SKIP records, Trusted-Signer Registry HUMAN APPLY STEP). No task limited to UI/CSS/docs/test-only carries high or critical, and no task touching auth/payment/PII/migration/external-API carries low or medium. No issues found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "T-002, T-004, T-005, T-008 are the only Risk: high tasks (no Risk: critical task exists). Each Done When carries a TDD Red→Green evidence item ('TDD evidence — RED ... and GREEN ...') and an independent-review item ('An independent quality-gate verdict records PASS'), distinct from the implementing agent under this repository's own lifecycle rule (tasks.md Lifecycle: 'Only quality-gate may set Done'). Since no task is Risk: critical, the second-approver/signed-evidence-bundle requirement does not apply. No issues found."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Advisory (post-implementation provenance re-review convergence rule, TYPE-H): T-005's Scope/Done When span more than three distinct implementation areas (Schema Validation Rules, Nonce Issuance Ledger, Expected-Digest Manifest, Signing Contract, three-state SKIP Representation, classification-mismatch/replay guard, aggregate gate) — the same oversizing this reviewer raised as a Major TASK-SIZE finding in task-review attempt 3 round 1, quoted verbatim in T-005's own 'Size Rationale' paragraph (tasks.md ~lines 842-875), which records the reasoned rejection of the only AC-legal 3-way split (AC-026/AC-027/AC-028) as worse than retaining the size. tasks.md's own header carries 'Task-Review-Status: Passed', evidencing that a prior attempt bound this same, unchanged content with a persisted PASS. Per the convergence rule this is carried as an advisory, not a new finding, citing reports/task-review/epic-196-a8-integration/attempt-3/ as the prior PASS evidence path. No other task is oversized or fragmented: T-008's 8-item Done When sits at, not over, the 'more than eight items' threshold, and no 3+ tasks describe only a single function/file edit with no integration concern."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task's mapped ACs include at least one edge-case/error-path scenario: T-001/AC-006 (canary SKIP plus two-clause Activation-Gate branching); T-002/AC-023 (not_installed vs. installed_drifted, mode-dependent FAIL semantics); T-003/AC-008-009 (idempotency diff, zero-residue negative checks); T-004/AC-012,017 (Codex-disabled and Copilot-subagent correctly-detected non-firing states as expected, non-failure states); T-005/AC-027 (classification-mismatch/replay guard spanning 18 named error codes); T-006/AC-018,020 (N/A-row disposition and uninstall collision-residue checks); T-007/TEST-025,029,030 (each paired with an explicit mutated-copy negative fixture); T-008/AC-013-014 (expected-unavailable classification cells). No issues found."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Declared Test Type values in acceptance-tests.md match their stated scope: integration rows (AC-002-004, 007-009, 012-014, 018-020, 022-024) each exercise ≥2 components (a CLI pair, install.sh/.ps1 plus a registered surface, or a driver plus check-installed-plugin-drift); static/doc-review rows (AC-001, 005, 010, 011, 021, 025, 026, 027, 029, 030) target table/marker/schema text rather than runtime behavior; AC-028's 'automated aggregate validator' row targets validate-live-host-proof's own cross-record aggregation, consistent with an acceptance-level aggregate Done/release gate. No declared type contradicts its named target. No issues found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Risk: high tasks carry an explicit Rollback: field: T-002 ('revert this task's commit(s); ... the script never writes to the install root or the repository'); T-004 ('revert this task's commit(s); the file's pre-existing 101 lines are restored exactly'); T-005 ('revert this task's commit(s); ... a8-trusted-signers.json stays seeded empty by this task alone'); T-008 ('revert this task's commit(s); ... a revert after the human apply step must also state whether the now-signed records ... should be hand-reverted'). No issues found."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The only files multiple tasks modify (tests/run-all.sh/.ps1; the staged specs/epic-196-a8-integration/human-copy/.github/workflows/test.yml + MANIFEST.sha256; plugins/sdd-review-loop/references/a8-skip-allowlist.json; a8-trusted-signers.json; tests/validate-live-host-proof.tests.sh/.ps1) are each append-only edits, and ordering is enforced by an explicit Blockers chain (Global Constraints: T-001→T-002→T-003→T-005→T-006→T-007 for the shared-resource appends; T-001→T-008 and T-005→T-008 for the allowlist/signer-registry/test-suite files). No two tasks claim the same file for an uncoordinated, unblocked purpose. No issues found."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Blockers entry corresponds to a genuine functional dependency named in the task's own Depends On prose: T-002→T-001 (staged CI-candidate/MANIFEST must already exist), T-003→T-002 (invokes check-installed-plugin-drift, which must exist first), T-005→T-003 (appends to T-003's staged candidate), T-006→T-005, T-007→{T-001,T-002,T-003,T-005,T-006} (its own Done When verifies every prior suite's registration), T-008→{T-001,T-005} (appends to T-001's allowlist, extends T-005's validator/test suite). tasks.md's Global Constraints additionally distinguishes, predecessor by predecessor, which Depends On entries are ordering-only versus functional, and each task's Blockers field carries exactly the functional subset. No spurious or missing blocker found. No issues found."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": []
+}
+```

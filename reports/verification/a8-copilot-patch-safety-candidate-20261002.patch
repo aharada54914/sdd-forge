@@ -1,0 +1,162 @@
+diff --git a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+@@ -201,6 +201,19 @@ def impl_review_status_passed_increases(payload):
+     tool_name = (payload.get("tool_name") or "").lower()
+     file_path = tool_input.get("file_path") or ""
+ 
++    if tool_name == "apply_patch" or _looks_like_patch(tool_input.get("command")):
++        design_path = None
++        for raw in (tool_input.get("command") or "").splitlines():
++            section = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", raw)
++            if section:
++                design_path = section.group(2).strip() if is_design_md(section.group(2).strip()) else None
++                continue
++            if (design_path and raw.startswith("+") and not raw.startswith("+++")
++                    and IMPL_REVIEW_STATUS_PASSED_RE.search(raw[1:])):
++                feature = re.search(r"specs/([^/]+)/design\.md$", design_path.replace("\\", "/"), re.IGNORECASE)
++                if feature and not _impl_review_verdict_exists(feature.group(1), design_path):
++                    return True
++        return False
+     if tool_name not in TARGETED_FILE_TOOLS:
+         return False
+     if not is_design_md(file_path):
+@@ -643,5 +655,8 @@ def _patch_increases(patch):
+         m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", raw)
+         if m:
++            if current_is_tasks and added > removed:
++                return True
++            added = removed = 0
+             current_is_tasks = is_tasks_md(m.group(2).strip())
+             continue
+         if raw.startswith("*** End Patch") or raw.startswith("*** Begin Patch"):
+@@ -715,5 +730,8 @@ def _domain_model_patch_increases(patch):
+         m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", raw)
+         if m:
++            if current_is_domain_context_map and added > removed:
++                return True
++            added = removed = 0
+             current_is_domain_context_map = is_domain_context_map_path(m.group(2).strip())
+             continue
+         if raw.startswith("*** End Patch") or raw.startswith("*** Begin Patch"):
+@@ -803,5 +821,8 @@ def _wfi_patch_increases(patch):
+         m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", raw)
+         if m:
++            if current_is_wfi and added > removed:
++                return True
++            added = removed = 0
+             current_is_wfi = is_wfi_path(m.group(2).strip())
+             continue
+         if raw.startswith("*** End Patch") or raw.startswith("*** Begin Patch"):
+@@ -876,5 +897,8 @@ def _second_approval_patch_increases(patch):
+         m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", raw)
+         if m:
++            if current_is_tasks and added > removed:
++                return True
++            added = removed = 0
+             current_is_tasks = is_tasks_md(m.group(2).strip())
+             continue
+         if raw.startswith("*** End Patch") or raw.startswith("*** Begin Patch"):
+@@ -1937,6 +1961,20 @@ def main():
+         # apply_patch: check for SDD_SUDO targets.
+         if tool_name_lower == "apply_patch" or _looks_like_patch(tool_input.get("command")):
+             patch = tool_input.get("command") or ""
++            # Source headers are checked below; also inspect a move's destination.
++            for line in patch.splitlines():
++                if not line.startswith("*** Move to:"):
++                    continue
++                destination = line.partition(":")[2].strip()
++                if _target_path_is_sdd_sudo(destination):
++                    emit("deny", SDD_SUDO_WRITE_MSG, mode)
++                    return
++                if (not destination or _is_protected_gate_file(destination)
++                        or is_agent_role_path(destination) or is_tasks_md(destination)
++                        or is_wfi_path(destination) or is_domain_context_map_path(destination)
++                        or is_design_md(destination)):
++                    emit("deny", _GATE_PROTECT_MSG, mode)
++                    return
+             for line in patch.splitlines():
+                 m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", line)
+                 if m and _target_path_is_sdd_sudo(m.group(2).strip()):
+diff --git a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+@@ -1162,5 +1162,8 @@ function patchIncreases(patch) {
+     const m = line.match(/^\*\*\* (Update|Add|Delete) File: (.+)$/);
+     if (m) {
++      if (currentIsTasks && added > removed) return true;
++      added = 0;
++      removed = 0;
+       currentIsTasks = isTasksMd(m[2].trim());
+       continue;
+     }
+@@ -1471,5 +1474,8 @@ function wfiPatchIncreases(patch) {
+     const m = line.match(/^\*\*\* (Update|Add|Delete) File: (.+)$/);
+     if (m) {
++      if (currentIsWfi && added > removed) return true;
++      added = 0;
++      removed = 0;
+       currentIsWfi = isWfiPath(m[2].trim());
+       continue;
+     }
+@@ -1546,5 +1552,8 @@ function domainModelPatchIncreases(patch) {
+     const m = line.match(/^\*\*\* (Update|Add|Delete) File: (.+)$/);
+     if (m) {
++      if (currentIsDomainContextMap && added > removed) return true;
++      added = 0;
++      removed = 0;
+       currentIsDomainContextMap = isDomainContextMapPath(m[2].trim());
+       continue;
+     }
+@@ -1618,5 +1627,8 @@ function secondApprovalPatchIncreases(patch) {
+     const m = line.match(/^\*\*\* (Update|Add|Delete) File: (.+)$/);
+     if (m) {
++      if (currentIsTasks && added > removed) return true;
++      added = 0;
++      removed = 0;
+       currentIsTasks = isTasksMd(m[2].trim());
+       continue;
+     }
+@@ -1722,6 +1734,20 @@ function implReviewStatusPassedIncreases(payload) {
+   const toolName = String(payload.tool_name || '').toLowerCase();
+   const filePath = toolInput.file_path || '';
+ 
++  if (toolName === 'apply_patch' || looksLikePatch(toolInput.command)) {
++    let designPath = null;
++    for (const raw of String(toolInput.command || '').split('\n')) {
++      const line = raw.replace(/\r$/, '');
++      const section = line.match(/^\*\*\* (Update|Add|Delete) File: (.+)$/);
++      if (section) {
++        designPath = isDesignMd(section[2].trim()) ? section[2].trim() : null;
++        continue;
++      }
++      if (designPath && line.startsWith('+') && !line.startsWith('+++')
++          && IMPL_REVIEW_STATUS_PASSED_RE.test(line.slice(1)) && !implReviewVerdictExists(designPath)) return true;
++    }
++    return false;
++  }
+   if (!TARGETED_FILE_TOOLS.has(toolName)) return false;
+   if (!isDesignMd(filePath)) return false;
+ 
+@@ -1892,6 +1917,21 @@ function main() {
+     // apply_patch: check for SDD_SUDO targets.
+     if (toolName === 'apply_patch' || looksLikePatch(toolInput.command)) {
+       const patch = toolInput.command || '';
++      // Source headers are checked below; also inspect a move's destination.
++      for (const line of patch.split(/\r?\n/)) {
++        if (!line.startsWith('*** Move to:')) continue;
++        const destination = line.slice('*** Move to:'.length).trim();
++        if (targetPathIsSddSudo(destination)) {
++          emitDecision('deny', SDD_SUDO_WRITE_MSG, mode);
++          return;
++        }
++        if (!destination || isProtectedGateFile(destination) || isAgentRolePath(destination)
++            || isTasksMd(destination) || isWfiPath(destination)
++            || isDomainContextMapPath(destination) || isDesignMd(destination)) {
++          emitDecision('deny', GATE_PROTECT_MSG, mode);
++          return;
++        }
++      }
+       const fileRegex = /^\*\*\* (Update|Add|Delete) File: (.+)$/gm;
+       let fileMatch;
+       while ((fileMatch = fileRegex.exec(patch))) {

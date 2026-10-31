@@ -1,0 +1,79 @@
+{
+  "verdict": "NEEDS_WORK",
+  "formal_sdd_gate": false,
+  "task": "T-005",
+  "owner_checkout": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge",
+  "input_manifest": "reports/verification/a8-independent-spec-review-20261014/quality-inputs.json",
+  "manifest_head": "495c88d67af44530687ecea3ce9fb0a90a336539",
+  "input_integrity": {
+    "verified_files": 18,
+    "hash_mismatches": 0
+  },
+  "assessment": "v2 consumer_inventory の構造、５ consumer の完全性、source commit/path/blob の対応、署名対象への包含は確認できた。一方、既存の必須 named-error 契約との不一致があり、T-005 全体の完了証拠も未充足。",
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "Major",
+      "classification": "implementation_contract_mismatch",
+      "path": "plugins/sdd-quality-loop/scripts/validate-live-host-proof.py",
+      "line": 244,
+      "title": "登録済み operator/reviewer の誤ロールを専用コードで拒否していない",
+      "description": "signer_for は未登録キーと登録済み誤ロールを同じ ERR_SIGNER_UNTRUSTED に統合する。design.md:597,753 は record の operator/reviewer の誤ロールを ERR_SIGNER_ROLE_MISMATCH とする必須契約を定めている。拒否自体は行われるため認証バイパスではないが、設計との不一致であり、現行281ケースにもこの専用エラーの回帰試験がない。",
+      "required_action": "record operator/reviewer の登録済み誤ロールを専用コードで区別し、両slotの他ロール代入を PASS/FAIL/SKIP で検証する。design.md:679 に従い nonce ledger issuer の誤ロールは ERR_SIGNER_UNTRUSTED のまま維持する。",
+      "skip_contract": "design.md:597 は SKIP を含む全verdictでロール確認を明記し、:601 は SKIP でも署名non-nullを明記している。一般的なSKIP null規則を理由にロール・署名確認を省略してはならない。"
+    },
+    {
+      "id": "F-002",
+      "severity": "Major",
+      "classification": "completion_evidence_gap",
+      "path": "specs/epic-196-a8-integration/verification/T-005/test-yml-live-host-proof-candidate.yml",
+      "line": 5,
+      "title": "CI登録の必須 staged candidate と MANIFEST 証拠が未充足",
+      "description": "tasks.md:1075-1078 は staged test.yml candidate、正しい MANIFEST.sha256 entry、live workflow の不変性を要求する。許可入力のcandidateは非apply-readyでMANIFEST entryを持たないと明記している。suite-inventory.posix と run-all.ps1 の登録は確認できたが、この草案だけでは残るCI登録条件の充足を証明できない。",
+      "required_action": "承認された保護ファイル適用経路で必要な候補・ハッシュ・live workflow不変性の証拠を揃え、適用後の正確な対象HEADのCI結果を別途記録する。現在の制約を回避してhuman-copyやlive workflowを編集しない。"
+    },
+    {
+      "id": "F-003",
+      "severity": "Major",
+      "classification": "completion_evidence_gap",
+      "path": "specs/epic-196-a8-integration/tasks.md",
+      "line": 1085,
+      "title": "必須 check-traceability report を独立検証できない",
+      "description": "T-005 Done When は高リスク要件として check-traceability report の記録を要求するが、許可入力に実行結果を検証できる当該reportがない。既存traceability表やローカルGREENを代用して完了とは判定できない。",
+      "required_action": "必要なtraceability検証を実行し、非凍結の証拠記録を次回レビュー入力へ含める。凍結済みtraceabilityや歴史的状態を直接書き換えない。"
+    }
+  ],
+  "checked": [
+    "許可された18入力のSHA256一致",
+    "T-005 authoritative task、designおよびv2 amendmentと実装の対応",
+    "consumer_inventoryの必須性、型、正確な５consumer、重複・欠落・未知要素・余分なkeyの拒否",
+    "accepted source commit、consumer固有path、Git blob objectの対応",
+    "inventoryを含む署名検証、署名後変更拒否、再署名済み並べ替えの許容",
+    "SKIP inventory null、旧schema拒否、FAIL aggregate拒否",
+    "既存nonce、署名、identity、atomic consumption、idempotencyのfixture検証",
+    "許可された評価rubric、calibration、security checklistとの照合"
+  ],
+  "independent_execution": [
+    {
+      "command": "rtk proxy bash tests/validate-live-host-proof.tests.sh",
+      "environment": "macOS",
+      "exit_code": 0,
+      "result": "281 passed, 0 failed"
+    },
+    {
+      "command": "rtk proxy pwsh -NoProfile -File tests/validate-live-host-proof.tests.ps1",
+      "environment": "macOS PowerShell",
+      "exit_code": 0,
+      "result": "281 passed, 0 failed"
+    }
+  ],
+  "limitations": [
+    "これは新規独立Codex評価の例外証拠であり、正式SDD quality-gate PASSやDone判定ではない。",
+    "過去のreview成果物は参照していない。implementation report内の過去PASS・RED記述は独立再現済みとは扱っていない。",
+    "実行したPowerShellはmacOS上であり、Windows実行や3-OS CIを証明しない。",
+    "保護CI適用、exact-head CI、check-traceabilityの完了は確認していない。",
+    "実際の５semantic cellのlive-host証拠作成はT-008の範囲であり、その未実施自体をT-005固有の不合格理由にはしていない。",
+    "許可入力外の手動探索、ownerへの編集・出力保存、歴史的ledger予約、task状態変更は行っていない。",
+    "本評価はmanifestに束縛された修復前入力を対象とし、これ以降の変更を評価していない。"
+  ]
+}

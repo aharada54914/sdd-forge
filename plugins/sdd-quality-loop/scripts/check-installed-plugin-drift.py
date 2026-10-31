@@ -212,7 +212,7 @@ def compare_regions(install_root: Path, codex_home: Path) -> list[dict[str, obje
     return diverged
 
 
-def build_report(mode: str, install_root: Path) -> tuple[dict[str, object], int]:
+def build_report(mode: str, install_root: Path, target: str = "All") -> tuple[dict[str, object], int]:
     resolved_root = install_root.expanduser().resolve()
     report: dict[str, object] = {
         "schema": SCHEMA,
@@ -230,8 +230,9 @@ def build_report(mode: str, install_root: Path) -> tuple[dict[str, object], int]
                   else (Path.home() / ".codex").resolve())
     diverged = compare_file_sets(repo_root, resolved_root / "plugins",
                                  "plugins", "plugins")
-    diverged.extend(compare_agents(repo_root, codex_home))
-    diverged.extend(compare_regions(resolved_root, codex_home))
+    if target in ("All", "Codex"):
+        diverged.extend(compare_agents(repo_root, codex_home))
+        diverged.extend(compare_regions(resolved_root, codex_home))
     diverged.sort(key=lambda row: (str(row["surface"]), str(row["source_ref"]),
                                    str(row["installed_ref"])))
     report["diverged"] = diverged
@@ -243,8 +244,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--install-root", required=True)
     parser.add_argument("--mode", choices=("preflight", "verify"), default="preflight")
+    parser.add_argument("--target", choices=("All", "Codex", "Claude", "Copilot"), default="All")
     args = parser.parse_args()
-    report, exit_code = build_report(args.mode, Path(args.install_root))
+    report, exit_code = build_report(args.mode, Path(args.install_root), args.target)
     json.dump(report, sys.stdout, sort_keys=True, separators=(",", ":"))
     sys.stdout.write("\n")
     return exit_code

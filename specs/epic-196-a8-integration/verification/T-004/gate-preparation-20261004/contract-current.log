@@ -1,0 +1,2 @@
+Verification contract FAILED for task T-004:
+ - required check 'cross-model-verification' has passes=false

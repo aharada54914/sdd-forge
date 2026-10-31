@@ -1,0 +1,160 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-196-a8-integration",
+  "run_id": "RUN-epic196-impl-a9r2-integrated-20261006",
+  "verdict": "NEEDS_WORK",
+  "round": 2,
+  "attempt": 9,
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "pass_type": "clean",
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "prior_round_contract_sha256": "76ef71d7b0d9f423b1a0007c9a4aa22c6048e77c80338c2dc90ab05a0d0580ac",
+  "requirements_sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44",
+  "acceptance_sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1",
+  "design_sha256": "c2a30f22f833f9a30ffeff01960d7f5304af262ba9ab4f0b9aad67f75b604cca",
+  "adr_inputs": [
+    {
+      "path": "docs/adr/0028-live-host-proof-ed25519-signing.md",
+      "sha256": "17b6c83d22126ed1095d556a80b3cb14173e4975deee039e5871656ce416186c"
+    },
+    {
+      "path": "docs/adr/0035-a8-two-contribution-handoff-oracle.md",
+      "sha256": "50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923"
+    }
+  ],
+  "layer_sha256": {
+    "ux-spec.md": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286",
+    "frontend-spec.md": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76",
+    "infra-spec.md": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e",
+    "security-spec.md": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic196-impl-a9r2-a-54a93ded",
+      "host_session_id": "54a93ded-0cf5-43b3-a8da-6ea3a490d6d8",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-196-a8-integration/requirements.md",
+          "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+          "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/design.md",
+          "sha256": "c2a30f22f833f9a30ffeff01960d7f5304af262ba9ab4f0b9aad67f75b604cca"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/investigation.md",
+          "sha256": "888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/ux-spec.md",
+          "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/frontend-spec.md",
+          "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/infra-spec.md",
+          "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/security-spec.md",
+          "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-196-a8-integration/attempt-9/round-2/precheck-result.json",
+          "sha256": "a9fb7d854cf30a24701bd6015fb5e8e9bbd34319da40c8c3cd66bd9b061a6bb6"
+        },
+        {
+          "path": "reports/impl-review/epic-196-a8-integration/attempt-9/round-1/integrated-summary.json",
+          "sha256": "8538100ab4a3b65b32f3421f5f037f3c1ff5c64433d245900638f9f924deee12"
+        },
+        {
+          "path": "docs/adr/0028-live-host-proof-ed25519-signing.md",
+          "sha256": "17b6c83d22126ed1095d556a80b3cb14173e4975deee039e5871656ce416186c"
+        },
+        {
+          "path": "docs/adr/0035-a8-two-contribution-handoff-oracle.md",
+          "sha256": "50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic196-impl-a9r2-b-d5effa48",
+      "host_session_id": "d5effa48-8ba6-4e98-92d1-6c8d299a5a64",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-196-a8-integration/requirements.md",
+          "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+          "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/design.md",
+          "sha256": "c2a30f22f833f9a30ffeff01960d7f5304af262ba9ab4f0b9aad67f75b604cca"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/investigation.md",
+          "sha256": "888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/ux-spec.md",
+          "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/frontend-spec.md",
+          "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/infra-spec.md",
+          "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/security-spec.md",
+          "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-196-a8-integration/attempt-9/round-2/precheck-result.json",
+          "sha256": "a9fb7d854cf30a24701bd6015fb5e8e9bbd34319da40c8c3cd66bd9b061a6bb6"
+        },
+        {
+          "path": "reports/impl-review/epic-196-a8-integration/attempt-9/round-2/integrated-summary.json",
+          "sha256": "87c936043b9676255b1755658f0ae90413303868ed34db6902f92770cf16f5d1"
+        },
+        {
+          "path": "docs/adr/0028-live-host-proof-ed25519-signing.md",
+          "sha256": "17b6c83d22126ed1095d556a80b3cb14173e4975deee039e5871656ce416186c"
+        },
+        {
+          "path": "docs/adr/0035-a8-two-contribution-handoff-oracle.md",
+          "sha256": "50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Prior round findings addressed in admitted design; independent round 2 retains one Major AC-016 inventory definition gap. No finding waived.",
+  "timestamp": "2026-10-05T16:00:19.380Z"
+}

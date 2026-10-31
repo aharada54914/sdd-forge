@@ -1,0 +1,217 @@
+diff --git a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+@@ -1860,6 +1860,48 @@ def main():
+         emit("deny", "SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.", mode)
+         return
+ 
++    # Native lower-case Copilot preToolUse is a single camelCase call.
++    # Never interpret the internal toolCalls event envelope as hook stdin.
++    if mode == "copilot" and "toolCalls" in payload:
++        emit("deny", "SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.", mode)
++        return
++    if mode == "copilot" and ("toolName" in payload or "toolArgs" in payload):
++        try:
++            required = {"sessionId", "timestamp", "cwd", "toolName", "toolArgs"}
++            forbidden = {"tool_name", "tool_input", "hook_event_name", "session_id"}
++            if not required <= set(payload) or forbidden & set(payload):
++                raise ValueError("ambiguous Copilot envelope")
++            if not isinstance(payload["sessionId"], str) or not isinstance(payload["cwd"], str):
++                raise ValueError("invalid Copilot metadata")
++            if isinstance(payload["timestamp"], bool) or not isinstance(payload["timestamp"], (int, float)):
++                raise ValueError("invalid Copilot timestamp")
++            name = payload["toolName"]
++            args = payload["toolArgs"]
++            if isinstance(args, str):
++                args = json.loads(args)
++            if not isinstance(args, dict) or not isinstance(name, str):
++                raise ValueError("invalid Copilot call")
++            path = args.get("path")
++            if not isinstance(path, str) or not path.strip():
++                raise ValueError("invalid Copilot path")
++            if name == "view":
++                if set(args) - {"path", "view_range"}:
++                    raise ValueError("unsupported view arguments")
++                if "view_range" in args and (not isinstance(args["view_range"], list)
++                    or len(args["view_range"]) != 2
++                    or any(isinstance(n, bool) or not isinstance(n, int) for n in args["view_range"])):
++                    raise ValueError("invalid view range")
++                payload = {"tool_name": "read", "tool_input": {"file_path": path}}
++            elif name == "create":
++                if set(args) != {"path", "file_text"} or not isinstance(args["file_text"], str):
++                    raise ValueError("invalid create arguments")
++                payload = {"tool_name": "write", "tool_input": {"file_path": path, "content": args["file_text"]}}
++            else:
++                raise ValueError("unsupported Copilot tool")
++        except (ValueError, TypeError, KeyError):
++            emit("deny", "SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.", mode)
++            return
++
+     try:
+         tool_input = payload.get("tool_input")
+         tool_name = payload.get("tool_name")
+diff --git a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+@@ -1813,6 +1813,51 @@ function main() {
+     return;
+   }
+ 
++  // Native lower-case Copilot preToolUse is one camelCase call, not toolCalls[].
++  if (mode === 'copilot' && Object.hasOwn(payload, 'toolCalls')) {
++    emitDecision('deny', 'SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.', mode);
++    return;
++  }
++  if (mode === 'copilot' && (Object.hasOwn(payload, 'toolName') || Object.hasOwn(payload, 'toolArgs'))) {
++    try {
++      const required = ['sessionId', 'timestamp', 'cwd', 'toolName', 'toolArgs'];
++      const forbidden = ['tool_name', 'tool_input', 'hook_event_name', 'session_id'];
++      if (required.some(k => !Object.hasOwn(payload, k)) ||
++          forbidden.some(k => Object.hasOwn(payload, k)) ||
++          typeof payload.sessionId !== 'string' || typeof payload.cwd !== 'string' ||
++          typeof payload.timestamp !== 'number' || !Number.isFinite(payload.timestamp)) {
++        throw new Error('invalid Copilot envelope');
++      }
++      const name = payload.toolName;
++      let args = payload.toolArgs;
++      if (typeof args === 'string') args = JSON.parse(args);
++      if (typeof name !== 'string' || typeof args !== 'object' || args === null || Array.isArray(args) ||
++          typeof args.path !== 'string' || !args.path.trim()) {
++        throw new Error('invalid Copilot call');
++      }
++      if (name === 'view') {
++        if (Object.keys(args).some(k => !['path', 'view_range'].includes(k)) ||
++            (Object.hasOwn(args, 'view_range') &&
++             (!Array.isArray(args.view_range) || args.view_range.length !== 2 ||
++              args.view_range.some(n => !Number.isInteger(n))))) {
++          throw new Error('invalid view arguments');
++        }
++        payload = { tool_name: 'read', tool_input: { file_path: args.path } };
++      } else if (name === 'create') {
++        if (Object.keys(args).length !== 2 || !Object.hasOwn(args, 'file_text') ||
++            typeof args.file_text !== 'string') {
++          throw new Error('invalid create arguments');
++        }
++        payload = { tool_name: 'write', tool_input: { file_path: args.path, content: args.file_text } };
++      } else {
++        throw new Error('unsupported Copilot tool');
++      }
++    } catch (_) {
++      emitDecision('deny', 'SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.', mode);
++      return;
++    }
++  }
++
+   try {
+     if (typeof payload.tool_name !== 'string' || typeof payload.tool_input !== 'object' || payload.tool_input === null || Array.isArray(payload.tool_input)) {
+       emitDecision('deny', 'SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.', mode);
+diff --git a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1 b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+@@ -1827,7 +1827,58 @@ try {
+     Emit-Decision "deny" $MalformedMsg
+ }
+ 
++# Native lower-case Copilot preToolUse has one camelCase call. The internal
++# toolCalls[] event envelope is not a command-hook input contract.
++$payloadKeys = @()
++if ($null -ne $payload -and $payload -is [pscustomobject]) {
++    $payloadKeys = @($payload.PSObject.Properties | ForEach-Object { $_.Name })
++}
++if ($Emit -eq "copilot" -and ($payloadKeys -ccontains "toolCalls")) {
++    Emit-Decision "deny" $MalformedMsg
++}
++if ($Emit -eq "copilot" -and (($payloadKeys -ccontains "toolName") -or ($payloadKeys -ccontains "toolArgs"))) {
++    try {
++        $requiredKeys = @("sessionId", "timestamp", "cwd", "toolName", "toolArgs")
++        $forbiddenKeys = @("tool_name", "tool_input", "hook_event_name", "session_id")
++        if (@($requiredKeys | Where-Object { $payloadKeys -cnotcontains $_ }).Count -gt 0 -or
++            @($forbiddenKeys | Where-Object { $payloadKeys -ccontains $_ }).Count -gt 0 -or
++            $payload.sessionId -isnot [string] -or $payload.cwd -isnot [string] -or
++            -not (($payload.timestamp -is [int]) -or ($payload.timestamp -is [long]) -or ($payload.timestamp -is [double]))) {
++            throw "invalid Copilot envelope"
++        }
++        $nativeName = $payload.toolName
++        $nativeArgs = $payload.toolArgs
++        if ($nativeArgs -is [string]) { $nativeArgs = $nativeArgs | ConvertFrom-Json -ErrorAction Stop }
++        if ($nativeName -isnot [string] -or $null -eq $nativeArgs -or
++            $nativeArgs -isnot [pscustomobject]) { throw "invalid Copilot call" }
++        $argKeys = @($nativeArgs.PSObject.Properties | ForEach-Object { $_.Name })
++        if (($argKeys -cnotcontains "path") -or $nativeArgs.path -isnot [string] -or
++            [string]::IsNullOrWhiteSpace($nativeArgs.path)) { throw "invalid Copilot path" }
++        if ($nativeName -ceq "view") {
++            if (@($argKeys | Where-Object { @("path", "view_range") -cnotcontains $_ }).Count -gt 0) {
++                throw "unsupported view arguments"
++            }
++            if ($argKeys -ccontains "view_range") {
++                $range = $nativeArgs.view_range
++                if ($range -isnot [array] -or $range.Count -ne 2 -or
++                    @($range | Where-Object { $_ -isnot [int] -and $_ -isnot [long] }).Count -gt 0) {
++                    throw "invalid view range"
++                }
++            }
++            $payload = [pscustomobject]@{ tool_name = "read"; tool_input = [pscustomobject]@{ file_path = $nativeArgs.path } }
++        } elseif ($nativeName -ceq "create") {
++            if ($argKeys.Count -ne 2 -or ($argKeys -cnotcontains "file_text") -or
++                $nativeArgs.file_text -isnot [string]) { throw "invalid create arguments" }
++            $payload = [pscustomobject]@{ tool_name = "write"; tool_input = [pscustomobject]@{ file_path = $nativeArgs.path; content = $nativeArgs.file_text } }
++        } else {
++            throw "unsupported Copilot tool"
++        }
++    } catch {
++        Emit-Decision "deny" $MalformedMsg
++    }
++}
++
+ try {
+     if ($null -eq $payload -or -not $payload.PSObject.Properties["tool_name"] -or -not ($payload.tool_name -is [string]) -or -not $payload.PSObject.Properties["tool_input"] -or $null -eq $payload.tool_input -or ($payload.tool_input -isnot [psobject] -and $payload.tool_input -isnot [System.Collections.IDictionary])) {
+         Emit-Decision "deny" $MalformedMsg
+     }
+diff --git a/tests/guard-r10-port.tests.ps1 b/tests/guard-r10-port.tests.ps1
+--- a/tests/guard-r10-port.tests.ps1
++++ b/tests/guard-r10-port.tests.ps1
+@@ -255,5 +255,44 @@
+ Assert-CopilotParity "copilot-emit: cd+rm guard -> deny"        "deny"  '{"tool_name":"bash","tool_input":{"command":"cd plugins/sdd-quality-loop/scripts && rm sdd-hook-guard.py"}}'
+ Assert-CopilotParity "copilot-emit: write src/main.py -> allow" "allow" '{"tool_name":"write","tool_input":{"file_path":"src/main.py","content":"print(1)"}}'
+ 
++# Native lower-case Copilot input: exact names, typed args, one final decision.
++$native = @{ sessionId = "synthetic"; timestamp = 1; cwd = $workDir; toolName = "view"; toolArgs = @{ path = "src/main.py" } }
++Assert-CopilotParity "native view object -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
++$native.toolArgs = '{"path":"src/main.py"}'
++Assert-CopilotParity "native view JSON string -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
++$native.toolName = "create"
++$native.toolArgs = @{ path = "src/main.py"; file_text = "safe" }
++Assert-CopilotParity "native create safe write -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
++$native.toolArgs = @{ path = "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"; file_text = "x" }
++Assert-CopilotParity "native create protected -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
++$native.toolArgs = @{ path = "specs/feat-noverdict/tasks.md"; file_text = "Approval: Approved" }
++Assert-CopilotParity "native create approval increase -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
++$native.toolArgs = @{ path = "src/main.py"; content = "x" }
++Assert-CopilotParity "native create wrong content key -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
++$native.toolArgs = @{ path = "src/main.py"; file_text = 1 }
++Assert-CopilotParity "native create wrong file_text type -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
++$native.toolArgs = @{ file_text = "x" }
++Assert-CopilotParity "native create missing path -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
++$native.toolArgs = @{ path = 1; file_text = "x" }
++Assert-CopilotParity "native create nonstring path -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
++$native.toolName = "View"
++$native.toolArgs = @{ path = "src/main.py" }
++Assert-CopilotParity "native miscased name -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
++$native.toolName = "edit"
++Assert-CopilotParity "native unknown tool -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
++$native.toolName = "view"
++$native.toolArgs = '[{"path":"src/main.py"}]'
++Assert-CopilotParity "native array args -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
++$native.toolArgs = '{bad-json'
++Assert-CopilotParity "native malformed JSON args -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
++$native.toolArgs = @{ path = "src/main.py" }
++$native["correlationId"] = "metadata-only"
++Assert-CopilotParity "native extra metadata -> allow" "allow" ($native | ConvertTo-Json -Compress -Depth 6)
++$native.timestamp = "2026-10-01T00:00:00Z"
++Assert-CopilotParity "native ISO timestamp is wrong format -> deny" "deny" ($native | ConvertTo-Json -Compress -Depth 6)
++Assert-CopilotParity "internal batch envelope only -> deny" "deny" '{"cwd":".","sessionId":"synthetic","toolCalls":[{"name":"view","args":{"path":"src/main.py"}}]}'
++Assert-CopilotParity "legacy plus batch envelope -> deny" "deny" '{"tool_name":"read","tool_input":{"file_path":"src/main.py"},"toolCalls":[{"name":"create","args":{"path":"specs/feat-noverdict/tasks.md","file_text":"Approval: Approved"}}]}'
++Assert-CopilotParity "ambiguous native and legacy -> deny" "deny" '{"sessionId":"synthetic","timestamp":1,"cwd":".","toolName":"view","toolArgs":{"path":"src/main.py"},"tool_name":"read","tool_input":{"file_path":"src/main.py"}}'
++
+ # Non-protected writes (allow 0).
+ Assert-Parity "allow: write src/main.py"                   0 '{"tool_name":"write","tool_input":{"file_path":"src/main.py","content":"print(1)"}}'

@@ -1,0 +1,91 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic196-impl-a9r2-b-d5effa48",
+  "host_session_id": "d5effa48-8ba6-4e98-92d1-6c8d299a5a64",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"},
+    {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"},
+    {"path": "specs/epic-196-a8-integration/design.md", "sha256": "c2a30f22f833f9a30ffeff01960d7f5304af262ba9ab4f0b9aad67f75b604cca"},
+    {"path": "specs/epic-196-a8-integration/investigation.md", "sha256": "888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f"},
+    {"path": "specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"},
+    {"path": "specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+    {"path": "specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+    {"path": "specs/epic-196-a8-integration/security-spec.md", "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-196-a8-integration/attempt-9/round-2/precheck-result.json", "sha256": "a9fb7d854cf30a24701bd6015fb5e8e9bbd34319da40c8c3cd66bd9b061a6bb6"},
+    {"path": "reports/impl-review/epic-196-a8-integration/attempt-9/round-2/integrated-summary.json", "sha256": "87c936043b9676255b1755658f0ae90413303868ed34db6902f92770cf16f5d1"},
+    {"path": "docs/adr/0028-live-host-proof-ed25519-signing.md", "sha256": "17b6c83d22126ed1095d556a80b3cb14173e4975deee039e5871656ce416186c"},
+    {"path": "docs/adr/0035-a8-two-contribution-handoff-oracle.md", "sha256": "50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The design states a rationale for each decision it makes. Ed25519 signing and the Trusted-Signer Registry are justified in the ADR Change Log and ADR-0028 (Decision item 1, Context). The 24h nonce TTL is justified in the Nonce Ledger text. The role-domain-separated signing targets are justified in the Signing Contract. The two-nonce handoff oracle is justified in ADR-0035 'Alternatives and rationale'. The pairwise 16-row matrix is justified in the REQ-004 section, and the FilesOnly exclusion in Design Decisions. The two-clause AC-006 predicate and the single-clause AC-015/AC-016 predicate both state why they differ, in the SKIP Allowlist Activation Gate. No unjustified inline decision found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Advisory only. design.md '## Open Questions' carries forward OQ-001 (headless-contract confirmation) and records OQ-002 as resolved. It has no literal 'Blocks Implementation: yes/no' or 'Resolution Path:' fields, and no explicit owner. Owner and path are recoverable from the package: requirements.md OQ-001 names the Phase 2/3 implementer confirming the contract empirically before building any automated E2E path, and design.md Design Decisions says the schema and lifecycle are fixed either way. OQ-001 is therefore non-blocking and resolvable. A literal owner role and 'Blocks Implementation: no' field would remove the ambiguity. Non-blocking, so Minor."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "investigation.md is present and the design's Assumptions are grounded. The Epic A1 supersession is recorded in investigation.md's Amendment Re-Review Context. The Epic A5/A7-unmerged assumption carries a re-verification instruction (design.md Assumptions; investigation.md Safety constraints). The decision-doc and ADR-0019 assumption is unchanged and cites INV-001–INV-004. Minor advisory: the design relies on Epic A1's merged handshake script being the sole issuer of Ed25519-signed ledger entries, and it calls the ledger a structure 'Epic A1 itself defines' (Data Plan, Migration Strategy). Components lists the same ledger as 'new'. Neither the ownership nor the signed-entry format is cited from the now-merged A1 (INV-005–INV-007 cite only the pre-merge A1 text). The blob-ID re-resolution in the Activation Gate and Main Workflows item 7 (verify A1's script matches the package's citations first) bound the risk, so this is advisory."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a '## Constraint Compliance' section. It addresses the no-new-CI-topology constraint (requirements.md REQ-002), the CI-resilience conventions, and Security Boundaries B1 and B2. Other requirement constraints are addressed elsewhere in the design: FilesOnly stays out of the matrix (Design Decisions); no competing normalization rule (Unicode-Normalization Contract); the drift check is read-only (Protected-File Statement); and no synthetic substitution for live-host proof (Direct-Invocation De-Spoofing). Requirements, acceptance-tests and design agree on the amended AC-006 and AC-015/AC-016 activation rules. They also agree on the AC-004 two-nonce binding, which ADR-0035 and the Fixture Contract carry. No contradiction found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. It has no response-time, throughput, concurrency or latency thresholds. The only numeric values are the nonce TTL and the matrix sizes, which are functional, not performance, requirements."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The '## Deployment / CI Plan' section names the target: new steps in the existing .github/workflows/test.yml 3-OS matrix and tests/run-all, with no new topology. It also names the local-macOS versus CI split, and which gates apply now (AC-015/AC-016, designed-red) versus later (AC-006). The CI changes are staged by human-copy per infra-spec.md. No feature-flag rollout applies, because activation is predicate-driven and recorded in the Activation Gate. No secrets or new environment variables are introduced (security-spec.md Secrets Management). Migration ordering is not needed: the Data Plan states 'No migration required' for net-new files."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Data Plan declares only net-new JSON files and no table or column changes. Its Migration Strategy states 'No migration required'. The one write to existing data, marking consumed_by_record, is additive, and infra-spec.md Rollback covers reverting the ledger and record together. No schema migration, so PASS."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The '## External Integrations' section lists the Claude, Codex and Copilot CLIs (read-only) with observed versions on 2026-10-05. It states these are observations, not a supported range, and requires per-session recording of binary path, version and response. Failure behavior is stated: an absent binary, command failure, auth failure or changed response shape is a failed proof, never evidence of absence. The gh/installer remote path has its version and a stated failure behavior. The Claude MCP list parser has fail-closed rules in the REQ-002 section. The Epic A1 handshake dependency is covered in Cross-Layer Dependencies, with the Activation Gate and ERR_NONCE_UNKNOWN as failure behavior. The A1 ledger contract note is under ASSUMPTIONS-VALID."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Under-scope on AC-016. requirements.md AC-016 and the REQ-003 goal require all five A1 consumer entry points (sdd-ship, sdd-bootstrap, sdd-bootstrap-interviewer, lite-spec, lite-gate) to be exercised per runtime and recorded in a fingerprinted inventory. The inventory has three fields: entry-point name, file:line or commit citation, and the runtime/cell. A partial inventory must not be presented as complete. design.md names AC-016 only in the Classification Table row ('requires the full fingerprinted 5-consumer inventory'), the Activation Gate and the allowlist blob IDs. Neither the Data Plan nor the API / Contract Plan defines an inventory schema. `validate-live-host-proof` reads exactly five records, one file per matrix_cell, and `live-host-verification-record/v1` has no consumer-entry-point field; `check` is a free-form string. The validator therefore cannot detect a missing or partial five-consumer inventory. Consequence: the T-008 implementer must invent the inventory format, and the AC-016 'never a partial inventory' guarantee is unenforceable and untestable. The rest of the design is in scope: the REQ-001–REQ-007 goals are covered, and the Ed25519, nonce-ledger, signer-registry, digest-manifest and allowlist components trace to AC-026, AC-028 and the SKIP governance. Remediation: specify the AC-016 inventory format, where it is stored, and the validator rule that rejects a missing or partial inventory."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The high-risk surfaces each name a concrete validation path. Security, signing and nonce handling are covered by Test Strategy items 5, 8 and 10 and the `validate-live-host-proof` aggregate Done and release gate. Role-mismatch negative fixtures are named (item 10). The synthetic-substitution tripwire has a negative-control suite (tests/cli-hook-enforcement.ps1). Cross-service failure behavior is covered by the External Integrations fail-closed rules and the Claude MCP parser fixtures. security-spec.md also lists a Security Tests table. Minor advisory: the API / Contract Plan's enumerated error-code list for `validate-live-host-proof` omits `ERR_SIGNER_ROLE_MISMATCH`. That code is defined in the Schema Validation Rules and Signing Contract and required by Test Strategy item 10. The activation-gate hard failures for an absent entry or an unknown case_id also have no named code beyond ERR_STALE_SKIP. Align the list with those sections."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: the project root has no domain/ directory (existence test returned none), so no Approved domain model applies."
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "collection_validation": "PASS",
+  "input_digest": "3dc43bd2241d3e746a9cacdb6de3dcdb331f8d9b507b95c3d294cf1c9cfb181a",
+  "bundle_sha256": "79a74fd5abfe5609b4fd2f6f93bd796dcb57e2629ba0c588ca444b0add8a2ead",
+  "agent_input_bytes_exact": true,
+  "actual_agent_call_count": 1,
+  "child_tools": [],
+  "anthropic_runtime_model": "claude-sonnet-5-5",
+  "openai_self_reported_model": "GPT-6",
+  "openai_runtime_model_note": "Existing official runner deletes its raw successful transcript; model field is panelist self-report, not an independently retained runtime identifier.",
+  "verdicts": [
+    {
+      "vendor": "anthropic",
+      "verdict": "PASS",
+      "findings": 4
+    },
+    {
+      "vendor": "openai",
+      "verdict": "PASS",
+      "findings": 0
+    }
+  ],
+  "consensus_gate_run": false,
+  "primary_evaluator_supplied": false
+}

@@ -1,0 +1,37 @@
+{
+  "feature": "epic-196-a8-integration",
+  "scope": "T-005 validator-only local synthetic regression; no native AC-016 discharge, CI acceptance or task status transition",
+  "formal_sdd_gate": false,
+  "links": [
+    {
+      "req": "REQ-003",
+      "acs": [
+        "AC-028"
+      ],
+      "tests": [
+        "TEST-028"
+      ],
+      "evidence": [
+        "reports/verification/a8-independent-spec-review-20261014/role-green-bash.txt"
+      ],
+      "limitation": "Synthetic all-five-pass/mixed-skip/atomic/idempotent/lock fixtures only; no real-host aggregate discharge"
+    },
+    {
+      "req": "REQ-006",
+      "acs": [
+        "AC-026",
+        "AC-027"
+      ],
+      "tests": [
+        "TEST-026",
+        "TEST-027"
+      ],
+      "evidence": [
+        "reports/verification/a8-independent-spec-review-20261014/role-red.txt",
+        "reports/verification/a8-independent-spec-review-20261014/role-green-bash.txt",
+        "reports/verification/a8-independent-spec-review-20261014/role-review-result.json"
+      ],
+      "limitation": "Schema/signature/replay and named-error behavior on synthetic fixtures only"
+    }
+  ]
+}

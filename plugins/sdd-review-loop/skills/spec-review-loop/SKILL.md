@@ -41,7 +41,8 @@ used by the shared review-contract validation foundation.
 
 Before each reviewer launch, persist one
 `review-context-invocation/v2` manifest for that reviewer only. Bind its stage,
-role, feature, host-issued run/session IDs, canonical input paths and SHA-256
+role, feature, fresh orchestrator-issued per-reviewer run ID and actual
+host-issued session/thread ID, canonical input paths and SHA-256
 values, plus the current hash and final record hash of
 `reports/review-context/identity-ledger.json`. The canonical identity ledger
 must already contain the invoking host/implementation identity and every prior
@@ -68,11 +69,15 @@ review, task review, or evaluator context.
    only canonical requirements, acceptance tests, optional investigation,
    `plugins/sdd-review-loop/references/spec-review-calibration.md`, and
    precheck-result paths with hashes.
-2. Obtain fresh host-issued run/session identities for `spec-reviewer-a`.
-   If the host issues them only when allocating a context, allocate an empty,
-   idle context without starting a model turn or supplying review inputs or
-   inherited conversation. Persist the host's identity receipt. This allocation
-   is not a reviewer launch and must not produce findings or consume inputs.
+2. Allocate a fresh host-issued session/thread identity for `spec-reviewer-a`
+   in an empty, idle context without starting a model turn or supplying review
+   inputs or inherited conversation. Persist the host allocation receipt and
+   verify the actual child role, model, read-only configuration and absence of
+   user/assistant turns and review inputs. Separately allocate a fresh
+   orchestrator-issued run ID for this reviewer invocation and persist its
+   correspondence with that host receipt; this is not a host-issued run ID or
+   the integrated orchestration run ID. This allocation is not a reviewer
+   launch and must not produce findings or consume inputs.
    Build and reserve its invocation manifest through the sequential launch
    boundary. Only after successful reservation and `REVIEW_CONTEXT_OK`, start
    the first reviewer turn in exactly that reserved context. If the host cannot
@@ -132,11 +137,33 @@ execution.
 ## Identity-allocation failure handling
 
 An allocation receipt is host evidence, not a caller-chosen UUID. It must bind
-the host's actual run and session identities and show that review execution has
-not started. Reservation failure must leave that context idle: no reviewer turn,
+the actual host-issued session/thread identity and show that review execution
+has not started. A separate orchestrator record binds the fresh per-reviewer
+run ID to that receipt; it must not claim host issuance of the run ID. Both IDs
+remain independently subject to ledger uniqueness and exact output matching.
+Reservation failure must leave that context idle: no reviewer turn,
 no findings, no retry by changing IDs in its receipt. A failed first turn after
 reservation does not release the consumed identity; preserve the reservation
 and receipt and use a new context for a later permitted attempt. Both reviewers
 remain read-only and separately isolated. This ordering does not authorize a
 blocked shell launcher, a same-session fallback, or any guard bypass. Fixture
 tests do not establish that a particular live host implements this lifecycle.
+
+## Required spec reviewer digest capability
+
+Before idle allocation, fix the invocation path under reports/review-context and
+its `.json.receipt.txt` sidecar path. Pin the installed calculator/entrypoint bytes.
+Provision only the exact calculation command described in the role, with dontAsk,
+Read/Grep/Glob and restricted Bash capability. No wildcard/prefix shell allowance,
+script writing, permission bypass or inferred inherited broad Bash access is allowed.
+Confirm the effective host policy rejects changed argv, other paths, --reserve,
+redirection, substitution and chained commands before formal dispatch. Unit/mocked
+checks are not host proof. Do not execute a refused operation via another executor.
+
+Run normal caller preflight/reservation unchanged. Save its successful stdout once
+at the fixed receipt sidecar (never overwrite old evidence), quote that same line
+to the reviewer, and preserve actual identity correspondence. The reviewer compares
+the saved receipt/manifest/real identity and invokes only the restricted calculator.
+Its result is not a replacement for any prior or subsequent required check.
+If the installed tools or host policy cannot support this boundary, stop before
+review input delivery; do not reserve a provisional or already-executed review.

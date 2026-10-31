@@ -1,0 +1,46 @@
+{
+  "review_kind": "independent-codex-bounded-repair-review",
+  "formal_sdd_gate": false,
+  "verdict": "PASS",
+  "scope": "signer_for の登録済み operator/reviewer 誤役割エラー契約と追加13ケースのみ",
+  "findings": [],
+  "checked": [
+    {
+      "check": "入力同一性",
+      "result": "PASS",
+      "evidence": "role-review-inputs.json の20入力すべてについて、実行前後のSHA-256一致を確認"
+    },
+    {
+      "check": "設計との整合",
+      "result": "PASS",
+      "evidence": "design.md:597,751-754,1226-1229 のレコード誤役割は ERR_SIGNER_ROLE_MISMATCH、679 のissuer誤役割は ERR_SIGNER_UNTRUSTED。validate-live-host-proof.py:242-248 は両者を区別する"
+    },
+    {
+      "check": "呼び出し経路",
+      "result": "PASS",
+      "evidence": "issuer は336行、operator/reviewer は451-452行で共通 signer_for を使用。630行の署名検証は631行以降のSKIP分岐より先に実行される"
+    },
+    {
+      "check": "追加13ケース",
+      "result": "PASS",
+      "passed": 13,
+      "failed": 0,
+      "command_exit_code": 0,
+      "evidence": "4種類のレコード誤役割×PASS/FAIL/SKIPの12ケースが非ゼロ終了と ERR_SIGNER_ROLE_MISMATCH を確認。issuer誤役割1ケースは ERR_SIGNER_UNTRUSTED を確認。変異対象はregistry.roleのみで、identity・鍵・署名を維持"
+    },
+    {
+      "check": "未登録キーの互換性",
+      "result": "PASS",
+      "evidence": "signer_for を直接実行し、operator/reviewer/issuer の未登録キー3ケースがすべて ERR_SIGNER_UNTRUSTED を返すことを確認"
+    },
+    {
+      "check": "回帰テスト接続",
+      "result": "PASS",
+      "evidence": "run_cases.py:949 で signer_role_cases() が通常スイートへ接続されている"
+    }
+  ],
+  "limitations": [
+    "全Bash/PowerShellスイート、CI、実ホスト、traceability、正式quality-gateは未実施。親担当の証拠と別扱い",
+    "このPASSは限定修正の独立レビュー結果であり、T-005全体の完了・Done・本番受入れを意味しない"
+  ]
+}

@@ -1,0 +1,1 @@
+run-panelist-gpt: SDD_PANELIST_CODEX_CMD=/Applications/ChatGPT.app/Contents/Resources/codex is not executable — skipping GPT panelist (graceful degrade)

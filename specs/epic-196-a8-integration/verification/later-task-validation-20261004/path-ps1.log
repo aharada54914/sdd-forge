@@ -1,0 +1,66 @@
+Exit code: 0
+ok: NFD source bytes are fixed
+ok: NFC copied bytes are fixed
+ok: LF source bytes are fixed
+ok: CRLF source bytes are fixed
+ok: CRLF is corrected to LF bytes
+ok: committed Unicode source is NFD and not NFC
+ok: .gitattributes assigns LF to the text fixture
+ok: 16-row generation algorithm matches the fixed matrix
+ok: all 10 independent-axis pairs are covered
+ok: dual NFC/NFD names trigger the collision oracle
+ok: row 1 windows-path-separator fixed oracle
+ok: row 1 crlf-lf-gitattributes-layer fixed oracle
+ok: row 1 nfc-nfd-filename fixed oracle
+ok: row 2 windows-path-separator fixed oracle
+ok: row 2 crlf-lf-gitattributes-layer fixed oracle
+ok: row 2 nfc-nfd-filename fixed oracle
+ok: row 3 windows-path-separator fixed oracle
+ok: row 3 crlf-lf-gitattributes-layer fixed oracle
+ok: row 3 nfc-nfd-filename fixed oracle
+ok: row 4 windows-path-separator fixed oracle
+ok: row 4 crlf-lf-gitattributes-layer fixed oracle
+ok: row 4 nfc-nfd-filename fixed oracle
+ok: row 5 windows-path-separator fixed oracle
+ok: row 5 crlf-lf-gitattributes-layer fixed oracle
+ok: row 5 nfc-nfd-filename fixed oracle
+ok: row 6 windows-path-separator fixed oracle
+ok: row 6 crlf-lf-gitattributes-layer fixed oracle
+ok: row 6 nfc-nfd-filename fixed oracle
+ok: row 7 windows-path-separator fixed oracle
+ok: row 7 crlf-lf-gitattributes-layer fixed oracle
+ok: row 7 nfc-nfd-filename fixed oracle
+ok: row 8 windows-path-separator fixed oracle
+ok: row 8 crlf-lf-gitattributes-layer fixed oracle
+ok: row 8 nfc-nfd-filename fixed oracle
+ok: row 9 windows-path-separator fixed oracle
+ok: row 9 crlf-lf-gitattributes-layer fixed oracle
+ok: row 9 nfc-nfd-filename fixed oracle
+ok: row 10 windows-path-separator fixed oracle
+ok: row 10 crlf-lf-gitattributes-layer fixed oracle
+ok: row 10 nfc-nfd-filename fixed oracle
+ok: row 11 windows-path-separator fixed oracle
+ok: row 11 crlf-lf-gitattributes-layer fixed oracle
+ok: row 11 nfc-nfd-filename fixed oracle
+ok: row 12 windows-path-separator fixed oracle
+ok: row 12 crlf-lf-gitattributes-layer fixed oracle
+ok: row 12 nfc-nfd-filename fixed oracle
+ok: row 13 windows-path-separator fixed oracle
+ok: row 13 crlf-lf-gitattributes-layer fixed oracle
+ok: row 13 nfc-nfd-filename fixed oracle
+ok: row 14 windows-path-separator fixed oracle
+ok: row 14 crlf-lf-gitattributes-layer fixed oracle
+ok: row 14 nfc-nfd-filename fixed oracle
+ok: row 15 windows-path-separator fixed oracle
+ok: row 15 crlf-lf-gitattributes-layer fixed oracle
+ok: row 15 nfc-nfd-filename fixed oracle
+ok: row 16 windows-path-separator fixed oracle
+ok: row 16 crlf-lf-gitattributes-layer fixed oracle
+ok: row 16 nfc-nfd-filename fixed oracle
+ok: path-lineending-fixture-result/v1 has 48 complete cells
+ok: layer windows-path-resolution disposition
+ok: layer crlf-lf-gitattributes disposition
+ok: layer generated-text-canonicalizer disposition
+ok: layer nfc-nfd-normalization disposition
+
+path-lineending-regression: 63 passed, 0 failed

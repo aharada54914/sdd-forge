@@ -1,0 +1,91 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic196-impl-a8r1-a-cee62cfc",
+  "host_session_id": "cee62cfc-66e3-4458-8b59-3538fb37d0c0",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"},
+    {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"},
+    {"path": "specs/epic-196-a8-integration/design.md", "sha256": "6485d5585fd37fe9ce298b295168ad2304d6dec6a1c7dc768bf76bbebf8c1aa3"},
+    {"path": "specs/epic-196-a8-integration/investigation.md", "sha256": "888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f"},
+    {"path": "specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"},
+    {"path": "specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+    {"path": "specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+    {"path": "specs/epic-196-a8-integration/security-spec.md", "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-196-a8-integration/attempt-8/round-1/precheck-result.json", "sha256": "c9d07b7bb29d614373c3b53003c77a75c9a27c987930268a9ed45594f73503e2"},
+    {"path": "docs/adr/0035-a8-two-contribution-handoff-oracle.md", "sha256": "50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md の Architecture(mermaid)、Components 表、Cross-Layer Dependencies、Technical Summary に、トップレベルのコンポーネント境界、既存資産(tests/cli-hook-enforcement.ps1、install.tests、既存 3-OS CI)との統合、層ごとの技術選定(sh/PowerShell/JSON、UI なし)がある。起動イベントの検証: 起動時レシート(sequence=1202, pre_append_tip_sequence=1201, identity_unique=yes)から再計算した record hash は 13b9f2ed… で一致した。allowed-inputs digest 6446c827… も一致し、全 11 ファイルの raw SHA-256 もマニフェストと一致した。[ADVISORY Minor] design.md の Risks(1723-1725行)は、requirements.md の Risks 側で解消済みと記録された「Phase-1 check-sdd-structure.sh の six-missing 逸脱」を現行リスクとして参照している。これは investigation.md が「別ゲートの管轄」として開示している既知の同種の古い記述で、実装の誤解を生むほどではない。"
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Architecture のエッジ(HANDOFF→CANARY→LIVE、MATRIX→DRIFT、SYN→FLAG/SUBAGENT→LIVE、LIVE→AGGREGATE)と Cross-Layer Dependencies を辿ったが、循環はない。AGGREGATE→REQ003 の点線は subgraph へのゲート関係で、依存ではない。nonce ledger は A1 の handshake が書き込み、validate-live-host-proof が consumed_by_record のみ更新するため、一方向である。T-005 が自身の AC-006 ゲートを反転させる点は挙動として明示された設計で、依存サイクルではない。"
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Data Plan に Data Entities / Existing Data Affected / Migration Strategy(移行不要の根拠つき)があり、6 スキーマと 3 つの管理マニフェストの型・制約も明示されている。ADR-0035 による Fixture Contract の改訂(nonce1+nonce2 を束ねる COPILOT-CONSUMED:<nonce1>:<nonce2>、handoff-02-output.txt)は ADR の記述と整合しており、trace スキーマ項目は変更されていない。[ADVISORY Minor] (1) Design Decisions の1562-1563行が記録の置き場所を `verification/live-host-proof/` と書いているが、Components・API Plan・infra-spec・security-spec と acceptance-tests.md の正規パスは `tests/hook-activation-live-proof/` で、acceptance-tests.md は「別の verification/live-host-proof/ 系パスは使わない」と明言している。規範セクションが整合しているため実装への影響は小さいが、修正が望ましい。(2) nonce-ledger.json は Data Entities では新規ファイル、Existing Data Affected では A1 側の既存台帳と読める記述で、所有者の表現がやや揺れている。"
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "API / Contract Plan が、各 CLI 契約(cross-runtime-handoff / install-uninstall-matrix / check-installed-plugin-drift / validate-live-host-proof / path-lineending-regression)について、フラグ、モード別の終了コード、出力スキーマ(Data Plan)、エラーコード一覧を示している。HTTP エンドポイントはなく、既存契約の破壊的変更・非推奨化もない(cli-hook-enforcement.ps1 は既存アサーションを保持したまま追加する)。"
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md の Security Boundaries は requirements.md の B1/B2 を具体的な機構(fortified record、AC-027 の guard、validate-live-host-proof のゲート、読み取り専用の drift check)に対応づけている。security-spec.md は B1〜B5 を信頼境界・認証認可(Ed25519、Trusted-Signer Registry、issuer/operator/reviewer のロール分離)・データ分類(PII なし)・OWASP 対応表・Secrets 管理(秘密鍵はコミットしない)で拡張しており、design.md と矛盾しない。ADR-0035 の変更(Copilot が両アーティファクトを読む)に新たな信頼境界の追加は不要である。"
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type は test-infrastructure(UI・フロントエンドなし、Frontend Plan 節も存在しない)のため、fullstack ではない。frontend-spec.md も N/A を明記している。"
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Test Strategy に 11 項目があり、統合(REQ-001/002/004/005 のスイート)、静的/回帰(AC-001/005/017/021/027)、受け入れ(AC-015/AC-028 の live-host proof と validate-live-host-proof のゲート)が揃っている。具体的なスイート名、成果物パス、スキーマ名、エラーコードも示されている。Fixture Contract は ADR-0035 の nonce1/nonce2 それぞれを単独で変える negative check を明記している。実機の CLI セッション要件は manual-required として分類され、manual-required の記録フォーマットも固定されている。"
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Architecture が参照する FIX/HANDOFF/CANARY/MATRIX/SYN/FLAG/SUBAGENT/LIVE/AGGREGATE/PATHFIX/DRIFT/CLASS/RECORD は、Components 表、Data Plan(canary_case、record スキーマ)、Test Strategy 項目4、分類表のいずれかで定義されている。A1 の check-hook-activation-handshake.{py,sh,ps1} と五つの consumer entry point は investigation.md の INV-005〜007 で確立済みの既存コンポーネントである。handoff-02-output.txt も Fixture Contract で定義されている。"
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md は `## Architecture Decision Records` ではなく `## ADR Change Log` で、ADR-0035(許可入力にあり実在、pin されたハッシュで確認済み)、ADR-0019、ADR-0028(提案)を参照している。新しい技術・設計判断(二貢献の handoff oracle、Ed25519 署名)には対応する ADR の言及があり、不足の Major には当たらない。[ADVISORY Minor] (a) ADR-0035 の Status は「Proposed; candidate only, not adopted or reviewed」のままで、0035 は provisional(採番の再確認が必要)とある。依頼文の「ADR adoption」の前提と本文が不一致なので、呼び出し側で採択手続き(Status 更新と採番の最終確認)の完了を確認してほしい。design は ADR の operative requirements を本文に埋め込んでおり、設計の実装可能性は ADR の Status に依存しない。(b) ADR Change Log は ADR-0035 を追加したのに「proposes one new ADR: ADR-0028」と書いており、数が古い。ADR-0028 の実在と採番衝突は許可入力から検証できない(0035 が次の空き番号と読めるため、0028 が既存 ADR と衝突している可能性がある)。AGENTS.md の共有名前空間規則(WFI-013)により、起草時の再確認指示が望ましい。ADR ファイルの存在検証は許可入力外のため行っていない。"
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md の `## Design System Compliance` は「Not applicable. UI surface なし」と記録している。design-system/ ディレクトリの有無は許可入力からは確認できないが、UI を持たない機能で、新規コンポーネントも生成されないため、評価対象外とした。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: 承認された `rtk proxy test -d domain` が終了コード 1 を返したため、domain/ ディレクトリは存在せず、この check は対象外である。"
+    }
+  ]
+}

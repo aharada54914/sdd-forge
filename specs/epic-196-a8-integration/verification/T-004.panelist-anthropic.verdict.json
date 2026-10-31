@@ -1,0 +1,36 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-004",
+  "feature": "epic-196-a8-integration",
+  "vendor": "anthropic",
+  "model": "claude-sonnet-5-5",
+  "verdict": "PASS",
+  "findings": [
+    {
+      "severity": "Minor",
+      "ref": "tests/cli-hook-enforcement.ps1 (TEST-012 Codex cases)",
+      "note": "The Codex enabled/disabled cases write a TOML file and then check that the file contains the line the test just wrote. They then invoke the guard in the same way both times, so the config state never influences the guard. The assertion is close to tautological. This is allowed by design.md's De-Spoofing section and by the task Goal, and every message is labeled synthetic and not a live-host observation. It still adds little regression value beyond the existing deny check."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tests/cli-hook-enforcement.ps1 (Copilot subagent case)",
+      "note": "The `synthetic_context_indicator` JSON field is invented by the test and the guard presumably ignores it. The case therefore duplicates the existing Copilot deny assertion with an extra field. Because it is labeled synthetic, it cannot be consumed as AC-014 live-host evidence. The primary-versus-subagent contrast is left entirely to T-008/T-005 manual cells."
+    },
+    {
+      "severity": "Minor",
+      "ref": "reports/implementation/epic-196-a8-integration/T-004.md (Specification Differences)",
+      "note": "The report says `tests/cli-hook-enforcement.ps1` is not listed in `tests/run-all.*` and exists only in the CI workflow, contradicting tasks.md T-004's claim that it is registered there. The report correctly made no out-of-scope edit. The discrepancy is unresolved, so the quality gate should confirm where the suite is actually run. Also, the report's line-count (100 vs 101) and preserved-line claims could not be verified from the bundle and rest on the author's claim."
+    },
+    {
+      "severity": "Minor",
+      "ref": "specs/epic-196-a8-integration/verification/T-004/current-ci-20261004.md",
+      "note": "The CI evidence (Windows 14, macOS 16, Ubuntu 16 passed, 0 failed) was taken from a PR merge ref while the PR is BEHIND main. Independent quality-gate verification and current-main integration are still pending, as the addendum itself states. Evidence is honest and not overclaimed, but it does not yet establish a final pass."
+    }
+  ],
+  "blind": true,
+  "input_digest": "3dc43bd2241d3e746a9cacdb6de3dcdb331f8d9b507b95c3d294cf1c9cfb181a",
+  "consent": {
+    "kind": "human-flag",
+    "ref": "tasks.md T-004 Cross-Model: enabled"
+  }
+}

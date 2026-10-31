@@ -1,0 +1,118 @@
+--- a/plugins/sdd-review-loop/scripts/impl-review-precheck.sh
++++ b/plugins/sdd-review-loop/scripts/impl-review-precheck.sh
+@@ -408,5 +408,11 @@
+     [[ "$prior_extension" == "$precheck_extension" ]] || fail "one-sided previous ADR extension"
+     if [[ "$prior_extension" == true ]]; then
++      if jq -e '.verdict == "BLOCKED"' "$prior_contract" >/dev/null; then
++        (( prior_round < 3 )) || fail "previous BLOCKED ADR round exhausted the three-round limit"
++        bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
++          --feature "$FEATURE" --impl-history "${ATTEMPT}:${prior_round}" ||
++          fail "previous BLOCKED ADR evidence requires explicit history validation"
++      fi
+       prior_a="${prior_contract%/*}/reviewer-a.json"
+       prior_b="${prior_contract%/*}/reviewer-b.json"
+       for evidence in "$prior_contract" "$prior_precheck" "$prior_a" "$prior_b"; do
+@@ -434,7 +440,7 @@
+         select([$cs,$ps,$aa,$bb] | all(.[]; length == 1 and (.[0] | type == "object"))) |
+         $cs[0] as $c | $ps[0] as $p |
+         select($c.schema == "impl-review-contract/v1" and $c.stage == "impl" and
+-          $c.verdict == "NEEDS_WORK" and $p.schema == "impl-review-precheck/v1") |
++          ($c.verdict == "NEEDS_WORK" or ($c.verdict == "BLOCKED" and $round < 3)) and $p.schema == "impl-review-precheck/v1") |
+         select([$c,$p] | all(.[]; .feature == $feature and .attempt == $attempt and .round == $round)) |
+         select(($c.adr_inputs | adrs) and ($p.adr_inputs | adrs) and $c.adr_inputs == $p.adr_inputs) |
+         select(all(["design_sha256","requirements_sha256","acceptance_sha256"][];
+--- a/plugins/sdd-review-loop/scripts/impl-review-precheck.ps1
++++ b/plugins/sdd-review-loop/scripts/impl-review-precheck.ps1
+@@ -222,7 +222,14 @@
+     return $null
+   }
++  if ($Prior.verdict -ceq 'BLOCKED') {
++    if ($RoundNumber -ge 3) { Fail 'previous BLOCKED ADR round exhausted the three-round limit' }
++    & $powerShellExe -NoProfile -File (Join-Path $RepoRoot 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --feature $FeatureName --impl-history "${AttemptNumber}:${RoundNumber}" | Out-Null
++    if ($LASTEXITCODE -ne 0) { Fail 'previous BLOCKED ADR evidence requires explicit history validation' }
++  }
++
+   if ($Prior.schema -cne 'impl-review-contract/v1' -or $Prior.stage -cne 'impl' -or
+-      $Prior.feature -cne $FeatureName -or $Prior.verdict -cne 'NEEDS_WORK' -or
++      $Prior.feature -cne $FeatureName -or
++      ($Prior.verdict -cne 'NEEDS_WORK' -and ($Prior.verdict -cne 'BLOCKED' -or $RoundNumber -ge 3)) -or
+       $precheck.schema -cne 'impl-review-precheck/v1' -or $precheck.feature -cne $FeatureName) {
+     Fail 'invalid previous ADR review identity or verdict'
+   }
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+@@ -7,4 +7,5 @@
+ FEATURE_FILTER=""
++IMPL_HISTORY=""
+ OPENING_STAGE=""
+ OPENING_ATTEMPT=""
+ OPENING_ROUND=""
+@@ -782,2 +783,6 @@
+       REGISTRY="$2"; shift 2 ;;
++    --impl-history)
++      (($# >= 2)) || diagnostic repository cli-usage "--impl-history requires attempt:round"
++      [[ -z "$IMPL_HISTORY" && "$2" =~ ^[1-9][0-9]*:[1-9][0-9]*$ ]] || diagnostic repository cli-usage "invalid --impl-history"
++      IMPL_HISTORY="$2"; shift 2 ;;
+     --opening)
+@@ -795,3 +800,6 @@
++if [[ -n "$IMPL_HISTORY" ]]; then
++  [[ -n "$FEATURE_FILTER" && -z "$OPENING_STAGE" ]] || diagnostic repository cli-usage "--impl-history requires --feature and forbids --opening"
++fi
+ # --opening names the single round a review-loop precheck is about to open; it
+ # only ever makes sense pinned to the one feature it belongs to, never as a
+ # blanket exemption swept across the whole registry.
+@@ -1838,2 +1846,14 @@
++if [[ -n "$IMPL_HISTORY" ]]; then
++  # Validation only: no lifecycle dispatch, admission, reservation, or current ADR reads.
++  (
++    snapshot_dir='' verified_adr_bindings='[]'
++    workflow_adr_history_bindings "$FEATURE_FILTER" "${IMPL_HISTORY%:*}" "${IMPL_HISTORY#*:}"
++    jq -e 'has("adr_inputs")' "$snapshot_dir/impl-review-contract.json" >/dev/null ||
++      diagnostic "$FEATURE_FILTER" stage-provenance "explicit ADR history validation requires binding extension"
++    printf 'workflow-state: impl-history: ok\n'
++  )
++  exit $?
++fi
++
+ while IFS= read -r entry; do
+   feature="$(jq -r '.feature' <<<"$entry")"
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+@@ -674,2 +674,3 @@
+ $FeatureFilter = ""
++$ImplHistory = ""
+ $script:OpeningStage = ""
+@@ -688,2 +689,10 @@
++        "--impl-history" {
++            if ([string]$args[$i] -cne '--impl-history') { Stop-WorkflowState "repository" "cli-usage" "invalid --impl-history spelling" }
++            if (++$i -ge $args.Count) { Stop-WorkflowState "repository" "cli-usage" "--impl-history requires attempt:round" }
++            if ($ImplHistory -or [string]$args[$i] -cnotmatch '\A[1-9][0-9]*:[1-9][0-9]*\z') {
++                Stop-WorkflowState "repository" "cli-usage" "invalid --impl-history"
++            }
++            $ImplHistory = [string]$args[$i]
++        }
+         "--opening" {
+             if (++$i -ge $args.Count) { Stop-WorkflowState "repository" "cli-usage" "--opening requires a value" }
+@@ -704,3 +712,6 @@
++if ($ImplHistory -and (-not $FeatureFilter -or $script:OpeningStage)) {
++    Stop-WorkflowState "repository" "cli-usage" "--impl-history requires --feature and forbids --opening"
++}
+ # --opening names the single round a review-loop precheck is about to open;
+ # it only ever makes sense pinned to the one feature it belongs to, never as
+ # a blanket exemption swept across the whole registry.
+@@ -2356,2 +2367,15 @@
++if ($ImplHistory) {
++    # Validation only; reuse the immutable history validator independently of status.
++    try {
++        $parts = $ImplHistory.Split(':')
++        $binding = Read-AdrHistoryEvidence $FeatureFilter ([int]$parts[0]) ([int]$parts[1]) $RepoRoot
++        if (-not $binding.Extended) { throw 'explicit ADR history validation requires binding extension' }
++    } catch {
++        Stop-WorkflowState $FeatureFilter "stage-provenance" "explicit ADR history validation failed"
++    }
++    Write-Output "workflow-state: impl-history: ok"
++    exit 0
++}
++
+ foreach ($entry in @($RegistryData.entries)) {
+     $feature = [string]$entry.feature

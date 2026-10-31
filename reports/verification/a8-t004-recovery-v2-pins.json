@@ -1,0 +1,47 @@
+{
+  "root": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge",
+  "patch": "reports/verification/a8-t004-recovery-reviewed-v2.patch",
+  "patch_sha256": "8753ffcec3c8735791160ac5cddc225449b2e8f40961b850484d9e8a0493fe88",
+  "targets": [
+    {
+      "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "before": "d4b1f1d8d320c2a2b4c153e0dc7270f5979eb9ddebfcb26c73bf5c2a95fced26",
+      "after": "d0326f3617f0bf6de6ba7f99d7edc2388c79a6731866328133cff7bb1815b722"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+      "before": "8e5e885c026041a4059f0f5462d2c213f6072c0d8cc9e7056ee3713f48450d32",
+      "after": "011f1d9c068e7b2f033f02bbae0fd15cf3a9c9c2c7f409c963fc1d9e941fc09b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+      "before": "179fdb17ca1d8afa6044396ef497dd764353ea814d66c835147ceccd2909786b",
+      "after": "e8424eb27598222fe527ffaaa296cd287a4c52f850ed05b91e98023c8c4e7925"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/review-context-boundary.md",
+      "before": "b537052a70eb52e73cd9add1ab2bb6e19f2b29796efd58bf7df2684b8bd318c1",
+      "after": "07f7834c17561b3b69093f91b32c7c5d4d655e9bc21bf2ff8bec6322fb02152a"
+    },
+    {
+      "path": "tests/review-context-boundary.tests.sh",
+      "before": "789c4a7b7d00b4f20f3d623784236ef0557b5d37f6cf5be8fb8eb57a4f9da6b1",
+      "after": "34eb70012271e5f7f697a0c640fe1a4ce0f547f2ae92569beb5a532cba2e96ca"
+    },
+    {
+      "path": "tests/issue311-scratch-isolation.tests.py",
+      "before": "355a7b99648186abd6a0c566a6b5ba58d7bd3d4e9c6c1d3c4deeffdf7e5c2248",
+      "after": "affe11ec4254bc169a0de969e02be484fdca6998bd7a1df34e324925a893d75e"
+    },
+    {
+      "path": "tests/review-scratch-history.tests.py",
+      "before": "6757aee629a1827448d912268c3e31f82d67f55080a1cac0fc862f5f7c709756",
+      "after": "24dd3afc8139ae55f04df97ec42da9ae812da829bf28b54baf828591595cd0d0"
+    },
+    {
+      "path": "tests/review-agent-isolation.tests.sh",
+      "before": "7f53e9c031a3d2883dc3f7a4c39a95520fbd7765fc45c2419b1022fc3335a808",
+      "after": "7f8d15c2c95aafe4cfa5e812fb2f10c431d775ef0d35aecc72946e932f60c1b9"
+    }
+  ]
+}

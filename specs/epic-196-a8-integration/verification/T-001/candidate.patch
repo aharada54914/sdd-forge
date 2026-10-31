@@ -1,0 +1,214 @@
+diff --git a/specs/epic-196-a8-integration/design.md b/specs/epic-196-a8-integration/design.md
+index afaa68be..0a14dc04 100644
+--- a/specs/epic-196-a8-integration/design.md
++++ b/specs/epic-196-a8-integration/design.md
+@@ -335,12 +335,15 @@ live-host finding also names for the adjacent live-host proof surface).
+ | Handoff | Artifact path | Initial content | Producer mutation | Final oracle | `consumer_observable` |
+ |---|---|---|---|---|---|
+ | Claude→Codex | `tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml` | Fixed YAML stub committed with this fixture, containing a `token: "<PLACEHOLDER>"` field and no other variable content | Claude session replaces `<PLACEHOLDER>` with `mutation_nonce` and rewrites the file in place | `artifact_final_sha256` = sha256 of the file with `token: "<mutation_nonce>"` substituted, byte-for-byte, into the fixed template | Codex session's own stdout must contain the exact substring `HANDOFF-01:<mutation_nonce>` (emitted only when Codex's own invocation reads and parses `token` from the artifact) |
+-| Codex→Copilot | `tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md` | Fixed Markdown stub committed with this fixture, containing a `<!-- nonce: PLACEHOLDER -->` HTML comment and no other variable content | Codex session replaces `PLACEHOLDER` with a second, independently-generated `mutation_nonce` and rewrites the file in place | `artifact_final_sha256` = sha256 of the file with `<!-- nonce: <mutation_nonce> -->` substituted, byte-for-byte, into the fixed template | Copilot session generates `tests/fixtures/cross-runtime-handoff/handoff-02-output.txt` whose own sha256 the driver script computes deterministically from `mutation_nonce` (`sha256("COPILOT-CONSUMED:" + mutation_nonce)`) — a generated-file-hash oracle, never a free-text description |
+-
+-The full three-hop chain (AC-004) reuses `handoff-02`'s own
+-`mutation_nonce` as the input to `handoff-02-output.txt`'s hash, so the
+-chain's own final state is verifiably derived from both upstream steps'
+-own contributions, not merely their both having run.
++| Codex→Copilot | `tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md` | Fixed Markdown stub committed with this fixture, containing a `<!-- nonce: PLACEHOLDER -->` HTML comment and no other variable content | Codex session replaces `PLACEHOLDER` with a second, independently-generated `mutation_nonce` and rewrites the file in place | `artifact_final_sha256` = sha256 of the file with `<!-- nonce: <mutation_nonce> -->` substituted, byte-for-byte, into the fixed template | Copilot session reads both handoff artifacts and generates `tests/fixtures/cross-runtime-handoff/handoff-02-output.txt` with exact bytes `COPILOT-CONSUMED:<first mutation_nonce>:<second mutation_nonce>` and no trailing newline. The driver computes its own sha256 from those exact bytes — a generated-file-hash oracle, never a free-text description |
++
++The full three-hop chain (AC-004) uses both independent mutation nonces
++as inputs to `handoff-02-output.txt`'s hash. Mutating either nonce must
++change the final expected hash, so the chain's final state is verifiably
++derived from both upstream steps' own contributions, not merely their
++both having run. When authenticated Copilot supports only its default
++Auto selection, the driver omits `--model`; an explicit non-Auto model
++selection may still be passed through `SDD_A8_COPILOT_MODEL`.
+ 
+ ### `install-uninstall-matrix-result/v1` (REQ-002)
+ 
+diff --git a/specs/epic-196-a8-integration/tasks.md b/specs/epic-196-a8-integration/tasks.md
+index 0e655ac3..170c15f4 100644
+--- a/specs/epic-196-a8-integration/tasks.md
++++ b/specs/epic-196-a8-integration/tasks.md
+@@ -213,8 +213,8 @@ adjacent handoff (Claude→Codex, Codex→Copilot), drive the producing
+ runtime's mutation of a per-run `mutation_nonce` into the fixture, then
+ assert the consuming runtime's own `consumer_observable` (a stdout
+ substring for Claude→Codex, a generated-file hash for Codex→Copilot);
+-chain both steps into one continuous 3-hop run reusing `handoff-02`'s own
+-nonce (AC-004); register the hook-activation canary as a named, `SKIP`ped
++chain both steps into one continuous 3-hop run with the final generated-file
++hash depending on both independent nonces (AC-004); register the hook-activation canary as a named, `SKIP`ped
+ case citing Epic A1's tracking issue (`sdd-forge-wt-epic-189`, #189/#187);
+ and record, for each of the three CLIs independently, either a confirmed
+ headless/non-interactive invocation contract (with file:line or
+@@ -254,8 +254,8 @@ OQ-001).
+   TEST-002 (Claude→Codex handoff, automated where OQ-001 confirms a
+   contract, else a REQ-006-format manual-session record consumed by the
+   same trace schema), TEST-003 (Codex→Copilot handoff, same conditional
+-  branch), TEST-004 (full 3-hop chain, `handoff-02`'s nonce reused end to
+-  end), TEST-005 (per-CLI headless-contract marker), TEST-006 (canary case
++  branch), TEST-004 (full 3-hop chain, both independent nonces in the final
++  generated-file hash), TEST-005 (per-CLI headless-contract marker), TEST-006 (canary case
+   present, `SKIP`, citing Epic A1's tracking issue, `coverage_complete:
+   false` while `SKIP`ped pre-activation is itself asserted as the correct,
+   non-`FAIL` state).
+diff --git a/tests/cross-runtime-cli-contract.tests.sh b/tests/cross-runtime-cli-contract.tests.sh
+index 13fa50ed..c1589bcd 100644
+--- a/tests/cross-runtime-cli-contract.tests.sh
++++ b/tests/cross-runtime-cli-contract.tests.sh
+@@ -28,15 +28,32 @@ for suffix in ('sh', 'ps1'):
+     assert live.count('Do not run any other shell command or modify any other file.') == 1, suffix + ': Codex producer scope changed'
+     sandbox = '--sandbox read-only' if suffix == 'sh' else "'--sandbox', 'read-only'"
+     assert sandbox in live, suffix + ': Codex consumer lost read-only sandbox'
++    assert 'handoff-01-claude-to-codex.yaml and tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md' in live, suffix + ': Copilot must read both handoffs'
++    assert 'COPILOT-CONSUMED:<token>:<nonce>' in live, suffix + ': Copilot output lost upstream token'
+     if suffix == 'sh':
+-        guards = [line for line in live.splitlines() if line.startswith('[[ ') and required[3] in line]
+-        assert len(guards) == 1, 'missing or ambiguous Copilot model guard'
++        selection = live.split('\ncopilot_model_args=()\n', 1)[1].split('\nprompt=', 1)[0]
++        assert 'copilot "${copilot_model_args[@]}" -p' in live, 'Copilot selection is not passed to the CLI'
+         for model in ('', 'auto', 'Auto', 'AUTO', 'claude-sonnet-4.6'):
+-            result = subprocess.run(['bash', '-c', 'fail() { return 1; }; ' + guards[0]],
+-                                    env={**os.environ, required[3]: model}, capture_output=True)
+-            assert (result.returncode == 0) == (model == 'claude-sonnet-4.6'), 'Copilot model guard accepted unpinned selection: ' + repr(model)
++            code = 'copilot_model_args=()\n' + selection + '\nprintf "<%s>" "${copilot_model_args[@]}"'
++            result = subprocess.run(['bash', '-c', code], env={**os.environ, required[3]: model}, capture_output=True, text=True)
++            assert result.returncode == 0, 'Copilot model selection failed: ' + repr(model)
++            expected = '<--model><claude-sonnet-4.6>' if model == 'claude-sonnet-4.6' else '<>'
++            assert result.stdout == expected, 'Copilot model selection mismatch: ' + repr(model)
++        oracle = [line for line in live.splitlines() if line.startswith('expected_output_sha=$(')]
++        assert len(oracle) == 1, 'missing or ambiguous live Copilot hash oracle'
++        def live_hash(first):
++            result = subprocess.run(
++                ['bash', '-c', oracle[0] + '\nprintf "%s" "$expected_output_sha"'],
++                env={**os.environ, 'nonce1': first, 'nonce2': 'c' * 32},
++                capture_output=True, text=True, check=True)
++            return result.stdout
++        assert live_hash('a' * 32) != live_hash('b' * 32), 'live Copilot hash oracle ignores nonce1'
++    else:
++        assert "-ine 'auto'" in live and "@('--model', $env:SDD_A8_COPILOT_MODEL)" in live, 'PowerShell Copilot modes missing'
++        assert "($copilotModelArgs + @('-p'" in live, 'PowerShell Copilot selection is not passed to CLI'
+     for token in required:
+         assert not valid(live.replace(token, 'REMOVED')), suffix + ': insensitive live-token mutation'
+ print('ok: native live CLI contract and all eight missing-token mutations')
+-print('ok: Bash live Copilot model guard rejects empty and case-variant automatic selections')
++print('ok: Bash Copilot Auto/default and explicit selections; PowerShell selection structure; both-handoff output contract')
++print('ok: Bash live Copilot hash oracle changes when nonce1 alone changes')
+ PY
+diff --git a/tests/cross-runtime-handoff.tests.ps1 b/tests/cross-runtime-handoff.tests.ps1
+index a11e5e12..16410386 100644
+--- a/tests/cross-runtime-handoff.tests.ps1
++++ b/tests/cross-runtime-handoff.tests.ps1
+@@ -100,17 +100,31 @@ function Invoke-ContractSelfTest {
+     $ast = [Management.Automation.Language.Parser]::ParseFile($PSCommandPath, [ref]$tokens, [ref]$parseErrors)
+     $liveFunction = $ast.FindAll({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq 'Invoke-LiveE2E' }, $true)[0]
+     $modelVariable = '$env:' + $required[3]
+-    $guards = @($liveFunction.FindAll({ param($node) $node -is [Management.Automation.Language.IfStatementAst] -and $node.Clauses[0].Item1.Extent.Text.Contains($modelVariable) }, $true))
+-    if ($parseErrors.Count -or $guards.Count -ne 1) { Stop-Test 'missing or ambiguous Copilot model guard' }
++    $selections = @($liveFunction.FindAll({ param($node) $node -is [Management.Automation.Language.IfStatementAst] -and $node.Clauses[0].Item1.Extent.Text.Contains($modelVariable) }, $true))
++    if ($parseErrors.Count -or $selections.Count -ne 1) { Stop-Test 'missing or ambiguous Copilot model selection' }
++    $selection = $selections[0].Extent.Text
++    foreach ($token in @("-ine 'auto'", "@('--model', `$env:SDD_A8_COPILOT_MODEL)")) {
++        if (-not $selection.Contains($token)) { Stop-Test 'Copilot model selection lost Auto or explicit mode' }
++    }
+     $originalModel = $env:SDD_A8_COPILOT_MODEL
+     try {
+         foreach ($model in @('', 'auto', 'Auto', 'AUTO', 'claude-sonnet-4.6')) {
+             $env:SDD_A8_COPILOT_MODEL = $model
+-            $rejected = & ([scriptblock]::Create($guards[0].Clauses[0].Item1.Extent.Text))
+-            if ([bool]$rejected -ne ($model -cne 'claude-sonnet-4.6')) { Stop-Test 'Copilot model guard accepted unpinned selection' }
++            $actual = & ([scriptblock]::Create('$copilotModelArgs = @(); ' + $selection + '; $copilotModelArgs -join "|"'))
++            $expected = if ($model -ceq 'claude-sonnet-4.6') { '--model|claude-sonnet-4.6' } else { '' }
++            if ($actual -cne $expected) { Stop-Test "Copilot model selection mismatch for '$model'" }
+         }
+     } finally { $env:SDD_A8_COPILOT_MODEL = $originalModel }
+-    [Console]::Out.WriteLine('ok: PowerShell live Copilot model guard rejects empty and case-variant automatic selections')
++    [Console]::Out.WriteLine('ok: PowerShell Copilot Auto/default and explicit model selections')
++    $oracleAssignments = @($liveFunction.FindAll({ param($node) $node -is [Management.Automation.Language.AssignmentStatementAst] -and $node.Left.Extent.Text -ceq '$outputBytes' }, $true))
++    if ($oracleAssignments.Count -ne 1) { Stop-Test 'missing or ambiguous live Copilot hash oracle' }
++    $oracle = [scriptblock]::Create($oracleAssignments[0].Extent.Text + '; [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($outputBytes)).ToLowerInvariant()')
++    $nonce2 = 'c' * 32
++    $nonce1 = 'a' * 32
++    $firstHash = & $oracle
++    $nonce1 = 'b' * 32
++    if ($firstHash -ceq (& $oracle)) { Stop-Test 'live Copilot hash oracle ignores nonce1' }
++    [Console]::Out.WriteLine('ok: PowerShell live Copilot hash oracle changes when nonce1 alone changes')
+     $one = Join-Path $Fixture 'handoff-01-claude-to-codex.yaml'
+     $two = Join-Path $Fixture 'handoff-02-codex-to-copilot.md'
+     $expectedOne = [Text.Encoding]::UTF8.GetBytes('token: "<PLACEHOLDER>' + '"' + $fixtureNewline)
+@@ -151,8 +165,8 @@ function Invoke-ContractSelfTest {
+     [IO.File]::WriteAllText($copyTwo, $textTwo, [Text.UTF8Encoding]::new($false))
+     if ([IO.File]::ReadAllText($copyTwo) -cne ('<!-- nonce: ' + $nonce2 + ' -->' + $fixtureNewline)) { Stop-Test 'pseudo Codex producer changed unexpected handoff-02 bytes' }
+     $output = Join-Path $work 'handoff-02-output.txt'
+-    [IO.File]::WriteAllBytes($output, [Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2))
+-    $expectedOutputHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2))).ToLowerInvariant()
++    [IO.File]::WriteAllBytes($output, [Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce1 + ':' + $nonce2))
++    $expectedOutputHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce1 + ':' + $nonce2))).ToLowerInvariant()
+     if ((Get-Sha256 $output) -cne $expectedOutputHash) { Stop-Test 'pseudo Copilot generated-file hash mismatch' }
+     if ($initialOne -cne ([Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($expectedOne))).ToLowerInvariant()) { Stop-Test 'handoff-01 initial hash mismatch' }
+     if ($initialTwo -cne ([Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($expectedTwo))).ToLowerInvariant()) { Stop-Test 'handoff-02 initial hash mismatch' }
+@@ -172,7 +186,10 @@ function Invoke-Cli([string]$Name, [string[]]$Arguments, [string]$WorkingDirecto
+ }
+ function Invoke-LiveE2E {
+     $codexBin = if ($env:SDD_A8_CODEX_BIN) { $env:SDD_A8_CODEX_BIN } else { 'codex' }
+-    if (-not $env:SDD_A8_COPILOT_MODEL -or $env:SDD_A8_COPILOT_MODEL -ieq 'auto') { Stop-Test 'live Copilot requires an explicitly selected supported SDD_A8_COPILOT_MODEL; Auto is not evidence' }
++    $copilotModelArgs = @()
++    if ($env:SDD_A8_COPILOT_MODEL -and $env:SDD_A8_COPILOT_MODEL -ine 'auto') {
++        $copilotModelArgs = @('--model', $env:SDD_A8_COPILOT_MODEL)
++    }
+     $work = Join-Path $evidenceDir 'work'
+     $fixtureWork = Join-Path $work 'tests/fixtures/cross-runtime-handoff'
+     [void](New-Item -ItemType Directory -Force -Path $fixtureWork)
+@@ -197,11 +214,11 @@ function Invoke-LiveE2E {
+     $codexProducer = Invoke-Cli $codexBin @('--model', 'gpt-5.6-sol', '--ask-for-approval', 'never', 'exec', '--ephemeral', '--skip-git-repo-check', '--sandbox', 'workspace-write', '--cd', $work, $prompt) $work (Join-Path $evidenceDir 'codex-producer.log')
+     if (-not $codexProducer.Contains('CODEX-PRODUCED:' + $nonce2)) { Stop-Test 'Codex producer did not attest its nonce' }
+     if ((Get-Sha256 $two) -cne $expected2) { Stop-Test 'Codex-produced handoff-02 bytes/hash mismatch' }
+-    $prompt = 'Read tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, extract the nonce in the HTML comment, and create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact bytes COPILOT-CONSUMED:<nonce> (no trailing newline). Do not run shell commands or access the network.'
++    $prompt = 'Read tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml and tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md. Extract the YAML token and the HTML-comment nonce, then create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact bytes COPILOT-CONSUMED:<token>:<nonce> (no trailing newline). Do not run shell commands or access the network.'
+     $output = Join-Path $fixtureWork 'handoff-02-output.txt'
+-    [void](Invoke-Cli 'copilot' @('--model', $env:SDD_A8_COPILOT_MODEL, '-p', $prompt, '-C', $work, '--disable-builtin-mcps', '--available-tools=view,create', ("--allow-tool=write($output)")) $work (Join-Path $evidenceDir 'copilot-consumer.log'))
++    [void](Invoke-Cli 'copilot' ($copilotModelArgs + @('-p', $prompt, '-C', $work, '--disable-builtin-mcps', '--available-tools=view,create', ("--allow-tool=write($output)"))) $work (Join-Path $evidenceDir 'copilot-consumer.log'))
+     if (-not (Test-Path -LiteralPath $output -PathType Leaf)) { Stop-Test 'Copilot did not produce handoff-02-output.txt' }
+-    $outputBytes = [Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce2)
++    $outputBytes = [Text.Encoding]::UTF8.GetBytes('COPILOT-CONSUMED:' + $nonce1 + ':' + $nonce2)
+     $expectedOutput = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($outputBytes)).ToLowerInvariant()
+     if ((Get-Sha256 $output) -cne $expectedOutput) { Stop-Test 'Copilot-generated file hash mismatch' }
+     $status = Get-TaskStatus $tasksFile
+diff --git a/tests/cross-runtime-handoff.tests.sh b/tests/cross-runtime-handoff.tests.sh
+index fe52ad2c..40952428 100644
+--- a/tests/cross-runtime-handoff.tests.sh
++++ b/tests/cross-runtime-handoff.tests.sh
+@@ -125,7 +125,7 @@ with tempfile.TemporaryDirectory(prefix='sdd-a8-pseudo-cli-') as raw:
+     assert f'HANDOFF-01:{nonce1}' in pseudo_codex_stdout
+     two.write_bytes(two.read_bytes().replace(b'PLACEHOLDER', nonce2.encode()))
+     assert two.read_bytes() == f'<!-- nonce: {nonce2} -->\n'.encode()
+-    pseudo_copilot_output = f'COPILOT-CONSUMED:{nonce2}'.encode()
++    pseudo_copilot_output = f'COPILOT-CONSUMED:{nonce1}:{nonce2}'.encode()
+     expected_output_hash = hashlib.sha256(pseudo_copilot_output).hexdigest()
+     output = root / 'handoff-02-output.txt'; output.write_bytes(pseudo_copilot_output)
+     assert hashlib.sha256(output.read_bytes()).hexdigest() == expected_output_hash
+@@ -193,7 +193,10 @@ require_cli claude
+ codex_bin=${SDD_A8_CODEX_BIN:-codex}
+ require_cli "$codex_bin"
+ require_cli copilot
+-[[ -n "${SDD_A8_COPILOT_MODEL:-}" && ! "${SDD_A8_COPILOT_MODEL}" =~ ^[aA][uU][tT][oO]$ ]] || fail "live Copilot requires an explicitly selected supported SDD_A8_COPILOT_MODEL; Auto is not evidence"
++copilot_model_args=()
++if [[ -n "${SDD_A8_COPILOT_MODEL:-}" && ! "${SDD_A8_COPILOT_MODEL}" =~ ^[aA][uU][tT][oO]$ ]]; then
++  copilot_model_args=(--model "$SDD_A8_COPILOT_MODEL")
++fi
+ 
+ prompt="In the current isolated temporary workspace, edit only tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml. Replace the exact YAML value <PLACEHOLDER> with $nonce1, preserving all other bytes. To satisfy any edit gate, you may search for references to that fixture only within this isolated workspace using the read-only command rtk proxy rg; present the requested facts and retry the edit. Do not modify any other file or run any other shell command. End with a short confirmation."
+ (cd "$tmp" && claude --print --model sonnet --output-format text --permission-mode acceptEdits --allowedTools 'Read,Edit,Bash(rtk proxy rg:*)' -- "$prompt") > "$evidence_dir/claude-producer.log" 2>&1 || fail "Claude producer invocation failed"
+@@ -211,11 +214,11 @@ grep -Fq "CODEX-PRODUCED:$nonce2" "$evidence_dir/codex-producer.log" || fail "Co
+ actual02_sha=$(sha256_file "$fixture02")
+ [[ "$actual02_sha" == "$expected02_sha" ]] || fail "Codex-produced handoff-02 bytes/hash mismatch"
+ 
+-prompt="Read tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md, extract the nonce in the HTML comment, and create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact bytes COPILOT-CONSUMED:<nonce> (no trailing newline). Do not run shell commands or access the network."
++prompt="Read tests/fixtures/cross-runtime-handoff/handoff-01-claude-to-codex.yaml and tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md. Extract the YAML token and the HTML-comment nonce, then create only tests/fixtures/cross-runtime-handoff/handoff-02-output.txt with the exact bytes COPILOT-CONSUMED:<token>:<nonce> (no trailing newline). Do not run shell commands or access the network."
+ output_file="$tmp/tests/fixtures/cross-runtime-handoff/handoff-02-output.txt"
+-copilot --model "$SDD_A8_COPILOT_MODEL" -p "$prompt" -C "$tmp" --disable-builtin-mcps --available-tools='view,create' --allow-tool="write($output_file)" > "$evidence_dir/copilot-consumer.log" 2>&1 || fail "Copilot consumer invocation failed"
++copilot "${copilot_model_args[@]}" -p "$prompt" -C "$tmp" --disable-builtin-mcps --available-tools='view,create' --allow-tool="write($output_file)" > "$evidence_dir/copilot-consumer.log" 2>&1 || fail "Copilot consumer invocation failed"
+ [[ -f "$output_file" ]] || fail "Copilot did not produce handoff-02-output.txt"
+-expected_output_sha=$(printf 'COPILOT-CONSUMED:%s' "$nonce2" | python3 -c 'import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest())')
++expected_output_sha=$(printf 'COPILOT-CONSUMED:%s:%s' "$nonce1" "$nonce2" | python3 -c 'import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest())')
+ actual_output_sha=$(sha256_file "$output_file")
+ [[ "$actual_output_sha" == "$expected_output_sha" ]] || fail "Copilot-generated file hash mismatch"
+ 

@@ -1,0 +1,12 @@
+diff --git a/specs/epic-196-a8-integration/tasks.md b/specs/epic-196-a8-integration/tasks.md
+--- a/specs/epic-196-a8-integration/tasks.md
++++ b/specs/epic-196-a8-integration/tasks.md
+@@ -699,7 +699,7 @@ Required Workflow: tdd
+ 
+ Security-Sensitive: true
+ 
+-Cross-Model: not enabled
++Cross-Model: enabled
+ 
+ Requirements: REQ-003 (AC-012, AC-017)
+ 

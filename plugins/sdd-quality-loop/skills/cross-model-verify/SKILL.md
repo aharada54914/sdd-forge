@@ -28,8 +28,9 @@ Panelists MUST be invoked blind. Before calling any panelist:
 1. Do NOT share any other panelist's verdict, findings, or model with the next
    panelist.
 2. Do NOT share the primary evaluator's verdict, confidence, or reasoning.
-3. Do NOT pass prior review-ticket content, `Implementation Complete` reports,
-   or any `specs/<feature>/verification/T-NNN.cross-model.json` to panelists.
+3. Do NOT pass prior review-ticket content, other tasks' implementation
+   reports, quality-gate/evaluator reports or verdicts, or any prior
+   `specs/<feature>/verification/T-NNN.cross-model.json` to panelists.
 4. Each panelist receives ONLY the sanitized input bundle
    (`T-NNN.panelist-input.txt`) — nothing else from the repository context.
 
@@ -67,7 +68,8 @@ walking `specs/<feature>/`. It contains:
   `verification/<T-NNN>/` evidence directory (`--input` above is this same
   directory — a literal directory-walk of --input no longer happens; it is
   read explicitly by task ID);
-- `<T-NNN>`'s own implementation report;
+- `<T-NNN>`'s own implementation report (author claims to verify against the
+  current outputs, not an independent verdict or proof of completion);
 - the CURRENT content of every path `<T-NNN>`'s own report `## Outputs`
   table declares (this is what makes code-level Done When items reviewable
   — not just the implementer's own `ok:` labels).

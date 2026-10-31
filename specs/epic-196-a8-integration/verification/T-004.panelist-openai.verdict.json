@@ -1,0 +1,15 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-004",
+  "feature": "epic-196-a8-integration",
+  "vendor": "openai",
+  "model": "GPT-6",
+  "verdict": "PASS",
+  "findings": [],
+  "blind": true,
+  "input_digest": "3dc43bd2241d3e746a9cacdb6de3dcdb331f8d9b507b95c3d294cf1c9cfb181a",
+  "consent": {
+    "kind": "human-flag",
+    "ref": "specs/epic-196-a8-integration/tasks.md#T-004: Cross-Model: enabled"
+  }
+}

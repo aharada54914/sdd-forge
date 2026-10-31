@@ -1,0 +1,85 @@
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+@@ -1680,6 +1680,18 @@
+     return False
+ 
+ 
++def _readonly_review_literal_projection(cmd):
++    """Only the pinned read-only launch grammar treats its last argument as data.
++    Retain every write word; erase only literal redirect glyphs in that argument.
++    Unknown options, quote forms, shell suffixes and broad Bash rules fall back.
++    """
++    match = re.fullmatch("^rtk proxy claude --model sonnet --effort medium --session-id [a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12} --print --output-format json --tools Read,Bash --allowedTools Read 'Bash\\(rtk proxy shasum -a 256 -- [A-Za-z0-9_./-]+(?: [A-Za-z0-9_./-]+)*\\)' 'Bash\\(rtk proxy printf %b '\\\\''[A-Za-z0-9_./\\\\-]+'\\\\''\\)' 'Bash\\(rtk proxy printf %s '\\\\''[A-Za-z0-9_|.-]+'\\\\''\\)' 'Bash\\(rtk proxy shasum -a 256\\)' 'Bash\\(rtk proxy test -d domain\\)' --disallowedTools Write,Edit,NotebookEdit --permission-mode dontAsk --debug-file /tmp/a8-impl-a[0-9]+r[0-9]+-[ab]-[0-9]{8}\\.log --append-system-prompt \"\\$\\(rtk proxy cat plugins/sdd-review-loop/agents/impl-reviewer-[ab]\\.md plugins/sdd-review-loop/references/review-context-boundary\\.md\\)\" -- ('(?:[^'\\x00]|'\\\\'')*')$", cmd)
++    if not match:
++        return cmd
++    prompt = match.group(1)
++    return cmd[:-len(prompt)] + prompt.replace(">", " ")
++
++
+ def _shell_targets_protected_gate_file(cmd):
+     """R-10: Deny shell commands that WRITE to protected gate files.
+     Uses a token-based pre-filter (a protected path appears as a shell token
+@@ -1709,7 +1721,7 @@
+     has_protected_path = _command_references_protected_path(cmd)
+     if not has_protected_path:
+         return False
+-    has_write = bool(SHELL_SUDO_WRITE_RE.search(cmd))
++    has_write = bool(SHELL_SUDO_WRITE_RE.search(_readonly_review_literal_projection(cmd)))
+     if not _SHELL_COMPOUND_RE.search(cmd) and SHELL_SUDO_READ_ONLY_RE.match(cmd) and not has_write:
+         return False
+     if not has_write:
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+@@ -810,6 +810,15 @@
+   return false;
+ }
+ 
++function readonlyReviewLiteralProjection(cmd) {
++  // Pinned read-only CLI grammar, not a generic shell or prompt exemption.
++  // Keep write words. Only terminal single-quoted data loses redirect glyphs.
++  const match = new RegExp("^rtk proxy claude --model sonnet --effort medium --session-id [a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12} --print --output-format json --tools Read,Bash --allowedTools Read 'Bash\\(rtk proxy shasum -a 256 -- [A-Za-z0-9_./-]+(?: [A-Za-z0-9_./-]+)*\\)' 'Bash\\(rtk proxy printf %b '\\\\''[A-Za-z0-9_./\\\\-]+'\\\\''\\)' 'Bash\\(rtk proxy printf %s '\\\\''[A-Za-z0-9_|.-]+'\\\\''\\)' 'Bash\\(rtk proxy shasum -a 256\\)' 'Bash\\(rtk proxy test -d domain\\)' --disallowedTools Write,Edit,NotebookEdit --permission-mode dontAsk --debug-file /tmp/a8-impl-a[0-9]+r[0-9]+-[ab]-[0-9]{8}\\.log --append-system-prompt \"\\$\\(rtk proxy cat plugins/sdd-review-loop/agents/impl-reviewer-[ab]\\.md plugins/sdd-review-loop/references/review-context-boundary\\.md\\)\" -- ('(?:[^'\\x00]|'\\\\'')*')$").exec(cmd);
++  if (!match || match[0].length !== cmd.length) return cmd;
++  const prompt = match[1];
++  return cmd.slice(0, -prompt.length) + prompt.replace(/>/g, ' ');
++}
++
+ function shellTargetsProtectedGateFile(cmd) {
+   // R-10: Deny shell commands that WRITE to protected gate files.
+   // Token-based pre-filter (a protected path appears as a shell token or
+@@ -831,7 +840,7 @@
+   if (!hasProtectedPath) return false;
+   // Read-only short-circuit only when: no compound ops AND read-only verb AND no write verb/redirect.
+   // Prevents `cat f && rm f` (compound) and `cat > f << EOF` (write verb despite read-only start).
+-  const hasWrite = SHELL_SUDO_WRITE_RE.test(cmd);
++  const hasWrite = SHELL_SUDO_WRITE_RE.test(readonlyReviewLiteralProjection(cmd));
+   if (!SHELL_COMPOUND_RE.test(cmd) && SHELL_SUDO_READ_ONLY_RE.test(cmd) && !hasWrite) return false;
+   if (!hasWrite) return false;
+   // Issue #62: deny only when a write target is (or cannot be proven not to
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+@@ -1197,6 +1197,16 @@
+     return $false
+ }
+ 
++function Get-ReadonlyReviewLiteralProjection {
++    # Exact case-sensitive read-only CLI grammar; no generic prompt exemption.
++    # Preserve write vocabulary and all unrecognized shell command forms.
++    param([string]$Cmd)
++    $match = [regex]::Match($Cmd, '^rtk proxy claude --model sonnet --effort medium --session-id [a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12} --print --output-format json --tools Read,Bash --allowedTools Read ''Bash\(rtk proxy shasum -a 256 -- [A-Za-z0-9_./-]+(?: [A-Za-z0-9_./-]+)*\)'' ''Bash\(rtk proxy printf %b ''\\''''[A-Za-z0-9_./\\-]+''\\''''\)'' ''Bash\(rtk proxy printf %s ''\\''''[A-Za-z0-9_|.-]+''\\''''\)'' ''Bash\(rtk proxy shasum -a 256\)'' ''Bash\(rtk proxy test -d domain\)'' --disallowedTools Write,Edit,NotebookEdit --permission-mode dontAsk --debug-file /tmp/a8-impl-a[0-9]+r[0-9]+-[ab]-[0-9]{8}\.log --append-system-prompt "\$\(rtk proxy cat plugins/sdd-review-loop/agents/impl-reviewer-[ab]\.md plugins/sdd-review-loop/references/review-context-boundary\.md\)" -- (''(?:[^''\x00]|''\\'''')*'')$')
++    if (-not $match.Success -or $match.Length -ne $Cmd.Length) { return $Cmd }
++    $prompt = $match.Groups[1].Value
++    return $Cmd.Substring(0, $Cmd.Length - $prompt.Length) + $prompt.Replace('>', ' ')
++}
++
+ function Test-ShellTargetsProtectedGateFile {
+     # R-10: Deny shell commands that WRITE to protected gate files. Token-based
+     # pre-filter (a protected path appears as a shell token or redirect target)
+@@ -1217,7 +1227,7 @@
+     if (Test-ShellPatchApplyHitsProtected $Cmd) { return $true }
+     $hasProtectedPath = Test-CommandReferencesProtectedPath $Cmd
+     if (-not $hasProtectedPath) { return $false }
+-    $hasWrite = [regex]::IsMatch($Cmd, $ShellSudoWriteRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
++    $hasWrite = [regex]::IsMatch((Get-ReadonlyReviewLiteralProjection $Cmd), $ShellSudoWriteRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+     $hasCompound = [regex]::IsMatch($Cmd, $ShellCompoundRe)
+     $isReadOnlyStart = [regex]::IsMatch($Cmd, $ShellReadOnlyStartRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+     if ((-not $hasCompound) -and $isReadOnlyStart -and (-not $hasWrite)) { return $false }

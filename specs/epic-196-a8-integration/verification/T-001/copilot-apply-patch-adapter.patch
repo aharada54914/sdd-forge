@@ -1,0 +1,107 @@
+diff --git a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+@@ -1884,22 +1884,28 @@
+-            if isinstance(args, str):
+-                args = json.loads(args)
+-            if not isinstance(args, dict) or not isinstance(name, str):
+-                raise ValueError("invalid Copilot call")
+-            path = args.get("path")
+-            if not isinstance(path, str) or not path.strip():
+-                raise ValueError("invalid Copilot path")
+-            if name == "view":
+-                if set(args) - {"path", "view_range"}:
+-                    raise ValueError("unsupported view arguments")
+-                if "view_range" in args and (not isinstance(args["view_range"], list)
+-                    or len(args["view_range"]) != 2
+-                    or any(isinstance(n, bool) or not isinstance(n, int) for n in args["view_range"])):
+-                    raise ValueError("invalid view range")
+-                payload = {"tool_name": "read", "tool_input": {"file_path": path}}
+-            elif name == "create":
+-                if set(args) != {"path", "file_text"} or not isinstance(args["file_text"], str):
+-                    raise ValueError("invalid create arguments")
+-                payload = {"tool_name": "write", "tool_input": {"file_path": path, "content": args["file_text"]}}
++            if name == "apply_patch":
++                if (not isinstance(args, str) or not args.startswith("*** Begin Patch\n")
++                    or not args.rstrip().endswith("*** End Patch")):
++                    raise ValueError("invalid Copilot patch")
++                payload = {"tool_name": "apply_patch", "tool_input": {"command": args}}
+             else:
+-                raise ValueError("unsupported Copilot tool")
++                if isinstance(args, str):
++                    args = json.loads(args)
++                if not isinstance(args, dict) or not isinstance(name, str):
++                    raise ValueError("invalid Copilot call")
++                path = args.get("path")
++                if not isinstance(path, str) or not path.strip():
++                    raise ValueError("invalid Copilot path")
++                if name == "view":
++                    if set(args) - {"path", "view_range"}:
++                        raise ValueError("unsupported view arguments")
++                    if "view_range" in args and (not isinstance(args["view_range"], list)
++                        or len(args["view_range"]) != 2
++                        or any(isinstance(n, bool) or not isinstance(n, int) for n in args["view_range"])):
++                        raise ValueError("invalid view range")
++                    payload = {"tool_name": "read", "tool_input": {"file_path": path}}
++                elif name == "create":
++                    if set(args) != {"path", "file_text"} or not isinstance(args["file_text"], str):
++                        raise ValueError("invalid create arguments")
++                    payload = {"tool_name": "write", "tool_input": {"file_path": path, "content": args["file_text"]}}
++                else:
++                    raise ValueError("unsupported Copilot tool")
+         except (ValueError, TypeError, KeyError):
+diff --git a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+@@ -1833,23 +1833,31 @@
+-      if (typeof args === 'string') args = JSON.parse(args);
+-      if (typeof name !== 'string' || typeof args !== 'object' || args === null || Array.isArray(args) ||
+-          typeof args.path !== 'string' || !args.path.trim()) {
+-        throw new Error('invalid Copilot call');
+-      }
+-      if (name === 'view') {
+-        if (Object.keys(args).some(k => !['path', 'view_range'].includes(k)) ||
+-            (Object.prototype.hasOwnProperty.call(args, 'view_range') &&
+-             (!Array.isArray(args.view_range) || args.view_range.length !== 2 ||
+-              args.view_range.some(n => !Number.isInteger(n))))) {
+-          throw new Error('invalid view arguments');
+-        }
+-        payload = { tool_name: 'read', tool_input: { file_path: args.path } };
+-      } else if (name === 'create') {
+-        if (Object.keys(args).length !== 2 || !Object.prototype.hasOwnProperty.call(args, 'file_text') ||
+-            typeof args.file_text !== 'string') {
+-          throw new Error('invalid create arguments');
+-        }
+-        payload = { tool_name: 'write', tool_input: { file_path: args.path, content: args.file_text } };
++      if (name === 'apply_patch') {
++        if (typeof args !== 'string' || !args.startsWith('*** Begin Patch\n') ||
++            !args.trimEnd().endsWith('*** End Patch')) {
++          throw new Error('invalid Copilot patch');
++        }
++        payload = { tool_name: 'apply_patch', tool_input: { command: args } };
+       } else {
+-        throw new Error('unsupported Copilot tool');
++        if (typeof args === 'string') args = JSON.parse(args);
++        if (typeof name !== 'string' || typeof args !== 'object' || args === null || Array.isArray(args) ||
++            typeof args.path !== 'string' || !args.path.trim()) {
++          throw new Error('invalid Copilot call');
++        }
++        if (name === 'view') {
++          if (Object.keys(args).some(k => !['path', 'view_range'].includes(k)) ||
++              (Object.prototype.hasOwnProperty.call(args, 'view_range') &&
++               (!Array.isArray(args.view_range) || args.view_range.length !== 2 ||
++                args.view_range.some(n => !Number.isInteger(n))))) {
++            throw new Error('invalid view arguments');
++          }
++          payload = { tool_name: 'read', tool_input: { file_path: args.path } };
++        } else if (name === 'create') {
++          if (Object.keys(args).length !== 2 || !Object.prototype.hasOwnProperty.call(args, 'file_text') ||
++              typeof args.file_text !== 'string') {
++            throw new Error('invalid create arguments');
++          }
++          payload = { tool_name: 'write', tool_input: { file_path: args.path, content: args.file_text } };
++        } else {
++          throw new Error('unsupported Copilot tool');
++        }
+       }
+     } catch (_) {

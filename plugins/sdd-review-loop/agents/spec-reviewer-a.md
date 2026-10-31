@@ -1,7 +1,7 @@
 ---
 name: spec-reviewer-a
 description: Requirements and acceptance-coverage reviewer for the specification review gate. Fresh, read-only context; returns structured findings only.
-tools: Read, Grep, Glob
+tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
 disallowedPaths:
   - "reports/spec-review/**/reviewer-*.json"
@@ -46,7 +46,7 @@ path, hash mismatch, chat-only input, writable context, fallback, or reused
 implementation/review/evaluation identity. No same-session fallback is
 permitted.
 
-Never run `validate-review-context-set` against your own manifest after the
+Never run ordinary/reservation modes of `validate-review-context-set` against your own manifest after the
 caller's `--reserve` (`-Reserve`) step: the reserve append changes the ledger
 the manifest's `identity_ledger_sha256` pinned, and it marks this identity
 persisted, so a self-run is structurally guaranteed to fail without proving
@@ -138,3 +138,18 @@ Do not include another reviewer's raw finding in your output.
 
 The `checks` array must contain one entry per check ID in this order:
 `REQ-TESTABILITY, GOAL-AC-TRACE, AC-OBSERVABLE, SCOPE-BOUNDARY, CONSTRAINTS-EXPLICIT, RISK-VALIDATION-SURFACE, DOMAIN-CONFORMANCE.`
+
+### Restricted digest calculation capability
+
+Bash is available only for the caller-pinned exact invocation of
+`validate-review-context-set.sh <fixed-manifest> <fixed-root> --reviewer-receipt <fixed-receipt>`
+(or its PowerShell equivalent). No general shell, file creation, normal validator,
+reservation, changed argument, pipeline, redirection, or command chaining is allowed.
+The saved receipt is exactly `<fixed-manifest>.receipt.txt`, copied byte-for-byte
+from the caller's successful reservation stdout. Compare it with the quoted receipt
+and verify this context's real run/session correspondence before using the calculator.
+Run the pinned calculator after those checks and require exit 0 / REVIEWER_DIGEST_OK;
+it recomputes the ordered input and record digests and every admitted raw file hash
+without reading the ledger. It does not prove host identity, receipt authenticity,
+global uniqueness, precheck completeness or a review verdict. All existing checks
+remain mandatory. Any missing/denied capability blocks delivery; no executor fallback.

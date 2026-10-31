@@ -1,0 +1,32 @@
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -230,6 +230,28 @@ jobs:
+         shell: pwsh
+         run: ./tests/scenario.tests.ps1
+ 
++      - name: "[deterministic] Test resolver suites (native Windows pwsh)"
++        if: runner.os == 'Windows'
++        shell: pwsh
++        run: |
++          $powerShell = (Get-Process -Id $PID).Path
++          $tests = @(
++            './tests/resolver-evidence-schema.tests.ps1'
++            './tests/resolve-project-context-block.tests.ps1'
++            './tests/resolve-project-context-match.tests.ps1'
++            './tests/resolve-project-context-cli.tests.ps1'
++            './tests/resolve-project-context-discovery.tests.ps1'
++            './tests/resolve-project-context-lite.tests.ps1'
++            './tests/validate-resolver-evidence.tests.ps1'
++            './tests/resolve-project-context-parity.tests.ps1'
++            './tests/resolve-project-context-metamorphic.tests.ps1'
++            './tests/resolve-project-context-caller-contract.tests.ps1'
++          )
++          foreach ($test in $tests) {
++            & $powerShell -NoProfile -NonInteractive -File $test
++            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
++          }
++
+       # Epic A7's PowerShell compatibility suites are already part of the
+       # runner inventory, but must also execute on the native Windows leg.
+       # Keep the two expensive capture suites in separate required Windows

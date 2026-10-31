@@ -1,0 +1,24 @@
+{
+  "task_id": "T-004",
+  "feature": "epic-196-a8-integration",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "cross_model": "required",
+  "spec_revision": "",
+  "created": "2026-10-04",
+  "comment": "Default-FAIL gate preparation. No independent primary evaluator verdict yet. Historical implementation report is a claim, not proof.",
+  "checks": [
+    {"id":"lint","required":false,"passes":false,"evidence":"","waiver_reason":"Task scope is an interpreted PowerShell regression suite; no configured standalone lint command applies. Execution remains mandatory."},
+    {"id":"typecheck","required":false,"passes":false,"evidence":"","waiver_reason":"T-004 adds PowerShell test assertions only; no separately compiled typed source."},
+    {"id":"build","required":false,"passes":false,"evidence":"","waiver_reason":"T-004 modifies an interpreted PowerShell test suite with no build artifact."},
+    {"id":"unit-tests","required":true,"passes":true,"evidence":"specs/epic-196-a8-integration/verification/T-004/gate-preparation-20261004/green.log","red_evidence":"specs/epic-196-a8-integration/verification/T-004/red-sh.log","green_evidence":"specs/epic-196-a8-integration/verification/T-004/gate-preparation-20261004/green.log","requirement_ids":["REQ-003"]},
+    {"id":"acceptance-tests","required":true,"passes":true,"evidence":"specs/epic-196-a8-integration/verification/T-004/current-ci-20261004.md","red_evidence":"specs/epic-196-a8-integration/verification/T-004/red-sh.log","green_evidence":"specs/epic-196-a8-integration/verification/T-004/gate-preparation-20261004/green.log","requirement_ids":["REQ-003"]},
+    {"id":"regression","required":true,"passes":true,"evidence":"specs/epic-196-a8-integration/verification/T-004/gate-preparation-20261004/green.log","red_evidence":"specs/epic-196-a8-integration/verification/T-004/red-sh.log","green_evidence":"specs/epic-196-a8-integration/verification/T-004/gate-preparation-20261004/green.log","requirement_ids":["REQ-003"]},
+    {"id":"placeholder-scan","required":true,"passes":true,"evidence":"specs/epic-196-a8-integration/verification/T-004/gate-preparation-20261004/placeholder.log"},
+    {"id":"task-state-check","required":true,"passes":true,"evidence":"specs/epic-196-a8-integration/verification/T-004/gate-preparation-20261004/task-state.log"},
+    {"id":"requirement-traceability","required":true,"passes":true,"evidence":"specs/epic-196-a8-integration/verification/T-004/gate-preparation-20261004/traceability.log","requirement_ids":["REQ-003"]},
+    {"id":"check-component-coverage","required":true,"passes":true,"evidence":"specs/epic-196-a8-integration/verification/T-004/gate-preparation-20261004/component.log"},
+    {"id":"cross-model-verification","required":true,"passes":false,"evidence":""}
+  ]
+}

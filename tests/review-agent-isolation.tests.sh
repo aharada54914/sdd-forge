@@ -63,6 +63,7 @@ make_repository() {
     "$repository/reports/task-review/f/attempt-1/round-1" \
     "$repository/reports/implementation/f" \
     "$repository/reports/review-context" \
+    "$repository/handoffs/fixture" \
     "$repository/plugins/internal" \
     "$repository/plugins/task" \
     "$repository/private"
@@ -79,12 +80,18 @@ make_repository() {
   printf '{}\n' > "$repository/reports/task-review/f/attempt-1/round-1/precheck-result.json"
   printf 'authorized output\n' > "$repository/plugins/task/authorized-output.txt"
   printf 'unrelated plugin input\n' > "$repository/plugins/internal/arbitrary-existing.txt"
+  jq -n '{schema:"task-input-manifest/v1",task_id:"T-001",run_id:"worker-run",session_id:"worker-session"}' \
+    > "$repository/handoffs/fixture/manifest.json"
   local authorized_output_hash
   authorized_output_hash="$(sha256 "$repository/plugins/task/authorized-output.txt")"
+  local implementation_hash
+  implementation_hash="$(sha256 "$repository/handoffs/fixture/manifest.json")"
   {
     printf '# Implementation Report: T-001\n\n'
     printf '## Task\n\n'
     printf '%s\n\n' '- Task ID: T-001'
+    printf 'Run ID: worker-run\n- **Run ID**: worker-run\n- **Session ID**: worker-session\n'
+    printf 'Input manifest: `handoffs/fixture/manifest.json`, SHA-256 `%s`\n' "$implementation_hash"
     printf '## Outputs\n\n'
     printf '| Path | SHA-256 |\n'
     printf '|---|---|\n'
@@ -132,7 +139,7 @@ stage_for_role() {
 make_manifest() {
   local repository=$1 role=$2 output=$3
   local ledger="$repository/reports/review-context/identity-ledger.json"
-  local path stage ledger_hash previous sequence input_hash
+  local path stage ledger_hash previous sequence input_hash implementation_hash
   path="$(input_for_role "$role")"
   stage="$(stage_for_role "$role")"
   if [[ "$role" == "sdd-evaluator" ]]; then
@@ -145,10 +152,11 @@ make_manifest() {
   previous="$(jq -r '.records[-1].record_sha256' "$ledger")"
   sequence="$(jq '.records[-1].sequence + 1' "$ledger")"
   input_hash="$(sha256 "$repository/$path")"
+  implementation_hash="$(sha256 "$repository/handoffs/fixture/manifest.json")"
   jq -n \
     --arg stage "$stage" --arg role "$role" --arg path "$path" \
     --arg ledger_hash "$ledger_hash" --arg previous "$previous" \
-    --arg input_hash "$input_hash" --argjson sequence "$sequence" '({
+    --arg input_hash "$input_hash" --arg implementation_hash "$implementation_hash" --argjson sequence "$sequence" '({
       schema:"review-context-invocation/v2",
       stage:$stage,
       role:$role,
@@ -162,8 +170,10 @@ make_manifest() {
       identity_ledger_sha256:$ledger_hash,
       previous_record_sha256:$previous,
       sequence:$sequence,
-      allowed_input_manifest:[{path:$path,sha256:$input_hash}]
-    } + (if $role == "sdd-evaluator" then {task_id:"T-001", scratch_root:"/tmp/quality-f"} else {} end))' > "$output"
+      allowed_input_manifest:([{path:$path,sha256:$input_hash}] +
+        (if $role == "sdd-evaluator" then [{path:"handoffs/fixture/manifest.json",sha256:$implementation_hash}] else [] end))
+    } + (if $role == "sdd-evaluator" then {task_id:"T-001", scratch_root:"/tmp/quality-f",
+         implementation_manifest:{path:"handoffs/fixture/manifest.json",sha256:$implementation_hash}} else {} end))' > "$output"
 }
 
 run_bash() {

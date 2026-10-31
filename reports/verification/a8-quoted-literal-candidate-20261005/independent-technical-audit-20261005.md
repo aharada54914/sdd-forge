@@ -1,0 +1,25 @@
+# Independent technical audit — 2026-10-05
+
+Scope: candidate-only, read-only technical assessment. This is not a formal review verdict, protected-file apply, task-status decision, reviewer reservation, or native activation proof.
+
+## Conclusion: do not adopt this candidate
+
+The proposed three-runtime change does **not** establish a read-only capability boundary for the Claude session it would admit. `candidate.patch:12,40,68` requires `--tools Read,Bash`, an additive `--allowedTools` list, `--disallowedTools Write,Edit,NotebookEdit`, and `--permission-mode dontAsk`. Claude Code's [permission documentation](https://code.claude.com/docs/en/permissions) says `dontAsk` still executes actions pre-approved by `permissions.allow`; an allow rule is not an exclusive tool allowlist (permission modes, lines 102–128; Bash rules, lines 255–296). On this host, `/Users/jrmag/.claude/settings.json:13-82` pre-approves broad Bash families including `cp`, `git`, `node`-adjacent package runners and `tee`; `/Users/jrmag/.claude/settings.local.json:2-30` additionally permits `Bash(python3:*)`, `Bash(node -e:*)`, and `Bash(bash)`. The user settings also report sandbox `enabled: false` at `settings.json:454-455`. Those ambient rules are outside the candidate's regex and are not removed by `--disallowedTools Write,Edit,NotebookEdit`. Thus a matched launch can expose non-read-only Bash capabilities; prompt instructions and a lexical protected-write guard do not turn arbitrary interpreter calls into a read-only boundary. This meets the audit's rejection criterion without executing a protected write.
+
+The existing PreToolUse hooks remain in place (`/Users/jrmag/.claude/settings.json:304-375`), but the candidate neither proves that they reject every indirect Bash write nor adds such enforcement. The official documentation explicitly notes that command-text rules are not a filesystem security boundary and that arbitrary subprocesses may open files indirectly (permissions, lines 282–290 and 354–359). No claim is made that a protected write was actually executed.
+
+## What the limited patch and tests do show
+
+`candidate.patch:7-16,37-43,64-71` uses full-command matching and changes only `>` glyphs inside a terminal POSIX single-quoted prompt for the existing R-10 write-regex; explicit writer words stay visible. Shell suffixes, changed tool strings, missing deny options, and unclosed quotes do not match that grammar. The three call sites are confined to the write-regex input (`candidate.patch:22-28,49-55,77-84`). This is a narrow handling of one quoted `round>1` symptom, not a general parser.
+
+I independently reran `rtk proxy node reports/verification/a8-quoted-literal-candidate-20261005/check.mjs`: exit 0, Python/Node/PowerShell each 18 RED plus 18 GREEN predicate checks, 108 matching decisions and zero mismatches. `check.mjs:13-35` builds the fixtures; `check.mjs:38-75` constructs in-memory candidates and invokes only the R-10 predicates. These fixtures do not execute Claude, any fixture command, the hook entrypoint, or the child-session permission engine. The `arbitrary-bash` fixture changes the *launch's CLI text* to `Bash(*)` (`check.mjs:24`); it does not test an arbitrary Bash action inherited from host settings after an otherwise matching launch.
+
+Readback: candidate patch SHA-256 `4bbd5e6f62d73157fa641cb5c2f4a5f69f7c8b621dd53c0ecb0a3a79dcf556b1`. Original guard SHA-256 values remain Python `dd791f28d1f247c404197e3dbcc2960a664b18f4bc324fc1b967fbc4ee03e448`, JavaScript `fa3cc8cad5661f8fbc6ee313fd8982762392adb3f08dd2ed13c736f985ccab0f`, PowerShell `433888e8afae4c414ea4dda8501ae98cb00b2ae330b3223d3d07b4d86f93aa6c` (matching `result.json`). No protected original was changed by this audit.
+
+## Scope/maintenance limitation
+
+The very large A8-specific regex embeds one model, option order, tools, role-file paths and debug-log shape (`candidate.patch:12,40,68`). It cannot handle a different legitimate read-only launch grammar without another three-runtime change. The unrelated RT002 false refusal concerns a quoted `rg` pattern's pipe at a role/compound-command check; this patch touches only the R-10 write-regex inputs (`candidate.patch:27,54,82`; `README.md:33-35`). It therefore does not repair RT002 or the general quoted-argument misclassification. The 108 green predicate observations must not be treated as those broader regressions, installed activation, formal review, or CI success.
+
+## Minimal next investigation (not performed)
+
+Check whether an existing formally supported Claude host route can start a reviewer with *effective* read-only permissions, isolated from additive user/project allow rules, while preserving required hooks, identity and manifest contracts. Verify its effective permission decision for an ambient `Bash(python3:*)`/`Bash(tee *)` request without running a writer. No new implementation or protected change is proposed here. Until that is demonstrated, keep this candidate unapplied and do not reuse the consumed reviewer identity.

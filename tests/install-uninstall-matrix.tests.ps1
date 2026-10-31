@@ -66,14 +66,9 @@ function Invoke-Cell([string]$CellTarget) {
             $resolvedInstallRoot = (Resolve-Path -LiteralPath $installRoot).Path
         }
         $installRoot = $resolvedInstallRoot
-        New-Item -ItemType Directory -Path $codexHome, $vscodeDir, $cursorDir, (Join-Path $codexHome "agents") -Force | Out-Null
-        $agentSource = Join-Path $repositoryRoot ".codex/agents"
-        if (Test-Path $agentSource) { Copy-Item (Join-Path $agentSource "*.toml") (Join-Path $codexHome "agents") -Force }
-        $config = @("# fixture config")
-        foreach ($mcp in @("sdd-forge-mcp", "local-env-mcp", "ci-mcp")) {
-            $config += "", "# >>> $mcp (managed by sdd-forge installer; do not edit by hand) >>>", "[mcp_servers.$mcp]", 'command = "node"', "args = [`"$resolvedInstallRoot/mcp/$mcp/dist/index.js`"]", "# <<< $mcp <<<"
-        }
-        Set-Content -LiteralPath (Join-Path $codexHome "config.toml") -Value $config -Encoding utf8NoBOM
+        New-Item -ItemType Directory -Path $codexHome, $vscodeDir, $cursorDir -Force | Out-Null
+        # Installer must create every managed asset; no Codex pre-seeding.
+        Set-Content -LiteralPath (Join-Path $codexHome "config.toml") -Value "# fixture config" -Encoding utf8NoBOM
         Set-Content -LiteralPath (Join-Path $vscodeDir "mcp.json") -Value '{"servers":{}}' -Encoding utf8NoBOM
         Set-Content -LiteralPath (Join-Path $cursorDir "mcp.json") -Value '{"mcpServers":{}}' -Encoding utf8NoBOM
         New-FakeCli $bin $log
@@ -87,7 +82,13 @@ function Invoke-Cell([string]$CellTarget) {
         if ($LASTEXITCODE -ne 0) { throw "install_1 exited with code $LASTEXITCODE" }
         if (Test-Path -LiteralPath $installRoot) { Write-Ok "$CellTarget install_1 present" } else { Write-Fail "$CellTarget install_1 install root" }
         $manifest1 = Get-Manifest $installRoot
-        $driftOutput = & $driftChecker -InstallRoot $installRoot -Mode verify | Out-String
+        if ($CellTarget -cin @("Claude", "Copilot")) {
+            $configText = Get-Content -LiteralPath (Join-Path $codexHome "config.toml") -Raw
+            if (-not (Test-Path -LiteralPath (Join-Path $codexHome "agents")) -and $configText -cnotmatch "managed by sdd-forge") {
+                Write-Ok "$CellTarget Codex surfaces remain absent"
+            } else { Write-Fail "$CellTarget unexpectedly installed Codex surfaces" }
+        }
+        $driftOutput = & $driftChecker -InstallRoot $installRoot -Mode verify -Target $CellTarget | Out-String
         $drift = $driftOutput | ConvertFrom-Json
         if ($drift.mode -eq "verify" -and $drift.state -eq "installed_synced") { Write-Ok "$CellTarget verify_1 drift_check" } else { Write-Host "drift_check_output[$CellTarget]: $($driftOutput.Trim())"; Write-Fail "$CellTarget verify_1 drift_check" }
 

@@ -1,0 +1,29 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "feature": "epic-196-a8-integration",
+  "run_id": "RUN-epic-196-a8-integration-task-a5r1-a-retry1-1791047118",
+  "host_session_id": "54b030c0-da53-48a4-b188-89af5142994d",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "sequence": 1196,
+  "previous_record_sha256": "0453ba5094045593ea3614694e72b2fcede5012e71a280e9cb8a08dc75e15cac",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "73a7ed1a943742d635e334bfd1206eea15f51f4399f56a573399ee6d8b5d394e",
+  "allowed_input_manifest": [
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path":"reports/task-review/epic-196-a8-integration/attempt-5/round-1/dependency-graph.json","sha256":"a9a4f209d1d4291743bfa21ddaa8807e7651fe7ebc0f9aa328df3917dde46039"},
+    {"path":"reports/task-review/epic-196-a8-integration/attempt-5/round-1/precheck-result.json","sha256":"67ff81d4774788e07745e2fc56e34530e8d973f00553cd4e48649495163db5a0"},
+    {"path":"specs/epic-196-a8-integration/acceptance-tests.md","sha256":"4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"},
+    {"path":"specs/epic-196-a8-integration/design.md","sha256":"14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c"},
+    {"path":"specs/epic-196-a8-integration/frontend-spec.md","sha256":"c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+    {"path":"specs/epic-196-a8-integration/infra-spec.md","sha256":"59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+    {"path":"specs/epic-196-a8-integration/requirements.md","sha256":"f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"},
+    {"path":"specs/epic-196-a8-integration/security-spec.md","sha256":"45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"},
+    {"path":"specs/epic-196-a8-integration/tasks.md","sha256":"0d2e433cc013f886c70b854458dd0d36106d306521b0cfe1d5b26b3f5e1a05e6"},
+    {"path":"specs/epic-196-a8-integration/traceability.md","sha256":"b3ca32a2ce5d22208918f58f17a4f1736492023d78ec91dc40f6633e9d039f61"},
+    {"path":"specs/epic-196-a8-integration/ux-spec.md","sha256":"c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"}
+  ]
+}

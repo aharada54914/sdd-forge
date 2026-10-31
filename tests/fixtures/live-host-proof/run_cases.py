@@ -199,6 +199,12 @@ def sign_ledger_entry(entry):
     entry["issuer_signature"] = base64.b64encode(sign(seed, public_key, target)).decode("ascii")
 
 
+def consumer_inventory():
+    names = ("sdd-bootstrap", "sdd-bootstrap-interviewer", "lite-gate", "lite-spec", "sdd-ship")
+    return [{"entry_point": name, "source_commit": T008_A1_COMMIT, "source_path": path}
+            for name, path in zip(names, T008_CONSUMER_PATHS)]
+
+
 class Fixture:
     def __init__(self, base, verdicts=None):
         self.root = Path(base) / "repo"
@@ -208,6 +214,9 @@ class Fixture:
         self.manifest = self.root / "fixtures/expected.json"
         self.registry = self.root / "fixtures/trusted.json"
         self.allowlist = self.root / "fixtures/allowlist.json"
+        # Only immutable source objects are shared; no installed assets or proof
+        # records are borrowed from the owning checkout.
+        subprocess.run(["git", "clone", "--shared", "--no-checkout", "--quiet", str(ROOT), str(self.root)], check=True)
         self.records.mkdir(parents=True)
         self.raw.mkdir(parents=True)
         self._build(verdicts or {cell: "PASS" for cell in CELLS})
@@ -235,6 +244,11 @@ class Fixture:
                 "upstream_epic_a1_path_blob_ids": {
                     "upstream/check-hook-activation-handshake.py": "2" * 40
                 },
+            }, {
+                "case_id": "AC-016",
+                "reason": "Pinned consumer source inventory",
+                "upstream_epic_a1_commit": T008_A1_COMMIT,
+                "upstream_epic_a1_path_blob_ids": T008_CONSUMER_PATHS,
             }],
         }
         write_json(self.allowlist, allowlist)
@@ -267,7 +281,8 @@ class Fixture:
                     feature_digest = sha256_bytes(feature_bytes)
                 nonce = f"fixture_nonce_{index:02d}_abcdef"
                 record = {
-                    "schema": "live-host-verification-record/v1",
+                    "schema": "live-host-verification-record/v2",
+                    "consumer_inventory": consumer_inventory(),
                     "matrix_cell": cell,
                     "runtime": runtime,
                     "check": "hook-activation-handshake",
@@ -319,7 +334,8 @@ class Fixture:
 
     def _skip_record(self, cell, runtime):
         return {
-            "schema": "live-host-verification-record/v1",
+            "schema": "live-host-verification-record/v2",
+            "consumer_inventory": None,
             "matrix_cell": cell,
             "runtime": runtime,
             "check": "hook-activation-handshake",
@@ -631,12 +647,14 @@ def t008_acceptance_cases():
     entries = {entry["case_id"]: entry for entry in allowlist["entries"]}
     results = []
 
+    # Retained v1 evidence is historical, never automatically admitted as v2.
     schema_ok = True
     for cell, record in records.items():
         try:
             validator.validate_record_schema(record, cell)
-        except validator.ValidationError:
             schema_ok = False
+        except validator.ValidationError:
+            schema_ok = schema_ok and record["schema"] == "live-host-verification-record/v1"
 
     codex_records = [records["Codex-enabled-active"], records["Codex-disabled-expected-unavailable"]]
     runtime_negative = run_failure_case(
@@ -796,6 +814,100 @@ def transaction_cases():
     return results
 
 
+def signer_role_cases():
+    results = []
+    for verdict in ("PASS", "FAIL", "SKIP"):
+        for slot, wrong_role in (("operator", "reviewer"), ("operator", "issuer"),
+                                 ("reviewer", "operator"), ("reviewer", "issuer")):
+            def mutate(fixture, slot=slot, wrong_role=wrong_role):
+                registry = json.loads(fixture.registry.read_text(encoding="utf-8"))
+                # Keep identity, key and domain-separated signature valid.
+                registry["signers"][slot + "-key"]["role"] = wrong_role
+                write_json(fixture.registry, registry)
+            name = f"signer-role-{verdict}-{slot}-as-{wrong_role}"
+            ok, detail = run_failure_case(name, "ERR_SIGNER_ROLE_MISMATCH", mutate,
+                                          {cell: verdict for cell in CELLS})
+            results.append((name, ok, detail))
+    def wrong_issuer(fixture):
+        registry = json.loads(fixture.registry.read_text(encoding="utf-8"))
+        registry["signers"]["issuer-key"]["role"] = "operator"
+        write_json(fixture.registry, registry)
+    ok, detail = run_failure_case("issuer-role-stays-untrusted", "ERR_SIGNER_UNTRUSTED", wrong_issuer)
+    results.append(("issuer-role-stays-untrusted", ok, detail))
+    return results
+
+
+def v2_inventory_cases():
+    results = []
+    for cell in CELLS:
+        mutations = [
+            ("missing", lambda r: r.pop("consumer_inventory")),
+            ("null", lambda r: r.update(consumer_inventory=None)),
+            ("object", lambda r: r.update(consumer_inventory={})),
+            ("string", lambda r: r.update(consumer_inventory="inventory")),
+            ("extra-item", lambda r: r["consumer_inventory"].append(copy.deepcopy(r["consumer_inventory"][0]))),
+            ("duplicate", lambda r: r["consumer_inventory"].__setitem__(1, copy.deepcopy(r["consumer_inventory"][0]))),
+            ("unknown", lambda r: r["consumer_inventory"][0].update(entry_point="unknown")),
+            ("extra-key", lambda r: r["consumer_inventory"][0].update(extra="value")),
+            ("wrong-path", lambda r: r["consumer_inventory"][0].update(source_path="other/path")),
+            ("wrong-commit", lambda r: r["consumer_inventory"][0].update(source_commit="0" * 40)),
+            ("non-object", lambda r: r["consumer_inventory"].__setitem__(0, [])),
+            ("v1", lambda r: r.update(schema="live-host-verification-record/v1")),
+            ("FAIL", lambda r: r.update(verdict="FAIL")),
+        ]
+        for index in range(5):
+            mutations.append((f"missing-consumer-{index}", lambda r, i=index: r["consumer_inventory"].pop(i)))
+        for key in ("entry_point", "source_commit", "source_path"):
+            mutations.append((f"missing-key-{key}", lambda r, k=key: r["consumer_inventory"][0].pop(k)))
+            for value in (None, 7, "", " "):
+                mutations.append((f"bad-{key}-{value!r}", lambda r, k=key, v=value: r["consumer_inventory"][0].update({k: v})))
+        for name, mutate in mutations:
+            def change(f, m=mutate, c=cell):
+                r = f.load_record(c)
+                m(r)
+                f.save_record(r)
+            ok, detail = run_failure_case(name, "ERR_SCHEMA_INVALID", change)
+            results.append((f"v2-{cell}-{name}", ok, detail))
+        for name in ("unresolved-source", "mismatched-blob"):
+            def source_change(f, n=name, c=cell):
+                for other, (runtime, _, _) in CELLS.items():
+                    if other != c:
+                        f.save_record(f._skip_record(other, runtime))
+                allow = json.loads(f.allowlist.read_text())
+                entry = next(e for e in allow["entries"] if e["case_id"] == "AC-016")
+                if n == "unresolved-source":
+                    entry["upstream_epic_a1_commit"] = "0" * 40
+                    r = f.load_record(c)
+                    for item in r["consumer_inventory"]:
+                        item["source_commit"] = "0" * 40
+                    f.save_record(r)
+                else:
+                    entry["upstream_epic_a1_path_blob_ids"][consumer_inventory()[0]["source_path"]] = "0" * 40
+                write_json(f.allowlist, allow)
+            ok, detail = run_failure_case(name, "ERR_SCHEMA_INVALID", source_change)
+            results.append((f"v2-{cell}-{name}", ok, detail))
+        def tamper(f, c=cell):
+            r = f.load_record(c)
+            r["consumer_inventory"].reverse()
+            f.save_record(r, resign=False)
+        ok, detail = run_failure_case("inventory-after-signing", "ERR_SIGNATURE_INVALID", tamper)
+        results.append((f"v2-{cell}-signed-inventory", ok, detail))
+        with tempfile.TemporaryDirectory(prefix="live-host-v2-order-") as temp:
+            f = Fixture(temp)
+            r = f.load_record(cell)
+            r["consumer_inventory"].reverse()
+            f.save_record(r)
+            result = invoke(f)
+            results.append((f"v2-{cell}-resigned-order", result.returncode == 0 and result.stdout.strip() == "discharged", result.stderr))
+        def skip_inventory(f, c=cell):
+            r = f.load_record(c)
+            r["consumer_inventory"] = consumer_inventory()
+            f.save_record(r)
+        ok, detail = run_failure_case("skip-inventory", "ERR_SCHEMA_INVALID", skip_inventory, {c: "SKIP" for c in CELLS})
+        results.append((f"v2-{cell}-skip-inventory", ok, detail))
+    return results
+
+
 def main():
     descriptor = json.loads((ROOT / "tests/fixtures/live-host-proof/cases.json").read_text(encoding="utf-8"))
     if set(descriptor["named_error_cases"]) != ERRORS:
@@ -833,6 +945,8 @@ def main():
     crypto_ok, crypto_detail = crypto_known_answer_case()
     results.append(("rfc8032-known-answer-and-strict-negatives", crypto_ok, crypto_detail))
     results.extend(t008_acceptance_cases())
+    results.extend(v2_inventory_cases())
+    results.extend(signer_role_cases())
 
     passed = 0
     for name, ok, detail in results:

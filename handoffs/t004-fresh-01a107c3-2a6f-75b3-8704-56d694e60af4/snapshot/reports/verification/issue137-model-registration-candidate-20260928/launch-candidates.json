@@ -1,0 +1,10 @@
+[
+  {
+    "name": "gpt-6-astra",
+    "available": true,
+    "effort": "high",
+    "cost": "48.22",
+    "cost_estimate_source": "Standard API-equivalent estimate from official GPT-6-Astra prices and the selected historical Sol/high native preflight workload (2026-09-27T13:26:23.488Z; anonymized counters in report.md); all input uncached and all requests long-context; nonregional, excluding tool charges. Not subscription billing or completed implementation cost.",
+    "cost_estimate_timestamp": "2026-09-28T05:01:53Z"
+  }
+]

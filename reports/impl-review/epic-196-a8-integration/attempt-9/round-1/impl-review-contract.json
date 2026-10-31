@@ -1,0 +1,144 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-196-a8-integration",
+  "run_id": "RUN-epic196-impl-a9r1-integrated-20261005T074126Z",
+  "verdict": "BLOCKED",
+  "round": 1,
+  "attempt": 9,
+  "findings_critical": 1,
+  "findings_major": 5,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "BLOCKED",
+  "pass_type": "clean",
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44",
+  "acceptance_sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1",
+  "design_sha256": "6485d5585fd37fe9ce298b295168ad2304d6dec6a1c7dc768bf76bbebf8c1aa3",
+  "adr_inputs": [
+    {
+      "path": "docs/adr/0035-a8-two-contribution-handoff-oracle.md",
+      "sha256": "50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923"
+    }
+  ],
+  "layer_sha256": {
+    "ux-spec.md": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286",
+    "frontend-spec.md": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76",
+    "infra-spec.md": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e",
+    "security-spec.md": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic196-impl-a9r1-a-01a10ad7",
+      "host_session_id": "01a10ad7-b600-7bb2-868d-12d9e30838f5",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-196-a8-integration/requirements.md",
+          "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+          "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/design.md",
+          "sha256": "6485d5585fd37fe9ce298b295168ad2304d6dec6a1c7dc768bf76bbebf8c1aa3"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/investigation.md",
+          "sha256": "888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/ux-spec.md",
+          "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/frontend-spec.md",
+          "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/infra-spec.md",
+          "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/security-spec.md",
+          "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-196-a8-integration/attempt-9/round-1/precheck-result.json",
+          "sha256": "cff8ad91fb44e12bdf184a6e49a953321b4e64d02a1a55be195fdeec8815c5ea"
+        },
+        {
+          "path": "docs/adr/0035-a8-two-contribution-handoff-oracle.md",
+          "sha256": "50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic196-impl-a9r1-b-01a10aef",
+      "host_session_id": "01a10aef-0ec5-79d2-8859-d349ff053058",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-196-a8-integration/requirements.md",
+          "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+          "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/design.md",
+          "sha256": "6485d5585fd37fe9ce298b295168ad2304d6dec6a1c7dc768bf76bbebf8c1aa3"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/investigation.md",
+          "sha256": "888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/ux-spec.md",
+          "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/frontend-spec.md",
+          "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/infra-spec.md",
+          "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/security-spec.md",
+          "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-196-a8-integration/attempt-9/round-1/precheck-result.json",
+          "sha256": "cff8ad91fb44e12bdf184a6e49a953321b4e64d02a1a55be195fdeec8815c5ea"
+        },
+        {
+          "path": "docs/adr/0035-a8-two-contribution-handoff-oracle.md",
+          "sha256": "50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923"
+        },
+        {
+          "path": "reports/impl-review/epic-196-a8-integration/attempt-9/round-1/integrated-summary.json",
+          "sha256": "8538100ab4a3b65b32f3421f5f037f3c1ff5c64433d245900638f9f924deee12"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Human-applied two-contribution handoff design and ADR-0035; current input set reviewed independently. No finding waived.",
+  "timestamp": "2026-10-05T07:41:26Z"
+}

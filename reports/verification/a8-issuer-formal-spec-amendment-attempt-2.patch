@@ -1,0 +1,134 @@
+diff --git a/specs/epic-196-a8-integration/requirements.md b/specs/epic-196-a8-integration/requirements.md
+--- a/specs/epic-196-a8-integration/requirements.md
++++ b/specs/epic-196-a8-integration/requirements.md
+@@
+-  operator's, an A1-issued single-use challenge nonce recorded in a
+-  dedicated nonce-issuance ledger, references to the committed raw host
++  operator's, an A1-generated single-use challenge nonce that A8's
++  human-attended issuance broker durably appends to the existing dedicated
++  nonce-issuance ledger only after verifying an external issuer signature
++  and before releasing the challenge to the native session, references to
++  the committed raw host
+@@
+   freeform transcript excerpt alone discharges AC-028.
++  The broker is one Python entry point, reuses the existing challenge,
++  ledger-entry, trusted-signer, and signature formats, and introduces no
++  schema, wrapper, key, approval, signer, or signature. It never reads or
++  invokes a private key, never registers a signer, and never treats issuance
++  as live-host proof or as discharge of AC-028.
+diff --git a/specs/epic-196-a8-integration/acceptance-tests.md b/specs/epic-196-a8-integration/acceptance-tests.md
+--- a/specs/epic-196-a8-integration/acceptance-tests.md
++++ b/specs/epic-196-a8-integration/acceptance-tests.md
+@@
+ | AC-030 | REQ-007 | TEST-030 | doc-review (classification: automated; REQ-007 process check, classified in this document — outside design.md's Classification Table, whose own scope is the checks REQ-001–REQ-005 name) | every factual claim cites file:line evidence (WFI-011) | Planned |
++| AC-015, AC-026 | REQ-003, REQ-006 | TEST-031 | integration (classification: automated fixture; never live-host discharge) | broker success appends exactly one existing-format entry; entry nonce equals the A1 challenge; A1 CLI bytes and three modes remain unchanged | Planned |
++| AC-026, AC-027 | REQ-006 | TEST-032 | negative integration | unsigned, invalid-signature, wrong-role, wrong-key, and signature-over-text inputs each fail with empty stdout and byte-identical ledger; each branch is an independent assertion | Planned |
++| AC-026, AC-027 | REQ-006 | TEST-033 | negative integration | mutate nonce, matrix_cell, issued_at, issuer, and issuer_key_id independently; every mutation fails signature verification | Planned |
++| AC-027, AC-028 | REQ-006, REQ-003 | TEST-034 | concurrency / duplicate negative | same nonce in same or different cell is never appended twice and existing entries remain unchanged | Planned |
++| AC-027, AC-028 | REQ-006, REQ-003 | TEST-035 | storage-failure integration | lock contention, concurrent consumption update, and atomic-replace failure produce no partial JSON, lost update, or foreign-lock deletion | Planned |
++| AC-026, AC-027 | REQ-006 | TEST-036 | interruption / expiry negative | EOF, interrupt, 24-hour expiry, and registry change during signature wait each leave stdout empty and do not append; post-append stdout failure retains the entry | Planned |
++| AC-026 | REQ-006 | TEST-037 | input-boundary negative | caller nonce/time/issuer/schema/signer overrides, symlink or external ledger path, unknown cell, and noncanonical signature encoding are rejected; no private key source is read | Planned |
++| AC-026, AC-027, AC-028 | REQ-006, REQ-003 | TEST-038 | validator regression | issued_at not before session_start and session_start over 24 hours later preserve ERR_NONCE_ISSUED_AFTER_SESSION and ERR_NONCE_EXPIRED | Planned |
++| AC-026, AC-027 | REQ-006 | TEST-039 | role-separation regression | identical operator/reviewer identity or key, missing reviewer signature, and issuer signature substituted for either attestation remain invalid | Planned |
++| AC-015, AC-016, AC-028 | REQ-003 | TEST-040 | aggregate negative | any missing one of five cells or five consumers, synthetic substitution, or stale SKIP prevents discharged; broker output alone never satisfies the aggregate | Planned |
++| AC-026, AC-028 | REQ-006, REQ-003 | TEST-041 | cross-platform contract | the single Python entry point has identical argv, exit categories, case sensitivity, and LF/CRLF decisions on all three CI OSes, including a mis-cased negative fixture | Planned |
+diff --git a/specs/epic-196-a8-integration/design.md b/specs/epic-196-a8-integration/design.md
+--- a/specs/epic-196-a8-integration/design.md
++++ b/specs/epic-196-a8-integration/design.md
+@@
+ | `plugins/sdd-quality-loop/scripts/validate-live-host-proof.{sh,ps1}` | Aggregate REQ-003/AC-028 Done-gate check: loads all five semantic-cell `live-host-verification-record/v1` files, re-verifies each record's nonce uniqueness, hash bindings, and two-party attestation signatures, and exits non-zero on any missing, post-Epic-A1-merge (AC-015/AC-016's own single-clause SKIP Allowlist Activation Gate — Epic A1 merged 2026-08-08) `SKIP`, `FAIL`, stale (expired/mismatched nonce or session), config-digest-mismatch, or duplicate-nonce record | sh/PowerShell (thin wrappers over a shared aggregation routine) | new | No (never generates a `live-host-verification-record/v1` itself; performs exactly one lock-guarded, atomic, idempotent write — marking a consumed nonce's own `consumed_by_record` field in the Nonce Issuance Ledger, Data Plan — and is otherwise read-only, per the Protected-File Statement's own exception) |
++| `plugins/sdd-quality-loop/scripts/issue-live-host-challenge.py` | Human-attended broker: invokes the canonical A1 `--emit-challenge`, presents the existing ledger-entry signing target, verifies one external issuer-role signature, atomically appends the existing-format entry, then and only then emits the unchanged A1 challenge | Python | new | No; it reads no private key and creates no approval, signer, signature, schema, wrapper, receipt, or live-host record |
+@@
+-| `tests/hook-activation-live-proof/nonce-ledger.json` | Append-only, issuer-signed nonce issuance/consumption ledger Epic A1's own handshake script writes to; `validate-live-host-proof`'s own replay/unknown-nonce/expiry ground truth | JSON | new | No (append-only; never rewrites a prior entry except to set `consumed_by_record` once, via the lock-guarded atomic-write pattern) |
++| `tests/hook-activation-live-proof/nonce-ledger.json` | Append-only, issuer-signed nonce issuance/consumption ledger: A1 generates each challenge and A8's broker is the sole issuance-entry writer; `validate-live-host-proof` remains the sole consumption-marker writer and the replay/unknown-nonce/expiry ground truth | JSON | new | No (append-only; never rewrites a prior entry except to set `consumed_by_record` once, via the shared lock-guarded atomic-write pattern) |
+@@
+-  further depends on that same script being the sole issuer of the
+-  `live-host-verification-record/v1.nonce` field (Data Plan) — this
+-  package never invents its own competing nonce-issuance mechanism.
++  further depends on that same script being the sole generator of the
++  `live-host-verification-record/v1.nonce` value (Data Plan). A8's broker
++  does not compete with or modify A1: it is the sole writer that verifies
++  the external issuer-role signature and durably appends the existing
++  ledger-entry format before releasing that unchanged challenge.
+@@
+-  An append-only array Epic A1's own `check-hook-activation-handshake.
+-  {py,sh,ps1}` writes to at issuance time. Each entry's own
++  An append-only array whose nonce/challenge bytes come only from Epic A1's
++  `check-hook-activation-handshake.py --emit-challenge`, and whose issuance
++  entries are written only by A8's `issue-live-host-challenge.py` after it
++  verifies the externally supplied issuer-role signature. Each entry's own
+@@
+   described as "read-only over every input except this one, single,
+   idempotent, lock-guarded consumption update," never as unconditionally
+   read-only, and never as a general-purpose ledger-mutating process.
++
++#### Human-attended issuance broker
++
++`issue-live-host-challenge.py --matrix-cell CELL --issuer-key-id KEY_ID
++--nonce-ledger PATH --trusted-signers PATH` accepts only the five existing
++matrix-cell literals and existing regular repository files. It provides no
++caller override for nonce, timestamp, issuer, schema, signer command, or key
++material. It invokes the canonical A1 Python entry point with fixed argv and
++`--emit-challenge`; `shell=True`, alternate executables, and imported or
++handwritten challenge JSON are forbidden.
++
++The broker derives `issued_at` in UTC and preserves the existing literal
++`issuer: check-hook-activation-handshake` as the nonce-generator identifier.
++It displays the existing unsigned five-field ledger entry and the existing
++domain-separated digest, then reads exactly one canonical base64 Ed25519
++signature line from the attending human. It neither reads nor launches a
++private-key operation. Before append it re-reads and re-validates the registry
++and full ledger, rejects duplicate nonce or registry drift, enforces the
++24-hour wall-clock and monotonic deadline, and verifies the signature against
++the registered issuer-role public key.
++
++Issuance and consumption share `PATH + ".lock"`. Under that lock the broker
++re-reads the latest ledger, appends one entry with `consumed_by_record: null`,
++and uses the validator's existing same-directory temp, fsync, and atomic-replace
++discipline. It never removes another process's lock. stdout is empty until the
++append is durable; only then does it emit the unchanged A1 challenge JSON.
++Failure before append leaves the ledger byte-identical. Failure while emitting
++stdout after append leaves the entry durable and forbids replay, deletion, or
++re-output; recovery is a fresh issuance. Exit categories are 0 durable issuance,
++2 input/schema, 3 trust/signature, 4 lock/storage, 5 A1 generation, and
++6 expiry/interruption. None is a native verdict, two-party live-host record,
++approval, or AC-028 discharge.
+diff --git a/specs/epic-196-a8-integration/frontend-spec.md b/specs/epic-196-a8-integration/frontend-spec.md
+--- a/specs/epic-196-a8-integration/frontend-spec.md
++++ b/specs/epic-196-a8-integration/frontend-spec.md
+@@
+ | Live-host proof aggregate validator | sh/PowerShell thin wrappers over a shared aggregation routine (`plugins/sdd-quality-loop/scripts/validate-live-host-proof.{sh,ps1}`) | repository-standard | Loads all five semantic-cell `live-host-verification-record/v1` files plus the Nonce Issuance Ledger, Expected-Digest Manifest, `a8-skip-allowlist.json`, and Trusted-Signer Registry; reports `discharged`/`pending`/a named error code (design.md API / Contract Plan) | Read-only over every input except one lock-guarded, atomic, idempotent write to the Nonce Issuance Ledger's own `consumed_by_record` field (Protected-File Statement) |
++| Human-attended issuance broker | Python (`plugins/sdd-quality-loop/scripts/issue-live-host-challenge.py`), no wrapper | repository-standard | Uses the canonical A1 emitter, existing trusted-signer registry, existing signing target, and existing nonce-ledger entry; appends only after external signature verification | No private-key, signer-command, schema, receipt, approval, or live-host-record interface |
+@@
+-| Epic A1 Project Context / hook-activation handshake (`check-hook-activation-handshake.{py,sh,ps1}`, five migrated consumer entry points) | merged 2026-08-08 (Epic A1) | REQ-003's live-host proof (AC-015, AC-028) and the AC-016 five-consumer fingerprinted inventory depend on this script existing and being the sole issuer of the Nonce Issuance Ledger's own entries (design.md Data Plan, Cross-Layer Dependencies) |
++| Epic A1 Project Context / hook-activation handshake (`check-hook-activation-handshake.{py,sh,ps1}`, five migrated consumer entry points) | merged 2026-08-08 (Epic A1) | REQ-003's live-host proof (AC-015, AC-028) and the AC-016 five-consumer fingerprinted inventory depend on this script existing and being the sole nonce/challenge generator; A8's broker is the sole issuance-entry writer (design.md Data Plan, Cross-Layer Dependencies) |
+diff --git a/specs/epic-196-a8-integration/infra-spec.md b/specs/epic-196-a8-integration/infra-spec.md
+--- a/specs/epic-196-a8-integration/infra-spec.md
++++ b/specs/epic-196-a8-integration/infra-spec.md
+@@
+ - **Nonce Issuance Ledger.** Because `validate-live-host-proof` performs
+   exactly one lock-guarded, atomic, idempotent write per accepted record
+@@
+   same commit, so the ledger and the record it describes stay
+   consistent — never reverting one without the other.
++  A8's human-attended issuance broker shares the same lock directory and
++  atomic-write discipline for append-only issuance. It never rewrites or
++  removes an issued entry, and rollback never reuses a nonce; recovery from
++  an issuance or delivery failure is always a fresh issuance.
+diff --git a/specs/epic-196-a8-integration/security-spec.md b/specs/epic-196-a8-integration/security-spec.md
+--- a/specs/epic-196-a8-integration/security-spec.md
++++ b/specs/epic-196-a8-integration/security-spec.md
+@@
+-  A1HANDSHAKE["Epic A1's own check-hook-activation-handshake.{py,sh,ps1} (sole nonce issuer)"] -->|"issues nonce, signs ledger entry"| B4["B4: Nonce Issuance Ledger / Signing Contract forgery-resistance boundary"]
++  A1HANDSHAKE["Epic A1 check-hook-activation-handshake.py (sole nonce generator)"] -->|"emits fresh challenge"| BROKER["A8 human-attended issuance broker (sole ledger-entry writer)"]
++  BROKER -->|"verifies external issuer signature; appends before delivery"| B4["B4: Nonce Issuance Ledger / Signing Contract forgery-resistance boundary"]
+@@
+-| B4 — Nonce Issuance Ledger / Signing Contract forgery-resistance boundary | Epic A1's own `check-hook-activation-handshake.{py,sh,ps1}` (sole nonce issuer, keyed to a registered `issuer`-role key), and each `live-host-verification-record/v1`'s own `operator_signature`/`reviewer_signature` |
++| B4 — Nonce Issuance Ledger / Signing Contract forgery-resistance boundary | Epic A1's `check-hook-activation-handshake.py` (sole nonce/challenge generator), A8's human-attended broker (sole issuance-entry writer after external issuer-signature verification), and each `live-host-verification-record/v1`'s own `operator_signature`/`reviewer_signature` |
+@@
+-| Epic A1's own `check-hook-activation-handshake.{py,sh,ps1}` | Nonce Issuance Ledger (`nonce-ledger.json`) | write (append a new signed entry) | this script is the ledger's sole authorized issuer; `issuer_key_id` must resolve to a registered `issuer`-role key (design.md Raw Capture/Nonce Ledger section) | allow (the one authorized issuance path) | `ERR_ISSUER_SIGNATURE_INVALID` / `ERR_SIGNER_UNTRUSTED` on a mis-signed or unregistered issuer | REQ-003 | AC-015 |
++| Epic A1's `check-hook-activation-handshake.py` | fresh nonce/challenge | generate and emit only | fixed `--emit-challenge` contract; no ledger or signing write | allow only through the broker's fixed invocation for issuance | broker rejects malformed or noncanonical A1 output | REQ-003 | AC-015 |
++| A8 human-attended issuance broker | Nonce Issuance Ledger (`nonce-ledger.json`) | verify external issuer signature and append existing-format entry | sole issuance-entry writer; registered `issuer`-role public key; shared lock; append-before-delivery | allow; no private-key or signer-command interface | input/trust/storage/expiry category failure with empty stdout and unchanged pre-append ledger | REQ-003, REQ-006 | AC-015, AC-026 |
+@@
+-| Broken Access Control | Nonce Issuance Ledger write authority restricted to Epic A1's own handshake script; live-host record write authority restricted to a named operator + independent reviewer pair |
++| Broken Access Control | Nonce generation restricted to Epic A1 and issuance-ledger append restricted to A8's broker after external issuer-signature verification; live-host record write authority remains restricted to a named operator + independent reviewer pair |

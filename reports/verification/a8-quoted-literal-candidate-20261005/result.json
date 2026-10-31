@@ -1,0 +1,286 @@
+{
+  "status": "candidate-only",
+  "fixtures": [
+    {
+      "name": "exact-refused-B",
+      "red": true,
+      "deny": false,
+      "command_sha256": "969f2ae8c8c533bb5f595699263b7a05d69669008128f3e7e7f53e8d0298954c"
+    },
+    {
+      "name": "reconstructed-A-control",
+      "red": false,
+      "deny": false,
+      "command_sha256": "5da74899d8edded89b9461c4dbc87e1881d89745f608314f54f5083a9d332657"
+    },
+    {
+      "name": "external-redirect",
+      "red": true,
+      "deny": true,
+      "command_sha256": "db38d2b3689ff93eb8e5884b093cc15c8052d3fe1e1dfe0bc4a3ef688e198ca9"
+    },
+    {
+      "name": "mixed-compound-writer",
+      "red": true,
+      "deny": true,
+      "command_sha256": "9e7d33cb7524580ae21828dfe52c3b6d3502ba6ef40678173c468b54f226b3ad"
+    },
+    {
+      "name": "writer-request-in-prompt",
+      "red": true,
+      "deny": true,
+      "command_sha256": "1a3d3c826aab860cba00d0879c6ef998bb84c5d09809d46f832d82b197bf6de1"
+    },
+    {
+      "name": "python-request-in-prompt",
+      "red": true,
+      "deny": true,
+      "command_sha256": "46a6bdfd08172d2c1e1e4e9675c2918e81bd9a96e74c9b69c806125260972b69"
+    },
+    {
+      "name": "arbitrary-bash",
+      "red": true,
+      "deny": true,
+      "command_sha256": "dcf323d6573b9d71fc820f45c77334e03e2b912db0da702a8cc76ae19f4752f8"
+    },
+    {
+      "name": "write-tool-enabled",
+      "red": true,
+      "deny": true,
+      "command_sha256": "a29a02f56edcc1920353dd83b524fd87bcb422efbc407578d6a78ddf52576da7"
+    },
+    {
+      "name": "missing-disallowed-tools",
+      "red": true,
+      "deny": true,
+      "command_sha256": "295ed16a21d062bea8c28b1ef30162208a0261ad96d9a100e71905248bd4863c"
+    },
+    {
+      "name": "interactive-permission-mode",
+      "red": true,
+      "deny": true,
+      "command_sha256": "06ba99076a9a1e6d65b85143aea6826d08f707d6a946f831c7f997da94991ee8"
+    },
+    {
+      "name": "unknown-option",
+      "red": true,
+      "deny": true,
+      "command_sha256": "dac6be5a28a0483247dc37c553068a3d012c444d03d3068b912f6e47ed295d54"
+    },
+    {
+      "name": "case-variant-option",
+      "red": true,
+      "deny": true,
+      "command_sha256": "b91d1848562ec0c7d6961d2b267bddce39f05e39fea857a4fa79e4ada401a6c4"
+    },
+    {
+      "name": "unclosed-prompt",
+      "red": true,
+      "deny": true,
+      "command_sha256": "8b0103a596e2bec0cb3ffa9a3bb2f3bdfe10304208b5d0f3707dbff6eaa927b0"
+    },
+    {
+      "name": "trailing-newline-writer",
+      "red": true,
+      "deny": true,
+      "command_sha256": "ca5628d9f38bc7b8ba0dda794f3fa65042dd97e6e15c646e87601b6d32c40e0b"
+    },
+    {
+      "name": "changed-system-substitution",
+      "red": true,
+      "deny": true,
+      "command_sha256": "96429883a73ce4ef922c362e83b9ed62c26c03fdaedaa9a373fefddfc6970367"
+    },
+    {
+      "name": "unquoted-round-control",
+      "red": true,
+      "deny": true,
+      "command_sha256": "1823d35d02a5f4a980e3abd7300fe74dad5922b8c5780bfd71bc62cac31f4653"
+    },
+    {
+      "name": "shell-interpreter-control",
+      "red": true,
+      "deny": true,
+      "command_sha256": "41141892ccb486cb4a7cb95e431725955f6fc4730843052534f4381b23d247b7"
+    },
+    {
+      "name": "read-only-cat-control",
+      "red": false,
+      "deny": false,
+      "command_sha256": "581d988ea4aa7e5922e40d4fb774936aa32e9a3fdf2bf6c31432c39b2905c196"
+    }
+  ],
+  "runtimes": [
+    {
+      "ext": "py",
+      "before_sha256": "dd791f28d1f247c404197e3dbcc2960a664b18f4bc324fc1b967fbc4ee03e448",
+      "candidate_sha256": "abf12b6dd39243226df8ea827c1eb791ff1ce9540457fbe86e92fc611934b8fb",
+      "outputs": [
+        {
+          "phase": "RED",
+          "matched": 18,
+          "mismatches": [],
+          "decisions": [
+            true,
+            false,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            false
+          ]
+        },
+        {
+          "phase": "GREEN",
+          "matched": 18,
+          "mismatches": [],
+          "decisions": [
+            false,
+            false,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "ext": "js",
+      "before_sha256": "fa3cc8cad5661f8fbc6ee313fd8982762392adb3f08dd2ed13c736f985ccab0f",
+      "candidate_sha256": "bb91f1b9e150b20521ec6c62b9edc1d98ce8c1ad561538c53a43713f03b33df6",
+      "outputs": [
+        {
+          "phase": "RED",
+          "matched": 18,
+          "mismatches": [],
+          "decisions": [
+            true,
+            false,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            false
+          ]
+        },
+        {
+          "phase": "GREEN",
+          "matched": 18,
+          "mismatches": [],
+          "decisions": [
+            false,
+            false,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "ext": "ps1",
+      "before_sha256": "433888e8afae4c414ea4dda8501ae98cb00b2ae330b3223d3d07b4d86f93aa6c",
+      "candidate_sha256": "7826df7eb8ad42aea9cce3051f7401ab3f0f5abc4a08ddc231d8b9e96d97fa96",
+      "outputs": [
+        {
+          "phase": "RED",
+          "matched": 18,
+          "mismatches": [],
+          "decisions": [
+            true,
+            false,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            false
+          ]
+        },
+        {
+          "phase": "GREEN",
+          "matched": 18,
+          "mismatches": [],
+          "decisions": [
+            false,
+            false,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            false
+          ]
+        }
+      ]
+    }
+  ]
+}

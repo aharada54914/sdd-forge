@@ -1,0 +1,6 @@
+Command: rtk proxy bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/epic-196-a8-integration/verification/T-005/traceability-20261014.json . require-evidence
+Owner: /Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge
+Exit code: 0
+Traceability check passed for epic-196-a8-integration: 2 link(s).
+
+This validates a T-005-only local regression addendum. It is not complete feature traceability or native proof.

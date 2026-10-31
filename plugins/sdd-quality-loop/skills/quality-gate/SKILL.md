@@ -173,6 +173,23 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    hash still fails. Do not add the rows to an earlier cycle's report -- that
    report recorded a verdict at a point in time and must not later declare
    bytes that did not exist then.
+   An implementation report with missing pre-reservation provenance must not
+   be repaired by adding historical facts to that frozen report. For an
+   explicitly human-approved recovery, retain the old canonical report's
+   original bytes in a task-scoped archive and record its former path and
+   verified SHA-256 in the new report's supersession note. The archive is
+   historical evidence, not a substitute for a new implementation run. In a
+   fresh isolated implementation context, recheck the current code against
+   hash-pinned inputs, then write a new report and task-input manifest with
+   their actually observed run/session IDs and canonical absolute scratch
+   root. Only after both reports and their hashes have been independently
+   checked may the new report take the canonical
+   `reports/implementation/<feature>/T-NNN.md` path. Do not edit the archive
+   or rewrite a historical handoff. Declare the archive's exact path/hash in
+   the new report's `## Outputs` if the evaluator needs to read it; neither
+   supersession nor archival automatically authorizes it as an input. The
+   normal manifest hash, report identity, scratch isolation, reservation,
+   independent evaluation, and Done checks still apply without exception.
    Broad `plugins/`, `tests/`, `contracts/`, or `docs/adr/` membership never
    authorizes an evaluator input.
    Reverify every hash immediately before launch and bind the manifest path/hash,
@@ -182,8 +199,12 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    report path, report heading, and `Task ID` field to match that exact task.
    Bind it to the current SHA-256 and final record hash of the canonical
    `reports/review-context/identity-ledger.json`. The ledger must already carry
-   the invoking implementation identity and every earlier reviewer/evaluator
-   reservation as a valid hash chain; never accept caller-supplied reserved-ID
+   every earlier reviewer/evaluator reservation as a valid hash chain. For a
+   new reservation, include the existing hash-pinned `task-input-manifest/v1`
+   as an evaluator input and name its path and SHA-256 in
+   `implementation_manifest`. Require its task/run/session to agree with the
+   implementation report and reject their reuse in the canonical ledger.
+   Never fabricate an implementation ledger reservation or accept reserved-ID
    arrays as a substitute. Immediately before launch, atomically reserve the
    evaluator identity by running
    `scripts/validate-review-context-set.sh <manifest> <repository-root>

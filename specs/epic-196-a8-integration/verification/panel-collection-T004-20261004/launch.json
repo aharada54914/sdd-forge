@@ -1,0 +1,53 @@
+{
+  "started": 1791116112.5185149,
+  "bundle_sha256": "79a74fd5abfe5609b4fd2f6f93bd796dcb57e2629ba0c588ca444b0add8a2ead",
+  "input_digest": "3dc43bd2241d3e746a9cacdb6de3dcdb331f8d9b507b95c3d294cf1c9cfb181a",
+  "cwd": "/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/a8-t004-blind-2vx4l6ka",
+  "gpt": [
+    "bash",
+    "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+    "--task",
+    "T-004",
+    "--feature",
+    "epic-196-a8-integration",
+    "--input",
+    "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/specs/epic-196-a8-integration/verification/T-004.panelist-input.txt",
+    "--spec-root",
+    "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/specs",
+    "--digest",
+    "3dc43bd2241d3e746a9cacdb6de3dcdb331f8d9b507b95c3d294cf1c9cfb181a"
+  ],
+  "claude": [
+    "/Users/jrmag/.local/bin/claude",
+    "--print",
+    "--model",
+    "sonnet",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--forward-subagent-text",
+    "--include-hook-events",
+    "--no-session-persistence",
+    "--tools",
+    "Agent",
+    "--allowedTools",
+    "Agent",
+    "--permission-mode",
+    "dontAsk",
+    "--strict-mcp-config",
+    "--mcp-config",
+    "{\"mcpServers\":{}}",
+    "--disable-slash-commands",
+    "--agents",
+    "{\"blind-panelist\": {\"description\": \"Independent blind read-only review\", \"prompt\": \"You are an independent read-only Anthropic Sonnet panelist. Review ONLY the sanitized bundle supplied in your prompt for correctness, completeness, and adherence to its requirements/design. No tools, outside context, peer verdicts, or primary evaluator input are permitted. The task's own implementation report is an author claim to verify, not independent proof. Return exactly one bare JSON object with schema='cross-model-verdict/v1', task_id='T-004', feature='epic-196-a8-integration', vendor='anthropic', model=your actual model identifier, verdict='PASS' or 'NEEDS_WORK', findings=[{severity:'Critical' or 'Major' or 'Minor',ref:'path:line or section',note:'issue'}], blind=true, input_digest copied from bundle header, consent={kind:'human-flag', ref:'tasks.md T-004 Cross-Model: enabled'}. No code edits or task approval.\", \"tools\": [], \"model\": \"sonnet\"}}",
+    "--system-prompt",
+    "You are only a blind review dispatcher. Invoke the Agent tool exactly once with subagent_type blind-panelist. Pass the entire sanitized bundle from the user message verbatim as its only task input. Do not review it yourself, summarize it, omit bytes, or add findings. Return the agent's JSON unchanged. No other tool or repository access."
+  ],
+  "keys_unset": [
+    "SDD_EVIDENCE_KEY",
+    "SDD_SUDO_KEY",
+    "SDD_SUDO_KEY_FILE"
+  ],
+  "hooks_disabled": false,
+  "permission_bypass": false
+}

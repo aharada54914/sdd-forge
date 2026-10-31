@@ -407,6 +407,12 @@ if [[ "${ROUND}" -gt 1 ]]; then
     fi
     [[ "$prior_extension" == "$precheck_extension" ]] || fail "one-sided previous ADR extension"
     if [[ "$prior_extension" == true ]]; then
+      if jq -e '.verdict == "BLOCKED"' "$prior_contract" >/dev/null; then
+        (( prior_round < 3 )) || fail "previous BLOCKED ADR round exhausted the three-round limit"
+        bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
+          --feature "$FEATURE" --impl-history "${ATTEMPT}:${prior_round}" ||
+          fail "previous BLOCKED ADR evidence requires explicit history validation"
+      fi
       prior_a="${prior_contract%/*}/reviewer-a.json"
       prior_b="${prior_contract%/*}/reviewer-b.json"
       for evidence in "$prior_contract" "$prior_precheck" "$prior_a" "$prior_b"; do
@@ -434,7 +440,7 @@ if [[ "${ROUND}" -gt 1 ]]; then
         select([$cs,$ps,$aa,$bb] | all(.[]; length == 1 and (.[0] | type == "object"))) |
         $cs[0] as $c | $ps[0] as $p |
         select($c.schema == "impl-review-contract/v1" and $c.stage == "impl" and
-          $c.verdict == "NEEDS_WORK" and $p.schema == "impl-review-precheck/v1") |
+          ($c.verdict == "NEEDS_WORK" or ($c.verdict == "BLOCKED" and $round < 3)) and $p.schema == "impl-review-precheck/v1") |
         select([$c,$p] | all(.[]; .feature == $feature and .attempt == $attempt and .round == $round)) |
         select(($c.adr_inputs | adrs) and ($p.adr_inputs | adrs) and $c.adr_inputs == $p.adr_inputs) |
         select(all(["design_sha256","requirements_sha256","acceptance_sha256"][];

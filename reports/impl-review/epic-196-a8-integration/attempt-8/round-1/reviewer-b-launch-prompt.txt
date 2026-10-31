@@ -1,0 +1,75 @@
+Perform formal independent impl-reviewer-b review of epic-196-a8-integration attempt 8 round 1. This is a human-authorized post-implementation provenance re-review after design/ADR adoption. Old verdicts are NOT new proof for amended content. No substantive file contents are supplied in this prompt: read EVERY one of the 12 manifest paths yourself, fully, using Read. No outside files or raw peer reviewer reports. The appended role and boundary documents are launch instructions, not additional substantive inputs. Boundary is provided verbatim because it is not a validator-admitted file path. Do not read its path, the ledger, or the invocation path. Use the inline invocation fields below and quoted validator receipt. Canonical owner cwd is /Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge.
+Input invocation:
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "feature": "epic-196-a8-integration",
+  "run_id": "RUN-epic196-impl-a8r1-b-c5d81ae8",
+  "host_session_id": "c5d81ae8-7e29-4fee-b2bd-182656bd3258",
+  "sequence": 1203,
+  "previous_record_sha256": "13b9f2ededfe33d5e83245aea5917310322a0ad08dfc38ea9225cee4662e7300",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "11a06b24e8471000b9c50a13b2c82e27a76ae866ea252979b335c8e3ffa5e92a",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-196-a8-integration/requirements.md",
+      "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+      "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/design.md",
+      "sha256": "6485d5585fd37fe9ce298b295168ad2304d6dec6a1c7dc768bf76bbebf8c1aa3"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/investigation.md",
+      "sha256": "888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/ux-spec.md",
+      "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/frontend-spec.md",
+      "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/infra-spec.md",
+      "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/security-spec.md",
+      "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/epic-196-a8-integration/attempt-8/round-1/precheck-result.json",
+      "sha256": "c9d07b7bb29d614373c3b53003c77a75c9a27c987930268a9ed45594f73503e2"
+    },
+    {
+      "path": "docs/adr/0035-a8-two-contribution-handoff-oracle.md",
+      "sha256": "50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923"
+    },
+    {
+      "path": "reports/impl-review/epic-196-a8-integration/attempt-8/round-1/integrated-summary.json",
+      "sha256": "b251f27b4451969baa21ef83f36d115626a936e33fdec40deacf63ad8c94f92d"
+    }
+  ]
+}
+Caller validator receipt:
+REVIEW_CONTEXT_OK 1c0799ac0ac306f5a8b9844dc9d15eb56881225dd45854e8f30b3ddf673be9dd sequence=1203 previous_record_sha256=13b9f2ededfe33d5e83245aea5917310322a0ad08dfc38ea9225cee4662e7300 pre_append_tip_sequence=1202 identity_unique=yes
+Before reading substantive inputs verify invocation/receipt structurally and recompute input digest plus record hash using ONLY these exact read-only commands:
+rtk proxy printf %b 'specs/epic-196-a8-integration/requirements.md\tf841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44\nspecs/epic-196-a8-integration/acceptance-tests.md\t4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1\nspecs/epic-196-a8-integration/design.md\t6485d5585fd37fe9ce298b295168ad2304d6dec6a1c7dc768bf76bbebf8c1aa3\nspecs/epic-196-a8-integration/investigation.md\t888868de019e903375b3cf8b8d25c89f2abf84b950178e99afb534ab8495a77f\nspecs/epic-196-a8-integration/ux-spec.md\tc4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286\nspecs/epic-196-a8-integration/frontend-spec.md\tc992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76\nspecs/epic-196-a8-integration/infra-spec.md\t59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e\nspecs/epic-196-a8-integration/security-spec.md\t45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7\nplugins/sdd-review-loop/references/reviewer-calibration.md\ta73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2\nreports/impl-review/epic-196-a8-integration/attempt-8/round-1/precheck-result.json\tc9d07b7bb29d614373c3b53003c77a75c9a27c987930268a9ed45594f73503e2\ndocs/adr/0035-a8-two-contribution-handoff-oracle.md\t50cf6c313940ccfa182cc8632d59215430183957e6e0ea02d6d064c934109923\nreports/impl-review/epic-196-a8-integration/attempt-8/round-1/integrated-summary.json\tb251f27b4451969baa21ef83f36d115626a936e33fdec40deacf63ad8c94f92d' | rtk proxy shasum -a 256
+rtk proxy printf %s '1203|impl|impl-reviewer-b|RUN-epic196-impl-a8r1-b-c5d81ae8|c5d81ae8-7e29-4fee-b2bd-182656bd3258|13b9f2ededfe33d5e83245aea5917310322a0ad08dfc38ea9225cee4662e7300|allowed-inputs-v1|a1289a47f2c891e263516fc51c49100e4e9b0854ef80da1b50893ed5013a87fa' | rtk proxy shasum -a 256
+Require digest a1289a47f2c891e263516fc51c49100e4e9b0854ef80da1b50893ed5013a87fa and record from receipt. Then hash all raw file inputs using exactly:
+rtk proxy shasum -a 256 -- specs/epic-196-a8-integration/requirements.md specs/epic-196-a8-integration/acceptance-tests.md specs/epic-196-a8-integration/design.md specs/epic-196-a8-integration/investigation.md specs/epic-196-a8-integration/ux-spec.md specs/epic-196-a8-integration/frontend-spec.md specs/epic-196-a8-integration/infra-spec.md specs/epic-196-a8-integration/security-spec.md plugins/sdd-review-loop/references/reviewer-calibration.md reports/impl-review/epic-196-a8-integration/attempt-8/round-1/precheck-result.json docs/adr/0035-a8-two-contribution-handoff-oracle.md reports/impl-review/epic-196-a8-integration/attempt-8/round-1/integrated-summary.json
+Read every input, matching all hashes. Current integrated-summary is mandatory in every round under impl-review-loop STEP 4/5 (overrides older role round>1 wording); counts/check IDs only, not peer assessment. Only if needed for DOMAIN-CONFORMANCE execute exactly 'rtk proxy test -d domain' (exit1 absent). Before first Bash state fact1: user asks independent read-only design review; fact2: command verifies integrity without writes. If Fact-Forcing Gate asks for facts, comply and retry IDENTICAL command once; any other refusal stop and quote error. Never disable hooks, broaden permissions, self-validate/re-reserve, read ledger or old/peer reports, or write files. Output only canonical ordered impl-reviewer-b/v1 JSON; caller will persist unmodified output. Interrupted input means diagnostic, never fabricated checks. MODEL Sonnet only.

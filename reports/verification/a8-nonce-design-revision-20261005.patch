@@ -1,0 +1,43 @@
+diff --git a/specs/epic-196-a8-integration/design.md b/specs/epic-196-a8-integration/design.md
+--- a/specs/epic-196-a8-integration/design.md
++++ b/specs/epic-196-a8-integration/design.md
+@@ -241,1 +241,3 @@
+ ## ADR Change Log
++
++The two-contribution handoff oracle is specified by `docs/adr/0035-a8-two-contribution-handoff-oracle.md`.
+@@ -338,1 +340,1 @@
+-| Codex→Copilot | `tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md` | Fixed Markdown stub committed with this fixture, containing a `<!-- nonce: PLACEHOLDER -->` HTML comment and no other variable content | Codex session replaces `PLACEHOLDER` with a second, independently-generated `mutation_nonce` and rewrites the file in place | `artifact_final_sha256` = sha256 of the file with `<!-- nonce: <mutation_nonce> -->` substituted, byte-for-byte, into the fixed template | Copilot session generates `tests/fixtures/cross-runtime-handoff/handoff-02-output.txt` whose own sha256 the driver script computes deterministically from `mutation_nonce` (`sha256("COPILOT-CONSUMED:" + mutation_nonce)`) — a generated-file-hash oracle, never a free-text description |
++| Codex→Copilot | `tests/fixtures/cross-runtime-handoff/handoff-02-codex-to-copilot.md` | Fixed Markdown stub committed with this fixture, containing a `<!-- nonce: PLACEHOLDER -->` HTML comment and no other variable content | Codex session replaces `PLACEHOLDER` with a second, independently-generated `mutation_nonce` and rewrites the file in place | `artifact_final_sha256` = sha256 of the file with `<!-- nonce: <mutation_nonce> -->` substituted, byte-for-byte, into the fixed template | Copilot reads handoff-01's token and handoff-02's nonce, then generates `tests/fixtures/cross-runtime-handoff/handoff-02-output.txt`; the driver verifies sha256 of the exact UTF-8 bytes `COPILOT-CONSUMED:<nonce1>:<nonce2>` without a trailing newline — a generated-file-hash oracle, never a free-text description |
+@@ -340,4 +342,8 @@
+-The full three-hop chain (AC-004) reuses `handoff-02`'s own
+-`mutation_nonce` as the input to `handoff-02-output.txt`'s hash, so the
+-chain's own final state is verifiably derived from both upstream steps'
+-own contributions, not merely their both having run.
++The full three-hop chain (AC-004) uses both independently generated nonces:
++nonce1 is the token produced in handoff-01 and nonce2 is the nonce produced
++in handoff-02. Codex must still consume nonce1 before producing nonce2;
++Copilot must read both artifacts, rather than receive their values in its prompt.
++The driver computes the expected final hash from both known per-run nonces.
++Separate negative checks vary nonce1 alone and nonce2 alone and require each
++change to alter the expected hash and reject an output retaining the old value.
++This proves contribution binding; fixture success alone is not live-host proof.
+diff --git a/specs/epic-196-a8-integration/tasks.md b/specs/epic-196-a8-integration/tasks.md
+--- a/specs/epic-196-a8-integration/tasks.md
++++ b/specs/epic-196-a8-integration/tasks.md
+@@ -216,2 +216,2 @@
+-chain both steps into one continuous 3-hop run reusing `handoff-02`'s own
+-nonce (AC-004); register the hook-activation canary as a named, `SKIP`ped
++chain both steps into one continuous 3-hop run binding both handoff-01 and
++handoff-02 nonces in the final hash (AC-004); register the hook-activation canary as a named, `SKIP`ped
+@@ -257,2 +257,3 @@
+-  branch), TEST-004 (full 3-hop chain, `handoff-02`'s nonce reused end to
+-  end), TEST-005 (per-CLI headless-contract marker), TEST-006 (canary case
++  branch), TEST-004 (full 3-hop chain, final hash depends on both upstream
++  nonces; changing either nonce alone changes the oracle and rejects stale
++  output), TEST-005 (per-CLI headless-contract marker), TEST-006 (canary case
+diff --git a/docs/adr/README.md b/docs/adr/README.md
+--- a/docs/adr/README.md
++++ b/docs/adr/README.md
+@@ -319,1 +319,2 @@
+ | 0032 | Concept Design Layer — Phased Introduction | Accepted |
++| 0035 | A8 two-contribution handoff oracle | Proposed |

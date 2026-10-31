@@ -1,0 +1,15 @@
+{
+  "correction_kind": "sha256-transcription-only",
+  "path": "specs/epic-196-a8-integration/infra-spec.md",
+  "incorrect_sha256": "e6680d0346ca9a67492880219d2a8557b7e116069c97a5fe203cfbdfb6e9",
+  "correct_measured_sha256": "e6680d0346ca9a67492880219d2a8557b7e116069c97a5fe20335afcfbdfb6e9",
+  "matches_manifest": true,
+  "verification": {
+    "all_16_inputs_rehashed": true,
+    "all_16_match_manifest": true,
+    "other_15_returned_sha256_values_match": true,
+    "manifest_sha256_matches_returned_value": true,
+    "additional_transcription_errors": []
+  },
+  "assessment_changed": false
+}

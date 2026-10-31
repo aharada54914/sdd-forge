@@ -1,0 +1,14 @@
+{
+  "source": "Codex persisted exec session metadata and turn_context",
+  "session_id": "01a106d8-fc9e-7c32-a79d-f3350a828e2e",
+  "cli_version": "0.160.0",
+  "model_provider": "openai",
+  "runtime_model": "gpt-6.1-sol",
+  "sandbox_policy": {
+    "type": "read-only"
+  },
+  "approval_policy": "never",
+  "tool_calls": [],
+  "verdict_model_unmodified": "GPT-6",
+  "verdict_model_note": "Panelist self-report retained without editorial normalization; precise runtime model is recorded above."
+}

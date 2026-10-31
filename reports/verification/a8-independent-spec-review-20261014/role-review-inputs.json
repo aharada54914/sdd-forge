@@ -1,0 +1,87 @@
+{
+  "review_kind": "independent-codex-bounded-repair-review",
+  "formal_sdd_gate": false,
+  "scope": "Record signer role named-error repair only; not T-005 whole-task completion",
+  "allowed_inputs": [
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/specs/epic-196-a8-integration/requirements.md",
+      "sha256": "244f2c539a8242e36fe7a2d88a04b32476c15306534fa83db043bc0132b9775e"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/specs/epic-196-a8-integration/design.md",
+      "sha256": "df7e8adb2c81a47925338259020b82bf23854b5809d544393aca3cad1f494ed3"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/specs/epic-196-a8-integration/tasks.md",
+      "sha256": "0ae49bafd1fc7d52e8e84e04ffa05cbac6721d79e676850f249d88b1952d3696"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/specs/epic-196-a8-integration/acceptance-tests.md",
+      "sha256": "60b2696d14cc9438a58c3c258c2117531249564c3aaa7c7c2b1500ce70bbcf4b"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/specs/epic-196-a8-integration/traceability.md",
+      "sha256": "cfa94aa7e1c2b0a1e341fc45517d3a973012574de12bdf37a70f6d161e31aec5"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/specs/epic-196-a8-integration/security-spec.md",
+      "sha256": "980eeac88f92c1fe5c77600016281b3ac23e08ebdc78a631bf06f21f8b47edeb"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/plugins/sdd-quality-loop/scripts/validate-live-host-proof.py",
+      "sha256": "a14a7619d47e424f9ab7fe8c6f59058b7c0c126b529d68aa8d4f9e61ce558094"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/tests/fixtures/live-host-proof/run_cases.py",
+      "sha256": "ed293af6aaabf66ad5f4d735999b36cb237a336ae3c5c9f987948a2934521539"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/tests/validate-live-host-proof.tests.sh",
+      "sha256": "9c1de76dc42494875cfcb81e85c5cafb8876a660d809fd94873c815173942bd5"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/tests/validate-live-host-proof.tests.ps1",
+      "sha256": "ff250731382a07ce3cd282dcec8ae28d373810e52a0748719c530166b9ff69d8"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/reports/implementation/epic-196-a8-integration/T-005-v2-20261014.md",
+      "sha256": "50fe69605d58d787eeb92b532cfa755b03f9e17bb54dfec8ede19745e221378c"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/plugins/sdd-quality-loop/references/evaluation-rubric.md",
+      "sha256": "08fc8eff5769f2dbe43a638d2b29eac2cb0a6d57e2cc47b5a9e2617844e3197c"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/plugins/sdd-quality-loop/references/security-checklist.md",
+      "sha256": "2e25d44b824615bf9fe309a10e79d2f6f2a8f0afcfa65fb64b4d6fb91f7c97a5"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/docs/adr/0028-live-host-proof-ed25519-signing.md",
+      "sha256": "a56af77acc13dde8aef1632d83680cbde42efc738b56e860e012d3a9e525a87b"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/specs/epic-196-a8-integration/verification/T-005/test-yml-live-host-proof-candidate.yml",
+      "sha256": "69541c5eab49cf4ea7e4f360e58198a7b7c6d7a1b984966f2b09d552a253acc9"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/tests/suite-inventory.posix",
+      "sha256": "6eb645004eab2da53797f3d92d029eec11884476b2580c9eece4336f10f1a938"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/tests/run-all.ps1",
+      "sha256": "57ec5e6657afb475b93bae4f998d7c2a5fdb0df8df9ff6be25e24bc19016ad20"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/reports/verification/a8-independent-spec-review-20261014/role-red.txt",
+      "sha256": "67ceda600cdb23dd2281fc9c807594968aa025d8de2c846a9502cba2710ccf6a"
+    },
+    {
+      "path": "/Users/jrmag/.codex/worktrees/a8-release-sync-oct01/sdd-forge/reports/verification/a8-independent-spec-review-20261014/role-error-repair.md",
+      "sha256": "a090ab13ac9369fc5ddd5a4041dee45bad8a9b1a7e20a03382d29c9a399f94d3"
+    }
+  ]
+}
