@@ -6,6 +6,9 @@ import importlib.util
 import json
 import os
 import shutil
+import subprocess
+import sys
+import tempfile
 import time
 import unittest
 from pathlib import Path
@@ -20,6 +23,19 @@ spec.loader.exec_module(P)
 
 
 class Reservation(unittest.TestCase):
+    def test_wrong_tool_bytes_are_rejected_before_execution(self):
+        with tempfile.TemporaryDirectory() as directory:
+            jar = Path(directory) / "wrong.jar"
+            jar.write_bytes(b"not the pinned tool")
+            output = Path(directory) / "evidence"
+            result = subprocess.run(
+                [sys.executable, P.__file__, "--jar", str(jar), "--output", str(output)],
+                capture_output=True, text=True, check=False,
+            )
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("jar SHA-256", result.stderr)
+            self.assertFalse(output.exists())
+
     def test_source_mapping_current(self):
         mapping = json.loads((P.MODEL / "mapping.json").read_text())
         self.assertEqual(

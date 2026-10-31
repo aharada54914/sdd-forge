@@ -13,8 +13,8 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 MODEL = ROOT / "tests/fixtures/project-skills/formal-review-reservation"
 SOURCE = ROOT / "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
-JAR_SHA256 = "fc6878c603f0fdc18b9fe3e5bf51860cb90ab5b1154e3c371660c036d6bdd63e"
-ASSET_ID = 683491413  # GitHub release asset id of tla2tools.jar under tag v1.8.0
+JAR_SHA256 = "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88"
+ASSET_ID = 184694200  # GitHub release asset id of tla2tools.jar under tag v1.7.4
 ACQUIRE = "  mkdir \"$lock_dir\" 2>/dev/null ||\n    fail IDENTITY 'canonical identity ledger reservation is already in progress'"
 RELEASE = (
     "  rmdir \"$lock_dir\" ||\n    fail IO 'cannot release identity-ledger reservation'"
@@ -121,13 +121,13 @@ def main():
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
     if hashlib.sha256(args.jar.read_bytes()).hexdigest() != JAR_SHA256:
-        parser.error("expected pinned TLC v1.8.0 asset 683491413 jar SHA-256")
+        parser.error("expected pinned TLC v1.7.4 asset 184694200 jar SHA-256")
     mapping = json.loads((MODEL / "mapping.json").read_text())
     if hashlib.sha256(SOURCE.read_bytes()).hexdigest() != mapping["source_sha256"]:
         parser.error("source changed: recheck code/model mapping before updating pin")
     args.output.mkdir(parents=True, exist_ok=False)
     report = {
-        "distribution_tag": "v1.8.0",
+        "distribution_tag": "v1.7.4",
         "observed_tool_version": None,
         "tool_asset_id": ASSET_ID,
         "jar_sha256": JAR_SHA256,

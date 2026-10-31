@@ -22,32 +22,33 @@ systems.
 
 ## Tool choice and setup
 
-TLC from the pinned `v1.8.0` release asset explores the interleavings directly and is smaller here than translating
-shell/jq/filesystem operations into a code-level verifier. Java must be installed.
-The tag `v1.8.0` is only a distribution label; the maintainers have replaced the asset
-under it more than once, so the tag alone does not identify the tool. Identify it by asset:
-GitHub release asset id `683491413` (created 2026-10-28T01:50:09Z), queried via
-`gh api repos/tlaplus/tlaplus/releases/assets/683491413` (metadata; the bytes are fetched
-with `Accept: application/octet-stream` or from the tag URL
-`https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar`, outside
-the repository). Required SHA-256 is
-`fc6878c603f0fdc18b9fe3e5bf51860cb90ab5b1154e3c371660c036d6bdd63e`; the helper rejects
-any other bytes. These bytes report `TLC2 Version 2026.10.28.014557 (rev: 56d37a9)`,
-recorded as the observed version, separate from the tag and the asset identity.
-Earlier evidence used other assets under the same tag (2026-10-25
-`d15655eeaff4b3f7b3d65c46b838bc0f35d131b2ef4b1e473689b62c98d4726f`; 2026-10-27
-`78f7e2c6bf9a8b65eda665a23e94431255587e0b43a834a4e2af1723562d9b4a`, build
-`2026.10.26.231022`). Because those assets were replaced, tag-only reproduction of
-that evidence is no longer possible; it is historical and was not re-run with this tool.
-Bash, jq and sha256sum are required for the Linux real-code replay. No network call
-occurs during verification.
+TLC from the fixed `v1.7.4` release asset explores the interleavings directly
+and is smaller here than translating shell/jq/filesystem operations into a
+code-level verifier. Java must be installed. Release asset `184694200` is
+available from `https://github.com/tlaplus/tlaplus/releases/download/v1.7.4/tla2tools.jar`;
+query `gh api repos/tlaplus/tlaplus/releases/assets/184694200` for metadata.
+Download the jar outside the repository and verify SHA-256
+`936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`.
+The helper rejects all other bytes before creating an evidence directory.
+These bytes report `TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)`.
+
+The previously selected v1.8.0 asset `683491413` returned HTTP 404 on 2026-10-31;
+assets under that tag had already been replaced repeatedly. The stable release
+is sufficient for this unchanged finite model and avoids following the moving
+asset. This does not guarantee perpetual upstream availability: if the exact
+asset disappears or differs, stop rather than accepting a new jar implicitly.
+Historical v1.8.0 evidence remains unchanged. The new tool's negative, baseline
+and actual-code race observations are recorded separately in
+`reports/verification/formal-reservation-stable-20261031/`.
+Bash, jq and sha256sum are required for the Linux real-code replay. No network
+call occurs during verification.
 
 ## Run and observe
 
 From the source repository, execute:
 
 ```sh
-python3 tests/verify-review-reservation.py --jar /path/to/tla2tools-1.8.0.jar --output /path/to/new-evidence-directory
+python3 tests/verify-review-reservation.py --jar /path/to/tla2tools-1.7.4.jar --output /path/to/new-evidence-directory
 ```
 
 The output directory must not exist. The helper first verifies the source pin,
