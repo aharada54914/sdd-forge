@@ -804,6 +804,22 @@ try {
     $implDesignBytes = $null
     $implPrechecks = [Collections.Generic.List[object]]::new()
     $verifiedAdrInputs = $null
+    $conditionalInputs = $null
+    if ($null -eq $persistedMatch -and $document.stage -cin @('spec','impl')) {
+        $runtime = Get-Command python3 -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($null -eq $runtime) { $runtime = Get-Command python -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1 }
+        if ($null -eq $runtime) { Fail-ReviewContext 'RUNTIME' 'deterministic-runtime-unavailable: Python 3' }
+        $resolved = & $runtime.Source -B (Join-Path $PSScriptRoot 'review-conditional-inputs.py') --root $root --feature $document.feature --stage $document.stage
+        if ($LASTEXITCODE -ne 0) { Fail-ReviewContext 'INPUT' 'conditional review dependencies could not be resolved' }
+        $conditionalInputs = @((($resolved -join "`n") | ConvertFrom-Json -AsHashtable).inputs)
+        foreach ($required in $conditionalInputs) {
+            $requiredPath = $required.path
+            $requiredHash = $required.sha256
+            if (@($inputs | Where-Object { $_.path -ceq $requiredPath -and $_.sha256 -ceq $requiredHash }).Count -ne 1) {
+                Fail-ReviewContext 'PATH' "$($document.role) omits selected conditional review dependencies"
+            }
+        }
+    }
     $orderedInputs = $inputs
     if ($document.stage -ceq 'impl') {
         $orderedInputs = @($inputs | Sort-Object -Stable -Property {
@@ -819,6 +835,8 @@ try {
         if ($input.sha256 -isnot [string] -or $input.sha256 -cnotmatch '^[0-9a-f]{64}$') {
             Fail-ReviewContext 'HASH' "$($document.role) contains an invalid SHA-256: $($input.path)"
         }
+        $isConditionalInput = "$($document.stage):$($document.role)" -cmatch '^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab])$' -and
+            $input.path -cmatch '^(domain|design-system)/'
         $isAdrInput = $document.stage -ceq 'impl' -and
             $input.path.StartsWith('docs/adr/',[StringComparison]::Ordinal)
         if ($isAdrInput -and $null -eq $verifiedAdrInputs) {
@@ -828,6 +846,27 @@ try {
             $document.role -cin @('impl-reviewer-a','impl-reviewer-b') -and
             $verifiedAdrInputs.ContainsKey($input.path) -and
             $verifiedAdrInputs[$input.path] -ceq $input.sha256
+        } elseif ($isConditionalInput) {
+            $allowedConditionalPaths = if ($document.stage -ceq 'spec') {
+                @('domain/context-map.md', 'domain/domain-contract.json')
+            } else {
+                @('domain/context-map.md', 'domain/domain-contract.json',
+                  'design-system/design-tokens.json', 'design-system/design-system.md',
+                  'design-system/ui-patterns.md')
+            }
+            if ($allowedConditionalPaths -cnotcontains $input.path -and
+                -not ($document.stage -ceq 'impl' -and $input.path -cmatch '^domain/aggregates/[^/]+\.md$')) {
+                $false
+            } elseif ($null -ne $persistedMatch) {
+                # Do not reinterpret a historically reserved manifest using
+                # the current selection. An unbound old record cannot prove
+                # that this entry belonged to its original reservation.
+                $persistedMatch.ContainsKey('allowed_inputs_sha256')
+            } else {
+                $conditionalPath = $input.path
+                $conditionalHash = $input.sha256
+                @($conditionalInputs | Where-Object { $_.path -ceq $conditionalPath -and $_.sha256 -ceq $conditionalHash }).Count -eq 1
+            }
         } else {
             Test-AuthorizedPath $document.stage $document.role $document.feature $input.path $input.sha256 $evaluatorOutputs $implementationReportPath $gateReportOutputs
         }

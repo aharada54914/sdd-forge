@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "312f5e7c",
+  "host_session_id": "312f5e7c-338a-420f-986b-a481de46a606",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "b04eff0242f5143c52c8c92a7d05ee90cc2034e9e9635379601946a35c950acc"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "4e3f4916c8bb6fd20ceb7bd51b0b18e7d3bf9522e7fabcde44aa80b77e0f3192"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "fe9d8253295b775c3143fd932792439e451bce19f1ccb8dac28ddc9105f75a39"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-2/precheck-result.json", "sha256": "1908771666f4c3a43893551d9eea3e72739cae33c03b656cd9f43b5b7a6e539e"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The in-scope requirements REQ-001 to REQ-007 each decompose into acceptance criteria with observable pass/fail conditions. Examples: byte comparison against a golden baseline (AC-002/003), exact SHA-256 function-body locks (AC-009/TEST-009), four emit/no-emit branches (AC-026/TEST-026), and a three-way hard-fail on SKIP governance (AC-035). The amended AC-009 and AC-026 now state concrete, measurable conditions. AC-009 lists exact hashes and the sanctioned change. AC-026 says the event is emitted only after a successful comparison, and not on a mismatch, a non-zero exit or a missing expected state. The OQ-004 and Risks text still reads as a present-tense 'unsatisfied' disposition. Each such passage is immediately followed by an explicit dated 2026-10-05 supersession note, so I treat it as a non-blocking clarification (Minor). The one gating ambiguity I found is recorded under AC-OBSERVABLE."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every goal maps to at least one AC, and acceptance-tests.md carries a TEST row for each of AC-001 to AC-043. REQ-001 maps to AC-002, AC-003, AC-004 and AC-038. REQ-002 maps to AC-005 to AC-007, AC-030, AC-031, AC-042 and AC-043. REQ-003 maps to AC-008 to AC-012, AC-022 to AC-027, AC-032, AC-033, AC-036, AC-037 and AC-039. REQ-004 maps to AC-013 and AC-029. REQ-005 maps to AC-014, AC-028 and AC-019 to AC-021. REQ-006 maps to AC-001, AC-018, AC-040 and AC-041. REQ-007 maps to AC-016, AC-034 and AC-035."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Exposing clause: requirements.md AC-026 says 'TEST-018 and TEST-019 assert the successful transition in their respective round-drive golden traces. No upstream-epic SKIP or AC-034 allowlist disposition applies to this local producer.' The row for TEST-026 in acceptance-tests.md repeats the TEST-018/TEST-019 coverage claim. Yet AC-010 and the TEST-010 row make TEST-019 'a named SKIP entry in REQ-007's allowlist ... until Epic A1 merges'. AC-010 describes TEST-019 as driving a 'Context-present round'. AC-034 also covers 'any Context-present REQ-003 assertion'. Downstream failure mode: a task author or implementer cannot decide whether the done-transition assertion inside TEST-019 is skipped before Epic A1 merges. Reading AC-010 literally, it is skipped, which contradicts AC-026's 'no SKIP disposition applies' sentence. Reading AC-026 literally, TEST-019 must be un-gated for that assertion, and the spec does not say whether the case splits into gated and ungated parts. A verifier also cannot tell whether a surviving SKIP in TEST-019 is an allowlisted SKIP or an AC-035(b) 'unknown SKIP' hard failure. Why it belongs to spec review: the conflict is between the wording of two Phase 1 acceptance criteria and their test rows. It does not concern design, tasks or implementation evidence. Severity: Major, because the ambiguity is bounded. TEST-026's Bash and PowerShell inventory suites exercise the four emit/no-emit branches independently of Epic A1, so the successful-emission branch stays verifiable. The open points are the gating disposition of the TEST-019 half and how the case is granularly split. Suggested clarification for the author: either state that the done-transition assertion is carried only by TEST-018 and the ungated inventory suites, with TEST-019's share covered by the AC-010 SKIP, or state how TEST-019 separates its ungated assertion from its Epic-A1-gated Context-present assertions."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals are explicit. There is no ninth loop `id`. Epics A1 to A6 are not implemented here. Epic A5's deferred suite is not re-specified, with OQ-001 resolved. A dated amendment note reconciles the Phase 1 deferral language with the later-phase artifacts. The 8-entry loop-inventory is preserved by AC-008. Scope for the 2026-10-05 amendment is limited to AC-009, AC-026, TEST-009, TEST-026 and OQ-004, with no other verdicts granted."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints and approval boundaries are stated. Security Boundaries B1 and B2 cover the baseline update path: candidate to canonical only through a human-reviewed PR, CI never writes the baseline, `promote-golden-baseline.sh` refuses under `CI` or without `--approved-by`, and AC-040/041 verify both. The shared-surface constraints are the maintainer-only approval of changes to `loop-inventory.json` and `emit-run-record.sh`, and the frozen hash lock on `assert_terminal`. Runtime and compatibility constraints are in Assumptions. The `investigation.md` amendment entry for 2026-10-05 gives a full 40-character checkpoint commit hash, SHA-256 values for requirements.md, acceptance-tests.md and investigation.md at that commit, a verbatim Japanese approval quotation, a hash table for the downstream artifacts, and a statement that the entry grants no review PASS. One non-blocking observation: the approval is dated as a transcription date, and the entry states that the original message timestamp is not exposed. The entry discloses this limit itself, and the quotation is verbatim, so I treat it as a Minor clarification and not a finding."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each high-risk claim has a planned validation surface. Cross-epic drift is covered by AC-034 and AC-035, including fingerprint drift. Baseline pollution is covered by AC-018, AC-040 and AC-041. Shared-registry blast radius is covered by AC-008, AC-009 and AC-011. The terminal-event defect is covered by the AC-009 hash lock, the AC-026/TEST-026 branch assertions, and the OQ-004 resolution path."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped. A check for `domain/context-map.md` at the project root found no file, so no Approved domain model exists. The skip condition is met."
+    }
+  ]
+}

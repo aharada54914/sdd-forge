@@ -119,12 +119,12 @@ assert_literal "$MATRIX" '| impl-reviewer-a/b | standard minimum | Anthropic Son
   "implementation reviewers must be at least standard/Sonnet"
 assert_literal "$MATRIX" '| task-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |' \
   "task reviewers must be at least standard/Sonnet"
-assert_literal "$MATRIX" '| sdd-evaluator | strong | Anthropic Opus | OpenAI/Codex `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback), effort high or xhigh |' \
-  "evaluator must be strong/Opus with Codex high/xhigh equivalent"
+assert_literal "$MATRIX" '| sdd-evaluator | strong (Codex); standard (Claude) | Anthropic Sonnet | OpenAI/Codex `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback), effort high or xhigh |' \
+  "evaluator must use Sonnet with Codex high/xhigh unchanged"
 
 assert_contains "$INVESTIGATOR" '^model: haiku$' "Claude investigator must be downgraded to Haiku"
 assert_literal "$COPILOT_INVESTIGATOR" "Model tier: lightweight" "Copilot investigator must document lightweight tier"
-assert_contains "$EVALUATOR" '^model: opus$' "Claude evaluator must remain Opus"
+assert_contains "$EVALUATOR" '^model: sonnet$' "Claude evaluator must use Sonnet"
 
 # RT-20260821-009 cycle-2 (seq 836): reviewer floor pins. The standard-minimum
 # reviewer floor was matrix-prose-only - downgrading any reviewer declaration

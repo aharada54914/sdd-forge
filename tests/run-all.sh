@@ -67,6 +67,14 @@ else
   echo "SKIP: issue311-scratch-isolation.tests.py requires python3 and pwsh"
 fi
 
+for test_file in tests/traceability-freeze-contract.tests.py tests/a7-nontty-impl-contract.tests.py tests/unified-launch-order.tests.py tests/unified-task-launch.tests.py tests/task-structured-output.tests.py tests/quality-nontty-transport.tests.py tests/spec-review-verify-inputs.tests.py tests/review-conditional-inputs.tests.py tests/downstream-conditional-manifest.tests.py tests/workflow-conditional-history.tests.py tests/host-review-preflight.tests.py tests/parity-workflow-runtime.tests.py; do
+  printf '==> %s\n' "$test_file"
+  if ! python3 "$test_file"; then
+    printf 'FAILED: %s\n' "$test_file"
+    failed+=("$test_file")
+  fi
+done
+
 if [[ ${#failed[@]} -gt 0 ]]; then
   printf '\n%d failing suite(s):\n' "${#failed[@]}"
   printf '  %s\n' "${failed[@]}"

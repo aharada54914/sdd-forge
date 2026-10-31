@@ -1,0 +1,11 @@
+{
+  "status": "DIAGNOSTIC_GREEN",
+  "session_id": "cfb6644b-ef1e-4add-a700-2719c2e2afdd",
+  "raw_result": "{\"probe\":\"ok\"}",
+  "structured_output": {
+    "probe": "ok"
+  },
+  "schema_exact": true,
+  "raw_extra_text": false,
+  "formal_review": false
+}

@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "d1e06da0",
+  "host_session_id": "d1e06da0-421f-4b40-8417-47226b1840ee",
+  "allowed_input_manifest": [
+    {"path":"specs/epic-195-a7-compatibility/requirements.md","sha256":"b04eff0242f5143c52c8c92a7d05ee90cc2034e9e9635379601946a35c950acc"},
+    {"path":"specs/epic-195-a7-compatibility/acceptance-tests.md","sha256":"4e3f4916c8bb6fd20ceb7bd51b0b18e7d3bf9522e7fabcde44aa80b77e0f3192"},
+    {"path":"specs/epic-195-a7-compatibility/investigation.md","sha256":"fe9d8253295b775c3143fd932792439e451bce19f1ccb8dac28ddc9105f75a39"},
+    {"path":"plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path":"reports/spec-review/epic-195-a7-compatibility/attempt-15/round-2/precheck-result.json","sha256":"1908771666f4c3a43893551d9eea3e72739cae33c03b656cd9f43b5b7a6e539e"},
+    {"path":"reports/spec-review/epic-195-a7-compatibility/attempt-15/round-2/integrated-summary.json","sha256":"defae2c7eb7a32a1ad68abb615800bb4b53aaaa986c9b73757e04f6d4b26f93e"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-009 and AC-026 (requirements.md) and the TEST-009/TEST-026 rows (acceptance-tests.md) fix the amended behavior concretely. The terminal-event emit happens only after a successful comparison. Mismatch, non-zero exit and missing expected state each emit nothing. The function-body hashes are stated in the TEST-009 row. The historical OQ-004 and Risks wording is kept, with an explicit 2026-10-05 supersession note, so two implementers would not build different behavior. The '(candidate)' label on the supersession note is a minor wording point and does not block."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "AC-009, AC-026, TEST-009 and TEST-026 agree with each other. The OQ-004 ('open') and Risks (High) bodies still describe the old unsatisfied state, but the appended 2026-10-05 supersession notes say which statement governs and that OQ-004 is not closed until the amended gate completes. I found no direct conflict among requirements, acceptance criteria, constraints and non-goals."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-026's branches are expanded in the TEST-026 row: the success branch, mismatched state, non-zero exit and missing expected state each have a stated assertion. The inventory suites cover all four in both Bash and PowerShell, and TEST-018/TEST-019 cover the successful branch plus 'last in the round's own sub-sequence'. The negative paths for baseline promotion (AC-040/AC-041) and for SKIP handling (AC-035) are also covered."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "OQ-004 is explicitly marked open and states its closing condition: independent review plus the required integration verification. The Assumptions section names the upstream-epic drift risk and the fingerprint-drift hard-fail (AC-035c) as the control. No unmarked assumption blocks design or task decomposition."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "1) Evidence: the '2026-10-05 AC-009 / AC-026 amendment evidence' entry in investigation.md (about lines 826-877). Its approval quotation is 「全部承認する / 追加で何回でもレビュー、限定修正して良い」. The entry itself states 'The original message timestamp is not exposed, so this is the transcription date, not a claimed original approval date.' The quotation also names no object: it does not identify AC-009, AC-026, the hash re-baseline or the question that was put to the human. The earlier sub-entries record the question presented, for example 'in answer to the question presenting exactly these…'. 2) Calibration element 3 requires a verbatim, dated quotation authorizing the post-implementation amendment, and says an undated approval means the declaration does not apply. AGENTS.md says amending a frozen spec requires explicit human authorization. Earlier rounds in this entry already held that a quotation must itself authorize the amendment's actual scope. The 2026-08-23 approvals predate this amendment and cannot cover the 2026-10-05 change to the AC-009 hashes and the AC-026 firing contract. 3) Downstream failure: without a conforming declaration, the amended requirements.md and acceptance-tests.md text that cites later-phase artifacts (tasks.md T-005/T-006, verification report, loop-driver/inventory hashes) falls back to default phase-sequencing judgment. A verifier cannot tell from the record what the human actually approved. This belongs to spec review because the gate defines the evidence bar and the approval record sits in the hash-pinned investigation.md. 4) Severity: Critical, because the calibration treats a missing or undated approval record for a frozen-document amendment as an unauthorized workflow boundary. Remedy: append, without rewriting, an entry that supplies the approval date and the specific object the human approved (AC-009/AC-026 and the hash re-baseline) in verbatim source-language form."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The spec fixes producer identity, post-comparison emit, no emit on failure branches, exact hash locations (TEST-009 row), test identities (TEST-026, plus TEST-018/019) and the OQ-004 closing condition. The design reviewer would not have to invent product behavior. The pending state of the formal review is disclosed."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped: no domain/context-map.md exists at the project root (Glob returned no files), so the check does not apply."
+    }
+  ]
+}

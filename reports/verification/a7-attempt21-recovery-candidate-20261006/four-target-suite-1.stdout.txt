@@ -1,0 +1,20 @@
+exit_code: 0
+PASS accept retained A20r2 diagnostic
+PASS reject ordinary postflight still rejects fenced result Expecting value: line 1 column 1 (char 0)
+PASS reject valid JSON not malformed mode native result is valid JSON; not this failure mode
+PASS reject wrong wrapper identity host result did not accept proposed session
+PASS reject API failure host result did not accept proposed session
+PASS reject nonstring result native malformed result must be text
+PASS reject extra text user native first-turn prompt is absent, truncated, or preceded by another user turn
+PASS reject unfinished turn native failed turn did not end
+PASS reject wrong native identity native transcript contains a different session
+PASS reject current input mismatch failed-round inputs changed
+PASS reject manifest mismatch last-attempt manifest differs from its precheck
+PASS reject ledger chain mismatch invalid canonical identity ledger chain
+PASS reject unexpected reviewer output unexpected last-attempt round-2 evidence inventory
+PASS reject missing wrapper missing or unsafe evidence: reports/spec-review/epic-195-a7-compatibility/attempt-20/round-2/reviewer-a-cli-wrapper.json
+PASS reject extra inventory path invalid native failed-round inventory
+PASS reject changed transcript pin native diagnostic binding mismatch
+PASS reject earlier PASS completed last-attempt verdict changed
+PASS reject old mode rejects native evidence incomplete failed-turn binding
+PASS reject unanswered tool-result after end_turn native failed turn did not end

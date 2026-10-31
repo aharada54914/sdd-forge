@@ -1,0 +1,25 @@
+Fail: /Users/jrmag/.codex/worktrees/a7-t005-intake/sdd-forge/tests/structural-compatibility.tests.ps1:27
+Line |
+  27 |  … h $Path)) { Fail "required shipped product surface exists: $Path"; $M …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: required shipped product surface exists:
+     | /Users/jrmag/.codex/worktrees/a7-t005-intake/sdd-forge/specs/epic-195-a7-compatibility/verification/T-004/.product-free.ClgNnx/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md
+Fail: /Users/jrmag/.codex/worktrees/a7-t005-intake/sdd-forge/tests/structural-compatibility.tests.ps1:27
+Line |
+  27 |  … h $Path)) { Fail "required shipped product surface exists: $Path"; $M …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: required shipped product surface exists:
+     | /Users/jrmag/.codex/worktrees/a7-t005-intake/sdd-forge/specs/epic-195-a7-compatibility/verification/T-004/.product-free.ClgNnx/plugins/sdd-lite/skills/lite-spec/SKILL.md
+Fail: /Users/jrmag/.codex/worktrees/a7-t005-intake/sdd-forge/tests/structural-compatibility.tests.ps1:27
+Line |
+  27 |  … h $Path)) { Fail "required shipped product surface exists: $Path"; $M …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: required shipped product surface exists:
+     | /Users/jrmag/.codex/worktrees/a7-t005-intake/sdd-forge/specs/epic-195-a7-compatibility/verification/T-004/.product-free.ClgNnx/specs/epic-195-a7-compatibility/design.md
+Fail: /Users/jrmag/.codex/worktrees/a7-t005-intake/sdd-forge/tests/structural-compatibility.tests.ps1:27
+Line |
+  27 |  … h $Path)) { Fail "required shipped product surface exists: $Path"; $M …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAIL: required shipped product surface exists:
+     | /Users/jrmag/.codex/worktrees/a7-t005-intake/sdd-forge/specs/epic-195-a7-compatibility/verification/T-004/.product-free.ClgNnx/specs/epic-195-a7-compatibility/acceptance-tests.md
+0 passed, 4 failed

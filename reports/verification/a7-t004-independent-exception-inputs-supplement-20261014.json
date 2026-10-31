@@ -1,0 +1,11 @@
+{
+  "schema": "a7-independent-exception-inputs-supplement/v1",
+  "base": "reports/verification/a7-t004-independent-exception-inputs-20261014.json",
+  "reason": "Fresh independent evaluator requested the F2 exact output set source directly read by the structural suite. No previous input was changed.",
+  "inputs": [
+    {
+      "path": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+      "sha256": "52d428aad3af3eabf65a6ba1380aa1cab3b5a8dc4b029a3c056557041ff81cd6"
+    }
+  ]
+}

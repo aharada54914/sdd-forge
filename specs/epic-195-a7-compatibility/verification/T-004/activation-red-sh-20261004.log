@@ -1,0 +1,3 @@
+bash: /Users/jrmag/.codex/worktrees/a7-t005-intake/tests/structural-compatibility.tests.sh: No such file or directory
+FAIL: suite exit 127
+FAIL: F3 activation assertion did not execute

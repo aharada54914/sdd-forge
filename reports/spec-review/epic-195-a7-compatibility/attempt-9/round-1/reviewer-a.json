@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "db5cb845",
+  "host_session_id": "db5cb845-09ec-4c4a-b27e-e7c461e8a380",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "fb5be3067b95345f2e4a0dcd190e0800f61421e595479c5975ac050246e2e734"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "d730b8ec35c285baa6f9e2f91533b04a4e5202206aa75839d2921f07d0547908"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-9/round-1/precheck-result.json",
+      "sha256": "5a7dc3ffd060060c62f1416ee81175274620f08c8805ea37ed84a50fc7e0d27d"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001〜REQ-007 はそれぞれ観測可能な AC に落ちている（例: REQ-001→AC-002/003/004/038 のバイト比較と負の自己検査、REQ-007→AC-034/035 の3つのハードフェイル条件）。AC-026 は firing 条件が固定実装（AC-009 のハッシュ固定）では満たされないと requirements.md が明示している（AC-026 本文の Known-unsatisfied、OQ-004、Risks High）。ただし観測可能性は損なわれておらず、SKIP 枠組みは撤回済みで、解消経路（AC-009 ハッシュの正式改訂と同時の TEST-026 拡張）も記録されている。そのため仕様の曖昧さではなく開示済みの既知逸脱であり、FAIL の4要件（下流で何を決められないか）は満たさない。"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "全7ゴールに AC が対応する: REQ-001→AC-002/003/004/038、REQ-002→AC-005/006/007/030/031/042/043、REQ-003→AC-008〜012/022〜027/032/033/036/037/039、REQ-004→AC-013/029、REQ-005→AC-014/015/019〜021/028、REQ-006→AC-001/018/040/041、REQ-007→AC-016/034/035。acceptance-tests.md は AC-001〜AC-043 の43行を欠番なく持つ（TEST-001〜043、すべて Planned）。TEST-018/019 の名前空間衝突は同ファイル末尾で明示的に分離されている。"
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "各 AC は終了コード、バイト差、ファイル集合、イベント値、SKIP/失敗行の有無など外部から観測できる状態・成果物で書かれている（AC-002、AC-035、AC-040/041、AC-033 など）。AC-026 は観測可能だが既知未充足（OQ-004）で、AC-026 と acceptance-tests.md の TEST-026 行の両方に同じ開示がある。単独で読んでも既知の失敗理由が分かるため、Major の根拠にならない。"
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals が A1〜A6 の実装、テスト/フィクスチャ/レジストリ編集、ninth loop の登録、A5 の suite 全体の再仕様、plugins/scripts/.github/tests/contracts/docs の変更を明示的に除外している。Phase 1 当時の記述と現状の差異は Overview の amendment note と investigation.md の Amendment Re-Review Context への指示で解消されている。"
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries B1/B2、Roles and Permissions（CI は golden baseline を書かない、promote-golden-baseline.sh は CI 環境変数・--approved-by で fail-closed）、固定の pre-capability merge-base（AC-018）、additive-only かつ v1 非バンプの互換制約（AC-008/011/012）、新規ランタイム依存なしの Assumptions など、承認・互換・移行の境界が明記されている。"
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Critical リスク（未マージ上流への依存）は AC-034/035 の fingerprint drift ハードフェイルで、High の共有面リスクは AC-008/011/012/033 と design.md での固定で検証面を持つ。Medium の check-sdd-structure.sh 逸脱は Main Workflows 手順1で明示的な検出信号として扱われる。AC-026 の High リスクは自動検出なし、レジスタ記載が唯一の統制であると正直に開示され、解消経路は人間手続き（AC-009 ハッシュ改訂）と記録されている。計画された検証面は存在する。"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "スキップ条件に該当する。プロジェクトルートに domain/ ディレクトリが存在しない（存在確認のみ実施、内容は読んでいない）。"
+    }
+  ]
+}

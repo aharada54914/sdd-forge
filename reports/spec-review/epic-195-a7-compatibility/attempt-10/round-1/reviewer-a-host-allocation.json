@@ -1,0 +1,13 @@
+{
+  "kind": "claude-background-idle-allocation",
+  "role": "spec-reviewer-a",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 10,
+  "round": 1,
+  "host_id": "c7fc70c9",
+  "host_session_id": "c7fc70c9-630c-45ed-800e-dca0c8f775f6",
+  "allocation_stdout": "backgrounded · c7fc70c9 · a7-spec-attempt10-reviewer-a-idle (idle — send a prompt to start)",
+  "agents_json_status": "idle",
+  "agents_json_state": "blocked",
+  "review_turn_started": false
+}

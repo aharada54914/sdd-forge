@@ -1,0 +1,222 @@
+--- a/plugins/sdd-review-loop/scripts/failed-last-attempt.py
++++ b/plugins/sdd-review-loop/scripts/failed-last-attempt.py
+@@ -8,6 +8,7 @@
+ import json
+ import pathlib
+ import re
++import runpy
+ 
+ 
+ def require(ok, message):
+@@ -49,13 +50,17 @@
+             all(value is None and key == 'investigation_sha256' or
+                 isinstance(value, str) and re.fullmatch(r'[0-9a-f]{64}', value)
+                 for key, value in current_hashes.items()), 'incomplete current input hashes')
+-    require(isinstance(failed_turn, dict) and set(failed_turn) == {
+-        'transcript_path', 'transcript_sha256', 'blocker_sha256',
+-        'host_session_id', 'failure_mode'} and
+-        failed_turn['failure_mode'] == 'prompt-truncated-before-role-manifest' and
+-        all(isinstance(failed_turn[key], str) and re.fullmatch(r'[0-9a-f]{64}', failed_turn[key])
+-            for key in ('transcript_sha256', 'blocker_sha256')),
+-        'incomplete failed-turn binding')
++    nontty = isinstance(failed_turn, dict) and failed_turn.get('failure_mode') == 'native-nontty-malformed-result'
++    keys = {'transcript_path', 'transcript_sha256', 'blocker_sha256',
++            'host_session_id', 'failure_mode'}
++    if nontty:
++        keys |= {'blocker_path', 'files'}
++    require(isinstance(failed_turn, dict) and set(failed_turn) == keys and
++            failed_turn['failure_mode'] in ('prompt-truncated-before-role-manifest',
++                                           'native-nontty-malformed-result') and
++            all(isinstance(failed_turn[key], str) and re.fullmatch(r'[0-9a-f]{64}', failed_turn[key])
++                for key in ('transcript_sha256', 'blocker_sha256')),
++            'incomplete failed-turn binding')
+     require(type(next_attempt) is int and next_attempt >= 2 and
+             type(failed_round) is int and failed_round in (2, 3),
+             'invalid later-round recovery identity')
+@@ -78,6 +83,24 @@
+         rel = f'{base}/round-{round_no}'
+         names = {p.name for p in (root / rel).iterdir()}
+         expected_names = full if round_no < failed_round else common | {'reviewer-a-launch-blocker.md'}
++        if nontty and round_no < failed_round:
++            expected_names = full | {f'reviewer-{role}-{suffix}'
++                for role in ('a', 'b') for suffix in ('cli-stderr.txt', 'cli-wrapper.json',
++                'delivery-proof.json', 'first-turn.txt', 'nontty-preflight.json',
++                'reservation-receipt.txt', 'role-config.json')}
++        if nontty and round_no == failed_round:
++            expected_names = {'precheck-result.json', 'reviewer-a-cli-stderr.txt',
++                              'reviewer-a-cli-wrapper.json', 'reviewer-a-first-turn.txt',
++                              'reviewer-a-reservation-receipt.txt', 'reviewer-a-role-config.json'}
++            files = failed_turn['files']
++            require(isinstance(files, list) and len(files) == len(expected_names) and
++                    all(isinstance(item, dict) and set(item) == {'path', 'sha256'} and
++                        isinstance(item['path'], str) and isinstance(item['sha256'], str) and
++                        re.fullmatch(r'[0-9a-f]{64}', item['sha256']) for item in files) and
++                    [item['path'] for item in files] == sorted(f'{rel}/{name}' for name in expected_names),
++                    'invalid native failed-round inventory')
++            require(all(sha(regular(root, item['path'])) == item['sha256'] for item in files),
++                    'native failed-round inventory changed')
+         require(names == expected_names,
+                 f'unexpected last-attempt round-{round_no} evidence inventory')
+         evidence.update(f'{rel}/{name}' for name in names)
+@@ -103,7 +126,7 @@
+             inv = f'reports/review-context/{feature}-spec-a{old_attempt}r{round_no}-{short_role}-invocation.json'
+             receipt_rel = f'{rel}/reviewer-{short_role}-host-allocation.json'
+             invocation = read(root, inv)
+-            receipt = read(root, receipt_rel)
++            receipt = None if nontty and round_no == failed_round else read(root, receipt_rel)
+             require(invocation.get('schema') == 'review-context-invocation/v2' and
+                     invocation.get('stage') == 'spec' and invocation.get('feature') == feature and
+                     invocation.get('role') == role and invocation.get('read_only') is True and
+@@ -131,11 +154,11 @@
+                         for item in manifest) and
+                     len({item['path'] for item in manifest}) == len(expected_inputs),
+                     'last-attempt manifest differs from its precheck')
+-            require(receipt.get('feature') == feature and
++            require(receipt is None or (receipt.get('feature') == feature and
+                     receipt.get('attempt') == old_attempt and
+                     receipt.get('round') == round_no and receipt.get('role') == role and
+                     receipt.get('host_id') == invocation.get('run_id') and
+-                    receipt.get('host_session_id') == invocation.get('host_session_id'),
++                    receipt.get('host_session_id') == invocation.get('host_session_id')),
+                     'last-attempt host receipt mismatches reservation')
+             require(invocation.get('host_session_id') not in sessions,
+                     'last-attempt reviewer session reused')
+@@ -166,6 +189,40 @@
+             b_inv = root / f'reports/review-context/{feature}-spec-a{old_attempt}r{round_no}-b-invocation.json'
+             require(not b_inv.exists() and not b_inv.is_symlink(),
+                     'failed round already launched reviewer B')
++    if nontty:
++        blocker = regular(root, failed_turn['blocker_path'])
++        transcript = regular(root, failed_turn['transcript_path'])
++        require(sha(blocker) == failed_turn['blocker_sha256'] and
++                sha(transcript) == failed_turn['transcript_sha256'] and
++                failed_turn['host_session_id'] == sessions[-1],
++                'native diagnostic binding mismatch')
++        text = blocker.read_text()
++        require(sessions[-1] in text and 'No reviewer B' in text and
++                'not a reviewer verdict' in text, 'missing native failure diagnostic')
++        transport = runpy.run_path(str(regular(root,
++            'plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py')))
++        rel = f'{base}/round-{failed_round}'
++        data, result, events = transport['native_delivery'](
++            root, regular(root, invocation_paths[-1]), transcript,
++            regular(root, f'{rel}/reviewer-a-first-turn.txt'),
++            regular(root, f'{rel}/reviewer-a-cli-wrapper.json'),
++            regular(root, f'{rel}/reviewer-a-reservation-receipt.txt'))
++        meaningful = [event for event in events if event.get('type') in ('user', 'assistant')]
++        require(meaningful and meaningful[-1].get('type') == 'assistant' and
++                meaningful[-1].get('message', {}).get('stop_reason') == 'end_turn',
++                'native failed turn did not end')
++        raw = result.get('result')
++        require(isinstance(raw, str), 'native malformed result must be text')
++        try:
++            json.loads(raw)
++        except json.JSONDecodeError:
++            pass
++        else:
++            raise ValueError('native result is valid JSON; not this failure mode')
++        evidence.update((failed_turn['blocker_path'], failed_turn['transcript_path']))
++        return {'completed_rounds': completed, 'invocations': invocations,
++                'invocation_paths': invocation_paths, 'evidence_paths': sorted(evidence),
++                'failed_host_session_id': sessions[-1]}
+     blocker_rel = f'{base}/round-{failed_round}/reviewer-a-launch-blocker.md'
+     blocker = regular(root, blocker_rel)
+     require(sha(blocker) == failed_turn['blocker_sha256'] and
+--- a/plugins/sdd-review-loop/scripts/fresh-review-recovery.py
++++ b/plugins/sdd-review-loop/scripts/fresh-review-recovery.py
+@@ -152,7 +152,9 @@
+                           base_keys | earlier_round_keys,
+                           base_keys | later_round_keys | {'historical_failed_rounds'},
+                           base_keys | earlier_round_keys | {'interrupted_evidence_inventory'},
+-                          base_keys | earlier_round_keys | {'interrupted_transport_inventories'}),
++                          base_keys | earlier_round_keys | {'interrupted_transport_inventories'},
++                          base_keys | later_round_keys | {'historical_failed_rounds',
++                              'interrupted_transport_inventories'}),
+             'unexpected fresh-review contract keys')
+     later_round = 'failed_final_round' in data
+     require(data['schema'] == 'spec-fresh-review-recovery/v2' and data['feature'] == feature
+@@ -281,10 +283,20 @@
+     for old_attempt in (partial_attempts[:-1] if later_round else partial_attempts):
+         if old_attempt in historical_by_attempt:
+             item = historical_by_attempt[old_attempt]
++            historical_pre = read_json(regular(root,
++                f'{base}/attempt-{old_attempt}/round-{item["failed_final_round"]}/precheck-result.json'))
++            historical_hashes = {key: historical_pre.get(key) for key in hashes}
++            historical_values = [historical_hashes['requirements_sha256'],
++                                 historical_hashes['acceptance_sha256']]
++            if historical_hashes['investigation_sha256'] is not None:
++                historical_values.append(historical_hashes['investigation_sha256'])
++            require(all(isinstance(value, str) for value in historical_values) and
++                    hashlib.sha256(':'.join(historical_values).encode()).hexdigest() ==
++                    historical_hashes['input_sha256'], 'historical precheck input binding mismatch')
+             module = runpy.run_path(str(regular(root,
+                 'plugins/sdd-review-loop/scripts/failed-last-attempt.py')))
+             failed = module['inspect'](root, feature, attempt, item['failed_final_round'],
+-                                       hashes, item['failed_turn'], old_attempt=old_attempt)
++                                       historical_hashes, item['failed_turn'], old_attempt=old_attempt)
+             expected.update(failed['evidence_paths'])
+             completed_rounds.extend(failed['completed_rounds'])
+             invocations.extend(failed['invocation_paths'])
+@@ -427,6 +439,12 @@
+     approval = read_json(pinned[authority['path']])
+     approval_keys = {'schema', 'feature', 'next_attempt', 'origin',
+                      'recorded_by_role', 'user_statement', 'scope', 'input_hashes'}
++    if later_round and data['failed_turn'].get('failure_mode') == 'native-nontty-malformed-result':
++        approval_keys.add('failed_turn_sha256')
++        failed_turn_sha = hashlib.sha256(json.dumps(data['failed_turn'], sort_keys=True,
++            separators=(',', ':'), ensure_ascii=False).encode('utf-8')).hexdigest()
++        require(approval.get('failed_turn_sha256') == failed_turn_sha,
++                'native failed-turn approval binding mismatch')
+     if transport is not None:
+         approval_keys.add('transport_inventories_sha256')
+         inventory_sha = hashlib.sha256(json.dumps(transport, sort_keys=True,
+--- a/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py
++++ b/plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py
+@@ -156,7 +156,7 @@
+             'invocation run/session identities; no markdown or omitted checks.\n').encode('utf-8')
+ 
+ 
+-def postflight(root, invocation, transcript, prompt, wrapper, receipt):
++def native_delivery(root, invocation, transcript, prompt, wrapper, receipt):
+     data, ledger = manifest(root, invocation)
+     require(prompt.read_bytes() == expected_prompt(root, invocation, receipt),
+             'prompt differs from complete canonical launch template')
+@@ -185,6 +185,12 @@
+             first_turns[0].encode('utf-8') == prompt.read_bytes() and
+             len(user_turns) == len(user_content) == len(first_turns) + len(tool_returns),
+             'native first-turn prompt is absent, truncated, or preceded by another user turn')
++    return data, result, messages
++
++
++def postflight(root, invocation, transcript, prompt, wrapper, receipt):
++    data, result, _ = native_delivery(root, invocation, transcript, prompt, wrapper, receipt)
++    session = data['host_session_id']
+     raw = result.get('result')
+     require(isinstance(raw, str), 'reviewer result is not text')
+     output = json.loads(raw)
+--- a/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
++++ b/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
+@@ -88,6 +88,23 @@
+ invocation/blocker, and the retained local host transcript showing `end_turn`.
+ Both runtime prechecks validate the complete-round contracts with their existing
+ contract validators. This is record integrity, not retrospective review approval.
++
++For `failed_turn.failure_mode: native-nontty-malformed-result` only, the
++failed final round may lack its original allocation/proposal record; preserve
++that absence and never manufacture or backfill host evidence. This diagnostic
++branch requires the exact failed-round regular-file inventory, original A
++invocation and reservation, byte-exact expected prompt/receipt/native transcript
++matching, a completed `end_turn` with no later user record, and a CLI wrapper
++whose string result is malformed raw JSON. The scoped approval audit must bind
++`failed_turn_sha256`: SHA-256 of `failed_turn` serialized as UTF-8 JSON with
++sorted keys, compact separators and unescaped Unicode. Existing manifest,
++canonical-ledger-chain, current-input, historical-input and complete-round
++contract checks remain mandatory. Historical output stays diagnostic-only,
++transition legality stays not-established, and no result is adopted as a review.
++Ordinary launches and completed rounds still require their original allocation
++or non-TTY proposal/preflight evidence; this exception admits only preservation
++of the failed turn for a separately authorized fresh attempt, never a replay.
++
+ An additional opt-in `interrupted_transport_inventories` list may preserve
+ round-1 transport diagnostics alongside `terminal_attempt`, `partial_attempts`
+ and `historical_failed_rounds`. It is mutually exclusive with the legacy

@@ -1,0 +1,16 @@
+{
+  "kind": "claude-background-idle-allocation",
+  "role": "spec-reviewer-a",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 17,
+  "round": 1,
+  "host_id": "291d069a",
+  "host_session_id": "291d069a-b4e7-451a-bc5b-f35bd3d7388d",
+  "allocation_stdout": "backgrounded · 291d069a (idle — send a prompt to start)",
+  "agents_json_status": "idle",
+  "agents_json_state": "blocked",
+  "role_source": "plugins/sdd-review-loop/agents/spec-reviewer-a.md",
+  "role_source_sha256": "b893ea99743fb87ee3ff8c3beba333f6c92931ac1737e4346beaefaf9b0d4e0a",
+  "host_plugin_source": "sdd-review-loop@inline",
+  "review_turn_started": false
+}

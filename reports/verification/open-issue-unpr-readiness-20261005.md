@@ -1,0 +1,11 @@
+# Open Issue / 未PR差分の限定照合（2026-10-05）
+
+範囲は読み取り調査のみ。GitHub の open Issue は #423, #290, #197, #196, #195, #187 の6件、open PR は #536, #535, #528, #513, #512, #401 の6件（`gh issue/pr list --state open --json ...`）。全PRは現時点 Draft。コミット・予約・正式判定・削除はしていない。
+
+## 優先して残る作業
+
+1. **#290 — 未PRの有効差分。** owner は `/Users/jrmag/.codex/worktrees/issue290-concept-phase1/sdd-forge`、`codex/issue290-concept-test-phase1` の追跡 ref と HEAD は `0/0`（未push commit なし）。ただし contract/validator/tests/role/ledger 等の追跡 dirty と多数の新規実装・証拠がある。`specs/sdd-domain-concept-test/tasks.md:11-17` は T-001 Approved / In Progress、T-002–006 は Approved / Planned。同 plan の Passed header は現行修正を再証明しない。`reports/verification/issue290-current-task-provenance-prep-20261004.md` は attempt-7 precheck と verify-inputs 成功を記録する一方、stage-provenance stale と保護 role 文言の未適用を明記。`reports/verification/issue290-a6-b-distinct-human-apply-20261005.py` は3対象 hash 固定の人間用候補であり、実適用証拠ではない。次の有効な検証は、正規の保護変更解決後に3原本 readback、現行入力の再検証、fresh A/B task provenance review、workflow-state 再判定。既存緑テストの反復だけでは前進しない。
+2. **#197 / PR #401 — 承認済み owner と公開 head を分離。** owner `/Users/jrmag/.gemini/antigravity-cli/scratch/pr401-worktree` は `codex/pr401-formal-review-recovery` HEAD `7e05f18c`、追跡 ref より4 behind / 0 ahead。追跡 dirty は `specs/a9-interrupted-review-recovery/tasks.md` の Approval 3件、未追跡の実装/準備証拠が残る。T-001–003 は Approved / Planned (`tasks.md:9-17,62-70,115-123`)。PR #401 の公開 head は `ca0ebdb6`、Draft で、owner の承認済み dirty を含まない。`reports/verification/a9-approved-owner-reconciliation-20261005.md` は owner と integration checkout の差が task approval のみ、実 admission 実装の移植対象なしと記録。`reports/verification/a9-baseline-human-preparation-20261005.md` は R-10 により拒否された baseline copy の人間用候補を記録するが、runner は未実行。次は正規 read-only compound 操作の再評価と、保護 baseline 書込の人間側解決・readback。その後に immutable input/manifest、fresh T-001 identity、WFI-001/RED を検証できる。現時点で新規レビューや Done を主張できない。
+3. **その他の open 対応。** #423 は PR #535、#196 は PR #513、#195 は PR #512、#187 は追跡 umbrella。PR #536 は guard role read、#528 は RT002 で、今回の #290/A9 未PR owner dirty と混同しない。これら4 PRの GitHub head と実 owner dirty の一致・CI・個別ゲートは本調査で再検証していないため、統合可否を判定しない。
+
+調査時点の GitHub 一覧: https://github.com/aharada54914/sdd-forge/issues および https://github.com/aharada54914/sdd-forge/pulls 。旧 handoff は歴史証拠であり、保護拒否の迂回や過去 verdict の再利用根拠ではない。

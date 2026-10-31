@@ -236,6 +236,7 @@ function Copy-LoopFixtureScripts([string]$Root) {
         "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
         "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
         "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1",
+        "plugins/sdd-review-loop/scripts/review-hash-normalization.ps1",
         "plugins/sdd-review-loop/scripts/task-review-precheck.ps1",
         "plugins/sdd-review-loop/scripts/validate-layer-traceability.ps1",
         "plugins/sdd-domain/scripts/domain-review-precheck.ps1",
@@ -372,6 +373,28 @@ function Get-LoopManifestArray([string[]]$Rels) {
     return ($entries -join "`n" | & jq -sc '.')
 }
 
+# Spec/impl only: the production selector also admits existing Pending domain files.
+function Add-LoopConditionalInputs([string]$Stage, [string]$Document) {
+    $resolver = Join-Path $script:SddLoopRepoRoot "plugins/sdd-quality-loop/scripts/review-conditional-inputs.py"
+    $selected = & python3 -B $resolver --root $script:LoopFixtureRoot --feature $script:LoopFixtureFeature --stage $Stage
+    if ($LASTEXITCODE -ne 0) { return $null }
+    $result = $Document | & jq --argjson selected ($selected -join "`n") '
+        def bind: . as $base | . + [$selected.inputs[] |
+          select(.path as $p | all($base[]; .path != $p))];
+        if type == "array" then bind
+        elif has("reviewers") then .reviewers |= map(.allowed_input_manifest |= bind)
+        else .allowed_input_manifest |= bind end'
+    if ($LASTEXITCODE -ne 0) { return $null }
+    return ($result -join "`n")
+}
+
+function Set-LoopConditionalOutput([string]$Stage, [string]$File) {
+    $document = Add-LoopConditionalInputs $Stage (Get-Content -LiteralPath $File -Raw)
+    if ($null -eq $document) { return $false }
+    Set-Content -LiteralPath $File -Value $document -Encoding utf8
+    return $true
+}
+
 function Get-LoopNextSequence {
     return [int](Invoke-LoopJq @("-r", '(.records | length) + 1') (Join-Path $script:LoopFixtureRoot "reports/review-context/identity-ledger.json"))
 }
@@ -501,7 +524,7 @@ function Publish-LoopSpecRoundA {
         --arg requirements_sha $requirementsSha --arg acceptance_sha $acceptanceSha --arg investigation_sha $investigationSha --arg precheck_sha $precheckSha --arg calibration_sha $calibrationSha `
         $reviewerAJq | Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-a.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
-    return $true
+    return (Set-LoopConditionalOutput "spec" (Join-Path $RoundDir "reviewer-a.json"))
 }
 
 function Publish-LoopSpecRoundBContract {
@@ -551,7 +574,8 @@ function Publish-LoopSpecRoundBContract {
         --arg precheck_sha $precheckSha --arg summary_sha $summarySha --arg calibration_sha $calibrationSha `
         $contractJq | Set-Content -LiteralPath (Join-Path $RoundDir "spec-review-contract.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
-    return $true
+    if (-not (Set-LoopConditionalOutput "spec" (Join-Path $RoundDir "reviewer-b.json"))) { return $false }
+    return (Set-LoopConditionalOutput "spec" (Join-Path $RoundDir "spec-review-contract.json"))
 }
 
 function Get-LoopSpecManifestA([string]$RoundDir) {
@@ -566,7 +590,9 @@ function Get-LoopSpecManifestA([string]$RoundDir) {
     if ((Test-Path -LiteralPath (Join-Path $script:LoopFixtureRoot $investigationRel) -PathType Leaf) -and -not (Get-Item -LiteralPath (Join-Path $script:LoopFixtureRoot $investigationRel)).LinkType) {
         $rels = @($rels[0], $rels[1], $investigationRel, $rels[2], $rels[3])
     }
-    return (Get-LoopManifestArray $rels)
+    $manifest = Get-LoopManifestArray $rels
+    if ($null -eq $manifest) { return $null }
+    return (Add-LoopConditionalInputs "spec" ($manifest -join "`n"))
 }
 function Get-LoopSpecManifestB([string]$RoundDir) {
     $roundRel = $RoundDir.Substring($script:LoopFixtureRoot.Length + 1) -replace '\\', '/'
@@ -581,7 +607,9 @@ function Get-LoopSpecManifestB([string]$RoundDir) {
     if ((Test-Path -LiteralPath (Join-Path $script:LoopFixtureRoot $investigationRel) -PathType Leaf) -and -not (Get-Item -LiteralPath (Join-Path $script:LoopFixtureRoot $investigationRel)).LinkType) {
         $rels = @($rels[0], $rels[1], $investigationRel, $rels[2], $rels[3], $rels[4])
     }
-    return (Get-LoopManifestArray $rels)
+    $manifest = Get-LoopManifestArray $rels
+    if ($null -eq $manifest) { return $null }
+    return (Add-LoopConditionalInputs "spec" ($manifest -join "`n"))
 }
 
 function Invoke-LoopDriveSpecRound {
@@ -720,7 +748,7 @@ function Publish-LoopImplRoundA {
     & jq -n --argjson ids $implIds --arg verdict $aVerdict --argjson manifest $manifestJson --arg result $aResult --arg severity $checkSeverity $reviewerAJq |
         Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-a.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
-    return $true
+    return (Set-LoopConditionalOutput "impl" (Join-Path $RoundDir "reviewer-a.json"))
 }
 
 function Publish-LoopImplRoundBContract {
@@ -790,7 +818,8 @@ function Publish-LoopImplRoundBContract {
         --slurpfile precheck $precheckPath ($contractJq + ' + (if $precheck[0] | has("adr_inputs") then {adr_inputs:$precheck[0].adr_inputs} else {} end)') |
         Set-Content -LiteralPath (Join-Path $RoundDir "impl-review-contract.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
-    return $true
+    if (-not (Set-LoopConditionalOutput "impl" (Join-Path $RoundDir "reviewer-b.json"))) { return $false }
+    return (Set-LoopConditionalOutput "impl" (Join-Path $RoundDir "impl-review-contract.json"))
 }
 
 function Get-LoopImplManifestA([string]$RoundDir, [int]$Round, [string]$Feature) {
@@ -803,7 +832,9 @@ function Get-LoopImplManifestA([string]$RoundDir, [int]$Round, [string]$Feature)
     $rels.Add("$roundRel/precheck-result.json")
     foreach ($name in (Get-LoopImplLayerNames)) { $rels.Add("specs/$Feature/$name.md") }
     if ($Round -gt 1) { $rels.Add("reports/impl-review/$Feature/attempt-1/round-$($Round - 1)/integrated-summary.json") }
-    return (Get-LoopManifestArray $rels.ToArray())
+    $manifest = Get-LoopManifestArray $rels.ToArray()
+    if ($null -eq $manifest) { return $null }
+    return (Add-LoopConditionalInputs "impl" ($manifest -join "`n"))
 }
 function Get-LoopImplManifestB([string]$RoundDir, [string]$Feature) {
     $roundRel = $RoundDir.Substring($script:LoopFixtureRoot.Length + 1) -replace '\\', '/'
@@ -815,7 +846,9 @@ function Get-LoopImplManifestB([string]$RoundDir, [string]$Feature) {
     $rels.Add("$roundRel/precheck-result.json")
     $rels.Add("$roundRel/integrated-summary.json")
     foreach ($name in (Get-LoopImplLayerNames)) { $rels.Add("specs/$Feature/$name.md") }
-    return (Get-LoopManifestArray $rels.ToArray())
+    $manifest = Get-LoopManifestArray $rels.ToArray()
+    if ($null -eq $manifest) { return $null }
+    return (Add-LoopConditionalInputs "impl" ($manifest -join "`n"))
 }
 
 # Initialize-LoopImplPrereqs -Feature <name> -- drives spec rounds 1->3 to a
@@ -1286,8 +1319,9 @@ function Test-LoopTerminal {
     if ([string]::IsNullOrEmpty($expected)) { return $false }
     $valueJson = & jq -cn --arg v $Observed '$v'
     if ($LASTEXITCODE -ne 0) { return $false }
+    if ($expected -ne $Observed) { return $false }
     if (-not (Write-LoopTraceEvent -Kind done-transition -Producer done-transition:assert-terminal -ValueJson ([string]$valueJson))) { return $false }
-    return ($expected -eq $Observed)
+    return $true
 }
 
 function ConvertTo-NormalizedLoopTrace([string]$TraceJson) {

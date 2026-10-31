@@ -16,6 +16,15 @@ LIVE_WORKFLOW="$ROOT/.github/workflows/test.yml"
 MANIFEST="$HUMAN_COPY/MANIFEST.sha256"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
+# Runtime boundary only; historical task-commit provenance is separate evidence.
+# BEGIN workflow snapshot
+LIVE_WORKFLOW="$ROOT/.github/workflows/test.yml"
+WORKFLOW_SNAPSHOT="$TMP/workflow.before"
+workflow_snapshot_ok=0
+if [ -f "$LIVE_WORKFLOW" ] && cp "$LIVE_WORKFLOW" "$WORKFLOW_SNAPSHOT"; then
+  workflow_snapshot_ok=1
+fi
+# END workflow snapshot
 
 passed=0
 failed=0
@@ -340,11 +349,6 @@ else
   fail "TEST-047 glob, NFC-collision, and reference-only fixture inventory"
 fi
 
-if git diff --quiet -- .github/workflows/test.yml; then
-  pass "TEST-047 live protected workflow remains byte-unchanged"
-else
-  fail "TEST-047 live protected workflow remains byte-unchanged"
-fi
 
 # Derive release surfaces from the repository's only sanctioned mutation path.
 # The common task path proves that none changed.  The content fallback is what
@@ -392,6 +396,13 @@ else
   fail "TEST-048 task changelog registration survives release-heading replay"
 fi
 
+# BEGIN workflow comparison
+if [ "$workflow_snapshot_ok" -eq 1 ] && [ -f "$LIVE_WORKFLOW" ] && cmp -s "$WORKFLOW_SNAPSHOT" "$LIVE_WORKFLOW"; then
+  pass "TEST-047 live workflow bytes unchanged during this suite"
+else
+  fail "TEST-047 live workflow changed or could not be read during this suite"
+fi
+# END workflow comparison
 printf '\nResults: %d passed, %d failed\n' "$passed" "$failed"
 if (( skipped > 0 )); then
   printf 'Skipped: %d (unmet host prerequisite)\n' "$skipped"

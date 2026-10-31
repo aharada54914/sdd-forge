@@ -1,0 +1,8 @@
+{
+  "status": "DELIVERY_OK",
+  "session_id": "882a85fe-b330-4649-b7e1-6820f33ad584",
+  "prompt_sha256": "a7a15a73c610066dfa5d6cb6563eb8cff8a210ac4e457b82e9cc721538e417e6",
+  "prompt_bytes": 4065,
+  "transcript_sha256": "6606c4090213e65a8789494dd1fa2f2ddc9b85bbbe73d5cba0ca1c36007106a9",
+  "wrapper_sha256": "d22cf0d57c00f58e73d513dde86dbba058066f7b8f5ca2e7475e41d0ffd73c45"
+}

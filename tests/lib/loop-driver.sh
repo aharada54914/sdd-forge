@@ -413,6 +413,26 @@ _loop_manifest_array() {
   printf '%s\n' "${entries[@]}" | jq -sc '.'
 }
 
+# Reuse the production selector only for spec/impl fixture manifests and outputs.
+_loop_with_conditional_inputs() {
+  local stage="$1" document="$2" selected
+  selected="$(python3 -B "${SDD_LOOP_REPO_ROOT}/plugins/sdd-quality-loop/scripts/review-conditional-inputs.py" \
+    --root "$LOOP_FIXTURE_ROOT" --feature "$LOOP_FIXTURE_FEATURE" --stage "$stage")" || return 1
+  jq --argjson selected "$selected" '
+    def bind: . as $base | . + [$selected.inputs[] |
+      select(.path as $p | all($base[]; .path != $p))];
+    if type == "array" then bind
+    elif has("reviewers") then .reviewers |= map(.allowed_input_manifest |= bind)
+    else .allowed_input_manifest |= bind end
+  ' <<<"$document"
+}
+
+_loop_bind_conditional_output() {
+  local stage="$1" file="$2" document
+  document="$(_loop_with_conditional_inputs "$stage" "$(<"$file")")" || return 1
+  printf '%s\n' "$document" > "$file"
+}
+
 _loop_next_sequence() {
   jq -r '(.records | length) + 1' "${LOOP_FIXTURE_ROOT}/reports/review-context/identity-ledger.json" | tr -d '\r'
 }
@@ -516,6 +536,10 @@ loop_validator_capability_probe() {
     "specs/${feature}/acceptance-tests.md")" || {
     # Could not even compose the probe manifest: not the upstream validator
     # defect; report ok so the real checks run and surface the actual error.
+    LOOP_VALIDATOR_CAPABILITY=ok
+    return 0
+  }
+  entries="$(_loop_with_conditional_inputs spec "$entries")" || {
     LOOP_VALIDATOR_CAPABILITY=ok
     return 0
   }
@@ -710,7 +734,7 @@ _loop_emit_spec_round_a() {
      checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}' \
     > "${round_dir}/reviewer-a.json" || return 1
 
-  return 0
+  _loop_bind_conditional_output spec "${round_dir}/reviewer-a.json"
 }
 
 _loop_emit_spec_round_b_contract() {
@@ -778,6 +802,8 @@ _loop_emit_spec_round_b_contract() {
     + (if $investigation_sha256 == "" then {} else {investigation_sha256:$investigation_sha256} end)
     | .reviewers |= map(.allowed_input_manifest += (if $investigation_sha256 == "" then [] else [{path:$investigation,sha256:$investigation_sha256}] end) + [{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}] + (if .role == "spec-reviewer-b" then [{path:$summary,sha256:$summary_sha}] else [] end)))' \
     > "${round_dir}/spec-review-contract.json" || return 1
+  _loop_bind_conditional_output spec "${round_dir}/reviewer-b.json" || return 1
+  _loop_bind_conditional_output spec "${round_dir}/spec-review-contract.json" || return 1
 
   return 0
 }
@@ -794,7 +820,9 @@ _loop_spec_manifest_a() {
   if [[ -f "${LOOP_FIXTURE_ROOT}/${investigation_rel}" && ! -L "${LOOP_FIXTURE_ROOT}/${investigation_rel}" ]]; then
     entries=( "${entries[0]}" "${entries[1]}" "$investigation_rel" "${entries[2]}" "${entries[3]}" )
   fi
-  _loop_manifest_array "${entries[@]}"
+  local manifest
+  manifest="$(_loop_manifest_array "${entries[@]}")" || return 1
+  _loop_with_conditional_inputs spec "$manifest"
 }
 _loop_spec_manifest_b() {
   local round_dir="$1" round_rel
@@ -809,7 +837,9 @@ _loop_spec_manifest_b() {
   if [[ -f "${LOOP_FIXTURE_ROOT}/${investigation_rel}" && ! -L "${LOOP_FIXTURE_ROOT}/${investigation_rel}" ]]; then
     entries=( "${entries[0]}" "${entries[1]}" "$investigation_rel" "${entries[2]}" "${entries[3]}" "${entries[4]}" )
   fi
-  _loop_manifest_array "${entries[@]}"
+  local manifest
+  manifest="$(_loop_manifest_array "${entries[@]}")" || return 1
+  _loop_with_conditional_inputs spec "$manifest"
 }
 
 _loop_drive_spec_round() {
@@ -955,7 +985,7 @@ _loop_emit_impl_round_a() {
      checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}' \
     > "${round_dir}/reviewer-a.json" || return 1
 
-  return 0
+  _loop_bind_conditional_output impl "${round_dir}/reviewer-a.json"
 }
 
 _loop_emit_impl_round_b_contract() {
@@ -1047,6 +1077,8 @@ _loop_emit_impl_round_b_contract() {
      ]} + (if $precheck[0] | has("adr_inputs") then {adr_inputs:$precheck[0].adr_inputs} else {} end)' \
     > "${round_dir}/impl-review-contract.json" || return 1
 
+  _loop_bind_conditional_output impl "${round_dir}/reviewer-b.json" || return 1
+  _loop_bind_conditional_output impl "${round_dir}/impl-review-contract.json" || return 1
   return 0
 }
 
@@ -1064,7 +1096,9 @@ _loop_impl_manifest_a() {
   if [[ "$round" -gt 1 ]]; then
     rels+=("reports/impl-review/${feature}/attempt-1/round-$((round - 1))/integrated-summary.json")
   fi
-  _loop_manifest_array "${rels[@]}"
+  local manifest
+  manifest="$(_loop_manifest_array "${rels[@]}")" || return 1
+  _loop_with_conditional_inputs impl "$manifest"
 }
 _loop_impl_manifest_b() {
   local round_dir="$1" feature="$2" round_rel name
@@ -1078,7 +1112,9 @@ _loop_impl_manifest_b() {
     "${round_rel}/integrated-summary.json"
   )
   for name in $(_loop_impl_layer_names); do rels+=("specs/${feature}/${name}.md"); done
-  _loop_manifest_array "${rels[@]}"
+  local manifest
+  manifest="$(_loop_manifest_array "${rels[@]}")" || return 1
+  _loop_with_conditional_inputs impl "$manifest"
 }
 
 # loop_prepare_impl_prereqs <feature> — drives spec rounds 1->3 to a genuine
@@ -1600,8 +1636,9 @@ assert_terminal() {
   expected="$(jq -r --arg id "$loop_id" '.loops[] | select(.id == $id) | .terminal.state // empty' "$LOOP_INVENTORY_PATH" | tr -d '\r')" || return 1
   [[ -n "$expected" ]] || return 1
   value_json="$(jq -cn --arg v "$observed" '$v')" || return 1
+  [[ "$expected" == "$observed" ]] || return 1
   _loop_trace_emit done-transition done-transition:assert-terminal "$value_json" || return 1
-  [[ "$expected" == "$observed" ]]
+  return 0
 }
 
 # Normalize and validate a completed event trace read from stdin.

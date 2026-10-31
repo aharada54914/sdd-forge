@@ -170,6 +170,7 @@ if (
     command mktemp "$@"
   }
   manifest="$(_loop_manifest_array "specs/${FEATURE_GF}/requirements.md" "specs/${FEATURE_GF}/acceptance-tests.md")" || exit 1
+  manifest="$(_loop_with_conditional_inputs spec "$manifest")" || exit 1
   _loop_review_context_call spec spec-reviewer-a "$FEATURE_GF" "$manifest" check
 ); then
   ok "helper: portable manifest allocation reaches the real validator"

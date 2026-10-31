@@ -1,0 +1,272 @@
+--- a/plugins/sdd-review-loop/scripts/spec-review-precheck.sh
++++ b/plugins/sdd-review-loop/scripts/spec-review-precheck.sh
+@@ -532,9 +532,10 @@
+   --argjson attempt "$attempt" --argjson round "$round" \
+   --arg requirements_sha256 "$requirements_sha" --arg acceptance_sha256 "$acceptance_sha" --arg calibration_sha256 "$calibration_sha" --arg input_sha256 "$input_sha" \
+   --arg status "$status" --arg edit_summary "$edit_summary" --arg generated_at "$generated_at" \
++  --arg fresh_review_contract_path "$(if [[ -n "$fresh_recovery_result" ]]; then jq -r .contract_path <<< "$fresh_recovery_result"; fi)" \
+   --arg fresh_review_contract_sha256 "$(if [[ -n "$fresh_recovery_result" ]]; then jq -r .contract_sha256 <<< "$fresh_recovery_result"; fi)" \
+   --argjson reset "$reset" --argjson investigation_sha256 "$investigation_json" \
+-  '{schema:$schema,stage:"spec",feature:$feature,attempt:$attempt,round:$round,spec_review_status_field:$status,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,investigation_sha256:$investigation_sha256,calibration_sha256:$calibration_sha256,input_sha256:$input_sha256,edit_summary:$edit_summary,reset:$reset,generated_at:$generated_at} + (if $fresh_review_contract_sha256 == "" then {} else {fresh_review_contract_sha256:$fresh_review_contract_sha256} end)' \
++  '{schema:$schema,stage:"spec",feature:$feature,attempt:$attempt,round:$round,spec_review_status_field:$status,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,investigation_sha256:$investigation_sha256,calibration_sha256:$calibration_sha256,input_sha256:$input_sha256,edit_summary:$edit_summary,reset:$reset,generated_at:$generated_at} + (if $fresh_review_contract_sha256 == "" then {} else {fresh_review_contract_path:$fresh_review_contract_path,fresh_review_contract_sha256:$fresh_review_contract_sha256} end)' \
+   > "${report_dir}/precheck-result.json"
+ 
+ echo "spec-review-precheck: complete. Output written to ${report_dir}/"
+--- a/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
++++ b/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+@@ -807,6 +807,7 @@
+     generated_at              = $generatedAt
+   }
+   if ($FreshReviewContract) {
++    $result['fresh_review_contract_path'] = ($freshRecoveryResult | ConvertFrom-Json).contract_path
+     $result['fresh_review_contract_sha256'] = ($freshRecoveryResult | ConvertFrom-Json).contract_sha256
+   }
+   $result | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $reportDir 'precheck-result.json') -Encoding utf8NoBOM
+--- a/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
++++ b/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
+@@ -55,19 +55,25 @@
+ cannot supply admissible review evidence. Preserve its output and reservation.
+ Do not start B from it, release its identity, or loosen `--recover-interrupted`.
+ 
+-For the specifically authorized three-attempt chain (terminal → no-output
+-interruption → failed-first-turn with resumed diagnostic output), the
+-orchestrator may use `--reset --fresh-review-contract=<path>` (PowerShell:
++For the specifically authorized history (terminal → no-output interruption →
++resumed diagnostic output), the orchestrator may use
++`--reset --fresh-review-contract=<path>` (PowerShell:
+ `-Reset -FreshReviewContract <path>`) to open only the next attempt, round 1.
+-The contract uses `spec-fresh-review-recovery/v1` as defined by the read-only
+-`scripts/fresh-review-recovery.py`: pin current Pending input hashes, every
+-required prior evidence file, both original invocation manifests, and the
+-complete host transcript identifying the failed and resumed turns. Retain that
+-immutable contract as the provenance named by the new precheck's
++The `spec-fresh-review-recovery/v2` contract quarantines all historical outputs
++as diagnostic-only and records intervening transition legality as not-established.
++It does not retroactively legalize an interruption or adopt a resumed PASS.
++Pin current Pending input hashes, the complete required historical inventory,
++both original invocation manifests, the diagnostic transcript, and a scoped
++approval audit record transcribed by the orchestrator from the actual user
++conversation. Label that record as an orchestrator transcription: it is not a
++human-authored signature, registered approver sidecar, or sudo-mode grant.
++Retain the immutable contract and approval record under `reports/verification/`.
++The new precheck records both `fresh_review_contract_path` and
+ `fresh_review_contract_sha256`. This opt-in route alone requires Python 3.
+-The precheck validates the terminal contract and both persisted reservations,
+-then repeats all admission checks under the transition lock. It does not reserve
+-an identity or produce a review verdict.
++The precheck validates the historical terminal contract and both persisted
++reservations, then repeats all admission checks under the transition lock.
++These validators establish preserved-record integrity, not legality of the
++intervening transitions. It does not reserve an identity or produce a verdict.
+ 
+ Before allocating new reviewers, use a separate diagnostic context to confirm
+ read-only command permissions and host hook requirements. A hook-authorized
+--- a/plugins/sdd-review-loop/scripts/fresh-review-recovery.py
++++ b/plugins/sdd-review-loop/scripts/fresh-review-recovery.py
+@@ -48,15 +48,22 @@
+     contract_path = contract_path.absolute()
+     require(contract_path.is_file() and contract_path.resolve() == contract_path,
+             'contract must be a regular, non-symlink file')
++    contract_rel = contract_path.relative_to(root).as_posix()
++    require(contract_rel.startswith('reports/verification/'),
++            'contract must be retained under reports/verification')
++    regular(root, contract_rel)
+     contract_bytes = contract_path.read_bytes()
+     contract_sha = hashlib.sha256(contract_bytes).hexdigest()
+     data = read_json(contract_path, contract_bytes)
+     require(set(data) == {'schema', 'feature', 'next_attempt', 'reason', 'input_hashes',
+-                          'evidence', 'transcript'}, 'unexpected fresh-review contract keys')
+-    require(data['schema'] == 'spec-fresh-review-recovery/v1' and data['feature'] == feature
++                          'evidence', 'transcript', 'authority', 'historical_disposition'}, 'unexpected fresh-review contract keys')
++    require(data['schema'] == 'spec-fresh-review-recovery/v2' and data['feature'] == feature
+             and type(data['next_attempt']) is int and data['next_attempt'] == attempt
+             and attempt >= 4, 'fresh-review identity mismatch')
+-    require(data['reason'] == 'failed-first-turn-resumed', 'unsupported invalidation reason')
++    require(data['reason'] == 'authorized-history-quarantine', 'unsupported recovery reason')
++    require(data['historical_disposition'] == {
++        'outputs': 'diagnostic-only', 'transition_legality': 'not-established'},
++        'historical outputs must remain quarantined; no retroactive legality claim')
+     base = f'reports/spec-review/{feature}'
+     attempts = root / base
+     require(max([int(p.name[8:]) for p in attempts.iterdir()
+@@ -144,37 +151,36 @@
+         sessions.append(invocation['host_session_id'])
+     require(sessions[0] != sessions[1], 'interrupted contexts are not independent')
+     transcript = data['transcript']
+-    require(set(transcript) == {'path', 'failed_end_turn_uuid', 'resume_uuid', 'resumed_end_turn_uuid'},
+-            'invalid transcript declaration')
++    require(isinstance(transcript, dict) and set(transcript) == {'path'},
++            'transcript is pinned diagnostic evidence, not proof of turn validity')
+     expected.add(transcript['path'])
++    authority = data['authority']
++    require(isinstance(authority, dict) and set(authority) == {'path'},
++            'authority must name a retained approval audit record')
++    require(authority['path'].startswith('reports/verification/'),
++            'approval audit record must be retained under reports/verification')
++    expected.add(authority['path'])
+     require(set(pinned) == expected, 'contract must pin exactly the full recovery evidence set')
+-    events = [json.loads(line) for line in pinned[transcript['path']].read_text().splitlines() if line.strip()]
+-    indexes = []
+-    for key in ('failed_end_turn_uuid', 'resume_uuid', 'resumed_end_turn_uuid'):
+-        hits = [i for i, event in enumerate(events) if event.get('uuid') == transcript[key]]
+-        require(len(hits) == 1, 'transcript event missing or duplicated')
+-        indexes.append(hits[0])
+-    first, resume, last = indexes
+-    require(first < resume < last, 'invalid failed/resumed turn order')
+-    for i in indexes:
+-        require(events[i].get('sessionId') == sessions[1], 'transcript session mismatch')
+-    ends = [i for i, event in enumerate(events) if event.get('type') == 'assistant'
+-            and event.get('message', {}).get('stop_reason') == 'end_turn']
+-    require(ends == [first, last], 'transcript must show exactly the failed first and resumed turns')
+-    text = lambda event: '\n'.join(c.get('text', '') for c in event['message']['content']
+-                                   if isinstance(c, dict) and c.get('type') == 'text')
+-    require('BLOCKED' in text(events[first]) and events[resume].get('type') == 'user'
+-            and isinstance(events[resume].get('message', {}).get('content'), str),
+-            'transcript does not establish failed-first-turn resume')
+-    output = read_json(pinned[f'{base}/attempt-{attempt - 1}/round-1/reviewer-a.json'])
+-    payload = re.search(r'```json\s*(.*?)\s*```', text(events[last]), re.S)
+-    returned = json.loads(payload.group(1) if payload else text(events[last]))
+-    require(returned == output and output.get('host_session_id') == sessions[1],
+-            'preserved output does not match resumed host transcript')
++    approval = read_json(pinned[authority['path']])
++    require(set(approval) == {'schema', 'feature', 'next_attempt', 'origin',
++                             'recorded_by_role', 'user_statement', 'scope', 'input_hashes'},
++            'unexpected approval audit record keys')
++    require(approval['schema'] == 'spec-fresh-review-approval-audit/v1'
++            and approval['feature'] == feature
++            and type(approval['next_attempt']) is int and approval['next_attempt'] == attempt
++            and approval['origin'] == 'current-user-conversation'
++            and approval['recorded_by_role'] == 'orchestrator'
++            and isinstance(approval['user_statement'], str)
++            and bool(approval['user_statement'].strip())
++            and approval['scope'] == 'quarantine-history-and-start-fresh-review-only'
++            and approval['input_hashes'] == hashes, 'approval audit binding mismatch')
++    # This pins the orchestrator's transcription of actual human authorization.
++    # It is not a signature, registered approver credential, or sudo-mode grant.
++    # Historical transcript bytes and outputs are retained, never adopted as PASS.
+     require(digest(contract_path) == contract_sha, 'contract changed during validation')
+     return {'terminal_attempt': terminal_attempt, 'terminal_round': terminal_round,
+             'terminal_dir': terminal, 'invocations': invocations,
+-            'contract_sha256': contract_sha, 'input_hashes': hashes}
++            'contract_path': contract_rel, 'contract_sha256': contract_sha, 'input_hashes': hashes}
+ 
+ 
+ if __name__ == '__main__':
+--- a/specs/epic-195-a7-compatibility/verification/spec-review-fresh-recovery.fixture.py
++++ b/specs/epic-195-a7-compatibility/verification/spec-review-fresh-recovery.fixture.py
+@@ -10,6 +10,7 @@
+ ROOT = pathlib.Path(__file__).resolve().parents[3]
+ FEATURE = 'epic-195-a7-compatibility'
+ BASE = f'reports/spec-review/{FEATURE}'
++CONTRACT = 'reports/verification/fresh-review-contract.json'
+ SCRIPT = 'plugins/sdd-review-loop/scripts/spec-review-precheck'
+ 
+ 
+@@ -41,7 +42,9 @@
+         evidence += [f'{BASE}/attempt-{attempt}/round-1/{name}' for name in
+                      ('precheck-result.json', 'reviewer-a-host-allocation.json', leaf)]
+         evidence.append(f'reports/review-context/{FEATURE}-spec-a{attempt}r1-a-invocation.json')
+-    evidence.append(transcript.name)
++    authority = 'reports/verification/approval-audit.json'
++    (root / authority).parent.mkdir(parents=True, exist_ok=True)
++    evidence.extend([transcript.name, authority])
+     hashes = {field: digest(root / f'specs/{FEATURE}/{name}') for name, field in
+               [('requirements.md', 'requirements_sha256'),
+                ('acceptance-tests.md', 'acceptance_sha256'),
+@@ -49,17 +52,25 @@
+     hashes['calibration_sha256'] = digest(root / 'plugins/sdd-review-loop/references/spec-review-calibration.md')
+     hashes['input_sha256'] = hashlib.sha256(':'.join(hashes[k] for k in
+         ('requirements_sha256', 'acceptance_sha256', 'investigation_sha256')).encode()).hexdigest()
+-    contract = {'schema': 'spec-fresh-review-recovery/v1', 'feature': FEATURE,
+-                'next_attempt': 10, 'reason': 'failed-first-turn-resumed',
++    # Synthetic authorization is isolated fixture data, not a real approval.
++    (root / authority).write_text(json.dumps({
++        'schema': 'spec-fresh-review-approval-audit/v1', 'feature': FEATURE,
++        'next_attempt': 10, 'origin': 'current-user-conversation',
++        'recorded_by_role': 'orchestrator', 'user_statement': 'SYNTHETIC fixture approval',
++        'scope': 'quarantine-history-and-start-fresh-review-only', 'input_hashes': hashes}))
++    contract = {'schema': 'spec-fresh-review-recovery/v2', 'feature': FEATURE,
++                'next_attempt': 10, 'reason': 'authorized-history-quarantine',
+                 'input_hashes': hashes,
+                 'evidence': [{'path': p, 'sha256': digest(root / p)} for p in evidence],
+-                'transcript': {'path': transcript.name, 'failed_end_turn_uuid': 'failed',
+-                               'resume_uuid': 'resume', 'resumed_end_turn_uuid': 'resumed'}}
+-    (root / 'fresh-review-contract.json').write_text(json.dumps(contract))
++                'authority': {'path': authority},
++                'historical_disposition': {'outputs': 'diagnostic-only',
++                                           'transition_legality': 'not-established'},
++                'transcript': {'path': transcript.name}}
++    (root / CONTRACT).write_text(json.dumps(contract))
+ 
+ 
+ def run(root, runtime):
+-    contract = root / 'fresh-review-contract.json'
++    contract = root / CONTRACT
+     cmd = (['bash', str(root / SCRIPT) + '.sh', FEATURE, '10', '1', '--reset',
+             '--fresh-review-contract=' + str(contract)] if runtime == 'bash' else
+            ['pwsh', '-NoProfile', '-File', str(root / SCRIPT) + '.ps1', FEATURE, '10', '1',
+@@ -69,15 +80,16 @@
+ 
+ def main():
+     cases = ('valid', 'current-input', 'wrong-attempt', 'evidence-hash', 'missing-reservation',
+-             'b-invocation', 'transcript-session', 'terminal-contract', 'post-lock-ledger')
++             'b-invocation', 'transcript-session', 'historical-disposition', 'authority-scope',
++             'authority-hash', 'terminal-contract', 'post-lock-ledger')
+     with tempfile.TemporaryDirectory(prefix='a7-fresh-review-') as tmp:
+-        base = pathlib.Path(tmp) / 'base'
++        base = (pathlib.Path(tmp) / 'base').resolve()
+         build(base)
+         for runtime in ('bash', 'pwsh'):
+             for case in cases:
+-                root = pathlib.Path(tmp) / (runtime + '-' + case)
++                root = (pathlib.Path(tmp) / (runtime + '-' + case)).resolve()
+                 shutil.copytree(base, root)
+-                contract_path = root / 'fresh-review-contract.json'
++                contract_path = root / CONTRACT
+                 contract = json.loads(contract_path.read_text())
+                 if case == 'current-input':
+                     path = root / f'specs/{FEATURE}/requirements.md'
+@@ -90,17 +102,27 @@
+                     (root / 'reports/review-context/identity-ledger.json').write_text('{}')
+                 elif case == 'b-invocation':
+                     (root / f'reports/review-context/{FEATURE}-spec-a9r1-b-invocation.json').write_text('{}')
+-                elif case in ('transcript-session', 'terminal-contract'):
+-                    path = root / ('fixture-transcript.jsonl' if case == 'transcript-session' else
++                elif case == 'historical-disposition':
++                    contract['historical_disposition']['outputs'] = 'adopt-pass'
++                elif case == 'authority-hash':
++                    path = root / contract['authority']['path']
++                    path.write_text(path.read_text() + '\n')
++                elif case == 'transcript-session':
++                    # Changed diagnostic bytes must fail their pin, without
++                    # pretending the transcript proves historical legality.
++                    path = root / 'fixture-transcript.jsonl'
++                    events = [json.loads(x) for x in path.read_text().splitlines()]
++                    events[0]['sessionId'] = 'wrong-session'
++                    path.write_text('\n'.join(json.dumps(x) for x in events))
++                elif case in ('authority-scope', 'terminal-contract'):
++                    path = root / (contract['authority']['path'] if case == 'authority-scope' else
+                                    f'{BASE}/attempt-7/round-2/spec-review-contract.json')
+-                    if case == 'transcript-session':
+-                        events = [json.loads(x) for x in path.read_text().splitlines()]
+-                        events[0]['sessionId'] = 'wrong-session'
+-                        path.write_text('\n'.join(json.dumps(x) for x in events))
++                    data = json.loads(path.read_text())
++                    if case == 'authority-scope':
++                        data['scope'] = 'adopt-old-pass'
+                     else:
+-                        data = json.loads(path.read_text())
+                         data['verdict'] = 'NEEDS_WORK'
+-                        path.write_text(json.dumps(data))
++                    path.write_text(json.dumps(data))
+                     for entry in contract['evidence']:
+                         if entry['path'] == str(path.relative_to(root)):
+                             entry['sha256'] = digest(path)
+@@ -130,6 +152,7 @@
+                     assert digest(ledger) == before_ledger
+                 if case == 'valid':
+                     precheck = json.loads((destination / 'precheck-result.json').read_text())
++                    assert precheck['fresh_review_contract_path'] == CONTRACT
+                     assert precheck['fresh_review_contract_sha256'] == digest(contract_path)
+                     assert sorted(p.name for p in destination.iterdir()) == ['precheck-result.json']
+                     assert run(root, runtime).returncode != 0

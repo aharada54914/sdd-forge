@@ -419,15 +419,21 @@ rm "${SPEC_DIR}/requirements.md"
 ln -s "${ROOT}/README.md" "${SPEC_DIR}/requirements.md"
 expect_failure "${PRECHECK}" "${FEATURE}" 1 1
 
-# Reviewer definitions are distinct, read-only, and deny raw cross-role input.
+# Reviewer definitions are distinct, nonmutating, and deny raw cross-role input.
+# Bash is present solely for pinned SHA256 recipes; the separate capability and
+# session-local PreToolUse guard regressions exercise that effective boundary.
 agent_a="${ROOT}/plugins/sdd-review-loop/agents/spec-reviewer-a.md"
 agent_b="${ROOT}/plugins/sdd-review-loop/agents/spec-reviewer-b.md"
 agent_names="$(sed -n 's/^name: //p' "${ROOT}"/plugins/sdd-review-loop/agents/*-reviewer-*.md | sort -u | wc -l | tr -d ' ')"
 [[ "${agent_names}" == 6 ]] || fail "expected six distinct review roles"
 grep -q '^name: spec-reviewer-a$' "${agent_a}" || fail "missing reviewer A identity"
 grep -q '^name: spec-reviewer-b$' "${agent_b}" || fail "missing reviewer B identity"
-grep -q '^tools: Read, Grep, Glob$' "${agent_a}" || fail "reviewer A is not read-only"
-grep -q '^tools: Read, Grep, Glob$' "${agent_b}" || fail "reviewer B is not read-only"
+grep -q '^tools: Read, Grep, Glob, Bash$' "${agent_a}" || fail "reviewer A tool capability changed"
+grep -q '^tools: Read, Grep, Glob, Bash$' "${agent_b}" || fail "reviewer B tool capability changed"
+grep -q '^disallowedTools: Write, Edit, NotebookEdit$' "${agent_a}" || fail "reviewer A mutation tools are not denied"
+grep -q '^disallowedTools: Write, Edit, NotebookEdit$' "${agent_b}" || fail "reviewer B mutation tools are not denied"
+grep -q 'Bash is permitted only for nonmutating SHA256 computation' "${agent_a}" || fail "reviewer A lacks hash-only shell contract"
+grep -q 'Bash is permitted only for nonmutating SHA256 computation' "${agent_b}" || fail "reviewer B lacks hash-only shell contract"
 grep -q 'host-session identifier' "${agent_a}" || fail "reviewer A lacks session contract"
 grep -q 'allowed-input manifest' "${agent_b}" || fail "reviewer B lacks input manifest contract"
 grep -q 'allowed_input_manifest' "${agent_a}" || fail "reviewer A does not persist its input manifest"

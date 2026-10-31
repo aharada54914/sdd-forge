@@ -181,6 +181,9 @@ REQ-005's remaining task T-011, REQ-006's remaining task T-013, and every
 row not named above stay `Planned`. T-011 and T-013 were one task until
 task-review attempt 5 round 1 (reviewer A, SINGLE-CONCERN Major); the
 split moved AC-040/AC-041 and their TEST-040/TEST-041 rows from T-011 to
-T-013 and left AC-015/AC-028 with T-011. T-013 is a new task id and
-therefore carries `Approval: Draft`: it cannot advance past `Planned`
-until a human approves it, and T-011 blocks on it.
+T-013 and left AC-015/AC-028 with T-011. T-013 carries `Approval: Approved`
+under the existing human approval recorded in commit
+`c4d66648da01b5d3cde058a4651066839ff31a6d`; its status remains `Planned`,
+and T-011 still blocks on it. This prose reconciliation was explicitly
+authorized on 2026-10-07 for a new formal review; it neither grants a new
+approval nor changes historical review evidence or task status.

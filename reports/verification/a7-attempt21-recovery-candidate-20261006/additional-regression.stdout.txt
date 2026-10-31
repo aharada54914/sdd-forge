@@ -1,0 +1,35 @@
+PASS accept legacy truncated positive
+PASS reject legacy bad_verdict: completed last-attempt verdict changed
+PASS reject legacy unfinished: failed first turn has no completed host transcript
+PASS reject legacy changed_input: failed-round inputs changed
+PASS reject legacy reused_session: last-attempt reviewer session reused
+PASS reject legacy unexpected_output: unexpected last-attempt round-3 evidence inventory
+PASS reject legacy replay: unexpected last-attempt round inventory
+PASS reject legacy empty_hashes: incomplete current input hashes
+PASS reject legacy partial_hashes: incomplete current input hashes
+PASS reject legacy changed_transcript_pin: failed-turn transcript changed
+PASS reject legacy changed_blocker_pin: failed-turn diagnostic binding mismatch
+PASS reject legacy complete_user_prompt: first turn was not the pinned truncated input
+PASS reject legacy precheck_only: last-attempt manifest differs from its precheck
+PASS reject legacy missing_input: last-attempt manifest differs from its precheck
+PASS reject legacy extra_input: last-attempt manifest differs from its precheck
+PASS reject legacy mismatched_input: last-attempt manifest differs from its precheck
+PASS reject legacy duplicate_input: last-attempt manifest differs from its precheck
+PASS reject legacy missing_b_summary: last-attempt manifest differs from its precheck
+PASS ordinary raw JSON postflight DELIVERY_OK (transport only, not verdict schema)
+PASS duplicate wrapper rejected
+PASS completed-round allocation remains required; exception failed-round only
+PASS existing chain full validate authority/inventory/ledger
+PASS bash existing chain canonical terminal contract and ordinary lock path
+PASS bash replay rejected
+PASS pwsh existing chain canonical terminal contract and ordinary lock path
+PASS pwsh replay rejected
+PASS bash real completed-round exact23 canonical contract; ordinary round2 precheck/lock
+PASS pwsh real completed-round exact23 canonical contract; ordinary round2 precheck/lock
+PASS full A21 real-history admission; synthetic authority only; historical bytes unchanged
+PASS reject historical precheck pin without repinning history
+PASS reject historical manifest pin without repinning history
+PASS reject current failed-round mismatch without repinning history
+PASS bash full A21 canonical completed-round contracts and lock revalidation
+PASS pwsh full A21 canonical completed-round contracts and lock revalidation
+No owner files, ledger, reservations, approval or verdict modified; final correction 3/3.

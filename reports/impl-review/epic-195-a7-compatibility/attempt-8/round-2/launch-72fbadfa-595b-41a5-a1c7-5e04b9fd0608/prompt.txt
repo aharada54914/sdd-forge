@@ -1,0 +1,67 @@
+SDD independent implementation-policy review; manifest-only, read-only.
+{"invocation": "reports/review-context/a7-impl-a8r2-b-invocation.json", "invocation_sha256": "be53e0203aab8f831a9a549b78c9180744557082fc1fa9fbd36584111019db56", "receipt": "REVIEW_CONTEXT_OK 5cb86e494ce93ebf817f8a7a9ae8cdfcebc1bbf68d901b0b8fe6b7ae3a0a626e sequence=1219 previous_record_sha256=ccbbc3b24bc7f955207ae3f133e31d36e1e99011bf70a0c30108553a3d645351 pre_append_tip_sequence=1218 identity_unique=yes", "role": "impl-reviewer-b"}
+Pre-reservation conditional-input resolution, rechecked immediately before reservation (launch-control observation, not a review verdict): {"design_system_status": "not-applicable", "domain_status": "skipped", "inputs": [], "observed": {"design-system/": null, "domain/context-map.md": null, "domain/domain-contract.json": null}}
+Use the observed presence and domain/design-system eligibility for the role checks and state the applicable SKIP reason. Do not run directory/presence shell probes; this session permits only the exact listed Bash commands. Inspect admitted substantive inputs independently.
+Launch-control input (not peer evidence): read and hash the boundary document below.
+{"boundary_path": "plugins/sdd-review-loop/references/review-context-boundary.md", "boundary_sha256": "9ae1d2588eb01dd773560ae30cd017acef876b9688daf2bc42d0afaaaef95a1d", "exact_permission_rules": ["Bash(rtk proxy shasum -a 256 plugins/sdd-review-loop/references/reviewer-calibration.md)", "Bash(rtk proxy shasum -a 256 reports/impl-review/epic-195-a7-compatibility/attempt-8/round-2/integrated-summary.json)", "Bash(rtk proxy shasum -a 256 reports/impl-review/epic-195-a7-compatibility/attempt-8/round-2/precheck-result.json)", "Bash(rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/acceptance-tests.md)", "Bash(rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/design.md)", "Bash(rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/frontend-spec.md)", "Bash(rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/infra-spec.md)", "Bash(rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/investigation.md)", "Bash(rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/requirements.md)", "Bash(rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/security-spec.md)", "Bash(rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/ux-spec.md)", "Bash(rtk proxy printf '%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s' plugins/sdd-review-loop/references/reviewer-calibration.md a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2 reports/impl-review/epic-195-a7-compatibility/attempt-8/round-2/integrated-summary.json 93804ae8ba84efd576c5bd46fb6eef4b86c822214a85fd620f42e51d7be36035 reports/impl-review/epic-195-a7-compatibility/attempt-8/round-2/precheck-result.json d1a794f143b0b515123f834438b76b35e3dc44f9d5c32f260ebca2efaf633352 specs/epic-195-a7-compatibility/acceptance-tests.md dca8c1551ea0f268fc02944a8e0fe078b557c416ef3f37649c7c33590fff6d13 specs/epic-195-a7-compatibility/design.md e8cbc1f4feb8e6e6e2756c9f9000a33e192e3fd2fa51697d5978df540502309e specs/epic-195-a7-compatibility/frontend-spec.md 6fe07b945a36829b448b8d92677992480a4945f8f71f304f28461382b5a713be specs/epic-195-a7-compatibility/infra-spec.md 02b2bdd3e6f136b77ae1623c07ca5e3c3e281bd4f44ee8c613c3fd983b7d223b specs/epic-195-a7-compatibility/investigation.md efd4127b38dc5ebe9bc754ea1a3df0c00b4140056667febd724dea8dc9af987e specs/epic-195-a7-compatibility/requirements.md f188aef257cb4afd5f0185aeff010d0fae6ee665f9aa2d0fbbb9ee2031c88c46 specs/epic-195-a7-compatibility/security-spec.md de232f61745feb1ac34ddbb4f4d593bc8808f367f43cbd763887b8cfe216efa3 specs/epic-195-a7-compatibility/ux-spec.md 5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba)", "Bash(rtk proxy printf %s '1219|impl|impl-reviewer-b|72fbadfa-595b-41a5-a1c7-5e04b9fd0608|72fbadfa-595b-41a5-a1c7-5e04b9fd0608|ccbbc3b24bc7f955207ae3f133e31d36e1e99011bf70a0c30108553a3d645351|allowed-inputs-v1|c369a22beb98441f3d592b7972ebe84a050f3a47209373a949465984619ed6a6')", "Bash(rtk proxy shasum -a 256 plugins/sdd-review-loop/references/review-context-boundary.md)", "Bash(rtk proxy shasum -a 256)", "Bash(rtk proxy test -d domain)"], "hash_commands": ["rtk proxy printf '%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s\\n%s\\t%s' plugins/sdd-review-loop/references/reviewer-calibration.md a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2 reports/impl-review/epic-195-a7-compatibility/attempt-8/round-2/integrated-summary.json 93804ae8ba84efd576c5bd46fb6eef4b86c822214a85fd620f42e51d7be36035 reports/impl-review/epic-195-a7-compatibility/attempt-8/round-2/precheck-result.json d1a794f143b0b515123f834438b76b35e3dc44f9d5c32f260ebca2efaf633352 specs/epic-195-a7-compatibility/acceptance-tests.md dca8c1551ea0f268fc02944a8e0fe078b557c416ef3f37649c7c33590fff6d13 specs/epic-195-a7-compatibility/design.md e8cbc1f4feb8e6e6e2756c9f9000a33e192e3fd2fa51697d5978df540502309e specs/epic-195-a7-compatibility/frontend-spec.md 6fe07b945a36829b448b8d92677992480a4945f8f71f304f28461382b5a713be specs/epic-195-a7-compatibility/infra-spec.md 02b2bdd3e6f136b77ae1623c07ca5e3c3e281bd4f44ee8c613c3fd983b7d223b specs/epic-195-a7-compatibility/investigation.md efd4127b38dc5ebe9bc754ea1a3df0c00b4140056667febd724dea8dc9af987e specs/epic-195-a7-compatibility/requirements.md f188aef257cb4afd5f0185aeff010d0fae6ee665f9aa2d0fbbb9ee2031c88c46 specs/epic-195-a7-compatibility/security-spec.md de232f61745feb1ac34ddbb4f4d593bc8808f367f43cbd763887b8cfe216efa3 specs/epic-195-a7-compatibility/ux-spec.md 5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba | rtk proxy shasum -a 256", "rtk proxy printf %s '1219|impl|impl-reviewer-b|72fbadfa-595b-41a5-a1c7-5e04b9fd0608|72fbadfa-595b-41a5-a1c7-5e04b9fd0608|ccbbc3b24bc7f955207ae3f133e31d36e1e99011bf70a0c30108553a3d645351|allowed-inputs-v1|c369a22beb98441f3d592b7972ebe84a050f3a47209373a949465984619ed6a6' | rtk proxy shasum -a 256"], "inputs_sha256": "c369a22beb98441f3d592b7972ebe84a050f3a47209373a949465984619ed6a6", "inputs_text": "plugins/sdd-review-loop/references/reviewer-calibration.md\ta73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2\nreports/impl-review/epic-195-a7-compatibility/attempt-8/round-2/integrated-summary.json\t93804ae8ba84efd576c5bd46fb6eef4b86c822214a85fd620f42e51d7be36035\nreports/impl-review/epic-195-a7-compatibility/attempt-8/round-2/precheck-result.json\td1a794f143b0b515123f834438b76b35e3dc44f9d5c32f260ebca2efaf633352\nspecs/epic-195-a7-compatibility/acceptance-tests.md\tdca8c1551ea0f268fc02944a8e0fe078b557c416ef3f37649c7c33590fff6d13\nspecs/epic-195-a7-compatibility/design.md\te8cbc1f4feb8e6e6e2756c9f9000a33e192e3fd2fa51697d5978df540502309e\nspecs/epic-195-a7-compatibility/frontend-spec.md\t6fe07b945a36829b448b8d92677992480a4945f8f71f304f28461382b5a713be\nspecs/epic-195-a7-compatibility/infra-spec.md\t02b2bdd3e6f136b77ae1623c07ca5e3c3e281bd4f44ee8c613c3fd983b7d223b\nspecs/epic-195-a7-compatibility/investigation.md\tefd4127b38dc5ebe9bc754ea1a3df0c00b4140056667febd724dea8dc9af987e\nspecs/epic-195-a7-compatibility/requirements.md\tf188aef257cb4afd5f0185aeff010d0fae6ee665f9aa2d0fbbb9ee2031c88c46\nspecs/epic-195-a7-compatibility/security-spec.md\tde232f61745feb1ac34ddbb4f4d593bc8808f367f43cbd763887b8cfe216efa3\nspecs/epic-195-a7-compatibility/ux-spec.md\t5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba", "record_sha256": "5cb86e494ce93ebf817f8a7a9ae8cdfcebc1bbf68d901b0b8fe6b7ae3a0a626e", "record_text": "1219|impl|impl-reviewer-b|72fbadfa-595b-41a5-a1c7-5e04b9fd0608|72fbadfa-595b-41a5-a1c7-5e04b9fd0608|ccbbc3b24bc7f955207ae3f133e31d36e1e99011bf70a0c30108553a3d645351|allowed-inputs-v1|c369a22beb98441f3d592b7972ebe84a050f3a47209373a949465984619ed6a6"}
+Execute these exact commands in numbered order, waiting for each successful digest before the next command. Preserve literal TAB/LF characters inside quotes; do not copy JSON escape sequences into Bash.
+1.
+```sh
+rtk proxy shasum -a 256 plugins/sdd-review-loop/references/reviewer-calibration.md
+```
+2.
+```sh
+rtk proxy shasum -a 256 reports/impl-review/epic-195-a7-compatibility/attempt-8/round-2/integrated-summary.json
+```
+3.
+```sh
+rtk proxy shasum -a 256 reports/impl-review/epic-195-a7-compatibility/attempt-8/round-2/precheck-result.json
+```
+4.
+```sh
+rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/acceptance-tests.md
+```
+5.
+```sh
+rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/design.md
+```
+6.
+```sh
+rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/frontend-spec.md
+```
+7.
+```sh
+rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/infra-spec.md
+```
+8.
+```sh
+rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/investigation.md
+```
+9.
+```sh
+rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/requirements.md
+```
+10.
+```sh
+rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/security-spec.md
+```
+11.
+```sh
+rtk proxy shasum -a 256 specs/epic-195-a7-compatibility/ux-spec.md
+```
+12.
+```sh
+rtk proxy shasum -a 256 plugins/sdd-review-loop/references/review-context-boundary.md
+```
+13.
+```sh
+rtk proxy printf '%s\t%s\n%s\t%s\n%s\t%s\n%s\t%s\n%s\t%s\n%s\t%s\n%s\t%s\n%s\t%s\n%s\t%s\n%s\t%s\n%s\t%s' plugins/sdd-review-loop/references/reviewer-calibration.md a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2 reports/impl-review/epic-195-a7-compatibility/attempt-8/round-2/integrated-summary.json 93804ae8ba84efd576c5bd46fb6eef4b86c822214a85fd620f42e51d7be36035 reports/impl-review/epic-195-a7-compatibility/attempt-8/round-2/precheck-result.json d1a794f143b0b515123f834438b76b35e3dc44f9d5c32f260ebca2efaf633352 specs/epic-195-a7-compatibility/acceptance-tests.md dca8c1551ea0f268fc02944a8e0fe078b557c416ef3f37649c7c33590fff6d13 specs/epic-195-a7-compatibility/design.md e8cbc1f4feb8e6e6e2756c9f9000a33e192e3fd2fa51697d5978df540502309e specs/epic-195-a7-compatibility/frontend-spec.md 6fe07b945a36829b448b8d92677992480a4945f8f71f304f28461382b5a713be specs/epic-195-a7-compatibility/infra-spec.md 02b2bdd3e6f136b77ae1623c07ca5e3c3e281bd4f44ee8c613c3fd983b7d223b specs/epic-195-a7-compatibility/investigation.md efd4127b38dc5ebe9bc754ea1a3df0c00b4140056667febd724dea8dc9af987e specs/epic-195-a7-compatibility/requirements.md f188aef257cb4afd5f0185aeff010d0fae6ee665f9aa2d0fbbb9ee2031c88c46 specs/epic-195-a7-compatibility/security-spec.md de232f61745feb1ac34ddbb4f4d593bc8808f367f43cbd763887b8cfe216efa3 specs/epic-195-a7-compatibility/ux-spec.md 5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba | rtk proxy shasum -a 256
+```
+14.
+```sh
+rtk proxy printf %s '1219|impl|impl-reviewer-b|72fbadfa-595b-41a5-a1c7-5e04b9fd0608|72fbadfa-595b-41a5-a1c7-5e04b9fd0608|ccbbc3b24bc7f955207ae3f133e31d36e1e99011bf70a0c30108553a3d645351|allowed-inputs-v1|c369a22beb98441f3d592b7972ebe84a050f3a47209373a949465984619ed6a6' | rtk proxy shasum -a 256
+```
+Independently reconstruct inputs_text from the ordered invocation entries as path TAB sha256 joined with LF, no terminal newline. Hash its exact UTF-8 bytes. Reconstruct record_text as sequence|stage|role|run_id|host_session_id|previous_record_sha256 followed by |allowed-inputs-v1| and that input digest. Hash its exact UTF-8 bytes. Use the two literal no-newline hash commands only after checking their text against this independent reconstruction. Caller-provided digests alone are not reviewer proof. Successfully hash admitted files in manifest order, then the boundary document, then ordered inputs, then the receipt record before any substantive Read. Wait for each hash tool result and compare its digest before issuing the next tool call; never parallelize. A routine first-Bash fact-forcing refusal may be retried once with identical command bytes after providing the required facts; it is not a review or session retry. Any other refusal or changed command stops without a verdict. Require equality to the quoted receipt and sequence=tip+1, previous link equality and identity_unique=yes before reviewing substantive inputs. If any operation cannot be performed, stop without a verdict. Never inspect the ledger or reserve again.
+Verify the invocation, reserved receipt and every admitted input hash using the canonical review-context contract before reading review inputs. Do not reserve again.
+Read only admitted inputs; follow the pinned role and precheck obligations. Do not read peer outputs or modify files. Stop on admission failure without a verdict.
+Evaluate independently. Return only the complete canonical role JSON with the invocation run/session identities; no markdown or omitted checks.

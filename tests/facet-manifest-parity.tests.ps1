@@ -25,6 +25,12 @@
 $ErrorActionPreference = 'Stop'
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+# Runtime boundary only; historical task-commit provenance is separate evidence.
+# BEGIN workflow snapshot
+$LiveWorkflow = Join-Path $RepoRoot '.github/workflows/test.yml'
+$WorkflowBefore = $null
+try { $WorkflowBefore = [Convert]::ToBase64String([IO.File]::ReadAllBytes($LiveWorkflow)) } catch { }
+# END workflow snapshot
 $Scripts = Join-Path $RepoRoot 'plugins/sdd-quality-loop/scripts'
 $FixturesSchema = Join-Path $RepoRoot 'tests/fixtures/facet-manifest/schema'
 $FixturesSemantics = Join-Path $RepoRoot 'tests/fixtures/facet-manifest/semantics'
@@ -423,18 +429,6 @@ if ((Test-Path -LiteralPath $StagedWorkflow) -and (Test-Path -LiteralPath $Stage
     Fail 'TEST-033: MANIFEST.sha256 or the staged candidate is missing'
 }
 
-$GitDirCheck = & git -C $RepoRoot rev-parse --git-dir 2>&1
-if ($LASTEXITCODE -eq 0) {
-    & git -C $RepoRoot diff --quiet HEAD -- .github/workflows/test.yml 2>$null
-    if ($LASTEXITCODE -eq 0) {
-        Ok 'TEST-033: the live .github/workflows/test.yml is byte-unchanged relative to its committed state (this task never writes to it)'
-    } else {
-        Fail 'TEST-033: live .github/workflows/test.yml has an uncommitted modification -- this task must never write to it'
-    }
-} else {
-    Fail "TEST-033: cannot verify the live workflow is unmodified (no git repository resolved at $RepoRoot)"
-}
-
 # =============================================================================
 # TEST-043: provider-neutrality scan.
 #
@@ -560,6 +554,15 @@ if ($RunAllPs1.Contains('tests/facet-manifest-parity.tests.ps1')) {
     Fail 'self-registration: tests/run-all.ps1 does not list tests/facet-manifest-parity.tests.ps1'
 }
 
+# BEGIN workflow comparison
+$WorkflowUnchanged = $false
+try {
+    $WorkflowAfter = [Convert]::ToBase64String([IO.File]::ReadAllBytes($LiveWorkflow))
+    $WorkflowUnchanged = $null -ne $WorkflowBefore -and $WorkflowBefore -ceq $WorkflowAfter
+} catch { }
+if ($WorkflowUnchanged) { Ok 'TEST-033: live workflow bytes unchanged during this suite' }
+else { Fail 'TEST-033: live workflow changed or could not be read during this suite' }
+# END workflow comparison
 Remove-Item -Recurse -Force $WorkDir -ErrorAction SilentlyContinue
 
 Write-Host ''

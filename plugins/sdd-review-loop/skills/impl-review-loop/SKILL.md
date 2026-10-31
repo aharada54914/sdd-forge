@@ -139,14 +139,43 @@ impl-reviewer-a is read-only. It must not modify any spec file.
 Immediately before invoking it, run the same precheck command with
 `--verify-inputs`. Halt if any core or layer input differs from the persisted
 precheck manifest.
+Select one identity launch mode before creating the invocation. The ordinary
+mode allocates a fresh, idle host-issued reviewer context without a model turn
+or review inputs, then reserves that exact run/session identity before its
+first turn. The opt-in local Claude CLI non-TTY mode below instead proposes
+one new UUIDv4 for both identity fields and proves host acceptance after the
+single first turn; a proposal is never represented as a host-issued identity.
 Then persist a one-role `review-context-invocation/v2` manifest and bind it to
 the current hash/final record of the canonical
-`reports/review-context/identity-ledger.json`. Run
+`reports/review-context/identity-ledger.json`. For the ordinary host-issued
+route, pin the invocation's raw SHA-256 outside the manifest and run
+`python3 -B plugins/sdd-review-loop/scripts/preflight-host-review.py
+<repository-root> <invocation-manifest> --manifest-sha256 <caller-pin>`.
+Pass `--runtime powershell` when reserving through the PowerShell validator;
+otherwise use the Bash default for both precheck and preview.
+For a CLI host append `--host-cli <actual-executable>` and
+`--help-subcommand=<name>` for each launch subcommand, then
+`--required-flag=<flag>` for each flag in the actual launch; for a non-CLI app
+make no CLI-help claim. Require `HOST_REVIEW_PREFLIGHT_OK` immediately before
+reservation, with the raw pin unchanged. This validates required inputs,
+dependencies and canonical preview but does not prove effective permissions or
+reserve; retain the separate host permission diagnostic and allocation receipt.
+Then run
 `plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
 <invocation-manifest> <repository-root> --reserve` or the PowerShell equivalent
 with `-Reserve`. Require `REVIEW_CONTEXT_OK` before launch. Missing/stale ledger
 state, identity reuse, or any other non-zero result blocks launch; never replace
-persisted history with caller-supplied reserved-ID arrays.
+persisted history with caller-supplied reserved-ID arrays. For non-TTY, the
+shared launcher below owns the only reservation; never reserve manually first.
+
+For non-TTY mode, use the single shared launch command in the section below.
+It performs preflight, strict exact-tool/hash permission proof, policy/settings
+and role-source pin/readback, the ordinary validator's single reservation,
+helper-generated control prompt, one Sonnet first turn and postflight. Do not
+start a separate `claude` turn. Only its verified delivery can proceed to the
+existing complete impl output/manifest/hash validation and adoption. A launch
+refusal or malformed role JSON consumes the reservation without producing a
+review finding or permitting reviewer B to start.
 
 ### STEP 3 — Generate integrated-summary.json
 
@@ -192,10 +221,63 @@ impl-reviewer-b is read-only. It must not modify any spec file.
 Immediately before invoking it, rerun the precheck with `--verify-inputs`.
 This verification mode is read-only and must not replace review evidence.
 Create a new one-role `review-context-invocation/v2` manifest using the ledger
-state after reviewer A, then invoke `validate-review-context-set` with
-`--reserve` (Bash) or `-Reserve` (PowerShell). Require `REVIEW_CONTEXT_OK`
-before launching reviewer B. Reviewer B does not require any future task or
+state after reviewer A. In ordinary host-issued mode, run the same pinned
+non-reserving host preflight for B's own invocation immediately before invoking
+`validate-review-context-set` with `--reserve` (Bash) or `-Reserve`
+(PowerShell) and require `REVIEW_CONTEXT_OK` before launching reviewer B.
+In non-TTY mode, call the shared launcher once instead; it performs that
+reservation internally. Reviewer B does not require any future task or
 evaluator context.
+Use the same selected identity mode, preflight/proposal, exact first-turn
+prompt and postflight checks as reviewer A, but a distinct UUID/context and
+only reviewer B's own admitted inputs. Never expose reviewer-a.json or raw
+findings; the current sanitized integrated-summary.json is its sole A-derived
+input. A failed A delivery forbids B reservation.
+
+### Local Claude CLI non-TTY launch conditions
+
+Before constructing each invocation, run
+`python3 -B plugins/sdd-quality-loop/scripts/review-conditional-inputs.py --root <absolute-repository-root> --feature <feature> --stage impl`.
+Add its `inputs` path/hash pairs to the ordinary required inputs without
+duplicates. For an active domain contract, pin every Aggregate card in the
+requirements' Bounded-Context, sorted by path and deduplicated; selection does
+not depend on semantic Entity matching. Reviewers still evaluate that matching.
+Missing or unsafe cards stop before reservation; never omit inputs or broaden
+allowed paths to proceed.
+The launcher rechecks both selected inputs and selection conditions.
+
+The opt-in mode uses the shared read-only verifier
+`plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py`; its filename
+is retained for existing spec callers, but it validates the stage/role pair
+for either `spec` or `impl`. The UUID must be canonical UUIDv4, absent from
+the canonical ledger and native transcript location. The preflight checks
+that absence and the invocation's current ledger pin, but does not reserve or
+prove host acceptance. For each reviewer, after persisting its invocation and
+before any manual reservation, invoke only:
+
+```text
+rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py <absolute-repository-root> <absolute-invocation-path> <absolute-round-directory>/launch-<UUID>
+```
+
+`<UUID>` is the invocation's proposed `run_id` and `host_session_id`; the
+output directory must not already exist. The launcher performs current
+`--verify-inputs`, CLI/role checks, unreserved native permission proof,
+dependency pin/readback and recheck, the ordinary validator's single
+`--reserve`, strict control prompt, one non-TTY first turn and postflight.
+Require its exact `REVIEW_CONTEXT_OK` receipt and verified delivery. Keep the
+proposal/preflight record at the usual round-scoped
+`reviewer-<a|b>-host-allocation.json` path, labelled as a caller proposal and
+not a host-issued receipt; `launch-<UUID>/caller-proposal.json` is the
+launcher's source record. If either record is absent, stop before adoption.
+The helper's complete prompt and postflight enforce the same UUID, receipt
+chain, invocation hash, sole first human turn, native session identity and
+raw canonical role JSON. No same-session retry, modified-ID replay, fallback,
+write tool, weakened `dontAsk` setting or hook change is admitted. The mode
+requires prior unreserved native observation of both accepted `--session-id`
+delivery and existing-session collision rejection; fixture tests alone are
+insufficient. A failed launch preserves its reservation and old transcript;
+the next attempt needs a fresh admitted round. The result still needs both
+independent reviewers and the existing merged-verdict validation.
 
 ### STEP 5 — Merge Verdicts
 

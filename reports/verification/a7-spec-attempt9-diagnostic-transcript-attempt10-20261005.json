@@ -1,0 +1,31 @@
+{
+  "purpose": "Local diagnostic retention only; not a reviewer output, verdict, or historical transition-legality attestation.",
+  "source_kind": "original Claude host JSONL retained locally outside this repository",
+  "source_sha256": "e8f30a130909b7d43badccb31c2b6e4bc0722a9e94ce5b39c4874bf99613a550",
+  "source_session_id": "db5cb845-09ec-4c4a-b27e-e7c461e8a380",
+  "source_size_description": "2.8 MB local original; not copied into this report to avoid retaining unrelated private conversation content in a Git-visible file",
+  "observed_events": [
+    {
+      "jsonl_line": 83,
+      "timestamp_utc": "2026-10-04T14:01:47.464Z",
+      "kind": "assistant end_turn",
+      "entrypoint": "cli",
+      "diagnostic": "BLOCKED; review unevaluated after read-only hash command permission denial"
+    },
+    {
+      "jsonl_line": 98,
+      "timestamp_utc": "2026-10-04T14:05:46.002Z",
+      "kind": "new user prompt in same host session",
+      "entrypoint": "sdk-cli",
+      "diagnostic": "request to continue the same reserved review"
+    },
+    {
+      "jsonl_line": 224,
+      "timestamp_utc": "2026-10-04T14:06:57.701Z",
+      "kind": "assistant end_turn",
+      "entrypoint": "sdk-cli",
+      "diagnostic": "resumed PASS-shaped output; invalid as first-turn review evidence"
+    }
+  ],
+  "disposition": "diagnostic-only; transition legality not established"
+}

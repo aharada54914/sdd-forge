@@ -432,7 +432,7 @@ if (Test-CapabilityApplicabilityShape $badCapabilityInventory) {
 Write-Output "=== TEST-009: event trace API + legacy helper non-regression ==="
 
 $expectedArtifactsSha = "0734964255324b2f23be7639f86f1175552e50d908c3556f454838e7fc7d9d7a"
-$expectedTerminalSha = "460467af4a0b89af0b1cc0cb1ec94aa022dec00a81abbcd00924288727367757"
+$expectedTerminalSha = "568ae7ff12bf44b2e0d87766b3ea8014122750bf8b50868ed86f6c340fb676cb"
 if ((Get-FunctionBodySha256 $loopDriver "Test-ArtifactsSchema") -eq $expectedArtifactsSha) {
     Ok "TEST-009.1: Test-ArtifactsSchema remains byte-identical"
 } else {
@@ -446,8 +446,8 @@ if ((Get-FunctionBodySha256 $loopDriver "Test-LoopTerminal") -eq $expectedTermin
 
 $mutatedDriver = Join-Path $work "loop-driver.mutated.ps1"
 $mutatedText = [IO.File]::ReadAllText($loopDriver).Replace(
-    'return ($expected -eq $Observed)',
-    'return ($expected -ceq $Observed)'
+    'if ($expected -ne $Observed) { return $false }',
+    'if ($expected -cne $Observed) { return $false }'
 )
 [IO.File]::WriteAllText($mutatedDriver, $mutatedText, [Text.UTF8Encoding]::new($false))
 if ((Get-FunctionBodySha256 $mutatedDriver "Test-LoopTerminal") -eq $expectedTerminalSha) {
@@ -457,6 +457,34 @@ if ((Get-FunctionBodySha256 $mutatedDriver "Test-LoopTerminal") -eq $expectedTer
 }
 
 . $loopDriver
+$script:_LOOP_EVENT_TRACE = '[]'
+$script:_LOOP_EVENT_SEQ = 0
+$terminalOk = Test-LoopTerminal -LoopId quality-gate -Observed Escalate-Human -ExitCode 0
+$terminalTraceOk = $script:_LOOP_EVENT_TRACE | & jq -e '
+  length == 1 and .[0].kind == "done-transition" and
+  .[0].producer == "done-transition:assert-terminal" and
+  .[0].value == "Escalate-Human"' 2>$null
+if ($terminalOk -and $LASTEXITCODE -eq 0 -and $terminalTraceOk -and $script:_LOOP_EVENT_SEQ -eq 1) {
+    Ok "TEST-026.1: successful terminal comparison emits one transition"
+} else {
+    Fail "TEST-026.1: successful terminal comparison did not emit one transition"
+}
+foreach ($terminalCase in @('mismatch', 'nonzero-exit', 'missing-expected')) {
+    $script:_LOOP_EVENT_TRACE = '[]'
+    $script:_LOOP_EVENT_SEQ = 0
+    switch ($terminalCase) {
+        'mismatch' { $terminalOk = Test-LoopTerminal -LoopId quality-gate -Observed Wrong -ExitCode 0 }
+        'nonzero-exit' { $terminalOk = Test-LoopTerminal -LoopId quality-gate -Observed Escalate-Human -ExitCode 1 }
+        'missing-expected' { $terminalOk = Test-LoopTerminal -LoopId unknown-loop -Observed Escalate-Human -ExitCode 0 }
+    }
+    if (-not $terminalOk -and $script:_LOOP_EVENT_TRACE -eq '[]' -and $script:_LOOP_EVENT_SEQ -eq 0) {
+        Ok "TEST-026.2: $terminalCase returns failure without a false transition"
+    } else {
+        Fail "TEST-026.2: $terminalCase returned success or emitted a false transition"
+    }
+}
+$script:_LOOP_EVENT_TRACE = '[]'
+$script:_LOOP_EVENT_SEQ = 0
 $traceApiReady = $true
 foreach ($functionName in @("Write-LoopTraceEvent", "Test-CapabilityApplicability", "Test-EventTrace")) {
     if (Get-Command $functionName -CommandType Function -ErrorAction SilentlyContinue) {

@@ -1,0 +1,19 @@
+--- a/specs/epic-195-a7-compatibility/tasks.md
++++ b/specs/epic-195-a7-compatibility/tasks.md
+@@ -693,7 +693,13 @@
+ - [ ] `tests/structural-compatibility.tests.sh`/`.ps1` self-register in
+   `tests/run-all.sh`/`.ps1`.
+-- [ ] Implementation report created; quality gate passes; traceability.md
+-  updated with T-004 → REQ-002 (AC-005, AC-006, AC-007, AC-030, AC-042,
+-  AC-043).
++- [ ] Implementation report created; quality gate passes; the implementation
++  report or `specs/epic-195-a7-compatibility/verification/T-004/` addendum
++  records T-004 → REQ-002 (AC-005, AC-006, AC-007, AC-030, AC-042, AC-043)
++  without modifying the frozen `traceability.md`.
++
++Human-authorized amendment (2026-10-04): replace the frozen-document update
++with the equivalent non-frozen addendum record under AGENTS.md WFI-004.
++This wording change requires post-implementation provenance re-review;
++it does not itself satisfy the quality-gate or Done decision.
+ 
+ ### Out of Scope

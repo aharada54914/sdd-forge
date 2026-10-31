@@ -1,0 +1,17 @@
+# A7 implementation-review conditional-state prompt repair
+
+- Issue/task: A7 shared non-TTY implementation-review native A/B failure; both reviewers attempted a chained `test -d domain` command outside the exact Bash policy after successful hash proof. Preserve failed native evidence.
+- Owner: A7 T-005 intake checkout. HEAD before repair: `25813ee4baf8ae8fff344a6c979da61fbd23d2c7`.
+- Dirty state before repair: shared checkout contains numerous other contributors' modified/untracked files. The shared launcher and transport and focused tests were untracked development files; preserve all unrelated changes.
+- Risk: high/protected, because launch prompt facts, admitted conditional inputs and reservation order cross review evidence and permission boundaries.
+- Scope: launcher and transport shared non-TTY implementation/spec prompt path plus focused regression only; no expanded command allowlist, formal reservation, native retry, prior-evidence mutation, publication, installation or model change.
+- Contracts: `review-conditional-inputs.py` is the current conditional-input resolver; reviewer A/B domain check applies only with an approved context map and schema-valid domain contract, and design-system applicability is separately resolved. The launcher already checks conditional input hashes before output and compares the complete resolver result again before reservation. Native failure is not a gate verdict.
+- Required validation: absent-domain prompt state, presence change before reservation with ledger unchanged, unchanged historical prompt/receipt behavior, existing spec/impl/task/quality transport regressions, independent diff review and subsequent native fixture under a separate owner.
+
+## Bounded implementation and local result
+
+- The launcher passes the already-admitted and immediately pre-reservation-revalidated `review-conditional-inputs.py` result to strict spec/impl prompt generation and postflight. The prompt marks this as a launch-control observation, not a review verdict, and tells reviewers to use observed presence/eligibility for the role's applicability/SKIP reasoning without shell presence probes. The pre-reservation comparison remains unchanged. Historical default prompts and receipts remain unchanged.
+- An absent-domain fixture asserts `domain_status: skipped` plus absent context map and contract observations in the strict prompt. A separate fixture creates a context map during the native probe and confirms the existing second resolver check rejects changed presence before reservation, with the synthetic ledger unchanged. No new Bash command was admitted.
+- Local checks: `tests/unified-launch-order.tests.py` 7/7, `tests/a7-nontty-impl-contract.tests.py` 12/12, `tests/unified-task-launch.tests.py` 9/9, `tests/quality-nontty-transport.tests.py` 7/7, Python syntax compilation and `git diff --check` all passed.
+- Current source SHA-256: `launch-impl-review.py` `b00103cab4814d2ea45913df8dc5e340938ad603abbeb2e351f4e5fc3eaeda14`; `validate-nontty-spec-launch.py` `efa1f67b88f43047baf747c2af81d013c2cd53df341e9176a88f70acf5c30a3e`; `probe-nontty-review.py` remained `b0da9d9cd9557417ddabbd94e27d7826ba6f2050b3d4e3ff5532c38b9cb9868e`.
+- Remaining: independent diff review and a newly isolated native fixture under the other owner. Neither this change nor the previous failed native transcripts is a formal verdict. Aggregate-card selection remains unresolved when the canonical resolver raises `aggregate-selection-unresolved`; this repair does not invent a semantic selector.

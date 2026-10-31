@@ -1,0 +1,22 @@
+{
+  "task_id": "T-004",
+  "feature": "epic-195-a7-compatibility",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "350aa862f6bb8000a0f48b0b8b392c6bbb895f9207bd46bdfeb6daf3abf396c9",
+  "created": "2026-10-04T00:00:00Z",
+  "comment": "Fresh candidate only. All required checks begin false; historical quality-gate contract and verdict do not prove the amended task or current working-tree bytes. Test red/green paths are implementation claims for an independent verifier to authenticate, not passing checks. Current task-plan provenance re-review and independent gate remain pending.",
+  "checks": [
+    {"id":"lint","required":false,"passes":false,"evidence":"","waiver_reason":"No configured shell/PowerShell linter for this shell-stack task; gate must verify applicability.","requirement_ids":["REQ-002"],"red_evidence":"","green_evidence":""},
+    {"id":"typecheck","required":false,"passes":false,"evidence":"","waiver_reason":"Shell and PowerShell sources have no configured static type-check command; gate must verify applicability.","requirement_ids":["REQ-002"],"red_evidence":"","green_evidence":""},
+    {"id":"build","required":false,"passes":false,"evidence":"","waiver_reason":"Scripts and JSON corpus require no compilation or bundle; gate must verify applicability.","requirement_ids":["REQ-002"],"red_evidence":"","green_evidence":""},
+    {"id":"unit-tests","required":true,"passes":false,"evidence":"","waiver_reason":"","requirement_ids":["REQ-002"],"red_evidence":"specs/epic-195-a7-compatibility/verification/T-004/activation-red-sh-20261004.log","green_evidence":"specs/epic-195-a7-compatibility/verification/T-004/activation-green-sh-20261004.log"},
+    {"id":"acceptance-tests","required":true,"passes":false,"evidence":"","waiver_reason":"","requirement_ids":["REQ-002"],"red_evidence":"specs/epic-195-a7-compatibility/verification/T-004/activation-red-ps1-20261004.log","green_evidence":"specs/epic-195-a7-compatibility/verification/T-004/activation-green-ps1-20261004.log"},
+    {"id":"regression","required":true,"passes":false,"evidence":"","waiver_reason":"","requirement_ids":["REQ-002"],"red_evidence":"","green_evidence":""},
+    {"id":"requirement-traceability","required":true,"passes":false,"evidence":"","waiver_reason":"","requirement_ids":["REQ-002"],"red_evidence":"","green_evidence":""},
+    {"id":"check-component-coverage","required":true,"passes":false,"evidence":"","waiver_reason":"","requirement_ids":["REQ-002"],"red_evidence":"","green_evidence":""},
+    {"id":"placeholder-scan","required":true,"passes":false,"evidence":"","waiver_reason":"","requirement_ids":["REQ-002"],"red_evidence":"","green_evidence":""},
+    {"id":"task-state-check","required":true,"passes":false,"evidence":"","waiver_reason":"","requirement_ids":["REQ-002"],"red_evidence":"","green_evidence":""}
+  ]
+}

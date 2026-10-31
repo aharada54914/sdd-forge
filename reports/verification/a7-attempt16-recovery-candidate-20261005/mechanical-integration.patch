@@ -1,0 +1,322 @@
+diff --git a/plugins/sdd-review-loop/scripts/fresh-review-recovery.py b/plugins/sdd-review-loop/scripts/fresh-review-recovery.py
+--- a/plugins/sdd-review-loop/scripts/fresh-review-recovery.py
++++ b/plugins/sdd-review-loop/scripts/fresh-review-recovery.py
+@@ -10,6 +10,7 @@
+ the complete contiguous partial-attempt chain after its terminal anchor.
+ """
+ import hashlib
++import runpy
+ import json
+ import pathlib
+ import re
+@@ -145,8 +146,10 @@
+     base_keys = {'schema', 'feature', 'next_attempt', 'reason', 'input_hashes',
+                  'evidence', 'transcript', 'authority', 'historical_disposition'}
+     history_keys = {'terminal_attempt', 'partial_attempts'}
+-    require(set(data) in (base_keys, base_keys | history_keys),
++    later_round_keys = history_keys | {'failed_final_round', 'failed_turn'}
++    require(set(data) in (base_keys, base_keys | history_keys, base_keys | later_round_keys),
+             'unexpected fresh-review contract keys')
++    later_round = 'failed_final_round' in data
+     require(data['schema'] == 'spec-fresh-review-recovery/v2' and data['feature'] == feature
+             and type(data['next_attempt']) is int and data['next_attempt'] == attempt
+             and attempt >= 4, 'fresh-review identity mismatch')
+@@ -211,7 +214,8 @@
+     invocations = []
+     historical_invocations = []
+     sessions = []
+-    for old_attempt in partial_attempts:
++    completed_rounds = []
++    for old_attempt in (partial_attempts[:-1] if later_round else partial_attempts):
+         rel = f'{base}/attempt-{old_attempt}/round-1'
+         directory = root / rel
+         require(sorted(p.name for p in directory.parent.iterdir()) == ['round-1'],
+@@ -284,6 +288,22 @@
+         invocations.append(inv)
+         historical_invocations.append(invocation)
+         sessions.append(invocation['host_session_id'])
++    if later_round:
++        require(partial_attempts[-1] == attempt - 1,
++                'failed later round must be in immediately preceding attempt')
++        transcript_rel = data['transcript']['path']
++        require(isinstance(data['failed_turn'], dict) and
++                data['failed_turn'].get('transcript_path') == transcript_rel,
++                'failed turn must bind the contract transcript')
++        module = runpy.run_path(str(regular(root,
++            'plugins/sdd-review-loop/scripts/failed-last-attempt.py')))
++        last = module['inspect'](root, feature, attempt, data['failed_final_round'],
++                                 hashes, data['failed_turn'])
++        expected.update(last['evidence_paths'])
++        completed_rounds = last['completed_rounds']
++        invocations.extend(last['invocation_paths'])
++        historical_invocations.extend(last['invocations'])
++        sessions.extend(item['host_session_id'] for item in last['invocations'])
+     require(len(set(sessions)) == len(sessions), 'interrupted contexts are not independent')
+     validate_historical_reservations(root, historical_invocations)
+     transcript = data['transcript']
+@@ -316,6 +336,7 @@
+     require(digest(contract_path) == contract_sha, 'contract changed during validation')
+     return {'terminal_attempt': terminal_attempt, 'terminal_round': terminal_round,
+             'terminal_dir': terminal, 'invocations': invocations,
++            'completed_rounds': completed_rounds,
+             'contract_path': contract_rel, 'contract_sha256': contract_sha, 'input_hashes': hashes}
+ 
+ 
+diff --git a/plugins/sdd-review-loop/scripts/spec-review-precheck.sh b/plugins/sdd-review-loop/scripts/spec-review-precheck.sh
+--- a/plugins/sdd-review-loop/scripts/spec-review-precheck.sh
++++ b/plugins/sdd-review-loop/scripts/spec-review-precheck.sh
+@@ -401,6 +401,11 @@
+   terminal_verdict="$(jq -r .verdict "${terminal_dir}/spec-review-contract.json")"
+   [[ "$terminal_verdict" == PASS || "$terminal_verdict" == BLOCKED ]] || fail "fresh-review anchor is not terminal"
+   validate_contract "${terminal_dir}/spec-review-contract.json" "$terminal_attempt" "$terminal_round" "$terminal_verdict" "${terminal_dir}/precheck-result.json" || fail "fresh-review terminal anchor is invalid"
++  while IFS=$'\t' read -r complete_dir complete_attempt complete_round; do
++    [[ -n "$complete_dir" ]] || continue
++    validate_contract "${repo_root}/${complete_dir}/spec-review-contract.json" "$complete_attempt" "$complete_round" NEEDS_WORK "${repo_root}/${complete_dir}/precheck-result.json" \
++      || fail "fresh-review completed NEEDS_WORK round is invalid"
++  done < <(jq -r '.completed_rounds[]? | [.dir, .attempt, .round] | @tsv' <<< "$result")
+   # The helper verifies historical reservations against their pinned inputs.
+   # Ordinary launch validation would compare them with amended files.
+   printf '%s' "$result"
+diff --git a/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 b/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+--- a/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
++++ b/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+@@ -614,6 +614,12 @@
+   if (-not (Test-ValidateContract -ContractPath $contract -ExpectedAttempt $data.terminal_attempt -ExpectedRound $data.terminal_round -ExpectedVerdict $verdict -PrecheckPath (Join-Path $terminalDir 'precheck-result.json'))) {
+     Fail 'fresh-review terminal anchor is invalid'
+   }
++  foreach ($complete in @($data.completed_rounds)) {
++    $completeDir = Join-Path $root ([string]$complete.dir)
++    if (-not (Test-ValidateContract -ContractPath (Join-Path $completeDir 'spec-review-contract.json') -ExpectedAttempt ([int]$complete.attempt) -ExpectedRound ([int]$complete.round) -ExpectedVerdict 'NEEDS_WORK' -PrecheckPath (Join-Path $completeDir 'precheck-result.json'))) {
++      Fail 'fresh-review completed NEEDS_WORK round is invalid'
++    }
++  }
+   # The helper verifies historical reservations against their pinned inputs.
+   # Ordinary launch validation would compare them with amended files.
+   return ($raw -join "`n")
+diff --git a/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md b/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
+--- a/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
++++ b/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
+@@ -74,6 +74,13 @@
+ approval audit record transcribed by the orchestrator from the actual user
+ conversation. Label that record as an orchestrator transcription: it is not a
+ human-authored signature, registered approver sidecar, or sudo-mode grant.
++An opt-in `failed_final_round` of 2 or 3 permits only the immediately preceding
++attempt to retain earlier complete NEEDS_WORK rounds followed by one failed
++reviewer-A first turn. Pin every complete-round file, both reviewer invocation
++manifests and reservations, the failed-round precheck/host allocation/A
++invocation/blocker, and the retained local host transcript showing `end_turn`.
++Both runtime prechecks validate the complete-round contracts with their existing
++contract validators. This is record integrity, not retrospective review approval.
+ Retain the immutable contract and approval record under `reports/verification/`.
+ The new precheck records both `fresh_review_contract_path` and
+ `fresh_review_contract_sha256`. This opt-in route alone requires Python 3.
+diff --git a/plugins/sdd-review-loop/scripts/failed-last-attempt.py b/plugins/sdd-review-loop/scripts/failed-last-attempt.py
+new file mode 100644
+--- /dev/null
++++ b/plugins/sdd-review-loop/scripts/failed-last-attempt.py
+@@ -0,0 +1,205 @@
++"""Candidate-only validator for a completed NEEDS_WORK round followed by a failed first turn.
++
++This module does not create an attempt or a verdict. A caller must additionally
++run the existing full contract validator on every returned completed round and
++the existing canonical-ledger validator on every returned invocation.
++"""
++import hashlib
++import json
++import pathlib
++import re
++
++
++def require(ok, message):
++    if not ok:
++        raise ValueError(message)
++
++
++def sha(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def regular(root, rel):
++    require(isinstance(rel, str) and rel and '\\' not in rel and
++            not pathlib.PurePosixPath(rel).is_absolute() and
++            all(p not in ('.', '..') for p in rel.split('/')), 'noncanonical path')
++    path = root / rel
++    require(path.is_file() and not path.is_symlink() and path.resolve() == path,
++            'missing or unsafe evidence: ' + rel)
++    return path
++
++
++def read(root, rel):
++    return json.loads(regular(root, rel).read_bytes())
++
++
++def inspect(root, feature, next_attempt, failed_round, current_hashes, failed_turn):
++    """Return exact evidence inventory, completed rounds and old invocations.
++
++    Only the immediately preceding attempt can take this exceptional shape.
++    All complete rounds must be NEEDS_WORK, not PASS/BLOCKED; they remain
++    historic records, not a newly asserted terminal anchor. The final round
++    must have a reserved A identity but no reviewer or integrated output.
++    """
++    root = pathlib.Path(root).resolve()
++    hash_keys = {'requirements_sha256', 'acceptance_sha256', 'investigation_sha256',
++                 'calibration_sha256', 'input_sha256'}
++    require(isinstance(current_hashes, dict) and set(current_hashes) == hash_keys and
++            all(value is None and key == 'investigation_sha256' or
++                isinstance(value, str) and re.fullmatch(r'[0-9a-f]{64}', value)
++                for key, value in current_hashes.items()), 'incomplete current input hashes')
++    require(isinstance(failed_turn, dict) and set(failed_turn) == {
++        'transcript_path', 'transcript_sha256', 'blocker_sha256',
++        'host_session_id', 'failure_mode'} and
++        failed_turn['failure_mode'] == 'prompt-truncated-before-role-manifest' and
++        all(isinstance(failed_turn[key], str) and re.fullmatch(r'[0-9a-f]{64}', failed_turn[key])
++            for key in ('transcript_sha256', 'blocker_sha256')),
++        'incomplete failed-turn binding')
++    require(type(next_attempt) is int and next_attempt >= 2 and
++            type(failed_round) is int and failed_round in (2, 3),
++            'invalid later-round recovery identity')
++    old_attempt = next_attempt - 1
++    base = f'reports/spec-review/{feature}/attempt-{old_attempt}'
++    attempt_dir = root / base
++    require(attempt_dir.is_dir() and not attempt_dir.is_symlink() and
++            sorted(p.name for p in attempt_dir.iterdir()) ==
++            [f'round-{r}' for r in range(1, failed_round + 1)],
++            'unexpected last-attempt round inventory')
++    completed, invocations, invocation_paths, sessions, evidence = [], [], [], [], set()
++    common = {'precheck-result.json', 'reviewer-a-host-allocation.json'}
++    full = common | {'reviewer-b-host-allocation.json', 'reviewer-a.json',
++                     'reviewer-b.json', 'integrated-summary.json',
++                     'integrated-verdict.json', 'spec-review-contract.json', 'report.md'}
++    for round_no in range(1, failed_round + 1):
++        rel = f'{base}/round-{round_no}'
++        names = {p.name for p in (root / rel).iterdir()}
++        expected_names = full if round_no < failed_round else common | {'reviewer-a-launch-blocker.md'}
++        require(names == expected_names,
++                f'unexpected last-attempt round-{round_no} evidence inventory')
++        evidence.update(f'{rel}/{name}' for name in names)
++        pre = read(root, f'{rel}/precheck-result.json')
++        require(pre.get('schema') == 'spec-review-precheck/v1' and
++                pre.get('stage') == 'spec' and pre.get('feature') == feature and
++                type(pre.get('attempt')) is int and pre['attempt'] == old_attempt and
++                type(pre.get('round')) is int and pre['round'] == round_no and
++                pre.get('reset') is (round_no == 1) and
++                pre.get('spec_review_status_field') == 'Pending',
++                'invalid last-attempt precheck')
++        for key in hash_keys:
++            value = pre.get(key)
++            require(value is None and key == 'investigation_sha256' or
++                    isinstance(value, str) and re.fullmatch(r'[0-9a-f]{64}', value),
++                    'invalid historical precheck hash: ' + key)
++        if round_no == failed_round:
++            require(all(pre.get(key) == value for key, value in current_hashes.items()),
++                    'failed-round inputs changed')
++        roles = ('a', 'b') if round_no < failed_round else ('a',)
++        for short_role in roles:
++            role = f'spec-reviewer-{short_role}'
++            inv = f'reports/review-context/{feature}-spec-a{old_attempt}r{round_no}-{short_role}-invocation.json'
++            receipt_rel = f'{rel}/reviewer-{short_role}-host-allocation.json'
++            invocation = read(root, inv)
++            receipt = read(root, receipt_rel)
++            require(invocation.get('schema') == 'review-context-invocation/v2' and
++                    invocation.get('stage') == 'spec' and invocation.get('feature') == feature and
++                    invocation.get('role') == role and invocation.get('read_only') is True and
++                    invocation.get('input_mode') == 'file-manifest' and
++                    invocation.get('fallback_mode') == 'none',
++                    'invalid last-attempt reviewer invocation')
++            manifest = invocation.get('allowed_input_manifest')
++            expected_inputs = {
++                f'specs/{feature}/requirements.md': pre['requirements_sha256'],
++                f'specs/{feature}/acceptance-tests.md': pre['acceptance_sha256'],
++                'plugins/sdd-review-loop/references/spec-review-calibration.md':
++                    pre['calibration_sha256'],
++                f'{rel}/precheck-result.json':
++                    sha(regular(root, f'{rel}/precheck-result.json')),
++            }
++            if pre['investigation_sha256'] is not None:
++                expected_inputs[f'specs/{feature}/investigation.md'] = pre['investigation_sha256']
++            if short_role == 'b':
++                expected_inputs[f'{rel}/integrated-summary.json'] = sha(regular(
++                    root, f'{rel}/integrated-summary.json'))
++            require(isinstance(manifest, list) and
++                    len(manifest) == len(expected_inputs) and
++                    all(isinstance(item, dict) and set(item) == {'path', 'sha256'} and
++                        expected_inputs.get(item['path']) == item['sha256']
++                        for item in manifest) and
++                    len({item['path'] for item in manifest}) == len(expected_inputs),
++                    'last-attempt manifest differs from its precheck')
++            require(receipt.get('feature') == feature and
++                    receipt.get('attempt') == old_attempt and
++                    receipt.get('round') == round_no and receipt.get('role') == role and
++                    receipt.get('host_id') == invocation.get('run_id') and
++                    receipt.get('host_session_id') == invocation.get('host_session_id'),
++                    'last-attempt host receipt mismatches reservation')
++            require(invocation.get('host_session_id') not in sessions,
++                    'last-attempt reviewer session reused')
++            sessions.append(invocation['host_session_id'])
++            evidence.add(inv)
++            invocations.append(invocation)
++            invocation_paths.append(inv)
++            if round_no < failed_round:
++                output = read(root, f'{rel}/reviewer-{short_role}.json')
++                require(output.get('role') == role and
++                        output.get('run_id') == invocation.get('run_id') and
++                        output.get('host_session_id') == invocation.get('host_session_id'),
++                        'last-attempt reviewer output identity mismatch')
++        if round_no < failed_round:
++            contract = read(root, f'{rel}/spec-review-contract.json')
++            integrated = read(root, f'{rel}/integrated-verdict.json')
++            require(contract.get('feature') == feature and
++                    contract.get('attempt') == old_attempt and
++                    contract.get('round') == round_no and
++                    contract.get('verdict') == 'NEEDS_WORK' and
++                    integrated.get('verdict') == 'NEEDS_WORK' and
++                    integrated.get('attempt') == old_attempt and
++                    integrated.get('round') == round_no,
++                    'completed last-attempt verdict changed')
++            completed.append({'dir': rel, 'attempt': old_attempt,
++                              'round': round_no, 'verdict': 'NEEDS_WORK'})
++        else:
++            b_inv = root / f'reports/review-context/{feature}-spec-a{old_attempt}r{round_no}-b-invocation.json'
++            require(not b_inv.exists() and not b_inv.is_symlink(),
++                    'failed round already launched reviewer B')
++    blocker_rel = f'{base}/round-{failed_round}/reviewer-a-launch-blocker.md'
++    blocker = regular(root, blocker_rel)
++    require(sha(blocker) == failed_turn['blocker_sha256'] and
++            failed_turn['host_session_id'] == sessions[-1],
++            'failed-turn diagnostic binding mismatch')
++    blocker_text = blocker.read_text()
++    require(sessions[-1] in blocker_text and
++            'truncated' in blocker_text and 'No reviewer B' in blocker_text and
++            'not a reviewer verdict' in blocker_text,
++            'blocker does not record this failed launch')
++    transcript_rel = failed_turn['transcript_path']
++    transcript = regular(root, transcript_rel)
++    require(sha(transcript) == failed_turn['transcript_sha256'],
++            'failed-turn transcript changed')
++    events = [json.loads(line) for line in transcript.read_text().splitlines() if line.strip()]
++    meaningful = [event for event in events if event.get('type') in ('user', 'assistant')]
++    require(len([event for event in meaningful if event.get('type') == 'user']) == 1 and
++            meaningful[0].get('type') == 'user' and
++            all(event.get('sessionId') == sessions[-1] for event in meaningful) and
++            any(event.get('type') == 'assistant' and
++                isinstance(event.get('message'), dict) and
++                event['message'].get('stop_reason') == 'end_turn'
++                for event in meaningful[1:]) and
++            meaningful[-1].get('type') == 'assistant' and
++            meaningful[-1].get('message', {}).get('stop_reason') == 'end_turn',
++            'failed first turn has no completed host transcript')
++    user_content = meaningful[0].get('message', {}).get('content')
++    require(isinstance(user_content, str) and
++            user_content.lstrip().startswith('status. Apply the calibration') and
++            'REVIEW_CONTEXT_OK' not in user_content,
++            'first turn was not the pinned truncated input')
++    assistant_content = ' '.join(str(event.get('message', {}).get('content', ''))
++                                 for event in meaningful[1:] if event.get('type') == 'assistant')
++    require('missing' in assistant_content.lower() and
++            'prompt' in assistant_content.lower(),
++            'transcript does not confirm missing first-turn prompt')
++    evidence.add(transcript_rel)
++    return {'completed_rounds': completed, 'invocations': invocations,
++            'invocation_paths': invocation_paths,
++            'evidence_paths': sorted(evidence),
++            'failed_host_session_id': sessions[-1]}

@@ -558,7 +558,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/195
 
 Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
-Status: Implementation Complete
+Status: In Progress
 
 Risk: high
 
@@ -692,9 +692,14 @@ entries (AC-007, AC-042, AC-043) until their cited upstream epics merge.
   quality-gate verdict records PASS.
 - [ ] `tests/structural-compatibility.tests.sh`/`.ps1` self-register in
   `tests/run-all.sh`/`.ps1`.
-- [ ] Implementation report created; quality gate passes; traceability.md
-  updated with T-004 → REQ-002 (AC-005, AC-006, AC-007, AC-030, AC-042,
-  AC-043).
+- [ ] Implementation report created; quality gate passes; the implementation
+  report or `specs/epic-195-a7-compatibility/verification/T-004/` addendum
+  records T-004 → REQ-002 (AC-005, AC-006, AC-007, AC-030, AC-042,
+  AC-043), without modifying frozen `traceability.md`.
+
+Human-authorized amendment (2026-10-04): record this mapping in an equivalent
+non-frozen addendum under WFI-004. Post-implementation provenance re-review
+must bind this amended criterion; earlier verdicts do not prove these bytes.
 
 ### Out of Scope
 
@@ -762,10 +767,11 @@ Planned Files:
   `_loop_trace_emit <kind> <producer> <value-json>` collector; new public
   `assert_capability_applicability <loop-id> <fixture-state> <observed>`;
   new public `assert_event_trace <golden-trace-path>` comparator;
-  `assert_artifacts_schema` itself unmodified, and `assert_terminal`
-  unmodified apart from the one sanctioned `_loop_trace_emit
-  done-transition:assert-terminal` call design.md's per-kind producer
-  table places inside `assert_terminal`, AC-009)
+  `assert_artifacts_schema` itself unmodified; `assert_terminal`
+  retains its signature/comparison/return semantics, with its named
+  `_loop_trace_emit done-transition:assert-terminal` call placed after
+  successful comparison, and no event on mismatch or early return
+  (AC-009/AC-026/TEST-026))
 - `tests/lib/loop-driver.ps1` (existing, agent-editable — twin)
 - `tests/loop-inventory.tests.sh` (existing, agent-editable — a
   schema-validation case: a pre-epic copy of the registry, with no new
@@ -792,10 +798,10 @@ stays 8), and add `_loop_trace_emit`/`assert_capability_applicability`/
 `assert_event_trace` to `tests/lib/loop-driver.sh`, implementing the
 single, trace-wide monotonic-`seq` collector and the pure comparator
 design.md's Data Plan and API / Contract Plan fix, without modifying
-`assert_artifacts_schema`, and modifying `assert_terminal` only by the
-one sanctioned `_loop_trace_emit done-transition:assert-terminal` call
-design.md's per-kind producer table places inside `assert_terminal`
-(AC-009).
+`assert_artifacts_schema`, and changing `assert_terminal` only by its
+named `_loop_trace_emit done-transition:assert-terminal` call and
+comparison-before-emit placement. Failed or incomplete terminal
+assertions emit no transition (AC-009/AC-026/TEST-026).
 
 ### Must Read
 
@@ -810,10 +816,10 @@ design.md's per-kind producer table places inside `assert_terminal`
 - `specs/epic-195-a7-compatibility/acceptance-tests.md`
 - `specs/epic-195-a7-compatibility/traceability.md`
 - `tests/lib/loop-driver.sh` (`assert_artifacts_schema`, which this task
-  must leave unmodified, and `assert_terminal`, which this task must leave
-  unmodified apart from the one sanctioned `_loop_trace_emit
-  done-transition:assert-terminal` call design.md's per-kind producer
-  table places inside `assert_terminal`)
+  must leave unmodified, and `assert_terminal`, whose only sanctioned
+  body changes are the named `_loop_trace_emit
+  done-transition:assert-terminal` call and its placement after a
+  successful comparison (AC-009/AC-026/TEST-026))
 - `tests/loop-inventory.tests.sh:129-133` (the 8-entry count assertion
   this task must not break)
 
@@ -842,12 +848,13 @@ design.md's per-kind producer table places inside `assert_terminal`
 - [ ] `capability_applicability` is present only on the `quality-gate`
   entry, in the documented three-key shape.
 - [ ] `assert_artifacts_schema` is byte-identical to its pre-task form;
-  `assert_terminal` is byte-identical to its pre-task form apart from the
-  one sanctioned `_loop_trace_emit done-transition:assert-terminal` call
-  design.md's per-kind producer table places inside `assert_terminal`, and
-  matches the `assert_terminal` function-body hash TEST-009 records;
-  `assert_capability_applicability` is the only reader of the new field
-  (AC-009).
+  `assert_terminal` preserves signature, comparison semantics, and
+  return contract. Its only sanctioned body changes are the named
+  `_loop_trace_emit done-transition:assert-terminal` call and its
+  comparison-before-emit placement; no mismatch or early return emits
+  a transition. It matches both amended TEST-009 function-body hashes;
+  `assert_capability_applicability` alone reads the new field
+  (AC-009/AC-026/TEST-026).
 - [ ] `_loop_trace_emit`, `assert_capability_applicability`, and
   `assert_event_trace` exist with exactly the signatures API / Contract
   Plan fixes; `assert_event_trace` never calls `_loop_trace_emit`.
@@ -964,8 +971,10 @@ trace via `assert_event_trace` — the single oracle T-005 authored.
 - [ ] Skill-invocation-order, review-loop-presence, and
   approval-checkpoint event kinds each match the recorded golden trace
   for a Context-absent round drive (AC-022, AC-023, AC-024).
-- [ ] The done-transition event kind is asserted as the last event in the
-  round's own event sub-sequence (AC-026).
+- [ ] `TEST-018` asserts the successful `done-transition` as the
+  round's final event; `TEST-026` separately proves success emits once
+  and mismatch, non-zero exit, and missing expected state emit none in
+  both Bash and PowerShell inventory suites (AC-026).
 - [ ] Acceptance-first evidence: the case is written and run against the
   golden trace with an independent quality-gate verdict recording PASS.
 - [ ] Implementation report created; quality gate passes; traceability.md
@@ -1074,8 +1083,9 @@ uses).
 - [ ] The quality-gate-outcome event kind's escalation-decision and
   capability-applicability producers match the golden trace, with the
   capability-applicability event always last when both fire (AC-025).
-- [ ] The done-transition event kind is asserted as the last event in
-  this round's own sub-sequence (AC-026, this suite's own share).
+- [ ] `TEST-019` asserts this round's successful `done-transition`
+  as its final event; `TEST-026` separately proves all positive and
+  negative firing branches in both inventory runtimes (AC-026).
 - [ ] The skip/stop-message event kind's `stop` producer records a
   distinct `PROJECT_CONTEXT_INVALID` event for F3-invalid/F4-invalid,
   named `SKIP` until Epic A1 merges (AC-019, AC-027).

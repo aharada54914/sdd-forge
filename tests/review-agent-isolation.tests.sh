@@ -26,7 +26,10 @@ for stage in spec impl task; do
     file="$AGENTS/${stage}-reviewer-${reviewer}.md"
     [[ -f "$file" ]] || fail "missing ${stage} reviewer ${reviewer}"
     grep -Fq "name: ${stage}-reviewer-${reviewer}" "$file" || fail "wrong name in ${file##*/}"
-    grep -Fq 'disallowedTools: Write, Edit, NotebookEdit' "$file" || fail "${file##*/} must be read-only"
+    for denied_tool in Write Edit NotebookEdit; do
+      grep -Eq "^disallowedTools: ([^,]+, )*${denied_tool}(, |$)" "$file" ||
+        fail "${file##*/} must prohibit ${denied_tool}"
+    done
     tr '\n' ' ' < "$file" | grep -Eqi 'fresh.*context|never share context' || fail "${file##*/} must require a fresh independent context"
     grep -Fq 'review-context-invocation/v2' "$file" || fail "${file##*/} must require the sequential invocation contract"
     grep -Fq 'canonical identity ledger' "$file" || fail "${file##*/} must require persisted identity history"

@@ -1,0 +1,18 @@
+exit_code: 0
+CHECK_OK: fixed patch/source/candidate hashes; UNRELEASED; no writes
+PASS default inspection only
+BACKUP: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/a7-a21-human-backup-ovl1sbi6
+APPLIED_ONCE: all four exact readbacks; preserve backup /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/a7-a21-human-backup-ovl1sbi6
+NOT VERIFIED: application only; formal/native/CI gates remain separate
+ALREADY_APPLIED: all four exact readbacks; no writes
+PASS normal apply and exact no-op
+PASS reject unreleased human flag blocked UNRELEASED: independent candidate review PASS required; no writes
+PASS reject patch mismatch patch hash mismatch
+PASS reject candidate mismatch candidate hash mismatch: failed-last-attempt
+PASS reject source mismatch source hash mismatch or partial application; no writes
+PASS reject fourth skill source mismatch source hash mismatch or partial application; no writes
+PASS reject partial application source hash mismatch or partial application; no writes
+PASS reject symlink target unsafe or missing regular file: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/a21-human-apply-fixture-3n_wuldf/plugins/sdd-review-loop/scripts/failed-last-attempt.py
+BACKUP: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/a7-a21-human-backup-yi96kbcr
+PASS reject mid-backup mismatch backup readback mismatch; no apply; preserve /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/a7-a21-human-backup-yi96kbcr
+Owner source/ledger/task untouched; helper release remains false.

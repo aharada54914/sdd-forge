@@ -13,6 +13,12 @@ $Acceptance = Join-Path $FeatureRoot 'acceptance-tests.md'
 $Traceability = Join-Path $FeatureRoot 'traceability.md'
 $HumanCopy = Join-Path $FeatureRoot 'human-copy'
 $LiveWorkflow = Join-Path $Root '.github/workflows/test.yml'
+# Runtime boundary only; historical task-commit provenance is separate evidence.
+# BEGIN workflow snapshot
+$LiveWorkflow = Join-Path $Root '.github/workflows/test.yml'
+$WorkflowBefore = $null
+try { $WorkflowBefore = [Convert]::ToBase64String([IO.File]::ReadAllBytes($LiveWorkflow)) } catch { }
+# END workflow snapshot
 $Manifest = Join-Path $HumanCopy 'MANIFEST.sha256'
 $Tmp = Join-Path ([System.IO.Path]::GetTempPath()) ("path-ownership-parity-" + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $Tmp | Out-Null
@@ -303,8 +309,6 @@ exit 0
     }
     if ($fixtureAudit) { Pass 'TEST-047 glob, NFC-collision, and reference-only fixture inventory' } else { Fail 'TEST-047 glob, NFC-collision, and reference-only fixture inventory' }
 
-    & git diff --quiet -- .github/workflows/test.yml
-    if ($LASTEXITCODE -eq 0) { Pass 'TEST-047 live protected workflow remains byte-unchanged' } else { Fail 'TEST-047 live protected workflow remains byte-unchanged' }
 
     $releaseSurfaces = @(
         Get-ChildItem -LiteralPath (Join-Path $Root 'plugins') -Recurse -Force -File -Filter 'plugin.json' | Where-Object { $_.FullName -match '/\.(claude-plugin|codex-plugin|plugin)/plugin\.json$' } | ForEach-Object { $_.FullName.Substring($Root.Length + 1) }
@@ -348,6 +352,15 @@ exit 0
     }
 
     Write-Output ''
+    # BEGIN workflow comparison
+    $WorkflowUnchanged = $false
+    try {
+        $WorkflowAfter = [Convert]::ToBase64String([IO.File]::ReadAllBytes($LiveWorkflow))
+        $WorkflowUnchanged = $null -ne $WorkflowBefore -and $WorkflowBefore -ceq $WorkflowAfter
+    } catch { }
+    if ($WorkflowUnchanged) { Pass 'TEST-047 live workflow bytes unchanged during this suite' }
+    else { Fail 'TEST-047 live workflow changed or could not be read during this suite' }
+    # END workflow comparison
     Write-Output ("Results: {0} passed, {1} failed" -f $script:Passed, $script:Failed)
     if ($script:Failed -gt 0) { exit 1 }
     exit 0

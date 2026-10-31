@@ -74,7 +74,7 @@ the exhaustive, authoritative enumeration (AC-028).
 | Component | Responsibility | Change | New/Existing |
 |---|---|---|---|
 | `tests/loops/loop-inventory.json` | single loop registry (INV-001) | add one additive, optional field on the `quality-gate` entry only (`capability_applicability`, Data Plan) — no new `id`, entry count stays 8 (AC-008) | existing, extended (future task) |
-| `tests/lib/loop-driver.sh` | shared source-style driver (INV-003) | add one new public assertion function, `assert_capability_applicability` (API / Contract Plan), alongside the existing `assert_terminal` (AC-009 — `assert_artifacts_schema` does not change, and `assert_terminal` changes only by the one sanctioned `_loop_trace_emit done-transition:assert-terminal` call the per-kind producer table below places inside `assert_terminal`); add one new private collector function, `_loop_trace_emit` (Data Plan, API / Contract Plan), called from each of the six event kinds' own named producer call sites; add one new public comparison function, `assert_event_trace` (API / Contract Plan), that only reads the collector's own finished trace and compares it against a recorded golden trace — collection and comparison are two distinct functions, never one function playing both roles | existing, extended (future task) |
+| `tests/lib/loop-driver.sh` | shared source-style driver (INV-003) | add one new public assertion function, `assert_capability_applicability` (API / Contract Plan), alongside the existing `assert_terminal` (AC-009 — `assert_artifacts_schema` does not change, and `assert_terminal` changes only by the named producer call in the per-kind table below and by placing it after a successful comparison); add one new private collector function, `_loop_trace_emit` (Data Plan, API / Contract Plan), called from each of the six event kinds' own named producer call sites; add one new public comparison function, `assert_event_trace` (API / Contract Plan), that only reads the collector's own finished trace and compares it against a recorded golden trace — collection and comparison are two distinct functions, never one function playing both roles | existing, extended (future task) |
 | `tests/loop-escalation.tests.sh` | quality-gate escalation chain suite (INV-005) | add `TEST-019` (Design Decisions, below) driving a fixture-matrix state through the shared driver and asserting the quality-gate-outcome event kind (capability applicability) via `assert_event_trace` | existing, extended (future task) |
 | `tests/loop-consistency.tests.sh` | four-review-round consistency suite (INV-005) | add `TEST-018` (Design Decisions, below) asserting the skill-invocation-order, review-loop-presence, and approval-checkpoint event kinds via `assert_event_trace` for a Context-absent round drive | existing, extended (future task) |
 | `plugins/sdd-quality-loop/scripts/emit-run-record.sh` | deterministic run-record emitter (INV-006) | add `--capability-enforcement <disabled-legacy\|advisory\|required>` and `--capability-block-id <id>` (adopted now as an optional field, Data Plan — not deferred), gated by a new `emit_capability` flag independent of `emit_v2`; four flag-combination outcomes fixed in Data Plan/API Contract Plan (AC-033) | existing, extended (future task) |
@@ -209,10 +209,11 @@ inventing a second one. Only entries whose own gate reads
 provisionally `quality-gate` only (Design Decisions, below) — every other
 entry stays exactly as INV-001 records it. This field is read by the new
 `assert_capability_applicability` helper only (API / Contract Plan) —
-`assert_artifacts_schema` is itself unmodified, and `assert_terminal` is
-unmodified apart from the one sanctioned `_loop_trace_emit
-done-transition:assert-terminal` call the per-kind producer table below
-places inside `assert_terminal` (AC-009).
+`assert_artifacts_schema` is itself unmodified, and `assert_terminal`
+retains its signature, comparison semantics, and return contract. Its
+sanctioned body changes are the `_loop_trace_emit
+done-transition:assert-terminal` call and placing it after a successful
+comparison (AC-009); failed or incomplete assertions emit no transition.
 
 **Canonical orchestration-event-trace schema, `compatibility-event-trace/v1`**
 (REQ-003, closes INV-021): a single ordered JSON array, one element per
@@ -247,7 +248,7 @@ future implementer could satisfy with any arbitrary string):
 | `review-loop-presence` | `producer: "review-loop-presence:stage-dispatch"` — `drive_review_round`'s own `stage` dispatch, immediately after a stage's own invocation completes (`tests/lib/loop-driver.sh:1478-1487`) | one event per stage actually driven, dispatch order | `value` = `stage` name only (`spec\|impl\|task\|domain`); a stage never dispatched emits no event (absence is the signal, never a placeholder) — this producer, ordering rule, and value-normalization are what AC-023 requires |
 | `approval-checkpoint` | `producer: "approval-checkpoint:reserve"` — the shared driver's `_loop_reserve_review_context` call, at its own return (INV-003) | one event per reservation call, call order | `value` = `{stage, role}` only; `run_id`/`host_session_id`/ledger hash fields ignored (fixture-random, never compared) — this producer, ordering rule, and value-normalization are what AC-024 requires |
 | `quality-gate-outcome` | **two** named producers, both required when both fire, always in this order: (1) `producer: "quality-gate-outcome:escalation"` — `check-quality-gate-cycle-limit.sh`/`select-agent-model.sh`'s own escalation-decision call site (INV-005), one event per decision, decision order; (2) `producer: "quality-gate-outcome:capability-applicability"` — `assert_capability_applicability`'s own comparison call (API / Contract Plan), exactly one event when the fixture state is capability-aware, always the last `quality-gate-outcome` event in the trace | escalation-decision events in decision order, then (if present) exactly one capability-applicability event, always last within this kind | `value` = `{next_tier}` (escalation producer) or `{applicability}` (capability-applicability producer) only; wall-clock fields ignored |
-| `done-transition` | `producer: "done-transition:assert-terminal"` — `assert_terminal`'s own comparison call, firing exactly once per round at the instant it evaluates the freshly-read `.terminal.state` against the loop's expected terminal state (`tests/lib/loop-driver.sh:1512-1518`, INV-004); this recording is itself a state-transition record — the round's own invariant pre-round non-terminal state to the newly-observed terminal state, captured at terminal-state-assertion time — never a separately-sampled "final value" read after the comparison completes. **Known-unsatisfied (AC-026/OQ-004):** the implementation AC-009 pins does not meet this firing condition — it emits *before* the comparison, so a failing comparison still records the event and each of its two early returns records none; this row states the target contract, requirements.md AC-026 records the deviation, and it is deliberately unfixed pending OQ-004's resolution path | always the last event in the round's own event sub-sequence | `value` = `.terminal.state` string only (the transition's own "to" side; "from" is invariantly non-terminal by construction and is not itself a compared field) |
+| `done-transition` | `producer: "done-transition:assert-terminal"` — `assert_terminal`'s successful comparison of the freshly-read `.terminal.state` against the loop's expected terminal state (INV-004). Record the round's invariant pre-round non-terminal state to that newly-observed terminal state, never a separately-sampled final value. Emit once after success; mismatch, non-zero exit, and missing expected state emit none (AC-026/TEST-026). | exactly one on success, always last in that round's own event sub-sequence; no event on each failure/incomplete branch | `value` = `.terminal.state` string only (the transition's "to" side; "from" is invariantly non-terminal) |
 | `skip-stop-message` | **two** named producers: (1) `producer: "skip-stop-message:skip"` — `loop_validator_skip`'s existing named-SKIP call site (`tests/lib/loop-driver.sh:460-519`, INV-005), extended by the REQ-007 allowlist manifest (below); (2) `producer: "skip-stop-message:stop"` — a new, dedicated fail-closed stop-detection call site in the fixture drive's own Context-validation guard (Test Strategy item 1, future task), firing the moment a `PROJECT_CONTEXT_INVALID` (or any other hard, non-SKIP stop) condition is detected, before any further stage dispatch. **`PROJECT_CONTEXT_INVALID` is uniquely assigned to this `stop` producer of `skip-stop-message`, never to `quality-gate-outcome` and never ambiguous between the two** (resolving an earlier draft's dual-kind framing) | emitted wherever either producer fires within the driven round, fire order | `value` = the fixed, cited-issue-number template string (`skip` producer) or the fixed `PROJECT_CONTEXT_INVALID` template string (`stop` producer) only — never free text, never either producer's template substituted for the other's |
 
 **Cross-kind total order.** `seq` is `_loop_trace_emit`'s own single
@@ -595,9 +596,9 @@ existing `assert_terminal` at `tests/lib/loop-driver.sh:1512-1518`,
 INV-004): reads `.loops[] | select(.id == $loop_id) | .capability_applicability[$fixture_state]`
 from `$LOOP_INVENTORY_PATH` (identical lookup pattern to `assert_terminal`,
 so reading the new field requires no change to `assert_artifacts_schema`
-and no change to `assert_terminal` beyond the one sanctioned
-`_loop_trace_emit done-transition:assert-terminal` call the per-kind
-producer table places inside `assert_terminal`, AC-009) and compares it
+and no change to `assert_terminal` beyond the named
+`_loop_trace_emit done-transition:assert-terminal` call placed after a
+successful comparison (AC-009)) and compares it
 to `$observed`. `fixture_state` is one of
 `disabled-legacy \| advisory \| required` (the Field Definitions
 vocabulary requirements.md fixes, matching ADR-0016's derived-state
@@ -830,14 +831,18 @@ stub-process conventions those suites already use — no new mocks are
 introduced, and nothing in this package is verified by mocking a
 component this package itself ships.
 
-**AC-026 firing-semantics disposition.** The Done-transition producer's
-firing condition has no passing verification path in this package by
-design: `TEST-026` asserts ordering only (last within the round's
-sub-sequence), and requirements.md AC-026/OQ-004 record that the
-AC-009-pinned implementation violates the firing condition itself —
-emitting before the comparison and skipping both early returns —
-deliberately unfixed. Verification of the firing semantics is deferred
-to OQ-004's resolution path, and no test in this package claims it.
+**AC-026 firing-semantics disposition (2026-10-05 amendment).** A
+successful terminal-state comparison emits exactly one `done-transition`
+as the round's final event; a mismatched state, non-zero exit, or missing
+expected state emits none. `TEST-026` verifies all four branches in both
+inventory runtimes. `TEST-018` and `TEST-019` continue to assert the
+successful event in their own golden traces, with the Context-present
+`TEST-019` integration subject to AC-010/AC-034's named SKIP until
+activation; that SKIP never waives `TEST-026`'s four inventory branches
+and is not integration PASS. The prior ordering-only
+disposition remains historical in OQ-004 and is not a current exemption.
+The amended specification passed independent spec review in attempt 22,
+round 1; implementation review and task acceptance remain separate.
 
 ## Design Decisions (resolving requirements.md's Open Questions where possible)
 
@@ -876,11 +881,12 @@ review round's own approval-checkpoint sequence). That semantic fact —
 not the current numeric value of `loop-inventory.tests.sh:129-133`'s
 assertion — is why this package adds fields to existing entries instead
 of registering a ninth loop (INV-002's caveat, above). AC-009 states this
-precisely: the existing `assert_artifacts_schema` helper is itself
-unmodified, and the existing `assert_terminal` helper is unmodified apart
-from the one sanctioned `_loop_trace_emit done-transition:assert-terminal`
-call the per-kind producer table places inside `assert_terminal`; a new,
-dedicated `assert_capability_applicability` helper reads the new field.
+precisely: `assert_artifacts_schema` is unmodified; `assert_terminal`
+retains its signature, comparison semantics, and return contract.
+Its sanctioned changes are the named
+`_loop_trace_emit done-transition:assert-terminal` call and placing
+that call after successful comparison; the new dedicated
+`assert_capability_applicability` helper reads the new field.
 
 **Cross-epic fingerprint citations (replacing raw path:line locators —
 NEW-001).** Every normative citation of Epic A5's own spec text below is
@@ -1137,11 +1143,11 @@ above.
 |---|---|
 | No new loop-inventory entry (Non-goals) | `capability_applicability` is an additive field on the existing `quality-gate` entry only, justified by the independent-lifecycle argument, not the current `length == 8` value (Data Plan; Design Decisions) |
 | No new test-suite file (REQ-003) | `TEST-019` extends `tests/loop-escalation.tests.sh`; `TEST-018` extends `tests/loop-consistency.tests.sh` (Design Decisions) — both existing files |
-| `assert_artifacts_schema` unmodified, and `assert_terminal` unmodified apart from its own sanctioned producer call (AC-009) | the new `capability_applicability` field is read only by the new `assert_capability_applicability` helper (API / Contract Plan); `assert_terminal`'s one sanctioned change is the `_loop_trace_emit done-transition:assert-terminal` call the per-kind producer table places inside `assert_terminal` |
+| `assert_artifacts_schema` unmodified; `assert_terminal` signature/return and comparison semantics preserved (AC-009) | the new `capability_applicability` field is read only by `assert_capability_applicability`; `assert_terminal`'s sanctioned body changes are its named producer call and comparison-before-emit placement, with no event on mismatch or early return (AC-026/TEST-026) |
 | `emit-run-record.sh` no-flag output stays byte-identical (AC-011) | new `capability` object gated behind an independent `emit_capability` flag, mirroring `emit_v2`'s own proven isolation (INV-006); capability-only is a usage error, never a third schema version (Design Decisions) |
 | Every upstream-dependent assertion has a named, auditable degradation (REQ-007) | `SKIP` lines are read from the single allowlist manifest (Data Plan), which AC-035's three hard-fail checks keep honest in both directions |
 | `PROJECT_CONTEXT_INVALID` is distinguishable in the event trace (Edge Cases) | a dedicated `skip-stop-message`-kind event from that kind's `stop` producer — uniquely assigned, never `quality-gate-outcome` (Data Plan; corrected here from an earlier dual-kind phrasing that contradicted the Data Plan's unique assignment) — asserted by AC-019–AC-021, never reused from the Context-absent fallback trace |
-| `assert_terminal`'s Done-transition producer fires exactly once per round at terminal-state evaluation (Data Plan) | **Known-unsatisfied by the pinned implementation** — requirements.md AC-026 records that the AC-009-pinned `assert_terminal` emits before its comparison and records nothing on either early return; deliberately unfixed, resolution path OQ-004. The Data Plan row carries the same disposition, so neither document reads as satisfied in isolation |
+| `assert_terminal`'s Done-transition producer records successful terminal-state comparison only (Data Plan) | AC-009/TEST-009 pins the amended body; TEST-026 exercises one event after success and no event for mismatch, non-zero exit, or missing expected state in both runtimes. Historical OQ-004 unsatisfied disposition is superseded by the 2026-10-05 amendment, independently spec-reviewed in attempt 22; current closure conditions are below |
 | Golden baseline cannot be silently regenerated (REQ-006) | `--write-candidate` never writes the canonical path; only `promote-golden-baseline.sh` inside a reviewed PR does, and that script structurally refuses to run under `CI` or without `--approved-by` (API / Contract Plan; Security Boundaries B1); AC-040 independently verifies CI's own workflow file never references either command, and AC-041 exercises the script's own runtime refusal directly |
 | Cross-epic citations cannot silently drift undetected (finding 10, NEW-001) | every normative Epic A5 citation is a fingerprint (source, line range, sha256 digest, quote — Design Decisions "Cross-epic fingerprint citations"), recomputed by the REQ-007 allowlist manifest's own `fingerprint_match` evaluator (Data Plan) |
 
@@ -1167,20 +1173,31 @@ different golden-baseline path does so via an explicit revision to the
 Design Decisions paragraph that fixes it, not a silent Phase-2
 substitution.
 
-**OQ-004 (open, carried forward).** requirements.md's OQ-004 remains
-open and this design defers to it: the AC-026 Done-transition producer's
-firing condition is known-unsatisfied by the implementation AC-009 pins
-(Data Plan; Constraint Compliance; Test Strategy). Concrete resolution
-vehicle, so the deferral has a verifiable end: the future change that
-fixes `assert_terminal`'s firing semantics and amends the AC-009 hash
-MUST, in the same change, extend `TEST-026` from its ordering-only
-assertion to assert the firing semantics themselves — exactly one
-emission per round, at terminal-state evaluation, none on a failing
-comparison or an early return — on the existing `TEST-018`/`TEST-019`
-harness, and that extension passing is the acceptance condition for
-closing OQ-004. No new suite, harness, or scope is introduced; until
-that change lands, the Known-unsatisfied dispositions above are the
-governing statements.
+**OQ-004 (open; current disposition, 2026-10-07).** Owner: the A7
+specification/task-plan owner coordinates closure; T-005 owns the
+`assert_terminal` producer and its Bash/PowerShell inventory regressions,
+while T-006 and T-007 own their respective `TEST-026` shares and the
+successful `TEST-018` and activated `TEST-019` golden-trace assertions
+(tasks.md T-005–T-007; traceability.md AC-009/AC-026 rows). Blocks
+Implementation: yes, for accepting the affected
+T-005–T-007 work as complete or Done; it does not reopen their existing
+approval or erase recorded implementation evidence. Resolution Path: retain
+the human-approved AC-009/AC-026 amendment and spec-review attempt 22 PASS;
+obtain independent implementation review of this design, verify `TEST-009`
+and all four `TEST-026` branches in both inventory runtimes plus the applicable
+`TEST-018`/`TEST-019` trace assertions, then record the owner’s OQ-004 closure
+in a non-frozen verification addendum. Only each task's quality gate may set
+Done. Until those checks are recorded, local regression success and historical
+PASS evidence do not close OQ-004.
+
+The original requirements.md OQ-004 paragraph and its ordering-only
+resolution path describe the pre-amendment pinned body; its 2026-10-05
+supersession paragraph and this current disposition govern the amended
+contract. The "pending formal spec review" text in acceptance-tests.md's
+AC-026 row and requirements.md's supersession paragraph predates the
+attempt 22 PASS; neither is a current review status. The old
+known-unsatisfied wording above is historical, not a current exception to
+AC-026. No new suite, harness, or implementation scope is introduced.
 
 ## Risks
 

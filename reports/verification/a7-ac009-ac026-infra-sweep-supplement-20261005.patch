@@ -1,0 +1,11 @@
+diff --git a/specs/epic-195-a7-compatibility/infra-spec.md b/specs/epic-195-a7-compatibility/infra-spec.md
+--- a/specs/epic-195-a7-compatibility/infra-spec.md
++++ b/specs/epic-195-a7-compatibility/infra-spec.md
+@@ -201,3 +201,5 @@
+   `id`, AC-008), new functions in the shared driver (existing functions
+-  themselves unmodified apart from `assert_terminal`'s one sanctioned
+-  producer call, AC-009; design.md Data Plan), new `TEST-018`/`TEST-019` cases in
++  themselves unmodified apart from `assert_terminal`'s named producer
++  call and comparison-before-emit placement, retaining its signature,
++  comparison semantics, and return contract (AC-009/AC-026/TEST-026;
++  design.md Data Plan), new `TEST-018`/`TEST-019` cases in

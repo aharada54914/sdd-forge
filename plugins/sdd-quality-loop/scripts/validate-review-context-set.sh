@@ -247,8 +247,29 @@ gate_report_output_is_declared() {
     "$repository_root/$gate_report_declaration_path" '## Post-Fix Artifacts'
 }
 
+conditional_inputs_json=''
 path_is_authorized() {
   local stage=$1 role=$2 feature=$3 path=$4 expected_hash=$5
+  if [[ "$stage:$role" =~ ^(spec:spec-reviewer-[ab]|impl:impl-reviewer-[ab])$ ]] &&
+      [[ "$path" == domain/* || "$path" == design-system/* ]]; then
+    case "$stage:$path" in
+      spec:domain/context-map.md|spec:domain/domain-contract.json|\
+      impl:domain/context-map.md|impl:domain/domain-contract.json|\
+      impl:design-system/design-tokens.json|impl:design-system/design-system.md|\
+      impl:design-system/ui-patterns.md) ;;
+      *) [[ "$stage" == impl && "$path" =~ ^domain/aggregates/[^/]+\.md$ ]] || return 1 ;;
+    esac
+    # Historical reservations bind their original manifest, not today's
+    # conditional selection. An old record without an input binding cannot
+    # prove a conditional entry was part of that reservation.
+    if [[ -n "$persisted_match" ]]; then
+      [[ -n "$persisted_input_binding" ]]
+      return
+    fi
+    jq -e --arg path "$path" --arg sha "$expected_hash" \
+      'any(.inputs[]; .path == $path and .sha256 == $sha)' <<<"$conditional_inputs_json" >/dev/null
+    return
+  fi
   case "$stage:$role" in
     spec:spec-reviewer-a|spec:spec-reviewer-b)
       [[ "$path" =~ ^specs/"$feature"/(requirements|acceptance-tests|investigation)\.md$ ]] ||
@@ -610,6 +631,15 @@ fi
 # persisted identity is historical; a file created later was not its input.
 # Check fresh preflight as well as --reserve, without expanding task inputs.
 if [[ -z "$persisted_match" && ( "$stage" == spec || "$stage" == impl ) ]]; then
+  conditional_inputs_json=$(python3 -B "$(dirname "${BASH_SOURCE[0]}")/review-conditional-inputs.py" \
+    --root "$repository_root" --feature "$feature" --stage "$stage") ||
+    fail INPUT 'conditional review dependencies could not be resolved'
+  jq -e --argjson expected "$conditional_inputs_json" '
+    .allowed_input_manifest as $declared |
+    all($expected.inputs[]; . as $required |
+      any($declared[]; .path == $required.path and .sha256 == $required.sha256))
+  ' "$manifest" >/dev/null ||
+    fail PATH "$role omits selected conditional review dependencies"
   investigation_path="specs/$feature/investigation.md"
   if [[ -f "$repository_root/$investigation_path" ]]; then
     jq -e --arg path "$investigation_path" '

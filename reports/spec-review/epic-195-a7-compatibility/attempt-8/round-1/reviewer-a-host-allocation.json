@@ -1,0 +1,15 @@
+{
+  "kind": "claude-background-idle-allocation",
+  "role": "spec-reviewer-a",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 8,
+  "round": 1,
+  "host_command": "claude --bg --model sonnet --effort medium --permission-mode dontAsk --tools Read,Grep,Glob,Bash --disallowedTools Write,Edit,NotebookEdit",
+  "host_id": "d7a93a02",
+  "host_session_id": "d7a93a02-4159-46d9-ac4a-9017641a7e96",
+  "allocation_stdout": "backgrounded · d7a93a02 (idle — send a prompt to start)",
+  "agents_json_status": "idle",
+  "agents_json_state": "blocked",
+  "review_turn_started": false,
+  "note": "Host-issued background ID and session ID observed from the normal CLI; no reviewer prompt or inputs were sent before reservation. The earlier task-review sequence 1190 is not reused."
+}

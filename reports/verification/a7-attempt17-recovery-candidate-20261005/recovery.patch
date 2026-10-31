@@ -1,0 +1,122 @@
+--- a/plugins/sdd-review-loop/scripts/fresh-review-recovery.py
++++ b/plugins/sdd-review-loop/scripts/fresh-review-recovery.py
+@@ -147,7 +147,10 @@
+                  'evidence', 'transcript', 'authority', 'historical_disposition'}
+     history_keys = {'terminal_attempt', 'partial_attempts'}
+     later_round_keys = history_keys | {'failed_final_round', 'failed_turn'}
+-    require(set(data) in (base_keys, base_keys | history_keys, base_keys | later_round_keys),
++    earlier_round_keys = history_keys | {'historical_failed_rounds'}
++    require(set(data) in (base_keys, base_keys | history_keys, base_keys | later_round_keys,
++                          base_keys | earlier_round_keys,
++                          base_keys | later_round_keys | {'historical_failed_rounds'}),
+             'unexpected fresh-review contract keys')
+     later_round = 'failed_final_round' in data
+     require(data['schema'] == 'spec-fresh-review-recovery/v2' and data['feature'] == feature
+@@ -203,6 +206,19 @@
+                 all(type(item) is int for item in partial_attempts) and
+                 partial_attempts == list(range(terminal_attempt + 1, attempt)),
+                 'partial attempts must be a complete ordered chain after the terminal anchor')
++    historical_failed = data.get('historical_failed_rounds', [])
++    require(isinstance(historical_failed, list) and bool(historical_failed) ==
++            ('historical_failed_rounds' in data), 'invalid historical failed-round list')
++    require(all(isinstance(item, dict) and set(item) ==
++                {'attempt', 'failed_final_round', 'failed_turn'} and
++                type(item['attempt']) is int and item['attempt'] in partial_attempts[:-1] and
++                type(item['failed_final_round']) is int and
++                item['failed_final_round'] in (2, 3)
++                for item in historical_failed) and
++            [item['attempt'] for item in historical_failed] ==
++            sorted(set(item['attempt'] for item in historical_failed)),
++            'historical failed rounds must be unique ordered earlier partial attempts')
++    historical_by_attempt = {item['attempt']: item for item in historical_failed}
+     terminal_root = root / base / f'attempt-{terminal_attempt}'
+     terminal_round = max([int(p.name[6:]) for p in terminal_root.iterdir()
+                           if re.fullmatch('round-[1-3]', p.name)] or [0])
+@@ -216,6 +232,18 @@
+     sessions = []
+     completed_rounds = []
+     for old_attempt in (partial_attempts[:-1] if later_round else partial_attempts):
++        if old_attempt in historical_by_attempt:
++            item = historical_by_attempt[old_attempt]
++            module = runpy.run_path(str(regular(root,
++                'plugins/sdd-review-loop/scripts/failed-last-attempt.py')))
++            failed = module['inspect'](root, feature, attempt, item['failed_final_round'],
++                                       hashes, item['failed_turn'], old_attempt=old_attempt)
++            expected.update(failed['evidence_paths'])
++            completed_rounds.extend(failed['completed_rounds'])
++            invocations.extend(failed['invocation_paths'])
++            historical_invocations.extend(failed['invocations'])
++            sessions.extend(entry['host_session_id'] for entry in failed['invocations'])
++            continue
+         rel = f'{base}/attempt-{old_attempt}/round-1'
+         directory = root / rel
+         require(sorted(p.name for p in directory.parent.iterdir()) == ['round-1'],
+@@ -300,7 +328,7 @@
+         last = module['inspect'](root, feature, attempt, data['failed_final_round'],
+                                  hashes, data['failed_turn'])
+         expected.update(last['evidence_paths'])
+-        completed_rounds = last['completed_rounds']
++        completed_rounds.extend(last['completed_rounds'])
+         invocations.extend(last['invocation_paths'])
+         historical_invocations.extend(last['invocations'])
+         sessions.extend(item['host_session_id'] for item in last['invocations'])
+@@ -309,6 +337,9 @@
+     transcript = data['transcript']
+     require(isinstance(transcript, dict) and set(transcript) == {'path'},
+             'transcript is pinned diagnostic evidence, not proof of turn validity')
++    if historical_failed and not later_round:
++        require(transcript['path'] == historical_failed[-1]['failed_turn'].get('transcript_path'),
++                'contract transcript must bind the last failed multi-round attempt')
+     expected.add(transcript['path'])
+     authority = data['authority']
+     require(isinstance(authority, dict) and set(authority) == {'path'},
+--- a/plugins/sdd-review-loop/scripts/failed-last-attempt.py
++++ b/plugins/sdd-review-loop/scripts/failed-last-attempt.py
+@@ -33,10 +33,11 @@
+     return json.loads(regular(root, rel).read_bytes())
+ 
+ 
+-def inspect(root, feature, next_attempt, failed_round, current_hashes, failed_turn):
++def inspect(root, feature, next_attempt, failed_round, current_hashes, failed_turn,
++            old_attempt=None):
+     """Return exact evidence inventory, completed rounds and old invocations.
+ 
+-    Only the immediately preceding attempt can take this exceptional shape.
++    The caller must select this attempt from its contiguous partial history.
+     All complete rounds must be NEEDS_WORK, not PASS/BLOCKED; they remain
+     historic records, not a newly asserted terminal anchor. The final round
+     must have a reserved A identity but no reviewer or integrated output.
+@@ -58,7 +59,10 @@
+     require(type(next_attempt) is int and next_attempt >= 2 and
+             type(failed_round) is int and failed_round in (2, 3),
+             'invalid later-round recovery identity')
+-    old_attempt = next_attempt - 1
++    if old_attempt is None:
++        old_attempt = next_attempt - 1  # Preserve the original v2 caller.
++    require(type(old_attempt) is int and 1 <= old_attempt < next_attempt,
++            'invalid historical failed attempt')
+     base = f'reports/spec-review/{feature}/attempt-{old_attempt}'
+     attempt_dir = root / base
+     require(attempt_dir.is_dir() and not attempt_dir.is_symlink() and
+--- a/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
++++ b/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
+@@ -74,10 +74,16 @@
+ approval audit record transcribed by the orchestrator from the actual user
+ conversation. Label that record as an orchestrator transcription: it is not a
+ human-authored signature, registered approver sidecar, or sudo-mode grant.
+-An opt-in `failed_final_round` of 2 or 3 permits only the immediately preceding
++An opt-in `failed_final_round` of 2 or 3 permits the immediately preceding
+ attempt to retain earlier complete NEEDS_WORK rounds followed by one failed
+-reviewer-A first turn. Pin every complete-round file, both reviewer invocation
+-manifests and reservations, the failed-round precheck/host allocation/A
++reviewer-A first turn. For an earlier attempt in the contiguous partial chain,
++an opt-in `historical_failed_rounds` list names each such attempt exactly once
++in increasing order, with its `failed_final_round` and `failed_turn` binding;
++all unlisted partial attempts must retain the original round-1-only shape.
++The top-level transcript must name the last historical failed multi-round
++turn when the immediately preceding attempt is round-1-only. Pin every
++complete-round file, both reviewer invocation manifests and reservations,
++the failed-round precheck/host allocation/A
+ invocation/blocker, and the retained local host transcript showing `end_turn`.
+ Both runtime prechecks validate the complete-round contracts with their existing
+ contract validators. This is record integrity, not retrospective review approval.

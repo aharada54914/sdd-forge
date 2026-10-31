@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 22,
+  "round": 1,
+  "reviewer_a_run_id": "6891e8e7-cb0c-463c-8635-a28bab50b0ca",
+  "reviewer_b_run_id": "1c1e3233-25a2-4756-ad9f-1ef6ba363483",
+  "reviewer_a_host_session_id": "6891e8e7-cb0c-463c-8635-a28bab50b0ca",
+  "reviewer_b_host_session_id": "1c1e3233-25a2-4756-ad9f-1ef6ba363483",
+  "finding_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "verdict": "PASS",
+  "warningCount": 0
+}

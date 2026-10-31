@@ -876,30 +876,22 @@ SPY_F4_INVALID_ROOT="$(PATH="${SPY_DIR}:${PATH}" build_fixture present absent re
 [[ -n "${SPY_F4_INVALID_ROOT:-}" ]] && CLEANUP_ROOTS+=("$SPY_F4_INVALID_ROOT")
 
 if [[ "$SPY_F1_RC" -eq 0 && "$SPY_F3_RC" -eq 0 && "$SPY_F4_RC" -eq 0 ]]; then
-  # A5's specification artifacts may be merged before its interviewer caller
-  # is wired.  The allowlist's merged(A5) predicate intentionally treats that
-  # as active, so emitting a SKIP here would be a stale, self-contradictory
-  # result.  Match loop-consistency's caller-presence gate: while the live
-  # caller is absent, record an informational deferral and do not manufacture
-  # a dependency SKIP.  Once the caller appears, this suite must gain a real
-  # invocation driver before the assertion can be promoted.  The manifest
-  # contract still reserves skip_allowlist_line AC-004/AC-021 rendering
-  # when that future invocation driver is added.
-  # Only executable plugin sources can activate this assertion.  A skill
-  # document may mention the future resolver path without wiring a caller.
-  A5_LIVE_CALLER_FOUND=1
-  while IFS= read -r A5_CANDIDATE; do
-    if grep -Eq '(^|[[:space:];|&])((bash|sh|pwsh|powershell|python3?)[[:space:]]+)?[^[:space:];|&]*resolve-project-context(\.sh|\.ps1|\.py)?([[:space:]]|$)' "$A5_CANDIDATE" && \
-       grep -Eq -- '--(config|feature|source-rev|target-rev)([=[:space:]])' "$A5_CANDIDATE"; then
-      A5_LIVE_CALLER_FOUND=0
-      break
-    fi
-  done < <(find "${REPO_ROOT}/plugins" -type f \( -name '*.sh' -o -name '*.ps1' -o -name '*.py' \) \
-    ! -path '*/scripts/resolve-project-context.*' ! -path '*/scripts/generated/*' -print 2>/dev/null | sort)
-  if [[ "$A5_LIVE_CALLER_FOUND" -eq 0 ]]; then
-    fail 'TEST-019.10b: live resolver caller is wired but this suite still lacks a real invocation driver'
+  # A merged dependency is active even if this fixture never drives the
+  # interviewer.  Fixture construction and the PATH self-check are not a
+  # real host invocation: fail closed until that independent driver exists.
+  A5_ACTIVATION=0
+  if skip_allowlist_condition "$SKIP_ALLOWLIST_MANIFEST" AC-004 "$REPO_ROOT" origin/main; then A5_ACTIVATION=0
+  else A5_ACTIVATION=$?; fi
+  A1_A5_ACTIVATION=0
+  if skip_allowlist_condition "$SKIP_ALLOWLIST_MANIFEST" AC-021 "$REPO_ROOT" origin/main; then A1_A5_ACTIVATION=0
+  else A1_A5_ACTIVATION=$?; fi
+  if [[ "$A5_ACTIVATION" -gt 1 || "$A1_A5_ACTIVATION" -gt 1 ]]; then
+    fail 'TEST-019.10b: invalid allowlist activation evidence for AC-004/AC-021'
+  elif [[ "$A5_ACTIVATION" -eq 0 || "$A1_A5_ACTIVATION" -eq 0 ]]; then
+    fail 'TEST-019.10b: merged resolver dependency is active but no real interviewer invocation was driven'
   else
-    ok 'TEST-019.10b: resolver non-invocation assertion deferred until the live caller is wired (no stale SKIP emitted)'
+    skip_allowlist_line "$SKIP_ALLOWLIST_MANIFEST" 'TEST-019.10b/AC-004+AC-021' AC-004 AC-021 || \
+      fail 'TEST-019.10b: allowlist line could not be rendered'
   fi
   SPY_INVOCATIONS="$(wc -l < "$SPY_LOG" | tr -d ' ')"
   printf 'INFO: TEST-019.10b spy observed %s invocation(s) across F1/F3-invalid/F4-invalid fixtures\n' "$SPY_INVOCATIONS"

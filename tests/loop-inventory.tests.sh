@@ -456,7 +456,7 @@ fi
 echo "=== TEST-009: event trace API + legacy helper non-regression ==="
 
 EXPECTED_ARTIFACTS_SHA="dce6534c9e395bdc04dc558e115b91bad5e9950ce8606783512bb2a4bd85e65e"
-EXPECTED_TERMINAL_SHA="f325a4df4a276cf4a4bc7a4051032693cceb6bff6db99fce27eb4b13b18473df"
+EXPECTED_TERMINAL_SHA="19b127785c2a0d18cb7448b50db3cf212e256d5fa248b43c812ee9d99609f5f7"
 
 if [[ "$(function_body_sha256 "$LOOP_DRIVER" assert_artifacts_schema)" == "$EXPECTED_ARTIFACTS_SHA" ]]; then
   ok "TEST-009.1: assert_artifacts_schema remains byte-identical"
@@ -480,6 +480,33 @@ fi
 # shellcheck source=tests/lib/loop-driver.sh
 source "$LOOP_DRIVER"
 TRACE_API_READY=true
+_LOOP_EVENT_TRACE='[]'
+_LOOP_EVENT_SEQ=0
+if assert_terminal quality-gate Escalate-Human 0 &&
+   jq -e 'length == 1 and .[0].kind == "done-transition" and
+     .[0].producer == "done-transition:assert-terminal" and
+     .[0].value == "Escalate-Human"' <<< "$_LOOP_EVENT_TRACE" >/dev/null &&
+   [[ "$_LOOP_EVENT_SEQ" == 1 ]]; then
+  ok "TEST-026.1: successful terminal comparison emits one transition"
+else
+  fail "TEST-026.1: successful terminal comparison did not emit one transition"
+fi
+for terminal_case in mismatch nonzero-exit missing-expected; do
+  _LOOP_EVENT_TRACE='[]'
+  _LOOP_EVENT_SEQ=0
+  case "$terminal_case" in
+    mismatch) if assert_terminal quality-gate Wrong 0; then terminal_ok=false; else terminal_ok=true; fi ;;
+    nonzero-exit) if assert_terminal quality-gate Escalate-Human 1; then terminal_ok=false; else terminal_ok=true; fi ;;
+    missing-expected) if assert_terminal unknown-loop Escalate-Human 0; then terminal_ok=false; else terminal_ok=true; fi ;;
+  esac
+  if [[ "$terminal_ok" == true && "$_LOOP_EVENT_TRACE" == '[]' && "$_LOOP_EVENT_SEQ" == 0 ]]; then
+    ok "TEST-026.2: ${terminal_case} returns failure without a false transition"
+  else
+    fail "TEST-026.2: ${terminal_case} returned success or emitted a false transition"
+  fi
+done
+_LOOP_EVENT_TRACE='[]'
+_LOOP_EVENT_SEQ=0
 for function_name in _loop_trace_emit assert_capability_applicability assert_event_trace; do
   if declare -F "$function_name" >/dev/null 2>&1; then
     ok "TEST-009.4: ${function_name} is available"

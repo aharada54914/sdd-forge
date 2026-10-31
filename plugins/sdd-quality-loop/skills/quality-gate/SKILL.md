@@ -184,7 +184,23 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    `reports/review-context/identity-ledger.json`. The ledger must already carry
    the invoking implementation identity and every earlier reviewer/evaluator
    reservation as a valid hash chain; never accept caller-supplied reserved-ID
-   arrays as a substitute. Immediately before launch, atomically reserve the
+   arrays as a substitute. For an ordinary host-issued evaluator launch,
+   independently pin the invocation's raw SHA-256, then immediately before
+   launch run `python3 -B plugins/sdd-review-loop/scripts/preflight-host-review.py
+   <repository-root> <manifest> --manifest-sha256 <caller-pin>` and require
+   `HOST_REVIEW_PREFLIGHT_OK`. Pass `--runtime powershell` when reserving with
+   the PowerShell validator; otherwise use the Bash default for preview.
+   For a CLI host append
+   `--host-cli <actual-executable>`, `--help-subcommand=<name>` for each launch
+   subcommand, and `--required-flag=<flag>` for each actual
+   launch flag; for a non-CLI app do not claim a CLI-help check. Keep the pin
+   unchanged. This verifies required inputs, dependencies, scratch-root isolation
+   and canonical preview but does not prove effective permissions or
+   reserve. Preserve the separate host proof and first-turn requirements.
+   Only if the launch explicitly stages all admitted inputs into the scratch
+   directory, append `--verify-scratch-projection` to verify those copied bytes;
+   `scratch_root` alone declares isolation, not such a projection.
+   Then atomically reserve the
    evaluator identity by running
    `scripts/validate-review-context-set.sh <manifest> <repository-root>
    --reserve` or
@@ -206,6 +222,19 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    artifact is undeclared, declare it and relaunch rather than instructing
    around it (WFI-036).
    No same-session fallback is permitted for the evaluator.
+   For a non-TTY Claude evaluator, submit the persisted invocation to the
+   shared launcher as
+   `python3 plugins/sdd-review-loop/scripts/launch-impl-review.py <repository-root> <invocation> <repository-root>/reports/quality-gate/launch-<host_session_id>`.
+   The launcher must complete canonical input preview and its own preflight
+   before any reservation, then require native boundary proof, pin read-only
+   inputs and dependencies, reserve once, and deliver the evaluator's plaintext
+   result. Do not reserve the identity separately. The session permits only
+   manifest Read and exact hash Bash; it cannot rerun task tests. The evaluator
+   must name unrun tests and missing evidence, return NEEDS_WORK when an
+   in-scope behavior remains unverified, and never infer PASS from the launch
+   receipt or hash proof. Delivery alone is not a quality-gate verdict or Done.
+   If the canonical evaluator model differs from the current authorized model,
+   stop before reservation; do not silently substitute a model.
    Allocate the evaluator a scratch directory of its own and name it in the
    launch brief and the invocation record's optional `scratch_root` field: a
    canonical absolute path used by no implementation context for this feature and

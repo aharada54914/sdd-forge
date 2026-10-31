@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "35c0b55e",
+  "host_session_id": "35c0b55e-7abb-4357-bd53-f2b32b94f74d",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "b04eff0242f5143c52c8c92a7d05ee90cc2034e9e9635379601946a35c950acc"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "4e3f4916c8bb6fd20ceb7bd51b0b18e7d3bf9522e7fabcde44aa80b77e0f3192"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "d730b8ec35c285baa6f9e2f91533b04a4e5202206aa75839d2921f07d0547908"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-1/precheck-result.json", "sha256": "3ecb36025d6f327880093544a083a23b3574b127e8d769c18189e837890467b6"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-1/integrated-summary.json", "sha256": "54878aefea000015254da21514ed6d2c6094400d6d03aab19f69900c35cfb0a5"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The launch receipt and all six admitted file hashes were verified before review. The record hash recomputed to 4966fa40…a888, sequence 1199 equals pre_append_tip_sequence 1198 + 1, and identity_unique=yes. The amended criteria are concrete. AC-009 fixes the body-lock hashes (`19b12778…f5f7` for assert_terminal, `568ae7ff…76cb` for Test-LoopTerminal in the acceptance-tests.md AC-009 row). It names the only two sanctioned changes: the `_loop_trace_emit done-transition:assert-terminal` call and its placement after a successful comparison. AC-026 and TEST-026 enumerate four branches: success, mismatched state, non-zero exit and missing expected state. Each non-success branch emits nothing. Two implementers would not build different behavior."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict remains among requirements, acceptance criteria, constraints and non-goals. AC-026 now requires emission only after a successful comparison. It does not conflict with the historical OQ-004 text and the High Risk entry, because both carry a dated 2026-10-05 supersession note and OQ-004 is explicitly 'not treated as closed'. The acceptance-tests.md AC-009 row also states that the older f325… rebaseline is historical and that the two stated hashes are the binding truth. The investigation.md Amendment section still labels the f325… and 460467… hashes 'still current'. That is superseded by the AC-009 precedence statement, so it is a non-blocking staleness note and not a contradiction."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material negative and boundary paths have rows. AC-026/TEST-026 covers all four emission branches. AC-002 covers a mutated golden byte. AC-035 covers dependency-present SKIP, unknown SKIP and fingerprint drift. AC-041 covers CI-set and missing `--approved-by`. AC-019–AC-021 cover PROJECT_CONTEXT_INVALID. AC-033 covers the capability-only flag usage error. AC-030 treats a corpus parse failure as a hard failure. The F7/F8 N/A cells carry a stated rationale."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Assumptions section states the unmerged status of A1/A3/A4/A5/A6 together with a re-verification instruction. That instruction is the Safety constraints bullet and the fingerprint-drift hard-fail (AC-035c). The one open question, OQ-004, is explicitly marked open with its resolution path (formal amendment review). OQ-001–OQ-003 are resolved in the package."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "Exposing text: requirements.md AC-009 and AC-026, the acceptance-tests.md AC-009 and AC-026 rows, and the requirements.md OQ-004 and Risks supersession notes, which cite 'the 2026-10-05 amendment'. These change frozen Phase 1 content. They replace the assert_terminal/Test-LoopTerminal lock hashes and flip AC-026 from known-unsatisfied to satisfied. The only declared Amendment Re-Review Context in investigation.md ends at the Round-12 extension (2026-08-27). It contains no verbatim, dated human approval statement for the 2026-10-05 amendment. It has no full amendment commit hash and no SHA-256 of the amended documents as of that amendment. The new evidence file `reports/verification/a7-ac009-ac026-amendment-candidate-20261005.md` is cited by bare path only. The notes themselves call the amendment a 'candidate'. The 2026-10-04 citation-correction block is outside the section and carries no approval either. The amended hashes in the AC-009 row are not tied to any committed state. Downstream failure: a design or task reviewer cannot tell whether a human authorized changing the frozen lock and the AC-026 disposition, and a verifier cannot tell which bytes are binding. The calibration's evidence bar is unmet for this amendment, so default Phase-1 calibration applies, with no scoped suppression. This is not solely a phase-sequencing issue. It is a missing authorization record for a frozen-document change (AGENTS.md: a spec change requires explicit human authorization recorded in the artifact). It belongs to spec review because both hash-bound documents are the gate's own inputs. Critical because the approval boundary for a frozen-artifact change is untestable from the record."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Apart from the approval-record gap, the product behavior is fully specified for design and implementation-policy review. That covers the event kinds, producers, ordering, the four-branch TEST-026, the two lock hashes, the allowlist and fingerprint grammar, and the golden-baseline governance. The design reviewer would not need to invent product behavior. The gap is recorded under APPROVAL-BOUNDARY."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "Skipped. There is no `domain/` directory with `domain/context-map.md` at the project root (Glob returned no files). No Approved domain model or domain-contract.json is present, so the check does not apply."
+    }
+  ]
+}

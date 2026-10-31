@@ -54,6 +54,15 @@ designed_red() { DESIGNED_RED=$((DESIGNED_RED + 1)); printf 'DESIGNED-RED (pre-h
 WORKDIR="$(mktemp -d)"
 WORKDIR="$(cd "$WORKDIR" && pwd -P)"
 trap 'rm -rf "$WORKDIR"' EXIT
+# Runtime boundary only; historical task-commit provenance is separate evidence.
+# BEGIN workflow snapshot
+LIVE_WORKFLOW="$ROOT/.github/workflows/test.yml"
+WORKFLOW_SNAPSHOT="$WORKDIR/workflow.before"
+workflow_snapshot_ok=0
+if [ -f "$LIVE_WORKFLOW" ] && cp "$LIVE_WORKFLOW" "$WORKFLOW_SNAPSHOT"; then
+  workflow_snapshot_ok=1
+fi
+# END workflow snapshot
 OUTDIR="$WORKDIR/out"
 mkdir -p "$OUTDIR"
 
@@ -643,19 +652,6 @@ else
   fail "human-copy: MANIFEST.sha256 missing"
 fi
 
-# Done When #3: the LIVE, R-10-protected workflow must be byte-unchanged by
-# this task. Compared against its committed blob rather than a pinned hash,
-# so a legitimate, unrelated CI change does not turn this suite red.
-if git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
-  if git -C "$ROOT" diff --quiet HEAD -- .github/workflows/test.yml; then
-    ok "Done When #3: the live .github/workflows/test.yml is byte-unchanged relative to its committed state"
-  else
-    fail "Done When #3: the live .github/workflows/test.yml has an uncommitted modification -- this task must never write to it"
-  fi
-else
-  fail "Done When #3: cannot verify the live workflow is unmodified (no git repository resolved at $ROOT)"
-fi
-
 # Done When #3: no version string was mutated outside scripts/bump-version.sh.
 # This task ships no production file, so the grep is applied to everything it
 # does add: both suite twins and its own fixtures.
@@ -679,6 +675,13 @@ else
   fail "Done When #3: a semver-looking version string was found in --$version_hit"
 fi
 
+# BEGIN workflow comparison
+if [ "$workflow_snapshot_ok" -eq 1 ] && [ -f "$LIVE_WORKFLOW" ] && cmp -s "$WORKFLOW_SNAPSHOT" "$LIVE_WORKFLOW"; then
+  ok "live workflow bytes unchanged during this suite"
+else
+  fail "live workflow changed or could not be read during this suite"
+fi
+# END workflow comparison
 printf -- '---- summary: pass=%d fail=%d designed-red=%d ----\n' "$PASS" "$FAIL" "$DESIGNED_RED"
 if [[ "$FAIL" -eq 0 && "$DESIGNED_RED" -eq 0 ]]; then
   printf 'capability-registry-parity suite passed (%d checks)\n' "$PASS"

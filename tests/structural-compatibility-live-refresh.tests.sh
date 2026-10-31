@@ -20,7 +20,11 @@ if [[ -z "$FIXTURE" && "$DRY" -eq 0 ]]; then
   [[ -n "${SDD_LIVE_MODEL_CMD:-}" ]] || { echo 'SDD_LIVE_MODEL_CMD is required' >&2; exit 2; }
   FIXTURE="$(mktemp "${TMPDIR:-/tmp}/live-refresh.XXXXXX")"
   trap 'rm -f -- "$FIXTURE"' EXIT
-  printf '%s\n' "Generate the complete structural-fixture-corpus/v1 JSON envelope for $STATE. Return JSON only; do not use markdown fences." | "$SDD_LIVE_MODEL_CMD" > "$FIXTURE"
+  prompt="Generate the complete structural-fixture-corpus/v1 JSON envelope for $STATE. Return JSON only; do not use markdown fences."
+  if [[ "$STATE" == F2 ]]; then
+    prompt+=' Use feature team-coffee-orders and exactly one task T-001 named 注文登録を実装する. Follow the unchanged lite templates; include Approval: Draft and Status: Planned.'
+  fi
+  printf '%s\n' "$prompt" | "$SDD_LIVE_MODEL_CMD" > "$FIXTURE"
 fi
 
 case "$STATE" in F1) target="$CORPUS/f1-full.json"; track=full;; F2) target="$CORPUS/f2-lite.json"; track=lite;; F3) target="$CORPUS/f3-advisory.json"; track=full;; F4) target="$CORPUS/f4-required.json"; track=full;; esac
@@ -50,8 +54,17 @@ while IFS= read -r path; do
   if [[ "$track" == lite ]]; then
     case "$path" in requirements.md) template="$ROOT/plugins/sdd-lite/templates/requirements-lite.md";; design.md) template="$ROOT/plugins/sdd-lite/templates/design-lite.md";; tasks.md) template="$ROOT/plugins/sdd-lite/templates/tasks-lite.md";; esac
   fi
-  bash "$CANON" "$template" > "$tmp/template.ast" || fail "invalid reference template: $path"
+  # Expected values are fixture inputs, not values extracted from the response.
+  expected_template="$template"
+  if [[ "$track" == lite ]]; then
+    expected_template="$tmp/f2-expected.md"
+    sed -e 's/<feature>/team-coffee-orders/g' -e 's/<タスク名>/注文登録を実装する/g' "$template" > "$expected_template"
+  fi
+  bash "$CANON" "$expected_template" > "$tmp/template.ast" || fail "invalid reference template: $path"
   cmp -s "$tmp/live.ast" "$tmp/template.ast" || fail "structural mismatch: $path"
+  sed -n -E 's/^(([[:alpha:]][[:alnum:] -]*)?(Status|Approval)):[[:space:]].*$/\1/p' "$template" | LC_ALL=C sort -u > "$tmp/template.status"
+  sed -n -E 's/^(([[:alpha:]][[:alnum:] -]*)?(Status|Approval)):[[:space:]].*$/\1/p' "$tmp/artifact.md" | LC_ALL=C sort -u > "$tmp/live.status"
+  cmp -s "$tmp/template.status" "$tmp/live.status" || fail "status field mismatch: $path"
 done < "$tmp/expected"
 if [[ "$DRY" -eq 1 ]]; then
   if [[ "${SDD_LIVE_REFRESH_SELF_CHECK:-0}" == 1 ]]; then echo 'PASS: fixture validates'; exit 0; fi

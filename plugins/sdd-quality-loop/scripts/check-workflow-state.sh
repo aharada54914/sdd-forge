@@ -240,9 +240,19 @@ workflow_adr_history_bindings() {
       elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
       elif test("^(/|[A-Za-z]:/)") then null
       else . end;
+    # Match the ordinary historical policy; do not infer missing old pins.
+    def conditional($path):
+      $path == "domain/context-map.md" or $path == "domain/domain-contract.json" or
+      $path == "design-system/design-tokens.json" or
+      $path == "design-system/design-system.md" or
+      $path == "design-system/ui-patterns.md";
+    def conditional_pins($m):
+      [$m[] | {path: (.path | relative_path), sha256} | select(conditional(.path))] |
+      sort_by(.path);
     def allowed($role; $path):
       ("reports/" + $stage + "-review/" + $feature + "/attempt-" + ($attempt|tostring)) as $attempt_root |
       ($attempt_root + "/round-" + ($round|tostring)) as $round_root |
+      conditional($path) or
       ($path == ("specs/" + $feature + "/requirements.md")) or
       ($path == ("specs/" + $feature + "/acceptance-tests.md")) or
       ($path == ("specs/" + $feature + "/investigation.md")) or
@@ -364,6 +374,7 @@ workflow_adr_history_bindings() {
       manifest($cb.allowed_input_manifest;$cb.role;$p) and
       manifest($a.allowed_input_manifest;$a.role;$p) and
       manifest($b.allowed_input_manifest;$b.role;$p) and
+      conditional_pins($ca.allowed_input_manifest)==conditional_pins($cb.allowed_input_manifest) and
       superset($a.allowed_input_manifest;$ca.allowed_input_manifest) and
       superset($b.allowed_input_manifest;$cb.allowed_input_manifest)) |
     select(([$ca.allowed_input_manifest[],$cb.allowed_input_manifest[],
@@ -1078,12 +1089,14 @@ recorded_repo_root() {
     def canonical_suffix:
       test("^specs/[a-z0-9][a-z0-9-]*/[^/]+$") or
       test("^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$") or
-      test("^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$");
+      test("^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$") or
+      test("^domain/(context-map[.]md|domain-contract[.]json)$") or
+      test("^design-system/(design-tokens[.]json|design-system[.]md|ui-patterns[.]md)$");
     [.reviewers[].allowed_input_manifest[].path |
       normalized |
       select(rooted and (startswith($repo) or startswith($alias) | not)) |
       . as $path |
-      ([(($path | indices("/specs/")), ($path | indices("/reports/")), ($path | indices("/plugins/")))[] |
+      ([(($path | indices("/specs/")), ($path | indices("/reports/")), ($path | indices("/plugins/")), ($path | indices("/domain/")), ($path | indices("/design-system/")))[] |
          . as $i | select($path[$i + 1:] | canonical_suffix) | $path[0:$i]]
         | unique) as $candidates |
       if ($candidates | length) == 1 then $candidates[0]
@@ -1349,9 +1362,19 @@ validate_passed_stage() {
       elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
       elif test("^(/|[A-Za-z]:/)") then null
       else . end;
+    # Historical pins, not current applicability: never fill missing old inputs.
+    def conditional($path):
+      (($stage == "spec" or $stage == "impl") and
+       ($path == "domain/context-map.md" or $path == "domain/domain-contract.json")) or
+      ($stage == "impl" and ($path == "design-system/design-tokens.json" or
+       $path == "design-system/design-system.md" or $path == "design-system/ui-patterns.md"));
+    def conditional_pins($role):
+      [.reviewers[] | select(.role == $role) | .allowed_input_manifest[] |
+       {path: (.path | relative_path), sha256} | select(conditional(.path))] | sort_by(.path);
     def allowed($role; $path):
       ("reports/" + $stage + "-review/" + $feature + "/attempt-" + ($attempt|tostring)) as $attempt_root |
       ($attempt_root + "/round-" + ($round|tostring)) as $round_root |
+      conditional($path) or
       ($path == ("specs/" + $feature + "/requirements.md")) or
       ($path == ("specs/" + $feature + "/acceptance-tests.md")) or
       ($path == ("specs/" + $feature + "/investigation.md")) or
@@ -1382,6 +1405,7 @@ validate_passed_stage() {
       ($stage == "task" and $role == "task-reviewer-b" and
        ($path == "plugins/sdd-quality-loop/references/risk-gate-matrix.md" or
         $path == "plugins/sdd-quality-loop/references/risk-classification-policy.md"));
+    (conditional_pins($stage + "-reviewer-a") == conditional_pins($stage + "-reviewer-b")) and
     all(.reviewers[];
       .role as $role |
       ([.allowed_input_manifest[].path | relative_path] as $paths |

@@ -1,0 +1,13 @@
+{
+  "kind": "claude-nontty-caller-proposal",
+  "host_id": "77dbad7f-9afc-4621-a60f-d337c88fbd72",
+  "host_session_id": "77dbad7f-9afc-4621-a60f-d337c88fbd72",
+  "role": "spec-reviewer-b",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 20,
+  "round": 1,
+  "review_turn_started": false,
+  "preflight_result_path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-b-nontty-preflight.json",
+  "preflight_result_sha256": "1efaf945bc57fa9f852b1ab36490be38c57503eafb4b9411c57f5564b7811a33",
+  "preflight_result": "PREFLIGHT_OK"
+}

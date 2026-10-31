@@ -1,0 +1,18 @@
+{
+  "schema": "spec-fresh-review-approval-audit/v1",
+  "feature": "epic-195-a7-compatibility",
+  "next_attempt": 22,
+  "origin": "current-user-conversation",
+  "recorded_by_role": "orchestrator",
+  "user_statement": "Candidate orchestrator transcription on 2026-10-06, not a human-authored signature, registered approver sidecar, sudo grant or native host evidence. The coordinating parent confirmed the actual user statements 「全部承認する」 and 「追加で何回でもレビュー、限定修正して良い」. This proposed audit scopes those statements only to preserving/quarantining history and opening a prospective fresh A22 round 1 under the existing applied recovery contract and current input hashes. The coordinator has authorized preparation and review of this candidate only at this point; no A22 admission, reservation or delivery is performed by preparing this file. It does not adopt any A21 result, legalize old transitions, waive ordinary preflight/reservation/independence, authorize replay, or declare a verdict. The coordinator must review the completed candidate and its evidence before any formal execution.",
+  "scope": "quarantine-history-and-start-fresh-review-only",
+  "input_hashes": {
+    "requirements_sha256": "492f54a812be75ca20d0a05ec41dcf225f9b1b17cd512148498e02cf954dd96c",
+    "acceptance_sha256": "dca8c1551ea0f268fc02944a8e0fe078b557c416ef3f37649c7c33590fff6d13",
+    "investigation_sha256": "efd4127b38dc5ebe9bc754ea1a3df0c00b4140056667febd724dea8dc9af987e",
+    "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+    "input_sha256": "a301b63ca7888eeb4475f93bd47c0340ddd3646819006e8e32726bb7100e68e1"
+  },
+  "transport_inventories_sha256": "1ef05695ba6add2815e912b6166c8bdae1d3adf7fed445016d52ad0f120f617e"
+}
+

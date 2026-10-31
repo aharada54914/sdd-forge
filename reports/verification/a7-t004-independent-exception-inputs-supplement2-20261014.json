@@ -1,0 +1,11 @@
+{
+  "schema": "a7-independent-exception-inputs-supplement/v1",
+  "base": "reports/verification/a7-t004-independent-exception-inputs-20261014.json",
+  "reason": "Fresh independent evaluator requested the sourced mutation classifier to independently inspect the current five mutation outcomes. No previous input was changed.",
+  "inputs": [
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-004/mutation-proof.sh",
+      "sha256": "62c44804c97243524fedba413fef76113eebecb570a317e6b47694413bc97af2"
+    }
+  ]
+}

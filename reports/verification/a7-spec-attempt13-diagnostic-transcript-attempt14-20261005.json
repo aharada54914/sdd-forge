@@ -1,0 +1,18 @@
+{
+  "purpose": "Local diagnostic retention only; not a canonical reviewer verdict or historical transition-legality attestation.",
+  "source_kind": "original Claude host JSONL retained locally outside this repository",
+  "source_sha256": "0af6ce8b6d196f0c65d5a9b648ffda131a75a04f3783ea648b88a5850c15bb3e",
+  "source_session_id": "dacde029-0c91-42c1-ba86-5619ca854142",
+  "source_size_description": "848387 bytes local original; not copied into this repository",
+  "observed_events": [
+    {
+      "kind": "first-turn delivery and input verification",
+      "diagnostic": "The 466-byte first turn was delivered intact and the reviewer read and SHA-256-checked admitted inputs."
+    },
+    {
+      "kind": "noncanonical reviewer response",
+      "diagnostic": "The host ended after a Markdown-fenced JSON-shaped response with inconsistent BLOCKED and FAIL classifications; no canonical reviewer-a.json was adopted."
+    }
+  ],
+  "disposition": "diagnostic-only; no reviewer B allocation or reservation; no spec finding, PASS, or FAIL adopted"
+}

@@ -1,0 +1,17 @@
+{
+  "purpose": "Local diagnostic retention only; not a reviewer finding or completed independent review.",
+  "source_kind": "original Claude host JSONL retained locally outside this repository",
+  "source_sha256": "1dd50f8253bb6ae32aedf461fe54637313516909d8ce7be0d275c4c0239fb904",
+  "source_session_id": "fa1c4de5-5639-4201-acaf-ab2acd506824",
+  "source_size_description": "395914 bytes local original; not copied into this report to avoid retaining unrelated private content in a Git-visible file",
+  "observed_events": [
+    {
+      "timestamp_utc": "2026-10-04T17:00:02.155Z",
+      "kind": "assistant end_turn",
+      "entrypoint": "cli",
+      "diagnostic": "BLOCKED; reviewer A's permitted sha256sum file-hash commands were not included in the session startup allowlist and were denied under dontAsk"
+    }
+  ],
+  "reviewer_output_sha256": "46ec1d5e2aef8cdf62b309202b2c152ffc271da6f0847a67657790462800910f",
+  "disposition": "diagnostic-only; no reviewer B allocation or reservation; attempt 11 is not a spec-review PASS"
+}

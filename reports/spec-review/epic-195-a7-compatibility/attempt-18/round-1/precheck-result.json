@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 18,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "492f54a812be75ca20d0a05ec41dcf225f9b1b17cd512148498e02cf954dd96c",
+  "acceptance_sha256": "dca8c1551ea0f268fc02944a8e0fe078b557c416ef3f37649c7c33590fff6d13",
+  "investigation_sha256": "7a908bed637e779925d11ef4bd396be0dfd88e20c2e300548302e055acafce57",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "6511157301430981ef7d5c182972acbdfce8c01c60c15b0e90a2b5a993b61a05",
+  "edit_summary": "",
+  "reset": true,
+  "generated_at": "2026-10-05T14:31:17Z",
+  "fresh_review_contract_path": "reports/verification/a7-attempt18-formal-20261005/fresh-review-contract-attempt18.json",
+  "fresh_review_contract_sha256": "665231a8c6d52d36d9856d4ec37ad69b0ba64af334ca98939110b86fe6666bdc"
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "fa1c4de5",
+  "host_session_id": "fa1c4de5-5639-4201-acaf-ab2acd506824",
+  "allowed_input_manifest": [
+    {"path":"specs/epic-195-a7-compatibility/requirements.md","sha256":"fb5be3067b95345f2e4a0dcd190e0800f61421e595479c5975ac050246e2e734"},
+    {"path":"specs/epic-195-a7-compatibility/acceptance-tests.md","sha256":"f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"},
+    {"path":"specs/epic-195-a7-compatibility/investigation.md","sha256":"d730b8ec35c285baa6f9e2f91533b04a4e5202206aa75839d2921f07d0547908"},
+    {"path":"plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path":"reports/spec-review/epic-195-a7-compatibility/attempt-11/round-1/precheck-result.json","sha256":"37934b2bcb2e9041086bea0a9cbc7cc4bce1d92d7036bea5dfe234014fef5182"}
+  ],
+  "verdict": "BLOCKED",
+  "checks": []
+}

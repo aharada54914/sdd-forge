@@ -1,0 +1,16 @@
+{
+  "purpose": "Local diagnostic retention only; not a canonical reviewer verdict or historical transition-legality attestation.",
+  "source_kind": "original Claude host JSONL retained locally outside this repository",
+  "source_sha256": "f5e1b13750f3eb01a50e8079cffb76a89b2808d01bfaf0d53fc2c6306c32c045",
+  "source_session_id": "6b7567f8-582e-4d0d-9db3-99dff946eb59",
+  "source_size_description": "177619 bytes local original; not copied into this report to avoid retaining unrelated private content in a Git-visible file",
+  "observed_events": [
+    {
+      "timestamp_utc": "2026-10-04T17:07:59.095Z",
+      "kind": "assistant end_turn",
+      "entrypoint": "cli",
+      "diagnostic": "BLOCKED before substantive reads because the TTY-delivered first-turn message omitted its manifest path and reservation receipt. Raw output had UNVERIFIED identities and was not admitted as reviewer-a.json."
+    }
+  ],
+  "disposition": "diagnostic-only; no reviewer B allocation or reservation; no spec finding or PASS/FAIL adopted"
+}

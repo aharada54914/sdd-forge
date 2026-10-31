@@ -751,29 +751,21 @@ try {
 
     if ($spyF1Rc -eq 0 -and $spyF3Rc -eq 0 -and $spyF4Rc -eq 0) {
         $spyInvocations = @(Get-Content -LiteralPath $spyLog).Count
-        # A5's specification artifacts may be merged before its interviewer
-        # caller is wired.  The manifest's merged(A5) predicate therefore
-        # makes a fabricated SKIP invalid; defer informationally until a live
-        # caller exists, matching the Bash twin and loop-consistency suite.
-        # The manifest contract still reserves skip_allowlist_line AC-004/AC-021
-        # rendering when that future invocation driver is added.
-        $a5CallerPresent = $false
-        $a5ExecutableFiles = @(Get-ChildItem -LiteralPath (Join-Path $repoRoot 'plugins') -Recurse -File -ErrorAction SilentlyContinue |
-            Where-Object { $_.Extension -in @('.sh', '.ps1', '.py') -and
-                $_.FullName -notmatch '[\\/]scripts[\\/]resolve-project-context\.(sh|ps1|py)$' -and
-                $_.FullName -notmatch '[\\/]scripts[\\/]generated[\\/]' })
-        foreach ($candidate in $a5ExecutableFiles) {
-            $source = Get-Content -Raw -LiteralPath $candidate.FullName
-            if ($source -match '(?m)(^|[\s;|&])((bash|sh|pwsh|powershell|python3?)[\s]+)?[^\s;|&]*resolve-project-context(\.sh|\.ps1|\.py)?([\s]|$)' -and
-                $source -match '(?m)--(config|feature|source-rev|target-rev)([=\s])') {
-                $a5CallerPresent = $true
-                break
-            }
-        }
-        if ($a5CallerPresent) {
-            Test-Fail 'TEST-019.10b: live resolver caller is wired but this suite still lacks a real invocation driver'
+        # Fixture construction and the PATH self-check are not a real host
+        # invocation. Only an unmerged dependency may emit the manifest line.
+        $allowlistManifest = Join-Path $repoRoot 'tests/fixtures/skip-allowlist-manifest.json'
+        $allowlistEvaluator = Join-Path $repoRoot 'tests/lib/skip-allowlist-evaluator.ps1'
+        & pwsh -NoProfile -File $allowlistEvaluator condition $allowlistManifest AC-004 $repoRoot origin/main | Out-Null
+        $a5Activation = $LASTEXITCODE
+        & pwsh -NoProfile -File $allowlistEvaluator condition $allowlistManifest AC-021 $repoRoot origin/main | Out-Null
+        $a1A5Activation = $LASTEXITCODE
+        if ($a5Activation -gt 1 -or $a1A5Activation -gt 1) {
+            Test-Fail 'TEST-019.10b: invalid allowlist activation evidence for AC-004/AC-021'
+        } elseif ($a5Activation -eq 0 -or $a1A5Activation -eq 0) {
+            Test-Fail 'TEST-019.10b: merged resolver dependency is active but no real interviewer invocation was driven'
         } else {
-            Test-Ok 'TEST-019.10b: resolver non-invocation assertion deferred until the live caller is wired (no stale SKIP emitted)'
+            & pwsh -NoProfile -File $allowlistEvaluator line $allowlistManifest 'TEST-019.10b/AC-004+AC-021' AC-004 AC-021
+            if ($LASTEXITCODE -ne 0) { Test-Fail 'TEST-019.10b: allowlist line could not be rendered' }
         }
         Write-Host "INFO: TEST-019.10b spy observed $spyInvocations invocation(s) across F1/F3-invalid/F4-invalid fixtures"
     } else {

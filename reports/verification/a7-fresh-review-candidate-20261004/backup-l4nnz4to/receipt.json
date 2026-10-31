@@ -1,0 +1,38 @@
+{
+  "schema": "a7-fresh-review-human-apply/v1",
+  "owner": "/Users/jrmag/.codex/worktrees/a7-t005-intake/sdd-forge",
+  "head": "d64cffcb22b114779202847be33e41700c4ba11f",
+  "runner_sha256": "cb5ca21647a2a0efdcc817eea8561ce60222a79d9dcdf40ea0a0477e0955b69d",
+  "targets": [
+    {
+      "target": "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+      "candidate": "spec-review-precheck.sh.candidate",
+      "before": "486966e2f2aaa176ed0b8ca6b5418649d7fb24d3b7ee9b7a2a04a240fc6016e1",
+      "after": "7c540cb425de6ee430689d0d4bb02ba6068c0c9dee7401c8d6e5dd8b1a1f24d6"
+    },
+    {
+      "target": "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1",
+      "candidate": "spec-review-precheck.ps1.candidate",
+      "before": "145795e1c7e7fda82224e961f8c869c08b633f94fb9ff43e065dc42e43cc2250",
+      "after": "294956150a5bcfafc2d500e35aa9d6d247e5470162431dd5eb45a965ebb52528"
+    },
+    {
+      "target": "plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md",
+      "candidate": "SKILL.md.candidate",
+      "before": "bda27737bc7074d1f802aad52b69bde0eed47d20e256554acf0341180f515c24",
+      "after": "8828e5103b669e39385f60720d2cc6a02e40f14d6e1e7758d3c07a94dfbfa7d4"
+    },
+    {
+      "target": "plugins/sdd-review-loop/scripts/fresh-review-recovery.py",
+      "candidate": "fresh-review-recovery.py.candidate",
+      "before": "446cc12db071ebd8c80a30a83a91e47b9d7d2ba377dd8db3d0bfe1f740113e16",
+      "after": "b45adc1a7cb445819ce98f58aeb42db630cc4f32b36e0b950279404c3a8528f0"
+    },
+    {
+      "target": "specs/epic-195-a7-compatibility/verification/spec-review-fresh-recovery.fixture.py",
+      "candidate": "spec-review-fresh-recovery.fixture.py.candidate",
+      "before": "ddb788633808ad5eaf5168542bb8b7751aa3e92c3f5194fd892825e27edcaa2e",
+      "after": "b42bef4065a3c40f95eb5d96e3b1c76201086fad1e568cf0f76c408bdcd6dd11"
+    }
+  ]
+}

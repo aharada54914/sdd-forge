@@ -323,14 +323,24 @@ require_persisted_pass() {
     # anchors so evidence stays verifiable from any checkout (issue #61).
     def relative_path:
       if startswith($repo) then .[($repo | length):]
-      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins|domain|design-system)/.+)$") | .tail) // .)
       else . end;
+    def conditional_input($path):
+      (($stage == "spec" or $stage == "impl") and
+       ($path == "domain/context-map.md" or $path == "domain/domain-contract.json")) or
+      ($stage == "impl" and
+       ($path == "design-system/design-tokens.json" or
+        $path == "design-system/design-system.md" or $path == "design-system/ui-patterns.md"));
+    def conditional_manifest:
+      [.allowed_input_manifest[]? | {path:(.path | relative_path), sha256} |
+       select(conditional_input(.path))] | sort_by(.path);
     def allowed_input($role; $path; $attempt; $round):
       ($stage + "-reviewer-a") as $role_a |
       ($stage + "-reviewer-b") as $role_b |
       ("reports/" + $stage + "-review/" + $feature + "/attempt-" + ($attempt | tostring)) as $attempt_root |
       ($attempt_root + "/round-" + ($round | tostring)) as $round_root |
-      (($path == ("specs/" + $feature + "/requirements.md")) or
+      (conditional_input($path) or
+       ($path == ("specs/" + $feature + "/requirements.md")) or
        ($path == ("specs/" + $feature + "/acceptance-tests.md")) or
        ($stage == "spec" and $path == ("specs/" + $feature + "/investigation.md")) or
        ($stage == "impl" and
@@ -369,6 +379,7 @@ require_persisted_pass() {
     ([.reviewers[]? | .role] | sort) == [($stage + "-reviewer-a"), ($stage + "-reviewer-b")] and
     ([.reviewers[]? | .host_session_id] | (all(type == "string" and length > 0) and (unique | length == 2))) and
     ([.reviewers[]? | .run_id] | (all(type == "string" and length > 0) and (unique | length == 2))) and
+    ((.reviewers[0] | conditional_manifest) == (.reviewers[1] | conditional_manifest)) and
     (.attempt as $attempt | .round as $round |
       all(.reviewers[]?;
         .role as $role |

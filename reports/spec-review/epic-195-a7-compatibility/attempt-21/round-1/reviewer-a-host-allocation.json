@@ -1,0 +1,20 @@
+{
+  "kind": "claude-nontty-caller-proposal",
+  "host_id": "c933b018-5af0-4c78-b3ba-9a2d14c9d134",
+  "host_session_id": "c933b018-5af0-4c78-b3ba-9a2d14c9d134",
+  "role": "spec-reviewer-a",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 21,
+  "round": 1,
+  "review_turn_started": false,
+  "preflight": {
+    "status": "PREFLIGHT_OK",
+    "session_id": "c933b018-5af0-4c78-b3ba-9a2d14c9d134",
+    "invocation_sha256": "b9023c4375d9db0f4f3a372f52550e8efab0c89582bc8ba3358433a39c873e89"
+  },
+  "preflight_path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/reviewer-a-nontty-preflight.json",
+  "preflight_sha256": "5c0b057578ad78b698bef10dfd6c22d537b344cfba3a6696b03402bf485977e9",
+  "verifier_path": "plugins/sdd-review-loop/scripts/validate-nontty-spec-launch.py",
+  "verifier_sha256": "fe5274cf4f49c324c6ef05efaf079c2d66ab11b05af3ef08e60ffe63b6b71b64",
+  "note": "Caller proposal only; not host acceptance."
+}

@@ -1,0 +1,135 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-195-a7-compatibility",
+  "run_id": "7073926c-ac90-4e5f-922b-55d4814d5f49",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 8,
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "ef1188eb88adca8edec88cba21c22b2d183ca3c873b1f31b31b29f2404a48907",
+  "requirements_sha256": "f188aef257cb4afd5f0185aeff010d0fae6ee665f9aa2d0fbbb9ee2031c88c46",
+  "acceptance_sha256": "dca8c1551ea0f268fc02944a8e0fe078b557c416ef3f37649c7c33590fff6d13",
+  "design_sha256": "e8cbc1f4feb8e6e6e2756c9f9000a33e192e3fd2fa51697d5978df540502309e",
+  "adr_inputs": [],
+  "layer_sha256": {
+    "ux-spec.md": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba",
+    "frontend-spec.md": "6fe07b945a36829b448b8d92677992480a4945f8f71f304f28461382b5a713be",
+    "infra-spec.md": "02b2bdd3e6f136b77ae1623c07ca5e3c3e281bd4f44ee8c613c3fd983b7d223b",
+    "security-spec.md": "de232f61745feb1ac34ddbb4f4d593bc8808f367f43cbd763887b8cfe216efa3"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "4c1d33c6-ffcd-43df-9ffa-894ed059c92a",
+      "host_session_id": "4c1d33c6-ffcd-43df-9ffa-894ed059c92a",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-195-a7-compatibility/attempt-8/round-1/integrated-summary.json",
+          "sha256": "01b1e67e0b3840bc133a9426d5dca26a86cb37d377deda39d88154e29216b294"
+        },
+        {
+          "path": "reports/impl-review/epic-195-a7-compatibility/attempt-8/round-2/precheck-result.json",
+          "sha256": "d1a794f143b0b515123f834438b76b35e3dc44f9d5c32f260ebca2efaf633352"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+          "sha256": "dca8c1551ea0f268fc02944a8e0fe078b557c416ef3f37649c7c33590fff6d13"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/design.md",
+          "sha256": "e8cbc1f4feb8e6e6e2756c9f9000a33e192e3fd2fa51697d5978df540502309e"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+          "sha256": "6fe07b945a36829b448b8d92677992480a4945f8f71f304f28461382b5a713be"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+          "sha256": "02b2bdd3e6f136b77ae1623c07ca5e3c3e281bd4f44ee8c613c3fd983b7d223b"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/investigation.md",
+          "sha256": "efd4127b38dc5ebe9bc754ea1a3df0c00b4140056667febd724dea8dc9af987e"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/requirements.md",
+          "sha256": "f188aef257cb4afd5f0185aeff010d0fae6ee665f9aa2d0fbbb9ee2031c88c46"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/security-spec.md",
+          "sha256": "de232f61745feb1ac34ddbb4f4d593bc8808f367f43cbd763887b8cfe216efa3"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+          "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "72fbadfa-595b-41a5-a1c7-5e04b9fd0608",
+      "host_session_id": "72fbadfa-595b-41a5-a1c7-5e04b9fd0608",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-195-a7-compatibility/attempt-8/round-2/integrated-summary.json",
+          "sha256": "93804ae8ba84efd576c5bd46fb6eef4b86c822214a85fd620f42e51d7be36035"
+        },
+        {
+          "path": "reports/impl-review/epic-195-a7-compatibility/attempt-8/round-2/precheck-result.json",
+          "sha256": "d1a794f143b0b515123f834438b76b35e3dc44f9d5c32f260ebca2efaf633352"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+          "sha256": "dca8c1551ea0f268fc02944a8e0fe078b557c416ef3f37649c7c33590fff6d13"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/design.md",
+          "sha256": "e8cbc1f4feb8e6e6e2756c9f9000a33e192e3fd2fa51697d5978df540502309e"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+          "sha256": "6fe07b945a36829b448b8d92677992480a4945f8f71f304f28461382b5a713be"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+          "sha256": "02b2bdd3e6f136b77ae1623c07ca5e3c3e281bd4f44ee8c613c3fd983b7d223b"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/investigation.md",
+          "sha256": "efd4127b38dc5ebe9bc754ea1a3df0c00b4140056667febd724dea8dc9af987e"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/requirements.md",
+          "sha256": "f188aef257cb4afd5f0185aeff010d0fae6ee665f9aa2d0fbbb9ee2031c88c46"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/security-spec.md",
+          "sha256": "de232f61745feb1ac34ddbb4f4d593bc8808f367f43cbd763887b8cfe216efa3"
+        },
+        {
+          "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+          "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Round 1 reviewer B Major 1 (OQ-004 owner, implementation-blocking disposition, and resolution path) was addressed in the governing design on 2026-10-07. The design now names the A7 specification/task-plan owner, the T-005/T-006/T-007 evidence shares, a blocking disposition for completion/Done, concrete TEST-009/TEST-026/TEST-018/TEST-019 closure evidence, and explicit supersession of stale historical text. Requirements and acceptance-test bytes remained frozen; this design amendment is not evidence that implementation checks have passed.",
+  "timestamp": "2026-10-07T06:29:58Z"
+}

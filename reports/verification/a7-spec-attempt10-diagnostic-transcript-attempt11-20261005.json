@@ -1,0 +1,16 @@
+{
+  "purpose": "Local diagnostic retention only; not a reviewer verdict or historical transition-legality attestation.",
+  "source_kind": "original Claude host JSONL retained locally outside this repository",
+  "source_sha256": "c6b923503e5dd7ec75920917d2de3e8ba85bee39447bcda5a3d9fdb6f7ea95da",
+  "source_session_id": "c7fc70c9-630c-45ed-800e-dca0c8f775f6",
+  "source_size_description": "447595 bytes local original; not copied into this report to avoid retaining unrelated private content in a Git-visible file",
+  "observed_events": [
+    {
+      "timestamp_utc": "2026-10-04T16:22:51.071Z",
+      "kind": "assistant end_turn",
+      "entrypoint": "cli",
+      "diagnostic": "BLOCKED; read-only review-context record hash command was denied under the session's ordinary permission configuration"
+    }
+  ],
+  "disposition": "diagnostic-only; transition legality not established"
+}

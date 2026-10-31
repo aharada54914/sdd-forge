@@ -1,8 +1,8 @@
 ---
 name: task-reviewer-b
 description: Quality and Risk Reviewer for task decomposition. Checks tasks.md for risk appropriateness, task sizing, edge-case coverage, test-type alignment, rollback planning, and scope disjointness. Read-only; returns PASS, NEEDS_WORK, or BLOCKED with classified findings.
-tools: Read, Grep, Glob, Bash
-disallowedTools: Write, Edit, NotebookEdit
+tools: Read, Bash
+disallowedTools: Grep, Glob, Write, Edit, NotebookEdit
 disallowedPaths:
   - "reports/spec-review/**/reviewer-*.json"
   - "reports/impl-review/**/reviewer-*.json"
@@ -15,6 +15,9 @@ You are the Quality and Risk Reviewer in an SDD task-review gate. You never
 share context with the agent that wrote the tasks, and you never read
 reviewer-a.json. You never modify anything. Use Bash only for read-only commands
 (grep, sha256sum, jq, wc, diff).
+In an exact-command non-TTY launch, that general allowance is superseded by
+the launch's exact Bash command list. Use admitted Read for review analysis;
+do not propose grep, jq, wc, diff, or any other unlisted Bash command.
 
 # Role
 

@@ -34,6 +34,18 @@ jobs:
       - name: Test evaluator scratch isolation (Bash and PowerShell)
         shell: bash
         run: python3 tests/issue311-scratch-isolation.tests.py --repo "$GITHUB_WORKSPACE"
+      - name: Test traceability freeze contract (Bash and PowerShell)
+        run: python3 tests/traceability-freeze-contract.tests.py
+      - name: Test A7 non-TTY review contract
+        run: python3 tests/a7-nontty-impl-contract.tests.py
+      - name: Test conditional review inputs (Bash and PowerShell)
+        run: python3 tests/review-conditional-inputs.tests.py
+      - name: Test saved conditional review manifests (Bash and PowerShell)
+        run: python3 tests/downstream-conditional-manifest.tests.py
+      - name: Test historical conditional workflow evidence (Bash and PowerShell)
+        run: python3 tests/workflow-conditional-history.tests.py
+      - name: Test parity workflow mutation detection (Bash and PowerShell)
+        run: python3 tests/parity-workflow-runtime.tests.py
       - name: Test guard dispatch fallback
         shell: bash
         run: bash ./tests/guard-dispatch-fallback.tests.sh
@@ -95,6 +107,30 @@ jobs:
           # Full history: review-loop prechecks and provenance tests resolve
           # recorded commit hashes (e.g. TDD Red commits) via git rev-parse.
           fetch-depth: 0
+
+      - name: "[deterministic] Test unified review launch order"
+        shell: pwsh
+        run: python ./tests/unified-launch-order.tests.py
+
+      - name: "[deterministic] Test host review preflight"
+        shell: pwsh
+        run: python ./tests/host-review-preflight.tests.py
+
+      - name: "[deterministic] Test unified task review launch"
+        shell: pwsh
+        run: python ./tests/unified-task-launch.tests.py
+
+      - name: "[deterministic] Test task structured output boundary"
+        shell: pwsh
+        run: python ./tests/task-structured-output.tests.py
+
+      - name: "[deterministic] Test quality review launch boundary"
+        shell: pwsh
+        run: python ./tests/quality-nontty-transport.tests.py
+
+      - name: "[deterministic] Test read-only spec review input verification"
+        shell: pwsh
+        run: python ./tests/spec-review-verify-inputs.tests.py
 
       - name: "[deterministic] Verify generated guard invariants (Windows)"
         if: runner.os == 'Windows'
@@ -203,6 +239,7 @@ jobs:
         run: |
           ./tests/review-contract-foundation.tests.ps1
           ./tests/downstream-review-precheck.tests.ps1
+          ./tests/review-hash-normalization.tests.ps1
           ./tests/impl-layer-review-inputs.tests.ps1
           ./tests/task-layer-review-inputs.tests.ps1
 
@@ -1483,6 +1520,7 @@ jobs:
         run: |
           ./tests/review-contract-foundation.tests.ps1
           ./tests/downstream-review-precheck.tests.ps1
+          ./tests/review-hash-normalization.tests.ps1
           ./tests/impl-layer-review-inputs.tests.ps1
           ./tests/task-layer-review-inputs.tests.ps1
       - name: "[deterministic] Test cross-model gate"

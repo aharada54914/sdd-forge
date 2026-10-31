@@ -1,0 +1,94 @@
+diff --git a/plugins/sdd-review-loop/scripts/fresh-review-recovery.py b/plugins/sdd-review-loop/scripts/fresh-review-recovery.py
+--- a/plugins/sdd-review-loop/scripts/fresh-review-recovery.py
++++ b/plugins/sdd-review-loop/scripts/fresh-review-recovery.py
+@@ -10,6 +10,7 @@
+ the complete contiguous partial-attempt chain after its terminal anchor.
+ """
+ import hashlib
++import runpy
+ import json
+ import pathlib
+ import re
+@@ -146,5 +147,7 @@ def validate(root, feature, attempt, contract_path):
+                  'evidence', 'transcript', 'authority', 'historical_disposition'}
+     history_keys = {'terminal_attempt', 'partial_attempts'}
+-    require(set(data) in (base_keys, base_keys | history_keys),
++    later_round_keys = history_keys | {'failed_final_round', 'failed_turn'}
++    require(set(data) in (base_keys, base_keys | history_keys, base_keys | later_round_keys),
+             'unexpected fresh-review contract keys')
++    later_round = 'failed_final_round' in data
+     require(data['schema'] == 'spec-fresh-review-recovery/v2' and data['feature'] == feature
+@@ -210,5 +212,6 @@ def validate(root, feature, attempt, contract_path):
+     invocations = []
+     historical_invocations = []
+     sessions = []
+-    for old_attempt in partial_attempts:
++    completed_rounds = []
++    for old_attempt in (partial_attempts[:-1] if later_round else partial_attempts):
+         rel = f'{base}/attempt-{old_attempt}/round-1'
+@@ -286,3 +289,19 @@ def validate(root, feature, attempt, contract_path):
+         historical_invocations.append(invocation)
+         sessions.append(invocation['host_session_id'])
++    if later_round:
++        require(partial_attempts[-1] == attempt - 1,
++                'failed later round must be in immediately preceding attempt')
++        transcript_rel = data['transcript']['path']
++        require(isinstance(data['failed_turn'], dict) and
++                data['failed_turn'].get('transcript_path') == transcript_rel,
++                'failed turn must bind the contract transcript')
++        module = runpy.run_path(str(regular(root,
++            'plugins/sdd-review-loop/scripts/failed-last-attempt.py')))
++        last = module['inspect'](root, feature, attempt, data['failed_final_round'],
++                                 hashes, data['failed_turn'])
++        expected.update(last['evidence_paths'])
++        completed_rounds = last['completed_rounds']
++        invocations.extend(last['invocation_paths'])
++        historical_invocations.extend(last['invocations'])
++        sessions.extend(item['host_session_id'] for item in last['invocations'])
+     require(len(set(sessions)) == len(sessions), 'interrupted contexts are not independent')
+@@ -318,3 +339,4 @@ def validate(root, feature, attempt, contract_path):
+     return {'terminal_attempt': terminal_attempt, 'terminal_round': terminal_round,
+             'terminal_dir': terminal, 'invocations': invocations,
++            'completed_rounds': completed_rounds,
+             'contract_path': contract_rel, 'contract_sha256': contract_sha, 'input_hashes': hashes}
+diff --git a/plugins/sdd-review-loop/scripts/spec-review-precheck.sh b/plugins/sdd-review-loop/scripts/spec-review-precheck.sh
+--- a/plugins/sdd-review-loop/scripts/spec-review-precheck.sh
++++ b/plugins/sdd-review-loop/scripts/spec-review-precheck.sh
+@@ -402,3 +402,8 @@ validate_fresh_recovery() {
+   [[ "$terminal_verdict" == PASS || "$terminal_verdict" == BLOCKED ]] || fail "fresh-review anchor is not terminal"
+   validate_contract "${terminal_dir}/spec-review-contract.json" "$terminal_attempt" "$terminal_round" "$terminal_verdict" "${terminal_dir}/precheck-result.json" || fail "fresh-review terminal anchor is invalid"
++  while IFS=$'\t' read -r complete_dir complete_attempt complete_round; do
++    [[ -n "$complete_dir" ]] || continue
++    validate_contract "${repo_root}/${complete_dir}/spec-review-contract.json" "$complete_attempt" "$complete_round" NEEDS_WORK "${repo_root}/${complete_dir}/precheck-result.json" \
++      || fail "fresh-review completed NEEDS_WORK round is invalid"
++  done < <(jq -r '.completed_rounds[]? | [.dir, .attempt, .round] | @tsv' <<< "$result")
+   # The helper verifies historical reservations against their pinned inputs.
+diff --git a/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 b/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+--- a/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
++++ b/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+@@ -614,4 +614,10 @@ function Test-FreshRecovery {
+   if (-not (Test-ValidateContract -ContractPath $contract -ExpectedAttempt $data.terminal_attempt -ExpectedRound $data.terminal_round -ExpectedVerdict $verdict -PrecheckPath (Join-Path $terminalDir 'precheck-result.json'))) {
+     Fail 'fresh-review terminal anchor is invalid'
+   }
++  foreach ($complete in @($data.completed_rounds)) {
++    $completeDir = Join-Path $root ([string]$complete.dir)
++    if (-not (Test-ValidateContract -ContractPath (Join-Path $completeDir 'spec-review-contract.json') -ExpectedAttempt ([int]$complete.attempt) -ExpectedRound ([int]$complete.round) -ExpectedVerdict 'NEEDS_WORK' -PrecheckPath (Join-Path $completeDir 'precheck-result.json'))) {
++      Fail 'fresh-review completed NEEDS_WORK round is invalid'
++    }
++  }
+   # The helper verifies historical reservations against their pinned inputs.
+diff --git a/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md b/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
+--- a/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
++++ b/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md
+@@ -74,4 +74,11 @@ reviewer-A invocation manifest, the diagnostic transcript, and a scoped
+ approval audit record transcribed by the orchestrator from the actual user
+ conversation. Label that record as an orchestrator transcription: it is not a
+ human-authored signature, registered approver sidecar, or sudo-mode grant.
++An opt-in `failed_final_round` of 2 or 3 permits only the immediately preceding
++attempt to retain earlier complete NEEDS_WORK rounds followed by one failed
++reviewer-A first turn. Pin every complete-round file, both reviewer invocation
++manifests and reservations, the failed-round precheck/host allocation/A
++invocation/blocker, and the retained local host transcript showing `end_turn`.
++Both runtime prechecks validate the complete-round contracts with their existing
++contract validators. This is record integrity, not retrospective review approval.
+ Retain the immutable contract and approval record under `reports/verification/`.

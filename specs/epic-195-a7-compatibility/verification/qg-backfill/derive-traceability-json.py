@@ -21,12 +21,10 @@ Derivation rules (each cites the traceability.md table it reads):
   acs(REQ)   = every AC whose "Test ID" in the "Acceptance Mapping" table is in
                tests(REQ). ACs are therefore never hand-assigned to a REQ.
 
-  evidence(REQ) = committed verification artifacts of the Done tasks that the
-               "Task Mapping" table maps to that REQ. Only Done tasks
-               contribute; Planned tasks carry no evidence key at all, per
-               specs/epic-136-phase3/traceability.json's own precedent
-               ("omitting it here keeps the structural check passing without
-               fabricating evidence paths that do not exist yet").
+  evidence(REQ) = existing, explicitly scoped verification records. Done-task
+               records below remain historical; the 2026-10-04 additions
+               are local observations, not a completion verdict. Per-link
+               evidence_state distinguishes partial evidence from acceptance.
 
 REQ-009 is deliberately excluded: its Test ID, Code Target, and Evidence cells
 are all "N/A" because it is Epic A1's own requirement, cited here only as the
@@ -67,6 +65,40 @@ DONE_TASK_EVIDENCE = {
         f"specs/{FEATURE}/verification/T-003/red-preimplementation.log",
         f"specs/{FEATURE}/verification/T-003/green-sh.log",
     ],
+}
+
+# Existing measured records only. A partial or failed observation may establish
+# a traceable path, but does not establish that its REQ or every mapped AC passed.
+# Keep these separate from DONE_TASK_EVIDENCE and retain the state in the JSON.
+SCOPED_REQUIREMENT_EVIDENCE = {
+    "REQ-002": (
+        "local-offline-green; independent-gate-and-provenance-pending",
+        [
+            f"specs/{FEATURE}/verification/T-004/activation-final-sh-20261004.log",
+            f"specs/{FEATURE}/verification/T-004/activation-final-ps1-20261004.log",
+            f"specs/{FEATURE}/verification/T-004/activation-mutation-sh-20261004.log",
+            f"specs/{FEATURE}/verification/T-004/activation-mutation-ps1-20261004.log",
+        ],
+    ),
+    "REQ-003": (
+        "partial; T-008-native-caller-and-independent-gate-pending",
+        [
+            f"specs/{FEATURE}/verification/T-005/current-regression-20261003.md",
+            f"specs/{FEATURE}/verification/T-010/current-working-tree-regression-20261004.md",
+            f"specs/{FEATURE}/verification/T-008/native-resume-preconditions-20261004.md",
+        ],
+    ),
+    "REQ-004": (
+        "partial-document-review; AC-017-citation-sweep-pending",
+        [f"specs/{FEATURE}/verification/T-004/requirement-evidence-register-20261004.md"],
+    ),
+    "REQ-007": (
+        "partial; activation-conflict-and-native-caller-pending",
+        [
+            f"specs/{FEATURE}/verification/T-010/coordinator-recheck-20261004.md",
+            f"specs/{FEATURE}/verification/T-010/current-working-tree-regression-20261004.md",
+        ],
+    ),
 }
 
 
@@ -174,6 +206,10 @@ def main():
         evidence = []
         for task in sorted(t for t, reqs in task_reqs.items() if req in reqs):
             evidence.extend(DONE_TASK_EVIDENCE.get(task, []))
+        scoped = SCOPED_REQUIREMENT_EVIDENCE.get(req)
+        if scoped:
+            link["evidence_state"] = scoped[0]
+            evidence.extend(scoped[1])
         if evidence:
             missing = [p for p in evidence if not (REPO_ROOT / p).is_file()]
             if missing:
@@ -197,8 +233,10 @@ def main():
             "REQ-009 is excluded by design -- it is Epic A1's own requirement with "
             "N/A test/code/evidence cells, and a fabricated test id would defeat the "
             "gate. Evidence arrays are populated only for REQ rows whose mapped tasks "
-            "are Done (T-001, T-002, T-003); Planned rows carry no evidence key, per "
-            "specs/epic-136-phase3/traceability.json's precedent."
+            "are Done (T-001, T-002, T-003), plus explicitly scoped 2026-10-04 "
+            "local records for REQ-002/003/004/007. evidence_state labels partial "
+            "or pending obligations; require-evidence checks file existence only "
+            "and is not an acceptance verdict. See T-004/requirement-evidence-register-20261004.md."
         ),
         "schema": "REQ -> AC -> TEST -> evidence; validated by scripts/check-traceability.{sh,ps1}",
         "links": links,

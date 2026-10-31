@@ -1,0 +1,57 @@
+diff --git a/plugins/sdd-review-loop/scripts/fresh-review-recovery.py b/plugins/sdd-review-loop/scripts/fresh-review-recovery.py
+--- a/plugins/sdd-review-loop/scripts/fresh-review-recovery.py
++++ b/plugins/sdd-review-loop/scripts/fresh-review-recovery.py
+@@ -145,4 +145,5 @@ def validate(root, feature, attempt, contract_path):
+     require(set(data) in (base_keys, base_keys | history_keys, base_keys | later_round_keys,
+                           base_keys | earlier_round_keys,
+-                          base_keys | later_round_keys | {'historical_failed_rounds'}),
++                          base_keys | later_round_keys | {'historical_failed_rounds'},
++                          base_keys | earlier_round_keys | {'interrupted_evidence_inventory'}),
+             'unexpected fresh-review contract keys')
+@@ -234,5 +235,24 @@ def validate(root, feature, attempt, contract_path):
+     invocations = []
+     historical_invocations = []
+     sessions = []
+     completed_rounds = []
++    inventory = data.get('interrupted_evidence_inventory')
++    if inventory is not None:
++        require(feature == 'epic-195-a7-compatibility' and attempt == 19 and
++                isinstance(inventory, dict) and set(inventory) == {'attempt', 'files'} and
++                type(inventory['attempt']) is int and inventory['attempt'] == 18 and
++                isinstance(inventory['files'], list) and len(inventory['files']) == 7 and
++                all(isinstance(item, dict) and set(item) == {'path', 'sha256'} and
++                    isinstance(item['path'], str) and isinstance(item['sha256'], str) and
++                    re.fullmatch('[0-9a-f]{64}', item['sha256']) for item in inventory['files']),
++                'invalid interrupted evidence inventory')
++    a18_inventory = {
++        'launch-blocker-note.md': 'bf8567992c455ee37bf890530c70683edd1ca0bf171bff933278764df9d8c621',
++        'precheck-result.json': '3ee3a996576106de56423931eecfcf6cedb027ad8f64d850c671b1102b173740',
++        'reviewer-a-first-turn.txt': '845f0c4d06153767fbebfa6ec6b4c158539ba43a9797bf028f9ece98bdff9f85',
++        'reviewer-a-host-allocation.json': '18785b66c6b9fd1ccb8e76cd5ebc6cacc9215788ff8ad051a5fcce6e395b94d3',
++        'reviewer-a-nontty-preflight.json': '217bd5693476afe70128b4a184294c94785dadbdd7746f93cdbe243fb9d8e078',
++        'reviewer-a-reservation-receipt.txt': 'e1b96325621fd95a93f851568fa6eabfe33f257d7749e40452fdd63f1e80cdf4',
++        'reviewer-a-role-config.json': '9e041233ee4fea5dd253541de62296517ff014f16227abf3f6d104b6cea111f4',
++    }
+     for old_attempt in (partial_attempts[:-1] if later_round else partial_attempts):
+@@ -252,9 +271,21 @@ def validate(root, feature, attempt, contract_path):
+         common_names = {'precheck-result.json', 'reviewer-a-host-allocation.json'}
+         no_output_names = common_names | {'launch-blocker-note.md'}
+         reviewer_output_names = common_names | {'reviewer-a.json'}
+         if set(data) == base_keys:
+             expected_names = reviewer_output_names if old_attempt == attempt - 1 else no_output_names
+             require(actual_names == expected_names, 'interrupted evidence inventory mismatch')
++        elif inventory is not None and old_attempt == inventory['attempt']:
++            expected_files = {f'{rel}/{name}': sha for name, sha in a18_inventory.items()}
++            inventory_files = {item['path']: item['sha256'] for item in inventory['files']}
++            require(actual_names == set(a18_inventory) and
++                    len(inventory_files) == len(inventory['files']) and
++                    inventory_files == expected_files,
++                    'interrupted evidence inventory mismatch')
++            for item in inventory['files']:
++                require(digest(regular(root, item['path'])) == item['sha256'] and
++                        next((entry['sha256'] for entry in data['evidence']
++                              if entry['path'] == item['path']), None) == item['sha256'],
++                        'interrupted evidence inventory hash mismatch: ' + item['path'])
+         else:
+             require(actual_names in (no_output_names, reviewer_output_names),
+                     'interrupted evidence inventory mismatch')

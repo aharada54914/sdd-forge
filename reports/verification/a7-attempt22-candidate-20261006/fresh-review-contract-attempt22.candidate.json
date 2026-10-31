@@ -1,0 +1,755 @@
+{
+  "schema": "spec-fresh-review-recovery/v2",
+  "feature": "epic-195-a7-compatibility",
+  "next_attempt": 22,
+  "reason": "authorized-history-quarantine",
+  "terminal_attempt": 7,
+  "partial_attempts": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+  ],
+  "input_hashes": {
+    "requirements_sha256": "492f54a812be75ca20d0a05ec41dcf225f9b1b17cd512148498e02cf954dd96c",
+    "acceptance_sha256": "dca8c1551ea0f268fc02944a8e0fe078b557c416ef3f37649c7c33590fff6d13",
+    "investigation_sha256": "efd4127b38dc5ebe9bc754ea1a3df0c00b4140056667febd724dea8dc9af987e",
+    "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+    "input_sha256": "a301b63ca7888eeb4475f93bd47c0340ddd3646819006e8e32726bb7100e68e1"
+  },
+  "evidence": [
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a10r1-a-invocation.json",
+      "sha256": "bad0cefafd09624ee7092399a1123ab85832d4059c255404e54be983a973d9ae"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a11r1-a-invocation.json",
+      "sha256": "3c8123477532974e4a7ba64e882735406dadf35b2c939db86466154bf6ee7c83"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a12r1-a-invocation.json",
+      "sha256": "d9cfc17f54cbbcdddf4ff880b5e816f15fa59892d97cf9ee99d1ddaaf720e608"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a13r1-a-invocation.json",
+      "sha256": "6182b117774a4b14222e13ae74191a4b1ad1f2e95f8c53eaaa0259b92fdcd643"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a14r1-a-invocation.json",
+      "sha256": "eaa94c1f74c0638b6dd91556d8e9cb883d777453fd54a0a0fb4f24dd1fb1a09f"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a15r1-a-invocation.json",
+      "sha256": "e2dad7fcd6c63d173b17a2713481c71161d9fcef9f8bb98cd21a4b0cbf45516f"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a15r1-b-invocation.json",
+      "sha256": "f15b880abd489b12ff358c1ee07ac053f1d1a098a9ca9e49ad65986825f38989"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a15r2-a-invocation.json",
+      "sha256": "7d8a22e1e9b0b6fa1f847685d8ce3b4e6dc8496d1a3020882f5c785e0dd0c6b8"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a15r2-b-invocation.json",
+      "sha256": "d228c60830454709163a1e4ec70aa9521ee12ed4359db72a40222c62e598280a"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a15r3-a-invocation.json",
+      "sha256": "2e752a43a935b3e9aa887e09a741f9bfd826b9cc9eaf500ce37ad8f0b367b02c"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a16r1-a-invocation.json",
+      "sha256": "04f7b6e81a782a85e28fdf58d6ed05f9daaa47221c8f1ab5e7df7987bbcda21a"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a17r1-a-invocation.json",
+      "sha256": "72d031cedeae2e7fa30e6fcd0388ec8f0f471d45a3033576cb5774ed10bae870"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a18r1-a-invocation.json",
+      "sha256": "d6e0e333b2eb12220860c777c9544b6e79b4762e5ed18f9f1c441dc501801528"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a19r1-a-invocation.json",
+      "sha256": "f69e98e2fedbb8b6078f51846d531a79c96d24b5cbc3e6cd9be90911e215abc7"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a20r1-a-invocation.json",
+      "sha256": "072ce0333da0e514026b9709dfbfce816775541d518d8b15e6e846a10458fe98"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a20r1-b-invocation.json",
+      "sha256": "6cf83aac59dada258c4a9d630cac37fb4660f0988acdfef7b53ffd265c8b00a6"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a20r2-a-invocation.json",
+      "sha256": "3ec87b48803e45bfd5392443cf46f439fc248e8b0dc39b649f64c4c29bb28da8"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a21r1-a-invocation.json",
+      "sha256": "b9023c4375d9db0f4f3a372f52550e8efab0c89582bc8ba3358433a39c873e89"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a8r1-a-invocation.json",
+      "sha256": "17224119ccd6f5f24de5843bb14072b33abf0c541c1f6285a5b24a7ec1b6c798"
+    },
+    {
+      "path": "reports/review-context/epic-195-a7-compatibility-spec-a9r1-a-invocation.json",
+      "sha256": "e167c75cffb504e6c1fc5722061270ad739be3f6f80a2f33c48eb19ec507ef51"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-10/round-1/precheck-result.json",
+      "sha256": "f09dc22b43eb15c04495e050792e369fe3bf5e4c955583be5a67c7d28f518c6a"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-10/round-1/reviewer-a-host-allocation.json",
+      "sha256": "8594aebf052aa77f377145862341b5a2f9616ad7ff10b292606c03f51bd4ba1c"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-10/round-1/reviewer-a.json",
+      "sha256": "7682bc5eea576372ed048fcf87e73b551c5d7771ed76e7e95c90965c981b1936"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-11/round-1/precheck-result.json",
+      "sha256": "37934b2bcb2e9041086bea0a9cbc7cc4bce1d92d7036bea5dfe234014fef5182"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-11/round-1/reviewer-a-host-allocation.json",
+      "sha256": "865fa68c691c00b1efe20eaf7d1cd567bbd2938e8a9a40f759bc7c3b2ede3f87"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-11/round-1/reviewer-a.json",
+      "sha256": "46ec1d5e2aef8cdf62b309202b2c152ffc271da6f0847a67657790462800910f"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-12/round-1/launch-blocker-note.md",
+      "sha256": "e0209d0717c67c6873975f4a06d8bf8fd7095c77c8e583ba13178126123f0314"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-12/round-1/precheck-result.json",
+      "sha256": "d8321434afe55389fa5f690e4c55412464b72b132bd8526003c4427118fca41e"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-12/round-1/reviewer-a-host-allocation.json",
+      "sha256": "8779ffc2edce37ca8939f26eb5917001fb9cb84f201ef875ef4b7c503e3c96d7"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-13/round-1/launch-blocker-note.md",
+      "sha256": "702f19d71d14f2947fecfe3b7b3073dd27910f03359bcdc13683e0003487ad69"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-13/round-1/precheck-result.json",
+      "sha256": "8fb1513636c6d4d3b76c9a2d2c46c213ab0cced47b903632991a00d7a7beffd7"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-13/round-1/reviewer-a-host-allocation.json",
+      "sha256": "c2ebe4627b501c368586b248cc48c8f04e256abc4afa7fa606d4716305439734"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-14/round-1/precheck-result.json",
+      "sha256": "047ef6e60615b48425b3139c0166b7dd3fe7d85f048cc0e58c4956a0c18496b1"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-14/round-1/reviewer-a-host-allocation.json",
+      "sha256": "91292943c15077bb43fa0c15d549ae6e0a97f49da863a38a38a9360771665898"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-14/round-1/reviewer-a.json",
+      "sha256": "27f981245c67cda1206c9740839350167c92adc269f8d8154177703e2973785d"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-1/integrated-summary.json",
+      "sha256": "54878aefea000015254da21514ed6d2c6094400d6d03aab19f69900c35cfb0a5"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-1/integrated-verdict.json",
+      "sha256": "c0a3f66b0915465b974669f4e124493c346a4cd6f6738f9338e5e12e41b8c1ff"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-1/precheck-result.json",
+      "sha256": "3ecb36025d6f327880093544a083a23b3574b127e8d769c18189e837890467b6"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-1/report.md",
+      "sha256": "a5ee2e32a6239188b9492f5741fde75cccab40e551b723141fd9f1f08403c661"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-1/reviewer-a-host-allocation.json",
+      "sha256": "bbb0325f69d72184ba3839faf8a68797c3c0783a9bdbb77edf5825e0b94ebc41"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-1/reviewer-a.json",
+      "sha256": "64929c3a10ae5467e5da031ac0e2c25a48a47f5c2a52244bca20d88511776fd5"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-1/reviewer-b-host-allocation.json",
+      "sha256": "c1981b9708d926698ab6982083a268272fc6d36d7c3f98ffb127c50e2afe5706"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-1/reviewer-b.json",
+      "sha256": "c95d6d4a67f3de9646fcbcee9094ead477a7666026960a0664a4239e575e844b"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-1/spec-review-contract.json",
+      "sha256": "905af712c9a3c83a62fb6da3cf16516b6598bc061bb6bbf057456218c44a980b"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-2/integrated-summary.json",
+      "sha256": "defae2c7eb7a32a1ad68abb615800bb4b53aaaa986c9b73757e04f6d4b26f93e"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-2/integrated-verdict.json",
+      "sha256": "73f8cf2c5a384a0c6e69791d1d8cc0dd9c974cfd74e812516045e03b3bbe5c1f"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-2/precheck-result.json",
+      "sha256": "1908771666f4c3a43893551d9eea3e72739cae33c03b656cd9f43b5b7a6e539e"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-2/report.md",
+      "sha256": "03ae464666d72b277fdf5c8ebd5a9327dbfc5cd5f177df60370931f87739e99b"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-2/reviewer-a-host-allocation.json",
+      "sha256": "ea2d903005cf7bf8da6b08715130acaf28edc45963d902f8f96f8c3ae2ed69bc"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-2/reviewer-a.json",
+      "sha256": "058163df69d5a553f535fa4b668204509a9a02832ed9e7e1f4ec183dc95fca57"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-2/reviewer-b-host-allocation.json",
+      "sha256": "61099af1e92c4e933cf79fb502499bab7f41f22c08c964a393badd61627359ce"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-2/reviewer-b.json",
+      "sha256": "4986e7f2a6fcfd06f390e839188308ef1cf94e82e24fb694f8e339b1d1fccad4"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-2/spec-review-contract.json",
+      "sha256": "52f1e64d9e6b47b6876948ed85b77dc7aefb6af210b4d5fa37d2af5b39d915cf"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-3/precheck-result.json",
+      "sha256": "5628d5625eb30790149d5fa680f6eb22bfc0d6a8ee34ba044e81cfee638cfa3a"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-3/reviewer-a-host-allocation.json",
+      "sha256": "f59532c18613ed96dc17f60eaced250fbfd1d4d4d7f345420c73ebcff4b11941"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-15/round-3/reviewer-a-launch-blocker.md",
+      "sha256": "421a519f6cd55d488f63231e8b3dfe2502b508ecc41a1872216ccc386ec19034"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-16/round-1/launch-blocker-note.md",
+      "sha256": "04d73ceb0e6f560a31db9470cce2264f2b3e3518f34007cb07dfb2b58d6072ce"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-16/round-1/precheck-result.json",
+      "sha256": "bc35f564ec1a0bd03eb1805a40fdec200d19c5f4b9e6835f06c7d5c264477acd"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-16/round-1/reviewer-a-host-allocation.json",
+      "sha256": "09d1c7951c26ef046e01f4fe34c9c24c8df81117f173a46179fd8e9b71089db1"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-17/round-1/launch-blocker-note.md",
+      "sha256": "4fe28ab87bba9548cd51e9d361e25e372e597ac43df7a277e38e870876b07142"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-17/round-1/precheck-result.json",
+      "sha256": "74b1aed39b36ccb00b99da4f9c945aedc5872e71e4b40302a16556a35c9bb08c"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-17/round-1/reviewer-a-host-allocation.json",
+      "sha256": "399683fc0ac2c226633e598f6195a0945fbf073858d55010265cb8bd32910144"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-18/round-1/launch-blocker-note.md",
+      "sha256": "bf8567992c455ee37bf890530c70683edd1ca0bf171bff933278764df9d8c621"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-18/round-1/precheck-result.json",
+      "sha256": "3ee3a996576106de56423931eecfcf6cedb027ad8f64d850c671b1102b173740"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-18/round-1/reviewer-a-first-turn.txt",
+      "sha256": "845f0c4d06153767fbebfa6ec6b4c158539ba43a9797bf028f9ece98bdff9f85"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-18/round-1/reviewer-a-host-allocation.json",
+      "sha256": "18785b66c6b9fd1ccb8e76cd5ebc6cacc9215788ff8ad051a5fcce6e395b94d3"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-18/round-1/reviewer-a-nontty-preflight.json",
+      "sha256": "217bd5693476afe70128b4a184294c94785dadbdd7746f93cdbe243fb9d8e078"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-18/round-1/reviewer-a-reservation-receipt.txt",
+      "sha256": "e1b96325621fd95a93f851568fa6eabfe33f257d7749e40452fdd63f1e80cdf4"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-18/round-1/reviewer-a-role-config.json",
+      "sha256": "9e041233ee4fea5dd253541de62296517ff014f16227abf3f6d104b6cea111f4"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/launch-blocker-note.md",
+      "sha256": "c7d373fb95dd17cf4314445e36ea3ff83cb7fa4911134aa6a7c52d0dd5d53af4"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/precheck-result.json",
+      "sha256": "56058868b8905a19a6f6b370ac96bb4c0e2f3e92f1d15379d59e22540ef52ae1"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-cli-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-cli-wrapper.json",
+      "sha256": "09565c414023819f38a0fef7e9167acee6df301d8bf78de5bca10830796554bf"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-delivery-proof.json",
+      "sha256": "62d5a73e084b9949cf6e8d3a75b23e6c513af4e5e008e3900c9d49413d196f57"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-first-turn.txt",
+      "sha256": "17f1a0c65c3e4fa2b76ce15f0b4239af2e5bad4f2c77968711ca75a05e4dcc6d"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-host-allocation.json",
+      "sha256": "fb2459d46d2956c91898a6608d04f51581e90da12fba91746386c391434435eb"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-nontty-preflight.json",
+      "sha256": "715ab61259f877791098af25d8393ab76aba568ca595ead78340e1e0cb76aa57"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-reservation-receipt.txt",
+      "sha256": "42d6a1059ba21fcc78f28df8fc40d3f55af0507b77958004337373430ebc18fb"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-reservation-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-role-config.json",
+      "sha256": "9e041233ee4fea5dd253541de62296517ff014f16227abf3f6d104b6cea111f4"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/integrated-summary.json",
+      "sha256": "4bc7690e6bf548ddb7846b8bc7910346b1de2f3d81b0a9e120359d4a5b06f7f2"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/integrated-verdict.json",
+      "sha256": "1d964cabaf33e8f9cc6654b1134f19509bc6fefef3cd1d6f3accf75ed3991023"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/precheck-result.json",
+      "sha256": "7b5ac7d0cdd8dc79d38df6348596f77e718f3021330b22c4bd5d26310434afec"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/report.md",
+      "sha256": "39885de1076f2ee03166f9cad2e01031b695a37459a28d7d30f6ff6269ebf92f"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-a-cli-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-a-cli-wrapper.json",
+      "sha256": "d22cf0d57c00f58e73d513dde86dbba058066f7b8f5ca2e7475e41d0ffd73c45"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-a-delivery-proof.json",
+      "sha256": "0f6decb43ead9b5bbd2f1dda25aa3aa86052b158067fe7c99d09847588c69e33"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-a-first-turn.txt",
+      "sha256": "a7a15a73c610066dfa5d6cb6563eb8cff8a210ac4e457b82e9cc721538e417e6"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-a-host-allocation.json",
+      "sha256": "a17720066403b7726e7e4cd050ef306827516301a96a8e3174ef5d4cf2facc24"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-a-nontty-preflight.json",
+      "sha256": "8c2812c38e91c37a23b12729226d385132e3ed2ae777efde7fc7b4fb592ab3da"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-a-reservation-receipt.txt",
+      "sha256": "9c95f896453703607a44d91ff7fbf8425f8a6f56af20a771672008f5b69ba682"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-a-role-config.json",
+      "sha256": "d39aa863bc97eb6086e0d8a33f06ca7359563b9ed169123481f2875a87e43b74"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-a.json",
+      "sha256": "4d242a5a71aa90211c1c4a6316a44a8eebd5d9bd50c0815f635991ca7412f274"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-b-cli-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-b-cli-wrapper.json",
+      "sha256": "46efd5d6e0f4dcc8accc2e9e96335bed4eb55495139cb6373bade2078d75a0e5"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-b-delivery-proof.json",
+      "sha256": "4ff9c3dc5003eb18a774c466e92f1440d4e9368b3f0ec1659d71964a84083aec"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-b-first-turn.txt",
+      "sha256": "49befb6f4713905ea1c7dea42733784d91625f97acb72f477c033f7f62eaa0e7"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-b-host-allocation.json",
+      "sha256": "2115e0c1b29cd3787056972d2cd5b930c44ba66d6ebcf47367b860a033355031"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-b-nontty-preflight.json",
+      "sha256": "1efaf945bc57fa9f852b1ab36490be38c57503eafb4b9411c57f5564b7811a33"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-b-reservation-receipt.txt",
+      "sha256": "9480b847baf60604d24fc595f1d3423fc7cee56c3d6127229ae075dbaf2ce613"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-b-role-config.json",
+      "sha256": "34e56481d5a2b35f0d0264a3fbd3e4a1a378b1e18fad9bbd0d7461d0b33dcc74"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/reviewer-b.json",
+      "sha256": "5493690f6e052e73c8b4150280000dd0f99ccd8b3cc4b480b63bce69dd2a7517"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/spec-review-contract.json",
+      "sha256": "f539a7e8cf770e1207e4779910f35b35fece2df150a4be0afd6d5c09f9e9b131"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-2/precheck-result.json",
+      "sha256": "bb858986814a4f2884649ec0a8966f62f6c4325b3a4694a27c40cce53dd0fc7f"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-2/reviewer-a-cli-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-2/reviewer-a-cli-wrapper.json",
+      "sha256": "3aadc922617f0682f752c3882f972722c5f6232ca95e689eb706b9fed138d828"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-2/reviewer-a-first-turn.txt",
+      "sha256": "e9ebe244b1760e27417f0178506355af57c5abc56b333be4c030616e3b20b11d"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-2/reviewer-a-reservation-receipt.txt",
+      "sha256": "02ad3c449eb7ced3b1bcd3f710a80ec0a1e58bb915289844af9638f59adbfe59"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-2/reviewer-a-role-config.json",
+      "sha256": "d39aa863bc97eb6086e0d8a33f06ca7359563b9ed169123481f2875a87e43b74"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/launch-blocker-note.md",
+      "sha256": "67b5a2acc8bc042baec8de8e7fd7a96efed978137989a61b3cf129c70f215a8a"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/precheck-result.json",
+      "sha256": "2818127622cdfd3421d2aa877053c90668ce35cad2a6e44521a7a6faaed4ea54"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/reviewer-a-cli-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/reviewer-a-cli-wrapper.json",
+      "sha256": "fbc34a2ca3712730495471a439924812cdc370c0e12b8299ece8c0c7e5b40673"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/reviewer-a-first-turn.txt",
+      "sha256": "5848396722ac459e63ee1483f538737de4c0b6e60416e10065783146e9643171"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/reviewer-a-host-allocation.json",
+      "sha256": "31965d2712c96d4f494c1bf70a62b67839e9dfac20f355fc592f8142cccf27a6"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/reviewer-a-nontty-preflight.json",
+      "sha256": "5c0b057578ad78b698bef10dfd6c22d537b344cfba3a6696b03402bf485977e9"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/reviewer-a-reservation-receipt.txt",
+      "sha256": "1d5d40279f5a78d3bf93cdb0e48ca43f12997255316a2f5214457a0af203791d"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/reviewer-a-role-config.json",
+      "sha256": "d39aa863bc97eb6086e0d8a33f06ca7359563b9ed169123481f2875a87e43b74"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-7/round-2/integrated-summary.json",
+      "sha256": "3bfa785505f2608567de9688bbefb2c18aae7197dfb24b0fd77d51902606a51c"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-7/round-2/integrated-verdict.json",
+      "sha256": "2bf820ae122cbd82d70de75f993d8d8cd8483c4965ceb984dfb25c71b48cf18b"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-7/round-2/precheck-result.json",
+      "sha256": "f2c7d4680e3dea6ddd8994ef2c14fd0cef42e2e3d73b27aefc7f3cd44262cce8"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-7/round-2/reviewer-a.json",
+      "sha256": "3afc7b908a3ea321f6c6bf9fbc0cfb3c21e8f06e9efc0f412eeca48cbd53b256"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-7/round-2/reviewer-b.json",
+      "sha256": "4db2ca370db589918efc204709d4095f155187b2d04cda59168e0d397c6a7d23"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-7/round-2/spec-review-contract.json",
+      "sha256": "17f08010ecf489a1adc85ed4ae1a82647d7b13b5eb8b6966917567132e8afd5b"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-8/round-1/launch-blocker-note.md",
+      "sha256": "ca55d044ec3e298bd0f78663ee8af1797db156fe63f7c18718db956d051bd0b4"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-8/round-1/precheck-result.json",
+      "sha256": "ce38f576197fc280be8f43d1fcb4be0b636167c18471746bfa84c0ad6b2a8b04"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-8/round-1/reviewer-a-host-allocation.json",
+      "sha256": "928cf6f2ee70696ddb505d1acff35b5beae1a5fe7e87cdf8a747f5ec2d529801"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-9/round-1/precheck-result.json",
+      "sha256": "5a7dc3ffd060060c62f1416ee81175274620f08c8805ea37ed84a50fc7e0d27d"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-9/round-1/reviewer-a-host-allocation.json",
+      "sha256": "d3f53cd877d625c26fc15e18d6bfc338e2cb55e7210be1d637c2f32046526d81"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-9/round-1/reviewer-a.json",
+      "sha256": "3bd5f237fec511016434eb64562b700c140d62ef2353b2087d8526cf4c749fe7"
+    },
+    {
+      "path": "reports/verification/a7-attempt20-formal-20261006/round2-transport-failure.md",
+      "sha256": "f8800895bf8fb543c8fcd810b17bca74dedd33916e299789f1ddb3d8a4d61ea8"
+    },
+    {
+      "path": "reports/verification/a7-attempt21-formal-20261006/native/33bd78fd-c207-44c1-9ef3-d00c2e46b776.jsonl",
+      "sha256": "9caad8cfb120db6c666203c412079a557b8a0c28d9b6e4bb34af6caf486022e8"
+    },
+    {
+      "path": "reports/verification/a7-attempt22-candidate-20261006/approval-audit-attempt22.candidate.json",
+      "sha256": "ef1655ffdf2cf833e83a0a36de40aa1e07391871b2297af2cc5f15f2593b3bdf"
+    },
+    {
+      "path": "reports/verification/a7-private-attempt16/failed-host.jsonl",
+      "sha256": "7d66b08785d3e2c6d635608867a07771cb4a146833ef828a80efff8d0c7ad909"
+    }
+  ],
+  "transcript": {
+    "path": "reports/verification/a7-attempt21-formal-20261006/native/33bd78fd-c207-44c1-9ef3-d00c2e46b776.jsonl"
+  },
+  "authority": {
+    "path": "reports/verification/a7-attempt22-candidate-20261006/approval-audit-attempt22.candidate.json"
+  },
+  "historical_disposition": {
+    "outputs": "diagnostic-only",
+    "transition_legality": "not-established"
+  },
+  "historical_failed_rounds": [
+    {
+      "attempt": 15,
+      "failed_final_round": 3,
+      "failed_turn": {
+        "transcript_path": "reports/verification/a7-private-attempt16/failed-host.jsonl",
+        "transcript_sha256": "7d66b08785d3e2c6d635608867a07771cb4a146833ef828a80efff8d0c7ad909",
+        "blocker_sha256": "421a519f6cd55d488f63231e8b3dfe2502b508ecc41a1872216ccc386ec19034",
+        "host_session_id": "9c9b2875-1c41-4da6-bd68-e82b0b93438c",
+        "failure_mode": "prompt-truncated-before-role-manifest"
+      }
+    },
+    {
+      "attempt": 20,
+      "failed_final_round": 2,
+      "failed_turn": {
+        "failure_mode": "native-nontty-malformed-result",
+        "host_session_id": "33bd78fd-c207-44c1-9ef3-d00c2e46b776",
+        "transcript_path": "reports/verification/a7-attempt21-formal-20261006/native/33bd78fd-c207-44c1-9ef3-d00c2e46b776.jsonl",
+        "transcript_sha256": "9caad8cfb120db6c666203c412079a557b8a0c28d9b6e4bb34af6caf486022e8",
+        "blocker_path": "reports/verification/a7-attempt20-formal-20261006/round2-transport-failure.md",
+        "blocker_sha256": "f8800895bf8fb543c8fcd810b17bca74dedd33916e299789f1ddb3d8a4d61ea8",
+        "files": [
+          {
+            "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-2/precheck-result.json",
+            "sha256": "bb858986814a4f2884649ec0a8966f62f6c4325b3a4694a27c40cce53dd0fc7f"
+          },
+          {
+            "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-2/reviewer-a-cli-stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-2/reviewer-a-cli-wrapper.json",
+            "sha256": "3aadc922617f0682f752c3882f972722c5f6232ca95e689eb706b9fed138d828"
+          },
+          {
+            "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-2/reviewer-a-first-turn.txt",
+            "sha256": "e9ebe244b1760e27417f0178506355af57c5abc56b333be4c030616e3b20b11d"
+          },
+          {
+            "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-2/reviewer-a-reservation-receipt.txt",
+            "sha256": "02ad3c449eb7ced3b1bcd3f710a80ec0a1e58bb915289844af9638f59adbfe59"
+          },
+          {
+            "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-2/reviewer-a-role-config.json",
+            "sha256": "d39aa863bc97eb6086e0d8a33f06ca7359563b9ed169123481f2875a87e43b74"
+          }
+        ]
+      }
+    }
+  ],
+  "interrupted_transport_inventories": [
+    {
+      "attempt": 18,
+      "files": [
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-18/round-1/launch-blocker-note.md",
+          "sha256": "bf8567992c455ee37bf890530c70683edd1ca0bf171bff933278764df9d8c621"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-18/round-1/precheck-result.json",
+          "sha256": "3ee3a996576106de56423931eecfcf6cedb027ad8f64d850c671b1102b173740"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-18/round-1/reviewer-a-first-turn.txt",
+          "sha256": "845f0c4d06153767fbebfa6ec6b4c158539ba43a9797bf028f9ece98bdff9f85"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-18/round-1/reviewer-a-host-allocation.json",
+          "sha256": "18785b66c6b9fd1ccb8e76cd5ebc6cacc9215788ff8ad051a5fcce6e395b94d3"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-18/round-1/reviewer-a-nontty-preflight.json",
+          "sha256": "217bd5693476afe70128b4a184294c94785dadbdd7746f93cdbe243fb9d8e078"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-18/round-1/reviewer-a-reservation-receipt.txt",
+          "sha256": "e1b96325621fd95a93f851568fa6eabfe33f257d7749e40452fdd63f1e80cdf4"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-18/round-1/reviewer-a-role-config.json",
+          "sha256": "9e041233ee4fea5dd253541de62296517ff014f16227abf3f6d104b6cea111f4"
+        }
+      ]
+    },
+    {
+      "attempt": 19,
+      "files": [
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/launch-blocker-note.md",
+          "sha256": "c7d373fb95dd17cf4314445e36ea3ff83cb7fa4911134aa6a7c52d0dd5d53af4"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/precheck-result.json",
+          "sha256": "56058868b8905a19a6f6b370ac96bb4c0e2f3e92f1d15379d59e22540ef52ae1"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-cli-stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-cli-wrapper.json",
+          "sha256": "09565c414023819f38a0fef7e9167acee6df301d8bf78de5bca10830796554bf"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-delivery-proof.json",
+          "sha256": "62d5a73e084b9949cf6e8d3a75b23e6c513af4e5e008e3900c9d49413d196f57"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-first-turn.txt",
+          "sha256": "17f1a0c65c3e4fa2b76ce15f0b4239af2e5bad4f2c77968711ca75a05e4dcc6d"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-host-allocation.json",
+          "sha256": "fb2459d46d2956c91898a6608d04f51581e90da12fba91746386c391434435eb"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-nontty-preflight.json",
+          "sha256": "715ab61259f877791098af25d8393ab76aba568ca595ead78340e1e0cb76aa57"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-reservation-receipt.txt",
+          "sha256": "42d6a1059ba21fcc78f28df8fc40d3f55af0507b77958004337373430ebc18fb"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-reservation-stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-19/round-1/reviewer-a-role-config.json",
+          "sha256": "9e041233ee4fea5dd253541de62296517ff014f16227abf3f6d104b6cea111f4"
+        }
+      ]
+    },
+    {
+      "attempt": 21,
+      "files": [
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/launch-blocker-note.md",
+          "sha256": "67b5a2acc8bc042baec8de8e7fd7a96efed978137989a61b3cf129c70f215a8a"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/precheck-result.json",
+          "sha256": "2818127622cdfd3421d2aa877053c90668ce35cad2a6e44521a7a6faaed4ea54"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/reviewer-a-cli-stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/reviewer-a-cli-wrapper.json",
+          "sha256": "fbc34a2ca3712730495471a439924812cdc370c0e12b8299ece8c0c7e5b40673"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/reviewer-a-first-turn.txt",
+          "sha256": "5848396722ac459e63ee1483f538737de4c0b6e60416e10065783146e9643171"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/reviewer-a-host-allocation.json",
+          "sha256": "31965d2712c96d4f494c1bf70a62b67839e9dfac20f355fc592f8142cccf27a6"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/reviewer-a-nontty-preflight.json",
+          "sha256": "5c0b057578ad78b698bef10dfd6c22d537b344cfba3a6696b03402bf485977e9"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/reviewer-a-reservation-receipt.txt",
+          "sha256": "1d5d40279f5a78d3bf93cdb0e48ca43f12997255316a2f5214457a0af203791d"
+        },
+        {
+          "path": "reports/spec-review/epic-195-a7-compatibility/attempt-21/round-1/reviewer-a-role-config.json",
+          "sha256": "d39aa863bc97eb6086e0d8a33f06ca7359563b9ed169123481f2875a87e43b74"
+        }
+      ]
+    }
+  ]
+}
+

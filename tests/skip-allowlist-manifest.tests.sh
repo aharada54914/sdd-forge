@@ -236,6 +236,12 @@ case_primitives() {
   else
     fail 'merged fingerprint-match fixture makes both primitives true'
   fi
+  jq '.[0].activation_condition = "merged(A9)"' "$FIXTURE_MANIFEST" > "$WORK/condition.json"
+  if run_evaluator condition "$WORK/condition.json" AC-900 "$FIXTURE_REPO" main >/dev/null 2>&1; then
+    pass 'merged-only activation needs no caller marker'
+  else
+    fail 'merged-only activation needs no caller marker'
+  fi
   create_fixture merged-fingerprint-mismatch
   if run_evaluator merged "$FIXTURE_MANIFEST" AC-900 A9 "$FIXTURE_REPO" main >/dev/null 2>&1 &&
      ! run_evaluator fingerprint-match "$FIXTURE_MANIFEST" AC-900 0 "$FIXTURE_REPO" main >/dev/null 2>&1; then
@@ -258,34 +264,16 @@ case_primitives() {
     pass 'AND rejects one false primitive'
   fi
 
-  mkdir -p "$FIXTURE_REPO/plugins/sdd-bootstrap/scripts"
-  printf '%s\n' 'caller marker: resolve-project-context' > "$FIXTURE_REPO/plugins/sdd-bootstrap/scripts/interviewer.sh"
-  chmod +x "$FIXTURE_REPO/plugins/sdd-bootstrap/scripts/interviewer.sh"
-  git -C "$FIXTURE_REPO" add plugins/sdd-bootstrap/scripts/interviewer.sh
-  git -C "$FIXTURE_REPO" commit -q -m 'fixture caller marker'
-    jq '.[0].activation_condition = "executable_contains(plugins/sdd-bootstrap,resolve-project-context)"' "$FIXTURE_MANIFEST" > "$WORK/condition.json"
-  if run_evaluator condition "$WORK/condition.json" AC-900 "$FIXTURE_REPO" main >/dev/null 2>&1; then
-    fail 'executable_contains activates before the caller reaches main'
-  else
-    pass 'executable_contains stays false while the caller marker is not on main'
-  fi
-  if run_evaluator condition "$WORK/condition.json" AC-900 "$FIXTURE_REPO" missing-main >/dev/null 2>&1; then
-    fail 'executable_contains activates when the target ref is unavailable'
-  else
-    pass 'file_contains fails closed when the target ref is unavailable'
-  fi
-  if run_evaluator condition "$WORK/condition.json" AC-900 "$FIXTURE_REPO" missing-main >/dev/null 2>&1; then
-    fail 'condition activates when the target ref is unavailable'
-  else
-    pass 'condition remains inactive when the target ref is unavailable'
-  fi
-  git -C "$FIXTURE_REPO" switch -q main
-  git -C "$FIXTURE_REPO" merge -q --no-ff feature/epic-999-fixture -m 'merge caller marker'
-  if run_evaluator condition "$WORK/condition.json" AC-900 "$FIXTURE_REPO" main >/dev/null 2>&1; then
-    pass 'executable_contains activates after the caller marker reaches main'
-  else
-    fail 'executable_contains activates after the caller marker reaches main'
-  fi
+  for unsupported in 'file_contains(any,marker)' 'executable_contains(any,marker)'; do
+    jq --arg condition "$unsupported" '.[0].activation_condition = $condition' "$FIXTURE_MANIFEST" > "$WORK/condition.json"
+    local rc=0
+    run_evaluator condition "$WORK/condition.json" AC-900 "$FIXTURE_REPO" main >/dev/null 2>&1 || rc=$?
+    if [[ "$rc" == 2 ]]; then
+      pass "unsupported activation predicate $unsupported is rejected"
+    else
+      fail "unsupported activation predicate $unsupported is rejected with exit 2 (got $rc)"
+    fi
+  done
 }
 
 case_manifest_contract() {
@@ -295,9 +283,9 @@ case_manifest_contract() {
   fi
   local expected
   expected='[
-    ["AC-004","A5","sha256:1bf6f2e295bcc8ef49ca93755c046ef6a6301b604ae9d33c1aa95e00e4f8b33c","merged(A5) AND executable_contains(plugins/sdd-bootstrap,resolve-project-context)"],
+    ["AC-004","A5","sha256:1bf6f2e295bcc8ef49ca93755c046ef6a6301b604ae9d33c1aa95e00e4f8b33c","merged(A5)"],
     ["AC-007","A4","sha256:b84bd60bfba1bc9741bb76096d0502a461343c6867efcaa4bc57986b02d11157","merged(A4)"],
-    ["AC-021","A1+A5","sha256:0851c0920fdfc93deb792b1f322dbe89a1b6ed6cb6bfc2c9a361cba5f513955a+sha256:1bf6f2e295bcc8ef49ca93755c046ef6a6301b604ae9d33c1aa95e00e4f8b33c","merged(A1) AND merged(A5) AND executable_contains(plugins/sdd-bootstrap,resolve-project-context)"],
+    ["AC-021","A1+A5","sha256:0851c0920fdfc93deb792b1f322dbe89a1b6ed6cb6bfc2c9a361cba5f513955a+sha256:1bf6f2e295bcc8ef49ca93755c046ef6a6301b604ae9d33c1aa95e00e4f8b33c","merged(A1) AND merged(A5)"],
     ["AC-042","A1","sha256:0851c0920fdfc93deb792b1f322dbe89a1b6ed6cb6bfc2c9a361cba5f513955a","merged(A1)"],
     ["AC-043","A1+A6","sha256:0851c0920fdfc93deb792b1f322dbe89a1b6ed6cb6bfc2c9a361cba5f513955a+sha256:185d9e88b4ef19fd86d4993dabc6446f5e1b2e5dc9a84b3bacbb81f823f25134","merged(A1) AND merged(A6)"]
   ]'
@@ -317,10 +305,21 @@ case_manifest_contract() {
     fail 'AC-034 manifest contains exactly the five fixed entries and fingerprint values'
     return
   fi
+  if jq -e '
+    all(.[] | .dependencies[] | select(.epic == "A1");
+      .merged_commit == "a8d65c7316f53787121874968e14878bc90c75aa") and
+    all(.[] | .dependencies[] | select(.epic == "A5");
+      .merged_commit == "fe646175ba62256f71a560662a292dd84f6af8b1")
+  ' "$SHIPPED_MANIFEST" >/dev/null; then
+    pass 'merged A1/A5 dependencies retain immutable integration receipts after branch cleanup'
+  else
+    fail 'merged A1/A5 dependencies retain immutable integration receipts after branch cleanup'
+  fi
   local source_hits assertion
-  source_hits="$(grep -n -E 'skip_allowlist_line.*AC-(004|007|021|042|043)' \
+  source_hits="$(grep -h -E 'skip_allowlist_line.*AC-(004|007|021|042|043)' \
     "$ROOT/tests/loop-consistency.tests.sh" "$ROOT/tests/loop-escalation.tests.sh" \
-    "$ROOT/tests/compatibility-byte-identical.tests.sh" "$ROOT/tests/structural-compatibility.tests.sh" 2>/dev/null || true)"
+    "$ROOT/tests/compatibility-byte-identical.tests.sh" "$ROOT/tests/structural-compatibility.tests.sh" 2>/dev/null |
+    grep -v -E '^[[:space:]]*#' || true)"
   for assertion in AC-004 AC-007 AC-021 AC-042 AC-043; do
     if ! grep -Fq "$assertion" <<<"$source_hits"; then
       fail "AC-016 $assertion output is not sourced through skip_allowlist_line"

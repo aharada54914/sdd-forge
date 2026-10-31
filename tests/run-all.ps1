@@ -14,6 +14,7 @@ $tests = @(
     'tests/task-context-isolation.tests.ps1',
     'tests/rollback-1.5.0.tests.ps1',
     'tests/downstream-review-precheck.tests.ps1',
+    'tests/review-hash-normalization.tests.ps1',
     'tests/impl-layer-review-inputs.tests.ps1',
     'tests/task-layer-review-inputs.tests.ps1',
     'tests/cross-model.tests.ps1',
@@ -128,6 +129,13 @@ try {
         & $powerShell -NoProfile -File (Join-Path $root $testFile)
         if ($LASTEXITCODE -ne 0) {
             Write-Host "FAILED: $testFile (exit code $LASTEXITCODE)"
+            $failed += $testFile
+        }
+    }
+    foreach ($testFile in @('tests/unified-launch-order.tests.py', 'tests/host-review-preflight.tests.py', 'tests/unified-task-launch.tests.py', 'tests/task-structured-output.tests.py', 'tests/quality-nontty-transport.tests.py', 'tests/spec-review-verify-inputs.tests.py')) {
+        Write-Host "==> $testFile"
+        & python (Join-Path $root $testFile)
+        if ($LASTEXITCODE -ne 0) {
             $failed += $testFile
         }
     }

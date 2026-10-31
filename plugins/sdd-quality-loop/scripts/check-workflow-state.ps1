@@ -383,13 +383,15 @@ function Get-CandidateRootsForPath([string]$NormalizedPath) {
     # inner derivation this extracts). Returned with the comma operator so
     # PowerShell hands back the HashSet itself instead of unrolling it.
     $candidateRoots = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
-    foreach ($marker in @("/specs/", "/reports/", "/plugins/")) {
+    foreach ($marker in @("/specs/", "/reports/", "/plugins/", "/domain/", "/design-system/")) {
         $index = $NormalizedPath.IndexOf($marker, [StringComparison]::Ordinal)
         while ($index -ge 0) {
             $suffix = $NormalizedPath.Substring($index + 1)
             if ($suffix -cmatch '^specs/[a-z0-9][a-z0-9-]*/[^/]+$' -or
                 $suffix -cmatch '^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$' -or
-                $suffix -cmatch '^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$') {
+                $suffix -cmatch '^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$' -or
+                $suffix -cmatch '^domain/(context-map[.]md|domain-contract[.]json)$' -or
+                $suffix -cmatch '^design-system/(design-tokens[.]json|design-system[.]md|ui-patterns[.]md)$') {
                 [void]$candidateRoots.Add($NormalizedPath.Substring(0, $index))
             }
             $index = $NormalizedPath.IndexOf($marker, $index + 1, [StringComparison]::Ordinal)
@@ -618,9 +620,23 @@ function Test-ManifestPaths(
     if (-not $recorded.Valid) { return $false }
     $attemptRoot = "reports/$Stage-review/$Feature/attempt-$Attempt"
     $roundRoot = "$attemptRoot/round-$Round"
+    # Historical pins only; current domain/DS applicability cannot rewrite history.
+    $conditionalPaths = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    if ($Stage -cin @('spec', 'impl')) {
+        [void]$conditionalPaths.Add('domain/context-map.md')
+        [void]$conditionalPaths.Add('domain/domain-contract.json')
+    }
+    if ($Stage -ceq 'impl') {
+        foreach ($path in @('design-system/design-tokens.json', 'design-system/design-system.md', 'design-system/ui-patterns.md')) {
+            [void]$conditionalPaths.Add($path)
+        }
+    }
+    $conditionalPins = @{}
     foreach ($reviewer in @($Contract.reviewers)) {
         $role = [string]$reviewer.role
         $allowed = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+        foreach ($path in $conditionalPaths) { [void]$allowed.Add($path) }
+        $pins = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
         foreach ($path in @(
             "specs/$Feature/requirements.md",
             "specs/$Feature/acceptance-tests.md",
@@ -664,7 +680,15 @@ function Test-ManifestPaths(
             if ($null -eq $path) { return $false }
             if ($path -match "(^|/)\.\.?(/|$)" -or -not $allowed.Contains($path) -or
                 -not $seen.Add($path)) { return $false }
+            if ($conditionalPaths.Contains($path)) { $pins.Add($path, [string]$item.sha256) }
         }
+        $conditionalPins[$role] = $pins
+    }
+    $a = $conditionalPins["$Stage-reviewer-a"]
+    $b = $conditionalPins["$Stage-reviewer-b"]
+    if ($null -eq $a -or $null -eq $b -or $a.Count -ne $b.Count) { return $false }
+    foreach ($path in $a.Keys) {
+        if (-not $b.ContainsKey($path) -or $a[$path] -cne $b[$path]) { return $false }
     }
     return $true
 }
@@ -1189,6 +1213,11 @@ function Get-AdrHistoryManifest($Manifest, [string]$Role, $Precheck,
         'design.md','ux-spec.md','frontend-spec.md','infra-spec.md','security-spec.md')) {
         [void]$allowed.Add("specs/$Feature/$name")
     }
+    # Saved ADR-extended reviews use the same exact conditional paths as the
+    # ordinary persisted-history path; presence today adds no old requirement.
+    foreach ($path in @('domain/context-map.md', 'domain/domain-contract.json',
+        'design-system/design-tokens.json', 'design-system/design-system.md',
+        'design-system/ui-patterns.md')) { [void]$allowed.Add($path) }
     [void]$allowed.Add($calibration)
     [void]$allowed.Add($pcPath)
     if ($Role -ceq 'impl-reviewer-b') { [void]$allowed.Add($summaryPath) }
@@ -1558,6 +1587,11 @@ function Get-AdrHistoryBinding([Collections.IDictionary]$Snapshots,
         }
         $recorded = Get-RecordedRepositoryRoot $contract $RepositoryRoot
         if (-not $recorded.Valid) { throw 'ADR recorded root is ambiguous' }
+        $conditionalPaths = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+        foreach ($path in @('domain/context-map.md', 'domain/domain-contract.json',
+            'design-system/design-tokens.json', 'design-system/design-system.md',
+            'design-system/ui-patterns.md')) { [void]$conditionalPaths.Add($path) }
+        $conditionalPins = @{}
         foreach ($role in @('impl-reviewer-a','impl-reviewer-b')) {
             $reservation = @($contract.reviewers | Where-Object { $_.role -ceq $role })[0]
             $output = if ($role -ceq 'impl-reviewer-a') { $reviewerA } else { $reviewerB }
@@ -1569,6 +1603,19 @@ function Get-AdrHistoryBinding([Collections.IDictionary]$Snapshots,
                 $Snapshots['precheck-result.json'].Sha256 $Snapshots['integrated-summary.json'].Sha256 $previousHash
             if (-not (Test-AdrHistoryManifestSuperset $actual $bound $Feature)) {
                 throw 'ADR actual reviewer manifest diverges from reservation'
+            }
+            $pins = [Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+            foreach ($entry in $bound.Normalized.GetEnumerator()) {
+                if ($conditionalPaths.Contains($entry.Key)) { $pins.Add($entry.Key, $entry.Value) }
+            }
+            $conditionalPins[$role] = $pins
+        }
+        $aPins = $conditionalPins['impl-reviewer-a']
+        $bPins = $conditionalPins['impl-reviewer-b']
+        if ($aPins.Count -ne $bPins.Count) { throw 'ADR conditional reviewer pins disagree' }
+        foreach ($path in $aPins.Keys) {
+            if (-not $bPins.ContainsKey($path) -or $aPins[$path] -cne $bPins[$path]) {
+                throw 'ADR conditional reviewer pins disagree'
             }
         }
         if (-not (Test-AdrSharedLayerAgreement $contract $reviewerA $reviewerB $Feature $RepositoryRoot)) {

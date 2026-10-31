@@ -1,0 +1,7 @@
+CLASSIFIER-SELFTEST: ANSI and wrapped diagnostic matched
+MUTATION-KILLED: f3-paths [sh] exit=1 evidence=FAIL: full artifact paths and exact count derive from its shipped output surface
+MUTATION-KILLED: f3-heading [sh] exit=1 evidence=FAIL: full requirements.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: f3-status [sh] exit=1 evidence=FAIL: full requirements.md status field names match its shipped template
+MUTATION-KILLED: f3-malformed [sh] exit=1 evidence=FAIL: full requirements.md canonicalizes without parse fallback
+MUTATION-KILLED: corpus-and-template-bad-heading [sh] exit=1 evidence=FAIL: full requirements.md canonicalizes without parse fallback
+ACTIVATION MUTATION SUMMARY [sh]: 5 killed, 0 survived

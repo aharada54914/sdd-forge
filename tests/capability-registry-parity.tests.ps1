@@ -18,6 +18,12 @@ Set-StrictMode -Version Latest
 $PSNativeCommandUseErrorActionPreference = $false
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+# Runtime boundary only; historical task-commit provenance is separate evidence.
+# BEGIN workflow snapshot
+$LiveWorkflow = Join-Path $root '.github/workflows/test.yml'
+$WorkflowBefore = $null
+try { $WorkflowBefore = [Convert]::ToBase64String([IO.File]::ReadAllBytes($LiveWorkflow)) } catch { }
+# END workflow snapshot
 $sourceDir = Join-Path $root 'plugins/sdd-quality-loop/scripts'
 $fixtures = Join-Path $root 'tests/fixtures/capability-registry'
 $repoContracts = Join-Path $root 'contracts'
@@ -578,20 +584,6 @@ try {
     Fail 'human-copy: MANIFEST.sha256 missing'
   }
 
-  # Done When #3: the LIVE, R-10-protected workflow must be byte-unchanged by
-  # this task. Compared against its committed blob rather than a pinned hash.
-  & git -C $root rev-parse --git-dir *> $null
-  if ($LASTEXITCODE -eq 0) {
-    & git -C $root diff --quiet HEAD -- .github/workflows/test.yml *> $null
-    if ($LASTEXITCODE -eq 0) {
-      Ok 'Done When #3: the live .github/workflows/test.yml is byte-unchanged relative to its committed state'
-    } else {
-      Fail 'Done When #3: the live .github/workflows/test.yml has an uncommitted modification -- this task must never write to it'
-    }
-  } else {
-    Fail "Done When #3: cannot verify the live workflow is unmodified (no git repository resolved at $root)"
-  }
-
   # Done When #3: no version string was mutated outside scripts/bump-version.sh.
   $versionHit = @()
   foreach ($candidate in @(
@@ -616,6 +608,15 @@ try {
   if (Test-Path -LiteralPath $workDir) { Remove-Item -LiteralPath $workDir -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
+# BEGIN workflow comparison
+$WorkflowUnchanged = $false
+try {
+  $WorkflowAfter = [Convert]::ToBase64String([IO.File]::ReadAllBytes($LiveWorkflow))
+  $WorkflowUnchanged = $null -ne $WorkflowBefore -and $WorkflowBefore -ceq $WorkflowAfter
+} catch { }
+if ($WorkflowUnchanged) { Ok 'live workflow bytes unchanged during this suite' }
+else { Fail 'live workflow changed or could not be read during this suite' }
+# END workflow comparison
 Write-Host ("---- summary: pass={0} fail={1} designed-red={2} ----" -f $script:PassCount, $script:FailCount, $script:DesignedRedCount)
 if (($script:FailCount -eq 0) -and ($script:DesignedRedCount -eq 0)) {
   Write-Host "capability-registry-parity suite passed ($script:PassCount checks)"

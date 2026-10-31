@@ -1,0 +1,18 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 14,
+  "round": 1,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "3076e88e8ff2bb6b0bf800af133b2d4ce9fdc414ec62daad4cea5647446a8e95",
+  "tasks_sha256_form": "normalized",
+  "requirements_sha256": "f188aef257cb4afd5f0185aeff010d0fae6ee665f9aa2d0fbbb9ee2031c88c46",
+  "acceptance_sha256": "dca8c1551ea0f268fc02944a8e0fe078b557c416ef3f37649c7c33590fff6d13",
+  "design_sha256": "e8cbc1f4feb8e6e6e2756c9f9000a33e192e3fd2fa51697d5978df540502309e",
+  "traceability_sha256": "676d2e3de2c0e311b1aa796dd4a7b21950e5ac47a030dd0fba3611617805cd31",
+  "frozen_artifact_done_when": [{"task":"T-004","line":695,"item":"- [ ] Implementation report created; quality gate passes; the implementation report or `specs/epic-195-a7-compatibility/verification/T-004/` addendum records T-004 → REQ-002 (AC-005, AC-006, AC-007, AC-030, AC-042, AC-043), without modifying frozen `traceability.md`."}],
+  "layer_sha256": {"ux-spec.md":"5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba","frontend-spec.md":"6fe07b945a36829b448b8d92677992480a4945f8f71f304f28461382b5a713be","infra-spec.md":"02b2bdd3e6f136b77ae1623c07ca5e3c3e281bd4f44ee8c613c3fd983b7d223b","security-spec.md":"de232f61745feb1ac34ddbb4f4d593bc8808f367f43cbd763887b8cfe216efa3"},
+  "input_sha256": "99b0f830583b351eed227866f1993de65b93bc064e03888d50747f57f1bb3e7b",
+  "generated_at": "2026-10-07T06:31:56Z"
+}

@@ -1,4 +1,4 @@
-# Usage: spec-review-precheck.ps1 -Feature <slug> -Attempt <n> -Round <n> [-EditSummary <text>] [-Reset]
+# Usage: spec-review-precheck.ps1 -Feature <slug> -Attempt <n> -Round <n> [-VerifyInputs | -EditSummary <text> -Reset -RecoverInterrupted]
 # Full-parity PowerShell port of spec-review-precheck.sh (Issue #174,
 # epic-159-pillar-a2 T-004). Validates a specification-review transition
 # before any reviewer receives input or evidence is written. The
@@ -16,10 +16,16 @@ param(
   [Parameter(Mandatory = $true, Position = 1)][string]$Attempt,
   [Parameter(Mandatory = $true, Position = 2)][string]$Round,
   [Parameter(Position = 3)][string]$EditSummary = '',
-  [switch]$Reset
+  [switch]$Reset,
+  [switch]$RecoverInterrupted,
+  [switch]$VerifyInputs,
+  [string]$FreshReviewContract = ''
 )
 
 $ErrorActionPreference = 'Stop'
+if ($FreshReviewContract -and (-not $Reset -or $RecoverInterrupted)) {
+  throw '-FreshReviewContract requires -Reset and excludes -RecoverInterrupted'
+}
 
 function Fail([string]$Message) {
   [Console]::Error.WriteLine("ERROR: spec-review-precheck: $Message")
@@ -115,12 +121,56 @@ function Test-ManifestArrayValid([object]$Manifest) {
 }
 
 function Test-ManifestArraysEqual([array]$Actual, [array]$Expected) {
+  $Expected = @($Expected | ForEach-Object {
+    [pscustomobject]@{ path = (Get-ManifestLocalPath $_.path ''); sha256 = $_.sha256 }
+  } | Sort-Object path)
   if ($Actual.Count -ne $Expected.Count) { return $false }
   for ($i = 0; $i -lt $Actual.Count; $i++) {
     if (-not (Test-OrdinalEqual $Actual[$i].path $Expected[$i].path)) { return $false }
     if (-not (Test-OrdinalEqual $Actual[$i].sha256 $Expected[$i].sha256)) { return $false }
   }
   return $true
+}
+
+# Match the Bash historical-manifest rules without changing persisted evidence.
+function Get-ManifestLocalPath([string]$Path, [string]$RecordedRoot) {
+  $pathValue = $Path.Replace('\', '/')
+  $localRoot = $root.Replace('\', '/').TrimEnd('/')
+  $aliasRoot = $localRoot -creplace '^/private/var/', '/var/'
+  if ($localRoot.StartsWith('/var/', [StringComparison]::Ordinal)) { $aliasRoot = '/private' + $localRoot }
+  foreach ($prefix in @($localRoot, $aliasRoot, $RecordedRoot)) {
+    if ($prefix -and $pathValue.StartsWith($prefix + '/', [StringComparison]::Ordinal)) {
+      return ($localRoot + '/' + $pathValue.Substring($prefix.Length + 1))
+    }
+  }
+  if ($pathValue -cmatch '^(/|[A-Za-z]:/)') { return '' }
+  return ($localRoot + '/' + $pathValue)
+}
+
+function Get-ManifestRecordedRoot([object]$Contract) {
+  $roots = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+  foreach ($reviewer in @($Contract.reviewers)) {
+    foreach ($entry in @($reviewer.allowed_input_manifest)) {
+      if ($entry.path -isnot [string]) { return '__INVALID__' }
+      $pathValue = $entry.path.Replace('\', '/')
+      if ($pathValue -cnotmatch '^(/|[A-Za-z]:/)' -or (Get-ManifestLocalPath $pathValue '') -cne '') { continue }
+      $candidates = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+      foreach ($match in [regex]::Matches($pathValue, '(?=/(?:specs|reports|plugins|domain)/)')) {
+        $suffix = $pathValue.Substring($match.Index + 1)
+        if ($suffix -cmatch '^specs/[a-z0-9][a-z0-9-]*/[^/]+$' -or
+            $suffix -ceq 'domain/context-map.md' -or $suffix -ceq 'domain/domain-contract.json' -or
+            $suffix -cmatch '^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$' -or
+            $suffix -cmatch '^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$') {
+          [void]$candidates.Add($pathValue.Substring(0, $match.Index))
+        }
+      }
+      if ($candidates.Count -ne 1) { return '__INVALID__' }
+      foreach ($candidate in $candidates) { [void]$roots.Add($candidate) }
+    }
+  }
+  if ($roots.Count -gt 1) { return '__INVALID__' }
+  foreach ($recorded in $roots) { return $recorded }
+  return ''
 }
 
 function Test-ChecksArrayValid([object]$Checks) {
@@ -149,15 +199,19 @@ if ($Round -notmatch '^[1-9][0-9]*$') { Fail 'round must be a positive integer' 
 $attemptInt = [int64]$Attempt
 $roundInt = [int64]$Round
 if ($roundInt -gt 3) { Fail 'round must be between 1 and 3' }
+if ($VerifyInputs -and ($EditSummary -or $Reset -or $RecoverInterrupted -or $FreshReviewContract)) { Fail '-VerifyInputs cannot be combined with transition options' }
 if (-not ([string]::IsNullOrEmpty($EditSummary)) -and $roundInt -le 1) { Fail '--edit-summary is valid only after round 1' }
-if ($roundInt -gt 1) {
+if (-not $VerifyInputs -and $roundInt -gt 1) {
   if ([string]::IsNullOrEmpty(($EditSummary -replace '\s', ''))) { Fail 'rounds 2 and 3 require a non-empty --edit-summary' }
 }
-if ($Reset) {
+if ($VerifyInputs) {
+  # A persisted round is being checked, not created.
+} elseif ($Reset) {
   if (-not ($attemptInt -gt 1 -and $roundInt -eq 1)) { Fail '--reset starts only attempt N+1 round 1' }
 } else {
   if (-not ($attemptInt -eq 1 -or $roundInt -gt 1)) { Fail 'a new attempt requires --reset' }
 }
+if ($RecoverInterrupted -and -not $Reset) { Fail '-RecoverInterrupted requires -Reset' }
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
 $specsRoot = Join-Path $root 'specs'
@@ -190,13 +244,15 @@ if (Test-Path -LiteralPath $reportsBase) {
 
 $statusMatch = Select-String -LiteralPath $requirements -CaseSensitive -Pattern '^Spec-Review-Status:\s*(.*)$' | Select-Object -First 1
 $status = if ($statusMatch) { ($statusMatch.Matches[0].Groups[1].Value -replace '\s', '') } else { '' }
-if ($Reset) {
+if ($VerifyInputs) {
+  # The saved status is compared below without mutating requirements.md.
+} elseif ($Reset) {
   if (-not (Test-OrdinalEqual $status 'Pending') -and -not (Test-OrdinalEqual $status 'Passed')) { Fail 'requirements.md must declare a resettable Spec-Review-Status' }
 } else {
   if (-not (Test-OrdinalEqual $status 'Pending')) { Fail 'requirements.md must declare Spec-Review-Status: Pending' }
 }
 if (Test-IsSymlink $reportRoot) { Fail 'report root must not be a symlink' }
-if (Test-Path -LiteralPath $reportDir) { Fail 'round destination already exists (replay is forbidden)' }
+if (-not $VerifyInputs -and (Test-Path -LiteralPath $reportDir)) { Fail 'round destination already exists (replay is forbidden)' }
 
 $requirementsSha = Get-Sha256File $requirements
 $acceptanceSha = Get-Sha256File $acceptance
@@ -204,13 +260,50 @@ $calibrationSha = Get-Sha256File $calibration
 $investigationSha = if (Test-Path -LiteralPath $investigation -PathType Leaf) { Get-Sha256File $investigation } else { '' }
 $inputSha = if ([string]::IsNullOrEmpty($investigationSha)) { Get-Sha256Text "${requirementsSha}:${acceptanceSha}" } else { Get-Sha256Text "${requirementsSha}:${acceptanceSha}:${investigationSha}" }
 
+if ($VerifyInputs) {
+  $attemptDir = Join-Path $reportRoot "attempt-$attemptInt"
+  $precheckPath = Join-Path $reportDir 'precheck-result.json'
+  if (-not (Test-RealDirectory $reportRoot) -or -not (Test-OrdinalEqual (Get-CanonicalDir $reportRoot) $reportRoot)) { Fail 'report root is missing or substituted' }
+  if (-not (Test-RealDirectory $attemptDir) -or -not (Test-OrdinalEqual (Get-CanonicalDir $attemptDir) $attemptDir)) { Fail 'attempt directory is missing or substituted' }
+  if (-not (Test-RealDirectory $reportDir) -or -not (Test-OrdinalEqual (Get-CanonicalDir $reportDir) $reportDir)) { Fail 'round directory is missing or substituted' }
+  if (-not (Test-Path -LiteralPath $precheckPath -PathType Leaf) -or (Test-IsSymlink $precheckPath)) { Fail 'precheck evidence is missing or substituted' }
+  try { $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json } catch { Fail 'precheck evidence is not valid JSON' }
+  $baseKeys = @('acceptance_sha256','attempt','calibration_sha256','edit_summary','feature','generated_at','input_sha256','investigation_sha256','requirements_sha256','reset','round','schema','spec_review_status_field','stage')
+  if (-not (Test-KeysExact $precheck $baseKeys) -and -not (Test-KeysExact $precheck ($baseKeys + @('fresh_review_contract_path','fresh_review_contract_sha256')))) { Fail 'precheck evidence has invalid fields' }
+  $investigationMatches = if ($investigationSha) {
+    Test-OrdinalEqual $precheck.investigation_sha256 $investigationSha
+  } else {
+    $null -eq $precheck.investigation_sha256
+  }
+  if (-not (Test-OrdinalEqual $precheck.schema 'spec-review-precheck/v1') -or
+      -not (Test-OrdinalEqual $precheck.stage 'spec') -or
+      -not (Test-OrdinalEqual $precheck.feature $Feature) -or
+      -not (Test-JsonIntegerEquals $precheck.attempt $attemptInt) -or
+      -not (Test-JsonIntegerEquals $precheck.round $roundInt) -or
+      -not (Test-OrdinalEqual $precheck.spec_review_status_field $status) -or
+      -not (Test-OrdinalEqual $precheck.requirements_sha256 $requirementsSha) -or
+      -not (Test-OrdinalEqual $precheck.acceptance_sha256 $acceptanceSha) -or
+      -not (Test-OrdinalEqual $precheck.calibration_sha256 $calibrationSha) -or
+      -not $investigationMatches -or
+      -not (Test-OrdinalEqual $precheck.input_sha256 $inputSha) -or
+      $precheck.edit_summary -isnot [string] -or $precheck.reset -isnot [bool] -or
+      -not (Test-IsStringLike $precheck.generated_at) -or
+      ($precheck.PSObject.Properties.Name -ccontains 'fresh_review_contract_path' -and
+        ($precheck.fresh_review_contract_path -isnot [string] -or -not (Test-IsSha256 $precheck.fresh_review_contract_sha256)))) {
+    Fail 'review inputs or precheck identity changed after precheck'
+  }
+  Write-Output 'spec-review-precheck: inputs verified for reviewer invocation.'
+  exit 0
+}
+
 # --- validate_reviewer_output translation ----------------------------------
 function Test-ValidateReviewerOutput(
   [string]$OutputPath,
   [string]$Role,
   [array]$ExpectedManifestSorted,
   [string]$RunId,
-  [string]$HostSessionId
+  [string]$HostSessionId,
+  [string]$RecordedRoot
 ) {
   if (-not (Test-Path -LiteralPath $OutputPath -PathType Leaf) -or (Test-IsSymlink $OutputPath)) { return $false }
   $data = $null
@@ -225,7 +318,9 @@ function Test-ValidateReviewerOutput(
   if (-not (Test-ChecksArrayValid $data.checks)) { return $false }
   if (@('PASS', 'NEEDS_WORK', 'BLOCKED') -cnotcontains $data.verdict) { return $false }
 
-  $actualManifest = @($data.allowed_input_manifest | Sort-Object path)
+  $actualManifest = @($data.allowed_input_manifest | ForEach-Object {
+    [pscustomobject]@{ path = (Get-ManifestLocalPath $_.path $RecordedRoot); sha256 = $_.sha256 }
+  } | Sort-Object path)
   if (-not (Test-ManifestArraysEqual $actualManifest $ExpectedManifestSorted)) { return $false }
 
   $expectedIds = $null
@@ -235,7 +330,8 @@ function Test-ValidateReviewerOutput(
     default { return $false }
   }
   $actualIds = @($data.checks | ForEach-Object { $_.id })
-  if (($actualIds -join ',') -cne ($expectedIds -join ',')) { return $false }
+  # Historical roles may have fewer trailing checks, but never gaps/reordering.
+  if (-not (($expectedIds -join ',') + ',').StartsWith(($actualIds -join ',') + ',', [StringComparison]::Ordinal)) { return $false }
 
   # Verdict/finding coherence is checked, not derived. The role documents are
   # authoritative on the verdict choice (epic-191-a3 a2r1 escalation,
@@ -278,9 +374,17 @@ function Test-ValidateContract(
 
   $contract = $null
   try { $contract = Get-Content -LiteralPath $ContractPath -Raw | ConvertFrom-Json } catch { return $false }
+  $recordedRoot = Get-ManifestRecordedRoot $contract
+  if ($recordedRoot -ceq '__INVALID__') { return $false }
+  foreach ($reviewer in @($contract.reviewers)) {
+    if (-not (Test-ManifestArrayValid $reviewer.allowed_input_manifest)) { return $false }
+    foreach ($entry in @($reviewer.allowed_input_manifest)) {
+      $entry.path = Get-ManifestLocalPath $entry.path $recordedRoot
+    }
+  }
   $precheck = $null
   try { $precheck = Get-Content -LiteralPath $PrecheckPath -Raw | ConvertFrom-Json } catch { return $false }
-  $investigationPath = Join-Path $specDir 'investigation.md'
+  $investigationPath = Get-ManifestLocalPath (Join-Path $specDir 'investigation.md') ''
   $contractManifestInvestigationHashes = @()
   foreach ($reviewer in @($contract.reviewers)) {
     foreach ($entry in @($reviewer.allowed_input_manifest)) {
@@ -367,7 +471,7 @@ function Test-ValidateContract(
   $calibrationHashes = @()
   foreach ($reviewer in $reviewers) {
     foreach ($entry in @($reviewer.allowed_input_manifest)) {
-      if (Test-OrdinalEqual $entry.path $calibration) { $calibrationHashes += [string]$entry.sha256 }
+      if (Test-OrdinalEqual $entry.path (Get-ManifestLocalPath $calibration '')) { $calibrationHashes += [string]$entry.sha256 }
     }
   }
   $uniqueCalibrationHashes = @($calibrationHashes | Select-Object -Unique)
@@ -423,6 +527,20 @@ function Test-ValidateContract(
     if (-not [string]::IsNullOrEmpty($contractInvestigationHash) -and -not (Test-OrdinalEqual $contractInvestigationHash $investigationHash)) { return $false }
     $expectedAList.Add([pscustomobject]@{ path = $investigationPath; sha256 = $investigationHash })
   }
+  # Preserve the conditional inputs sealed in this round. The shared resolver
+  # selects live inputs for new invocations, but live domain bytes may change
+  # after this contract is frozen and cannot re-define its historical manifest.
+  foreach ($relative in @('domain/context-map.md', 'domain/domain-contract.json')) {
+    $conditionalPath = Get-ManifestLocalPath $relative ''
+    $entries = @($reviewers | Where-Object { Test-OrdinalEqual $_.role 'spec-reviewer-a' } |
+      ForEach-Object { $_.allowed_input_manifest } |
+      Where-Object { Test-OrdinalEqual $_.path $conditionalPath })
+    if ($entries.Count -gt 1) { return $false }
+    if ($entries.Count -eq 1) {
+      if (-not (Test-IsSha256 $entries[0].sha256)) { return $false }
+      $expectedAList.Add([pscustomobject]@{ path = $conditionalPath; sha256 = $entries[0].sha256 })
+    }
+  }
   $expectedA = @($expectedAList | Sort-Object path)
   $expectedBList = [Collections.Generic.List[object]]::new()
   foreach ($e in $expectedA) { $expectedBList.Add($e) }
@@ -447,8 +565,8 @@ function Test-ValidateContract(
   $bRun = [string]$reviewerB.run_id
   $bSession = [string]$reviewerB.host_session_id
 
-  if (-not (Test-ValidateReviewerOutput $reviewerAPath 'spec-reviewer-a' $expectedA $aRun $aSession)) { return $false }
-  if (-not (Test-ValidateReviewerOutput $reviewerBPath 'spec-reviewer-b' $expectedB $bRun $bSession)) { return $false }
+  if (-not (Test-ValidateReviewerOutput $reviewerAPath 'spec-reviewer-a' $expectedA $aRun $aSession $recordedRoot)) { return $false }
+  if (-not (Test-ValidateReviewerOutput $reviewerBPath 'spec-reviewer-b' $expectedB $bRun $bSession $recordedRoot)) { return $false }
 
   $reviewerAData = Get-Content -LiteralPath $reviewerAPath -Raw | ConvertFrom-Json
   $reviewerAChecks = @($reviewerAData.checks)
@@ -521,10 +639,11 @@ if ($roundInt -gt 1) {
   $priorAcceptanceSha = [string]$priorData.acceptance_sha256
   $priorInvestigationSha = if ($null -eq $priorData.investigation_sha256) { '' } else { [string]$priorData.investigation_sha256 }
   if ([string]::IsNullOrEmpty($priorInvestigationSha)) {
+    $priorRecordedRoot = Get-ManifestRecordedRoot $priorData
     $manifestInvestigationHashes = @()
     foreach ($reviewer in @($priorData.reviewers)) {
       foreach ($entry in @($reviewer.allowed_input_manifest)) {
-        if (Test-OrdinalEqual $entry.path $investigation) { $manifestInvestigationHashes += [string]$entry.sha256 }
+        if (Test-OrdinalEqual (Get-ManifestLocalPath $entry.path $priorRecordedRoot) (Get-ManifestLocalPath $investigation '')) { $manifestInvestigationHashes += [string]$entry.sha256 }
       }
     }
     $uniqueManifestInvestigationHashes = @($manifestInvestigationHashes | Select-Object -Unique)
@@ -535,7 +654,38 @@ if ($roundInt -gt 1) {
   }
 }
 
-if ($Reset) {
+function Test-FreshRecovery {
+  if (-not (Get-Command python3 -ErrorAction SilentlyContinue)) { Fail 'fresh-review recovery requires python3' }
+  $helper = Join-Path $root 'plugins/sdd-review-loop/scripts/fresh-review-recovery.py'
+  $raw = & python3 $helper $root $Feature $attemptInt $FreshReviewContract
+  if ($LASTEXITCODE -ne 0) { Fail 'fresh-review recovery admission failed' }
+  $data = ($raw -join "`n") | ConvertFrom-Json
+  $expectedHashes = @{ requirements_sha256 = $requirementsSha; acceptance_sha256 = $acceptanceSha; investigation_sha256 = $investigationSha; calibration_sha256 = $calibrationSha; input_sha256 = $inputSha }
+  foreach ($key in $expectedHashes.Keys) {
+    if (-not (Test-OrdinalEqual $data.input_hashes.$key $expectedHashes[$key])) { Fail 'fresh-review inputs changed since initial hashing' }
+  }
+  $terminalDir = Join-Path $root $data.terminal_dir
+  $contract = Join-Path $terminalDir 'spec-review-contract.json'
+  $verdict = (Get-Content -LiteralPath $contract -Raw | ConvertFrom-Json).verdict
+  if ($verdict -cne 'PASS' -and $verdict -cne 'BLOCKED') { Fail 'fresh-review anchor is not terminal' }
+  if (-not (Test-ValidateContract -ContractPath $contract -ExpectedAttempt $data.terminal_attempt -ExpectedRound $data.terminal_round -ExpectedVerdict $verdict -PrecheckPath (Join-Path $terminalDir 'precheck-result.json'))) {
+    Fail 'fresh-review terminal anchor is invalid'
+  }
+  foreach ($complete in @($data.completed_rounds)) {
+    $completeDir = Join-Path $root ([string]$complete.dir)
+    if (-not (Test-ValidateContract -ContractPath (Join-Path $completeDir 'spec-review-contract.json') -ExpectedAttempt ([int]$complete.attempt) -ExpectedRound ([int]$complete.round) -ExpectedVerdict 'NEEDS_WORK' -PrecheckPath (Join-Path $completeDir 'precheck-result.json'))) {
+      Fail 'fresh-review completed NEEDS_WORK round is invalid'
+    }
+  }
+  # The helper verifies historical reservations against their pinned inputs.
+  # Ordinary launch validation would compare them with amended files.
+  return ($raw -join "`n")
+}
+
+$freshRecoveryResult = ''
+if ($FreshReviewContract) {
+  $freshRecoveryResult = Test-FreshRecovery
+} elseif ($Reset) {
   $previousAttempt = Join-Path $reportRoot "attempt-$($attemptInt - 1)"
   if (-not (Test-RealDirectory $previousAttempt)) { Fail 'previous attempt is required before reset' }
   $roundDirs = @(Get-ChildItem -LiteralPath $previousAttempt -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -cmatch '^round-[1-3]$' })
@@ -544,13 +694,88 @@ if ($Reset) {
   $previousRound = $previousRoundNumbers[-1]
   $previousDir = Join-Path $previousAttempt "round-$previousRound"
   $previousContractPath = Join-Path $previousDir 'spec-review-contract.json'
-  $previousVerdict = $null
-  if (Test-Path -LiteralPath $previousContractPath -PathType Leaf) {
-    try { $previousVerdict = (Get-Content -LiteralPath $previousContractPath -Raw | ConvertFrom-Json).verdict } catch { $previousVerdict = $null }
-  }
-  if (-not (Test-OrdinalEqual $previousVerdict 'PASS') -and -not (Test-OrdinalEqual $previousVerdict 'BLOCKED')) { Fail 'reset requires a terminal PASS or BLOCKED contract' }
-  if (-not (Test-ValidateContract -ContractPath $previousContractPath -ExpectedAttempt ($attemptInt - 1) -ExpectedRound $previousRound -ExpectedVerdict $previousVerdict -PrecheckPath (Join-Path $previousDir 'precheck-result.json'))) {
-    Fail 'previous terminal contract is invalid'
+  if ($RecoverInterrupted) {
+    if ($previousRound -ne 1 -or $attemptInt -le 2) { Fail 'recovery requires one interrupted reset round after a terminal attempt' }
+    $recoverDir = $previousDir
+    $recoverPrecheck = Join-Path $recoverDir 'precheck-result.json'
+    $recoverAllocation = Join-Path $recoverDir 'reviewer-a-host-allocation.json'
+    $recoverNote = Join-Path $recoverDir 'launch-blocker-note.md'
+    foreach ($source in @($recoverPrecheck, $recoverAllocation, $recoverNote)) {
+      if (-not (Test-Path -LiteralPath $source -PathType Leaf) -or (Test-IsSymlink $source)) { Fail 'interrupted source evidence is missing or non-regular' }
+    }
+    $recoverInventory = @((Get-ChildItem -LiteralPath $recoverDir -Force | ForEach-Object { $_.Name }) | Sort-Object -CaseSensitive)
+    if (($recoverInventory -join ',') -cne 'launch-blocker-note.md,precheck-result.json,reviewer-a-host-allocation.json') {
+      Fail 'interrupted source contains reviewer or unexpected evidence'
+    }
+    try { $recoverData = Get-Content -LiteralPath $recoverPrecheck -Raw | ConvertFrom-Json } catch { Fail 'interrupted precheck is invalid' }
+    if (-not (Test-OrdinalEqual $recoverData.schema 'spec-review-precheck/v1') -or
+        -not (Test-OrdinalEqual $recoverData.stage 'spec') -or
+        -not (Test-OrdinalEqual $recoverData.feature $Feature) -or
+        -not (Test-JsonIntegerEquals $recoverData.attempt ($attemptInt - 1)) -or
+        -not (Test-JsonIntegerEquals $recoverData.round 1) -or
+        $recoverData.reset -cne $true -or
+        -not (Test-OrdinalEqual $recoverData.spec_review_status_field 'Pending')) { Fail 'interrupted precheck is invalid' }
+    foreach ($hash in @($recoverData.requirements_sha256, $recoverData.acceptance_sha256, $recoverData.calibration_sha256, $recoverData.input_sha256)) {
+      if ([string]$hash -cnotmatch '^[0-9a-f]{64}$') { Fail 'interrupted precheck hash is invalid' }
+    }
+    if ($null -ne $recoverData.investigation_sha256 -and [string]$recoverData.investigation_sha256 -cnotmatch '^[0-9a-f]{64}$') {
+      Fail 'interrupted investigation hash is invalid'
+    }
+    $recoverPrecheckSha = Get-Sha256File $recoverPrecheck
+    $recoverInvocation = Join-Path $reportsRoot "review-context/$Feature-spec-a$($attemptInt - 1)r1-a-invocation.json"
+    $recoverBInvocation = Join-Path $reportsRoot "review-context/$Feature-spec-a$($attemptInt - 1)r1-b-invocation.json"
+    if (-not (Test-Path -LiteralPath $recoverInvocation -PathType Leaf) -or (Test-IsSymlink $recoverInvocation)) { Fail 'interrupted reviewer-A invocation is missing' }
+    if (Test-Path -LiteralPath $recoverBInvocation) { Fail 'interrupted round already has reviewer-B invocation' }
+    try { $invocationData = Get-Content -LiteralPath $recoverInvocation -Raw | ConvertFrom-Json } catch { Fail 'interrupted invocation is invalid' }
+    $recoverRelativePrecheck = "reports/spec-review/$Feature/attempt-$($attemptInt - 1)/round-1/precheck-result.json"
+    $bound = @($invocationData.allowed_input_manifest | Where-Object {
+      (Test-OrdinalEqual $_.path $recoverRelativePrecheck) -and (Test-OrdinalEqual $_.sha256 $recoverPrecheckSha)
+    })
+    if (-not (Test-OrdinalEqual $invocationData.schema 'review-context-invocation/v2') -or
+        -not (Test-OrdinalEqual $invocationData.stage 'spec') -or
+        -not (Test-OrdinalEqual $invocationData.feature $Feature) -or
+        -not (Test-OrdinalEqual $invocationData.role 'spec-reviewer-a') -or
+        $invocationData.read_only -cne $true -or $bound.Count -ne 1) {
+      Fail 'interrupted invocation does not bind its precheck'
+    }
+    $validator = Join-Path $root 'plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1'
+    $contextResult = & (Join-Path $PSHOME 'pwsh') -NoProfile -File $validator -Manifest $recoverInvocation -RepositoryRoot $root 2>&1
+    if ($LASTEXITCODE -ne 0 -or -not (($contextResult -join "`n") -cmatch '^REVIEW_CONTEXT_OK ')) {
+      Fail 'interrupted invocation is not a valid persisted reservation'
+    }
+    try { $allocationData = Get-Content -LiteralPath $recoverAllocation -Raw | ConvertFrom-Json } catch { Fail 'interrupted host receipt is invalid' }
+    if (-not (Test-OrdinalEqual $allocationData.feature $Feature) -or
+        -not (Test-JsonIntegerEquals $allocationData.attempt ($attemptInt - 1)) -or
+        -not (Test-JsonIntegerEquals $allocationData.round 1) -or
+        -not (Test-OrdinalEqual $allocationData.role 'spec-reviewer-a') -or
+        -not (Test-OrdinalEqual $allocationData.host_id $invocationData.run_id) -or
+        -not (Test-OrdinalEqual $allocationData.host_session_id $invocationData.host_session_id)) {
+      Fail 'interrupted host receipt does not match reservation'
+    }
+    $recoverInvocationSha = Get-Sha256File $recoverInvocation
+    $recoverAllocationSha = Get-Sha256File $recoverAllocation
+    $earlierAttempt = Join-Path $reportRoot "attempt-$($attemptInt - 2)"
+    if (-not (Test-RealDirectory $earlierAttempt)) { Fail 'recovery requires an earlier terminal attempt' }
+    $earlierRounds = @(Get-ChildItem -LiteralPath $earlierAttempt -Directory | Where-Object { $_.Name -cmatch '^round-[1-3]$' } |
+      ForEach-Object { [int]($_.Name -creplace '^round-', '') } | Sort-Object)
+    if ($earlierRounds.Count -eq 0) { Fail 'earlier attempt has no terminal round' }
+    $earlierRound = $earlierRounds[-1]
+    $earlierDir = Join-Path $earlierAttempt "round-$earlierRound"
+    $earlierContractPath = Join-Path $earlierDir 'spec-review-contract.json'
+    try { $earlierVerdict = (Get-Content -LiteralPath $earlierContractPath -Raw | ConvertFrom-Json).verdict } catch { Fail 'earlier attempt is not terminal' }
+    if (-not (Test-OrdinalEqual $earlierVerdict 'PASS') -and -not (Test-OrdinalEqual $earlierVerdict 'BLOCKED')) { Fail 'earlier attempt is not terminal' }
+    if (-not (Test-ValidateContract -ContractPath $earlierContractPath -ExpectedAttempt ($attemptInt - 2) -ExpectedRound $earlierRound -ExpectedVerdict $earlierVerdict -PrecheckPath (Join-Path $earlierDir 'precheck-result.json'))) {
+      Fail 'earlier terminal contract is invalid'
+    }
+  } else {
+    $previousVerdict = $null
+    if (Test-Path -LiteralPath $previousContractPath -PathType Leaf) {
+      try { $previousVerdict = (Get-Content -LiteralPath $previousContractPath -Raw | ConvertFrom-Json).verdict } catch { $previousVerdict = $null }
+    }
+    if (-not (Test-OrdinalEqual $previousVerdict 'PASS') -and -not (Test-OrdinalEqual $previousVerdict 'BLOCKED')) { Fail 'reset requires a terminal PASS or BLOCKED contract' }
+    if (-not (Test-ValidateContract -ContractPath $previousContractPath -ExpectedAttempt ($attemptInt - 1) -ExpectedRound $previousRound -ExpectedVerdict $previousVerdict -PrecheckPath (Join-Path $previousDir 'precheck-result.json'))) {
+      Fail 'previous terminal contract is invalid'
+    }
   }
 }
 
@@ -570,6 +795,19 @@ try {
 }
 try {
   if (Test-Path -LiteralPath $reportDir) { Fail 'round destination already exists (replay is forbidden)' }
+  if ($RecoverInterrupted) {
+    $currentInventory = @((Get-ChildItem -LiteralPath $recoverDir -Force | ForEach-Object { $_.Name }) | Sort-Object -CaseSensitive)
+    if (-not (Test-OrdinalEqual $recoverPrecheckSha (Get-Sha256File $recoverPrecheck)) -or
+        -not (Test-OrdinalEqual $recoverInvocationSha (Get-Sha256File $recoverInvocation)) -or
+        -not (Test-OrdinalEqual $recoverAllocationSha (Get-Sha256File $recoverAllocation)) -or
+        ($recoverInventory -join ',') -cne ($currentInventory -join ',')) { Fail 'interrupted evidence changed during recovery' }
+    $contextResult = & (Join-Path $PSHOME 'pwsh') -NoProfile -File $validator -Manifest $recoverInvocation -RepositoryRoot $root 2>&1
+    if ($LASTEXITCODE -ne 0 -or -not (($contextResult -join "`n") -cmatch '^REVIEW_CONTEXT_OK ')) { Fail 'interrupted reservation changed during recovery' }
+  }
+  if ($FreshReviewContract) {
+    $freshRecoveryCurrent = Test-FreshRecovery
+    if (-not (Test-OrdinalEqual $freshRecoveryCurrent $freshRecoveryResult)) { Fail 'fresh-review contract changed during admission' }
+  }
   New-Item -ItemType Directory -Path $reportDir -Force | Out-Null
 
   # Exercise the shared portable foundation against the canonical composite
@@ -627,6 +865,10 @@ try {
     edit_summary              = $EditSummary
     reset                     = [bool]$Reset
     generated_at              = $generatedAt
+  }
+  if ($FreshReviewContract) {
+    $result['fresh_review_contract_path'] = ($freshRecoveryResult | ConvertFrom-Json).contract_path
+    $result['fresh_review_contract_sha256'] = ($freshRecoveryResult | ConvertFrom-Json).contract_sha256
   }
   $result | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $reportDir 'precheck-result.json') -Encoding utf8NoBOM
 

@@ -1,0 +1,16 @@
+{
+  "purpose": "Diagnostic retention only; no historical transition legality or review acceptance claimed.",
+  "source_kind": "preserved raw native reviewer response and launcher diagnostic",
+  "source_session_id": "871dee47-0330-43b0-9c10-5e5981fa550c",
+  "observed_events": [
+    {
+      "kind": "reviewer ended BLOCKED",
+      "diagnostic": "sha256sum was not in the read-only launcher allowlist. No checks were evaluated."
+    },
+    {
+      "kind": "separate capability probes",
+      "diagnostic": "Exact shasum literal and file commands succeeded after the host-required purpose statement. Hooks and permissions were preserved."
+    }
+  ],
+  "disposition": "diagnostic-only; reviewer B not launched"
+}

@@ -236,6 +236,10 @@ def render_target(root, registry, target, manifest_path, check_mode):
     role, kind, relpath, protected = target["role"], target["kind"], target["path"], target["protected"]
     tier, effort = role_values(registry, role)
     model_name = model_for_tier(registry, tier, kind)
+    if role == "sdd-evaluator" and kind == "claude":
+        model_name = model_for_tier(registry, "standard", kind)
+        if model_name != "sonnet":
+            die("Claude evaluator requires the registered Sonnet model")
 
     real_path = os.path.join(root, relpath)
     if not os.path.isfile(real_path):

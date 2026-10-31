@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "fa671445-907f-4450-bf10-7d9ddb44c83e",
+  "host_session_id": "fa671445-907f-4450-bf10-7d9ddb44c83e",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "reports/impl-review/epic-195-a7-compatibility/attempt-8/round-1/precheck-result.json",
+      "sha256": "d20c94f03abcf3ef9ba2e15524c688a01b2cae0110146315e53eb3ce405f9587"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "dca8c1551ea0f268fc02944a8e0fe078b557c416ef3f37649c7c33590fff6d13"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/design.md",
+      "sha256": "d58d2e91b54260db7d2f02c04a9a9966f4e77e03fcf2585a6eece0c9320adbbf"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/frontend-spec.md",
+      "sha256": "6fe07b945a36829b448b8d92677992480a4945f8f71f304f28461382b5a713be"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/infra-spec.md",
+      "sha256": "02b2bdd3e6f136b77ae1623c07ca5e3c3e281bd4f44ee8c613c3fd983b7d223b"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "efd4127b38dc5ebe9bc754ea1a3df0c00b4140056667febd724dea8dc9af987e"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "f188aef257cb4afd5f0185aeff010d0fae6ee665f9aa2d0fbbb9ee2031c88c46"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/security-spec.md",
+      "sha256": "de232f61745feb1ac34ddbb4f4d593bc8808f367f43cbd763887b8cfe216efa3"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/ux-spec.md",
+      "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+    }
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "test-infrastructure specification (Phase 1 — no code)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. design.md ## Architecture has a mermaid flowchart showing component boundaries and interactions (fixture matrix -> byte/structural/orchestration tests -> golden baseline, event-trace schema, loop-inventory, loop-driver, emit-run-record). Integration with existing files is in the Components table and the extends edges. Technology choices (Bash/PowerShell/jq/JSON) are in Technical Summary, Assumptions and frontend-spec.md Technology Stack."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Architecture flowchart and Components table form a DAG (fixtures -> tests -> baseline/schema/extension points). Collection (_loop_trace_emit) and comparison (assert_event_trace) are separate, one-directional functions. No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Data Plan states Data Entities (none persisted by this task; future additive fields and schemas documented), Existing Data Affected (none; the 8 loop-inventory entries are unmodified), and Migration Strategy (no migration required, with rationale). The compatibility-event-trace/v1, skip-allowlist-manifest/v1 and structural-fixture-corpus/v1 schemas and the capability_applicability field are specified."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "API / Contract Plan lists assert_capability_applicability, _loop_trace_emit, assert_event_trace, the emit-run-record.sh flags with a four-combination outcome table, capture/promote-golden-baseline.sh CLI contracts, and the build_fixture 5-parameter signature. It states that the no-flag output is byte-identical (AC-011) and that capability-only is a usage error."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries table names B1-B3 with auth/authz mechanism, data classification, and OWASP concerns. security-spec.md expands this to B1-B5 with STRIDE, OWASP mapping and data classification, and no PII is handled. No contradiction with design.md found."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is test-infrastructure specification (Phase 1 — no code); no frontend or browser surface. ux-spec.md and frontend-spec.md both record N/A."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Test Strategy gives nine ordered items. It states unit scope and mocking (integration-level fixture suites only, no new mocks), integration scope (fixture-driven suites, TEST-018/019/026), and acceptance approach (AC/TEST ids per row, golden traces, negative self-checks). It names concrete artifacts: tests/run-all.sh/.ps1, .github/workflows/test.yml, capture-golden-baseline.sh default diff-check, and AC-040/AC-041 fixtures. No UI journey applies."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in Architecture, API / Contract Plan and Test Strategy is defined in the Components table or a Data Plan/API subsection (loop-inventory.json, loop-driver.sh, the two loop suites, emit-run-record.sh, install/uninstall suites, golden-baseline scripts, build_fixture, trace schema, allowlist manifest). Others are established existing components cited via INV-xxx, such as loop-inventory.tests.sh and check-quality-gate-cycle-limit.sh."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no Architecture Decision Records section and the precheck adr_inputs is empty. ADR Change Log states No new ADR; governing decisions are ADR-0010/0016/0023, and new schemas are test-infrastructure additions within them. The design explicitly defers any ninth-loop revision to a separate ADR-0010 decision."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: launch-control observation shows design-system/ is not present (design_system_status: not-applicable); design.md records N/A — ds_profile: none."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: launch-control observation shows domain/context-map.md and domain/domain-contract.json are absent (domain_status: skipped)."
+    }
+  ]
+}

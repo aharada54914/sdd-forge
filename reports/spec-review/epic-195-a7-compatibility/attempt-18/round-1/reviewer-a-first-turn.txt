@@ -1,0 +1,5 @@
+SDD independent spec review; manifest-only, read-only.
+{"invocation": "reports/review-context/epic-195-a7-compatibility-spec-a18r1-a-invocation.json", "invocation_sha256": "d6e0e333b2eb12220860c777c9544b6e79b4762e5ed18f9f1c441dc501801528", "receipt": "REVIEW_CONTEXT_OK c2ccc240892d5f4aa43d2e01c53163025ecbd8a304fccb8afae41a2e45144a7b sequence=1205 previous_record_sha256=c5027df892647a19c18d60351c20fcecceb9646fe3d1e81db526cefb7ffa1e99 pre_append_tip_sequence=1204 identity_unique=yes", "role": "spec-reviewer-a"}
+Verify the invocation, reserved receipt and every admitted input hash using the canonical review-context contract before reading review inputs. Do not reserve again.
+Read only admitted inputs; follow the pinned role and precheck obligations. Do not read peer outputs or modify files. Stop on admission failure without a verdict.
+Evaluate independently. Return only the complete canonical role JSON with the invocation run/session identities; no markdown or omitted checks.

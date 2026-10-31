@@ -1,0 +1,5 @@
+FAIL: required shipped product surface exists: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md
+FAIL: required shipped product surface exists: plugins/sdd-lite/skills/lite-spec/SKILL.md
+FAIL: required shipped product surface exists: specs/epic-195-a7-compatibility/design.md
+FAIL: required shipped product surface exists: specs/epic-195-a7-compatibility/acceptance-tests.md
+0 passed, 4 failed

@@ -1,0 +1,21 @@
+# A7 spec attempt 13: content audit, not a review verdict
+
+## Boundary and observed result
+
+- Reviewer A's fresh native host ID was `dacde029`, session ID `dacde029-0c91-42c1-ba86-5619ca854142`, and ledger reservation sequence was 1196. The 466-byte first turn was delivered exactly. Input read/hash completed. The native raw transcript remains at `/Users/jrmag/.claude/projects/-Users-jrmag--codex-worktrees-a7-t005-intake-sdd-forge/dacde029-0c91-42c1-ba86-5619ca854142.jsonl` with SHA-256 `0af6ce8b6d196f0c65d5a9b648ffda131a75a04f3783ea648b88a5850c15bb3e`.
+- The answer had a Markdown fence and combined `verdict: BLOCKED` with Critical/Major `FAIL` checks. The role's canonical JSON-only contract and `spec-review-loop/SKILL.md` output-validation rule do not admit that response. It was not edited, stripped of fences, or persisted as `reviewer-a.json`; no reviewer B, integration, or status change followed. Content below is independently rechecked, not a formal reviewer finding.
+
+## Independently verified content
+
+1. `requirements.md:375-387` AC-009 and `acceptance-tests.md:13` TEST-009 pin the current Bash and PowerShell function-body hashes. `requirements.md:511-532` AC-026 and `design.md:250` define a `done-transition` event at the terminal assertion/comparison. The current Bash function emits before comparing (`tests/lib/loop-driver.sh:1597-1605`); PowerShell does likewise (`tests/lib/loop-driver.ps1:1278-1291`). A wrong observed value thus records a transition and returns failure. Nonzero exit or absent expected state returns before emission. This is a real contract/implementation mismatch, not a hash-read failure.
+2. `requirements.md:919-951` OQ-004 and `design.md:833-840,1170-1181` explicitly disclose the mismatch and defer its repair. That disclosure does not make AC-026 testable as written: `acceptance-tests.md:30` TEST-026 asserts only that an emitted event is last in TEST-018/019, not the success/failure firing boundary. The ordering clause itself can hold while the transition semantics fail.
+3. `requirements.md:984-998` registers a High risk but says disclosure is its only mitigation and no automated check detects the deviation. Reviewer-A's `RISK-VALIDATION-SURFACE` definition (`plugins/sdd-review-loop/agents/spec-reviewer-a.md:101-103`) requires a planned acceptance criterion, manual target, or later quality-gate evidence path for a high-risk surface. The current disclosure is not such a validation surface.
+
+## Minimal amendment candidate, not applied to hash-bound inputs
+
+- Preserve the `done-transition` meaning as a successful terminal-state assertion, rather than redefining a failed comparison as a transition. Resolve OQ-004 through the existing human-approved frozen-document amendment procedure; re-baseline AC-009/TEST-009 hashes only after a reviewed implementation change.
+- In both terminal assertion functions, compare expected and observed before emitting. On successful comparison, emit exactly once and return success. On mismatch, nonzero exit, missing expected state, or trace-emission failure, retain the existing failure result and emit no false transition. Define AC-026's firing condition as the successful comparison in the producer's own call, not the literal pre-comparison instant.
+- Extend TEST-026 with separate positive and negative cases for successful comparison, mismatched observed state, nonzero exit, and absent expected state in both runtimes. Check one emitted event only on success, none on the three failure paths, and final ordering within the successful round's sub-sequence. Keep TEST-009's static body-hash assertion, updating both exact hashes only as a formal part of the same amendment.
+- Replace the High risk's disclosure-only control with a planned validation surface: the four TEST-026 branch assertions, their Bash/PowerShell test evidence, and a quality-gate check that the new TEST-009 hashes match the exercised functions. Carry a dated OQ-004 resolution and identifier sweep across requirements, design, acceptance tests, layer specs, and task plan before any new review attempt.
+
+The existing attempt-13 precheck and identity reservation bind the old bytes; they must not be reused or overwritten. No new attempt was started by this audit.

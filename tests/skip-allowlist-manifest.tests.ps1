@@ -193,6 +193,11 @@ function Test-Primitives {
     if ((Invoke-Evaluator @('fingerprint-match', $fixture.Manifest, 'AC-900', '0', $fixture.Repo, 'main')) -eq 0) { Pass 'fingerprint_match(0) matches the unmerged epic current HEAD' } else { Fail 'fingerprint_match(0) matches the unmerged epic current HEAD' }
     $fixture = New-Fixture 'merged-fingerprint-match'
     if ((Invoke-Evaluator @('merged', $fixture.Manifest, 'AC-900', 'A9', $fixture.Repo, 'main')) -eq 0 -and (Invoke-Evaluator @('fingerprint-match', $fixture.Manifest, 'AC-900', '0', $fixture.Repo, 'main')) -eq 0) { Pass 'merged fingerprint-match fixture makes both primitives true' } else { Fail 'merged fingerprint-match fixture makes both primitives true' }
+    $mergedOnly = @(Get-Content -Raw -LiteralPath $fixture.Manifest | ConvertFrom-Json)
+    $mergedOnly[0].activation_condition = 'merged(A9)'
+    $mergedOnlyManifest = Join-Path $Work 'merged-only.json'
+    [IO.File]::WriteAllText($mergedOnlyManifest, ($mergedOnly | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
+    if ((Invoke-Evaluator @('condition', $mergedOnlyManifest, 'AC-900', $fixture.Repo, 'main')) -eq 0) { Pass 'merged-only activation needs no caller marker' } else { Fail 'merged-only activation needs no caller marker' }
     $fixture = New-Fixture 'merged-fingerprint-mismatch'
     if ((Invoke-Evaluator @('merged', $fixture.Manifest, 'AC-900', 'A9', $fixture.Repo, 'main')) -eq 0 -and (Invoke-Evaluator @('fingerprint-match', $fixture.Manifest, 'AC-900', '0', $fixture.Repo, 'main')) -ne 0) { Pass 'merged fingerprint-mismatch fixture keeps merged true and fingerprint_match false' } else { Fail 'merged fingerprint-mismatch fixture keeps merged true and fingerprint_match false' }
     $fixture = New-Fixture 'unmerged'
@@ -205,20 +210,13 @@ function Test-Primitives {
     [IO.File]::WriteAllText($conditionManifest, ($document | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
     if ((Invoke-Evaluator @('condition', $conditionManifest, 'AC-900', $fixture.Repo, 'main')) -ne 0) { Pass 'AND rejects one false primitive' } else { Fail 'AND rejects one false primitive' }
 
-    $callerPath = Join-Path $fixture.Repo 'plugins/sdd-bootstrap/scripts/interviewer.sh'
-    New-Item -ItemType Directory -Path (Split-Path -Parent $callerPath) -Force | Out-Null
-    [IO.File]::WriteAllText($callerPath, "caller marker: resolve-project-context`n", [Text.UTF8Encoding]::new($false))
-    & chmod +x $callerPath
-    Invoke-Git $fixture.Repo @('add', 'plugins/sdd-bootstrap/scripts/interviewer.sh')
-    Invoke-Git $fixture.Repo @('commit', '-q', '-m', 'fixture caller marker')
-    $document[0].activation_condition = 'executable_contains(plugins/sdd-bootstrap,resolve-project-context)'
-    [IO.File]::WriteAllText($conditionManifest, ($document | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
-    if ((Invoke-Evaluator @('condition', $conditionManifest, 'AC-900', $fixture.Repo, 'main')) -ne 0) { Pass 'executable_contains stays false while the caller marker is not on main' } else { Fail 'executable_contains does not activate before target file reaches main' }
-    if ((Invoke-Evaluator @('file-contains', $conditionManifest, 'AC-900', $fixture.Repo, 'missing-main')) -ne 0) { Pass 'file_contains fails closed when the target ref is unavailable' } else { Fail 'file_contains activates when the target ref is unavailable' }
-    if ((Invoke-Evaluator @('condition', $conditionManifest, 'AC-900', $fixture.Repo, 'missing-main')) -ne 0) { Pass 'condition remains inactive when the target ref is unavailable' } else { Fail 'condition activates when the target ref is unavailable' }
-    Invoke-Git $fixture.Repo @('switch', '-q', 'main')
-    Invoke-Git $fixture.Repo @('merge', '-q', '--no-ff', 'feature/epic-999-fixture', '-m', 'merge caller marker')
-    if ((Invoke-Evaluator @('condition', $conditionManifest, 'AC-900', $fixture.Repo, 'main')) -eq 0) { Pass 'executable_contains activates after the caller marker reaches main' } else { Fail 'executable_contains activates after the caller marker reaches main' }
+    foreach ($unsupported in @('file_contains(any,marker)', 'executable_contains(any,marker)')) {
+        $document[0].activation_condition = $unsupported
+        [IO.File]::WriteAllText($conditionManifest, ($document | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
+        $rc = Invoke-Evaluator @('condition', $conditionManifest, 'AC-900', $fixture.Repo, 'main')
+        if ($rc -eq 2) { Pass "unsupported activation predicate $unsupported is rejected" }
+        else { Fail "unsupported activation predicate $unsupported is rejected with exit 2 (got $rc)" }
+    }
 }
 function Test-CaseSensitiveTerminal {
     $fixture = New-Fixture 'merged-fingerprint-match'
@@ -260,10 +258,22 @@ function Test-ManifestContract {
     $validShape = $manifest.Count -eq 5 -and (@(Compare-Object $expectedIds $actualIds).Count -eq 0) -and (@(Compare-Object $expectedDigests $actualDigests).Count -eq 0)
     if (-not $validShape) { Fail 'AC-034 manifest contains exactly the five fixed entries and fingerprint values'; return }
     Pass 'AC-034 manifest contains exactly the five fixed entries and fingerprint values'
+    $expectedMergeReceipts = @{
+        A1 = 'a8d65c7316f53787121874968e14878bc90c75aa'
+        A5 = 'fe646175ba62256f71a560662a292dd84f6af8b1'
+    }
+    $mergeReceiptsValid = $true
+    foreach ($dependency in @($manifest | ForEach-Object { $_.dependencies })) {
+        if ($expectedMergeReceipts.ContainsKey($dependency.epic) -and $dependency.merged_commit -cne $expectedMergeReceipts[$dependency.epic]) {
+            $mergeReceiptsValid = $false
+        }
+    }
+    if ($mergeReceiptsValid) { Pass 'merged A1/A5 dependencies retain immutable integration receipts after branch cleanup' }
+    else { Fail 'merged A1/A5 dependencies retain immutable integration receipts after branch cleanup' }
     $suiteFiles = @('loop-consistency.tests.sh', 'loop-escalation.tests.sh', 'compatibility-byte-identical.tests.sh', 'structural-compatibility.tests.sh')
     $source = ($suiteFiles | ForEach-Object { Get-Content -Raw -LiteralPath (Join-Path $Root "tests/$_") }) -join "`n"
     foreach ($assertion in $expectedIds) {
-        if ($source -notmatch "skip_allowlist_line[^`n]*$assertion") { Fail "AC-016 $assertion output is not sourced through skip_allowlist_line"; return }
+        if ($source -notmatch "(?m)^(?![ \t]*#)[^\r\n]*skip_allowlist_line[^\r\n]*$assertion") { Fail "AC-016 $assertion output is not sourced through skip_allowlist_line"; return }
     }
     $ps1Source = Get-Content -Raw -LiteralPath (Join-Path $Root 'tests/structural-compatibility.tests.ps1')
     foreach ($assertion in @('AC-007', 'AC-042', 'AC-043')) {
@@ -272,7 +282,7 @@ function Test-ManifestContract {
     Pass 'AC-016 all five fixed SKIP assertions read from the manifest helper'
     $rendered = & pwsh -NoProfile -File $Evaluator line $ShippedManifest 'TEST-019.10b/AC-004+AC-021' AC-004 AC-021
     $renderExit = $LASTEXITCODE
-    $expectedLine = "$SkipPrefix TEST-019.10b/AC-004+AC-021 (Epic A1+Epic A5): blocked by issue #189+#193 until merged(A1) AND merged(A5) AND executable_contains(plugins/sdd-bootstrap,resolve-project-context);merged(A5) AND executable_contains(plugins/sdd-bootstrap,resolve-project-context)"
+    $expectedLine = "$SkipPrefix TEST-019.10b/AC-004+AC-021 (Epic A1+Epic A5): blocked by issue #189+#193 until merged(A1) AND merged(A5);merged(A5)"
     if ($renderExit -eq 0 -and $rendered -ceq $expectedLine) { Pass 'compound dependency rendering matches the Bash manifest contract' }
     else { Fail 'compound dependency rendering matches the Bash manifest contract' }
 }

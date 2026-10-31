@@ -1,0 +1,4 @@
+.github/workflows/test.yml: OK
+MUTATION-KILLED: staged workflow corruption invalidates MANIFEST.sha256
+.github/workflows/test.yml: OK
+RESTORE-GREEN: staged workflow and manifest agree

@@ -1,6 +1,6 @@
 {
   "feature": "epic-195-a7-compatibility",
-  "generated_by": "Derived mechanically from specs/epic-195-a7-compatibility/traceability.md by specs/epic-195-a7-compatibility/verification/qg-backfill/derive-traceability-json.py (re-run with --check to prove the two are still in sync). Authored during the T-001/T-002/T-003 verification-artifact backfill, because requirement-traceability is a required check at T-002's high risk tier (references/risk-gate-matrix.md) and this feature carried no JSON companion. traceability.md itself is unchanged: this file adds a machine-readable view, it does not restate or amend the reviewed one. REQ-009 is excluded by design -- it is Epic A1's own requirement with N/A test/code/evidence cells, and a fabricated test id would defeat the gate. Evidence arrays are populated only for REQ rows whose mapped tasks are Done (T-001, T-002, T-003); Planned rows carry no evidence key, per specs/epic-136-phase3/traceability.json's precedent.",
+  "generated_by": "Derived mechanically from specs/epic-195-a7-compatibility/traceability.md by specs/epic-195-a7-compatibility/verification/qg-backfill/derive-traceability-json.py (re-run with --check to prove the two are still in sync). Authored during the T-001/T-002/T-003 verification-artifact backfill, because requirement-traceability is a required check at T-002's high risk tier (references/risk-gate-matrix.md) and this feature carried no JSON companion. traceability.md itself is unchanged: this file adds a machine-readable view, it does not restate or amend the reviewed one. REQ-009 is excluded by design -- it is Epic A1's own requirement with N/A test/code/evidence cells, and a fabricated test id would defeat the gate. Evidence arrays are populated only for REQ rows whose mapped tasks are Done (T-001, T-002, T-003), plus explicitly scoped 2026-10-04 local records for REQ-002/003/004/007. evidence_state labels partial or pending obligations; require-evidence checks file existence only and is not an acceptance verdict. See T-004/requirement-evidence-register-20261004.md.",
   "schema": "REQ -> AC -> TEST -> evidence; validated by scripts/check-traceability.{sh,ps1}",
   "links": [
     {
@@ -39,6 +39,13 @@
         "TEST-031",
         "TEST-042",
         "TEST-043"
+      ],
+      "evidence_state": "local-offline-green; independent-gate-and-provenance-pending",
+      "evidence": [
+        "specs/epic-195-a7-compatibility/verification/T-004/activation-final-sh-20261004.log",
+        "specs/epic-195-a7-compatibility/verification/T-004/activation-final-ps1-20261004.log",
+        "specs/epic-195-a7-compatibility/verification/T-004/activation-mutation-sh-20261004.log",
+        "specs/epic-195-a7-compatibility/verification/T-004/activation-mutation-ps1-20261004.log"
       ]
     },
     {
@@ -86,6 +93,12 @@
         "TEST-036",
         "TEST-037",
         "TEST-039"
+      ],
+      "evidence_state": "partial; T-008-native-caller-and-independent-gate-pending",
+      "evidence": [
+        "specs/epic-195-a7-compatibility/verification/T-005/current-regression-20261003.md",
+        "specs/epic-195-a7-compatibility/verification/T-010/current-working-tree-regression-20261004.md",
+        "specs/epic-195-a7-compatibility/verification/T-008/native-resume-preconditions-20261004.md"
       ]
     },
     {
@@ -99,6 +112,10 @@
         "TEST-013",
         "TEST-017",
         "TEST-029"
+      ],
+      "evidence_state": "partial-document-review; AC-017-citation-sweep-pending",
+      "evidence": [
+        "specs/epic-195-a7-compatibility/verification/T-004/requirement-evidence-register-20261004.md"
       ]
     },
     {
@@ -156,6 +173,11 @@
         "TEST-035",
         "TEST-036",
         "TEST-037"
+      ],
+      "evidence_state": "partial; activation-conflict-and-native-caller-pending",
+      "evidence": [
+        "specs/epic-195-a7-compatibility/verification/T-010/coordinator-recheck-20261004.md",
+        "specs/epic-195-a7-compatibility/verification/T-010/current-working-tree-regression-20261004.md"
       ]
     }
   ]

@@ -1,0 +1,37 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "feature": "epic-195-a7-compatibility",
+  "run_id": "882a85fe-b330-4649-b7e1-6820f33ad584",
+  "host_session_id": "882a85fe-b330-4649-b7e1-6820f33ad584",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "304e6f00d51c2214b5ed44511257456c5dcc8a2d1b840b6b6eb0ce0fea7af687",
+  "previous_record_sha256": "0599e72ba9a2382aad1b7540bfbc7f45b3424abaefc010fb686933e4d9964a95",
+  "sequence": 1207,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "492f54a812be75ca20d0a05ec41dcf225f9b1b17cd512148498e02cf954dd96c"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "dca8c1551ea0f268fc02944a8e0fe078b557c416ef3f37649c7c33590fff6d13"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "7a908bed637e779925d11ef4bd396be0dfd88e20c2e300548302e055acafce57"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-20/round-1/precheck-result.json",
+      "sha256": "7b5ac7d0cdd8dc79d38df6348596f77e718f3021330b22c4bd5d26310434afec"
+    }
+  ]
+}

@@ -103,10 +103,26 @@ The agent reads inputs itself and writes:
 task-reviewer-a is read-only. It must not modify any spec file.
 Immediately before launch, persist a one-role
 `review-context-invocation/v2` manifest bound to the current hash/final record
-of `reports/review-context/identity-ledger.json`. Run
+of `reports/review-context/identity-ledger.json`. In ordinary host-issued mode, run
+the non-reserving `python3 -B
+plugins/sdd-review-loop/scripts/preflight-host-review.py <repository-root>
+<invocation-manifest> --manifest-sha256 <caller-pin>` first, where
+`<caller-pin>` is the invocation's raw SHA-256 computed independently of its
+contents. Pass `--runtime powershell` when reserving through the PowerShell
+validator; otherwise use the Bash default for both precheck and preview.
+For a CLI host append `--host-cli <actual-executable>` and
+`--help-subcommand=<name>` for each launch subcommand, then
+`--required-flag=<flag>` for each actual launch flag. For a non-CLI app, do not
+claim a CLI-help check. Require `HOST_REVIEW_PREFLIGHT_OK` with the pin unchanged
+immediately before reservation. This checks required inputs, dependencies,
+canonical preview, but does not prove effective
+permissions or reserve an identity; retain the separate host evidence.
+Then run
 `plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
 <invocation-manifest> <repository-root> --reserve` or the PowerShell equivalent
-with `-Reserve`, and require `REVIEW_CONTEXT_OK`. Missing/stale ledger state,
+with `-Reserve`, and require `REVIEW_CONTEXT_OK`. In non-TTY mode, call the
+shared launcher once instead; it performs reservation internally after preflight.
+Do not reserve manually before calling it. Missing/stale ledger state,
 caller-omitted history, or any non-zero result blocks launch.
 
 ### STEP 3 — Generate integrated-summary.json
@@ -160,10 +176,15 @@ its own inputs and writes:
 
 task-reviewer-b is read-only. It must not modify any spec file.
 Build a new one-role `review-context-invocation/v2` manifest from the ledger
-state after reviewer A. Immediately before launch, run
+state after reviewer A's successful delivery. In ordinary host-issued mode, run
+the same pinned non-reserving host preflight for B's own invocation immediately
+before running
 `validate-review-context-set` with `--reserve` (Bash) or `-Reserve`
 (PowerShell), require `REVIEW_CONTEXT_OK`, and launch exactly the reserved
-role/run/session. No future evaluator context is required.
+role/run/session. In non-TTY mode, call the shared launcher once instead; it
+performs reservation internally after preflight. Do not reserve manually before
+calling it. Failed reviewer A delivery forbids reviewer B reservation.
+No future evaluator context is required.
 
 ### STEP 5 — Merge Verdicts
 
@@ -338,3 +359,23 @@ Always show:
 4. All reviewer-b findings that are FAIL.
 5. Proposed changes (if NEEDS_WORK).
 6. Next steps instruction.
+
+## Claude non-TTY shared launch
+
+For Claude non-TTY task review, persist the ordinary complete role-specific
+invocation first, then use this entry instead of manually reserving either
+reviewer:
+
+```text
+rtk proxy python3 -B plugins/sdd-review-loop/scripts/launch-impl-review.py <absolute-repository-root> <absolute-invocation-path> <absolute-round-directory>/launch-<UUID>
+```
+
+The fresh UUID must match the proposed run and session identity. This entry
+runs the existing task precheck, exact input-set validation, CLI compatibility,
+unreserved native permission checks and dependency readback before the ordinary
+single reservation and launch. Stop on failure; do not reserve separately or
+reuse interrupted output. Other host routes retain their existing contract.
+Task normalized hashes remain the canonical precheck's responsibility. Raw
+transport snapshots detect intermediate changes but never replace normalized
+manifest or receipt hashes. Require verified delivery followed by the existing
+canonical task-output validation; delivery alone is not a review verdict.

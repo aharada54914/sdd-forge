@@ -1,0 +1,21 @@
+{
+  "schema_version": "structural-fixture-corpus/v1",
+  "fixture_state": "F2",
+  "recorded_at_model": "Codex fresh-context response (exact runtime model ID not exposed)",
+  "recorded_at_commit": "25813ee4baf8ae8fff344a6c979da61fbd23d2c7",
+  "refresh_procedure": "tests/structural-compatibility-live-refresh.tests.sh",
+  "artifacts": [
+    {
+      "path": "requirements.md",
+      "content": "# 要件（lite）: team-coffee-orders\n\n- **Issue/出典**: 提供された合成要件テキスト。社員が名前とコーヒーの希望を追加し、受取済みにできるチーム内注文一覧のメモリ内プロトタイプ。\n- **目的**: チームのコーヒー注文と受取状況を一つの一覧で確認できるようにする。\n\n## ユーザーストーリー / 要求\n- REQ-001: 社員として希望を伝えるために、合成の名前とコーヒーの希望を注文一覧に追加したい。\n- REQ-002: 社員として受取状況を共有するために、一覧の対象注文を受取済みにしたい。\n- REQ-003: 試作者として外部への接続なしで動作を確認するために、注文をメモリ内だけで扱いたい。\n\n## スコープ外\n- 認証、決済、外部呼び出し、永続化。\n- 実在人物の個人情報、合成の名前以外の個人情報。\n- 複数端末間の共有、注文の編集・削除、受取済みの取り消し。\n\n## Open Questions\n- 名前またはコーヒーの希望が空欄の場合、追加を拒否するか。\n- 同じ名前と希望による複数注文を許可するか。\n"
+    },
+    {
+      "path": "design.md",
+      "content": "# 設計（lite）: team-coffee-orders\n\n## 方針\n名前とコーヒーの希望を入力するフォームと、注文・受取状況の一覧を同じ画面に配置する。状態は画面のメモリ内で保持し、再読み込み後は空の一覧から開始する。各注文の識別子で受取対象を特定し、外部通信を伴わずに受取済みへ更新する。\n\n## 変更/新規ファイル\n- `src/coffee-orders.js` — 注文の追加と受取済みへの更新を扱うメモリ内状態。\n- `src/coffee-orders-view.js` — 入力フォーム、注文一覧、受取操作の表示と接続。\n- `tests/coffee-orders.test.js` — 追加、対象注文の受取、初期状態の検証。\n\n## データ/IF（必要時のみ）\n- 注文: `id`（内部識別子）、`name`（合成の名前）、`preference`（コーヒーの希望）、`collected`（受取済みかを表す真偽値）。\n- 追加: 名前と希望を受け取り、`collected: false` の注文をメモリ内一覧に追加する。\n- 受取: 注文の識別子を受け取り、その注文の `collected` を `true` にする。再度の受取操作でも `true` を維持する。\n- 空欄と重複注文の扱いは requirements.md の Open Questions 解消後に確定する。\n\n## テスト方針\n- 合成の名前と希望を追加すると、入力内容と未受取状態が一覧に現れることを確認する（REQ-001）。\n- 2件の注文から1件を受取済みにすると、対象だけが更新され、再操作でも受取済みを維持することを確認する（REQ-002）。\n- 状態を新規作成すると一覧が空であり、追加・受取操作で外部通信や永続化が発生しないことを確認する（REQ-003）。\n"
+    },
+    {
+      "path": "tasks.md",
+      "content": "# タスク（lite）: team-coffee-orders\n\n## T-001 注文一覧プロトタイプの作成\nApproval: Draft\nStatus: Planned\n\n### Scope\n- REQ-001〜REQ-003を対象に、メモリ内の注文状態、入力フォーム、一覧、受取操作を作成する。\n- `src/coffee-orders.js`、`src/coffee-orders-view.js`、`tests/coffee-orders.test.js`を対象とする。\n- 空欄と重複注文の扱いは、Open Questionsの回答を仕様に反映した後に実装する。\n\n### Done When\n- 合成の名前とコーヒーの希望を入力して追加すると、未受取の注文として一覧に表示される。\n- 2件ある注文の1件を受取済みにすると、選んだ注文だけが受取済みになり、再操作でもその状態を維持する。\n- 再読み込み後に一覧が空となり、追加と受取の操作で外部通信や永続化が発生しない。\n- 上記の追加、対象注文の更新、初期状態を検証するテストが通る。\n\n### Blockers\n- requirements.mdのOpen Questionsにある空欄と重複注文の扱いが未決定。\n"
+    }
+  ]
+}

@@ -8,6 +8,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'review-hash-normalization.ps1')
 function Fail([string]$Message) { throw "task-review-precheck: $Message" }
 function Test-AdrBoundFilePath {
     param([string]$Root, [string]$Relative)
@@ -306,17 +307,6 @@ function Get-PersistedAdrPassPaths {
 function Test-OrdinalEqual([object]$Left, [object]$Right) {
   return [string]::Equals([string]$Left, [string]$Right, [StringComparison]::Ordinal)
 }
-function Get-ReviewedHash([string]$Path, [string]$StatusField, [string]$ReviewedStatus) {
-  $content = [IO.File]::ReadAllText($Path)
-  $normalized = [Text.RegularExpressions.Regex]::Replace(
-    $content,
-    "(?m)^$([Text.RegularExpressions.Regex]::Escape($StatusField)):[^\r\n]*(\r?)$",
-    "${StatusField}: $ReviewedStatus`$1"
-  )
-  return [Convert]::ToHexString(
-    [Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($normalized))
-  ).ToLower()
-}
 # WFI-025: the STATUS-NORMALIZED task-plan digest -- the same recipe as
 # check-workflow-state.ps1 Get-NormalizedHash for the task stage (canonical
 # form 1), which the accepting side already admits. Recorded instead of the
@@ -355,7 +345,7 @@ function Get-ManifestRelativePath([string]$Path, [string]$RepoRoot) {
     # checkout that generated them. Relativize against the known repository
     # anchors so evidence stays verifiable from any checkout (issue #61).
     $anchorMatch = [Text.RegularExpressions.Regex]::Match(
-      $normalizedPath, '^.*/(?<tail>(specs|reports|plugins)/.+)$')
+      $normalizedPath, '^.*/(?<tail>(specs|reports|plugins|domain|design-system)/.+)$')
     if (-not $anchorMatch.Success) { return $null }
     $normalizedPath = $anchorMatch.Groups['tail'].Value
   }
@@ -390,6 +380,14 @@ function Assert-ContractReviewerAgreement([object]$Contract, [string]$Stage, [st
     if ($contractHash -and -not (Test-OrdinalEqual $contractHash $pinned['a'])) {
       Fail "persisted $Stage contract records a ${doc} hash neither reviewer read; the verdict does not belong to that text"
     }
+  }
+}
+function Get-ConditionalManifestPaths([string]$Stage) {
+  if ($Stage -ceq 'spec' -or $Stage -ceq 'impl') {
+    'domain/context-map.md'; 'domain/domain-contract.json'
+  }
+  if ($Stage -ceq 'impl') {
+    'design-system/design-tokens.json'; 'design-system/design-system.md'; 'design-system/ui-patterns.md'
   }
 }
 function Test-AllowedManifestPath(
@@ -434,6 +432,7 @@ function Test-AllowedManifestPath(
         'plugins/sdd-quality-loop/references/risk-classification-policy.md'
     }
   }
+  $allowed += @(Get-ConditionalManifestPaths $Stage)
   $validRole = (Test-OrdinalEqual $Role $roleA) -or (Test-OrdinalEqual $Role $roleB)
   $validPath = @($allowed | Where-Object { Test-OrdinalEqual $_ $Path }).Count -gt 0
   return $validRole -and $validPath
@@ -499,6 +498,18 @@ function Require-Pass(
     }
   }
   if ($manifest.Count -eq 0 -or $invalidManifest -or $duplicateManifestPath) { Fail "persisted $Stage contract has an invalid allowed input manifest" }
+  # Compare the historical pins, never today's conditional applicability.
+  foreach ($conditionalPath in @(Get-ConditionalManifestPaths $Stage)) {
+    $pins = foreach ($reviewer in $reviewers) {
+      $entries = @($reviewer.allowed_input_manifest | Where-Object {
+        Test-OrdinalEqual (Get-ManifestRelativePath $_.path $repoRoot) $conditionalPath
+      })
+      if ($entries.Count -eq 0) { '' } else { $entries[0].sha256 }
+    }
+    if (-not (Test-OrdinalEqual $pins[0] $pins[1])) {
+      Fail "persisted $Stage conditional input differs between reviewers"
+    }
+  }
   function Test-ManifestEntry([object]$Reviewer, [string]$ExpectedPath, [string[]]$AllowedHashes) {
     foreach ($entry in @($Reviewer.allowed_input_manifest)) {
       $relativePath = Get-ManifestRelativePath $entry.path $repoRoot

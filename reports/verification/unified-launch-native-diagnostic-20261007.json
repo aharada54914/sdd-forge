@@ -1,0 +1,16 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "feature": "synthetic-probe-not-formal-admission",
+  "run_id": "3408e4d0-4a65-4273-8c82-4abb5a53dd0d",
+  "host_session_id": "3408e4d0-4a65-4273-8c82-4abb5a53dd0d",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "f188aef257cb4afd5f0185aeff010d0fae6ee665f9aa2d0fbbb9ee2031c88c46"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "dca8c1551ea0f268fc02944a8e0fe078b557c416ef3f37649c7c33590fff6d13"}
+  ]
+}
