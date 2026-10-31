@@ -6,7 +6,8 @@ govern how plugins communicate and hand off control at version boundaries.
 ## Project skill observations
 
 `project-skill-manifest/v1` binds the declared executable entry and its skill
-file closure. `project-verification-observation/v2` binds runtime/toolchain identity, execution environment and results to
+file closure. V2 also represents document procedures with null runtime/entry;
+these remain draft/not-run and cannot supply execution PASS. `project-verification-observation/v2` binds runtime/toolchain identity, execution environment and results to
 their declared inputs and outputs. The bootstrap runner creates and executes the
 skill; the quality-loop validator checks those contracts. A trial observation is
 not task evidence, and neither validation nor generation grants task approval or

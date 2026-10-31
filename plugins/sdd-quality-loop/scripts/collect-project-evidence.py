@@ -13,7 +13,6 @@ import json
 import math
 import os
 import re
-import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -35,8 +34,11 @@ RUNNER = load_module(
 
 
 def runtime_identity(skill_bytes):
-    runtime = shutil.which(json.loads(skill_bytes)["runtime"])
-    return (runtime, V.digest(Path(runtime).read_bytes()) if runtime else None)
+    manifest = json.loads(skill_bytes)
+    if manifest.get("method") == "document":
+        return None, None
+    binding = V.runtime_environment(manifest)
+    return binding["runtime_path"], V.digest(json.dumps(binding, sort_keys=True).encode())
 
 
 def execute(root, task_path, skill, check_id, timeout, expected=None):

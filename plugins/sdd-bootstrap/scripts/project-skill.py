@@ -38,7 +38,11 @@ def save(path, value, exclusive=False):
         handle.write("\n")
 
 
-def seal(root, name, runtime, entry, checks, requires):
+def seal(root, name, runtime, entry, checks, requires, *, document_only=False):
+    if document_only and (runtime is not None or entry is not None or requires):
+        raise ValueError("document-procedure-cannot-declare-execution")
+    if not document_only and (runtime is None or entry is None):
+        raise ValueError("command-runtime-and-entry-required")
     directory = V.safe(root, "sdd/skills/" + V.relative(name))
     if not directory.is_dir():
         raise ValueError("skill-directory-missing")
@@ -62,8 +66,10 @@ def seal(root, name, runtime, entry, checks, requires):
             for path, sha in sorted(files.items())
         ],
     }
+    if document_only:
+        manifest.update(schema="project-skill-manifest/v2", method="document")
     V.schema(manifest, "project-skill-manifest.schema.json", "manifest-invalid")
-    if entry not in [f["path"] for f in manifest["files"]]:
+    if not document_only and entry not in [f["path"] for f in manifest["files"]]:
         raise ValueError("entry-not-in-closure")
     save(target, manifest, exclusive=True)
     try:
@@ -74,7 +80,9 @@ def seal(root, name, runtime, entry, checks, requires):
     return {
         "status": "draft",
         "manifest": target.relative_to(root).as_posix(),
-        "reason": "generation-is-not-validation",
+        "reason": "procedure-not-executable"
+        if document_only
+        else "generation-is-not-validation",
     }
 
 
@@ -93,7 +101,7 @@ def execute(argv, cwd, timeout, limit, *, input_fds=(), env=None):
                 str(write_fd),
                 "--timeout",
                 str(timeout),
-                *[part for fd in input_fds for part in ('--sealed-input-fd', str(fd))],
+                *[part for fd in input_fds for part in ("--sealed-input-fd", str(fd))],
                 "--",
                 *argv,
             ],
@@ -197,11 +205,16 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
             if not source.is_file():
                 raise ValueError("trial-input-must-be-file")
             admitted[path] = V.digest(source.read_bytes())
-    runtime_binding = V.runtime_environment(manifest)
+    document_only = manifest.get("method") == "document"
+    runtime_binding = (
+        {"runtime_path": None} if document_only else V.runtime_environment(manifest)
+    )
     runtime = runtime_binding["runtime_path"]
     missing = ([] if runtime else ["runtime"]) + [
         p for p in manifest["requires"] if shutil.which(p) is None
     ]
+    if document_only:
+        missing = []
     observation = {
         "schema": "project-verification-observation/v2",
         "mode": "task" if task else "trial",
@@ -249,7 +262,7 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
         "check_id": check,
         "inputs": admitted,
         "isolation": "temporary-data-directory; not an OS sandbox",
-        "reason": None,
+        "reason": "procedure-not-executable" if document_only else None,
         "observed_outputs": {},
         "observation": relative,
         "cleanup": False,
@@ -276,7 +289,7 @@ def run(root, name, check, timeout=30, inputs=(), task_path=None, output_limit=1
             # Validate admission/output boundaries before executing any command.
             if task:
                 V.source_records(execution, manifest, task, observation, skill_closure)
-            if not missing:
+            if not missing and not document_only:
                 if V.runtime_environment(manifest) != runtime_binding:
                     raise ValueError("runtime-changed")
                 started = datetime.datetime.now(datetime.timezone.utc).strftime(
@@ -401,6 +414,7 @@ def maintain(root, name, baseline, timeout):
         if not isinstance(sha, str) or not re.fullmatch("[0-9a-f]{64}", sha):
             raise ValueError("baseline-input-invalid")
     feature_dir = root / "sdd/skills" / name / "features"
+    feature_files, feature_checks = [], {}
     if feature_dir.exists():
         feature_files = sorted(
             p.name for p in feature_dir.glob("*.md") if p.name != "README.md"
@@ -422,6 +436,8 @@ def maintain(root, name, baseline, timeout):
             )
             if len(matches) != 1 or matches[0] not in manifest["checks"]:
                 unmapped.append(path)
+            else:
+                feature_checks[path] = matches[0]
         if missing or dangling or unmapped:
             return {
                 "status": "blocked",
@@ -431,6 +447,7 @@ def maintain(root, name, baseline, timeout):
                 "unmapped_features": unmapped,
                 "results": [],
                 "unexecuted": feature_files,
+                "unexecuted_checks": list(manifest["checks"]),
             }
     results = [
         run(
@@ -446,9 +463,16 @@ def maintain(root, name, baseline, timeout):
     ]
     changed = any(result["inputs"] != old["inputs"] for result in results)
     blocked = any(result["outcome"] != "passed" for result in results)
+    unexecuted_checks = [
+        result["check_id"]
+        for result in results
+        if result["outcome"] in ("unavailable", "not-run")
+    ]
     return {
         "status": "blocked" if blocked else "changed" if changed else "clean",
-        "classification": "environment-unavailable"
+        "classification": "procedure-not-executable"
+        if any(r["reason"] == "procedure-not-executable" for r in results)
+        else "environment-unavailable"
         if any(r["outcome"] in ("unavailable", "not-run") for r in results)
         else "product-regression-or-harness-gap"
         if blocked
@@ -456,7 +480,10 @@ def maintain(root, name, baseline, timeout):
         if changed
         else "none",
         "results": results,
-        "unexecuted": [],
+        "unexecuted": [
+            path for path in feature_files if feature_checks[path] in unexecuted_checks
+        ],
+        "unexecuted_checks": unexecuted_checks,
     }
 
 
@@ -570,8 +597,9 @@ def main(argv=None):
         p.add_argument("--root", required=True, type=Path)
         p.add_argument("--name", required=True)
         if command == "seal":
-            p.add_argument("--runtime", required=True)
-            p.add_argument("--entry", required=True)
+            p.add_argument("--runtime")
+            p.add_argument("--entry")
+            p.add_argument("--document-only", action="store_true")
             p.add_argument("--check", action="append", required=True)
             p.add_argument("--requires", action="append", default=[])
         elif command == "run":
@@ -588,13 +616,28 @@ def main(argv=None):
             )
             p.add_argument("--check", action="store_true")
     args = parser.parse_args(argv)
+    if args.command == "seal":
+        if args.document_only and (
+            args.runtime is not None or args.entry is not None or args.requires
+        ):
+            parser.error(
+                "--document-only cannot be combined with --runtime, --entry or --requires"
+            )
+        if not args.document_only and (args.runtime is None or args.entry is None):
+            parser.error("command skills require --runtime and --entry")
     if hasattr(args, "timeout") and (not 0 < args.timeout <= 3600):
         parser.error("--timeout must be between 0 and 3600 seconds")
     try:
         root = args.root.absolute()
         if args.command == "seal":
             result = seal(
-                root, args.name, args.runtime, args.entry, args.check, args.requires
+                root,
+                args.name,
+                args.runtime,
+                args.entry,
+                args.check,
+                args.requires,
+                document_only=args.document_only,
             )
         elif args.command == "run":
             result = run(

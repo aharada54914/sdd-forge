@@ -34,3 +34,7 @@ code or changes task approval/required verification.
    exact changed files, all executed/unexecuted features, entry points not reached,
    retained receipts, measured side effects and limitations. Source-only review is
    never a clean maintenance result. Leave the prior evidence unchanged.
+
+A documentation-only v2 procedure remains `blocked / procedure-not-executable`
+on maintenance. Source/host-wrapper checks cannot turn it into clean execution
+or a passing task check. Preserve its draft status and identify the unexecuted steps.

@@ -910,3 +910,5 @@ PreToolUse フック。プロジェクトルートに `AGENT_STOP` が存在す�
 - [../README.md](../README.md) — プロジェクト概要・フロー図
 - [workflow-guide.md](workflow-guide.md) — SDD ワークフロー全体フロー・実行例
 - [troubleshooting.md](troubleshooting.md) — よくあるエラー・解決方法
+
+文書中心の固有手順は `project-skill.py seal --root . --name <name> --document-only --check <check-id>` で記録できます。実行可能な手順ではないため draft/not-run を保持し、試行・保守から成功判定は生成されません。

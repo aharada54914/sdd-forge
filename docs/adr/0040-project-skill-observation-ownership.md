@@ -78,3 +78,19 @@ Historical v1 records remain syntactically readable and their original bytes
 are retained. Ran v1 records return `legacy-runtime-unbound` and supply no fresh
 execution fields; regenerate evidence with the actual runner instead of adding
 fingerprints to old records. Non-adopting legacy contracts are unaffected.
+
+## Documentation-only methods (manifest v2)
+
+The same manifest supports `method: command|document` in v2. Existing v1 bytes
+and command sealing remain unchanged. A document method requires null runtime
+and entry, empty args/requires, and SKILL.md in the closed source files. Schema
+and executable admission both reject attempts to attach execution to that method.
+A fabricated runtime name, a second document manifest or executing Markdown as
+a program were rejected because they obscure the lack of executable evidence.
+
+`seal --document-only` produces draft, refuses runtime/entry/requires options,
+and never overwrites existing manifests or handwritten text. Existing project
+wrappers remain usable. `run` records not-run without resolving/launching tools;
+cleanup=false means no process cleanup was demonstrated. `maintain` reports
+blocked/procedure-not-executable. Even a forged passed observation is refused.
+Documents can describe useful manual steps without pretending those steps ran.

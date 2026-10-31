@@ -360,3 +360,5 @@ claude mcp add ci-mcp --scope user -- node <install-root>/mcp/ci-mcp/dist/index.
 | 10. Blockedになる条件 | [docs/workflow-guide.md](docs/workflow-guide.md) (異常系) |
 | 11. バージョン移行ガイド | [CHANGELOG.md](CHANGELOG.md) |
 | 12. トラブルシューティング | [docs/troubleshooting.md](docs/troubleshooting.md) |
+
+文書中心の固有手順は `project-skill.py seal --root . --name <name> --document-only --check <check-id>` で記録できます。実行可能な手順ではないため draft/not-run を保持し、試行・保守から成功判定は生成されません。

@@ -15,7 +15,10 @@
   ],
   "properties": {
     "schema": {
-      "const": "project-skill-manifest/v1"
+      "enum": [
+        "project-skill-manifest/v1",
+        "project-skill-manifest/v2"
+      ]
     },
     "name": {
       "type": "string",
@@ -31,11 +34,17 @@
       "uniqueItems": true
     },
     "runtime": {
-      "type": "string",
+      "type": [
+        "string",
+        "null"
+      ],
       "pattern": "^[a-z][a-z0-9.+-]*$"
     },
     "entry": {
-      "type": "string",
+      "type": [
+        "string",
+        "null"
+      ],
       "minLength": 1
     },
     "args": {
@@ -77,6 +86,76 @@
       },
       "minItems": 1,
       "uniqueItems": true
+    },
+    "method": {
+      "enum": [
+        "command",
+        "document"
+      ]
     }
-  }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "schema": {
+          "const": "project-skill-manifest/v1"
+        },
+        "runtime": {
+          "type": "string"
+        },
+        "entry": {
+          "type": "string"
+        }
+      },
+      "not": {
+        "required": [
+          "method"
+        ]
+      }
+    },
+    {
+      "required": [
+        "method"
+      ],
+      "properties": {
+        "schema": {
+          "const": "project-skill-manifest/v2"
+        },
+        "method": {
+          "const": "command"
+        },
+        "runtime": {
+          "type": "string"
+        },
+        "entry": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "required": [
+        "method"
+      ],
+      "properties": {
+        "schema": {
+          "const": "project-skill-manifest/v2"
+        },
+        "method": {
+          "const": "document"
+        },
+        "runtime": {
+          "type": "null"
+        },
+        "entry": {
+          "type": "null"
+        },
+        "args": {
+          "const": []
+        },
+        "requires": {
+          "const": []
+        }
+      }
+    }
+  ]
 }

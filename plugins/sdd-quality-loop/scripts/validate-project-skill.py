@@ -223,6 +223,11 @@ def discover(root, skill, task=None):
             fail("manifest-missing")
         value, raw = load(path, "manifest-invalid")
         schema(value, "project-skill-manifest.schema.json", "manifest-invalid")
+        if value.get("method") == "document":
+            if value["runtime"] is not None or value["entry"] is not None or value["args"] or value["requires"]:
+                fail("manifest-invalid")
+        elif value["runtime"] is None or value["entry"] is None:
+            fail("manifest-invalid")
         if any(".." in arg for arg in value["args"]):
             fail("manifest-invalid")
         manifests[name] = value, raw
@@ -238,7 +243,9 @@ def discover(root, skill, task=None):
         fail("manifest-invalid")
     for path in paths:
         safe(root, prefix + relative(path))
-    if manifest["entry"] not in paths or "skill-manifest.json" in paths:
+    document_only = manifest.get("method") == "document"
+    if ((not document_only and manifest["entry"] not in paths)
+            or (document_only and "SKILL.md" not in paths) or "skill-manifest.json" in paths):
         fail("closure-escape")
     actual = files_under(root, prefix.rstrip("/"), "closure-escape")
     actual.pop(prefix + "skill-manifest.json", None)
@@ -324,6 +331,8 @@ def _validate(root, skill, observation_path=None, task_input_path=None):
     task_fields = {"task_id", "run_id", "task_input_manifest_sha256"}
     run_fields = {"started_at", "finished_at", "exit_code"}
     ran = obs["outcome"] in ("passed", "failed")
+    if manifest.get("method") == "document" and obs["outcome"] != "not-run":
+        fail("observation-invalid")
     if (task_fields & obs.keys()) != (task_fields if obs["mode"] == "task" else set()):
         fail("observation-invalid")
     if (run_fields & obs.keys()) != (run_fields if ran else set()):
