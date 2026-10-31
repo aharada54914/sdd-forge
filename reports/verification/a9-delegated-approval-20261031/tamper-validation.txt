@@ -1,0 +1,3 @@
+Changed signed approved_at without resigning.
+Exit code: 40
+validate-approval-sidecar: HMAC_MISMATCH: recomputed HMAC does not match the sidecar's stored hmac field -- hash match alone is never sufficient

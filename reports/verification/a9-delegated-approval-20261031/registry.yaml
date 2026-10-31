@@ -1,0 +1,4 @@
+schema: "sdd-approver-registry/v1"
+approvers:
+  - id: "aharada54914"
+    name: "aharada54914"
